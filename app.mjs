@@ -14,7 +14,8 @@ let walkmeshRenderer;
 let walkmeshScene, walkmeshCamera, walkmeshControls, walkmeshCameraHelper
 let bgScene, bgCamera
 let walkmeshMesh, walkmeshLines
-let clock;
+let clock
+let axesHelper
 
 let debugCamera, debugControls;
 
@@ -31,6 +32,7 @@ var options = {
         showDebugCamera: true,
         showWalkmeshMesh: false,
         showWalkmeshLines: true,
+        showAxes: false
     }
 };
 
@@ -289,7 +291,7 @@ const setupRenderer = () => {
             walkmeshRenderer.clear()
             walkmeshRenderer.render(walkmeshScene, options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera)
             walkmeshRenderer.clearDepth()
-            walkmeshRenderer.render(bgScene, bgCamera)
+            // walkmeshRenderer.render(bgScene, bgCamera)
         }
         stats.update();
         walkmeshCameraHelper.update()
@@ -324,7 +326,7 @@ const showDebug = async () => {
     fieldGUI.add(options, 'field', fields).onChange(function () {
         console.log('options', options, '-> fieldID')
         initField(options.field)
-    }).setValue(fields.tunnel_1)//cosin3
+    }).setValue(fields.nrthmk)//cosin3
 
     let debugGUI = gui.addFolder('Debug')
     debugGUI.add(options.debug, 'showDebugCamera').onChange(function () {
@@ -338,6 +340,10 @@ const showDebug = async () => {
     debugGUI.add(options.debug, 'showWalkmeshLines').onChange(function () {
         console.log('options', options, '-> showWalkmeshLines', walkmeshLines)
         walkmeshLines.visible = options.debug.showWalkmeshLines
+    })
+    debugGUI.add(options.debug, 'showAxes').onChange(() => {
+        console.log('options', options, '-> showAxes')
+        axesHelper.visible = options.debug.showAxes
     })
 
 
@@ -384,7 +390,8 @@ const placeModels = (mode) => {
     // sphere.position.set(0.2745535969734192, -0.2197556495666504, 0.0959818959236145)
     // walkmeshScene.add(sphere);
 
-    var axesHelper = new THREE.AxesHelper(0.1);
+    axesHelper = new THREE.AxesHelper(0.1);
+    axesHelper.visible = false
     walkmeshScene.add(axesHelper);
 
     for (let entity of currentFieldData.script.entities) {
@@ -474,17 +481,8 @@ const setupKeys = () => {
     }, false)
 
 }
-const setupCameraBG = () => {
-    const width = sizing.width * sizing.factor
-    const height = sizing.height * sizing.factor
 
-    bgCamera = new THREE.OrthographicCamera(- width / 2, width / 2, height / 2, - height / 2, 1, 10);
-    bgCamera.position.z = 30;
-
-    bgScene = new THREE.Scene()
-    // bgCamera.lookAt()
-}
-const imageDimensions = file => new Promise((resolve, reject) => {
+const imageDimensions = file => new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
         const { naturalWidth: width, naturalHeight: height } = img
@@ -492,30 +490,14 @@ const imageDimensions = file => new Promise((resolve, reject) => {
     }
     img.src = file
 })
-const visibleHeightAtZDepth = (depth, camera) => {
-    // compensate for cameras not positioned at z=0
-    const cameraOffset = camera.position.z;
-    if (depth < cameraOffset) depth -= cameraOffset;
-    else depth += cameraOffset;
-
-    // vertical fov in radians
-    const vFOV = camera.fov * Math.PI / 180;
-
-    // Math.abs to ensure the result is always positive
-    return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
-};
-
-const visibleWidthAtZDepth = (depth, camera) => {
-    const height = visibleHeightAtZDepth(depth, camera);
-    return height * camera.aspect;
-};
-
 const drawBG = async (x, y, z, color, distance, bg) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * walkmeshCamera.aspect
     console.log('drawBG', distance, '->', vH, vW)
     var geometry = new THREE.PlaneGeometry(vW, vH, 0)
-    var material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+    var texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${bg}.png`)
+    // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(geometry, material);
     plane.position.set(x, y, z)
     plane.lookAt(walkmeshCamera.position)
@@ -523,16 +505,23 @@ const drawBG = async (x, y, z, color, distance, bg) => {
     walkmeshScene.add(plane)
 }
 
-// let panzoom
 const placeBG = async (cameraTarget) => {
     let meta = await imageDimensions(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
 
     $('.holder, field-back').width(meta.width * sizing.factor)
     $('.holder, field-back').height(meta.height * sizing.factor)
 
+    const imageScaleFactor = {
+        width: meta.width / sizing.width,
+        height: meta.height / sizing.height,
+    }
+    console.log('imageScaleFactor', imageScaleFactor)
+    // walkmeshRenderer.setSize(meta.width * sizing.factor * imageScaleFactor.width, meta.height * sizing.factor * imageScaleFactor.height)
     walkmeshRenderer.setSize(meta.width * sizing.factor, meta.height * sizing.factor)
     walkmeshCamera.aspect = meta.width / meta.height
     walkmeshCamera.updateProjectionMatrix()
+    debugCamera.aspect = meta.width / meta.height
+    debugCamera.updateProjectionMatrix()
 
     const bgScale = meta.height / sizing.height
     console.log('image meta', meta, 'bgScale', bgScale)
@@ -552,15 +541,14 @@ const placeBG = async (cameraTarget) => {
     let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
 
     console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
-    // drawBG(cameraTarget.x, cameraTarget.y, cameraTarget.z, 0xffff00, 'asd')
-    drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xff0000, intendedDistance, 'asd')
+    // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xff0000, intendedDistance, options.field)
 
     const n = 3
     for (let i = 1; i <= n; i++) {
         let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
         // console.log('r', r)
         let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, r)
-        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xffff00, r, 'asd')
+        // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xffff00, r, 'asd')
     }
 
 
@@ -571,22 +559,11 @@ const placeBG = async (cameraTarget) => {
             />
     `
     $('.field-back').append(bgEle)
-
-    // const elem = document.getElementsByClassName('layer0')[0]
-    // panzoom = Panzoom(elem, {
-    //     minScale: 1
-    // })
-    // elem.addEventListener('wheel', panzoom.zoomWithWheel)
-
-
-
-    // walkmeshRenderer.setSize(sizing.width * sizing.factor, sizing.height * sizing.factor)
 }
 const initField = async (fieldName) => {
     currentFieldData = await loadField(fieldName)
     currentFieldModels = await loadModels()
     let cameraTarget = setupCamera()
-    let cameraBGPosition = setupCameraBG()
     drawWalkmesh()
     placeModels()
     placeBG(cameraTarget)
