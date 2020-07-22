@@ -104,9 +104,10 @@ const setupCamera = () => {
     console.log('Camera position', walkmeshCamera.position.x, walkmeshCamera.position.y, walkmeshCamera.position.z, 'facing', tx + camAxisZx, ty + camAxisZy, tz + camAxisZz, 'up', camAxisYx, camAxisYy, camAxisYz)
 
 
-    walkmeshCameraHelper = new THREE.CameraHelper(walkmeshCamera)
-    walkmeshCameraHelper.visible = true
     setupDebugCamera()
+    walkmeshCameraHelper = new THREE.CameraHelper(debugCamera)
+    walkmeshCameraHelper.visible = true
+    // walkmeshScene.add(walkmeshCameraHelper)
 
     // let viewport = walkmeshRenderer.getCurrentViewport()
     // console.log('viewport', viewport)
@@ -319,7 +320,7 @@ const showDebug = async () => {
     fieldGUI.add(options, 'field', fields).onChange(function () {
         console.log('options', options, '-> fieldID')
         initField(options.field)
-    }).setValue(fields.nmkin_4)//cosin3
+    }).setValue(fields.tunnel_1)//cosin3
 
     let debugGUI = gui.addFolder('Debug')
     debugGUI.add(options.debug, 'showDebugCamera').onChange(function () {
@@ -487,15 +488,25 @@ const imageDimensions = file => new Promise((resolve, reject) => {
     }
     img.src = file
 })
-
+const drawBG = async (x, y, z, color, bg) => {
+    var geometry = new THREE.PlaneGeometry(0.42, 0.42, 0)
+    var material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+    var plane = new THREE.Mesh(geometry, material);
+    plane.position.set(x, y, z) // lookAt
+    // plane.position.set(-0.2345, 0.136, 0.1395) // Half
+    // plane.position.set(0.427, 1.213, -0.657) // Double
+    plane.lookAt(debugCamera.position)
+    plane.setRotationFromEuler(debugCamera.rotation)
+    walkmeshScene.add(plane)
+}
 
 // let panzoom
 const placeBG = async (cameraTarget) => {
-    var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-    var cube = new THREE.Mesh(geometry, material)
-    // bgCamera.lookAt(cube)
-    bgScene.add(cube)
+    // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
+    // var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+    // var cube = new THREE.Mesh(geometry, material)
+    // // bgCamera.lookAt(cube)
+    // bgScene.add(cube)
 
     // walkmeshCamera.lookAt(cube)
     // walkmeshScene.add(cube)
@@ -518,21 +529,25 @@ const placeBG = async (cameraTarget) => {
     console.log('bgCenter', bgCenter)
     let bgCenterHalf = bgCenter.divideScalar(2)
     console.log('bgCenter half', bgCenterHalf)
-    var lookAtDistance = debugCamera.position.distanceTo(cameraTarget);
+    var lookAtDistance = debugCamera.position.distanceTo(cameraTarget)
+
     console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
+    let intendedDistance = 1
+    let intendedDistanceRatio = intendedDistance / lookAtDistance
+    let intendedVector3 = new THREE.Vector3().lerpVectors(debugCamera.position, cameraTarget, intendedDistanceRatio)
 
-    var geometry = new THREE.PlaneGeometry(0.42, 0.42, 0)
-    var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
-    var plane = new THREE.Mesh(geometry, material);
-    // plane.position.set(bgCenterHalf)
+    console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
+    // drawBG(cameraTarget.x, cameraTarget.y, cameraTarget.z, 0xffff00, 'asd')
+    drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xff0000, 'asd')
+    // drawBG(cameraTarget.x + 0.1, cameraTarget.y, cameraTarget.z, 0xff0000, 'asd')
 
-    // plane.position.set(0, 0.4, 0)
-    plane.position.set(cameraTarget.x, cameraTarget.y, cameraTarget.z) // lookAt
-    // plane.position.set(-0.2345, 0.136, 0.1395) // Half
-    // plane.position.set(0.427, 1.213, -0.657) // Double
-    plane.lookAt(debugCamera.position)
-    plane.setRotationFromEuler(debugCamera.rotation)
-    walkmeshScene.add(plane)
+    const n = 3
+    for (let i = 1; i <= n; i++) {
+        let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
+        console.log('r', r)
+        let intendedVector3 = new THREE.Vector3().lerpVectors(debugCamera.position, cameraTarget, r)
+        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xffff00, 'asd')
+    }
 
 
     $('.field-back').empty()
@@ -559,7 +574,6 @@ const initField = async (fieldName) => {
     let cameraTarget = setupCamera()
     let cameraBGPosition = setupCameraBG()
     drawWalkmesh()
-    // loadModels()
     placeModels()
     placeBG(cameraTarget)
     setupDebugControls(cameraTarget)
