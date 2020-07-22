@@ -11,13 +11,12 @@ import { GLTFLoader } from 'https://raw.githack.com/mrdoob/three.js/dev/examples
 let container, stats, gui;
 
 let walkmeshRenderer;
-let walkmeshScene, walkmeshCamera, walkmeshCameraHelper
+let walkmeshScene, walkmeshCamera, walkmeshControls, walkmeshCameraHelper
 let bgScene, bgCamera
 let walkmeshMesh, walkmeshLines
 let clock;
 
-let debugCamera;
-let debugControls;
+let debugCamera, debugControls;
 
 let currentFieldData, currentFieldModels
 
@@ -105,9 +104,9 @@ const setupCamera = () => {
 
 
     setupDebugCamera()
-    walkmeshCameraHelper = new THREE.CameraHelper(debugCamera)
+    walkmeshCameraHelper = new THREE.CameraHelper(walkmeshCamera)
     walkmeshCameraHelper.visible = true
-    // walkmeshScene.add(walkmeshCameraHelper)
+    walkmeshScene.add(walkmeshCameraHelper)
 
     // let viewport = walkmeshRenderer.getCurrentViewport()
     // console.log('viewport', viewport)
@@ -225,6 +224,18 @@ const drawWalkmesh = () => {
 
     walkmeshScene.add(walkmeshLines)
 }
+const setupControls = (cameraTarget) => {
+    walkmeshControls = new OrbitControls(walkmeshCamera, walkmeshRenderer.domElement);
+    walkmeshControls.target = cameraTarget
+    walkmeshControls.panSpeed = 1 / 4;
+    walkmeshControls.rotateSpeed = 1 / 4;
+    walkmeshControls.zoomSpeed = 1 / 4;
+    walkmeshControls.update()
+
+    walkmeshControls.enableZoom = false
+    walkmeshControls.enableRotate = false
+    walkmeshControls.enablePan = false
+}
 const setupDebugControls = (cameraTarget) => {
     debugControls = new OrbitControls(debugCamera, walkmeshRenderer.domElement);
     debugControls.target = cameraTarget
@@ -233,19 +244,12 @@ const setupDebugControls = (cameraTarget) => {
     debugControls.zoomSpeed = 1 / 4;
     debugControls.update()
 
-    if (!options.debug.showDebugCamera) {
-        debugControls.enableZoom = false
-        debugControls.enableRotate = false
-        debugControls.enablePan = false
-    }
+    // if (options.debug.showDebugCamera) {
+    debugControls.enableZoom = options.debug.showDebugCamera
+    debugControls.enableRotate = options.debug.showDebugCamera
+    debugControls.enablePan = options.debug.showDebugCamera
+    // }
     animateCamera()
-    // debugControls.dispose()
-
-    // debugControls = new FirstPersonControls(debugCamera, walkmeshRenderer.domElement)
-    // debugControls.update()
-    // debugControls = new FlyControls(walkmeshCamera, walkmeshRenderer.domElement)
-    // debugControls.target = cameraTarget
-    // debugControls.update()
 }
 const setupRenderer = () => {
     var walkmeshContainerElement = document.getElementById("container");
@@ -488,65 +492,75 @@ const imageDimensions = file => new Promise((resolve, reject) => {
     }
     img.src = file
 })
-const drawBG = async (x, y, z, color, bg) => {
-    var geometry = new THREE.PlaneGeometry(0.42, 0.42, 0)
+const visibleHeightAtZDepth = (depth, camera) => {
+    // compensate for cameras not positioned at z=0
+    const cameraOffset = camera.position.z;
+    if (depth < cameraOffset) depth -= cameraOffset;
+    else depth += cameraOffset;
+
+    // vertical fov in radians
+    const vFOV = camera.fov * Math.PI / 180;
+
+    // Math.abs to ensure the result is always positive
+    return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
+};
+
+const visibleWidthAtZDepth = (depth, camera) => {
+    const height = visibleHeightAtZDepth(depth, camera);
+    return height * camera.aspect;
+};
+
+const drawBG = async (x, y, z, color, distance, bg) => {
+    let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
+    let vW = vH * walkmeshCamera.aspect
+    console.log('drawBG', distance, '->', vH, vW)
+    var geometry = new THREE.PlaneGeometry(vW, vH, 0)
     var material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(geometry, material);
-    plane.position.set(x, y, z) // lookAt
-    // plane.position.set(-0.2345, 0.136, 0.1395) // Half
-    // plane.position.set(0.427, 1.213, -0.657) // Double
-    plane.lookAt(debugCamera.position)
-    plane.setRotationFromEuler(debugCamera.rotation)
+    plane.position.set(x, y, z)
+    plane.lookAt(walkmeshCamera.position)
+    plane.setRotationFromEuler(walkmeshCamera.rotation)
     walkmeshScene.add(plane)
 }
 
 // let panzoom
 const placeBG = async (cameraTarget) => {
-    // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1)
-    // var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-    // var cube = new THREE.Mesh(geometry, material)
-    // // bgCamera.lookAt(cube)
-    // bgScene.add(cube)
-
-    // walkmeshCamera.lookAt(cube)
-    // walkmeshScene.add(cube)
     let meta = await imageDimensions(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
 
     $('.holder, field-back').width(meta.width * sizing.factor)
     $('.holder, field-back').height(meta.height * sizing.factor)
 
     walkmeshRenderer.setSize(meta.width * sizing.factor, meta.height * sizing.factor)
-    debugCamera.aspect = meta.width / meta.height
-    debugCamera.updateProjectionMatrix()
+    walkmeshCamera.aspect = meta.width / meta.height
+    walkmeshCamera.updateProjectionMatrix()
 
     const bgScale = meta.height / sizing.height
     console.log('image meta', meta, 'bgScale', bgScale)
 
-    console.log('debugCamera.position', debugCamera.position)
-    console.log('debugCamera', debugCamera)
-    console.log('debugCamera target', cameraTarget)
-    let bgCenter = cameraTarget.clone().sub(debugCamera.position)
+    console.log('walkmeshCamera.position', walkmeshCamera.position)
+    console.log('walkmeshCamera', walkmeshCamera)
+    console.log('walkmeshCamera target', cameraTarget)
+    let bgCenter = cameraTarget.clone().sub(walkmeshCamera.position)
     console.log('bgCenter', bgCenter)
     let bgCenterHalf = bgCenter.divideScalar(2)
     console.log('bgCenter half', bgCenterHalf)
-    var lookAtDistance = debugCamera.position.distanceTo(cameraTarget)
+    var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
 
     console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 1
     let intendedDistanceRatio = intendedDistance / lookAtDistance
-    let intendedVector3 = new THREE.Vector3().lerpVectors(debugCamera.position, cameraTarget, intendedDistanceRatio)
+    let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
 
     console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
     // drawBG(cameraTarget.x, cameraTarget.y, cameraTarget.z, 0xffff00, 'asd')
-    drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xff0000, 'asd')
-    // drawBG(cameraTarget.x + 0.1, cameraTarget.y, cameraTarget.z, 0xff0000, 'asd')
+    drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xff0000, intendedDistance, 'asd')
 
     const n = 3
     for (let i = 1; i <= n; i++) {
         let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
-        console.log('r', r)
-        let intendedVector3 = new THREE.Vector3().lerpVectors(debugCamera.position, cameraTarget, r)
-        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xffff00, 'asd')
+        // console.log('r', r)
+        let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, r)
+        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, 0xffff00, r, 'asd')
     }
 
 
@@ -576,6 +590,7 @@ const initField = async (fieldName) => {
     drawWalkmesh()
     placeModels()
     placeBG(cameraTarget)
+    setupControls(cameraTarget)
     setupDebugControls(cameraTarget)
     setupRenderer()
     setupKeys()
