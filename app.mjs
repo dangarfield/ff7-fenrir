@@ -550,7 +550,7 @@ const placeBG = async (cameraTarget) => {
     var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
 
     console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
-    let intendedDistance = 1
+    let intendedDistance = 10
     let intendedDistanceRatio = intendedDistance / lookAtDistance
     let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
 
@@ -576,20 +576,21 @@ const placeBG = async (cameraTarget) => {
 
     // Add debug values
     // gui.__folders['Field Data'].remove('fov')
+    let guiToDelete = []
     if (gui.__folders['Field Data'].__controllers.length > 0) {
         console.log('gui', gui.__folders['Field Data'].__controllers.length)
         for (let i = 0; i < gui.__folders['Field Data'].__controllers.length; i++) {
             const controller = gui.__folders['Field Data'].__controllers[i]
             console.log('controller', controller, controller.property)
-            if (
-                controller.property === 'fov' ||
-                controller.property === 'aspect' ||
-                controller.property === 'width' ||
-                controller.property === 'height' ||
-                controller.property === 'bgScale') {
-                gui.__folders['Field Data'].remove(controller)
+            if (controller.property !== 'field') {
+                guiToDelete.push(controller)
             }
         }
+    }
+    for (let i = 0; i < guiToDelete.length; i++) {
+        const controller = guiToDelete[i];
+        gui.__folders['Field Data'].remove(controller)
+        console.log('gui - remove ->', controller.property)
     }
 
     gui.__folders['Field Data'].add(walkmeshCamera, 'fov').min(0).max(90).step(0.001).listen().onChange((val) => {
