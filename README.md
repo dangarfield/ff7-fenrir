@@ -14,11 +14,11 @@ I will prodeminately be looking at recreating the fields in the first instance. 
 ### Progress - Field
 - :white_check_mark: Extract all assets
 - :white_check_mark: Render walkmesh and models
-- :white_check_mark: Align walkmesh with static renders (Some mismatches on some fields)
+- :white_check_mark: Align walkmesh with static renders (Some mismatches on some fields. although this appears to be simple lateral movement)
 - :point_right: Apply 3D occlussion culling using Perspective Camera approach (may change approach to multiple blended orthogonal approaches)
 - :black_square_button: Orientation and scale of models on walkmesh
-- :black_square_button: Crop, zoom and centering for non-default viewport fields (320x240)
 - :black_square_button: Control character on screen
+- :black_square_button: Crop, zoom and centering for non-default viewport fields (320x240)
 - :black_square_button: Viewport follows character on screen
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators)

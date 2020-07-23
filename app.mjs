@@ -50,8 +50,8 @@ const setupCamera = () => {
     var ffCamera = currentFieldData.cameraSection.cameras[0]; // TODO: Support multiple cameras
 
     let baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951;
-    console.log('ffCamera', ffCamera)
-    console.log('baseFOV', baseFOV)
+    // console.log('ffCamera', ffCamera)
+    // console.log('baseFOV', baseFOV)
     walkmeshRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     walkmeshRenderer.setSize(sizing.width * sizing.factor, sizing.height * sizing.factor)
     walkmeshRenderer.autoClear = false
@@ -88,7 +88,7 @@ const setupCamera = () => {
     walkmeshCamera.position.y = ty;
     walkmeshCamera.position.z = tz;
     walkmeshCamera.up.set(camAxisYx, camAxisYy, camAxisYz)
-    console.log('up', camAxisYx, camAxisYy, camAxisYz)
+    // console.log('up', camAxisYx, camAxisYy, camAxisYz)
     walkmeshCamera.lookAt(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
 
     walkmeshCamera.updateProjectionMatrix()
@@ -101,7 +101,7 @@ const setupCamera = () => {
 
     let cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz);
 
-    console.log('Camera position', walkmeshCamera.position.x, walkmeshCamera.position.y, walkmeshCamera.position.z, 'facing', tx + camAxisZx, ty + camAxisZy, tz + camAxisZz, 'up', camAxisYx, camAxisYy, camAxisYz)
+    // console.log('Camera position', walkmeshCamera.position.x, walkmeshCamera.position.y, walkmeshCamera.position.z, 'facing', tx + camAxisZx, ty + camAxisZy, tz + camAxisZz, 'up', camAxisYx, camAxisYy, camAxisYz)
 
 
     setupDebugCamera()
@@ -219,7 +219,7 @@ const drawWalkmesh = () => {
         var line = new THREE.Line(geometry1, material1);
         walkmeshLines.add(line);
         if (lv0.x !== 0) {
-            console.log('Door', lv0, v0, '&', lv1, v1)
+            // console.log('Door', lv0, v0, '&', lv1, v1)
         }
     }
 
@@ -265,10 +265,10 @@ const setupRenderer = () => {
 
     var walkmeshTick = function () {
         // if (!app || app.isDestroyed) {
-        //     console.log("stopping walkmeshTick()", app);
+        //     // console.log("stopping walkmeshTick()", app);
         //     return;
         // } else {
-        //     console.log('walkmeshTick()', app)
+        //     // console.log('walkmeshTick()', app)
         // }
         // Note: Even if app.isAnimationEnabled == false, we must still
         // keep calling appTick(), to let the OrbitControls adjust the
@@ -306,11 +306,11 @@ const showStats = () => {
 const getFieldList = async () => {
     let chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
     let chapters = await chaptersRes.json()
-    console.log('chapters', chapters)
+    // console.log('chapters', chapters)
     let fields = {}
     for (let i = 0; i < chapters.length; i++) {
         const chapter = chapters[i]
-        console.log('chapter', chapter)
+        // console.log('chapter', chapter)
         for (let j = 0; j < chapter.fieldNames.length; j++) {
             const fieldName = chapter.fieldNames[j];
             fields[fieldName] = fieldName
@@ -323,26 +323,26 @@ const showDebug = async () => {
     gui = new GUI({ width: 250 })
     let fieldGUI = gui.addFolder('Field Data')
     fieldGUI.add(options, 'field', fields).onChange(function () {
-        console.log('options', options, '-> fieldID')
+        // console.log('options', options, '-> fieldID')
         initField(options.field)
-    }).setValue(fields.nrthmk)//cosin3
+    }).setValue(fields.md1stin)//cosin3
 
 
     let debugGUI = gui.addFolder('Debug')
     debugGUI.add(options.debug, 'showDebugCamera').onChange(function () {
-        console.log('options', options, '-> showDebugCamera')
+        // console.log('options', options, '-> showDebugCamera')
         animateCamera()
     }).setValue(options.debug.showDebugCamera)
     debugGUI.add(options.debug, 'showWalkmeshMesh').onChange(function () {
-        console.log('options', options, '-> showWalkmeshMesh')
+        // console.log('options', options, '-> showWalkmeshMesh')
         walkmeshMesh.visible = options.debug.showWalkmeshMesh
     })
     debugGUI.add(options.debug, 'showWalkmeshLines').onChange(function () {
-        console.log('options', options, '-> showWalkmeshLines', walkmeshLines)
+        // console.log('options', options, '-> showWalkmeshLines', walkmeshLines)
         walkmeshLines.visible = options.debug.showWalkmeshLines
     })
     debugGUI.add(options.debug, 'showAxes').onChange(() => {
-        console.log('options', options, '-> showAxes')
+        // console.log('options', options, '-> showAxes')
         axesHelper.visible = options.debug.showAxes
     })
 
@@ -362,7 +362,7 @@ const loadModels = async () => {
     for (let modelLoader of currentFieldData.model.modelLoaders) {
         const animGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId}.gltf`)
         modelLoader.animGLTF = await animGLTFRes.json()
-        console.log('modelLoader', modelLoader)
+        // console.log('modelLoader', modelLoader)
 
         let loader = new GLTFLoader().setPath(`${KUJATA_BASE}/data/field/char.lgp/`)
         let gltf = await loadModel(loader, `${modelLoader.hrcId}.gltf`)
@@ -371,16 +371,55 @@ const loadModels = async () => {
         gltf.userData['globalLight'] = modelLoader.globalLight
         gltf.userData['animations'] = modelLoader.animations
 
-        console.log('Loaded GLTF', gltf)
+        // console.log('Loaded GLTF', gltf)
         modelLoader.gltf = gltf
         // walkmeshScene.add(gltf)
         fieldModels.push(gltf)
     }
     return fieldModels
 }
+const getModelScaleDownValue = () => {
+    // const scaleDownValue = 1 / (currentFieldData.model.header.modelScale * 0.5)
+    // SEE workings-out -> getModelScaleDownValue.js
+    // [
+    //     { 'scale': '400', 'count': 4, 'exampleField': 'gidun_1' },
+    //     { 'scale': '448', 'count': 1, 'exampleField': 'rcktin3' },
+    //     { 'scale': '480', 'count': 2, 'exampleField': 'mkt_w' },
+    //     { 'scale': '512', 'count': 643, 'exampleField': 'ancnt1' },
+    //     { 'scale': '576', 'count': 5, 'exampleField': 'fship_2' },
+    //     { 'scale': '600', 'count': 5, 'exampleField': 'ealin_12' },
+    //     { 'scale': '640', 'count': 2, 'exampleField': 'del1' },
+    //     { 'scale': '650', 'count': 2, 'exampleField': 'mds7st3' },
+    //     { 'scale': '700', 'count': 6, 'exampleField': 'astage_b' },
+    //     { 'scale': '720', 'count': 1, 'exampleField': 'mtcrl_8' },
+    //     { 'scale': '768', 'count': 12, 'exampleField': 'bwhlin' },
+    //     { 'scale': '1024', 'count': 9, 'exampleField': 'ancnt3' },
+    //     { 'scale': '2048', 'count': 7, 'exampleField': 'fr_e' },
+    //     { 'scale': '4096', 'count': 2, 'exampleField': 'bugin1b' },
+    //     { 'scale': '5120', 'count': 1, 'exampleField': 'rootmap' }
+    // ]
+
+    // Looks like:
+    // 256  -> 1 / 1280        linear
+    // 512  -> 1 / 1024        linear
+    // 768  -> 1 / 768         linear
+    // 1024 -> 1 / 512         linear
+    // 2048 -> 1 / 256         power
+    // 4096 -> 1 / 128         power
+
+    let factor = ((currentFieldData.model.header.modelScale - 768) * -1) + 768
+    if (currentFieldData.model.header.modelScale >= 1024) {
+        factor = (Math.pow(2, (Math.log2(currentFieldData.model.header.modelScale) * -1) + 19))
+    }
+
+    const scaleDownValue = 1 / factor
+    console.log('getModelScaleDownValue', factor, scaleDownValue, currentFieldData.model.header.modelScale)
+    return scaleDownValue
+}
 const placeModels = (mode) => {
-    console.log('currentFieldData.script.entities', currentFieldData.script.entities)
-    console.log('currentFieldModels', currentFieldModels)
+    console.log('currentFieldData', currentFieldData)
+    // console.log('currentFieldData.script.entities', currentFieldData.script.entities)
+    // console.log('currentFieldModels', currentFieldModels)
 
     // let sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1)
     // sphere.position.set(0, 0, 0)
@@ -409,22 +448,27 @@ const placeModels = (mode) => {
                 }
                 if (op.op === 'XYZI') {
 
-                    console.log('fieldModelId', fieldModelId)
+                    // console.log('fieldModelId', fieldModelId)
                     fieldModel = currentFieldModels[fieldModelId]
 
-                    const scaleDownValue = 1 / (512 * 2)
+                    const scaleDownValue = getModelScaleDownValue()
                     if (fieldModelId !== undefined) {
-                        console.log('ops', entity, op, fieldModelId, fieldModel, fieldModel.scene)
+                        // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModel.scene)
                         fieldModel.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
                         fieldModel.scene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
-                        fieldModel.scene.rotateX(THREE.Math.degToRad(90))
+                        fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
+                        //fieldModel.scene.rotateX(THREE.Math.degToRad(90))
+
+                        console.log(entity.entityName, 'fieldModel.scene', op.i, fieldModel.scene, fieldModel.scene.rotation,)
                         walkmeshScene.add(fieldModel.scene)
                     }
                     // break placeOperationLoop
                 }
                 if (op.op === 'DIR' && fieldModel) {
-                    console.log('DIR', op)
-                    fieldModel.scene.rotateY(THREE.Math.degToRad(156 - op.d))
+                    // console.log('DIR', op)
+                    // TODO - Figure out how to get direction (156) into kujata-data
+                    // fieldModel.scene.rotateY(THREE.Math.degToRad(156 - op.d))
+                    fieldModel.scene.rotateY(THREE.Math.degToRad(45))
                     break placeOperationLoop
                 }
             }
@@ -446,7 +490,7 @@ const setupKeys = () => {
     let viewportPanSpeed = 1
     document.addEventListener("keydown", (event) => {
         var keyCode = event.which;
-        console.log('keyCode', event.which)
+        // console.log('keyCode', event.which)
 
         // walkmeshCamera.setViewOffset(viewport.width, viewport.height, 0, 0, viewport.width, viewport.height);
 
@@ -461,7 +505,7 @@ const setupKeys = () => {
         // }
         // console.log('viewOffset', viewOffset)
         if (keyCode == 27) {
-            console.log('toggle')
+            // console.log('toggle')
             $('#container').toggle()
         }
         if (keyCode == 37) { // Left key
@@ -493,7 +537,7 @@ const imageDimensions = file => new Promise((resolve) => {
 const drawBG = async (x, y, z, distance, bg) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * walkmeshCamera.aspect
-    console.log('drawBG', distance, '->', vH, vW)
+    // console.log('drawBG', distance, '->', vH, vW)
     var geometry = new THREE.PlaneGeometry(vW, vH, 0)
     var texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${bg}.png`)
     // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
@@ -512,15 +556,20 @@ const placeBG = async (cameraTarget) => {
         width: meta.width / sizing.width,
         height: meta.height / sizing.height,
         bgScale: meta.height / sizing.height,
-        adjustedFOV: walkmeshCamera.fov * (meta.height / sizing.height)
+        adjustedFOV: walkmeshCamera.fov * (meta.height / sizing.height),
+        cameraUnknown: currentFieldData.cameraSection.cameras[0].unknown,
+        modelScale: currentFieldData.model.header.modelScale,
+        scaleDownValue: getModelScaleDownValue(),
+        numModels: currentFieldData.model.header.numModels,
+
     }
-    console.log('imageScaleFactor', imageScaleFactor)
+    // console.log('imageScaleFactor', imageScaleFactor)
 
     $('.holder, field-back').width(meta.width * sizing.factor)
     $('.holder, field-back').height(meta.height * sizing.factor)
 
 
-    console.log('existing FOV', walkmeshCamera.fov, debugCamera.fov, walkmeshCamera.fov * imageScaleFactor.bgScale)
+    // console.log('existing FOV', walkmeshCamera.fov, debugCamera.fov, walkmeshCamera.fov * imageScaleFactor.bgScale)
     // let fov = baseFOV * meta.height * sizing.factor
     // console.log('fov', baseFOV, fov)
     // walkmeshCamera.fov = baseFOV
@@ -538,23 +587,23 @@ const placeBG = async (cameraTarget) => {
     debugCamera.updateProjectionMatrix()
 
 
-    console.log('image meta', meta, 'imageScaleFactor.bgScale', imageScaleFactor.bgScale)
+    // console.log('image meta', meta, 'imageScaleFactor.bgScale', imageScaleFactor.bgScale)
 
-    console.log('walkmeshCamera.position', walkmeshCamera.position)
-    console.log('walkmeshCamera', walkmeshCamera)
-    console.log('walkmeshCamera target', cameraTarget)
+    // console.log('walkmeshCamera.position', walkmeshCamera.position)
+    // console.log('walkmeshCamera', walkmeshCamera)
+    // console.log('walkmeshCamera target', cameraTarget)
     let bgCenter = cameraTarget.clone().sub(walkmeshCamera.position)
-    console.log('bgCenter', bgCenter)
+    // console.log('bgCenter', bgCenter)
     let bgCenterHalf = bgCenter.divideScalar(2)
-    console.log('bgCenter half', bgCenterHalf)
+    // console.log('bgCenter half', bgCenterHalf)
     var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
 
-    console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
+    // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 10
     let intendedDistanceRatio = intendedDistance / lookAtDistance
     let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
 
-    console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
+    // console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
     drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, options.field)
 
     const n = 3
@@ -578,10 +627,10 @@ const placeBG = async (cameraTarget) => {
     // gui.__folders['Field Data'].remove('fov')
     let guiToDelete = []
     if (gui.__folders['Field Data'].__controllers.length > 0) {
-        console.log('gui', gui.__folders['Field Data'].__controllers.length)
+        // console.log('gui', gui.__folders['Field Data'].__controllers.length)
         for (let i = 0; i < gui.__folders['Field Data'].__controllers.length; i++) {
             const controller = gui.__folders['Field Data'].__controllers[i]
-            console.log('controller', controller, controller.property)
+            // console.log('controller', controller, controller.property)
             if (controller.property !== 'field') {
                 guiToDelete.push(controller)
             }
@@ -590,11 +639,11 @@ const placeBG = async (cameraTarget) => {
     for (let i = 0; i < guiToDelete.length; i++) {
         const controller = guiToDelete[i];
         gui.__folders['Field Data'].remove(controller)
-        console.log('gui - remove ->', controller.property)
+        // console.log('gui - remove ->', controller.property)
     }
 
     gui.__folders['Field Data'].add(walkmeshCamera, 'fov').min(0).max(90).step(0.001).listen().onChange((val) => {
-        console.log('debug fov', val)
+        // console.log('debug fov', val)
         walkmeshCamera.fov = val
         walkmeshCamera.updateProjectionMatrix()
     })
@@ -602,9 +651,15 @@ const placeBG = async (cameraTarget) => {
     gui.__folders['Field Data'].add(meta, 'height')
     gui.__folders['Field Data'].add(walkmeshCamera, 'aspect')
     gui.__folders['Field Data'].add(imageScaleFactor, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
-        console.log('debug bgScale', val)
+        // console.log('debug bgScale', val)
         walkmeshRenderer.setSize(meta.width * sizing.factor * imageScaleFactor.bgScale, meta.height * sizing.factor * imageScaleFactor.bgScale)
     })
+    gui.__folders['Field Data'].add(imageScaleFactor, 'cameraUnknown')
+    gui.__folders['Field Data'].add(imageScaleFactor, 'modelScale')
+    gui.__folders['Field Data'].add(imageScaleFactor, 'numModels')
+    gui.__folders['Field Data'].add(imageScaleFactor, 'scaleDownValue').step(0.00001)
+
+
 
 }
 
