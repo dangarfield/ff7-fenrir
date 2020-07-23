@@ -84,7 +84,7 @@ a, button, input, select {
 	margin-top: 20px;
 	padding: 10px;
 }
-.holder {
+/* .holder {
     position: relative;
     overflow: hidden;
     width: 360px;
@@ -94,4 +94,4 @@ a, button, input, select {
     position: absolute;
     top: 0;
     left: 0;
-}
+} */
