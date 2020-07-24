@@ -25,7 +25,7 @@ let currentFieldData, currentFieldModels
 let sizing = {
     width: 320,
     height: 240,
-    factor: 2
+    factor: 1
 }
 var options = {
     field: 'cosin4',
@@ -566,7 +566,7 @@ const addFieldBackgroundDebug = (fieldBgMetaData) => {
     gui.__folders['Field Data'].add(walkmeshCamera, 'aspect')
     gui.__folders['Field Data'].add(fieldBgMetaData, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
         // console.log('debug bgScale', val)
-        walkmeshRenderer.setSize(meta.width * sizing.factor * fieldBgMetaData.bgScale, meta.height * sizing.factor * fieldBgMetaData.bgScale)
+        walkmeshRenderer.setSize(fieldBgMetaData.assetDimensions.width * sizing.factor * fieldBgMetaData.bgScale, fieldBgMetaData.assetDimensions.height * sizing.factor * fieldBgMetaData.bgScale)
     })
     gui.__folders['Field Data'].add(fieldBgMetaData, 'cameraUnknown')
     gui.__folders['Field Data'].add(fieldBgMetaData, 'modelScale')
@@ -599,7 +599,7 @@ const placeBG = async (cameraTarget) => {
         assetDimensions: assetDimensions,
         width: assetDimensions.width / sizing.width,
         height: assetDimensions.height / sizing.height,
-        bgScale: assetDimensions.height / sizing.height,
+        bgScale: 1, // assetDimensions.height / sizing.height,
         adjustedFOV: walkmeshCamera.fov * (assetDimensions.height / sizing.height),
         cameraUnknown: currentFieldData.cameraSection.cameras[0].unknown,
         modelScale: currentFieldData.model.header.modelScale,
