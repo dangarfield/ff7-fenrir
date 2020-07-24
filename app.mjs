@@ -7,6 +7,7 @@ import { OrbitControls } from 'https://raw.githack.com/mrdoob/three.js/dev/examp
 // import { FirstPersonControls } from './jsm/controls/FirstPersonControls.js';
 // import { VertexNormalsHelper } from './jsm/helpers/VertexNormalsHelper.js';
 import { GLTFLoader } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { SkeletonUtils } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 
 let container, stats, gui;
 
@@ -18,6 +19,7 @@ let clock
 let axesHelper
 let debugCamera, debugControls;
 
+let fieldBackgroundMetadata
 let currentFieldData, currentFieldModels
 
 let sizing = {
@@ -43,6 +45,12 @@ const KUJATA_BASE = '/kujata-data'
 const loadField = async (fieldName) => {
     const res = await fetch(`${KUJATA_BASE}/data/field/flevel.lgp/${fieldName}.json`)
     const fieldData = await res.json()
+
+    if (fieldBackgroundMetadata === undefined) {
+        const fieldBackgroundMetadataRes = await fetch(`/fenrir-data/field/backgrounds/backgrounds-metadata.json`)
+        fieldBackgroundMetadata = await fieldBackgroundMetadataRes.json()
+        console.log('fieldBackgroundMetadata', fieldBackgroundMetadata)
+    }
     return fieldData
 }
 
@@ -56,7 +64,7 @@ const setupCamera = () => {
     walkmeshRenderer.setSize(sizing.width * sizing.factor, sizing.height * sizing.factor)
     walkmeshRenderer.autoClear = false
     walkmeshScene = new THREE.Scene()
-    walkmeshScene.background = new THREE.Color(0xffffff);
+    walkmeshScene.background = new THREE.Color(0x000000);
     // walkmeshCamera = new THREE.PerspectiveCamera(baseFOV, sizing.width / sizing.height, 0.001 / 4096, 100000 / 4096);
     // walkmeshCamera = new THREE.PerspectiveCamera(baseFOV, sizing.width / sizing.height, 0.001 / 4096, 100000 / 4096);
     walkmeshCamera = new THREE.PerspectiveCamera(baseFOV, sizing.width / sizing.height, 0.001, 1000);
@@ -325,7 +333,7 @@ const showDebug = async () => {
     fieldGUI.add(options, 'field', fields).onChange(function () {
         // console.log('options', options, '-> fieldID')
         initField(options.field)
-    }).setValue(fields.md1stin)//cosin3
+    }).setValue(fields.tunnel_1)//cosin3
 
 
     let debugGUI = gui.addFolder('Debug')
@@ -372,8 +380,9 @@ const loadModels = async () => {
         gltf.userData['animations'] = modelLoader.animations
 
         // console.log('Loaded GLTF', gltf)
-        modelLoader.gltf = gltf
+        // modelLoader.gltf = gltf
         // walkmeshScene.add(gltf)
+
         fieldModels.push(gltf)
     }
     return fieldModels
@@ -413,7 +422,7 @@ const getModelScaleDownValue = () => {
     }
 
     const scaleDownValue = 1 / factor
-    console.log('getModelScaleDownValue', factor, scaleDownValue, currentFieldData.model.header.modelScale)
+    // console.log('getModelScaleDownValue', factor, scaleDownValue, currentFieldData.model.header.modelScale)
     return scaleDownValue
 }
 const placeModels = (mode) => {
@@ -437,6 +446,7 @@ const placeModels = (mode) => {
         // console.log('entity', entity)
         let fieldModelId
         let fieldModel
+        let fieldModelScene
         for (let script of entity.scripts) {
 
             // console.log('script', entity, script)
@@ -453,37 +463,30 @@ const placeModels = (mode) => {
 
                     const scaleDownValue = getModelScaleDownValue()
                     if (fieldModelId !== undefined) {
-                        // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModel.scene)
-                        fieldModel.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
-                        fieldModel.scene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
-                        fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
-                        //fieldModel.scene.rotateX(THREE.Math.degToRad(90))
+                        fieldModelScene = SkeletonUtils.clone(fieldModel.scene)
+                        // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModelScene)
+                        fieldModelScene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
+                        fieldModelScene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
+                        // fieldModelScene.rotation.x = THREE.Math.degToRad(90)
+                        fieldModelScene.rotateX(THREE.Math.degToRad(90))
 
-                        console.log(entity.entityName, 'fieldModel.scene', op.i, fieldModel.scene, fieldModel.scene.rotation,)
-                        walkmeshScene.add(fieldModel.scene)
+                        // console.log('fieldModelScene', entity.entityName, fieldModelId, op.i, fieldModelScene, fieldModelScene.rotation)
+                        walkmeshScene.add(fieldModelScene)
                     }
                     // break placeOperationLoop
                 }
                 if (op.op === 'DIR' && fieldModel) {
-                    // console.log('DIR', op)
+                    let deg = 360 * op.d / 255
+                    // console.log('DIR', op, deg)
                     // TODO - Figure out how to get direction (156) into kujata-data
-                    // fieldModel.scene.rotateY(THREE.Math.degToRad(156 - op.d))
-                    fieldModel.scene.rotateY(THREE.Math.degToRad(45))
+                    // triggers.header.controlDirection
+                    fieldModelScene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
+
+                    // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
                 }
             }
         }
-
-        // var lv0 = trigger.cornerVertex1;
-        // var lv1 = trigger.cornerVertex2;
-        // var v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096);
-        // var v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096);
-        // var material1 = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-        // var geometry1 = new THREE.Geometry();
-        // geometry1.vertices.push(v0);
-        // geometry1.vertices.push(v1);
-        // var line = new THREE.Line(geometry1, material1);
-        // walkmeshScene.add(line);
     }
 }
 const setupKeys = () => {
@@ -534,97 +537,8 @@ const imageDimensions = file => new Promise((resolve) => {
     }
     img.src = file
 })
-const drawBG = async (x, y, z, distance, bg) => {
-    let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
-    let vW = vH * walkmeshCamera.aspect
-    // console.log('drawBG', distance, '->', vH, vW)
-    var geometry = new THREE.PlaneGeometry(vW, vH, 0)
-    var texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${bg}.png`)
-    // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-    var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-    var plane = new THREE.Mesh(geometry, material);
-    plane.position.set(x, y, z)
-    plane.lookAt(walkmeshCamera.position)
-    plane.setRotationFromEuler(walkmeshCamera.rotation)
-    walkmeshScene.add(plane)
-}
-
-const placeBG = async (cameraTarget) => {
-    let meta = await imageDimensions(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
-
-    const imageScaleFactor = {
-        width: meta.width / sizing.width,
-        height: meta.height / sizing.height,
-        bgScale: meta.height / sizing.height,
-        adjustedFOV: walkmeshCamera.fov * (meta.height / sizing.height),
-        cameraUnknown: currentFieldData.cameraSection.cameras[0].unknown,
-        modelScale: currentFieldData.model.header.modelScale,
-        scaleDownValue: getModelScaleDownValue(),
-        numModels: currentFieldData.model.header.numModels,
-
-    }
-    // console.log('imageScaleFactor', imageScaleFactor)
-
-    $('.holder, field-back').width(meta.width * sizing.factor)
-    $('.holder, field-back').height(meta.height * sizing.factor)
-
-
-    // console.log('existing FOV', walkmeshCamera.fov, debugCamera.fov, walkmeshCamera.fov * imageScaleFactor.bgScale)
-    // let fov = baseFOV * meta.height * sizing.factor
-    // console.log('fov', baseFOV, fov)
-    // walkmeshCamera.fov = baseFOV
-    // debugCamera.fov = baseFOV
-    // walkmeshRenderer.setSize(meta.width * sizing.factor * imageScaleFactor.width, meta.height * sizing.factor * imageScaleFactor.height)
-    // walkmeshRenderer.setSize(meta.width * sizing.factor, meta.height * sizing.factor)
-    walkmeshRenderer.setSize(meta.width * sizing.factor * imageScaleFactor.bgScale, meta.height * sizing.factor * imageScaleFactor.bgScale)
-    walkmeshCamera.aspect = meta.width / meta.height
-    walkmeshCamera.fov = imageScaleFactor.adjustedFOV
-    walkmeshCamera.lookAt(cameraTarget)
-    walkmeshCamera.updateProjectionMatrix()
-    debugCamera.aspect = meta.width / meta.height
-    debugCamera.fov = imageScaleFactor.adjustedFOV
-    walkmeshCamera.lookAt(cameraTarget)
-    debugCamera.updateProjectionMatrix()
-
-
-    // console.log('image meta', meta, 'imageScaleFactor.bgScale', imageScaleFactor.bgScale)
-
-    // console.log('walkmeshCamera.position', walkmeshCamera.position)
-    // console.log('walkmeshCamera', walkmeshCamera)
-    // console.log('walkmeshCamera target', cameraTarget)
-    let bgCenter = cameraTarget.clone().sub(walkmeshCamera.position)
-    // console.log('bgCenter', bgCenter)
-    let bgCenterHalf = bgCenter.divideScalar(2)
-    // console.log('bgCenter half', bgCenterHalf)
-    var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
-
-    // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
-    let intendedDistance = 10
-    let intendedDistanceRatio = intendedDistance / lookAtDistance
-    let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
-
-    // console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
-    drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, options.field)
-
-    const n = 3
-    for (let i = 1; i <= n; i++) {
-        let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
-        // console.log('r', r)
-        let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, r)
-        // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, r, options.field)
-    }
-
-
-    $('.field-back').empty()
-    let bgEle = `
-        <img class="field layer0" src="${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png"
-            style="width:${meta.width * sizing.factor}px; height:${meta.height * sizing.factor}px; transform: scale(${imageScaleFactor.bgScale}) translate(0,0);"
-            />
-    `
-    // $('.field-back').append(bgEle)
-
+const addFieldBackgroundDebug = (fieldBgMetaData) => {
     // Add debug values
-    // gui.__folders['Field Data'].remove('fov')
     let guiToDelete = []
     if (gui.__folders['Field Data'].__controllers.length > 0) {
         // console.log('gui', gui.__folders['Field Data'].__controllers.length)
@@ -647,17 +561,105 @@ const placeBG = async (cameraTarget) => {
         walkmeshCamera.fov = val
         walkmeshCamera.updateProjectionMatrix()
     })
-    gui.__folders['Field Data'].add(meta, 'width')
-    gui.__folders['Field Data'].add(meta, 'height')
+    gui.__folders['Field Data'].add(fieldBgMetaData.assetDimensions, 'width')
+    gui.__folders['Field Data'].add(fieldBgMetaData.assetDimensions, 'height')
     gui.__folders['Field Data'].add(walkmeshCamera, 'aspect')
-    gui.__folders['Field Data'].add(imageScaleFactor, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
         // console.log('debug bgScale', val)
-        walkmeshRenderer.setSize(meta.width * sizing.factor * imageScaleFactor.bgScale, meta.height * sizing.factor * imageScaleFactor.bgScale)
+        walkmeshRenderer.setSize(meta.width * sizing.factor * fieldBgMetaData.bgScale, meta.height * sizing.factor * fieldBgMetaData.bgScale)
     })
-    gui.__folders['Field Data'].add(imageScaleFactor, 'cameraUnknown')
-    gui.__folders['Field Data'].add(imageScaleFactor, 'modelScale')
-    gui.__folders['Field Data'].add(imageScaleFactor, 'numModels')
-    gui.__folders['Field Data'].add(imageScaleFactor, 'scaleDownValue').step(0.00001)
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'cameraUnknown')
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'modelScale')
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'numModels')
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'scaleDownValue').step(0.00001)
+    gui.__folders['Field Data'].add(fieldBgMetaData, 'layersAvailable')
+}
+const drawBG = async (x, y, z, distance, bgImgUrl) => {
+    let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
+    let vW = vH * walkmeshCamera.aspect
+    // console.log('drawBG', distance, '->', vH, vW)
+    var geometry = new THREE.PlaneGeometry(vW, vH, 0)
+    console.log('drawBG texture load', bgImgUrl)
+    var texture = new THREE.TextureLoader().load(bgImgUrl)
+    // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true });
+    var plane = new THREE.Mesh(geometry, material);
+    plane.position.set(x, y, z)
+    plane.lookAt(walkmeshCamera.position)
+    plane.setRotationFromEuler(walkmeshCamera.rotation)
+    walkmeshScene.add(plane)
+}
+
+
+const placeBG = async (cameraTarget) => {
+    let assetDimensions = await imageDimensions(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
+
+    // Create meta-data
+    const fieldBgMetaData = {
+        assetDimensions: assetDimensions,
+        width: assetDimensions.width / sizing.width,
+        height: assetDimensions.height / sizing.height,
+        bgScale: assetDimensions.height / sizing.height,
+        adjustedFOV: walkmeshCamera.fov * (assetDimensions.height / sizing.height),
+        cameraUnknown: currentFieldData.cameraSection.cameras[0].unknown,
+        modelScale: currentFieldData.model.header.modelScale,
+        scaleDownValue: getModelScaleDownValue(),
+        numModels: currentFieldData.model.header.numModels,
+        layersAvailable: fieldBackgroundMetadata.hasOwnProperty(options.field)
+    }
+    // console.log('fieldBgMetaData', fieldBgMetaData)
+
+    // Rescale renderer and cameras for scene
+    walkmeshRenderer.setSize(assetDimensions.width * sizing.factor * fieldBgMetaData.bgScale, assetDimensions.height * sizing.factor * fieldBgMetaData.bgScale)
+    walkmeshCamera.aspect = assetDimensions.width / assetDimensions.height
+    walkmeshCamera.fov = fieldBgMetaData.adjustedFOV
+    walkmeshCamera.lookAt(cameraTarget)
+    walkmeshCamera.updateProjectionMatrix()
+    debugCamera.aspect = assetDimensions.width / assetDimensions.height
+    debugCamera.fov = fieldBgMetaData.adjustedFOV
+    walkmeshCamera.lookAt(cameraTarget)
+    debugCamera.updateProjectionMatrix()
+
+
+
+    // Draw backgrounds
+    var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
+    // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
+    let intendedDistance = 1
+    let intendedDistanceRatio = intendedDistance / lookAtDistance
+    let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
+
+    // console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
+
+    if (fieldBgMetaData.layersAvailable) {
+        for (let i = 0; i < fieldBackgroundMetadata[options.field].length; i++) {
+            const layer = fieldBackgroundMetadata[options.field][i]
+            if (layer.depth === 0) {
+                layer.depth = 1
+            }
+            // TODO - Need to get the distance
+            // TODO - Something is not right with the blending of layers here
+            let bgDistance = intendedDistance * (1 - (i / 10))
+            let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
+            console.log('layer', layer, intendedDistance, lookAtDistance, 1 / layer.depth, bgDistance)
+            // if (i === 1) {
+            drawBG(bgVector.x, bgVector.y, bgVector.z, 1 - (i / 10), `/fenrir-data/field/backgrounds/${options.field}/${layer.file}`)
+            // }
+        }
+    } else {
+        // Background Image
+        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
+
+        // Layered images for testing
+        const n = 3
+        for (let i = 1; i <= n; i++) {
+            let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
+            let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, r)
+            // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, r, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
+        }
+    }
+
+    addFieldBackgroundDebug(fieldBgMetaData)
 
 
 
