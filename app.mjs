@@ -13,7 +13,11 @@ let container, stats, gui;
 
 let walkmeshRenderer;
 let walkmeshScene, walkmeshCamera, walkmeshControls, walkmeshCameraHelper
-let bgScene, bgCamera
+
+let raycaster = new THREE.Raycaster()
+let mouse = new THREE.Vector2()
+let raycasterHelper
+
 let walkmeshMesh, walkmeshLines
 let clock
 let axesHelper
@@ -260,6 +264,33 @@ const setupDebugControls = (cameraTarget) => {
     // }
     animateCamera()
 }
+const setupRaycasting = async () => {
+    var geometry = new THREE.SphereGeometry(0.01, 32, 32)
+    var material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    raycasterHelper = new THREE.Mesh(geometry, material)
+    walkmeshScene.add(raycasterHelper)
+    window.addEventListener('mousemove', function (event) {
+        let canvasBounds = walkmeshRenderer.context.canvas.getBoundingClientRect();
+        mouse.x = ((event.clientX - canvasBounds.left) / (canvasBounds.right - canvasBounds.left)) * 2 - 1;
+        mouse.y = - ((event.clientY - canvasBounds.top) / (canvasBounds.bottom - canvasBounds.top)) * 2 + 1;
+
+        // mouse.x = ((event.clientX - walkmeshRenderer.domElement.offsetLeft) / walkmeshRenderer.domElement.clientWidth) * 2 - 1;
+        // mouse.y = - ((event.clientY - walkmeshRenderer.domElement.offsetTop) / walkmeshRenderer.domElement.clientHeight) * 2 + 1;
+        console.log('mouse', mouse)
+    }, false)
+}
+const raycasterRendering = (camera) => {
+
+    raycaster.setFromCamera(mouse, camera)
+    let intersects = raycaster.intersectObjects(walkmeshScene.children)
+    for (var i = 0; i < intersects.length; i++) {
+        // intersects[i].object.material.color.set(0xff0000)
+        const point = intersects[i].point
+        raycasterHelper.visible = true
+        raycasterHelper.position.set(point.x, point.y, point.z)
+        console.log('intersect point', point, raycasterHelper.position)
+    }
+}
 const setupRenderer = () => {
     var walkmeshContainerElement = document.getElementById("container");
 
@@ -269,6 +300,7 @@ const setupRenderer = () => {
     }
 
     walkmeshContainerElement.appendChild(walkmeshRenderer.domElement);
+    setupRaycasting()
     walkmeshRenderer.render(walkmeshScene, walkmeshCamera);
 
     var walkmeshTick = function () {
@@ -293,10 +325,13 @@ const setupRenderer = () => {
           }
         }
         */
+
         if (walkmeshRenderer && walkmeshScene && walkmeshCamera) {
             // console.log('render')
+            let activeCamera = options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera
+            raycasterRendering(activeCamera)
             walkmeshRenderer.clear()
-            walkmeshRenderer.render(walkmeshScene, options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera)
+            walkmeshRenderer.render(walkmeshScene, activeCamera)
             walkmeshRenderer.clearDepth()
             // walkmeshRenderer.render(bgScene, bgCamera)
         }
@@ -582,7 +617,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl) => {
     console.log('drawBG texture load', bgImgUrl)
     var texture = new THREE.TextureLoader().load(bgImgUrl)
     // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-    var material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true });
+    var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     var plane = new THREE.Mesh(geometry, material);
     plane.position.set(x, y, z)
     plane.lookAt(walkmeshCamera.position)
@@ -639,7 +674,7 @@ const placeBG = async (cameraTarget) => {
             }
             // TODO - Need to get the distance
             // TODO - Something is not right with the blending of layers here
-            let bgDistance = intendedDistance * (1 - (i / 10))
+            let bgDistance = intendedDistance * (1 - ((i * 1) / 10))
             let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
             console.log('layer', layer, intendedDistance, lookAtDistance, 1 / layer.depth, bgDistance)
             // if (i === 1) {
@@ -677,6 +712,7 @@ const initField = async (fieldName) => {
     setupRenderer()
     setupKeys()
 }
+
 const init = async () => {
 
     container = document.getElementById('container');
