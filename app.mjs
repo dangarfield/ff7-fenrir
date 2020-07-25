@@ -282,7 +282,7 @@ const setupRaycasting = async () => {
 const raycasterRendering = (camera) => {
 
     raycaster.setFromCamera(mouse, camera)
-    let intersects = raycaster.intersectObjects(walkmeshScene.children)
+    let intersects = raycaster.intersectObjects(walkmeshScene.children)//walkmeshMesh//walkmeshScene.children
     for (var i = 0; i < intersects.length; i++) {
         // intersects[i].object.material.color.set(0xff0000)
         const point = intersects[i].point
@@ -705,8 +705,8 @@ const initField = async (fieldName) => {
     currentFieldModels = await loadModels()
     let cameraTarget = setupCamera()
     drawWalkmesh()
-    placeModels()
-    placeBG(cameraTarget)
+    // placeModels()
+    // placeBG(cameraTarget)
     setupControls(cameraTarget)
     setupDebugControls(cameraTarget)
     setupRenderer()
