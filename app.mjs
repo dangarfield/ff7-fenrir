@@ -677,9 +677,9 @@ const placeBG = async (cameraTarget) => {
             let bgDistance = intendedDistance * (1 - ((i * 1) / 10))
             let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
             console.log('layer', layer, intendedDistance, lookAtDistance, 1 / layer.depth, bgDistance)
-            // if (i === 1) {
-            drawBG(bgVector.x, bgVector.y, bgVector.z, 1 - (i / 10), `/fenrir-data/field/backgrounds/${options.field}/${layer.file}`)
-            // }
+            if (layer.depth < 10000) {
+                drawBG(bgVector.x, bgVector.y, bgVector.z, 1 - (i / 10), `/fenrir-data/field/backgrounds/${options.field}/${layer.file}`)
+            }
         }
     } else {
         // Background Image
@@ -705,8 +705,8 @@ const initField = async (fieldName) => {
     currentFieldModels = await loadModels()
     let cameraTarget = setupCamera()
     drawWalkmesh()
-    // placeModels()
-    // placeBG(cameraTarget)
+    placeModels()
+    placeBG(cameraTarget)
     setupControls(cameraTarget)
     setupDebugControls(cameraTarget)
     setupRenderer()
