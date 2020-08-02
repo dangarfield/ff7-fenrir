@@ -7,6 +7,8 @@ We all love FF7, there are lots of Mods and an amazing community. As part of my 
 
 I will prodeminately be looking at recreating the fields in the first instance. Ideally it will use the in game assets (`.lgp`'s etc), but I will start using generated json fields and pngs for a start.
 
+Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
+
 ### Installation
 - None, just use the github.io url to view: 'tbc'
 - To run locally, install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser
