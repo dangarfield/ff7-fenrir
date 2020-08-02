@@ -23,8 +23,7 @@ let clock
 let axesHelper
 let debugCamera, debugControls;
 
-let fieldBackgroundMetadata
-let currentFieldData, currentFieldModels
+let currentFieldData, currentFieldBackgroundMetaData, currentFieldModels
 
 let sizing = {
     width: 320,
@@ -49,13 +48,13 @@ const KUJATA_BASE = '/kujata-data'
 const loadField = async (fieldName) => {
     const res = await fetch(`${KUJATA_BASE}/data/field/flevel.lgp/${fieldName}.json`)
     const fieldData = await res.json()
-
-    if (fieldBackgroundMetadata === undefined) {
-        const fieldBackgroundMetadataRes = await fetch(`/fenrir-data/field/backgrounds/backgrounds-metadata.json`)
-        fieldBackgroundMetadata = await fieldBackgroundMetadataRes.json()
-        console.log('fieldBackgroundMetadata', fieldBackgroundMetadata)
-    }
     return fieldData
+}
+const loadFieldBackground = async (fieldName) => {
+    const bgMetaRes = await fetch(`${KUJATA_BASE}/metadata/background-layers/${fieldName}/${fieldName}.json`)
+    const bgMetaData = await bgMetaRes.json()
+    console.log('bgMetaData', bgMetaData)
+    return bgMetaData
 }
 
 const setupCamera = () => {
@@ -300,7 +299,7 @@ const setupRenderer = () => {
     }
 
     walkmeshContainerElement.appendChild(walkmeshRenderer.domElement);
-    setupRaycasting()
+    // setupRaycasting()
     walkmeshRenderer.render(walkmeshScene, walkmeshCamera);
 
     var walkmeshTick = function () {
@@ -329,7 +328,7 @@ const setupRenderer = () => {
         if (walkmeshRenderer && walkmeshScene && walkmeshCamera) {
             // console.log('render')
             let activeCamera = options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera
-            raycasterRendering(activeCamera)
+            // raycasterRendering(activeCamera)
             walkmeshRenderer.clear()
             walkmeshRenderer.render(walkmeshScene, activeCamera)
             walkmeshRenderer.clearDepth()
@@ -640,7 +639,7 @@ const placeBG = async (cameraTarget) => {
         modelScale: currentFieldData.model.header.modelScale,
         scaleDownValue: getModelScaleDownValue(),
         numModels: currentFieldData.model.header.numModels,
-        layersAvailable: fieldBackgroundMetadata.hasOwnProperty(options.field)
+        layersAvailable: currentFieldBackgroundMetaData !== undefined
     }
     // console.log('fieldBgMetaData', fieldBgMetaData)
 
@@ -664,26 +663,24 @@ const placeBG = async (cameraTarget) => {
     let intendedDistanceRatio = intendedDistance / lookAtDistance
     let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
 
-    // console.log('intendedDistance', intendedDistance, intendedDistanceRatio, intendedVector3)
 
     if (fieldBgMetaData.layersAvailable) {
-        for (let i = 0; i < fieldBackgroundMetadata[options.field].length; i++) {
-            const layer = fieldBackgroundMetadata[options.field][i]
+        currentFieldBackgroundMetaData
+        for (let i = 0; i < currentFieldBackgroundMetaData.length; i++) {
+            const layer = currentFieldBackgroundMetaData[i]
             if (layer.depth === 0) {
                 layer.depth = 1
             }
-            // TODO - Need to get the distance
-            // TODO - Something is not right with the blending of layers here
-            let bgDistance = intendedDistance * (1 - ((i * 1) / 10))
+
+            const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+            console.log('Layer', layer, bgDistance)
+
             let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
-            console.log('layer', layer, intendedDistance, lookAtDistance, 1 / layer.depth, bgDistance)
-            if (layer.depth < 10000) {
-                drawBG(bgVector.x, bgVector.y, bgVector.z, 1 - (i / 10), `/fenrir-data/field/backgrounds/${options.field}/${layer.file}`)
-            }
+            drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`)
         }
     } else {
         // Background Image
-        drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
+        // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
 
         // Layered images for testing
         const n = 3
@@ -702,6 +699,7 @@ const placeBG = async (cameraTarget) => {
 
 const initField = async (fieldName) => {
     currentFieldData = await loadField(fieldName)
+    currentFieldBackgroundMetaData = await loadFieldBackground(fieldName)
     currentFieldModels = await loadModels()
     let cameraTarget = setupCamera()
     drawWalkmesh()
