@@ -40,8 +40,7 @@ var options = {
     }
 };
 
-// const KUJATA_BASE = 'https://raw.githack.com/picklejar76/kujata-data/master' // TODO, move to CDN requests
-const KUJATA_BASE = '/kujata-data'
+const KUJATA_BASE = window.location.host.includes('localhost') ? 'kujata-data' : 'https://kujata-data-dg.netlify.app'
 
 
 
