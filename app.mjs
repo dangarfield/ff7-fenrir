@@ -18,24 +18,41 @@ let raycaster = new THREE.Raycaster()
 let mouse = new THREE.Vector2()
 let raycasterHelper
 
-let walkmeshMesh, walkmeshLines
+let walkmeshMesh, walkmeshLines, backgroundLayers
 let clock
 let axesHelper
 let debugCamera, debugControls;
 
-let currentFieldData, currentFieldBackgroundMetaData, currentFieldModels
+let currentFieldData, currentFieldBackgroundMetaData, currentFieldModels, currentPlayableCharacter
 
+let input = {
+    up: false,
+    right: false,
+    down: false,
+    left: false,
+    x: false,
+    o: false,
+    square: false,
+    triangle: false,
+    l1: false,
+    l2: false,
+    r1: false,
+    r2: false,
+    select: false,
+    start: false
+}
 let sizing = {
     width: 320,
     height: 240,
     factor: 1
 }
 var options = {
-    field: 'cosin4',
+    field: 'nrthmk',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: true,
         showWalkmeshLines: true,
+        showBackgroundLayers: true,
         showAxes: false
     }
 };
@@ -323,7 +340,7 @@ const setupRenderer = () => {
           }
         }
         */
-
+        updateFieldMovement()
         if (walkmeshRenderer && walkmeshScene && walkmeshCamera) {
             // console.log('render')
             let activeCamera = options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera
@@ -361,12 +378,12 @@ const getFieldList = async () => {
 }
 const showDebug = async () => {
     let fields = await getFieldList()
-    gui = new GUI({ width: 250 })
+    gui = new GUI({ width: 250, hideable: false })
     let fieldGUI = gui.addFolder('Field Data')
     fieldGUI.add(options, 'field', fields).onChange(function () {
         // console.log('options', options, '-> fieldID')
         initField(options.field)
-    }).setValue(fields.tunnel_1)//cosin3
+    }).setValue(options.field)
 
 
     let debugGUI = gui.addFolder('Debug')
@@ -382,11 +399,30 @@ const showDebug = async () => {
         // console.log('options', options, '-> showWalkmeshLines', walkmeshLines)
         walkmeshLines.visible = options.debug.showWalkmeshLines
     })
+    debugGUI.add(options.debug, 'showBackgroundLayers').onChange(function () {
+        // console.log('options', options, '-> showBackgroundLayers', backgroundLayers)
+        backgroundLayers.visible = options.debug.showBackgroundLayers
+    })
     debugGUI.add(options.debug, 'showAxes').onChange(() => {
         // console.log('options', options, '-> showAxes')
         axesHelper.visible = options.debug.showAxes
     })
 
+    let inputsGUI = gui.addFolder('Inputs')
+    inputsGUI.add(input, 'up').listen()
+    inputsGUI.add(input, 'right').listen()
+    inputsGUI.add(input, 'down').listen()
+    inputsGUI.add(input, 'left').listen()
+    inputsGUI.add(input, 'x').listen()
+    inputsGUI.add(input, 'o').listen()
+    inputsGUI.add(input, 'square').listen()
+    inputsGUI.add(input, 'triangle').listen()
+    inputsGUI.add(input, 'l1').listen()
+    inputsGUI.add(input, 'l2').listen()
+    inputsGUI.add(input, 'r1').listen()
+    inputsGUI.add(input, 'r2').listen()
+    inputsGUI.add(input, 'select').listen()
+    inputsGUI.add(input, 'start').listen()
 
     animateCamera()
 }
@@ -480,6 +516,7 @@ const placeModels = (mode) => {
         let fieldModelId
         let fieldModel
         let fieldModelScene
+        let playableCharacter
         for (let script of entity.scripts) {
 
             // console.log('script', entity, script)
@@ -500,67 +537,105 @@ const placeModels = (mode) => {
                         // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModelScene)
                         fieldModelScene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
                         fieldModelScene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
-                        // fieldModelScene.rotation.x = THREE.Math.degToRad(90)
-                        fieldModelScene.rotateX(THREE.Math.degToRad(90))
+                        fieldModelScene.rotation.x = THREE.Math.degToRad(90)
+                        fieldModelScene.up.set(0, 0, 1)
 
-                        // console.log('fieldModelScene', entity.entityName, fieldModelId, op.i, fieldModelScene, fieldModelScene.rotation)
+                        walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModelScene.position, 0.1, 0xffff00))
+
+                        // fieldModelScene.rotateY(THREE.Math.degToRad(90))
+
+                        console.log('fieldModelScene', entity.entityName, fieldModelId, op.i, fieldModelScene, fieldModelScene.rotation)
                         walkmeshScene.add(fieldModelScene)
                     }
                     // break placeOperationLoop
                 }
                 if (op.op === 'DIR' && fieldModel) {
                     let deg = 360 * op.d / 255
-                    // console.log('DIR', op, deg)
+                    console.log('DIR', op, deg)
                     // TODO - Figure out how to get direction (156) into kujata-data
                     // triggers.header.controlDirection
                     fieldModelScene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
-
+                    if (playableCharacter) {
+                        currentPlayableCharacter = fieldModelScene
+                        var box = new THREE.BoxHelper(fieldModelScene, 0xffff00)
+                        walkmeshScene.add(box)
+                    }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
+                }
+                if (op.op === 'PC') {
+                    console.log('PC', op)
+                    // if (op.c === 0) { // Cloud
+                    //     console.log('cloud is playable char')
+                    playableCharacter = true
                 }
             }
         }
     }
 }
-const setupKeys = () => {
-    let viewportPanSpeed = 1
-    document.addEventListener("keydown", (event) => {
-        var keyCode = event.which;
-        // console.log('keyCode', event.which)
 
-        // walkmeshCamera.setViewOffset(viewport.width, viewport.height, 0, 0, viewport.width, viewport.height);
 
-        // let viewport = walkmeshRenderer.getCurrentViewport()
-        // console.log('viewport', viewport)
-        // let viewOffset = walkmeshCamera.view
-        // let offsetX = (-viewport.w / 2) - (viewport.w / 19.5)
-        // let offsetY = (viewport.w / 30)
-        // if (viewOffset) {
-        //     offsetX = viewOffset.offsetX
-        //     offsetY = viewOffset.offsetY
-        // }
-        // console.log('viewOffset', viewOffset)
-        if (keyCode == 27) {
-            // console.log('toggle')
-            $('#container').toggle()
-        }
-        if (keyCode == 37) { // Left key
-            // offsetX = offsetX - viewportPanSpeed
-        } else if (keyCode == 39) { // Right key
-            // offsetX = offsetX + viewportPanSpeed
-        } else if (keyCode == 38) { // Up key
-            // offsetY = offsetY - viewportPanSpeed
-        } else if (keyCode == 40) { // Down key
-            // offsetY = offsetY + viewportPanSpeed
-        }
-        // walkmeshRenderer.setViewport(viewport)
+const updateFieldMovement = () => {
+    // Get active player
+    if (!currentPlayableCharacter) {
+        return
+    }
 
-        let offsetScale = 1.705
-        // walkmeshCamera.setViewOffset(viewport.w / offsetScale, viewport.z / offsetScale, offsetX, offsetY, viewport.z, viewport.w)
+    let speed = input.x ? 0.005 : 0.001 // run: walk
+    // Find direction that player should be facing
 
-    }, false)
+    let direction = 0 //128 + currentFieldData.triggers.header.controlDirection ???
+    // console.log('currentFieldData.triggers.header.controlDirection', angle)
+    let shouldMove = true
+    if (input.up && input.right) { direction += 45 }
+    else if (input.right && input.down) { direction += 135 }
+    else if (input.down && input.left) { direction += 225 }
+    else if (input.left && input.up) { direction += 315 }
+    else if (input.up) { direction += 0 }
+    else if (input.right) { direction += 90 }
+    else if (input.down) { direction += 180 }
+    else if (input.left) { direction += 270 }
+    else { shouldMove = false }
+
+    if (!shouldMove) {
+        // If no movement but animation - stop animation (stand)
+        return
+    }
+    // Set player in direction
+    let directionRadians = THREE.Math.degToRad(direction)
+    // console.log('directionRadians', direction, directionRadians, currentPlayableCharacter.rotation)
+
+
+    let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
+    // console.log('directionVector', directionVector, currentFieldData.triggers.header.controlDirection)
+    walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.position, 0.1, 0xff00ff))
+    // currentPlayableCharacter.lookAt(new THREE.Vector3(0, 0, 0))
+    // currentPlayableCharacter.lookAt(directionVector)
+    // walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3().crossVectors(directionVector, currentPlayableCharacter.position), currentPlayableCharacter.position, 0.1, 0xff00ff))
+
+    // green axis === 128 direction
+    // currentPlayableCharacter.rotateOnAxis(new THREE.Vector3(0, 1, 0), directionRadians)
+    // currentPlayableCharacter.translateOnAxis(directionVector, speed)
+    currentPlayableCharacter.position.addScaledVector(directionVector, speed)
+    // currentPlayableCharacter.lookAt(directionVector)
+    // currentPlayableCharacter.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), directionRadians)
+
+    // let vector = new THREE.Vector3(0, 1, 0).applyEuler(currentPlayableCharacter.rotation)
+    // console.log('vector from euler', vector)
+    // currentPlayableCharacter.setRotationFromAxisAngle(new THREE.Vector3(0, 0, 1), directionRadians)
+
+    // Calculate next position, eg, position on walkmesh, collision with other models etc
+
+    // If movement but no animation - start animation (walk / run)
+
+    // If movement set next position
+
+
+
+
 
 }
+
 
 const imageDimensions = file => new Promise((resolve) => {
     const img = new Image()
@@ -607,12 +682,12 @@ const addFieldBackgroundDebug = (fieldBgMetaData) => {
     gui.__folders['Field Data'].add(fieldBgMetaData, 'scaleDownValue').step(0.00001)
     gui.__folders['Field Data'].add(fieldBgMetaData, 'layersAvailable')
 }
-const drawBG = async (x, y, z, distance, bgImgUrl) => {
+const drawBG = async (x, y, z, distance, bgImgUrl, group) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * walkmeshCamera.aspect
     // console.log('drawBG', distance, '->', vH, vW)
     var geometry = new THREE.PlaneGeometry(vW, vH, 0)
-    console.log('drawBG texture load', bgImgUrl)
+    // console.log('drawBG texture load', bgImgUrl)
     var texture = new THREE.TextureLoader().load(bgImgUrl)
     // var planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
     var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
@@ -620,7 +695,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl) => {
     plane.position.set(x, y, z)
     plane.lookAt(walkmeshCamera.position)
     plane.setRotationFromEuler(walkmeshCamera.rotation)
-    walkmeshScene.add(plane)
+    group.add(plane)
 }
 
 
@@ -656,44 +731,27 @@ const placeBG = async (cameraTarget) => {
 
 
     // Draw backgrounds
-    var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
+    // var lookAtDistance = walkmeshCamera.position.distanceTo(cameraTarget)
     // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 1
-    let intendedDistanceRatio = intendedDistance / lookAtDistance
-    let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, intendedDistanceRatio)
-
-
-    if (fieldBgMetaData.layersAvailable) {
-        currentFieldBackgroundMetaData
-        for (let i = 0; i < currentFieldBackgroundMetaData.length; i++) {
-            const layer = currentFieldBackgroundMetaData[i]
-            if (layer.depth === 0) {
-                layer.depth = 1
-            }
-
-            const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-            console.log('Layer', layer, bgDistance)
-
-            let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
-            drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`)
+    backgroundLayers = new THREE.Group()
+    for (let i = 0; i < currentFieldBackgroundMetaData.length; i++) {
+        const layer = currentFieldBackgroundMetaData[i]
+        if (layer.depth === 0) {
+            layer.depth = 1
         }
-    } else {
-        // Background Image
-        // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, intendedDistance, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
 
-        // Layered images for testing
-        const n = 3
-        for (let i = 1; i <= n; i++) {
-            let r = (intendedDistance / lookAtDistance) * (i / (n + 1))
-            let intendedVector3 = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, r)
-            // drawBG(intendedVector3.x, intendedVector3.y, intendedVector3.z, r, `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
+        if (layer.z === 1) { // z = doesn't show, just set it slightly higher for now
+            layer.z = 5
         }
+        const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+        // console.log('Layer', layer, bgDistance)
+
+        let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
+        drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`, backgroundLayers)
     }
-
+    walkmeshScene.add(backgroundLayers)
     addFieldBackgroundDebug(fieldBgMetaData)
-
-
-
 }
 
 const initField = async (fieldName) => {
@@ -707,15 +765,56 @@ const initField = async (fieldName) => {
     setupControls(cameraTarget)
     setupDebugControls(cameraTarget)
     setupRenderer()
-    setupKeys()
+}
+const setKeyPress = (keyCode, state) => {
+    if (keyCode === 87) { // w -> up
+        input.up = state
+    } else if (keyCode === 68) { // d -> right
+        input.right = state
+    } else if (keyCode === 83) { // s -> down
+        input.down = state
+    } else if (keyCode === 65) { // a -> left
+        input.left = state
+
+    } else if (keyCode === 74) { // j -> X
+        input.x = state
+    } else if (keyCode === 75) { // k -> O
+        input.o = state
+    } else if (keyCode === 85) { // u -> Square
+        input.square = state
+    } else if (keyCode === 73) { // i -> Triangle
+        input.triangle = state
+
+    } else if (keyCode === 72) { // h -> L1
+        input.l1 = state
+    } else if (keyCode === 89) { // y -> L2
+        input.l2 = state
+    } else if (keyCode === 76) { // l -> R1
+        input.r1 = state
+    } else if (keyCode === 79) { // o -> R2
+        input.r2 = state
+
+    } else if (keyCode === 55) { // 7 -> Select
+        input.select = state
+    } else if (keyCode === 56) { // 8 -> Start
+        input.start = state
+    }
+}
+const setupInputs = () => {
+    document.addEventListener('keydown', (e) => {
+        setKeyPress(event.which, true)
+    }, false)
+    document.addEventListener('keyup', (e) => {
+        setKeyPress(event.which, false)
+    }, false)
 }
 
 const init = async () => {
 
-    container = document.getElementById('container');
+    container = document.getElementById('container')
     showStats()
     await showDebug()
-
+    setupInputs()
     // initField('cosin4')
 }
 
