@@ -44,10 +44,10 @@ let input = {
 let sizing = {
     width: 320,
     height: 240,
-    factor: 1
+    factor: 2
 }
 var options = {
-    field: 'nrthmk',
+    field: 'md1_1',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: true,
@@ -291,7 +291,7 @@ const setupRaycasting = async () => {
 
         // mouse.x = ((event.clientX - walkmeshRenderer.domElement.offsetLeft) / walkmeshRenderer.domElement.clientWidth) * 2 - 1;
         // mouse.y = - ((event.clientY - walkmeshRenderer.domElement.offsetTop) / walkmeshRenderer.domElement.clientHeight) * 2 + 1;
-        console.log('mouse', mouse)
+        // console.log('mouse', mouse)
     }, false)
 }
 const raycasterRendering = (camera) => {
@@ -315,7 +315,7 @@ const setupRenderer = () => {
     }
 
     walkmeshContainerElement.appendChild(walkmeshRenderer.domElement);
-    // setupRaycasting()
+    setupRaycasting()
     walkmeshRenderer.render(walkmeshScene, walkmeshCamera);
 
     var walkmeshTick = function () {
@@ -333,14 +333,13 @@ const setupRenderer = () => {
         if (debugControls) {
             debugControls.update(delta);
         }
-        /*
-        if (app.mixer) {
-          if (app.isAnimationEnabled) {
-            app.mixer.update(delta);
-          }
+        if (currentFieldModels) {
+            for (let i = 0; i < currentFieldModels.length; i++) {
+                let model = currentFieldModels[i]
+                model.mixer.update(delta) // Render character animations
+            }
         }
-        */
-        updateFieldMovement()
+        updateFieldMovement() // Ideally this should go in a separate loop
         if (walkmeshRenderer && walkmeshScene && walkmeshCamera) {
             // console.log('render')
             let activeCamera = options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera
@@ -427,28 +426,71 @@ const showDebug = async () => {
     animateCamera()
 }
 
-const loadModel = (loader, path) => {
+const loadModel = (combinedGLTF) => {
     return new Promise((resolve, reject) => {
-        loader.load(path, data => resolve(data), null, reject);
+        let loader = new GLTFLoader()
+        loader.parse(JSON.stringify(combinedGLTF), `${KUJATA_BASE}/data/field/char.lgp/`, function (gltf) {
+            console.log("combined gltf:", gltf)
+            resolve(gltf)
+        })
     })
+}
+const createCombinedGLTF = (modelGLTF, animGLTF) => {
+    // console.log("modelGLTF:", modelGLTF);
+    // console.log("animGLTF:", animGLTF);
+    var gltf1 = JSON.parse(JSON.stringify(modelGLTF)); // clone
+    var gltf2 = JSON.parse(JSON.stringify(animGLTF));  // clone
+    var numModelBuffers = gltf1.buffers.length;
+    var numModelBufferViews = gltf1.bufferViews.length;
+    var numModelAccessors = gltf1.accessors.length;
+    if (!gltf1.animations) {
+        gltf1.animations = [];
+    }
+    for (let buffer of gltf2.buffers) {
+        gltf1.buffers.push(buffer);
+    }
+    for (let bufferView of gltf2.bufferViews) {
+        bufferView.buffer += numModelBuffers;
+        gltf1.bufferViews.push(bufferView);
+    }
+    for (let accessor of gltf2.accessors) {
+        accessor.bufferView += numModelBufferViews;
+        gltf1.accessors.push(accessor);
+    }
+    for (let animation of gltf2.animations) {
+        for (let sampler of animation.samplers) {
+            sampler.input += numModelAccessors;
+            sampler.output += numModelAccessors;
+        }
+        gltf1.animations.push(animation);
+    }
+    // console.log("combinedGLTF:", gltf1)
+    return gltf1;
 }
 
 
-const loadModels = async () => {
+const loadModels = async (modelLoaders) => {
     let fieldModels = []
-    for (let modelLoader of currentFieldData.model.modelLoaders) {
-        const animGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId}.gltf`)
-        modelLoader.animGLTF = await animGLTFRes.json()
+    for (let modelLoader of modelLoaders) {
+        console.log('modelLoader', modelLoader, modelLoader.hrcId)
+        const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
+        let modelGLTF = await modelGLTFRes.json()
         // console.log('modelLoader', modelLoader)
-
-        let loader = new GLTFLoader().setPath(`${KUJATA_BASE}/data/field/char.lgp/`)
-        let gltf = await loadModel(loader, `${modelLoader.hrcId}.gltf`)
+        for (let i = 0; i < modelLoader.animations.length; i++) {
+            const animId = modelLoader.animations[i].toLowerCase().substring(0, modelLoader.animations[i].indexOf('.'))
+            let animRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`)
+            let animGLTF = await animRes.json()
+            modelGLTF = createCombinedGLTF(modelGLTF, animGLTF)
+        }
+        let gltf = await loadModel(modelGLTF)
         gltf.userData['name'] = modelLoader.name
         gltf.userData['hrcId'] = modelLoader.hrcId
         gltf.userData['globalLight'] = modelLoader.globalLight
-        gltf.userData['animations'] = modelLoader.animations
 
-        // console.log('Loaded GLTF', gltf)
+        gltf.scene = SkeletonUtils.clone(gltf.scene) // Do we still need to do this because multiples of the same model are loaded?
+        gltf.mixer = new THREE.AnimationMixer(gltf.scene)
+
+        console.log('Loaded GLTF', gltf, modelLoader)
         // modelLoader.gltf = gltf
         // walkmeshScene.add(gltf)
 
@@ -515,7 +557,6 @@ const placeModels = (mode) => {
         // console.log('entity', entity)
         let fieldModelId
         let fieldModel
-        let fieldModelScene
         let playableCharacter
         for (let script of entity.scripts) {
 
@@ -533,19 +574,20 @@ const placeModels = (mode) => {
 
                     const scaleDownValue = getModelScaleDownValue()
                     if (fieldModelId !== undefined) {
-                        fieldModelScene = SkeletonUtils.clone(fieldModel.scene)
                         // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModelScene)
-                        fieldModelScene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
-                        fieldModelScene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
-                        fieldModelScene.rotation.x = THREE.Math.degToRad(90)
-                        fieldModelScene.up.set(0, 0, 1)
+                        fieldModel.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
+                        fieldModel.scene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
+                        fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
+                        fieldModel.scene.up.set(0, 0, 1)
 
-                        walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModelScene.position, 0.1, 0xffff00))
 
-                        // fieldModelScene.rotateY(THREE.Math.degToRad(90))
-
-                        console.log('fieldModelScene', entity.entityName, fieldModelId, op.i, fieldModelScene, fieldModelScene.rotation)
-                        walkmeshScene.add(fieldModelScene)
+                        if (fieldModel.animations.length > 0) {
+                            walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
+                            console.log('Place model with animation', fieldModel.animations[0], fieldModel.mixer)
+                            fieldModel.mixer.clipAction(fieldModel.animations[0]).play() // Just temporary for testing
+                        }
+                        console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
+                        walkmeshScene.add(fieldModel.scene)
                     }
                     // break placeOperationLoop
                 }
@@ -554,10 +596,10 @@ const placeModels = (mode) => {
                     console.log('DIR', op, deg)
                     // TODO - Figure out how to get direction (156) into kujata-data
                     // triggers.header.controlDirection
-                    fieldModelScene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
+                    // fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
                     if (playableCharacter) {
-                        currentPlayableCharacter = fieldModelScene
-                        var box = new THREE.BoxHelper(fieldModelScene, 0xffff00)
+                        currentPlayableCharacter = fieldModel
+                        var box = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
                         walkmeshScene.add(box)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
@@ -581,9 +623,16 @@ const updateFieldMovement = () => {
         return
     }
 
-    let speed = input.x ? 0.005 : 0.001 // run: walk
-    // Find direction that player should be facing
+    let speed = 0.003 // run - Need to set these from the placed character model. Maybe these can be defaults?
+    let animNo = 2 // run
 
+
+    if (!input.x) { // Adjust to walk
+        speed = speed * 0.18
+        animNo = 1
+    }
+
+    // Find direction that player should be facing
     let direction = 0 //128 + currentFieldData.triggers.header.controlDirection ???
     // console.log('currentFieldData.triggers.header.controlDirection', angle)
     let shouldMove = true
@@ -599,41 +648,35 @@ const updateFieldMovement = () => {
 
     if (!shouldMove) {
         // If no movement but animation - stop animation (stand)
+        currentPlayableCharacter.mixer.stopAllAction()
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).play() // walk anim
         return
     }
-    // Set player in direction
+    // Set player in direction 
     let directionRadians = THREE.Math.degToRad(direction)
-    // console.log('directionRadians', direction, directionRadians, currentPlayableCharacter.rotation)
-
-
     let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
     // console.log('directionVector', directionVector, currentFieldData.triggers.header.controlDirection)
-    walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.position, 0.1, 0xff00ff))
-    // currentPlayableCharacter.lookAt(new THREE.Vector3(0, 0, 0))
-    // currentPlayableCharacter.lookAt(directionVector)
-    // walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3().crossVectors(directionVector, currentPlayableCharacter.position), currentPlayableCharacter.position, 0.1, 0xff00ff))
+    let nextPosition = currentPlayableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
+    currentPlayableCharacter.scene.lookAt(new THREE.Vector3().addVectors(currentPlayableCharacter.scene.position, directionVector)) // Doesn't work perfectly
+    walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.scene.position, 0.1, 0xff00ff))
 
-    // green axis === 128 direction
-    // currentPlayableCharacter.rotateOnAxis(new THREE.Vector3(0, 1, 0), directionRadians)
-    // currentPlayableCharacter.translateOnAxis(directionVector, speed)
-    currentPlayableCharacter.position.addScaledVector(directionVector, speed)
-    // currentPlayableCharacter.lookAt(directionVector)
-    // currentPlayableCharacter.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), directionRadians)
 
-    // let vector = new THREE.Vector3(0, 1, 0).applyEuler(currentPlayableCharacter.rotation)
-    // console.log('vector from euler', vector)
-    // currentPlayableCharacter.setRotationFromAxisAngle(new THREE.Vector3(0, 0, 1), directionRadians)
 
-    // Calculate next position, eg, position on walkmesh, collision with other models etc
+    // Calculate next position, eg, adjust for z position on walkmesh, collision with other models etc
+    // TODO - based on directionVector -> nextPosition
+    // Create a vertical line around 
 
+
+    // If walk/run is toggled, stop the existing animation
+    currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo == 1 ? 2 : 1]).stop()
     // If movement but no animation - start animation (walk / run)
+    currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo]).play()
 
     // If movement set next position
-
-
-
-
-
+    // currentPlayableCharacter.scene.position.addScaledVector(directionVector, speed)
+    currentPlayableCharacter.scene.position.x = nextPosition.x
+    currentPlayableCharacter.scene.position.y = nextPosition.y
+    currentPlayableCharacter.scene.position.z = nextPosition.z
 }
 
 
@@ -755,9 +798,15 @@ const placeBG = async (cameraTarget) => {
 }
 
 const initField = async (fieldName) => {
+    // Reset field values 
+    currentFieldData = undefined
+    currentFieldBackgroundMetaData = undefined
+    currentFieldModels = undefined
+    currentPlayableCharacter = undefined
+
     currentFieldData = await loadField(fieldName)
     currentFieldBackgroundMetaData = await loadFieldBackground(fieldName)
-    currentFieldModels = await loadModels()
+    currentFieldModels = await loadModels(currentFieldData.model.modelLoaders)
     let cameraTarget = setupCamera()
     drawWalkmesh()
     placeModels()
