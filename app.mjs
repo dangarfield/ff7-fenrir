@@ -47,7 +47,7 @@ let sizing = {
     factor: 2
 }
 var options = {
-    field: 'md1_1',
+    field: 'nrthmk',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: true,
@@ -583,8 +583,8 @@ const placeModels = (mode) => {
 
                         if (fieldModel.animations.length > 0) {
                             walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
-                            console.log('Place model with animation', fieldModel.animations[0], fieldModel.mixer)
-                            fieldModel.mixer.clipAction(fieldModel.animations[0]).play() // Just temporary for testing
+                            console.log('Place model with animation', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
+                            fieldModel.mixer.clipAction(fieldModel.animations[fieldModel.animations.length - 1]).play() // Just temporary for testing
                         }
                         console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
                         walkmeshScene.add(fieldModel.scene)
