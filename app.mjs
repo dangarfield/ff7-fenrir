@@ -347,7 +347,7 @@ const setupRenderer = () => {
                 model.mixer.update(delta) // Render character animations
             }
         }
-        updateFieldMovement() // Ideally this should go in a separate loop
+        updateFieldMovement(delta) // Ideally this should go in a separate loop
         if (walkmeshRenderer && walkmeshScene && walkmeshCamera) {
             // console.log('render')
             let activeCamera = options.debug.showDebugCamera === true ? debugCamera : walkmeshCamera
@@ -483,7 +483,7 @@ const loadModels = async (modelLoaders) => {
         // console.log('modelLoader', modelLoader, modelLoader.hrcId)
         const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
         let modelGLTF = await modelGLTFRes.json()
-        // console.log('modelLoader', modelLoader)
+        console.log('modelLoader', modelLoader)
         for (let i = 0; i < modelLoader.animations.length; i++) {
             const animId = modelLoader.animations[i].toLowerCase().substring(0, modelLoader.animations[i].indexOf('.'))
             let animRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`)
@@ -611,7 +611,7 @@ const placeModels = (mode) => {
                     fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
                     if (playableCharacter) {
                         currentPlayableCharacter = fieldModel
-
+                        console.log('currentPlayableCharacter', fieldModel)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
@@ -628,13 +628,13 @@ const placeModels = (mode) => {
 }
 
 // let playerMovementRay = new THREE.Raycaster()
-const updateFieldMovement = () => {
+const updateFieldMovement = (delta) => {
     // Get active player
     if (!currentPlayableCharacter) {
         return
     }
 
-    let speed = 0.003 // run - Need to set these from the placed character model. Maybe these can be defaults?
+    let speed = 0.10 * delta// run - Need to set these from the placed character model. Maybe these can be defaults?
     let animNo = 2 // run
 
     if (options.debug.runByDefault === input.x) { // Adjust to walk
@@ -642,6 +642,7 @@ const updateFieldMovement = () => {
         animNo = 1
     }
 
+    // console.log('speed', speed, delta, animNo, currentPlayableCharacter.animations[animNo].name)
     // Find direction that player should be facing
     // let direction = ((256 - currentFieldData.triggers.header.controlDirection) * 360 / 256) - 180 // Moved this to kujata-data
     let direction = currentFieldData.triggers.header.controlDirectionDegrees
@@ -661,7 +662,7 @@ const updateFieldMovement = () => {
     if (!shouldMove) {
         // If no movement but animation - stop animation (stand)
         currentPlayableCharacter.mixer.stopAllAction()
-        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).play() // walk anim
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).play() // stand anim
         return
     }
     // Set player in direction 
@@ -697,19 +698,25 @@ const updateFieldMovement = () => {
     }
 
     // If walk/run is toggled, stop the existing animation
-    currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo == 1 ? 2 : 1]).stop()
-    // If movement but no animation - start animation (walk / run)
-    currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo]).play()
+    if (animNo === 2) { // Run
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).stop() // Probably a more efficient way to change these animations
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[1]).stop()
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[2]).play()
+    } else if (animNo === 1) { // Walk
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).stop()
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[2]).stop()
+        currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[1]).play()
+    }
 
     // If movement set next position
     currentPlayableCharacter.scene.position.x = nextPosition.x
     currentPlayableCharacter.scene.position.y = nextPosition.y
     currentPlayableCharacter.scene.position.z = nextPosition.z
-    let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position)
-    console.log(
-        'Distance from camera',
-        camDistance,
-        camDistance * 1000)
+    let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
+    // console.log(
+    //     'Distance from camera',
+    //     camDistance,
+    //     camDistance * 1000)
 }
 
 
