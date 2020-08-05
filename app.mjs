@@ -1,13 +1,13 @@
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from './assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 
-import Stats from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
-import { GUI } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/dat.gui.module.js';
+import Stats from './assets/threejs-r118/jsm/libs/stats.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
+import { GUI } from './assets/threejs-r118/jsm/libs/dat.gui.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
-// import { FirstPersonControls } from './jsm/controls/FirstPersonControls.js';
-// import { VertexNormalsHelper } from './jsm/helpers/VertexNormalsHelper.js';
-import { GLTFLoader } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
-import { SkeletonUtils } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+import { OrbitControls } from './assets/threejs-r118/jsm/controls/OrbitControls.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from './assets/threejs-r118/jsm/loaders/GLTFLoader.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+// import { GLTFLoader } from 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { SkeletonUtils } from './assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 
 let container, stats, gui;
 
@@ -50,10 +50,11 @@ var options = {
     field: 'mds6_22',
     debug: {
         showDebugCamera: false,
-        showWalkmeshMesh: true,
+        showWalkmeshMesh: false,
         showWalkmeshLines: true,
         showBackgroundLayers: true,
-        showAxes: false
+        showAxes: false,
+        runByDefault: true
     }
 };
 
@@ -286,7 +287,7 @@ const setupRaycasting = async () => {
     raycasterHelper.visible = false
     walkmeshScene.add(raycasterHelper)
     window.addEventListener('mousemove', function (event) {
-        let canvasBounds = walkmeshRenderer.context.canvas.getBoundingClientRect();
+        let canvasBounds = walkmeshRenderer.getContext().canvas.getBoundingClientRect();
         mouse.x = ((event.clientX - canvasBounds.left) / (canvasBounds.right - canvasBounds.left)) * 2 - 1;
         mouse.y = - ((event.clientY - canvasBounds.top) / (canvasBounds.bottom - canvasBounds.top)) * 2 + 1;
 
@@ -437,7 +438,7 @@ const loadModel = (combinedGLTF) => {
     return new Promise((resolve, reject) => {
         let loader = new GLTFLoader()
         loader.parse(JSON.stringify(combinedGLTF), `${KUJATA_BASE}/data/field/char.lgp/`, function (gltf) {
-            console.log("combined gltf:", gltf)
+            // console.log("combined gltf:", gltf)
             resolve(gltf)
         })
     })
@@ -479,7 +480,7 @@ const createCombinedGLTF = (modelGLTF, animGLTF) => {
 const loadModels = async (modelLoaders) => {
     let fieldModels = []
     for (let modelLoader of modelLoaders) {
-        console.log('modelLoader', modelLoader, modelLoader.hrcId)
+        // console.log('modelLoader', modelLoader, modelLoader.hrcId)
         const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
         let modelGLTF = await modelGLTFRes.json()
         // console.log('modelLoader', modelLoader)
@@ -497,7 +498,7 @@ const loadModels = async (modelLoaders) => {
         gltf.scene = SkeletonUtils.clone(gltf.scene) // Do we still need to do this because multiples of the same model are loaded?
         gltf.mixer = new THREE.AnimationMixer(gltf.scene)
 
-        console.log('Loaded GLTF', gltf, modelLoader)
+        // console.log('Loaded GLTF', gltf, modelLoader)
         // modelLoader.gltf = gltf
         // walkmeshScene.add(gltf)
 
@@ -589,43 +590,34 @@ const placeModels = (mode) => {
 
 
                         if (fieldModel.animations.length > 0) {
-                            walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
-                            console.log('Place model with animation', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
+                            // walkmeshScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
+                            // console.log('Place model with animation', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
                             fieldModel.mixer.clipAction(fieldModel.animations[fieldModel.animations.length - 1]).play() // Just temporary for testing
                         }
-                        console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
+                        // console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
                         walkmeshScene.add(fieldModel.scene)
 
-
-                        var v0 = new THREE.Vector3(fieldModel.scene.position.x, fieldModel.scene.position.y, fieldModel.scene.position.z + 0.01);
-                        var v1 = new THREE.Vector3(fieldModel.scene.position.x, fieldModel.scene.position.y, fieldModel.scene.position.z - 0.01);
-                        var material1 = new THREE.LineBasicMaterial({ color: 0xff00ff });
-                        var geometry1 = new THREE.Geometry();
-                        geometry1.vertices.push(v0);
-                        geometry1.vertices.push(v1);
-                        fieldModel.intersectingLine = new THREE.Line(geometry1, material1);
-
-                        walkmeshScene.add(fieldModel.intersectingLine)
+                        // fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
+                        // walkmeshScene.add(fieldModel.boxHelper)
 
                     }
                     // break placeOperationLoop
                 }
                 if (op.op === 'DIR' && fieldModel) {
                     let deg = 360 * op.d / 255
-                    console.log('DIR', op, deg)
+                    // console.log('DIR', op, deg)
                     // TODO - Figure out how to get direction (156) into kujata-data
                     // triggers.header.controlDirection
                     fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
                     if (playableCharacter) {
                         currentPlayableCharacter = fieldModel
-                        fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
-                        walkmeshScene.add(fieldModel.boxHelper)
+
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
                 }
                 if (op.op === 'PC') {
-                    console.log('PC', op)
+                    // console.log('PC', op)
                     // if (op.c === 0) { // Cloud
                     //     console.log('cloud is playable char')
                     playableCharacter = true
@@ -645,15 +637,16 @@ const updateFieldMovement = () => {
     let speed = 0.003 // run - Need to set these from the placed character model. Maybe these can be defaults?
     let animNo = 2 // run
 
-
-    if (!input.x) { // Adjust to walk
+    if (options.debug.runByDefault === input.x) { // Adjust to walk
         speed = speed * 0.18
         animNo = 1
     }
 
     // Find direction that player should be facing
-    let direction = 0 //128 + currentFieldData.triggers.header.controlDirection ???
-    // console.log('currentFieldData.triggers.header.controlDirection', angle)
+    // let direction = ((256 - currentFieldData.triggers.header.controlDirection) * 360 / 256) - 180 // Moved this to kujata-data
+    let direction = currentFieldData.triggers.header.controlDirectionDegrees
+    // console.log('Direction', currentFieldData.triggers.header.controlDirection, currentFieldData.triggers.header.controlDirectionDegrees, direction)
+
     let shouldMove = true
     if (input.up && input.right) { direction += 45 }
     else if (input.right && input.down) { direction += 135 }
@@ -676,7 +669,6 @@ const updateFieldMovement = () => {
     let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
     // console.log('directionVector', directionVector, currentFieldData.triggers.header.controlDirection)
     let nextPosition = currentPlayableCharacter.scene.position.clone().addScaledVector(directionVector, speed) // Show probably factor in clock delta so its smoother
-    let nextLinePosition = currentPlayableCharacter.intersectingLine.position.clone().addScaledVector(directionVector, speed) // Show probably factor in clock delta so its smoother
     currentPlayableCharacter.scene.lookAt(new THREE.Vector3().addVectors(currentPlayableCharacter.scene.position, directionVector)) // Doesn't work perfectly
     // walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.scene.position, 0.1, 0xff00ff))
 
@@ -713,6 +705,11 @@ const updateFieldMovement = () => {
     currentPlayableCharacter.scene.position.x = nextPosition.x
     currentPlayableCharacter.scene.position.y = nextPosition.y
     currentPlayableCharacter.scene.position.z = nextPosition.z
+    let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position)
+    console.log(
+        'Distance from camera',
+        camDistance,
+        camDistance * 1000)
 }
 
 
@@ -792,7 +789,8 @@ const placeBG = async (cameraTarget) => {
         modelScale: currentFieldData.model.header.modelScale,
         scaleDownValue: getModelScaleDownValue(),
         numModels: currentFieldData.model.header.numModels,
-        layersAvailable: currentFieldBackgroundMetaData !== undefined
+        layersAvailable: currentFieldBackgroundMetaData !== undefined,
+        bgZDistance: 1024
     }
     // console.log('fieldBgMetaData', fieldBgMetaData)
 
@@ -823,7 +821,8 @@ const placeBG = async (cameraTarget) => {
         if (layer.z === 1) { // z = doesn't show, just set it slightly higher for now
             layer.z = 5
         }
-        const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+        // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+        const bgDistance = layer.z / fieldBgMetaData.bgZDistance // First attempt at ratios, not quite right but ok
         // console.log('Layer', layer, bgDistance)
 
         let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
