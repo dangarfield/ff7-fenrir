@@ -47,7 +47,7 @@ let sizing = {
     factor: 2
 }
 var options = {
-    field: 'nrthmk',
+    field: 'mds6_22',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: true,
@@ -280,9 +280,10 @@ const setupDebugControls = (cameraTarget) => {
     animateCamera()
 }
 const setupRaycasting = async () => {
-    var geometry = new THREE.SphereGeometry(0.01, 32, 32)
+    var geometry = new THREE.SphereGeometry(0.002, 32, 32)
     var material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
     raycasterHelper = new THREE.Mesh(geometry, material)
+    raycasterHelper.visible = false
     walkmeshScene.add(raycasterHelper)
     window.addEventListener('mousemove', function (event) {
         let canvasBounds = walkmeshRenderer.context.canvas.getBoundingClientRect();
@@ -297,11 +298,17 @@ const setupRaycasting = async () => {
 const raycasterRendering = (camera) => {
 
     raycaster.setFromCamera(mouse, camera)
-    let intersects = raycaster.intersectObjects(walkmeshScene.children)//walkmeshMesh//walkmeshScene.children
+    let intersects = raycaster.intersectObjects([walkmeshMesh])//walkmeshMesh//walkmeshScene.children
+    // console.log('walkmeshMesh', walkmeshMesh)
+    if (intersects.length === 0) {
+        raycasterHelper.visible = false
+    } else {
+        raycasterHelper.visible = true
+    }
     for (var i = 0; i < intersects.length; i++) {
         // intersects[i].object.material.color.set(0xff0000)
         const point = intersects[i].point
-        raycasterHelper.visible = true
+        // raycasterHelper.visible = true
         raycasterHelper.position.set(point.x, point.y, point.z)
         console.log('intersect point', point, raycasterHelper.position)
     }
@@ -588,6 +595,18 @@ const placeModels = (mode) => {
                         }
                         console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
                         walkmeshScene.add(fieldModel.scene)
+
+
+                        var v0 = new THREE.Vector3(fieldModel.scene.position.x, fieldModel.scene.position.y, fieldModel.scene.position.z + 0.01);
+                        var v1 = new THREE.Vector3(fieldModel.scene.position.x, fieldModel.scene.position.y, fieldModel.scene.position.z - 0.01);
+                        var material1 = new THREE.LineBasicMaterial({ color: 0xff00ff });
+                        var geometry1 = new THREE.Geometry();
+                        geometry1.vertices.push(v0);
+                        geometry1.vertices.push(v1);
+                        fieldModel.intersectingLine = new THREE.Line(geometry1, material1);
+
+                        walkmeshScene.add(fieldModel.intersectingLine)
+
                     }
                     // break placeOperationLoop
                 }
@@ -596,11 +615,11 @@ const placeModels = (mode) => {
                     console.log('DIR', op, deg)
                     // TODO - Figure out how to get direction (156) into kujata-data
                     // triggers.header.controlDirection
-                    // fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
+                    fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
                     if (playableCharacter) {
                         currentPlayableCharacter = fieldModel
-                        var box = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
-                        walkmeshScene.add(box)
+                        fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
+                        walkmeshScene.add(fieldModel.boxHelper)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
@@ -616,7 +635,7 @@ const placeModels = (mode) => {
     }
 }
 
-
+// let playerMovementRay = new THREE.Raycaster()
 const updateFieldMovement = () => {
     // Get active player
     if (!currentPlayableCharacter) {
@@ -656,16 +675,34 @@ const updateFieldMovement = () => {
     let directionRadians = THREE.Math.degToRad(direction)
     let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
     // console.log('directionVector', directionVector, currentFieldData.triggers.header.controlDirection)
-    let nextPosition = currentPlayableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
+    let nextPosition = currentPlayableCharacter.scene.position.clone().addScaledVector(directionVector, speed) // Show probably factor in clock delta so its smoother
+    let nextLinePosition = currentPlayableCharacter.intersectingLine.position.clone().addScaledVector(directionVector, speed) // Show probably factor in clock delta so its smoother
     currentPlayableCharacter.scene.lookAt(new THREE.Vector3().addVectors(currentPlayableCharacter.scene.position, directionVector)) // Doesn't work perfectly
-    walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.scene.position, 0.1, 0xff00ff))
+    // walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.scene.position, 0.1, 0xff00ff))
 
 
+    // currentPlayableCharacter.boxHelper.update()
 
-    // Calculate next position, eg, adjust for z position on walkmesh, collision with other models etc
-    // TODO - based on directionVector -> nextPosition
-    // Create a vertical line around 
-
+    // Adjust for climbing slopes and walking off walkmesh
+    // Create a ray at next position (higher z, but pointing down) to find correct z position
+    let playerMovementRay = new THREE.Raycaster()
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
+    const rayD = new THREE.Vector3(0, 0, -1).normalize()
+    playerMovementRay.set(rayO, rayD)
+    var intersects = playerMovementRay.intersectObjects([walkmeshMesh])
+    // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+    if (intersects.length === 0) {
+        // Player is off walkmap
+        currentPlayableCharacter.mixer.stopAllAction()
+        // raycasterHelper.visible = false
+        return
+    } else {
+        const point = intersects[0].point
+        // raycasterHelper.visible = true
+        // raycasterHelper.position.set(point.x, point.y, point.z)
+        // Adjust nextPosition height to to adjust for any slopes
+        nextPosition.z = point.z
+    }
 
     // If walk/run is toggled, stop the existing animation
     currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo == 1 ? 2 : 1]).stop()
@@ -673,7 +710,6 @@ const updateFieldMovement = () => {
     currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[animNo]).play()
 
     // If movement set next position
-    // currentPlayableCharacter.scene.position.addScaledVector(directionVector, speed)
     currentPlayableCharacter.scene.position.x = nextPosition.x
     currentPlayableCharacter.scene.position.y = nextPosition.y
     currentPlayableCharacter.scene.position.z = nextPosition.z
