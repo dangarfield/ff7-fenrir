@@ -47,7 +47,7 @@ let sizing = {
     factor: 2
 }
 var options = {
-    field: 'mds6_22',
+    field: 'uutai1',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: false,
@@ -839,6 +839,19 @@ const placeBG = async (cameraTarget) => {
     addFieldBackgroundDebug(fieldBgMetaData)
 }
 
+const setupViewClipping = async () => {
+    const currentSize = walkmeshRenderer.getSize(new THREE.Vector2())
+    // const x = (currentSize.x / 2) - (sizing.width * sizing.factor / 2)
+    // const y = (currentSize.y / 2) - (sizing.height * sizing.factor / 2)
+
+    const x = 0
+    const y = 0
+    // Set the size of the renderer to the correct desired output size
+    walkmeshRenderer.setSize(sizing.width * sizing.factor, sizing.height * sizing.factor)
+    // The camera its is one that should be cropped
+    // This is referred to as the view offset in three.js
+    walkmeshCamera.setViewOffset(currentSize.x, currentSize.y, x, y, sizing.width * sizing.factor, sizing.height * sizing.factor)
+}
 const initField = async (fieldName) => {
     // Reset field values 
     currentFieldData = undefined
@@ -850,12 +863,13 @@ const initField = async (fieldName) => {
     currentFieldBackgroundMetaData = await loadFieldBackground(fieldName)
     currentFieldModels = await loadModels(currentFieldData.model.modelLoaders)
     let cameraTarget = setupCamera()
-    drawWalkmesh()
-    placeModels()
-    placeBG(cameraTarget)
-    setupControls(cameraTarget)
-    setupDebugControls(cameraTarget)
-    setupRenderer()
+    await drawWalkmesh()
+    await placeModels()
+    await placeBG(cameraTarget)
+    await setupControls(cameraTarget)
+    await setupDebugControls(cameraTarget)
+    await setupRenderer()
+    await setupViewClipping()
 }
 const setKeyPress = (keyCode, state) => {
     if (keyCode === 87) { // w -> up
