@@ -23,7 +23,7 @@ let clock
 let axesHelper
 let debugCamera, debugControls;
 
-let currentFieldData, currentFieldBackgroundMetaData, currentFieldModels, currentPlayableCharacter
+let currentFieldData, currentFieldBackgroundData, currentFieldMetaData, currentFieldModels, currentPlayableCharacter
 
 let input = {
     up: false,
@@ -47,7 +47,7 @@ let sizing = {
     factor: 2
 }
 var options = {
-    field: 'uutai1',
+    field: 'md1_1',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: false,
@@ -673,7 +673,6 @@ const updateFieldMovement = (delta) => {
     currentPlayableCharacter.scene.lookAt(new THREE.Vector3().addVectors(currentPlayableCharacter.scene.position, directionVector)) // Doesn't work perfectly
     // walkmeshScene.add(new THREE.ArrowHelper(directionVector, currentPlayableCharacter.scene.position, 0.1, 0xff00ff))
 
-
     // currentPlayableCharacter.boxHelper.update()
 
     // Adjust for climbing slopes and walking off walkmesh
@@ -712,6 +711,15 @@ const updateFieldMovement = (delta) => {
     currentPlayableCharacter.scene.position.x = nextPosition.x
     currentPlayableCharacter.scene.position.y = nextPosition.y
     currentPlayableCharacter.scene.position.z = nextPosition.z
+
+    // Adjust the camera offset to centre on character // TODO unless overridden by op codes?!
+    let relativeToCamera = nextPosition.clone().project(debugCamera)
+    relativeToCamera.x = (relativeToCamera.x + 1) * (currentFieldMetaData.assetDimensions.width * 1) / 2
+    relativeToCamera.y = - (relativeToCamera.y - 1) * (currentFieldMetaData.assetDimensions.height * 1) / 2
+    relativeToCamera.z = 0
+    console.log('currentPlayableCharacter relativeToCamera', relativeToCamera)
+    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+
     let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
     // console.log(
     //     'Distance from camera',
@@ -728,7 +736,7 @@ const imageDimensions = file => new Promise((resolve) => {
     }
     img.src = file
 })
-const addFieldBackgroundDebug = (fieldBgMetaData) => {
+const addFieldBackgroundDebug = (currentFieldMetaData) => {
     // Add debug values
     let guiToDelete = []
     if (gui.__folders['Field Data'].__controllers.length > 0) {
@@ -752,18 +760,18 @@ const addFieldBackgroundDebug = (fieldBgMetaData) => {
         walkmeshCamera.fov = val
         walkmeshCamera.updateProjectionMatrix()
     })
-    gui.__folders['Field Data'].add(fieldBgMetaData.assetDimensions, 'width')
-    gui.__folders['Field Data'].add(fieldBgMetaData.assetDimensions, 'height')
+    gui.__folders['Field Data'].add(currentFieldMetaData.assetDimensions, 'width')
+    gui.__folders['Field Data'].add(currentFieldMetaData.assetDimensions, 'height')
     gui.__folders['Field Data'].add(walkmeshCamera, 'aspect')
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'bgScale').min(0.5).max(4).step(0.001).onChange((val) => {
         // console.log('debug bgScale', val)
-        walkmeshRenderer.setSize(fieldBgMetaData.assetDimensions.width * sizing.factor * fieldBgMetaData.bgScale, fieldBgMetaData.assetDimensions.height * sizing.factor * fieldBgMetaData.bgScale)
+        walkmeshRenderer.setSize(currentFieldMetaData.assetDimensions.width * sizing.factor * currentFieldMetaData.bgScale, currentFieldMetaData.assetDimensions.height * sizing.factor * currentFieldMetaData.bgScale)
     })
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'cameraUnknown')
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'modelScale')
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'numModels')
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'scaleDownValue').step(0.00001)
-    gui.__folders['Field Data'].add(fieldBgMetaData, 'layersAvailable')
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'cameraUnknown')
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'modelScale')
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'numModels')
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'scaleDownValue').step(0.00001)
+    gui.__folders['Field Data'].add(currentFieldMetaData, 'layersAvailable')
 }
 const drawBG = async (x, y, z, distance, bgImgUrl, group) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
@@ -786,7 +794,7 @@ const placeBG = async (cameraTarget) => {
     let assetDimensions = await imageDimensions(`${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${options.field}.png`)
 
     // Create meta-data
-    const fieldBgMetaData = {
+    currentFieldMetaData = {
         assetDimensions: assetDimensions,
         width: assetDimensions.width / sizing.width,
         height: assetDimensions.height / sizing.height,
@@ -796,19 +804,19 @@ const placeBG = async (cameraTarget) => {
         modelScale: currentFieldData.model.header.modelScale,
         scaleDownValue: getModelScaleDownValue(),
         numModels: currentFieldData.model.header.numModels,
-        layersAvailable: currentFieldBackgroundMetaData !== undefined,
+        layersAvailable: currentFieldBackgroundData !== undefined,
         bgZDistance: 1024
     }
-    // console.log('fieldBgMetaData', fieldBgMetaData)
+    // console.log('currentFieldMetaData', currentFieldMetaData)
 
     // Rescale renderer and cameras for scene
-    walkmeshRenderer.setSize(assetDimensions.width * sizing.factor * fieldBgMetaData.bgScale, assetDimensions.height * sizing.factor * fieldBgMetaData.bgScale)
+    walkmeshRenderer.setSize(assetDimensions.width * sizing.factor * currentFieldMetaData.bgScale, assetDimensions.height * sizing.factor * currentFieldMetaData.bgScale)
     walkmeshCamera.aspect = assetDimensions.width / assetDimensions.height
-    walkmeshCamera.fov = fieldBgMetaData.adjustedFOV
+    walkmeshCamera.fov = currentFieldMetaData.adjustedFOV
     walkmeshCamera.lookAt(cameraTarget)
     walkmeshCamera.updateProjectionMatrix()
     debugCamera.aspect = assetDimensions.width / assetDimensions.height
-    debugCamera.fov = fieldBgMetaData.adjustedFOV
+    debugCamera.fov = currentFieldMetaData.adjustedFOV
     walkmeshCamera.lookAt(cameraTarget)
     debugCamera.updateProjectionMatrix()
 
@@ -819,8 +827,8 @@ const placeBG = async (cameraTarget) => {
     // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 1
     backgroundLayers = new THREE.Group()
-    for (let i = 0; i < currentFieldBackgroundMetaData.length; i++) {
-        const layer = currentFieldBackgroundMetaData[i]
+    for (let i = 0; i < currentFieldBackgroundData.length; i++) {
+        const layer = currentFieldBackgroundData[i]
         if (layer.depth === 0) {
             layer.depth = 1
         }
@@ -829,38 +837,52 @@ const placeBG = async (cameraTarget) => {
             layer.z = 5
         }
         // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-        const bgDistance = layer.z / fieldBgMetaData.bgZDistance // First attempt at ratios, not quite right but ok
+        const bgDistance = layer.z / currentFieldMetaData.bgZDistance // First attempt at ratios, not quite right but ok
         // console.log('Layer', layer, bgDistance)
 
         let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
         drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`, backgroundLayers)
     }
     walkmeshScene.add(backgroundLayers)
-    addFieldBackgroundDebug(fieldBgMetaData)
+    addFieldBackgroundDebug(currentFieldMetaData)
 }
 
 const setupViewClipping = async () => {
-    const currentSize = walkmeshRenderer.getSize(new THREE.Vector2())
-    // const x = (currentSize.x / 2) - (sizing.width * sizing.factor / 2)
-    // const y = (currentSize.y / 2) - (sizing.height * sizing.factor / 2)
-
-    const x = 0
-    const y = 0
-    // Set the size of the renderer to the correct desired output size
     walkmeshRenderer.setSize(sizing.width * sizing.factor, sizing.height * sizing.factor)
-    // The camera its is one that should be cropped
-    // This is referred to as the view offset in three.js
-    walkmeshCamera.setViewOffset(currentSize.x, currentSize.y, x, y, sizing.width * sizing.factor, sizing.height * sizing.factor)
+
+    // Need to set a default, this is centre, should really be triggered from the player character being active on the screen
+    const x = currentFieldMetaData.assetDimensions.width / 2
+    const y = currentFieldMetaData.assetDimensions.height / 2
+    adjustViewClipping(x, y)
+    console.log('currentFieldMetaData', currentFieldMetaData)
+}
+const adjustViewClipping = async (x, y) => {
+    let adjustedX = x - (sizing.width / 2)
+    let adjustedY = y - (sizing.height / 2)
+    adjustedX = Math.min(adjustedX, 2 * (currentFieldMetaData.assetDimensions.width / 2 - (sizing.width / 2)))
+    adjustedY = Math.min(adjustedY, 2 * (currentFieldMetaData.assetDimensions.height / 2 - (sizing.height / 2)))
+    adjustedX = Math.max(adjustedX, 0)
+    adjustedY = Math.max(adjustedY, 0)
+    // console.log('x', x, '->', adjustedX, 'y', y, '->', adjustedY)
+
+    walkmeshCamera.setViewOffset(
+        currentFieldMetaData.assetDimensions.width * sizing.factor,
+        currentFieldMetaData.assetDimensions.height * sizing.factor,
+        adjustedX * sizing.factor,
+        adjustedY * sizing.factor,
+        sizing.width * sizing.factor,
+        sizing.height * sizing.factor,
+    )
 }
 const initField = async (fieldName) => {
     // Reset field values 
     currentFieldData = undefined
-    currentFieldBackgroundMetaData = undefined
+    currentFieldBackgroundData = undefined
     currentFieldModels = undefined
     currentPlayableCharacter = undefined
 
     currentFieldData = await loadField(fieldName)
-    currentFieldBackgroundMetaData = await loadFieldBackground(fieldName)
+    currentFieldBackgroundData = await loadFieldBackground(fieldName)
     currentFieldModels = await loadModels(currentFieldData.model.modelLoaders)
     let cameraTarget = setupCamera()
     await drawWalkmesh()
