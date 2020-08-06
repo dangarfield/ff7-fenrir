@@ -18,7 +18,7 @@ let raycaster = new THREE.Raycaster()
 let mouse = new THREE.Vector2()
 let raycasterHelper
 
-let walkmeshMesh, walkmeshLines, backgroundLayers
+let walkmeshMesh, walkmeshLines, gatewayLines, triggerLines, backgroundLayers
 let clock
 let axesHelper
 let debugCamera, debugControls;
@@ -47,7 +47,7 @@ let sizing = {
     factor: 1
 }
 var options = {
-    field: 'md1_1',
+    field: 'mrkt2',
     debug: {
         showDebugCamera: false,
         showWalkmeshMesh: false,
@@ -221,6 +221,7 @@ const drawWalkmesh = () => {
     walkmeshScene.add(walkmeshMesh)
 
     // Draw gateways
+    gatewayLines = new THREE.Group()
     for (let gateway of currentFieldData.triggers.gateways) {
         var lv0 = gateway.exitLineVertex1;
         var lv1 = gateway.exitLineVertex2;
@@ -231,10 +232,12 @@ const drawWalkmesh = () => {
         geometry1.vertices.push(v0);
         geometry1.vertices.push(v1);
         var line = new THREE.Line(geometry1, material1);
-        walkmeshLines.add(line);
+        gatewayLines.add(line);
     }
+    walkmeshScene.add(gatewayLines)
 
     // Draw triggers / doors
+    triggerLines = new THREE.Group()
     for (let trigger of currentFieldData.triggers.triggers) {
         var lv0 = trigger.cornerVertex1;
         var lv1 = trigger.cornerVertex2;
@@ -245,13 +248,12 @@ const drawWalkmesh = () => {
         geometry1.vertices.push(v0);
         geometry1.vertices.push(v1);
         var line = new THREE.Line(geometry1, material1);
-        walkmeshLines.add(line);
+        triggerLines.add(line);
         if (lv0.x !== 0) {
             // console.log('Door', lv0, v0, '&', lv1, v1)
         }
     }
-
-    walkmeshScene.add(walkmeshLines)
+    walkmeshScene.add(triggerLines)
 }
 const setupControls = (cameraTarget) => {
     walkmeshControls = new OrbitControls(walkmeshCamera, walkmeshRenderer.domElement);
@@ -627,7 +629,17 @@ const placeModels = (mode) => {
     }
 }
 
-// let playerMovementRay = new THREE.Raycaster()
+const gatewayTriggered = (i) => {
+    console.log('gatewayTriggered', i)
+    // Should probably disable movement after this has been hit
+    currentPlayableCharacter = undefined
+}
+
+const triggerTriggered = (i) => {
+    console.log('triggerTriggered', i)
+}
+
+
 const updateFieldMovement = (delta) => {
     // Get active player
     if (!currentPlayableCharacter) {
@@ -696,6 +708,41 @@ const updateFieldMovement = (delta) => {
         nextPosition.z = point.z
     }
 
+
+
+    // Detect gateways
+    for (let i = 0; i < gatewayLines.children.length; i++) {
+        const gatewayLine = gatewayLines.children[i]
+        const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+        const distance = nextPosition.distanceTo(closestPointOnLine)
+        if (distance < 0.005) {
+            console.log('gateway hit')
+            if (animNo === 2) { // Run
+                currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[2]).paused = true
+            } else if (animNo === 1) { // Walk
+                currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[1]).paused = true
+            }
+            gatewayTriggered(i)
+            return
+        }
+    }
+
+    // Detect triggers
+    for (let i = 0; i < triggerLines.children.length; i++) {
+        const triggerLine = triggerLines.children[i]
+        const closestPointOnLine = new THREE.Line3(triggerLine.geometry.vertices[0], triggerLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+        const distance = nextPosition.distanceTo(closestPointOnLine)
+        if (distance < 0.005) {
+            console.log('trigger hit')
+            triggerTriggered(i)
+            // Need to figure out how to toggle, what the distances should be etc
+        }
+    }
+
+    // Detect model collisions
+    // TODO
+
+
     // If walk/run is toggled, stop the existing animation
     if (animNo === 2) { // Run
         currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[0]).stop() // Probably a more efficient way to change these animations
@@ -707,7 +754,7 @@ const updateFieldMovement = (delta) => {
         currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[1]).play()
     }
 
-    // If movement set next position
+    // There is movement, set next position
     currentPlayableCharacter.scene.position.x = nextPosition.x
     currentPlayableCharacter.scene.position.y = nextPosition.y
     currentPlayableCharacter.scene.position.z = nextPosition.z
@@ -719,6 +766,7 @@ const updateFieldMovement = (delta) => {
     relativeToCamera.z = 0
     // console.log('currentPlayableCharacter relativeToCamera', relativeToCamera)
     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+
 
     let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
     // console.log(
