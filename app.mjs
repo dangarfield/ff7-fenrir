@@ -44,7 +44,7 @@ let input = {
 let sizing = {
     width: 320,
     height: 240,
-    factor: 2
+    factor: 1
 }
 var options = {
     field: 'md1_1',
@@ -483,7 +483,7 @@ const loadModels = async (modelLoaders) => {
         // console.log('modelLoader', modelLoader, modelLoader.hrcId)
         const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
         let modelGLTF = await modelGLTFRes.json()
-        console.log('modelLoader', modelLoader)
+        // console.log('modelLoader', modewlLoader)
         for (let i = 0; i < modelLoader.animations.length; i++) {
             const animId = modelLoader.animations[i].toLowerCase().substring(0, modelLoader.animations[i].indexOf('.'))
             let animRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`)
@@ -717,7 +717,7 @@ const updateFieldMovement = (delta) => {
     relativeToCamera.x = (relativeToCamera.x + 1) * (currentFieldMetaData.assetDimensions.width * 1) / 2
     relativeToCamera.y = - (relativeToCamera.y - 1) * (currentFieldMetaData.assetDimensions.height * 1) / 2
     relativeToCamera.z = 0
-    console.log('currentPlayableCharacter relativeToCamera', relativeToCamera)
+    // console.log('currentPlayableCharacter relativeToCamera', relativeToCamera)
     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
 
     let camDistance = currentPlayableCharacter.scene.position.distanceTo(walkmeshCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
@@ -772,6 +772,8 @@ const addFieldBackgroundDebug = (currentFieldMetaData) => {
     gui.__folders['Field Data'].add(currentFieldMetaData, 'numModels')
     gui.__folders['Field Data'].add(currentFieldMetaData, 'scaleDownValue').step(0.00001)
     gui.__folders['Field Data'].add(currentFieldMetaData, 'layersAvailable')
+    gui.__folders['Field Data'].add(currentFieldMetaData.fieldCoordinates, 'x').min(0).max(currentFieldMetaData.assetDimensions.width).step(1).listen().onChange((val) => adjustViewClipping(val, currentFieldMetaData.fieldCoordinates.y))
+    gui.__folders['Field Data'].add(currentFieldMetaData.fieldCoordinates, 'y').min(0).max(currentFieldMetaData.assetDimensions.height).step(1).listen().onChange((val) => adjustViewClipping(currentFieldMetaData.fieldCoordinates.x, val))
 }
 const drawBG = async (x, y, z, distance, bgImgUrl, group) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
@@ -805,7 +807,9 @@ const placeBG = async (cameraTarget) => {
         scaleDownValue: getModelScaleDownValue(),
         numModels: currentFieldData.model.header.numModels,
         layersAvailable: currentFieldBackgroundData !== undefined,
-        bgZDistance: 1024
+        bgZDistance: 1024,
+        fieldCoordinates: { x: 0, y: 0 } // Defaults, will be updated
+
     }
     // console.log('currentFieldMetaData', currentFieldMetaData)
 
@@ -857,6 +861,8 @@ const setupViewClipping = async () => {
     console.log('currentFieldMetaData', currentFieldMetaData)
 }
 const adjustViewClipping = async (x, y) => {
+    currentFieldMetaData.fieldCoordinates.x = x
+    currentFieldMetaData.fieldCoordinates.y = y
     let adjustedX = x - (sizing.width / 2)
     let adjustedY = y - (sizing.height / 2)
     adjustedX = Math.min(adjustedX, 2 * (currentFieldMetaData.assetDimensions.width / 2 - (sizing.width / 2)))
