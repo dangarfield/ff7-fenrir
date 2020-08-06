@@ -248,6 +248,7 @@ const drawWalkmesh = () => {
         geometry1.vertices.push(v0);
         geometry1.vertices.push(v1);
         var line = new THREE.Line(geometry1, material1);
+        line.userData.triggered = false
         triggerLines.add(line);
         if (lv0.x !== 0) {
             // console.log('Door', lv0, v0, '&', lv1, v1)
@@ -635,8 +636,8 @@ const gatewayTriggered = (i) => {
     currentPlayableCharacter = undefined
 }
 
-const triggerTriggered = (i) => {
-    console.log('triggerTriggered', i)
+const triggerTriggered = (i, isOn) => {
+    console.log('triggerTriggered', i, isOn)
 }
 
 
@@ -722,6 +723,7 @@ const updateFieldMovement = (delta) => {
             } else if (animNo === 1) { // Walk
                 currentPlayableCharacter.mixer.clipAction(currentPlayableCharacter.animations[1]).paused = true
             }
+            // Should probably also pause ALL animations including screen background loops like in the game
             gatewayTriggered(i)
             return
         }
@@ -732,10 +734,20 @@ const updateFieldMovement = (delta) => {
         const triggerLine = triggerLines.children[i]
         const closestPointOnLine = new THREE.Line3(triggerLine.geometry.vertices[0], triggerLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
         const distance = nextPosition.distanceTo(closestPointOnLine)
-        if (distance < 0.005) {
-            console.log('trigger hit')
-            triggerTriggered(i)
-            // Need to figure out how to toggle, what the distances should be etc
+        console.log('d', i, distance)
+        if (distance < 0.01) { // Does this need to scale with scale factor?
+            if (triggerLine.userData.triggered === false) {
+                console.log('trigger hit')
+                triggerLine.userData.triggered = true
+                triggerTriggered(i, true)
+            }
+
+        } else {
+            if (triggerLine.userData.triggered === true) {
+                console.log('trigger off')
+                triggerLine.userData.triggered = false
+                triggerTriggered(i, false)
+            }
         }
     }
 
