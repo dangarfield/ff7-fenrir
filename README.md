@@ -22,9 +22,17 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Extract layer by layer field data and add to kujata-data
 - :white_check_mark: Apply 3D occlussion culling using Perspective Camera approach (may change approach to multiple blended orthogonal approaches) - Roughly right
 - :white_check_mark: Orientation and scale of models on walkmesh (About right)
-- :point_right: Control character on screen
-- :black_square_button: Crop, zoom and centering for non-default viewport fields (320x240)
-- :black_square_button: Viewport follows character on screen
+- :white_check_mark: Control character on screen
+- :white_check_mark: Crop, zoom and centering for non-default viewport fields (320x240)
+- :white_check_mark: Viewport follows character on screen
+- :white_check_mark: Triggers and gateways have collisions and behaviours
+- :white_check_mark: Model collision detection and talking area collision
+- :white_check_mark: Model collision detection and talking collision
+- :point_right: Refactor into cleaner code
+- :black_square_button: Implement remaing trigger behaviours
+- :black_square_button: Field transitions
+- :black_square_button: Text and text interactions
+- :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)
 - :black_square_button: Begin properly implementing field op codes
