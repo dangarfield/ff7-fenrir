@@ -238,6 +238,7 @@ const drawWalkmesh = () => {
 
     // Draw triggers / doors
     triggerLines = new THREE.Group()
+    currentFieldData.triggers.triggers = currentFieldData.triggers.triggers.filter(t => !(t.cornerVertex1.x === 0 && t.cornerVertex1.y === 0 && t.cornerVertex1.z === 0)) // for some reason there are a lots of 0,0,0 triggers, remove them for now
     for (let trigger of currentFieldData.triggers.triggers) {
         var lv0 = trigger.cornerVertex1;
         var lv1 = trigger.cornerVertex2;
@@ -633,11 +634,28 @@ const placeModels = (mode) => {
 const gatewayTriggered = (i) => {
     console.log('gatewayTriggered', i)
     // Should probably disable movement after this has been hit
-    currentPlayableCharacter = undefined
+    // currentPlayableCharacter = undefined
 }
 
 const triggerTriggered = (i, isOn) => {
-    console.log('triggerTriggered', i, isOn)
+    let trigger = currentFieldData.triggers.triggers[i]
+    // console.log('triggerTriggered', i, isOn, trigger)
+    switch (trigger.behavior) {
+        case 5:
+            let paramBGs = backgroundLayers.children.filter(bg => bg.userData.param === trigger.bgGroupId_param)
+            for (let i = 0; i < paramBGs.length; i++) {
+                const paramBG = paramBGs[i]
+                if (paramBG.userData.state === trigger.bgFrameId_state) {
+                    paramBG.visible = !isOn
+                }
+            }
+            // console.log('Change background', trigger.bgGroupId_param, trigger.bgFrameId_state, paramBGs)
+            break;
+
+        default:
+            window.alert('Unknown trigger triggered', i, isOn, trigger)
+            break;
+    }
 }
 
 
@@ -734,17 +752,14 @@ const updateFieldMovement = (delta) => {
         const triggerLine = triggerLines.children[i]
         const closestPointOnLine = new THREE.Line3(triggerLine.geometry.vertices[0], triggerLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
         const distance = nextPosition.distanceTo(closestPointOnLine)
-        console.log('d', i, distance)
-        if (distance < 0.01) { // Does this need to scale with scale factor?
+        if (distance < 0.01) {
             if (triggerLine.userData.triggered === false) {
-                console.log('trigger hit')
                 triggerLine.userData.triggered = true
                 triggerTriggered(i, true)
             }
 
         } else {
             if (triggerLine.userData.triggered === true) {
-                console.log('trigger off')
                 triggerLine.userData.triggered = false
                 triggerTriggered(i, false)
             }
@@ -835,7 +850,7 @@ const addFieldBackgroundDebug = (currentFieldMetaData) => {
     gui.__folders['Field Data'].add(currentFieldMetaData.fieldCoordinates, 'x').min(0).max(currentFieldMetaData.assetDimensions.width).step(1).listen().onChange((val) => adjustViewClipping(val, currentFieldMetaData.fieldCoordinates.y))
     gui.__folders['Field Data'].add(currentFieldMetaData.fieldCoordinates, 'y').min(0).max(currentFieldMetaData.assetDimensions.height).step(1).listen().onChange((val) => adjustViewClipping(currentFieldMetaData.fieldCoordinates.x, val))
 }
-const drawBG = async (x, y, z, distance, bgImgUrl, group) => {
+const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
     let vH = Math.tan(THREE.Math.degToRad(walkmeshCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * walkmeshCamera.aspect
     // console.log('drawBG', distance, '->', vH, vW)
@@ -848,6 +863,8 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group) => {
     plane.position.set(x, y, z)
     plane.lookAt(walkmeshCamera.position)
     plane.setRotationFromEuler(walkmeshCamera.rotation)
+    plane.visible = visible
+    plane.userData = userData
     group.add(plane)
 }
 
@@ -897,15 +914,27 @@ const placeBG = async (cameraTarget) => {
             layer.depth = 1
         }
 
-        if (layer.z === 1) { // z = doesn't show, just set it slightly higher for now
-            layer.z = 5
+
+        if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
+            layer.z = layer.z + 10
         }
+        // If layer containers a param, make sure it sits infront of its default background
+        if (layer.param > 0) {
+            layer.z = layer.z - 1
+        }
+        let visible = layer.param === 0 // By default hide all non zero params, field op codes will how them
+
         // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
         const bgDistance = layer.z / currentFieldMetaData.bgZDistance // First attempt at ratios, not quite right but ok
         // console.log('Layer', layer, bgDistance)
 
+        const userData = {
+            z: layer.z,
+            param: layer.param,
+            state: layer.state
+        }
         let bgVector = new THREE.Vector3().lerpVectors(walkmeshCamera.position, cameraTarget, bgDistance)
-        drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`, backgroundLayers)
+        drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, `${KUJATA_BASE}/metadata/background-layers/${options.field}/${layer.fileName}`, backgroundLayers, visible, userData)
     }
     walkmeshScene.add(backgroundLayers)
     addFieldBackgroundDebug(currentFieldMetaData)
