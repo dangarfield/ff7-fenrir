@@ -501,7 +501,8 @@ const loadModels = async (modelLoaders) => {
 
         gltf.scene = SkeletonUtils.clone(gltf.scene) // Do we still need to do this because multiples of the same model are loaded?
         gltf.mixer = new THREE.AnimationMixer(gltf.scene)
-
+        gltf.scene.userData.closeToTalk = false
+        gltf.scene.userData.closeToCollide = false
         // console.log('Loaded GLTF', gltf, modelLoader)
         // modelLoader.gltf = gltf
         // walkmeshScene.add(gltf)
@@ -616,6 +617,7 @@ const placeModels = (mode) => {
                     if (playableCharacter) {
                         currentPlayableCharacter = fieldModel
                         console.log('currentPlayableCharacter', fieldModel)
+                        setPlayableCharacterMovability(true)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(currentFieldData.triggers.header.controlDirection))
                     break placeOperationLoop
@@ -658,10 +660,25 @@ const triggerTriggered = (i, isOn) => {
     }
 }
 
+const modelCollisionTriggered = (i) => {
+    console.log('modelCollisionTriggered', i)
+}
 
+const initiateTalk = (i, fieldModel) => {
+    console.log('initiateTalk', i, fieldModel)
+    setPlayableCharacterMovability(false)
+}
+const setPlayableCharacterMovability = (canMove) => {
+    currentPlayableCharacter.scene.userData.playableCharacterMovability = canMove
+}
 const updateFieldMovement = (delta) => {
     // Get active player
     if (!currentPlayableCharacter) {
+        return
+    }
+
+    // Can player move?
+    if (!currentPlayableCharacter.scene.userData.playableCharacterMovability) {
         return
     }
 
@@ -671,6 +688,15 @@ const updateFieldMovement = (delta) => {
     if (options.debug.runByDefault === input.x) { // Adjust to walk
         speed = speed * 0.18
         animNo = 1
+    }
+
+    // Check talk request
+    if (input.o) {
+        for (let i = 0; i < currentFieldModels.length; i++) {
+            if (currentFieldModels[i].scene.userData.closeToTalk === true) {
+                initiateTalk(i, currentFieldModels[i])
+            }
+        }
     }
 
     // console.log('speed', speed, delta, animNo, currentPlayableCharacter.animations[animNo].name)
@@ -757,7 +783,6 @@ const updateFieldMovement = (delta) => {
                 triggerLine.userData.triggered = true
                 triggerTriggered(i, true)
             }
-
         } else {
             if (triggerLine.userData.triggered === true) {
                 triggerLine.userData.triggered = false
@@ -767,7 +792,45 @@ const updateFieldMovement = (delta) => {
     }
 
     // Detect model collisions
-    // TODO
+    // Can probably filter out models that haven't been placed onto the scene
+    for (let i = 0; i < currentFieldModels.length; i++) {
+        const fieldModel = currentFieldModels[i]
+
+        if (fieldModel === currentPlayableCharacter) {
+            continue
+        }
+        const distance = nextPosition.distanceTo(fieldModel.scene.position)
+
+        // Need to check distances aren't set from op codes, and solidMode is enabled etc
+        // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
+        if (distance < 0.015) {
+            if (fieldModel.scene.userData.closeToTalk === false) {
+                fieldModel.scene.userData.closeToTalk = true
+                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
+            }
+        } else {
+            if (fieldModel.scene.userData.closeToTalk === true) {
+                fieldModel.scene.userData.closeToTalk = false
+                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
+            }
+        }
+        if (distance < 0.012) {
+            if (fieldModel.scene.userData.closeToCollide === false) {
+                fieldModel.scene.userData.closeToCollide = true
+                // console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel.userData)
+                modelCollisionTriggered(i)
+            }
+            // Stop movement
+            currentPlayableCharacter.mixer.stopAllAction()
+            return
+        } else {
+            if (fieldModel.scene.userData.closeToCollide === true) { // Is this needed to keep collision state??
+                fieldModel.scene.userData.closeToCollide = false
+                // console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel.userData)
+            }
+        }
+    }
+
 
 
     // If walk/run is toggled, stop the existing animation
