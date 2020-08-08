@@ -1,0 +1,566 @@
+import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+
+import { getActiveInputs } from '../interaction/inputs.js'
+import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping } from './field-scene.js'
+import { loadField, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
+import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, initiateTalk, setPlayableCharacterMovability } from './field-actions.js'
+// Uses global states:
+// let currentField = window.currentField // Handle this better in the future
+// let anim = window.anim
+// let config = window.config
+
+const drawWalkmesh = () => {
+
+    // Draw triangles for walkmesh
+    let triangles = window.currentField.data.walkmeshSection.triangles;
+    let numTriangles = triangles.length;
+
+    let walkmeshPositions = []
+    window.currentField.walkmeshLines = new THREE.Group()
+    for (let i = 0; i < numTriangles; i++) {
+        let triangle = window.currentField.data.walkmeshSection.triangles[i];
+        let accessor = window.currentField.data.walkmeshSection.accessors[i];
+        let v0 = new THREE.Vector3(triangle.vertices[0].x / 4096, triangle.vertices[0].y / 4096, triangle.vertices[0].z / 4096);
+        let v1 = new THREE.Vector3(triangle.vertices[1].x / 4096, triangle.vertices[1].y / 4096, triangle.vertices[1].z / 4096);
+        let v2 = new THREE.Vector3(triangle.vertices[2].x / 4096, triangle.vertices[2].y / 4096, triangle.vertices[2].z / 4096);
+        let addLine = function (scene, va, vb, acc) {
+            let lineColor = (acc == -1 ? 0x4488cc : 0x888888)
+            let material1 = new THREE.LineBasicMaterial({ color: lineColor })
+            let geometry1 = new THREE.Geometry();
+            geometry1.vertices.push(va);
+            geometry1.vertices.push(vb);
+            let line = new THREE.Line(geometry1, material1);
+            window.currentField.walkmeshLines.add(line)
+        }
+        addLine(window.currentField.fieldScene, v0, v1, accessor[0]);
+        addLine(window.currentField.fieldScene, v1, v2, accessor[1]);
+        addLine(window.currentField.fieldScene, v2, v0, accessor[2]);
+
+        // positions for mesh buffergeo
+        walkmeshPositions.push(triangle.vertices[0].x / 4096, triangle.vertices[0].y / 4096, triangle.vertices[0].z / 4096)
+        walkmeshPositions.push(triangle.vertices[1].x / 4096, triangle.vertices[1].y / 4096, triangle.vertices[1].z / 4096)
+        walkmeshPositions.push(triangle.vertices[2].x / 4096, triangle.vertices[2].y / 4096, triangle.vertices[2].z / 4096)
+    }
+    window.currentField.fieldScene.add(window.currentField.walkmeshLines)
+
+
+    // Draw mesh for walkmesh
+    let geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
+    let material = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
+    window.currentField.walkmeshMesh = new THREE.Mesh(geometry, material)
+    window.currentField.walkmeshMesh.visible = window.config.debug.showWalkmeshMesh
+    window.currentField.fieldScene.add(window.currentField.walkmeshMesh)
+
+    // Draw gateways
+    window.currentField.gatewayLines = new THREE.Group()
+    for (let gateway of window.currentField.data.triggers.gateways) {
+        let lv0 = gateway.exitLineVertex1;
+        let lv1 = gateway.exitLineVertex2;
+        let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096);
+        let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096);
+        let material1 = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        let geometry1 = new THREE.Geometry();
+        geometry1.vertices.push(v0);
+        geometry1.vertices.push(v1);
+        let line = new THREE.Line(geometry1, material1);
+        window.currentField.gatewayLines.add(line);
+    }
+    window.currentField.fieldScene.add(window.currentField.gatewayLines)
+
+    // Draw triggers / doors
+    window.currentField.triggerLines = new THREE.Group()
+    window.currentField.data.triggers.triggers = window.currentField.data.triggers.triggers.filter(t => !(t.cornerVertex1.x === 0 && t.cornerVertex1.y === 0 && t.cornerVertex1.z === 0)) // for some reason there are a lots of 0,0,0 triggers, remove them for now
+    for (let trigger of window.currentField.data.triggers.triggers) {
+        let lv0 = trigger.cornerVertex1;
+        let lv1 = trigger.cornerVertex2;
+        let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096);
+        let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096);
+        let material1 = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+        let geometry1 = new THREE.Geometry();
+        geometry1.vertices.push(v0);
+        geometry1.vertices.push(v1);
+        let line = new THREE.Line(geometry1, material1);
+        line.userData.triggered = false
+        window.currentField.triggerLines.add(line);
+        if (lv0.x !== 0) {
+            // console.log('Door', lv0, v0, '&', lv1, v1)
+        }
+    }
+    window.currentField.fieldScene.add(window.currentField.triggerLines)
+}
+
+const loadModels = async (modelLoaders) => {
+    let fieldModels = []
+    for (let modelLoader of modelLoaders) {
+        let gltf = await loadFullFieldModel(modelLoader)
+        gltf.userData['name'] = modelLoader.name
+        gltf.userData['hrcId'] = modelLoader.hrcId
+        gltf.userData['globalLight'] = modelLoader.globalLight
+
+        gltf.scene = SkeletonUtils.clone(gltf.scene) // Do we still need to do this because multiples of the same model are loaded?
+        gltf.mixer = new THREE.AnimationMixer(gltf.scene)
+        gltf.scene.userData.closeToTalk = false
+        gltf.scene.userData.closeToCollide = false
+        // console.log('Loaded GLTF', gltf, modelLoader)
+        // modelLoader.gltf = gltf
+        // window.currentField.fieldScene.add(gltf)
+
+        fieldModels.push(gltf)
+    }
+    return fieldModels
+}
+const getModelScaleDownValue = () => {
+    // const scaleDownValue = 1 / (window.currentField.data.model.header.modelScale * 0.5)
+    // SEE workings-out -> getModelScaleDownValue.js
+    // [
+    //     { 'scale': '400', 'count': 4, 'exampleField': 'gidun_1' },
+    //     { 'scale': '448', 'count': 1, 'exampleField': 'rcktin3' },
+    //     { 'scale': '480', 'count': 2, 'exampleField': 'mkt_w' },
+    //     { 'scale': '512', 'count': 643, 'exampleField': 'ancnt1' },
+    //     { 'scale': '576', 'count': 5, 'exampleField': 'fship_2' },
+    //     { 'scale': '600', 'count': 5, 'exampleField': 'ealin_12' },
+    //     { 'scale': '640', 'count': 2, 'exampleField': 'del1' },
+    //     { 'scale': '650', 'count': 2, 'exampleField': 'mds7st3' },
+    //     { 'scale': '700', 'count': 6, 'exampleField': 'astage_b' },
+    //     { 'scale': '720', 'count': 1, 'exampleField': 'mtcrl_8' },
+    //     { 'scale': '768', 'count': 12, 'exampleField': 'bwhlin' },
+    //     { 'scale': '1024', 'count': 9, 'exampleField': 'ancnt3' },
+    //     { 'scale': '2048', 'count': 7, 'exampleField': 'fr_e' },
+    //     { 'scale': '4096', 'count': 2, 'exampleField': 'bugin1b' },
+    //     { 'scale': '5120', 'count': 1, 'exampleField': 'rootmap' }
+    // ]
+
+    // Looks like:
+    // 256  -> 1 / 1280        linear
+    // 512  -> 1 / 1024        linear
+    // 768  -> 1 / 768         linear
+    // 1024 -> 1 / 512         linear
+    // 2048 -> 1 / 256         power
+    // 4096 -> 1 / 128         power
+
+    let factor = ((window.currentField.data.model.header.modelScale - 768) * -1) + 768
+    if (window.currentField.data.model.header.modelScale >= 1024) {
+        factor = (Math.pow(2, (Math.log2(window.currentField.data.model.header.modelScale) * -1) + 19))
+    }
+
+    const scaleDownValue = 1 / factor
+    // console.log('getModelScaleDownValue', factor, scaleDownValue, window.currentField.data.model.header.modelScale)
+    return scaleDownValue
+}
+const placeModels = (mode) => {
+    console.log('window.currentField.data', window.currentField.data)
+    // console.log('window.currentField.data.script.entities', window.currentField.data.script.entities)
+    // console.log('window.currentField.models', window.currentField.models)
+
+    // let sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1)
+    // sphere.position.set(0, 0, 0)
+    // let geometry = new THREE.SphereGeometry(50, 32, 32);
+    // let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    // let sphere = new THREE.Mesh(geometry, material);
+    // sphere.position.set(0.2745535969734192, -0.2197556495666504, 0.0959818959236145)
+    // window.currentField.fieldScene.add(sphere);
+
+    window.anim.axesHelper = new THREE.AxesHelper(0.1);
+    window.anim.axesHelper.visible = false
+    window.currentField.fieldScene.add(window.anim.axesHelper);
+
+    for (let entity of window.currentField.data.script.entities) {
+        // console.log('entity', entity)
+        let fieldModelId
+        let fieldModel
+        let playableCharacter
+        for (let script of entity.scripts) {
+
+            // console.log('script', entity, script)
+            placeOperationLoop:
+            for (let op of script.ops) {
+                // console.log('ops', entity, script, op, op.op)
+                if (op.op === 'CHAR') {
+                    fieldModelId = op.n
+                }
+                if (op.op === 'XYZI') {
+
+                    // console.log('fieldModelId', fieldModelId)
+                    fieldModel = window.currentField.models[fieldModelId]
+
+                    const scaleDownValue = getModelScaleDownValue()
+                    if (fieldModelId !== undefined) {
+                        // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModelScene)
+                        fieldModel.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
+                        fieldModel.scene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
+                        fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
+                        fieldModel.scene.up.set(0, 0, 1)
+
+
+                        if (fieldModel.animations.length > 0) {
+                            window.currentField.fieldScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
+                            // console.log('Place model with window.animation', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
+                            fieldModel.mixer.clipAction(fieldModel.animations[fieldModel.animations.length - 1]).play() // Just temporary for testing
+                        }
+                        // console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
+                        window.currentField.fieldScene.add(fieldModel.scene)
+
+                        // fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
+                        // window.currentField.fieldScene.add(fieldModel.boxHelper)
+
+                    }
+                    // break placeOperationLoop
+                }
+                if (op.op === 'DIR' && fieldModel) {
+                    let deg = 360 * op.d / 255
+                    // console.log('DIR', op, deg)
+                    // TODO - Figure out how to get direction (156) into kujata-data
+                    // triggers.header.controlDirection
+                    fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
+                    if (playableCharacter) {
+                        window.currentField.playableCharacter = fieldModel
+                        console.log('window.currentField.playableCharacter', fieldModel)
+                        setPlayableCharacterMovability(true)
+                    }
+                    // fieldModelScene.rotateY(THREE.Math.degToRad(window.currentField.data.triggers.header.controlDirection))
+                    break placeOperationLoop
+                }
+                if (op.op === 'PC') {
+                    // console.log('PC', op)
+                    // if (op.c === 0) { // Cloud
+                    //     console.log('cloud is playable char')
+                    playableCharacter = true
+                }
+            }
+        }
+    }
+}
+
+
+const updateFieldMovement = (delta) => {
+    // Get active player
+    if (!window.currentField.playableCharacter) {
+        return
+    }
+
+    // Can player move?
+    if (!window.currentField.playableCharacter.scene.userData.playableCharacterMovability) {
+        return
+    }
+
+    let speed = 0.10 * delta// run - Need to set these from the placed character model. Maybe these can be defaults?
+    let animNo = 2 // run
+
+    if (window.config.debug.runByDefault === getActiveInputs().x) { // Adjust to walk
+        speed = speed * 0.18
+        animNo = 1
+    }
+
+    // Check talk request
+    if (getActiveInputs().o) {
+        for (let i = 0; i < window.currentField.models.length; i++) {
+            if (window.currentField.models[i].scene.userData.closeToTalk === true) {
+                initiateTalk(i, window.currentField.models[i])
+            }
+        }
+    }
+
+    // console.log('speed', speed, delta, animNo, window.currentField.playableCharacter.animations[animNo].name)
+    // Find direction that player should be facing
+    // let direction = ((256 - window.currentField.data.triggers.header.controlDirection) * 360 / 256) - 180 // Moved this to kujata-data
+    let direction = window.currentField.data.triggers.header.controlDirectionDegrees
+    // console.log('Direction', window.currentField.data.triggers.header.controlDirection, window.currentField.data.triggers.header.controlDirectionDegrees, direction)
+
+    let shouldMove = true
+    if (getActiveInputs().up && getActiveInputs().right) { direction += 45 }
+    else if (getActiveInputs().right && getActiveInputs().down) { direction += 135 }
+    else if (getActiveInputs().down && getActiveInputs().left) { direction += 225 }
+    else if (getActiveInputs().left && getActiveInputs().up) { direction += 315 }
+    else if (getActiveInputs().up) { direction += 0 }
+    else if (getActiveInputs().right) { direction += 90 }
+    else if (getActiveInputs().down) { direction += 180 }
+    else if (getActiveInputs().left) { direction += 270 }
+    else { shouldMove = false }
+
+    if (!shouldMove) {
+        // If no movement but window.animation - stop window.animation (stand)
+        window.currentField.playableCharacter.mixer.stopAllAction()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).play() // stand window.anim
+        return
+    }
+    // Set player in direction 
+    let directionRadians = THREE.Math.degToRad(direction)
+    let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
+    // console.log('directionVector', directionVector, window.currentField.data.triggers.header.controlDirection)
+    let nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed) // Show probably factor in window.anim.clock delta so its smoother
+    window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, directionVector)) // Doesn't work perfectly
+    // window.currentField.fieldScene.add(new THREE.ArrowHelper(directionVector, window.currentField.playableCharacter.scene.position, 0.1, 0xff00ff))
+
+    // window.currentField.playableCharacter.boxHelper.update()
+
+    // Adjust for climbing slopes and walking off walkmesh
+    // Create a ray at next position (higher z, but pointing down) to find correct z position
+    let playerMovementRay = new THREE.Raycaster()
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
+    const rayD = new THREE.Vector3(0, 0, -1).normalize()
+    playerMovementRay.set(rayO, rayD)
+    let intersects = playerMovementRay.intersectObjects([window.currentField.walkmeshMesh])
+    // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+    if (intersects.length === 0) {
+        // Player is off walkmap
+        window.currentField.playableCharacter.mixer.stopAllAction()
+        // window.config.raycast.raycasterHelper.visible = false
+        return
+    } else {
+        const point = intersects[0].point
+        // window.config.raycast.raycasterHelper.visible = true
+        // window.config.raycast.raycasterHelper.position.set(point.x, point.y, point.z)
+        // Adjust nextPosition height to to adjust for any slopes
+        nextPosition.z = point.z
+    }
+
+
+
+    // Detect gateways
+    for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
+        const gatewayLine = window.currentField.gatewayLines.children[i]
+        const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+        const distance = nextPosition.distanceTo(closestPointOnLine)
+        if (distance < 0.005) {
+            console.log('gateway hit')
+            if (animNo === 2) { // Run
+                window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
+            } else if (animNo === 1) { // Walk
+                window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
+            }
+            // Should probably also pause ALL animations including screen background loops like in the game
+            gatewayTriggered(i)
+            return
+        }
+    }
+
+    // Detect triggers
+    for (let i = 0; i < window.currentField.triggerLines.children.length; i++) {
+        const triggerLine = window.currentField.triggerLines.children[i]
+        const closestPointOnLine = new THREE.Line3(triggerLine.geometry.vertices[0], triggerLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+        const distance = nextPosition.distanceTo(closestPointOnLine)
+        if (distance < 0.01) {
+            if (triggerLine.userData.triggered === false) {
+                triggerLine.userData.triggered = true
+                triggerTriggered(i, true)
+            }
+        } else {
+            if (triggerLine.userData.triggered === true) {
+                triggerLine.userData.triggered = false
+                triggerTriggered(i, false)
+            }
+        }
+    }
+
+    // Detect model collisions
+    // Can probably filter out models that haven't been placed onto the scene
+    for (let i = 0; i < window.currentField.models.length; i++) {
+        const fieldModel = window.currentField.models[i]
+
+        if (fieldModel === window.currentField.playableCharacter) {
+            continue
+        }
+        if (fieldModel.scene.position.x === 0 &&
+            fieldModel.scene.position.y === 0 &&
+            fieldModel.scene.position.z === 0) { // Temporary until we place models properly, playable chars are dropped at 0,0,0
+            continue
+        }
+        const distance = nextPosition.distanceTo(fieldModel.scene.position)
+
+        // Need to check distances aren't set from op codes, and solidMode is enabled etc
+        // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
+        if (distance < 0.015) {
+            if (fieldModel.scene.userData.closeToTalk === false) {
+                fieldModel.scene.userData.closeToTalk = true
+                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
+            }
+        } else {
+            if (fieldModel.scene.userData.closeToTalk === true) {
+                fieldModel.scene.userData.closeToTalk = false
+                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
+            }
+        }
+        if (distance < 0.012) {
+            if (fieldModel.scene.userData.closeToCollide === false) {
+                fieldModel.scene.userData.closeToCollide = true
+                console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel)
+                modelCollisionTriggered(i)
+            }
+            // Stop movement
+            window.currentField.playableCharacter.mixer.stopAllAction()
+            return
+        } else {
+            if (fieldModel.scene.userData.closeToCollide === true) { // Is this needed to keep collision state??
+                fieldModel.scene.userData.closeToCollide = false
+                // console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel.userData)
+            }
+        }
+    }
+
+
+
+    // If walk/run is toggled, stop the existing window.animation
+    if (animNo === 2) { // Run
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).stop() // Probably a more efficient way to change these animations
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).play()
+    } else if (animNo === 1) { // Walk
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).play()
+    }
+
+    // There is movement, set next position
+    window.currentField.playableCharacter.scene.position.x = nextPosition.x
+    window.currentField.playableCharacter.scene.position.y = nextPosition.y
+    window.currentField.playableCharacter.scene.position.z = nextPosition.z
+
+    // Adjust the camera offset to centre on character // TODO unless overridden by op codes?!
+    let relativeToCamera = nextPosition.clone().project(window.currentField.debugCamera)
+    relativeToCamera.x = (relativeToCamera.x + 1) * (window.currentField.metaData.assetDimensions.width * 1) / 2
+    relativeToCamera.y = - (relativeToCamera.y - 1) * (window.currentField.metaData.assetDimensions.height * 1) / 2
+    relativeToCamera.z = 0
+    // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
+    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+
+
+    let camDistance = window.currentField.playableCharacter.scene.position.distanceTo(window.currentField.fieldCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
+    // console.log(
+    //     'Distance from camera',
+    //     camDistance,
+    //     camDistance * 1000)
+}
+
+const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
+    let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
+    let vW = vH * window.currentField.fieldCamera.aspect
+    // console.log('drawBG', distance, '->', vH, vW)
+    let geometry = new THREE.PlaneGeometry(vW, vH, 0)
+    // console.log('drawBG texture load', bgImgUrl)
+    let texture = new THREE.TextureLoader().load(bgImgUrl)
+    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+    let plane = new THREE.Mesh(geometry, material);
+    plane.position.set(x, y, z)
+    plane.lookAt(window.currentField.fieldCamera.position)
+    plane.setRotationFromEuler(window.currentField.fieldCamera.rotation)
+    plane.visible = visible
+    plane.userData = userData
+    group.add(plane)
+}
+
+const placeBG = async (cameraTarget, fieldName) => {
+
+    let assetDimensions = await getFieldDimensions(fieldName)
+    // Create meta-data
+    window.currentField.metaData = {
+        assetDimensions: assetDimensions,
+        width: assetDimensions.width / window.config.sizing.width,
+        height: assetDimensions.height / window.config.sizing.height,
+        bgScale: 1, // assetDimensions.height / window.config.sizing.height,
+        adjustedFOV: window.currentField.fieldCamera.fov * (assetDimensions.height / window.config.sizing.height),
+        cameraUnknown: window.currentField.data.cameraSection.cameras[0].unknown,
+        modelScale: window.currentField.data.model.header.modelScale,
+        scaleDownValue: getModelScaleDownValue(),
+        numModels: window.currentField.data.model.header.numModels,
+        layersAvailable: window.currentField.backgroundData !== undefined,
+        bgZDistance: 1024,
+        fieldCoordinates: { x: 0, y: 0 } // Defaults, will be updated
+
+    }
+    // console.log('window.currentField.metaData', window.currentField.metaData)
+
+    // Rescale renderer and cameras for scene
+    window.anim.renderer.setSize(assetDimensions.width * window.config.sizing.factor * window.currentField.metaData.bgScale, assetDimensions.height * window.config.sizing.factor * window.currentField.metaData.bgScale)
+    window.currentField.fieldCamera.aspect = assetDimensions.width / assetDimensions.height
+    window.currentField.fieldCamera.fov = window.currentField.metaData.adjustedFOV
+    window.currentField.fieldCamera.lookAt(cameraTarget)
+    window.currentField.fieldCamera.updateProjectionMatrix()
+    window.currentField.debugCamera.aspect = assetDimensions.width / assetDimensions.height
+    window.currentField.debugCamera.fov = window.currentField.metaData.adjustedFOV
+    window.currentField.fieldCamera.lookAt(cameraTarget)
+    window.currentField.debugCamera.updateProjectionMatrix()
+
+
+
+    // Draw backgrounds
+    // let lookAtDistance = window.currentField.fieldCamera.position.distanceTo(cameraTarget)
+    // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
+    let intendedDistance = 1
+    window.currentField.backgroundLayers = new THREE.Group()
+    for (let i = 0; i < window.currentField.backgroundData.length; i++) {
+        const layer = window.currentField.backgroundData[i]
+        if (layer.depth === 0) {
+            layer.depth = 1
+        }
+
+
+        if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
+            layer.z = layer.z + 10
+        }
+        // If layer containers a param, make sure it sits infront of its default background
+        if (layer.param > 0) {
+            layer.z = layer.z - 1
+        }
+        let visible = layer.param === 0 // By default hide all non zero params, field op codes will how them
+
+        // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+        const bgDistance = layer.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+        // console.log('Layer', layer, bgDistance)
+
+        const userData = {
+            z: layer.z,
+            param: layer.param,
+            state: layer.state
+        }
+        let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, cameraTarget, bgDistance)
+        let url = getFieldBGLayerUrl(fieldName, layer.fileName)
+        drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
+    }
+    window.currentField.fieldScene.add(window.currentField.backgroundLayers)
+}
+
+
+const initField = async (fieldName) => {
+    // Reset field values
+    window.currentField = {
+        name: fieldName,
+        data: undefined,
+        backgroundData: undefined,
+        metaData: undefined,
+        models: undefined,
+        playableCharacter: undefined,
+        fieldScene: undefined,
+        fieldCamera: undefined,
+        fieldCameraHelper: undefined,
+        debugCamera: undefined,
+        walkmeshMesh: undefined,
+        walkmeshLines: undefined,
+        gatewayLines: undefined,
+        triggerLines: undefined,
+        backgroundLayers: undefined
+    }
+
+    window.currentField.data = await loadField(fieldName)
+
+    console.log('field-module -> window.currentField.data', window.currentField.data)
+    console.log('field-module -> window.anim', window.anim)
+    window.currentField.backgroundData = await loadFieldBackground(fieldName)
+    window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
+    let cameraTarget = setupFieldCamera()
+    drawWalkmesh()
+    placeModels()
+    await placeBG(cameraTarget, fieldName)
+    setupDebugControls(cameraTarget)
+    startFieldRenderLoop()
+    await setupViewClipping()
+    await initFieldDebug()
+}
+
+
+export {
+    initField,
+    updateFieldMovement
+}
