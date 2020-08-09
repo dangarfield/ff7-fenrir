@@ -19,6 +19,6 @@ const initManager = async () => {
     showStats()
     setupInputs()
     initRenderer()
-    loadField('itown1a')
+    loadField('sbwy4_6')
 }
 initManager()

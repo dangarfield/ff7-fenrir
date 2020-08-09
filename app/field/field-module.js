@@ -202,6 +202,8 @@ const placeModels = (mode) => {
                         // console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
                         window.currentField.fieldScene.add(fieldModel.scene)
 
+                        playableCharacter = true // Temp to test scenes
+
                         // fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
                         // window.currentField.fieldScene.add(fieldModel.boxHelper)
 
