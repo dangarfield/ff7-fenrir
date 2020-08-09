@@ -19,7 +19,6 @@ const initManager = async () => {
     showStats()
     setupInputs()
     initRenderer()
-    loadField('mrkt2')
+    loadField('itown1a')
 }
-
 initManager()
