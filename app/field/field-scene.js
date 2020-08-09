@@ -13,45 +13,51 @@ import { getActiveInputs } from '../interaction/inputs.js'
 // let anim = window.anim
 // let config = window.config
 
-const startFieldRenderLoop = () => {
-    window.anim.activeScene = 'field'
-    setupRaycasting()
-
-    let renderLoop = function () {
-        if (window.anim.activeScene !== 'field') {
-            console.log('Stopping field renderLoop')
-            return
-        }
-        requestAnimationFrame(renderLoop);
-        let delta = window.anim.clock.getDelta();
-        if (window.currentField.debugCameraControls) {
-            window.currentField.debugCameraControls.update(delta);
-        }
-        if (window.currentField.models) {
-            for (let i = 0; i < window.currentField.models.length; i++) {
-                let model = window.currentField.models[i]
-                model.mixer.update(delta) // Render character window.animations
-            }
-        }
-
-        updateFieldMovement(delta) // Ideally this should go in a separate loop
-        if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
-            // console.log('render')
-            let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera
-            if (window.config.raycast.active) {
-                raycasterFieldRendering(activeCamera)
-            }
-            window.anim.renderer.clear()
-            window.anim.renderer.render(window.currentField.fieldScene, activeCamera)
-            window.anim.renderer.clearDepth()
-            // window.anim.renderer.render(bgScene, bgCamera)
-        }
-        window.anim.stats.update();
-        if (window.currentField.fieldCameraHelper) {
-            window.currentField.fieldCameraHelper.update()
+const renderLoop = function () {
+    if (window.anim.activeScene !== 'field') {
+        console.log('Stopping field renderLoop')
+        return
+    }
+    requestAnimationFrame(renderLoop);
+    let delta = window.anim.clock.getDelta();
+    if (window.currentField.debugCameraControls) {
+        window.currentField.debugCameraControls.update(delta);
+    }
+    if (window.currentField.models) {
+        for (let i = 0; i < window.currentField.models.length; i++) {
+            let model = window.currentField.models[i]
+            model.mixer.update(delta) // Render character window.animations
         }
     }
-    renderLoop()
+
+    updateFieldMovement(delta) // Ideally this should go in a separate loop
+    if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
+        // console.log('render')
+        let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera
+        if (window.config.raycast.active) {
+            raycasterFieldRendering(activeCamera)
+        }
+        window.anim.renderer.clear()
+        window.anim.renderer.render(window.currentField.fieldScene, activeCamera)
+        window.anim.renderer.clearDepth()
+        // window.anim.renderer.render(bgScene, bgCamera)
+    }
+    window.anim.stats.update();
+    if (window.currentField.fieldCameraHelper) {
+        window.currentField.fieldCameraHelper.update()
+    }
+}
+const startFieldRenderLoop = () => {
+
+    if (window.anim.activeScene !== 'field') {
+        window.anim.activeScene = 'field'
+        setupRaycasting()
+        renderLoop()
+    }
+
+
+
+
 }
 const setupRaycasting = async () => {
     if (window.config.raycast.active) {
@@ -173,7 +179,7 @@ const setupDebugControls = (cameraTarget) => {
     activateDebugCamera()
 }
 
-const initFieldDebug = async () => {
+const initFieldDebug = async (loadFieldCB) => {
     console.log('initFieldDebug')
     // Clear all existing debug info
     if (window.anim.gui) {
@@ -186,7 +192,7 @@ const initFieldDebug = async () => {
     let fields = await getFieldList()
     fieldGUI.add(window.currentField, 'name', fields).onChange((val) => {
         console.log('window.currentField.name ->', val)
-        initField(val)
+        loadFieldCB(val)
     }).listen()
 
     fieldGUI.add(window.currentField.fieldCamera, 'fov').min(0).max(90).step(0.001).listen().onChange((val) => {

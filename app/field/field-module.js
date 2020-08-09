@@ -3,7 +3,7 @@ import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils
 
 import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping } from './field-scene.js'
-import { loadField, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
+import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
 import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, initiateTalk, setPlayableCharacterMovability } from './field-actions.js'
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -523,7 +523,7 @@ const placeBG = async (cameraTarget, fieldName) => {
 }
 
 
-const initField = async (fieldName) => {
+const loadField = async (fieldName) => {
     // Reset field values
     window.currentField = {
         name: fieldName,
@@ -543,7 +543,7 @@ const initField = async (fieldName) => {
         backgroundLayers: undefined
     }
 
-    window.currentField.data = await loadField(fieldName)
+    window.currentField.data = await loadFieldData(fieldName)
 
     console.log('field-module -> window.currentField.data', window.currentField.data)
     console.log('field-module -> window.anim', window.anim)
@@ -556,11 +556,11 @@ const initField = async (fieldName) => {
     setupDebugControls(cameraTarget)
     startFieldRenderLoop()
     await setupViewClipping()
-    await initFieldDebug()
+    await initFieldDebug(loadField)
 }
 
 
 export {
-    initField,
+    loadField,
     updateFieldMovement
 }

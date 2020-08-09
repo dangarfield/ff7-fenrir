@@ -2,7 +2,7 @@ import Stats from '../assets/threejs-r118/jsm/libs/stats.module.js' //'https://r
 
 // import * as DATA from './data/globalData.js' // Handle this better in the future
 import { setupInputs } from './interaction/inputs.js'
-import { initField } from './field/field-module.js'
+import { loadField } from './field/field-module.js'
 import { initRenderer } from './render/renderer.js'
 
 // let anim = window.anim // Handle this better in the future
@@ -19,7 +19,7 @@ const initManager = async () => {
     showStats()
     setupInputs()
     initRenderer()
-    initField('mrkt2')
+    loadField('mrkt2')
 }
 
 initManager()

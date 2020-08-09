@@ -18,7 +18,7 @@ const getFieldList = async () => {
     return fields
 }
 
-const loadField = async (fieldName) => {
+const loadFieldData = async (fieldName) => {
     const res = await fetch(`${KUJATA_BASE}/data/field/flevel.lgp/${fieldName}.json`)
     const fieldData = await res.json()
     return fieldData
@@ -98,7 +98,7 @@ const getFieldBGLayerUrl = (fieldName, fileName) => {
 
 export {
     getFieldList,
-    loadField,
+    loadFieldData,
     loadFieldBackground,
     loadFullFieldModel,
     getFieldDimensions,
