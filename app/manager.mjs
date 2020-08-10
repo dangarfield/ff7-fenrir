@@ -19,6 +19,6 @@ const initManager = async () => {
     showStats()
     setupInputs()
     initRenderer()
-    loadField('sbwy4_6')
+    loadField('ujunon1')
 }
 initManager()

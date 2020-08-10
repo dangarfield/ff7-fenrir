@@ -202,7 +202,7 @@ const placeModels = (mode) => {
                         // console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
                         window.currentField.fieldScene.add(fieldModel.scene)
 
-                        playableCharacter = true // Temp to test scenes
+                        // playableCharacter = true // Temp to test scenes
 
                         // fieldModel.boxHelper = new THREE.BoxHelper(fieldModel.scene, 0xffff00)
                         // window.currentField.fieldScene.add(fieldModel.boxHelper)
@@ -303,17 +303,16 @@ const updateFieldMovement = (delta) => {
     const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
     playerMovementRay.set(rayO, rayD)
+    playerMovementRay.far = 0.02
     let intersects = playerMovementRay.intersectObjects([window.currentField.walkmeshMesh])
     // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+    // window.currentField.fieldScene.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xff00ff)) // For debugging walkmesh raycaster
     if (intersects.length === 0) {
         // Player is off walkmap
         window.currentField.playableCharacter.mixer.stopAllAction()
-        // window.config.raycast.raycasterHelper.visible = false
         return
     } else {
         const point = intersects[0].point
-        // window.config.raycast.raycasterHelper.visible = true
-        // window.config.raycast.raycasterHelper.position.set(point.x, point.y, point.z)
         // Adjust nextPosition height to to adjust for any slopes
         nextPosition.z = point.z
     }

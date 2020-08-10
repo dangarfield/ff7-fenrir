@@ -30,9 +30,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Model collision detection and talking collision
 - :white_check_mark: Refactor into cleaner code
 - :white_check_mark: Implement remaining trigger behaviours
-- :point_right: BUG - can fall off walkmesh easily
 - :black_square_button: Field position helpers -> Hand and arrows
-- :black_square_button: Field transitions
+- :point_right: Field transitions
 - :black_square_button: Text and text interactions
 - :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
