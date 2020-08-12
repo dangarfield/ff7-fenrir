@@ -501,7 +501,7 @@ const placeBG = async (cameraTarget, fieldName) => {
         if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
             layer.z = layer.z + 10
         }
-        // If layer containers a param, make sure it sits infront of its default background
+        // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
         if (layer.param > 0) {
             layer.z = layer.z - 1
         }

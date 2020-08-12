@@ -7,6 +7,8 @@ We all love FF7, there are lots of Mods and an amazing community. As part of my 
 
 I will prodeminately be looking at recreating the fields in the first instance. Ideally it will use the in game assets (`.lgp`'s etc), but I will start using generated json fields and pngs for a start.
 
+I've also added a huge amount of functionality to [https://github.com/dangarfield/kujata](kujata) also - Web-friendly FF7 assets
+
 Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 
 ### Installation
@@ -30,6 +32,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Model collision detection and talking collision
 - :white_check_mark: Refactor into cleaner code
 - :white_check_mark: Implement remaining trigger behaviours
+- :white_check_mark: Extract kernel.bin(s) to helpful format
+- :white_check_mark: Extract window.bin to helpful format
+- :white_check_mark: Extract window.bin individual paletted pngs
 - :black_square_button: Field position helpers -> Hand and arrows
 - :point_right: Field transitions
 - :black_square_button: Text and text interactions
