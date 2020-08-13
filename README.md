@@ -18,7 +18,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser
 
 ### Progress - Field
-- :white_check_mark: Extract all assets
+- :white_check_mark: Extract model assets from kujata
+- :white_check_mark: Extract field data - Added a lot more to kujata
 - :white_check_mark: Render walkmesh and models
 - :white_check_mark: Align walkmesh with static renders (Some mismatches on some fields. although this appears to be simple lateral movement)
 - :white_check_mark: Extract layer by layer field data and add to kujata-data
@@ -35,7 +36,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Extract kernel.bin(s) to helpful format
 - :white_check_mark: Extract window.bin to helpful format
 - :white_check_mark: Extract window.bin individual paletted pngs
-- :black_square_button: Field position helpers -> Hand and arrows
+- :white_check_mark: Field position helpers -> Hand and arrows (not figured out scale or gatewayArrow positions yet)
 - :point_right: Field transitions
 - :black_square_button: Text and text interactions
 - :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)

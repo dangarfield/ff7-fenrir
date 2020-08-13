@@ -3,8 +3,10 @@ import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils
 
 import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping } from './field-scene.js'
-import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
+import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl, loadWindowTextures } from './field-fetch-data.js'
 import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, initiateTalk, setPlayableCharacterMovability } from './field-actions.js'
+import { drawArrowPositionHelper, drawCursorPositionHelper, updateCursorPositionHelpers } from './field-position-helpers.js'
+import { initFieldKeypressActions } from './field-controls.js'
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
@@ -54,24 +56,37 @@ const drawWalkmesh = () => {
     window.currentField.fieldScene.add(window.currentField.walkmeshMesh)
 
     // Draw gateways
+
+    window.currentField.positionHelpers = new THREE.Group()
     window.currentField.gatewayLines = new THREE.Group()
-    for (let gateway of window.currentField.data.triggers.gateways) {
-        let lv0 = gateway.exitLineVertex1;
-        let lv1 = gateway.exitLineVertex2;
-        let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096);
-        let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096);
-        let material1 = new THREE.LineBasicMaterial({ color: 0xff0000 });
-        let geometry1 = new THREE.Geometry();
-        geometry1.vertices.push(v0);
-        geometry1.vertices.push(v1);
-        let line = new THREE.Line(geometry1, material1);
-        window.currentField.gatewayLines.add(line);
+    for (let i = 0; i < window.currentField.data.triggers.gateways.length; i++) {
+        const gateway = window.currentField.data.triggers.gateways[i]
+        let lv0 = gateway.exitLineVertex1
+        let lv1 = gateway.exitLineVertex2
+        let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+        let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
+        let material1 = new THREE.LineBasicMaterial({ color: 0xff0000 })
+        let geometry1 = new THREE.Geometry()
+        geometry1.vertices.push(v0)
+        geometry1.vertices.push(v1)
+        let line = new THREE.Line(geometry1, material1)
+        window.currentField.gatewayLines.add(line)
+
+        // Gateway position helpers
+        // Not all position helper are the midpoint of the gateway, these are drawn
+        // seperately with coordinates from window.currentField.data.triggers.gatewayArrows
+        if (gateway.showArrow) {
+            const gatewayPositionHelperVector = new THREE.Vector3().lerpVectors(v0, v1, 0.5)
+            drawArrowPositionHelper(gatewayPositionHelperVector, 1)
+        }
     }
     window.currentField.fieldScene.add(window.currentField.gatewayLines)
 
     // Draw triggers / doors
     window.currentField.triggerLines = new THREE.Group()
-    window.currentField.data.triggers.triggers = window.currentField.data.triggers.triggers.filter(t => !(t.cornerVertex1.x === 0 && t.cornerVertex1.y === 0 && t.cornerVertex1.z === 0)) // for some reason there are a lots of 0,0,0 triggers, remove them for now
+    window.currentField.data.triggers.triggers = window.currentField.data.triggers.triggers.filter(t =>
+        !(t.cornerVertex1.x === 0 && t.cornerVertex1.y === 0 && t.cornerVertex1.z === 0))
+    // for some reason there are a lots of 0,0,0 triggers, remove them for now
     for (let trigger of window.currentField.data.triggers.triggers) {
         let lv0 = trigger.cornerVertex1;
         let lv1 = trigger.cornerVertex2;
@@ -99,7 +114,8 @@ const loadModels = async (modelLoaders) => {
         gltf.userData['hrcId'] = modelLoader.hrcId
         gltf.userData['globalLight'] = modelLoader.globalLight
 
-        gltf.scene = SkeletonUtils.clone(gltf.scene) // Do we still need to do this because multiples of the same model are loaded?
+        // Do we still need to do clone because multiples of the same model are loaded?
+        gltf.scene = SkeletonUtils.clone(gltf.scene)
         gltf.mixer = new THREE.AnimationMixer(gltf.scene)
         gltf.scene.userData.closeToTalk = false
         gltf.scene.userData.closeToCollide = false
@@ -146,7 +162,8 @@ const getModelScaleDownValue = () => {
     }
 
     const scaleDownValue = 1 / factor
-    // console.log('getModelScaleDownValue', factor, scaleDownValue, window.currentField.data.model.header.modelScale)
+    // console.log('getModelScaleDownValue', factor, scaleDownValue,
+    //   window.currentField.data.model.header.modelScale)
     return scaleDownValue
 }
 const placeModels = (mode) => {
@@ -193,10 +210,12 @@ const placeModels = (mode) => {
                         fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
                         fieldModel.scene.up.set(0, 0, 1)
 
-
+                        console.log('fieldModel.scene', fieldModel.scene, op.x, op.y, op.z)
                         if (fieldModel.animations.length > 0) {
-                            window.currentField.fieldScene.add(new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00))
-                            // console.log('Place model with window.animation', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
+                            window.currentField.fieldScene.add(new THREE.ArrowHelper(
+                                new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00)
+                            )
+                            // console.log('Place model', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
                             fieldModel.mixer.clipAction(fieldModel.animations[fieldModel.animations.length - 1]).play() // Just temporary for testing
                         }
                         // console.log('fieldModel.scene', entity.entityName, fieldModelId, op.i, fieldModel.scene, fieldModel.scene.rotation)
@@ -237,6 +256,7 @@ const placeModels = (mode) => {
 
 
 const updateFieldMovement = (delta) => {
+
     // Get active player
     if (!window.currentField.playableCharacter) {
         return
@@ -426,12 +446,16 @@ const updateFieldMovement = (delta) => {
     // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
 
-
-    let camDistance = window.currentField.playableCharacter.scene.position.distanceTo(window.currentField.fieldCamera.position) // Maybe should change this to distance to the normal of the camera position -> camera target line ? Looks ok so far, but there are a few maps with clipping that should therefore switch to an orthogonal camera
+    // Maybe should change this to distance to the normal of the camera position -> camera target line ?
+    // Looks ok so far, but there are a few maps with clipping that should therefore switch
+    // to an orthogonal camera
+    let camDistance = window.currentField.playableCharacter.scene.position.distanceTo(window.currentField.fieldCamera.position)
     // console.log(
     //     'Distance from camera',
     //     camDistance,
     //     camDistance * 1000)
+
+    updateCursorPositionHelpers()
 }
 
 const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
@@ -523,7 +547,24 @@ const placeBG = async (cameraTarget, fieldName) => {
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 }
 
+const drawArrowPositionHelpers = () => {
+    console.log('gatewayArrows', window.currentField.data)
+    for (let i = 0; i < window.currentField.data.triggers.gatewayArrows.length; i++) {
+        const arrowLocation = window.currentField.data.triggers.gatewayArrows[i]
+        if (!(arrowLocation.x === 0 && arrowLocation.y === 0 && arrowLocation.z === 0)) { // Not sure what shownArrows signifies yet, but its not always right
+            console.log('arrowLocation', arrowLocation)
 
+            // This doesn't work, need to figure this out. Don't know how to interpret these x,z,y coords
+            // const arrowPosition = { x: arrowLocation.x / 4096, y: arrowLocation.z / 4096, z: arrowLocation.z / 4096 }
+            // drawArrowPositionHelper(arrowPosition, arrowLocation.type)
+        }
+    }
+    drawCursorPositionHelper()
+    window.currentField.positionHelpers.visible = false
+    window.currentField.fieldScene.add(window.currentField.positionHelpers)
+    // Not sure when is best to initilise the cursor pointer, on placement of the main character of at once
+    updateCursorPositionHelpers()
+}
 const loadField = async (fieldName) => {
     // Reset field values
     window.currentField = {
@@ -541,7 +582,8 @@ const loadField = async (fieldName) => {
         walkmeshLines: undefined,
         gatewayLines: undefined,
         triggerLines: undefined,
-        backgroundLayers: undefined
+        backgroundLayers: undefined,
+        positionHelpers: undefined
     }
 
     window.currentField.data = await loadFieldData(fieldName)
@@ -551,13 +593,16 @@ const loadField = async (fieldName) => {
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
     let cameraTarget = setupFieldCamera()
+    await loadWindowTextures()
     drawWalkmesh()
     placeModels()
+    drawArrowPositionHelpers()
     await placeBG(cameraTarget, fieldName)
     setupDebugControls(cameraTarget)
     startFieldRenderLoop()
     await setupViewClipping()
     await initFieldDebug(loadField)
+    initFieldKeypressActions()
 }
 
 

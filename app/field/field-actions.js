@@ -9,23 +9,30 @@ const triggerTriggered = (i, isOn) => {
     console.log('triggerTriggered', i, isOn, trigger)
     // TODO Implement sounds too
     let paramBGs = window.currentField.backgroundLayers.children.filter(bg => bg.userData.param === trigger.bgGroupId_param)
+    // 0 - OnTrigger - ON
+    // 1 - OnTrigger - OFF
+    // 2 - OnTrigger - ON, AwayFromTrigger - OFF
+    // 3 - OnTrigger - OFF, AwayFromTrigger - ON
+    // 4 - OnTrigger - ON, AwayFromTriggerOnPlusSide - OFF
+    // 5 - OnTrigger - OFF, AwayFromTriggerOnPlusSide - ON
     switch (trigger.behavior) {
+        case 0: // behavior: 1 -> sininb2 (HAVEN'T TESTED)
+            for (let i = 0; i < paramBGs.length; i++) {
+                const paramBG = paramBGs[i]
+                if (paramBG.userData.state === trigger.bgFrameId_state) {
+                    paramBG.visible = true
+                }
+            }
+            break
         case 1: // behavior: 1 -> sininb2 (HAVEN'T TESTED)
             for (let i = 0; i < paramBGs.length; i++) {
                 const paramBG = paramBGs[i]
                 if (paramBG.userData.state === trigger.bgFrameId_state) {
-                    paramBG.visible = !isOn
+                    paramBG.visible = false
                 }
             }
             break
-        case 3: // behavior: 3 -> itown1a, itown1b
-            for (let i = 0; i < paramBGs.length; i++) {
-                const paramBG = paramBGs[i]
-                if (paramBG.userData.state === trigger.bgFrameId_state) {
-                    paramBG.visible = !isOn
-                }
-            }
-            break
+        case 2:
         case 4:
             for (let i = 0; i < paramBGs.length; i++) {
                 const paramBG = paramBGs[i]
@@ -34,6 +41,7 @@ const triggerTriggered = (i, isOn) => {
                 }
             }
             break
+        case 3: // behavior: 3 -> itown1a, itown1b
         case 5: // WAll market materia seller door sound https://www.youtube.com/watch?v=S5WqtdsdvXM&list=PLDgypNs3MY2TrF00OMNcK2BCHc9CovwPI&index=4 11:28
             for (let i = 0; i < paramBGs.length; i++) {
                 const paramBG = paramBGs[i]

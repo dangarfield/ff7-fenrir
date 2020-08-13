@@ -1,7 +1,23 @@
+import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
 
 const KUJATA_BASE = window.location.host.includes('localhost') ? 'kujata-data' : 'https://kujata-data-dg.netlify.app'
 
+let windowTextures = {}
+const loadWindowTextures = async () => {
+    let windowBinRes = await fetch(`${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`)
+    let windowBin = await windowBinRes.json()
+    for (let assetType in windowBin) {
+        windowTextures[assetType] = {}
+        for (let i = 0; i < windowBin[assetType].length; i++) {
+            const asset = windowBin[assetType][i]
+            // console.log('asset', asset)
+            windowTextures[assetType][asset.description] = asset
+            windowTextures[assetType][asset.description].texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`)
+        }
+    }
+    console.log('loadWindowTextures', windowTextures)
+}
 const getFieldList = async () => {
     let chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
     let chapters = await chaptersRes.json()
@@ -92,15 +108,35 @@ const getFieldBGLayerUrl = (fieldName, fileName) => {
     return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/${fileName}`
 }
 
-// const getFieldDimensions = async (fieldName) => {
-//     let assetDimensions = await imageDimensions()
-// }
-
+const getAnimatedArrowPositionHelperTextures = (type) => {
+    if (type === 2) {
+        return [
+            windowTextures.animated['marker green 1'].texture,
+            windowTextures.animated['marker green 2'].texture,
+            windowTextures.animated['marker green 3'].texture,
+            windowTextures.animated['marker green 4'].texture
+        ]
+    } else {
+        return [
+            windowTextures.animated['marker red 1'].texture,
+            windowTextures.animated['marker red 2'].texture,
+            windowTextures.animated['marker red 3'].texture,
+            windowTextures.animated['marker red 4'].texture
+        ]
+    }
+    return `${KUJATA_BASE}/metadata/window-assets/animated/marker 1.png`
+}
+const getCursorPositionHelperTexture = () => {
+    return windowTextures.buttons['button pointer'].texture
+}
 export {
     getFieldList,
     loadFieldData,
     loadFieldBackground,
     loadFullFieldModel,
     getFieldDimensions,
-    getFieldBGLayerUrl
+    getFieldBGLayerUrl,
+    loadWindowTextures,
+    getAnimatedArrowPositionHelperTextures,
+    getCursorPositionHelperTexture,
 }

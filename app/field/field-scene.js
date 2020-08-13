@@ -4,6 +4,7 @@ import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js' //'ht
 
 import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
 
+import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-module.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
@@ -12,6 +13,7 @@ import { getActiveInputs } from '../interaction/inputs.js'
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
 // let config = window.config
+
 
 const renderLoop = function () {
     if (window.anim.activeScene !== 'field') {
@@ -31,6 +33,7 @@ const renderLoop = function () {
     }
 
     updateFieldMovement(delta) // Ideally this should go in a separate loop
+    updateArrowPositionHelpers()
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
         // console.log('render')
         let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera
@@ -48,17 +51,13 @@ const renderLoop = function () {
     }
 }
 const startFieldRenderLoop = () => {
-
     if (window.anim.activeScene !== 'field') {
         window.anim.activeScene = 'field'
         setupRaycasting()
         renderLoop()
     }
-
-
-
-
 }
+
 const setupRaycasting = async () => {
     if (window.config.raycast.active) {
         raycaster = new THREE.Raycaster()
@@ -232,6 +231,8 @@ const initFieldDebug = async (loadFieldCB) => {
     })
     debugGUI.add(window.config.debug, 'showWalkmeshLines').onChange(function () {
         window.currentField.walkmeshLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.gatewayLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.triggerLines.visible = window.config.debug.showWalkmeshLines
     })
     debugGUI.add(window.config.debug, 'showBackgroundLayers').onChange(function () {
         window.currentField.backgroundLayers.visible = window.config.debug.showBackgroundLayers
