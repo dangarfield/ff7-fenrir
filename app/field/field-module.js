@@ -2,12 +2,12 @@ import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cd
 import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 
 import { getActiveInputs } from '../interaction/inputs.js'
-import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping } from './field-scene.js'
+import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl, loadWindowTextures } from './field-fetch-data.js'
-import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, initiateTalk, setPlayableCharacterMovability } from './field-actions.js'
+import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, setPlayableCharacterMovability } from './field-actions.js'
 import { drawArrowPositionHelper, drawArrowPositionHelpers, updateCursorPositionHelpers } from './field-position-helpers.js'
 import { initFieldKeypressActions } from './field-controls.js'
-import { toggleFader, drawFader } from './field-fader.js'
+import { fadeIn, drawFader } from './field-fader.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -106,6 +106,11 @@ const drawWalkmesh = () => {
         }
     }
     window.currentField.fieldScene.add(window.currentField.triggerLines)
+    if (!window.config.debug.showWalkmeshLines) {
+        window.currentField.walkmeshLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.gatewayLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.triggerLines.visible = window.config.debug.showWalkmeshLines
+    }
 }
 
 const loadModels = async (modelLoaders) => {
@@ -234,11 +239,14 @@ const placeModels = (mode) => {
                 if (op.op === 'DIR' && fieldModel) {
                     let deg = 360 * op.d / 255
                     // console.log('DIR', op, deg)
-                    // TODO - Figure out how to get direction (156) into kujata-data
                     // triggers.header.controlDirection
                     fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
+
+                    // This is just for quick debugging, op codes will be used properly later
+                    fieldModel.scene.userData.placeModeInitialDirection = deg // Purely to reverse this if needed
                     if (playableCharacter) {
                         window.currentField.playableCharacter = fieldModel
+
                         // console.log('window.currentField.playableCharacter', fieldModel)
                         setPlayableCharacterMovability(true)
                     }
@@ -277,14 +285,6 @@ const updateFieldMovement = (delta) => {
         animNo = 1
     }
 
-    // Check talk request
-    if (getActiveInputs().o) {
-        for (let i = 0; i < window.currentField.models.length; i++) {
-            if (window.currentField.models[i].scene.userData.closeToTalk === true) {
-                initiateTalk(i, window.currentField.models[i])
-            }
-        }
-    }
 
     // console.log('speed', speed, delta, animNo, window.currentField.playableCharacter.animations[animNo].name)
     // Find direction that player should be facing
@@ -441,10 +441,8 @@ const updateFieldMovement = (delta) => {
     window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
     // Adjust the camera offset to centre on character // TODO unless overridden by op codes?!
-    let relativeToCamera = nextPosition.clone().project(window.currentField.debugCamera)
-    relativeToCamera.x = (relativeToCamera.x + 1) * (window.currentField.metaData.assetDimensions.width * 1) / 2
-    relativeToCamera.y = - (relativeToCamera.y - 1) * (window.currentField.metaData.assetDimensions.height * 1) / 2
-    relativeToCamera.z = 0
+    const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
+
     // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
 
@@ -547,9 +545,23 @@ const placeBG = async (fieldName) => {
     }
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 }
+const positionPlayableCharacterFromTransition = () => {
+    if (window.currentField.playableCharacter && window.currentField.playableCharacterInitData) {
+        const initData = window.currentField.playableCharacterInitData
+        console.log('init player from field transition', initData)
+        window.currentField.playableCharacter.scene.position.set(
+            initData.position.x / 4096,
+            initData.position.y / 4096,
+            initData.position.z / 4096)
+        // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
+        const deg = window.currentField.playableCharacter.scene.userData.placeModeInitialDirection
+        window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(-deg))
+        const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    }
+}
 
-
-const loadField = async (fieldName) => {
+const loadField = async (fieldName, playableCharacterInitData) => {
     // Reset field values
     window.currentField = {
         name: fieldName,
@@ -569,11 +581,11 @@ const loadField = async (fieldName) => {
         backgroundLayers: undefined,
         positionHelpers: undefined,
         cameraTarget: undefined,
-        fieldFader: undefined
+        fieldFader: undefined,
+        playableCharacterInitData: playableCharacterInitData
     }
 
     window.currentField.data = await loadFieldData(fieldName)
-
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
     window.currentField.cameraTarget = setupFieldCamera()
@@ -583,15 +595,16 @@ const loadField = async (fieldName) => {
 
     console.log('window.currentField', window.currentField)
     await loadWindowTextures()
-    drawWalkmesh()
-    placeModels()
-    drawArrowPositionHelpers()
     await placeBG(fieldName)
     setupDebugControls()
     startFieldRenderLoop()
     await setupViewClipping()
+    drawWalkmesh()
+    drawArrowPositionHelpers()
+    placeModels()
+    positionPlayableCharacterFromTransition()
     await initFieldDebug(loadField)
-    await toggleFader()
+    await fadeIn()
     initFieldKeypressActions()
 }
 

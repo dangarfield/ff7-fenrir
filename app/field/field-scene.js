@@ -269,6 +269,13 @@ const setupViewClipping = async () => {
     adjustViewClipping(x, y) // Set initial view, will be overridden on movement and op codes, probably also when we place the playable character
     // console.log('window.currentField.metaData', window.currentField.metaData)
 }
+const calculateViewClippingPointFromVector3 = (v) => {
+    let relativeToCamera = new THREE.Vector3(v.x, v.y, v.z).project(window.currentField.debugCamera) // Debug camera has whole view
+    relativeToCamera.x = (relativeToCamera.x + 1) * (window.currentField.metaData.assetDimensions.width * 1) / 2
+    relativeToCamera.y = - (relativeToCamera.y - 1) * (window.currentField.metaData.assetDimensions.height * 1) / 2
+    relativeToCamera.z = 0
+    return relativeToCamera
+}
 const adjustViewClipping = async (x, y) => {
     window.currentField.metaData.fieldCoordinates.x = x
     window.currentField.metaData.fieldCoordinates.y = y
@@ -295,5 +302,6 @@ export {
     setupDebugControls,
     initFieldDebug,
     setupViewClipping,
+    calculateViewClippingPointFromVector3,
     adjustViewClipping
 }

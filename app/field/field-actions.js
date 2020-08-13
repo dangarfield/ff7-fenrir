@@ -1,8 +1,16 @@
-const gatewayTriggered = (i) => {
-    console.log('gatewayTriggered', i)
-    // Should probably disable movement after this has been hit
-    // window.currentField.playableCharacter = undefined
+import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
+import { loadField } from './field-module.js'
+
+let actionInProgress = false
+
+const isActionInProgress = () => {
+    const progress = isFadeInProgress() ? 'transition' : actionInProgress
+    // console.log('isActionInProgress', progress)
+    return progress
 }
+const setActionInProgress = (action) => { actionInProgress = action }
+const clearActionInProgress = () => { actionInProgress = false }
+
 
 const triggerTriggered = (i, isOn) => {
     let trigger = window.currentField.data.triggers.triggers[i]
@@ -68,14 +76,43 @@ const modelCollisionTriggered = (i) => {
 const initiateTalk = (i, fieldModel) => {
     console.log('initiateTalk', i, fieldModel)
     setPlayableCharacterMovability(false)
+    window.currentField.playableCharacter.mixer.stopAllAction()
 }
 const setPlayableCharacterMovability = (canMove) => {
     window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove
+}
+const loadMenu = async () => {
+    setActionInProgress('menu')
+    window.anim.clock.stop()
+    setPlayableCharacterMovability(false)
+    await fadeOut()
+    // TODO - LoadMenuModule
+}
+const unfreezeFieldFromClosedMenu = async () => {
+    clearActionInProgress()
+    window.anim.clock.start()
+    setPlayableCharacterMovability(true)
+    await fadeIn()
+}
+const gatewayTriggered = async (i) => {
+    const gateway = window.currentField.data.triggers.gateways[i]
+    console.log('gatewayTriggered', i, gateway, gateway.fieldName)
+    setActionInProgress('gateway')
+    window.anim.clock.stop()
+    setPlayableCharacterMovability(false)
+    await fadeOut()
+    const playableCharacterInitData = { position: gateway.destinationVertex, direction: 100 }
+    loadField(gateway.fieldName, playableCharacterInitData)
 }
 export {
     gatewayTriggered,
     triggerTriggered,
     modelCollisionTriggered,
     initiateTalk,
-    setPlayableCharacterMovability
+    setPlayableCharacterMovability,
+    isActionInProgress,
+    setActionInProgress,
+    clearActionInProgress,
+    loadMenu,
+    unfreezeFieldFromClosedMenu
 }

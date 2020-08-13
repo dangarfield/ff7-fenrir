@@ -1,5 +1,9 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 
+let fadeInProgress = false
+const isFadeInProgress = () => { return fadeInProgress }
+const setFadeInProgress = (progress) => { fadeInProgress = progress }
+
 const drawFader = async () => {
     let geometry = new THREE.PlaneBufferGeometry(0.01, 0.01, 0.01)
     let material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
@@ -18,35 +22,33 @@ const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const toggleFader = async () => {
-    const current = window.currentField.fieldFader.material.opacity
-    // console.log('toggleFader', current === 0 ? 'fadeOut' : 'fadeIn')
-    const t1 = new Date()
-    if (current === 0) {
-        await fadeOut(25, 0.035)
-    } else {
-        await fadeIn(25, 0.07)
-    }
-    const t2 = new Date()
-    // console.log('fade complete', t2.getTime() - t1.getTime(), 'ms')
-}
-const fadeOut = async (interval, step) => {
+const fadeOut = async () => {
     // console.log('fadeOut')
+    const interval = 25
+    const step = 0.035
+    setFadeInProgress(true)
     while (window.currentField.fieldFader.material.opacity < 1) {
         await sleep(interval)
         window.currentField.fieldFader.material.opacity = window.currentField.fieldFader.material.opacity + step
     }
     window.currentField.fieldFader.material.opacity = 1
+    setFadeInProgress(false)
 }
-const fadeIn = async (interval, step) => {
+const fadeIn = async () => {
     // console.log('fadeIn')
+    const interval = 25
+    const step = 0.07
+    setFadeInProgress(false)
     while (window.currentField.fieldFader.material.opacity > 0) {
         await sleep(interval)
         window.currentField.fieldFader.material.opacity = window.currentField.fieldFader.material.opacity - step
     }
     window.currentField.fieldFader.material.opacity = 0
+    setFadeInProgress(false)
 }
 export {
     drawFader,
-    toggleFader
+    fadeIn,
+    fadeOut,
+    isFadeInProgress
 }
