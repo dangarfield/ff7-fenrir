@@ -92,7 +92,7 @@ const raycasterFieldRendering = (camera) => {
     }
 }
 const setupFieldCamera = () => {
-    console.log('field-scene -> window.currentField', window.currentField, window.currentField)
+    // console.log('field-scene -> window.currentField', window.currentField, window.currentField)
     let ffCamera = window.currentField.data.cameraSection.cameras[0] // TODO: Support multiple cameras
     let baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951
     window.currentField.fieldScene = new THREE.Scene()
@@ -179,7 +179,6 @@ const setupDebugControls = (cameraTarget) => {
 }
 
 const initFieldDebug = async (loadFieldCB) => {
-    console.log('initFieldDebug')
     // Clear all existing debug info
     if (window.anim.gui) {
         window.anim.gui.destroy()
@@ -268,7 +267,7 @@ const setupViewClipping = async () => {
     const x = window.currentField.metaData.assetDimensions.width / 2
     const y = window.currentField.metaData.assetDimensions.height / 2
     adjustViewClipping(x, y) // Set initial view, will be overridden on movement and op codes, probably also when we place the playable character
-    console.log('window.currentField.metaData', window.currentField.metaData)
+    // console.log('window.currentField.metaData', window.currentField.metaData)
 }
 const adjustViewClipping = async (x, y) => {
     window.currentField.metaData.fieldCoordinates.x = x

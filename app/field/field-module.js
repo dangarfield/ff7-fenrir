@@ -167,7 +167,7 @@ const getModelScaleDownValue = () => {
     return scaleDownValue
 }
 const placeModels = (mode) => {
-    console.log('window.currentField.data', window.currentField.data)
+
     // console.log('window.currentField.data.script.entities', window.currentField.data.script.entities)
     // console.log('window.currentField.models', window.currentField.models)
 
@@ -210,7 +210,7 @@ const placeModels = (mode) => {
                         fieldModel.scene.rotation.x = THREE.Math.degToRad(90)
                         fieldModel.scene.up.set(0, 0, 1)
 
-                        console.log('fieldModel.scene', fieldModel.scene, op.x, op.y, op.z)
+                        // console.log('fieldModel.scene', fieldModel.scene, op.x, op.y, op.z)
                         if (fieldModel.animations.length > 0) {
                             window.currentField.fieldScene.add(new THREE.ArrowHelper(
                                 new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00)
@@ -237,7 +237,7 @@ const placeModels = (mode) => {
                     fieldModel.scene.rotateY(THREE.Math.degToRad(deg)) // Is this in degrees or 0-255 range?
                     if (playableCharacter) {
                         window.currentField.playableCharacter = fieldModel
-                        console.log('window.currentField.playableCharacter', fieldModel)
+                        // console.log('window.currentField.playableCharacter', fieldModel)
                         setPlayableCharacterMovability(true)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(window.currentField.data.triggers.header.controlDirection))
@@ -548,11 +548,11 @@ const placeBG = async (cameraTarget, fieldName) => {
 }
 
 const drawArrowPositionHelpers = () => {
-    console.log('gatewayArrows', window.currentField.data)
+    // console.log('gatewayArrows', window.currentField.data)
     for (let i = 0; i < window.currentField.data.triggers.gatewayArrows.length; i++) {
         const arrowLocation = window.currentField.data.triggers.gatewayArrows[i]
         if (!(arrowLocation.x === 0 && arrowLocation.y === 0 && arrowLocation.z === 0)) { // Not sure what shownArrows signifies yet, but its not always right
-            console.log('arrowLocation', arrowLocation)
+            // console.log('arrowLocation', arrowLocation)
 
             // This doesn't work, need to figure this out. Don't know how to interpret these x,z,y coords
             // const arrowPosition = { x: arrowLocation.x / 4096, y: arrowLocation.z / 4096, z: arrowLocation.z / 4096 }
@@ -588,11 +588,13 @@ const loadField = async (fieldName) => {
 
     window.currentField.data = await loadFieldData(fieldName)
 
-    console.log('field-module -> window.currentField.data', window.currentField.data)
-    console.log('field-module -> window.anim', window.anim)
+    // console.log('field-module -> window.currentField.data', window.currentField.data)
+    // console.log('field-module -> window.anim', window.anim)
+    let cameraTarget = setupFieldCamera()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
-    let cameraTarget = setupFieldCamera()
+
+    console.log('window.currentField', window.currentField)
     await loadWindowTextures()
     drawWalkmesh()
     placeModels()

@@ -67,7 +67,7 @@ const drawArrowPositionHelper = (helperPosition, type) => {
     const helperOntopPoint = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, helperPosition, ratio)
     const finalDistance = window.currentField.fieldCamera.position.distanceTo(helperOntopPoint)
     const scale = 0.01 * ratio
-    console.log('drawArrowPositionHelper', distance, intendedDistance, ratio, distance * ratio, '->', finalDistance, scale)
+    // console.log('drawArrowPositionHelper', distance, intendedDistance, ratio, distance * ratio, '->', finalDistance, scale)
 
     var spriteTextures = getAnimatedArrowPositionHelperTextures(type)
     var spriteMaterial = new THREE.SpriteMaterial({ map: spriteTextures[0] })
@@ -78,8 +78,8 @@ const drawArrowPositionHelper = (helperPosition, type) => {
     sprite.userData.frameCount = 0
     // Not able to get the scale of the arrows sprites right at this point
     sprite.position.set(helperOntopPoint.x, helperOntopPoint.y, helperOntopPoint.z)
-    console.log('scale', sprite.getWorldScale(new THREE.Vector3()))
-    console.log('sprite', sprite)
+    // console.log('scale', sprite.getWorldScale(new THREE.Vector3()))
+    // console.log('sprite', sprite)
     sprite.scale.set(scale, scale, scale)
     window.currentField.positionHelpers.add(sprite)
 }

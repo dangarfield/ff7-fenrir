@@ -36,8 +36,10 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Extract kernel.bin(s) to helpful format
 - :white_check_mark: Extract window.bin to helpful format
 - :white_check_mark: Extract window.bin individual paletted pngs
-- :white_check_mark: Field position helpers -> Hand and arrows (not figured out scale or gatewayArrow positions yet)
-- :point_right: Field transitions
+- :white_check_mark: Field position helpers -> Hand and animated arrows (not figured out scale or gatewayArrow positions yet)
+- :point_right: Fied screen fades
+- :black_square_button: Asset loading progress
+- :black_square_button: Field to field transitions
 - :black_square_button: Text and text interactions
 - :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)

@@ -16,7 +16,7 @@ const loadWindowTextures = async () => {
             windowTextures[assetType][asset.description].texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`)
         }
     }
-    console.log('loadWindowTextures', windowTextures)
+    // console.log('loadWindowTextures', windowTextures)
 }
 const getFieldList = async () => {
     let chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
@@ -42,7 +42,7 @@ const loadFieldData = async (fieldName) => {
 const loadFieldBackground = async (fieldName) => {
     const bgMetaRes = await fetch(`${KUJATA_BASE}/metadata/background-layers/${fieldName}/${fieldName}.json`)
     const bgMetaData = await bgMetaRes.json()
-    console.log('bgMetaData', bgMetaData)
+    // console.log('bgMetaData', bgMetaData)
     return bgMetaData
 }
 const createCombinedGLTF = (modelGLTF, animGLTF) => {
