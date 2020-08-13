@@ -33,7 +33,7 @@ const updateArrowPositionHelpers = () => {
     }
 }
 const updateCursorPositionHelpers = () => {
-    if (window.currentField.positionHelpers && window.currentField.positionHelpers.children) {
+    if (window.currentField.positionHelpers && window.currentField.positionHelpers.children && window.currentField.playableCharacter) {
         for (let i = 0; i < window.currentField.positionHelpers.children.length; i++) {
             if (window.currentField.positionHelpers.children[i].userData.type === 'cursor') {
                 const helper = window.currentField.positionHelpers.children[i]
@@ -56,6 +56,24 @@ const updateCursorPositionHelpers = () => {
             }
         }
     }
+}
+const drawArrowPositionHelpers = () => {
+    // console.log('gatewayArrows', window.currentField.data)
+    for (let i = 0; i < window.currentField.data.triggers.gatewayArrows.length; i++) {
+        const arrowLocation = window.currentField.data.triggers.gatewayArrows[i]
+        if (!(arrowLocation.x === 0 && arrowLocation.y === 0 && arrowLocation.z === 0)) { // Not sure what shownArrows signifies yet, but its not always right
+            // console.log('arrowLocation', arrowLocation)
+
+            // This doesn't work, need to figure this out. Don't know how to interpret these x,z,y coords
+            // const arrowPosition = { x: arrowLocation.x / 4096, y: arrowLocation.z / 4096, z: arrowLocation.z / 4096 }
+            // drawArrowPositionHelper(arrowPosition, arrowLocation.type)
+        }
+    }
+    drawCursorPositionHelper()
+    window.currentField.positionHelpers.visible = false
+    window.currentField.fieldScene.add(window.currentField.positionHelpers)
+    // Not sure when is best to initilise the cursor pointer, on placement of the main character of at once
+    updateCursorPositionHelpers()
 }
 const drawArrowPositionHelper = (helperPosition, type) => {
 
@@ -104,6 +122,7 @@ export {
     updateArrowPositionHelpers,
     updateCursorPositionHelpers,
     drawArrowPositionHelper,
+    drawArrowPositionHelpers,
     drawCursorPositionHelper,
     togglePositionHelperVisility
 }

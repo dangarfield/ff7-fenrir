@@ -162,9 +162,9 @@ const activateDebugCamera = () => {
 const setupFieldDebugCamera = () => {
     window.currentField.debugCamera = window.currentField.fieldCamera.clone()
 }
-const setupDebugControls = (cameraTarget) => {
+const setupDebugControls = () => {
     window.currentField.debugCameraControls = new OrbitControls(window.currentField.debugCamera, window.anim.renderer.domElement);
-    window.currentField.debugCameraControls.target = cameraTarget
+    window.currentField.debugCameraControls.target = window.currentField.cameraTarget
     window.currentField.debugCameraControls.panSpeed = 1 / 4;
     window.currentField.debugCameraControls.rotateSpeed = 1 / 4;
     window.currentField.debugCameraControls.zoomSpeed = 1 / 4;

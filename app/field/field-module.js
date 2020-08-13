@@ -5,8 +5,10 @@ import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping } from './field-scene.js'
 import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl, loadWindowTextures } from './field-fetch-data.js'
 import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, initiateTalk, setPlayableCharacterMovability } from './field-actions.js'
-import { drawArrowPositionHelper, drawCursorPositionHelper, updateCursorPositionHelpers } from './field-position-helpers.js'
+import { drawArrowPositionHelper, drawArrowPositionHelpers, updateCursorPositionHelpers } from './field-position-helpers.js'
 import { initFieldKeypressActions } from './field-controls.js'
+import { toggleFader, drawFader } from './field-fader.js'
+
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
@@ -476,7 +478,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => 
     group.add(plane)
 }
 
-const placeBG = async (cameraTarget, fieldName) => {
+const placeBG = async (fieldName) => {
 
     let assetDimensions = await getFieldDimensions(fieldName)
     // Create meta-data
@@ -501,17 +503,17 @@ const placeBG = async (cameraTarget, fieldName) => {
     window.anim.renderer.setSize(assetDimensions.width * window.config.sizing.factor * window.currentField.metaData.bgScale, assetDimensions.height * window.config.sizing.factor * window.currentField.metaData.bgScale)
     window.currentField.fieldCamera.aspect = assetDimensions.width / assetDimensions.height
     window.currentField.fieldCamera.fov = window.currentField.metaData.adjustedFOV
-    window.currentField.fieldCamera.lookAt(cameraTarget)
+    window.currentField.fieldCamera.lookAt(window.currentField.cameraTarget)
     window.currentField.fieldCamera.updateProjectionMatrix()
     window.currentField.debugCamera.aspect = assetDimensions.width / assetDimensions.height
     window.currentField.debugCamera.fov = window.currentField.metaData.adjustedFOV
-    window.currentField.fieldCamera.lookAt(cameraTarget)
+    window.currentField.fieldCamera.lookAt(window.currentField.cameraTarget)
     window.currentField.debugCamera.updateProjectionMatrix()
 
 
 
     // Draw backgrounds
-    // let lookAtDistance = window.currentField.fieldCamera.position.distanceTo(cameraTarget)
+    // let lookAtDistance = window.currentField.fieldCamera.position.distanceTo(window.currentField.cameraTarget)
     // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 1
     window.currentField.backgroundLayers = new THREE.Group()
@@ -520,7 +522,6 @@ const placeBG = async (cameraTarget, fieldName) => {
         if (layer.depth === 0) {
             layer.depth = 1
         }
-
 
         if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
             layer.z = layer.z + 10
@@ -540,31 +541,14 @@ const placeBG = async (cameraTarget, fieldName) => {
             param: layer.param,
             state: layer.state
         }
-        let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, cameraTarget, bgDistance)
+        let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
         let url = getFieldBGLayerUrl(fieldName, layer.fileName)
         drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
     }
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 }
 
-const drawArrowPositionHelpers = () => {
-    // console.log('gatewayArrows', window.currentField.data)
-    for (let i = 0; i < window.currentField.data.triggers.gatewayArrows.length; i++) {
-        const arrowLocation = window.currentField.data.triggers.gatewayArrows[i]
-        if (!(arrowLocation.x === 0 && arrowLocation.y === 0 && arrowLocation.z === 0)) { // Not sure what shownArrows signifies yet, but its not always right
-            // console.log('arrowLocation', arrowLocation)
 
-            // This doesn't work, need to figure this out. Don't know how to interpret these x,z,y coords
-            // const arrowPosition = { x: arrowLocation.x / 4096, y: arrowLocation.z / 4096, z: arrowLocation.z / 4096 }
-            // drawArrowPositionHelper(arrowPosition, arrowLocation.type)
-        }
-    }
-    drawCursorPositionHelper()
-    window.currentField.positionHelpers.visible = false
-    window.currentField.fieldScene.add(window.currentField.positionHelpers)
-    // Not sure when is best to initilise the cursor pointer, on placement of the main character of at once
-    updateCursorPositionHelpers()
-}
 const loadField = async (fieldName) => {
     // Reset field values
     window.currentField = {
@@ -583,14 +567,17 @@ const loadField = async (fieldName) => {
         gatewayLines: undefined,
         triggerLines: undefined,
         backgroundLayers: undefined,
-        positionHelpers: undefined
+        positionHelpers: undefined,
+        cameraTarget: undefined,
+        fieldFader: undefined
     }
 
     window.currentField.data = await loadFieldData(fieldName)
 
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
-    let cameraTarget = setupFieldCamera()
+    window.currentField.cameraTarget = setupFieldCamera()
+    drawFader()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
 
@@ -599,11 +586,12 @@ const loadField = async (fieldName) => {
     drawWalkmesh()
     placeModels()
     drawArrowPositionHelpers()
-    await placeBG(cameraTarget, fieldName)
-    setupDebugControls(cameraTarget)
+    await placeBG(fieldName)
+    setupDebugControls()
     startFieldRenderLoop()
     await setupViewClipping()
     await initFieldDebug(loadField)
+    await toggleFader()
     initFieldKeypressActions()
 }
 
