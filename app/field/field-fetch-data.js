@@ -94,12 +94,13 @@ const loadModels = async (modelLoaders) => {
     return fieldModels
 }
 const loadFullFieldModel = async (modelLoader) => {
-    const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
+    // These models aren't cached, we really should cache them
+    const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`, { cache: "force-cache" })
     let modelGLTF = await modelGLTFRes.json()
     // console.log('modelLoader', modewlLoader)
     for (let i = 0; i < modelLoader.animations.length; i++) {
         const animId = modelLoader.animations[i].toLowerCase().substring(0, modelLoader.animations[i].indexOf('.'))
-        let animRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`)
+        let animRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`, { cache: "force-cache" })
         let animGLTF = await animRes.json()
         modelGLTF = createCombinedGLTF(modelGLTF, animGLTF)
     }

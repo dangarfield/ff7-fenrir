@@ -4,7 +4,7 @@ import Stats from '../assets/threejs-r118/jsm/libs/stats.module.js' //'https://r
 import { setupInputs } from './interaction/inputs.js'
 import { loadField } from './field/field-module.js'
 import { initRenderer } from './render/renderer.js'
-import { loadWindowTextures } from './data/kernel-fetch-data.js'
+import { enableLoadingCache, loadWindowTextures } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 
 // let anim = window.anim // Handle this better in the future
@@ -17,6 +17,7 @@ const showStats = () => {
 
 const initManager = async () => {
     console.log('initManager', window.anim)
+    enableLoadingCache()
     anim.container = document.getElementById('container')
     if (window.config.debug.active) {
         showStats()

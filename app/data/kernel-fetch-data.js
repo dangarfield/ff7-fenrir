@@ -33,8 +33,13 @@ const loadWindowTextures = async () => {
         }
     })
 }
+
+const enableLoadingCache = () => {
+    THREE.Cache.enabled = true
+}
 export {
     KUJATA_BASE,
     loadWindowTextures,
-    getWindowTextures
+    getWindowTextures,
+    enableLoadingCache
 }
