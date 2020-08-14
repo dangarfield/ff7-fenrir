@@ -4,6 +4,8 @@ import Stats from '../assets/threejs-r118/jsm/libs/stats.module.js' //'https://r
 import { setupInputs } from './interaction/inputs.js'
 import { loadField } from './field/field-module.js'
 import { initRenderer } from './render/renderer.js'
+import { loadWindowTextures } from './data/kernel-fetch-data.js'
+import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 
 // let anim = window.anim // Handle this better in the future
 
@@ -16,9 +18,14 @@ const showStats = () => {
 const initManager = async () => {
     console.log('initManager', window.anim)
     anim.container = document.getElementById('container')
-    showStats()
-    setupInputs()
+    if (window.config.debug.active) {
+        showStats()
+    }
     initRenderer()
+    await initLoadingModule()
+    showLoadingScreen()
+    setupInputs()
+    await loadWindowTextures()
     loadField('mds5_1')
 }
 initManager()

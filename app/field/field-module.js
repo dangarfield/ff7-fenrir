@@ -1,13 +1,13 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 
 import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
-import { loadFieldData, loadFieldBackground, loadFullFieldModel, getFieldDimensions, getFieldBGLayerUrl, loadWindowTextures } from './field-fetch-data.js'
+import { loadFieldData, loadFieldBackground, loadModels, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
 import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, setPlayableCharacterMovability } from './field-actions.js'
 import { drawArrowPositionHelper, drawArrowPositionHelpers, updateCursorPositionHelpers } from './field-position-helpers.js'
 import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
+import { showLoadingScreen } from '../loading/loading-module.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -113,27 +113,6 @@ const drawWalkmesh = () => {
     }
 }
 
-const loadModels = async (modelLoaders) => {
-    let fieldModels = []
-    for (let modelLoader of modelLoaders) {
-        let gltf = await loadFullFieldModel(modelLoader)
-        gltf.userData['name'] = modelLoader.name
-        gltf.userData['hrcId'] = modelLoader.hrcId
-        gltf.userData['globalLight'] = modelLoader.globalLight
-
-        // Do we still need to do clone because multiples of the same model are loaded?
-        gltf.scene = SkeletonUtils.clone(gltf.scene)
-        gltf.mixer = new THREE.AnimationMixer(gltf.scene)
-        gltf.scene.userData.closeToTalk = false
-        gltf.scene.userData.closeToCollide = false
-        // console.log('Loaded GLTF', gltf, modelLoader)
-        // modelLoader.gltf = gltf
-        // window.currentField.fieldScene.add(gltf)
-
-        fieldModels.push(gltf)
-    }
-    return fieldModels
-}
 const getModelScaleDownValue = () => {
     // const scaleDownValue = 1 / (window.currentField.data.model.header.modelScale * 0.5)
     // SEE workings-out -> getModelScaleDownValue.js
@@ -562,6 +541,8 @@ const positionPlayableCharacterFromTransition = () => {
 }
 
 const loadField = async (fieldName, playableCharacterInitData) => {
+
+
     // Reset field values
     window.currentField = {
         name: fieldName,
@@ -584,7 +565,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData
     }
-
+    showLoadingScreen()
     window.currentField.data = await loadFieldData(fieldName)
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
@@ -592,9 +573,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     drawFader()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
-
     console.log('window.currentField', window.currentField)
-    await loadWindowTextures()
     await placeBG(fieldName)
     setupDebugControls()
     startFieldRenderLoop()
@@ -603,7 +582,9 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     drawArrowPositionHelpers()
     placeModels()
     positionPlayableCharacterFromTransition()
-    await initFieldDebug(loadField)
+    if (window.config.debug.active) {
+        await initFieldDebug(loadField)
+    }
     await fadeIn()
     initFieldKeypressActions()
 }

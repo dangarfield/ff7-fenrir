@@ -1,23 +1,9 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+import { KUJATA_BASE, getWindowTextures } from '../data/kernel-fetch-data.js'
+import { setLoadingText, setLoadingProgress } from '../loading/loading-module.js'
 
-const KUJATA_BASE = window.location.host.includes('localhost') ? 'kujata-data' : 'https://kujata-data-dg.netlify.app'
-
-let windowTextures = {}
-const loadWindowTextures = async () => {
-    let windowBinRes = await fetch(`${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`)
-    let windowBin = await windowBinRes.json()
-    for (let assetType in windowBin) {
-        windowTextures[assetType] = {}
-        for (let i = 0; i < windowBin[assetType].length; i++) {
-            const asset = windowBin[assetType][i]
-            // console.log('asset', asset)
-            windowTextures[assetType][asset.description] = asset
-            windowTextures[assetType][asset.description].texture = new THREE.TextureLoader().load(`${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`)
-        }
-    }
-    // console.log('loadWindowTextures', windowTextures)
-}
 const getFieldList = async () => {
     let chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
     let chapters = await chaptersRes.json()
@@ -77,6 +63,36 @@ const createCombinedGLTF = (modelGLTF, animGLTF) => {
     // console.log("combinedGLTF:", gltf1)
     return gltf1;
 }
+const loadModels = async (modelLoaders) => {
+    const t1 = new Date()
+    let fieldModels = []
+
+    setLoadingText('Loading...')
+    for (let i = 0; i < modelLoaders.length; i++) {
+        const modelLoader = modelLoaders[i]
+        // Should probably make these fetches in parallel, another TODO
+        let gltf = await loadFullFieldModel(modelLoader)
+        gltf.userData['name'] = modelLoader.name
+        gltf.userData['hrcId'] = modelLoader.hrcId
+        gltf.userData['globalLight'] = modelLoader.globalLight
+
+        // Do we still need to do clone because multiples of the same model are loaded?
+        gltf.scene = SkeletonUtils.clone(gltf.scene)
+        gltf.mixer = new THREE.AnimationMixer(gltf.scene)
+        gltf.scene.userData.closeToTalk = false
+        gltf.scene.userData.closeToCollide = false
+        // console.log('Loaded GLTF', gltf, modelLoader)
+        // modelLoader.gltf = gltf
+        // window.currentField.fieldScene.add(gltf)
+
+        fieldModels.push(gltf)
+        const progress = (i + 1) / modelLoaders.length
+        setLoadingProgress(progress)
+    }
+    const t2 = new Date()
+    // console.log('loadModels time', t2.getTime() - t1.getTime(), 'ms')
+    return fieldModels
+}
 const loadFullFieldModel = async (modelLoader) => {
     const modelGLTFRes = await fetch(`${KUJATA_BASE}/data/field/char.lgp/${modelLoader.hrcId.toLowerCase()}.gltf`)
     let modelGLTF = await modelGLTFRes.json()
@@ -111,32 +127,30 @@ const getFieldBGLayerUrl = (fieldName, fileName) => {
 const getAnimatedArrowPositionHelperTextures = (type) => {
     if (type === 2) {
         return [
-            windowTextures.animated['marker green 1'].texture,
-            windowTextures.animated['marker green 2'].texture,
-            windowTextures.animated['marker green 3'].texture,
-            windowTextures.animated['marker green 4'].texture
+            getWindowTextures().animated['marker green 1'].texture,
+            getWindowTextures().animated['marker green 2'].texture,
+            getWindowTextures().animated['marker green 3'].texture,
+            getWindowTextures().animated['marker green 4'].texture
         ]
     } else {
         return [
-            windowTextures.animated['marker red 1'].texture,
-            windowTextures.animated['marker red 2'].texture,
-            windowTextures.animated['marker red 3'].texture,
-            windowTextures.animated['marker red 4'].texture
+            getWindowTextures().animated['marker red 1'].texture,
+            getWindowTextures().animated['marker red 2'].texture,
+            getWindowTextures().animated['marker red 3'].texture,
+            getWindowTextures().animated['marker red 4'].texture
         ]
     }
-    return `${KUJATA_BASE}/metadata/window-assets/animated/marker 1.png`
 }
 const getCursorPositionHelperTexture = () => {
-    return windowTextures.buttons['button pointer'].texture
+    return getWindowTextures().buttons['button pointer'].texture
 }
 export {
     getFieldList,
     loadFieldData,
     loadFieldBackground,
-    loadFullFieldModel,
+    loadModels,
     getFieldDimensions,
     getFieldBGLayerUrl,
-    loadWindowTextures,
     getAnimatedArrowPositionHelperTextures,
     getCursorPositionHelperTexture,
 }

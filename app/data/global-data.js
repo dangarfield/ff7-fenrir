@@ -19,6 +19,7 @@ window.config = {
         factor: 2
     },
     debug: {
+        active: true,
         showDebugCamera: false,
         showWalkmeshMesh: false,
         showWalkmeshLines: true,

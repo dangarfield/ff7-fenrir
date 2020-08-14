@@ -45,7 +45,9 @@ const renderLoop = function () {
         window.anim.renderer.clearDepth()
         // window.anim.renderer.render(bgScene, bgCamera)
     }
-    window.anim.stats.update();
+    if (window.config.debug.active) {
+        window.anim.stats.update()
+    }
     if (window.currentField.fieldCameraHelper) {
         window.currentField.fieldCameraHelper.update()
     }
