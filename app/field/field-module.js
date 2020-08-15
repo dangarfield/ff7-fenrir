@@ -8,6 +8,7 @@ import { drawArrowPositionHelper, drawArrowPositionHelpers, updateCursorPosition
 import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
+import { setupOrthoCamera } from './field-ortho-scene.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -570,6 +571,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
     window.currentField.cameraTarget = setupFieldCamera()
+    await setupOrthoCamera()
     drawFader()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)

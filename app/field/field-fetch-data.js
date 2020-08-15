@@ -145,6 +145,20 @@ const getAnimatedArrowPositionHelperTextures = (type) => {
 const getCursorPositionHelperTexture = () => {
     return getWindowTextures().buttons['button pointer'].texture
 }
+const getDialogTextures = () => {
+    const textures = getWindowTextures()
+    return {
+        bl: textures.borders['border bl'].texture,
+        br: textures.borders['border br'].texture,
+        tl: textures.borders['border tl'].texture,
+        tr: textures.borders['border tr'].texture,
+
+        t: textures.borders['border t'].texture,
+        b: textures.borders['border b'].texture,
+        l: textures.borders['border l'].texture,
+        r: textures.borders['border r'].texture
+    }
+}
 export {
     getFieldList,
     loadFieldData,
@@ -154,4 +168,5 @@ export {
     getFieldBGLayerUrl,
     getAnimatedArrowPositionHelperTextures,
     getCursorPositionHelperTexture,
+    getDialogTextures
 }

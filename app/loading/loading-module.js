@@ -34,12 +34,8 @@ const initLoadingModule = async () => {
         window.config.sizing.height,
         0,
         0, 10)
-    const renderer = new THREE.WebGLRenderer()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    // document.body.appendChild(renderer.domElement)
 
     const geometry = new THREE.PlaneGeometry(1, 1)
-    geometry.center
     const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true })
     material.opacity = 0
     bar = new THREE.Mesh(geometry, material)
@@ -55,7 +51,8 @@ const initLoadingModule = async () => {
 
     const textGeo = createTextGeometry('Starting game...')
     text = new THREE.Mesh(textGeo, material)
-    text.position.y = 4
+    text.position.x = 2
+    text.position.y = 6
     scene.add(text)
 }
 const renderLoop = function () {

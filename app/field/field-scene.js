@@ -8,6 +8,7 @@ import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-module.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
+import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -42,7 +43,9 @@ const renderLoop = function () {
         }
         window.anim.renderer.clear()
         window.anim.renderer.render(window.currentField.fieldScene, activeCamera)
+
         window.anim.renderer.clearDepth()
+        window.anim.renderer.render(orthoFrontScene, orthoFrontCamera)
         // window.anim.renderer.render(bgScene, bgCamera)
     }
     if (window.config.debug.active) {
