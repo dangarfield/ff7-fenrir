@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
-import { getDialogTextures } from './field-fetch-data.js'
+import { getDialogTextures, getDialogLetter } from './field-fetch-data.js'
 
 
 let scene
@@ -9,10 +9,12 @@ let dialogs
 let EDGE_SIZE = 8
 let DIALOG_BG_COLORS = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
 
-const createDialogEdgeMesh = (w, h, texture) => {
+const createTextureMesh = (w, h, texture) => {
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true })
+    material.map.minFilter = THREE.LinearFilter
     return new THREE.Mesh(
         new THREE.PlaneBufferGeometry(w, h),
-        new THREE.MeshBasicMaterial({ map: texture, transparent: true }))
+        material)
 }
 const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
     mesh.position.set(
@@ -64,12 +66,9 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
 }
 const createDialogBox = async (x, y, w, h, z) => {
 
-    await sleep(2500)
-
     const dialogBox = new THREE.Group()
     const dialogTextures = getDialogTextures()
     const bgGeo = new THREE.PlaneBufferGeometry(w - EDGE_SIZE + 3, h - EDGE_SIZE + 3)
-    // const bgGeo = new THREE.PlaneBufferGeometry((EDGE_SIZE * 2) - 3, (EDGE_SIZE * 2) - 3)
     bgGeo.colorsNeedUpdate = true
 
     bgGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(4 * 3), 3))
@@ -84,90 +83,62 @@ const createDialogBox = async (x, y, w, h, z) => {
     bg.userData.sizeExpand = { w: w - EDGE_SIZE + 3, h: h - EDGE_SIZE + 3 }
     bg.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2), z: z }
     bg.userData.posExpand = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2), z: z }
-    bg.userData.status = 'small'
     bg.position.set(bg.userData.posSmall.x, bg.userData.posSmall.y, z)
     dialogBox.add(bg)
 
-    const tl = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tl)
-    // tl.position.set(x + (EDGE_SIZE / 2), window.config.sizing.height - y - (EDGE_SIZE / 2), z)
-    // tl.position.set(x + (w / 2) - (EDGE_SIZE / 2), window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z)
+    const tl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tl)
     tl.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     tl.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
-    tl.userData.status = 'small'
     tl.position.set(tl.userData.posSmall.x, tl.userData.posSmall.y, z)
     dialogBox.add(tl)
 
-    const tr = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tr)
-    // tr.position.set(x + (EDGE_SIZE / 2) + w - EDGE_SIZE, window.config.sizing.height - y - (EDGE_SIZE / 2), z)
-    // tr.position.set(x + (w / 2) + (EDGE_SIZE / 2), window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z)
+    const tr = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tr)
     tr.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     tr.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
-    tr.userData.status = 'small'
     tr.position.set(tr.userData.posSmall.x, tr.userData.posSmall.y, z)
     dialogBox.add(tr)
 
-    const bl = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.bl)
-    // bl.position.set(x + (EDGE_SIZE / 2), window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z)
-    // bl.position.set(x + (w / 2) - (EDGE_SIZE / 2), window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z)
+    const bl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.bl)
     bl.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z: z }
     bl.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
-    bl.userData.status = 'small'
     bl.position.set(bl.userData.posSmall.x, bl.userData.posSmall.y, z)
     dialogBox.add(bl)
 
-    const br = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.br)
-    // br.position.set(x + (EDGE_SIZE / 2) + w - EDGE_SIZE, window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z)
-    // br.position.set(x + (w / 2) + (EDGE_SIZE / 2), window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z)
+    const br = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.br)
     br.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z }
     br.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
-    br.userData.status = 'small'
     br.position.set(br.userData.posSmall.x, br.userData.posSmall.y, z)
     dialogBox.add(br)
 
-
-    // const l = createDialogEdgeMesh(EDGE_SIZE, h - EDGE_SIZE * 2, dialogTextures.l)
-    const l = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.l)
-    // l.position.set(x + (EDGE_SIZE / 2), window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z)
+    const l = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.l)
     l.userData.sizeSmall = { w: EDGE_SIZE, h: EDGE_SIZE }
     l.userData.sizeExpand = { w: EDGE_SIZE, h: h - EDGE_SIZE * 2 }
     l.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z: z }
     l.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z: z }
-    l.userData.status = 'small'
     l.position.set(l.userData.posSmall.x, l.userData.posSmall.y, z)
     dialogBox.add(l)
 
-    // const r = createDialogEdgeMesh(EDGE_SIZE, h - EDGE_SIZE * 2, dialogTextures.r)
-    const r = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.r)
-    // r.position.set(x + (EDGE_SIZE / 2) + w - EDGE_SIZE, window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z)
+    const r = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.r)
     r.userData.sizeSmall = { w: EDGE_SIZE, h: EDGE_SIZE }
     r.userData.sizeExpand = { w: EDGE_SIZE, h: h - EDGE_SIZE * 2 }
     r.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z }
     r.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z }
-    r.userData.status = 'small'
     r.position.set(r.userData.posSmall.x, r.userData.posSmall.y, z)
     dialogBox.add(r)
 
-    // const t = createDialogEdgeMesh(w - EDGE_SIZE * 2, EDGE_SIZE, dialogTextures.t)
-    const t = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.t)
-    // t.position.set(x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), window.config.sizing.height - y - (EDGE_SIZE / 2), z)
-    // t.position.set(x + (w / 2), window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z)
+    const t = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.t)
     t.userData.sizeSmall = { w: EDGE_SIZE, h: EDGE_SIZE }
     t.userData.sizeExpand = { w: w - EDGE_SIZE * 2, h: EDGE_SIZE }
     t.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     t.userData.posExpand = { x: x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
-    t.userData.status = 'small'
     t.position.set(t.userData.posSmall.x, t.userData.posSmall.y, z)
     dialogBox.add(t)
 
-    // const b = createDialogEdgeMesh(w - EDGE_SIZE * 2, EDGE_SIZE, dialogTextures.b)
-    const b = createDialogEdgeMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.b)
-    // b.position.set(x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z)
-    // b.position.set(x + (w / 2), window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z)
+    const b = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.b)
     b.userData.sizeSmall = { w: EDGE_SIZE, h: EDGE_SIZE }
     b.userData.sizeExpand = { w: w - EDGE_SIZE * 2, h: EDGE_SIZE }
     b.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z: z }
     b.userData.posExpand = { x: x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
-    b.userData.status = 'small'
     b.position.set(b.userData.posSmall.x, b.userData.posSmall.y, z)
     dialogBox.add(b)
 
@@ -198,25 +169,25 @@ const createDialogBox = async (x, y, w, h, z) => {
         sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, stepTotal, bgGeo))
         // bg.material.clippingPlanes.map(p => p.destroy())
         bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
-
     }
-    // await sleep(speed)
-    // posAdjustList.map(mesh => adjustDialogExpandPos(mesh, 1, stepTotal, z))
-    // sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, 1, stepTotal, bgGeo))
-    // // bg.material.clippingPlanes.map(p => p.destroy())
-    // bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
+}
 
-    // // 2/3
-    // await sleep(speed)
-    // posAdjustList.map(mesh => adjustDialogExpandPos(mesh, 2, stepTotal, z))
-    // sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, 2, stepTotal, bgGeo))
-    // bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
+const addDialogText = async (x, y, w, h, z, text) => {
+    console.log('addDialogText', text)
 
-    // // 3/3
-    // await sleep(speed)
-    // posAdjustList.map(mesh => adjustDialogExpandPos(mesh, 3, stepTotal, z))
-    // sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, 3, stepTotal, bgGeo))
-    // bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
+    let offsetX = 0
+    let offsetY = 0
+    for (let i = 0; i < text.length; i++) {
+        const letter = text[i]
+        console.log('letter', letter)
+        const textureLetter = getDialogLetter(letter)
+        console.log('textureLetter', textureLetter)
+
+        const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)
+        mesh.position.set(x + 12 + offsetX, window.config.sizing.height - y - 12 - offsetY, z)
+        offsetX = offsetX + textureLetter.w
+        scene.add(mesh)
+    }
 
 }
 const sleep = (ms) => {
@@ -248,7 +219,6 @@ const setupOrthoCamera = async () => {
     dialogs = new THREE.Group()
 
     // await sleep(2500)
-    createDialogBox(130, 16, 162, 57, 1)
 
     const textGeo = new THREE.TextGeometry('ORTHO TEST', {
         font: font,
@@ -267,5 +237,7 @@ const setupOrthoCamera = async () => {
 export {
     setupOrthoCamera,
     scene,
-    camera
+    camera,
+    createDialogBox,
+    addDialogText
 }

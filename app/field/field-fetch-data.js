@@ -159,6 +159,16 @@ const getDialogTextures = () => {
         r: textures.borders['border r'].texture
     }
 }
+const getDialogLetter = (letter) => {
+    const textureLetters = getWindowTextures()['battle-menu-text-large']
+    for (var key in textureLetters) {
+        const textureLetter = textureLetters[key]
+        if (textureLetter.char === letter) {
+            return textureLetter
+        }
+    }
+    return null
+}
 export {
     getFieldList,
     loadFieldData,
@@ -168,5 +178,6 @@ export {
     getFieldBGLayerUrl,
     getAnimatedArrowPositionHelperTextures,
     getCursorPositionHelperTexture,
-    getDialogTextures
+    getDialogTextures,
+    getDialogLetter
 }

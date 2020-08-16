@@ -1,6 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
+import { createDialogBox, addDialogText } from './field-ortho-scene.js'
 
 const triggered = {
     menu: false,
@@ -52,6 +53,16 @@ const initFieldKeypressActions = () => {
             togglePositionHelperVisility()
         }
     })
+
+    getKeyPressEmitter().on('l1', async (firstPress) => {
+        if (firstPress) {
+            await createDialogBox(10, 10, 266, 57, 1)
+            await addDialogText(10, 10, 266, 57, 1, 'Biggs')
+        }
+    })
+
+
+
 }
 
 export {
