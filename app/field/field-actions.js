@@ -1,6 +1,6 @@
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
-import { createDialogBox, showWindowWithDialog, waitForDialogToClose } from './field-ortho-scene.js'
+import { createDialogBox, showWindowWithDialog } from './field-ortho-scene.js'
 
 let actionInProgress = false
 
@@ -80,9 +80,12 @@ const initiateTalk = async (i, fieldModel) => {
     window.currentField.playableCharacter.mixer.stopAllAction()
 
     // Hardcoded placeholders
-    await createDialogBox(0, 10, 10, 266, 57, 1)
-    await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
-    await waitForDialogToClose(0)
+    // await createDialogBox(0, 10, 10, 266, 57, 1)
+    // await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
+    // await showWindowWithDialog(0, '{CLOUD}<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
+    await createDialogBox(2, 60, 145, 209, 73, 1)
+    await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
+
 
     console.log('talk progressed')
     setPlayableCharacterMovability(true)

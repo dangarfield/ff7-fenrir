@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
-import { getDialogTextures, getDialogLetter } from './field-fetch-data.js'
+import { getDialogTextures, getDialogLetter, getPointRight } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 
 
@@ -9,7 +9,21 @@ let dialogBoxes = []
 
 let EDGE_SIZE = 8
 let CONFIG_WINDOW_COLOR = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
-let CONFIG_FIELD_MESSAGE = 126 // 0-255 slow - fast
+let CONFIG_FIELD_MESSAGE = 0 // 0-255 slow - fast
+
+let CHARACTER_NAMES = [
+    { id: 'Cloud', name: 'Cloud' },
+    { id: 'BARRET', name: 'Barret' },
+    { id: 'TIFA', name: 'TIFA' },
+    { id: 'AERIS', name: 'Aeris' },
+    { id: 'RED XIII', name: 'Red XIII' },
+    { id: 'YUFFIE', name: 'Yuffie' },
+    { id: 'CAIT SITH', name: 'Cait Sith' },
+    { id: 'YOUNG CLOUD', name: 'Young Cloud' },
+    { id: 'VINCENT', name: 'Vincent' },
+    { id: 'SEPHROTH', name: 'Sephiroth' },
+    { id: 'CID', name: 'Cid' },
+]
 
 const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
@@ -163,9 +177,18 @@ const createDialogBox = async (id, x, y, w, h, z) => {
     scene.add(dialogBox)
 }
 
+const replaceCharacterNames = (text) => {
+    for (let i = 0; i < CHARACTER_NAMES.length; i++) {
+        const characterName = CHARACTER_NAMES[i]
+        text = text.replace(new RegExp(`{${characterName.id}}`, 'g'), characterName.name)
+    }
+    return text
+}
 const showWindowWithDialog = async (windowId, text) => {
     console.log('showWindowWithDialog', windowId, text, dialogBoxes, dialogBoxes[windowId])
     const dialogBox = dialogBoxes[windowId]
+
+
 
     // Show dialog
     dialogBox.visible = true
@@ -184,11 +207,25 @@ const showWindowWithDialog = async (windowId, text) => {
     // Configure text
     let offsetX = 0
     let offsetY = 0
+    const LINE_HEIGHT = 16
     text = text.replace(/\t/, '    ')
-    let textLines = text.split('<br/>')
+    text = replaceCharacterNames(text)
+    // TODO - Colours, eg <fe>{PURPLE}
+    // TODO - Buttons, eg [CANCEL]
+    // TODO - Choices, eg {CHOICE}
+
     const letters = []
+    let choiceLines = []
+
+
+    let textLines = text.split('<br/>')
+
     for (let i = 0; i < textLines.length; i++) {
-        const textLine = textLines[i]
+        let textLine = textLines[i]
+
+        if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
+        textLine = textLine.replace(/\{CHOICE\}/g, '         ')
+
         for (let j = 0; j < textLine.length; j++) {
             const letter = textLine[j]
             const textureLetter = getDialogLetter(letter)
@@ -209,7 +246,7 @@ const showWindowWithDialog = async (windowId, text) => {
             }
         }
         offsetX = 0
-        offsetY = offsetY + 16
+        offsetY = offsetY + LINE_HEIGHT
     }
     // Show text
     let speedUpHoldLetter = -1
@@ -228,17 +265,67 @@ const showWindowWithDialog = async (windowId, text) => {
         // console.log('speedUpHoldLetter', speedUpHoldLetter, i, speed)
         await sleep(speed)
     }
-    dialogBox.userData.state = 'done'
+    // console.log('choiceLines', choiceLines, text)
+    if (choiceLines.length > 0) {
+        const pointRight = getPointRight()
+        const pointerMesh = createTextureMesh(pointRight.w, pointRight.h, pointRight.texture)
+
+        let pointerPositions = []
+        for (let i = 0; i < choiceLines.length; i++) {
+            const choiceLine = choiceLines[i]
+            pointerPositions.push({ id: i, x: dialogBox.userData.x + 19, y: window.config.sizing.height - dialogBox.userData.y - 12 - (LINE_HEIGHT * choiceLine), z: dialogBox.userData.z })
+        }
+        pointerMesh.userData.choices = pointerPositions
+        dialogBox.userData.currentChoice = 0
+        pointerMesh.userData.totalChoices = choiceLines.length
+        // console.log('pointerPositions', pointerPositions)
+        pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
+        dialogBox.userData.state = 'choice'
+        dialogBox.add(pointerMesh)
+    } else {
+        dialogBox.userData.state = 'done'
+    }
 
     // TODO - Multiple Pages, choices ?!
-    // TODO - Wait for closing ?!
+
+    // Wait for closing ?!
+    await waitForDialogToClose(windowId)
+}
+
+const navigateChoice = (navigateDown) => {
+    for (let i = 0; i < dialogBoxes.length; i++) {
+        if (dialogBoxes[i] !== null && dialogBoxes[i] !== undefined) {
+            if (dialogBoxes[i].userData.state === 'choice') {
+                const dialogBox = dialogBoxes[i]
+                // console.log('navigate choice for dialogBox', dialogBox)
+                for (let j = 0; j < dialogBox.children.length; j++) {
+                    if (dialogBox.children[j].userData.choices) {
+                        const pointerMesh = dialogBox.children[j]
+                        const currentChoice = dialogBox.userData.currentChoice
+                        const pointerPositions = pointerMesh.userData.choices
+                        let nextChoice = navigateDown ? currentChoice + 1 : currentChoice - 1
+                        if (nextChoice < 0) { nextChoice = pointerMesh.userData.totalChoices - 1 }
+                        else if (nextChoice >= pointerMesh.userData.totalChoices) { nextChoice = 0 }
+                        // console.log('navigateChoice', currentChoice, nextChoice)
+
+                        dialogBox.userData.currentChoice = nextChoice
+                        pointerMesh.position.set(pointerPositions[nextChoice].x, pointerPositions[nextChoice].y, pointerPositions[nextChoice].z)
+                    }
+                }
+            }
+        }
+    }
 }
 const waitForDialogToClose = async (id) => {
     console.log('waitForDialogToClose: START')
+    let currentChoice = dialogBoxes[id].currentChoice
     while (dialogBoxes[id] !== null) {
         await sleep(50)
+        currentChoice = dialogBoxes[id].currentChoice
     }
-    console.log('waitForDialogToClose: END')
+    // TODO - Return this choice in a synchronous manner to initiator
+    console.log('waitForDialogToClose: END', currentChoice)
+    return currentChoice
 }
 const closeActiveDialog = async (id) => {
     const dialogBox = dialogBoxes[id]
@@ -269,12 +356,13 @@ const closeActiveDialog = async (id) => {
 }
 
 const closeActiveDialogs = async () => {
-    console.log('closeActiveDialogs', dialogBoxes)
+    console.log('closeActiveDialogs: START', dialogBoxes)
     for (let i = 0; i < dialogBoxes.length; i++) {
-        if (dialogBoxes[i] !== null) {
+        if (dialogBoxes[i] !== null && dialogBoxes[i] !== undefined) {
             await closeActiveDialog(dialogBoxes[i].userData.id)
         }
     }
+    console.log('closeActiveDialogs: END', dialogBoxes)
 }
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -321,5 +409,6 @@ export {
     createDialogBox,
     showWindowWithDialog,
     waitForDialogToClose,
-    closeActiveDialogs
+    closeActiveDialogs,
+    navigateChoice
 }

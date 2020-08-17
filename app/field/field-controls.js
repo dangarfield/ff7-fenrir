@@ -1,12 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { createDialogBox, showWindowWithDialog, closeActiveDialogs } from './field-ortho-scene.js'
-
-const triggered = {
-    menu: false,
-    talkAction: false
-}
+import { closeActiveDialogs, navigateChoice } from './field-ortho-scene.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
@@ -22,6 +17,8 @@ const initFieldKeypressActions = () => {
 
         } else if (firstPress && isActionInProgress() === 'talk') {
             console.log('speed up or cancel talk')
+            // Need to test this when there are multiple dialogs on screen etc, will probably want amending
+            // Ideally there woud be an opcode for closing, but I haven't looked too much yet
             closeActiveDialogs()
         }
     })
@@ -68,6 +65,18 @@ const initFieldKeypressActions = () => {
         }
     })
 
+    getKeyPressEmitter().on('up', (firstPress) => {
+        if (isActionInProgress() === 'talk') {
+            console.log('navigate seletion UP')
+            navigateChoice(false)
+        }
+    })
+    getKeyPressEmitter().on('down', (firstPress) => {
+        if (isActionInProgress() === 'talk') {
+            console.log('navigate seletion DOWN')
+            navigateChoice(true)
+        }
+    })
 
 
 }

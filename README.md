@@ -40,7 +40,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Field screen fades and action locks (menu, talk, gateway transition etc)
 - :white_check_mark: Field to field transitions
 - :white_check_mark: Visualise asset loading progress
-- :point_right: Text and text interactions
+- :point_right: Dialog and choices
 - :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)

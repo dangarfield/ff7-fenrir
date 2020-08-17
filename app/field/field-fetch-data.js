@@ -169,6 +169,10 @@ const getDialogLetter = (letter) => {
     }
     return null
 }
+
+const getPointRight = () => {
+    return getWindowTextures()['battle-menu']['point - right']
+}
 export {
     getFieldList,
     loadFieldData,
@@ -179,5 +183,6 @@ export {
     getAnimatedArrowPositionHelperTextures,
     getCursorPositionHelperTexture,
     getDialogTextures,
-    getDialogLetter
+    getDialogLetter,
+    getPointRight
 }
