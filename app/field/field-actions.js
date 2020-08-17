@@ -84,13 +84,15 @@ const initiateTalk = async (i, fieldModel) => {
     // await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
     // await showWindowWithDialog(0, '{CLOUD}<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
     await createDialogBox(2, 60, 145, 209, 73, 1)
-    await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
+    // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
+    const currentChoice = await showWindowWithDialog(2, 'Flower girl<br/>“What happened?”<br/>{CHOICE}You\'d better get out of here<br/>{CHOICE}Nothing…hey…')
 
 
-    console.log('talk progressed')
+    console.log('talk progressed', currentChoice)
     setPlayableCharacterMovability(true)
     clearActionInProgress()
 }
+
 const setPlayableCharacterMovability = (canMove) => {
     window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove
 }

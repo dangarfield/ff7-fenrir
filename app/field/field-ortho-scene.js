@@ -224,7 +224,7 @@ const showWindowWithDialog = async (windowId, text) => {
         let textLine = textLines[i]
 
         if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
-        textLine = textLine.replace(/\{CHOICE\}/g, '         ')
+        textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
         for (let j = 0; j < textLine.length; j++) {
             const letter = textLine[j]
@@ -273,11 +273,12 @@ const showWindowWithDialog = async (windowId, text) => {
         let pointerPositions = []
         for (let i = 0; i < choiceLines.length; i++) {
             const choiceLine = choiceLines[i]
-            pointerPositions.push({ id: i, x: dialogBox.userData.x + 19, y: window.config.sizing.height - dialogBox.userData.y - 12 - (LINE_HEIGHT * choiceLine), z: dialogBox.userData.z })
+            pointerPositions.push({ id: i, x: dialogBox.userData.x + 17, y: window.config.sizing.height - dialogBox.userData.y - 14 - (LINE_HEIGHT * choiceLine), z: dialogBox.userData.z })
         }
-        pointerMesh.userData.choices = pointerPositions
         dialogBox.userData.currentChoice = 0
+        pointerMesh.userData.choices = pointerPositions
         pointerMesh.userData.totalChoices = choiceLines.length
+        pointerMesh.userData.isPointer = true
         // console.log('pointerPositions', pointerPositions)
         pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
         dialogBox.userData.state = 'choice'
@@ -289,7 +290,8 @@ const showWindowWithDialog = async (windowId, text) => {
     // TODO - Multiple Pages, choices ?!
 
     // Wait for closing ?!
-    await waitForDialogToClose(windowId)
+    const currentChoice = await waitForDialogToClose(windowId)
+    return currentChoice
 }
 
 const navigateChoice = (navigateDown) => {
@@ -317,21 +319,21 @@ const navigateChoice = (navigateDown) => {
     }
 }
 const waitForDialogToClose = async (id) => {
-    console.log('waitForDialogToClose: START')
-    let currentChoice = dialogBoxes[id].currentChoice
+    // console.log('waitForDialogToClose: START')
+    let currentChoice = dialogBoxes[id].userData.currentChoice
     while (dialogBoxes[id] !== null) {
+        currentChoice = dialogBoxes[id].userData.currentChoice
+        // console.log('currentChoice', currentChoice)
         await sleep(50)
-        currentChoice = dialogBoxes[id].currentChoice
     }
-    // TODO - Return this choice in a synchronous manner to initiator
-    console.log('waitForDialogToClose: END', currentChoice)
+    // console.log('waitForDialogToClose: END', currentChoice)
     return currentChoice
 }
 const closeActiveDialog = async (id) => {
     const dialogBox = dialogBoxes[id]
     console.log('closeActiveDialog', id, dialogBox, dialogBox.userData.state)
 
-    if (dialogBox.userData.state === 'done') {
+    if (dialogBox.userData.state === 'done' || dialogBox.userData.state === 'choice') {
         for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
 
             dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
@@ -342,7 +344,7 @@ const closeActiveDialog = async (id) => {
 
             dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
             for (let i = 0; i < dialogBox.children.length; i++) {
-                if (dialogBox.children[i].userData.isText) {
+                if (dialogBox.children[i].userData.isText || dialogBox.children[i].userData.isPointer) {
                     dialogBox.children[i].material.clippingPlanes = clippingPlanes
                 }
             }
