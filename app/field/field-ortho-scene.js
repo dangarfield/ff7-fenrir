@@ -1,17 +1,21 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
 import { getDialogTextures, getDialogLetter } from './field-fetch-data.js'
+import { getActiveInputs } from '../interaction/inputs.js'
 
 
 let scene
 let camera
-let dialogs
+let dialogBoxes = []
 
 let EDGE_SIZE = 8
-let DIALOG_BG_COLORS = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
+let CONFIG_WINDOW_COLOR = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
+let CONFIG_FIELD_MESSAGE = 0 // 0-255 slow - fast
+
+const DIALOG_APPEAR_SPEED = 15
+const DIALOG_APPEAR_STEP_TOTAL = 6
 
 const createTextureMesh = (w, h, texture) => {
     const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true })
-    material.map.minFilter = THREE.LinearFilter
     return new THREE.Mesh(
         new THREE.PlaneBufferGeometry(w, h),
         material)
@@ -26,12 +30,11 @@ const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
     mesh.geometry = new THREE.PlaneBufferGeometry(
         mesh.userData.sizeSmall.w - ((mesh.userData.sizeSmall.w - mesh.userData.sizeExpand.w) / stepTotal * step),
         mesh.userData.sizeSmall.h - ((mesh.userData.sizeSmall.h - mesh.userData.sizeExpand.h) / stepTotal * step))
-    // mesh.geometry.colorsNeedUpdate = true
     bgGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(4 * 3), 3))
-    for (let i = 0; i < DIALOG_BG_COLORS.length; i++) {
+    for (let i = 0; i < CONFIG_WINDOW_COLOR.length; i++) {
         // This is not a smooth blend, but instead changes the vertices of the two triangles
         // This is how they do it in the game
-        const color = new THREE.Color(DIALOG_BG_COLORS[i])
+        const color = new THREE.Color(CONFIG_WINDOW_COLOR[i])
         bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
     }
 }
@@ -58,13 +61,11 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
         const bgClipPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(
             normal,
             new THREE.Vector3(bgClipData.mesh.position.x + bgClipData.x, bgClipData.mesh.position.y + bgClipData.h, z))
-        // const bgClipPlaneHelper = new THREE.PlaneHelper(bgClipPlane, 1000, 0xff00ff)
-        // scene.add(bgClipPlaneHelper)
         bgClipPlanes.push(bgClipPlane)
     }
     return bgClipPlanes
 }
-const createDialogBox = async (x, y, w, h, z) => {
+const createDialogBox = async (id, x, y, w, h, z) => {
 
     const dialogBox = new THREE.Group()
     const dialogTextures = getDialogTextures()
@@ -72,10 +73,10 @@ const createDialogBox = async (x, y, w, h, z) => {
     bgGeo.colorsNeedUpdate = true
 
     bgGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(4 * 3), 3))
-    for (let i = 0; i < DIALOG_BG_COLORS.length; i++) {
+    for (let i = 0; i < CONFIG_WINDOW_COLOR.length; i++) {
         // This is not a smooth blend, but instead changes the vertices of the two triangles
         // This is how they do it in the game
-        const color = new THREE.Color(DIALOG_BG_COLORS[i])
+        const color = new THREE.Color(CONFIG_WINDOW_COLOR[i])
         bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
     }
     const bg = new THREE.Mesh(bgGeo, new THREE.MeshBasicMaterial({ transparent: true, vertexColors: THREE.VertexColors }))
@@ -142,53 +143,127 @@ const createDialogBox = async (x, y, w, h, z) => {
     b.position.set(b.userData.posSmall.x, b.userData.posSmall.y, z)
     dialogBox.add(b)
 
-
-
+    // All this metadata isn't nice, but would like to keep to createWindow and showWindowWithDialog methods
+    dialogBox.userData.id = id
+    dialogBox.userData.state = 'opening'
+    dialogBox.userData.x = x
+    dialogBox.userData.y = y
+    dialogBox.userData.w = w
+    dialogBox.userData.h = h
+    dialogBox.userData.z = z
+    dialogBox.userData.posAdjustList = [tl, tr, bl, br, l, r, t, b]
+    dialogBox.userData.sizeAdjustList = [t, b, l, r]
+    dialogBox.userData.bg = bg
+    dialogBox.userData.bgGeo = bgGeo
 
     bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
 
-    console.log('bg', bg)
-
-
-    dialogs.add(dialogBox)
+    dialogBoxes[id] = dialogBox
+    dialogBox.visible = false
     scene.add(dialogBox)
-    // scene.add(dialogBox)
-
-    console.log('go')
-
-    // step 1
-    const posAdjustList = [tl, tr, bl, br, l, r, t, b]
-    const sizeAdjustList = [l, r, t, b]
-    const speed = 15
-    const stepTotal = 6
-
-    // 1/3
-    for (let step = 1; step <= stepTotal; step++) {
-        await sleep(speed)
-        posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, stepTotal, z))
-        sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, stepTotal, bgGeo))
-        // bg.material.clippingPlanes.map(p => p.destroy())
-        bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
-    }
 }
 
-const addDialogText = async (x, y, w, h, z, text) => {
-    console.log('addDialogText', text)
+const showWindowWithDialog = async (windowId, text) => {
+    console.log('showWindowWithDialog', windowId, text, dialogBoxes, dialogBoxes[windowId])
+    const dialogBox = dialogBoxes[windowId]
 
+    // Show dialog
+    dialogBox.visible = true
+
+    for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
+        await sleep(DIALOG_APPEAR_SPEED)
+        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
+        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
+
+        dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
+            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
+            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
+    }
+    dialogBox.userData.state = 'writing-text'
+
+    // Configure text
     let offsetX = 0
     let offsetY = 0
-    for (let i = 0; i < text.length; i++) {
-        const letter = text[i]
-        console.log('letter', letter)
-        const textureLetter = getDialogLetter(letter)
-        console.log('textureLetter', textureLetter)
-
-        const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)
-        mesh.position.set(x + 12 + offsetX, window.config.sizing.height - y - 12 - offsetY, z)
-        offsetX = offsetX + textureLetter.w
-        scene.add(mesh)
+    text = text.replace(/\t/, '    ')
+    let textLines = text.split('<br/>')
+    const letters = []
+    for (let i = 0; i < textLines.length; i++) {
+        const textLine = textLines[i]
+        for (let j = 0; j < textLine.length; j++) {
+            const letter = textLine[j]
+            const textureLetter = getDialogLetter(letter)
+            // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
+            if (textureLetter !== null) {
+                const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)
+                const posX = dialogBox.userData.x + 8 + offsetX + (textureLetter.w / 2)
+                const posY = window.config.sizing.height - dialogBox.userData.y - 12 - offsetY
+                mesh.material.clippingPlanes = dialogBox.userData.bg.material.clippingPlanes
+                // console.log('pox', posX, '+', textureLetter.w, '->', posX + textureLetter.w, '.', posY, '-', textureLetter.h, '->', posY - textureLetter.h)
+                // console.log('letter', letter, mesh.material)
+                mesh.userData.isText = true
+                mesh.position.set(posX, posY, dialogBox.userData.z)
+                offsetX = offsetX + textureLetter.w
+                letters.push(mesh)
+            } else {
+                console.log('no char found', letter)
+            }
+        }
+        offsetX = 0
+        offsetY = offsetY + 16
     }
+    // Show text
+    let speedUpHoldLetter = -1
+    for (let i = 0; i < letters.length; i++) {
+        dialogBox.add(letters[i])
 
+        if (speedUpHoldLetter === -1 && getActiveInputs().o) {
+            speedUpHoldLetter = i
+        }
+        let speed = Math.floor((CONFIG_FIELD_MESSAGE / (255 / 52)) + 3)
+        if (speedUpHoldLetter !== -1 && (speedUpHoldLetter + 7) < i) {
+            speed = Math.floor(speed / 3)
+        }
+        // console.log('speedUpHoldLetter', speedUpHoldLetter, i, speed)
+        await sleep(speed)
+    }
+    dialogBox.userData.state = 'done'
+
+    // TODO - Multiple Pages, choices ?!
+    // TODO - Wait for closing ?!
+}
+const closeActiveDialog = async (id) => {
+    const dialogBox = dialogBoxes[id]
+    // console.log('closeActiveDialog', id, dialogBox)
+
+    for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
+
+        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
+        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
+        const clippingPlanes = createClippingPlanes(
+            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
+            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
+
+        dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
+        for (let i = 0; i < dialogBox.children.length; i++) {
+            if (dialogBox.children[i].userData.isText) {
+                dialogBox.children[i].material.clippingPlanes = clippingPlanes
+            }
+        }
+        await sleep(DIALOG_APPEAR_SPEED)
+    }
+    dialogBox.userData.state = 'closed'
+    scene.remove(dialogBox)
+    dialogBoxes[id] = null
+}
+
+const closeActiveDialogs = async () => {
+    console.log('closeActiveDialogs', dialogBoxes)
+    for (let i = 0; i < dialogBoxes.length; i++) {
+        if (dialogBoxes[i] !== null) {
+            await closeActiveDialog(dialogBoxes[i].userData.id)
+        }
+
+    }
 }
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -213,10 +288,6 @@ const setupOrthoCamera = async () => {
         0, 10000)
     camera.position.z = 1
 
-    const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true })
-
-
-    dialogs = new THREE.Group()
 
     // await sleep(2500)
 
@@ -227,6 +298,7 @@ const setupOrthoCamera = async () => {
         curveSegments: 10,
         bevelEnabled: false
     })
+    const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true })
     const text = new THREE.Mesh(textGeo, material)
     text.position.y = 4
     scene.add(text)
@@ -239,5 +311,6 @@ export {
     scene,
     camera,
     createDialogBox,
-    addDialogText
+    showWindowWithDialog,
+    closeActiveDialogs
 }

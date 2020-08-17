@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { createDialogBox, addDialogText } from './field-ortho-scene.js'
+import { createDialogBox, showWindowWithDialog, closeActiveDialogs } from './field-ortho-scene.js'
 
 const triggered = {
     menu: false,
@@ -56,8 +56,14 @@ const initFieldKeypressActions = () => {
 
     getKeyPressEmitter().on('l1', async (firstPress) => {
         if (firstPress) {
-            await createDialogBox(10, 10, 266, 57, 1)
-            await addDialogText(10, 10, 266, 57, 1, 'Biggs')
+            await createDialogBox(0, 10, 10, 266, 57, 1)
+            await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
+            // await addDialogText(10, 10, 266, 57, 1, 'Biggs')
+        }
+    })
+    getKeyPressEmitter().on('l2', async (firstPress) => {
+        if (firstPress) {
+            await closeActiveDialogs()
         }
     })
 
