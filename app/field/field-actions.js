@@ -1,5 +1,6 @@
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
+import { createDialogBox, showWindowWithDialog, waitForDialogToClose } from './field-ortho-scene.js'
 
 let actionInProgress = false
 
@@ -73,10 +74,19 @@ const modelCollisionTriggered = (i) => {
     console.log('modelCollisionTriggered', i)
 }
 
-const initiateTalk = (i, fieldModel) => {
+const initiateTalk = async (i, fieldModel) => {
     console.log('initiateTalk', i, fieldModel)
     setPlayableCharacterMovability(false)
     window.currentField.playableCharacter.mixer.stopAllAction()
+
+    // Hardcoded placeholders
+    await createDialogBox(0, 10, 10, 266, 57, 1)
+    await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
+    await waitForDialogToClose(0)
+
+    console.log('talk progressed')
+    setPlayableCharacterMovability(true)
+    clearActionInProgress()
 }
 const setPlayableCharacterMovability = (canMove) => {
     window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove

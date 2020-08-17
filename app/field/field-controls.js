@@ -11,7 +11,7 @@ const triggered = {
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
         if (firstPress && !isActionInProgress()) {
-            // Check talk request
+            // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             for (let i = 0; i < window.currentField.models.length; i++) {
                 if (window.currentField.models[i].scene.userData.closeToTalk === true) {
@@ -20,6 +20,9 @@ const initFieldKeypressActions = () => {
                 }
             }
 
+        } else if (firstPress && isActionInProgress() === 'talk') {
+            console.log('speed up or cancel talk')
+            closeActiveDialogs()
         }
     })
     getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
@@ -56,9 +59,7 @@ const initFieldKeypressActions = () => {
 
     getKeyPressEmitter().on('l1', async (firstPress) => {
         if (firstPress) {
-            await createDialogBox(0, 10, 10, 266, 57, 1)
-            await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
-            // await addDialogText(10, 10, 266, 57, 1, 'Biggs')
+
         }
     })
     getKeyPressEmitter().on('l2', async (firstPress) => {

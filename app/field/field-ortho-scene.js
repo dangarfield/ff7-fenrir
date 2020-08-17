@@ -9,7 +9,7 @@ let dialogBoxes = []
 
 let EDGE_SIZE = 8
 let CONFIG_WINDOW_COLOR = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
-let CONFIG_FIELD_MESSAGE = 0 // 0-255 slow - fast
+let CONFIG_FIELD_MESSAGE = 126 // 0-255 slow - fast
 
 const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
@@ -215,7 +215,9 @@ const showWindowWithDialog = async (windowId, text) => {
     let speedUpHoldLetter = -1
     for (let i = 0; i < letters.length; i++) {
         dialogBox.add(letters[i])
-
+        // This speeding up logic isn't completly accurate to the game but I think it is a little more usable
+        // Eg, game, requires you to let go and then press again, this only requires you to keep holding
+        // Game, when you le go, it stops going fast, this keeps it going fast for this dialog
         if (speedUpHoldLetter === -1 && getActiveInputs().o) {
             speedUpHoldLetter = i
         }
@@ -231,29 +233,39 @@ const showWindowWithDialog = async (windowId, text) => {
     // TODO - Multiple Pages, choices ?!
     // TODO - Wait for closing ?!
 }
+const waitForDialogToClose = async (id) => {
+    console.log('waitForDialogToClose: START')
+    while (dialogBoxes[id] !== null) {
+        await sleep(50)
+    }
+    console.log('waitForDialogToClose: END')
+}
 const closeActiveDialog = async (id) => {
     const dialogBox = dialogBoxes[id]
-    // console.log('closeActiveDialog', id, dialogBox)
+    console.log('closeActiveDialog', id, dialogBox, dialogBox.userData.state)
 
-    for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
+    if (dialogBox.userData.state === 'done') {
+        for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
 
-        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
-        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
-        const clippingPlanes = createClippingPlanes(
-            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
-            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
+            dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
+            dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
+            const clippingPlanes = createClippingPlanes(
+                dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
+                dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
 
-        dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
-        for (let i = 0; i < dialogBox.children.length; i++) {
-            if (dialogBox.children[i].userData.isText) {
-                dialogBox.children[i].material.clippingPlanes = clippingPlanes
+            dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
+            for (let i = 0; i < dialogBox.children.length; i++) {
+                if (dialogBox.children[i].userData.isText) {
+                    dialogBox.children[i].material.clippingPlanes = clippingPlanes
+                }
             }
+            await sleep(DIALOG_APPEAR_SPEED)
         }
-        await sleep(DIALOG_APPEAR_SPEED)
+        dialogBox.userData.state = 'closed'
+        scene.remove(dialogBox)
+        dialogBoxes[id] = null
     }
-    dialogBox.userData.state = 'closed'
-    scene.remove(dialogBox)
-    dialogBoxes[id] = null
+
 }
 
 const closeActiveDialogs = async () => {
@@ -262,7 +274,6 @@ const closeActiveDialogs = async () => {
         if (dialogBoxes[i] !== null) {
             await closeActiveDialog(dialogBoxes[i].userData.id)
         }
-
     }
 }
 const sleep = (ms) => {
@@ -288,20 +299,17 @@ const setupOrthoCamera = async () => {
         0, 10000)
     camera.position.z = 1
 
-
-    // await sleep(2500)
-
-    const textGeo = new THREE.TextGeometry('ORTHO TEST', {
-        font: font,
-        size: 5,
-        height: 1,
-        curveSegments: 10,
-        bevelEnabled: false
-    })
-    const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true })
-    const text = new THREE.Mesh(textGeo, material)
-    text.position.y = 4
-    scene.add(text)
+    // const textGeo = new THREE.TextGeometry('ORTHO TEST', {
+    //     font: font,
+    //     size: 5,
+    //     height: 1,
+    //     curveSegments: 10,
+    //     bevelEnabled: false
+    // })
+    // const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true })
+    // const text = new THREE.Mesh(textGeo, material)
+    // text.position.y = 4
+    // scene.add(text)
 
     console.log('setupOrthoCamera: END')
 }
@@ -312,5 +320,6 @@ export {
     camera,
     createDialogBox,
     showWindowWithDialog,
+    waitForDialogToClose,
     closeActiveDialogs
 }
