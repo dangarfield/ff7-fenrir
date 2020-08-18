@@ -22,7 +22,7 @@ window.config = {
         active: true,
         showDebugCamera: false,
         showWalkmeshMesh: false,
-        showWalkmeshLines: true,
+        showWalkmeshLines: false,
         showBackgroundLayers: true,
         showModelHelpers: false,
         showAxes: false,

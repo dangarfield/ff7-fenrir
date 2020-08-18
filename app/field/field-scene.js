@@ -292,10 +292,10 @@ const adjustViewClipping = async (x, y) => {
     window.currentField.metaData.fieldCoordinates.y = y
     let adjustedX = x - (window.config.sizing.width / 2)
     let adjustedY = y - (window.config.sizing.height / 2)
-    adjustedX = Math.min(adjustedX, 2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2)))
-    adjustedY = Math.min(adjustedY, 2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2)))
-    adjustedX = Math.max(adjustedX, 0)
-    adjustedY = Math.max(adjustedY, 0)
+    adjustedX = Math.round(Math.min(adjustedX, 2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2))))
+    adjustedY = Math.round(Math.min(adjustedY, 2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2))))
+    adjustedX = Math.round(Math.max(adjustedX, 0))
+    adjustedY = Math.round(Math.max(adjustedY, 0))
     // console.log('x', x, '->', adjustedX, 'y', y, '->', adjustedY)
 
     window.currentField.fieldCamera.setViewOffset(

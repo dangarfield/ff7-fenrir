@@ -10,8 +10,8 @@ const initRenderer = () => {
     window.anim.renderer.setSize(config.sizing.width * config.sizing.factor, config.sizing.height * config.sizing.factor)
     window.anim.renderer.autoClear = false
     window.anim.renderer.localClippingEnabled = true
-    window.anim.renderer.setPixelRatio(config.sizing.width / config.sizing.height)
-    // console.log('pixelRatio', window.anim.renderer.getPixelRatio())
+    // window.anim.renderer.setPixelRatio(config.sizing.width / config.sizing.height) // Set pixel ratio helps with antialias, but messing the background alignment up
+    console.log('pixelRatio', window.anim.renderer.getPixelRatio())
     window.anim.container.appendChild(window.anim.renderer.domElement)
     window.anim.renderer.domElement.classList.add('fenrir')
 }
