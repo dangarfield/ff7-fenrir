@@ -445,6 +445,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => 
     let geometry = new THREE.PlaneGeometry(vW, vH, 0)
     // console.log('drawBG texture load', bgImgUrl)
     let texture = new THREE.TextureLoader().load(bgImgUrl)
+    texture.magFilter = THREE.NearestFilter
     // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
     let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     let plane = new THREE.Mesh(geometry, material);
