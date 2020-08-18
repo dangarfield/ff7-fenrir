@@ -12,7 +12,7 @@ let CONFIG_WINDOW_COLOR = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(
 let CONFIG_FIELD_MESSAGE = 0 // 0-255 slow - fast
 
 let CHARACTER_NAMES = [
-    { id: 'Cloud', name: 'Cloud' },
+    { id: 'CLOUD', name: 'Cloud' },
     { id: 'BARRET', name: 'Barret' },
     { id: 'TIFA', name: 'TIFA' },
     { id: 'AERIS', name: 'Aeris' },
@@ -23,6 +23,20 @@ let CHARACTER_NAMES = [
     { id: 'VINCENT', name: 'Vincent' },
     { id: 'SEPHROTH', name: 'Sephiroth' },
     { id: 'CID', name: 'Cid' },
+]
+const BUTTON_IMAGES = [
+    { text: 'CANCEL', char: '✕' },
+    { text: 'SWITCH', char: '☐' },
+    { text: 'MENU', char: '△' },
+    { text: 'OK', char: '〇' },
+
+    { text: 'PAGEDOWN', char: '┐' }, // l1
+    { text: 'END', char: '╗' }, // ??? // l2
+    { text: 'PAGEUP', char: '┌' }, // r1
+    { text: 'HOME', char: '╔' }, // ??? / r2
+
+    { text: 'SELECT', char: '▅' }, // ???
+    { text: 'START', char: '▶' },
 ]
 
 const DIALOG_APPEAR_SPEED = 15
@@ -184,6 +198,13 @@ const replaceCharacterNames = (text) => {
     }
     return text
 }
+const replaceButtonImages = (text) => {
+    for (let i = 0; i < BUTTON_IMAGES.length; i++) {
+        const buttonImage = BUTTON_IMAGES[i]
+        text = text.replace(new RegExp(`[${buttonImage.text}]`, 'g'), buttonImage.char)
+    }
+    return text
+}
 
 const showDialogPageText = async (dialogBox) => {
     dialogBox.userData.state = 'writing-text'
@@ -269,6 +290,7 @@ const showWindowWithDialog = async (windowId, text) => {
     const LINE_HEIGHT = 16
     text = text.replace(/\t/, '    ')
     text = replaceCharacterNames(text)
+    // text = replaceButtonImages(text)
     // Done - Basic Colours, eg <fe>{PURPLE}
     // TODO - Colour animations, eg <fe>{FLASH}, <fe>{RAINBOW}
     // TODO - Buttons, eg [CANCEL], no direction button image?!
