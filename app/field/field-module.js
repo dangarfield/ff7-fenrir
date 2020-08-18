@@ -199,9 +199,9 @@ const placeModels = (mode) => {
 
                         // console.log('fieldModel.scene', fieldModel.scene, op.x, op.y, op.z)
                         if (fieldModel.animations.length > 0) {
-                            window.currentField.fieldScene.add(new THREE.ArrowHelper(
-                                new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00)
-                            )
+                            const modelHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), fieldModel.scene.position, 0.1, 0xffff00)
+                            modelHelper.visible = window.config.debug.showModelHelpers
+                            window.currentField.fieldScene.add(modelHelper)
                             // console.log('Place model', fieldModel.animations[fieldModel.animations.length - 1], fieldModel.mixer)
                             fieldModel.mixer.clipAction(fieldModel.animations[fieldModel.animations.length - 1]).play() // Just temporary for testing
                         }

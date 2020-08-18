@@ -40,8 +40,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Field to field transitions
 - :white_check_mark: Visualise asset loading progress
 - :white_check_mark: Dialog and choices - Just FLASH and RAINBOW and transparent windows todo another day
-- :point_right: Add 'full screen' window.config.sizing.factor config to expand to all available space
-- :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans). Maybe resize all images x4
+- :white_check_mark: Add 'full screen' window.config.sizing.factor config to expand to all available space
+- :point_right: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans). Maybe resize all images x4
 - :black_square_button: Add keyboard instruction image
 - :black_square_button: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...

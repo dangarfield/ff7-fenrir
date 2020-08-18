@@ -241,6 +241,12 @@ const initFieldDebug = async (loadFieldCB) => {
     debugGUI.add(window.config.debug, 'showBackgroundLayers').onChange(function () {
         window.currentField.backgroundLayers.visible = window.config.debug.showBackgroundLayers
     })
+    debugGUI.add(window.config.debug, 'showModelHelpers').onChange(function () {
+        const arrowHelpers = window.currentField.fieldScene.children.filter(e => e.type === 'ArrowHelper')
+        arrowHelpers.map(a => a.visible = window.config.debug.showModelHelpers)
+        console.log('window.currentField.fieldScene.children', arrowHelpers)
+        // window.currentField.backgroundLayers.visible = window.config.debug.showModelHelpers
+    })
     debugGUI.add(window.config.debug, 'showAxes').onChange(() => {
         window.anim.axesHelper.visible = window.config.debug.showAxes
     })
