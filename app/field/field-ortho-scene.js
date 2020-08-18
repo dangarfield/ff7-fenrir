@@ -198,10 +198,14 @@ const replaceCharacterNames = (text) => {
     }
     return text
 }
+const escapeRegex = (value) => {
+    return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+}
+
 const replaceButtonImages = (text) => {
     for (let i = 0; i < BUTTON_IMAGES.length; i++) {
         const buttonImage = BUTTON_IMAGES[i]
-        text = text.replace(new RegExp(`[${buttonImage.text}]`, 'g'), buttonImage.char)
+        text = text.replace(new RegExp(escapeRegex(`[${buttonImage.text}]`), 'g'), `${buttonImage.char}`)
     }
     return text
 }
@@ -290,15 +294,15 @@ const showWindowWithDialog = async (windowId, text) => {
     const LINE_HEIGHT = 16
     text = text.replace(/\t/, '    ')
     text = replaceCharacterNames(text)
-    // text = replaceButtonImages(text)
+    text = replaceButtonImages(text)
     // Done - Basic Colours, eg <fe>{PURPLE}
     // TODO - Colour animations, eg <fe>{FLASH}, <fe>{RAINBOW}
-    // TODO - Buttons, eg [CANCEL], no direction button image?!
+    // Done - Buttons, eg [CANCEL], no direction button image?!
     // Done - Choices, eg {CHOICE}
     // TODO - Pauses, eg {PAUSE} - Not sure, but these might be pages?!
     // Done - Pages, eg {PAGE}
 
-
+    console.log('Configured text', text)
     let pagesText = text.split('{PAUSE}')
 
     const pages = []

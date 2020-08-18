@@ -30,7 +30,6 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Viewport follows character on screen
 - :white_check_mark: Triggers and gateways have collisions and behaviours
 - :white_check_mark: Model collision detection and talking area collision
-- :white_check_mark: Model collision detection and talking collision
 - :white_check_mark: Refactor into cleaner code
 - :white_check_mark: Implement remaining trigger behaviours
 - :white_check_mark: Extract kernel.bin(s) to helpful format
@@ -40,8 +39,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Field screen fades and action locks (menu, talk, gateway transition etc)
 - :white_check_mark: Field to field transitions
 - :white_check_mark: Visualise asset loading progress
-- :point_right: Dialog and choices
-- :black_square_button: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
+- :white_check_mark: Dialog and choices - Just FLASH and RAINBOW and transparent windows todo another day
+- :point_right: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans)
+- :black_square_button: Begin kernel initial and save data information
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)
 - :black_square_button: Begin properly implementing field op codes
