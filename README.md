@@ -41,8 +41,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Visualise asset loading progress
 - :white_check_mark: Dialog and choices - Just FLASH and RAINBOW and transparent windows todo another day
 - :white_check_mark: Add 'full screen' window.config.sizing.factor config to expand to all available space
-- :point_right: Fix all remaining background imagery bugs (dark spots, layer 3, blending/typeTrans). Maybe resize all images x4
-- :black_square_button: Add keyboard instruction image
+- :point_right: Fix all remaining background imagery bugs (dark spots - TODO, layer 3 - TODO, blending/typeTrans - DONE)
+- :point_right: Add keyboard instruction image
+<!-- https://support.apple.com/library/content/dam/edam/applecare/images/en_US/keyboards/british_notebook.png -->
 - :black_square_button: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
