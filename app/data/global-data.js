@@ -16,7 +16,7 @@ window.config = {
     sizing: {
         width: 320,
         height: 240,
-        factor: 2
+        factor: 0  // Set to 0 to scale to available viewport size
     },
     debug: {
         active: true,
@@ -33,4 +33,13 @@ window.config = {
         mouse: undefined,
         raycasterHelper: undefined
     }
+}
+
+if (window.config.sizing.factor === 0) {
+    const width = window.innerWidth || document.documentElement.clientWidth ||
+        document.body.clientWidth
+    const height = window.innerHeight || document.documentElement.clientHeight ||
+        document.body.clientHeight
+    window.config.sizing.factor = Math.min(width / window.config.sizing.width, height / window.config.sizing.height)
+    // console.log('Set window sizing factor', width, height, window.config.sizing.factor)
 }

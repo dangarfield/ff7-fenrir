@@ -263,10 +263,10 @@ const showDialogPageText = async (dialogBox) => {
     } else if (dialogBox.userData.pages.length > currentPage + 1) {
         dialogBox.userData.currentPage++
         dialogBox.userData.state = 'page'
-        console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
+        // console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
     } else {
         dialogBox.userData.state = 'done'
-        console.log('This is the last / only page')
+        // console.log('This is the last / only page')
     }
 }
 
@@ -302,7 +302,7 @@ const showWindowWithDialog = async (windowId, text) => {
     // TODO - Pauses, eg {PAUSE} - Not sure, but these might be pages?!
     // Done - Pages, eg {PAGE}
 
-    console.log('Configured text', text)
+    // console.log('Configured text', text)
     let pagesText = text.split('{PAUSE}')
 
     const pages = []
@@ -346,10 +346,10 @@ const showWindowWithDialog = async (windowId, text) => {
                 }
                 else if (letter === '}') {
                     identifyCommandParam = false
-                    console.log('commandReady', command, commandParam, command === 'fe')
+                    // console.log('commandReady', command, commandParam, command === 'fe')
                     if (command === 'fe') {
                         color = commandParam.toLowerCase()
-                        console.log('change text color to', color)
+                        // console.log('change text color to', color)
                     }
                     command = ''
                     commandParam = ''
@@ -393,7 +393,7 @@ const showWindowWithDialog = async (windowId, text) => {
     }
     dialogBox.userData.pages = pages
     dialogBox.userData.currentPage = 0
-    console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
+    // console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
 
     // Show page / multiple Pages
     await showDialogPageText(dialogBox) // Subsequent pages are triggered from nextPageOrCloseActiveDialog()
@@ -512,7 +512,7 @@ const setupOrthoCamera = async () => {
     // text.position.y = 4
     // scene.add(text)
 
-    console.log('setupOrthoCamera: END')
+    // console.log('setupOrthoCamera: END')
 }
 
 export {

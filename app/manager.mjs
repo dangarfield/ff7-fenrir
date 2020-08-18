@@ -16,7 +16,6 @@ const showStats = () => {
 }
 
 const initManager = async () => {
-    console.log('initManager', window.anim)
     enableLoadingCache()
     anim.container = document.getElementById('container')
     if (window.config.debug.active) {
