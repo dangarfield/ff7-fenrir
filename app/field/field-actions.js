@@ -80,13 +80,15 @@ const initiateTalk = async (i, fieldModel) => {
     window.currentField.playableCharacter.mixer.stopAllAction()
 
     // Hardcoded placeholders
-    // await createDialogBox(0, 10, 10, 266, 57, 1)
-    // await showWindowWithDialog(0, 'Biggs<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
-    // await showWindowWithDialog(0, '{CLOUD}<br/>“Think how many of our people risked their<br/>	lives, just for this code…”')
-    await createDialogBox(2, 60, 145, 209, 73, 1)
-    // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
-    const currentChoice = await showWindowWithDialog(2, 'Flower girl<br/>“What happened?”<br/>{CHOICE}You\'d better get out of here<br/>{CHOICE}Nothing…hey…')
+    await createDialogBox(0, 10, 10, 266, 57, 1)
+    const currentChoice = await showWindowWithDialog(0, 'Biggs<br/>“He WAS in SOLDIER, Jessie.”{PAUSE}“But he quit and is with us now.”')
 
+    // await createDialogBox(2, 60, 145, 209, 73, 1)
+    // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
+    // const currentChoice = await showWindowWithDialog(2, 'Flower girl<br/>“What happened?”<br/>{CHOICE}You\'d better get out of here<br/>{CHOICE}Nothing…hey…')
+    // 'Biggs<br/>“He WAS in SOLDIER, Jessie.”{PAUSE}“But he quit and is with us now.”'
+    // 'Jessie<br/>“Push <fe>{PURPLE}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{WHITE}<br/>\tto climb up and down.”'
+    // 'Biggs<br/>“Think how many of our people risked their<br/>\tlives, just for this code…”'
 
     console.log('talk progressed', currentChoice)
     setPlayableCharacterMovability(true)

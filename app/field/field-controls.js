@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { closeActiveDialogs, navigateChoice } from './field-ortho-scene.js'
+import { nextPageOrCloseActiveDialogs, navigateChoice } from './field-ortho-scene.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
@@ -19,7 +19,7 @@ const initFieldKeypressActions = () => {
             console.log('speed up or cancel talk')
             // Need to test this when there are multiple dialogs on screen etc, will probably want amending
             // Ideally there woud be an opcode for closing, but I haven't looked too much yet
-            closeActiveDialogs()
+            nextPageOrCloseActiveDialogs()
         }
     })
     getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
@@ -61,7 +61,7 @@ const initFieldKeypressActions = () => {
     })
     getKeyPressEmitter().on('l2', async (firstPress) => {
         if (firstPress) {
-            await closeActiveDialogs()
+            await nextPageOrCloseActiveDialogs()
         }
     })
 

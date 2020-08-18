@@ -184,71 +184,22 @@ const replaceCharacterNames = (text) => {
     }
     return text
 }
-const showWindowWithDialog = async (windowId, text) => {
-    console.log('showWindowWithDialog', windowId, text, dialogBoxes, dialogBoxes[windowId])
-    const dialogBox = dialogBoxes[windowId]
 
-
-
-    // Show dialog
-    dialogBox.visible = true
-
-    for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
-        await sleep(DIALOG_APPEAR_SPEED)
-        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
-        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
-
-        dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
-            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
-            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
-    }
+const showDialogPageText = async (dialogBox) => {
     dialogBox.userData.state = 'writing-text'
 
-    // Configure text
-    let offsetX = 0
-    let offsetY = 0
-    const LINE_HEIGHT = 16
-    text = text.replace(/\t/, '    ')
-    text = replaceCharacterNames(text)
-    // TODO - Colours, eg <fe>{PURPLE}
-    // TODO - Buttons, eg [CANCEL]
-    // TODO - Choices, eg {CHOICE}
-
-    const letters = []
-    let choiceLines = []
-
-
-    let textLines = text.split('<br/>')
-
-    for (let i = 0; i < textLines.length; i++) {
-        let textLine = textLines[i]
-
-        if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
-        textLine = textLine.replace(/\{CHOICE\}/g, '          ')
-
-        for (let j = 0; j < textLine.length; j++) {
-            const letter = textLine[j]
-            const textureLetter = getDialogLetter(letter)
-            // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
-            if (textureLetter !== null) {
-                const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)
-                const posX = dialogBox.userData.x + 8 + offsetX + (textureLetter.w / 2)
-                const posY = window.config.sizing.height - dialogBox.userData.y - 12 - offsetY
-                mesh.material.clippingPlanes = dialogBox.userData.bg.material.clippingPlanes
-                // console.log('pox', posX, '+', textureLetter.w, '->', posX + textureLetter.w, '.', posY, '-', textureLetter.h, '->', posY - textureLetter.h)
-                // console.log('letter', letter, mesh.material)
-                mesh.userData.isText = true
-                mesh.position.set(posX, posY, dialogBox.userData.z)
-                offsetX = offsetX + textureLetter.w
-                letters.push(mesh)
-            } else {
-                console.log('no char found', letter)
-            }
+    // Remove any existing text from previous pages
+    for (let i = 0; i < dialogBox.children.length; i++) {
+        if (dialogBox.children[i].userData.isText) {
+            dialogBox.children[i].visible = false
         }
-        offsetX = 0
-        offsetY = offsetY + LINE_HEIGHT
     }
+
     // Show text
+    const pages = dialogBox.userData.pages
+    const currentPage = dialogBox.userData.currentPage
+    let letters = pages[currentPage].letters
+    let choiceLines = pages[currentPage].choiceLines
     let speedUpHoldLetter = -1
     for (let i = 0; i < letters.length; i++) {
         dialogBox.add(letters[i])
@@ -275,6 +226,7 @@ const showWindowWithDialog = async (windowId, text) => {
             const choiceLine = choiceLines[i]
             pointerPositions.push({ id: i, x: dialogBox.userData.x + 17, y: window.config.sizing.height - dialogBox.userData.y - 14 - (LINE_HEIGHT * choiceLine), z: dialogBox.userData.z })
         }
+        // TODO - Pointer shadow has no opacity
         dialogBox.userData.currentChoice = 0
         pointerMesh.userData.choices = pointerPositions
         pointerMesh.userData.totalChoices = choiceLines.length
@@ -283,11 +235,98 @@ const showWindowWithDialog = async (windowId, text) => {
         pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
         dialogBox.userData.state = 'choice'
         dialogBox.add(pointerMesh)
+    } else if (dialogBox.userData.pages.length > currentPage + 1) {
+        dialogBox.userData.currentPage++
+        dialogBox.userData.state = 'page'
+        console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
     } else {
         dialogBox.userData.state = 'done'
+        console.log('This is the last / only page')
+    }
+}
+
+const showWindowWithDialog = async (windowId, text) => {
+    console.log('showWindowWithDialog', windowId, text, dialogBoxes, dialogBoxes[windowId])
+    const dialogBox = dialogBoxes[windowId]
+
+
+
+    // Show dialog
+    dialogBox.visible = true
+
+    for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
+        await sleep(DIALOG_APPEAR_SPEED)
+        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
+        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
+
+        dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
+            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
+            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
     }
 
-    // TODO - Multiple Pages, choices ?!
+
+    // Configure text
+    const LINE_HEIGHT = 16
+    text = text.replace(/\t/, '    ')
+    text = replaceCharacterNames(text)
+    // TODO - Colours, eg <fe>{PURPLE}
+    // TODO - Buttons, eg [CANCEL]
+    // Done - Choices, eg {CHOICE}
+    // TODO - Pauses, eg {PAUSE}
+    // TODO - Pages, eg {PAGE}
+
+
+
+
+    let pagesText = text.split('{PAUSE}')
+
+    const pages = []
+    for (let i = 0; i < pagesText.length; i++) {
+        const pageText = pagesText[i]
+
+        let choiceLines = []
+        const letters = []
+        let offsetX = 0
+        let offsetY = 0
+
+        let textLines = pageText.split('<br/>')
+
+        for (let i = 0; i < textLines.length; i++) {
+            let textLine = textLines[i]
+
+            if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
+            textLine = textLine.replace(/\{CHOICE\}/g, '          ')
+
+            for (let j = 0; j < textLine.length; j++) {
+                const letter = textLine[j]
+                const textureLetter = getDialogLetter(letter)
+                // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
+                if (textureLetter !== null) {
+                    const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)
+                    const posX = dialogBox.userData.x + 8 + offsetX + (textureLetter.w / 2)
+                    const posY = window.config.sizing.height - dialogBox.userData.y - 12 - offsetY
+                    mesh.material.clippingPlanes = dialogBox.userData.bg.material.clippingPlanes
+                    // console.log('pox', posX, '+', textureLetter.w, '->', posX + textureLetter.w, '.', posY, '-', textureLetter.h, '->', posY - textureLetter.h)
+                    // console.log('letter', letter, mesh.material)
+                    mesh.userData.isText = true
+                    mesh.position.set(posX, posY, dialogBox.userData.z)
+                    offsetX = offsetX + textureLetter.w
+                    letters.push(mesh)
+                } else {
+                    console.log('no char found', letter)
+                }
+            }
+            offsetX = 0
+            offsetY = offsetY + LINE_HEIGHT
+        }
+        pages.push({ letters, choiceLines })
+    }
+    dialogBox.userData.pages = pages
+    dialogBox.userData.currentPage = 0
+    console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
+
+    // Show page / multiple Pages
+    await showDialogPageText(dialogBox) // Subsequent pages are triggered from nextPageOrCloseActiveDialog()
 
     // Wait for closing ?!
     const currentChoice = await waitForDialogToClose(windowId)
@@ -329,11 +368,13 @@ const waitForDialogToClose = async (id) => {
     // console.log('waitForDialogToClose: END', currentChoice)
     return currentChoice
 }
-const closeActiveDialog = async (id) => {
+const nextPageOrCloseActiveDialog = async (id) => {
     const dialogBox = dialogBoxes[id]
     console.log('closeActiveDialog', id, dialogBox, dialogBox.userData.state)
-
-    if (dialogBox.userData.state === 'done' || dialogBox.userData.state === 'choice') {
+    if (dialogBox.userData.state === 'page') {
+        console.log('Trigger next page', dialogBox.userData)
+        await showDialogPageText(dialogBox)
+    } else if (dialogBox.userData.state === 'done' || dialogBox.userData.state === 'choice') {
         for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
 
             dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
@@ -357,14 +398,14 @@ const closeActiveDialog = async (id) => {
 
 }
 
-const closeActiveDialogs = async () => {
-    console.log('closeActiveDialogs: START', dialogBoxes)
+const nextPageOrCloseActiveDialogs = async () => {
+    console.log('nextPageOrCloseActiveDialogs: START', dialogBoxes)
     for (let i = 0; i < dialogBoxes.length; i++) {
         if (dialogBoxes[i] !== null && dialogBoxes[i] !== undefined) {
-            await closeActiveDialog(dialogBoxes[i].userData.id)
+            await nextPageOrCloseActiveDialog(dialogBoxes[i].userData.id)
         }
     }
-    console.log('closeActiveDialogs: END', dialogBoxes)
+    console.log('nextPageOrCloseActiveDialogs: END', dialogBoxes)
 }
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -411,6 +452,6 @@ export {
     createDialogBox,
     showWindowWithDialog,
     waitForDialogToClose,
-    closeActiveDialogs,
+    nextPageOrCloseActiveDialogs,
     navigateChoice
 }
