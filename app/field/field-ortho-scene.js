@@ -269,13 +269,12 @@ const showWindowWithDialog = async (windowId, text) => {
     const LINE_HEIGHT = 16
     text = text.replace(/\t/, '    ')
     text = replaceCharacterNames(text)
-    // TODO - Colours, eg <fe>{PURPLE}
-    // TODO - Buttons, eg [CANCEL]
+    // Done - Basic Colours, eg <fe>{PURPLE}
+    // TODO - Colour animations, eg <fe>{FLASH}, <fe>{RAINBOW}
+    // TODO - Buttons, eg [CANCEL], no direction button image?!
     // Done - Choices, eg {CHOICE}
-    // TODO - Pauses, eg {PAUSE}
-    // TODO - Pages, eg {PAGE}
-
-
+    // TODO - Pauses, eg {PAUSE} - Not sure, but these might be pages?!
+    // Done - Pages, eg {PAGE}
 
 
     let pagesText = text.split('{PAUSE}')
@@ -297,9 +296,54 @@ const showWindowWithDialog = async (windowId, text) => {
             if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
             textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
+            let identifyCommand = false
+            let identifyCommandParam = false
+            let color = 'white'
+            let command = ''
+            let commandParam = ''
+
             for (let j = 0; j < textLine.length; j++) {
                 const letter = textLine[j]
-                const textureLetter = getDialogLetter(letter)
+
+                // Prcess commands
+                if (letter === '<') {
+                    identifyCommand = true
+                    continue
+                }
+                else if (letter === '>') {
+                    identifyCommand = false
+                    continue
+                }
+                else if (letter === '{') {
+                    identifyCommandParam = true
+                    continue
+                }
+                else if (letter === '}') {
+                    identifyCommandParam = false
+                    console.log('commandReady', command, commandParam, command === 'fe')
+                    if (command === 'fe') {
+                        color = commandParam.toLowerCase()
+                        console.log('change text color to', color)
+                    }
+                    command = ''
+                    commandParam = ''
+                    continue
+                }
+
+                // console.log('letter', '-' + letter + '-', color, identifyCommand, identifyCommandParam, command, commandParam, textLine)
+                if (identifyCommand) {
+                    command = command + letter
+                    // console.log('identifyCommand', letter, command)
+                    continue
+                }
+                if (identifyCommandParam) {
+                    commandParam = commandParam + letter
+                    // console.log('identifyCommandParam', letter, commandParam)
+                    continue
+                }
+                // console.log('command', command, commandParam)
+
+                const textureLetter = getDialogLetter(letter, color)
                 // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
                 if (textureLetter !== null) {
                     const mesh = createTextureMesh(textureLetter.w, textureLetter.h, textureLetter.texture)

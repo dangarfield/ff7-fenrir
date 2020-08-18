@@ -159,11 +159,11 @@ const getDialogTextures = () => {
         r: textures.borders['border r'].texture
     }
 }
-const getDialogLetter = (letter) => {
+const getDialogLetter = (letter, color) => {
     const textureLetters = getWindowTextures()['battle-menu-text-large']
     for (var key in textureLetters) {
         const textureLetter = textureLetters[key]
-        if (textureLetter.char === letter) {
+        if (textureLetter.char === letter && textureLetter.color === color) {
             return textureLetter
         }
     }

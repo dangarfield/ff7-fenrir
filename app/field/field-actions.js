@@ -80,8 +80,12 @@ const initiateTalk = async (i, fieldModel) => {
     window.currentField.playableCharacter.mixer.stopAllAction()
 
     // Hardcoded placeholders
-    await createDialogBox(0, 10, 10, 266, 57, 1)
-    const currentChoice = await showWindowWithDialog(0, 'Biggs<br/>“He WAS in SOLDIER, Jessie.”{PAUSE}“But he quit and is with us now.”')
+    // await createDialogBox(0, 10, 10, 266, 57, 1)
+    // await createDialogBox(0, 10, 121, 265, 89, 1)
+    // const currentChoice = await showWindowWithDialog(0, 'Jessie<br/>“Push <fe>{YELLOW}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{GREEN}<br/>\tto climb up and down.”')
+
+    await createDialogBox(1, 10, 10, 239, 217, 1)
+    const currentChoice = await showWindowWithDialog(1, 'Do <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE}')
 
     // await createDialogBox(2, 60, 145, 209, 73, 1)
     // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
