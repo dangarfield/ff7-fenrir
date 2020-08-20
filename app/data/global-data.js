@@ -26,7 +26,8 @@ window.config = {
         showBackgroundLayers: true,
         showModelHelpers: false,
         showAxes: false,
-        runByDefault: true
+        runByDefault: true,
+        showInstructions: false
     },
     raycast: {
         active: false,
