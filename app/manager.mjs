@@ -26,8 +26,8 @@ const initManager = async () => {
     showLoadingScreen()
     setupInputs()
     await loadWindowTextures()
-    loadField('rckt3')
-    // loadField('ancnt3')
+    loadField('anfrst_1')
+    // loadField('md1_2')
     // loadField('blin67_2')
 }
 initManager()
