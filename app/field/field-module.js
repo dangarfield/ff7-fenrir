@@ -443,7 +443,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => 
     let vW = vH * window.currentField.fieldCamera.aspect
     // console.log('drawBG', distance, '->', vH, vW)
     let geometry = new THREE.PlaneGeometry(vW, vH, 0)
-    // console.log('drawBG texture load', bgImgUrl)
+
     let texture = new THREE.TextureLoader().load(bgImgUrl)
     texture.magFilter = THREE.NearestFilter
     // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
@@ -454,6 +454,19 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => 
     plane.setRotationFromEuler(window.currentField.fieldCamera.rotation)
     plane.visible = visible
     plane.userData = userData
+
+    if (userData.typeTrans === 1) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
+        // plane.visible = false
+    } else if (userData.typeTrans === 2) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.SubtractiveBlending // Not right at all. // jtempl, trnad_1, bugin1a
+        // plane.visible = false
+    } else if (userData.typeTrans === 3) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
+    }
     group.add(plane)
 }
 
@@ -518,7 +531,8 @@ const placeBG = async (fieldName) => {
         const userData = {
             z: layer.z,
             param: layer.param,
-            state: layer.state
+            state: layer.state,
+            typeTrans: layer.typeTrans
         }
         let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
         let url = getFieldBGLayerUrl(fieldName, layer.fileName)
