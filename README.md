@@ -43,12 +43,15 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add 'full screen' window.config.sizing.factor config to expand to all available space
 - :white_check_mark: Fix all remaining background imagery bugs (dark spots - DONE, layer 2/3 - DONE, blending/typeTrans - DONE with 1 bug)
 - :white_check_mark: Add keyboard instruction image
-- :point_right: Begin kernel initial and save data information
+- :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
-- :black_square_button: Begin properly implementing field op codes
+- :point_right: Begin properly implementing field op codes
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
+
+### OP Code Completion Status
+See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/OPS_CODES_README.md) for updates
 
 
 ### Thanks
