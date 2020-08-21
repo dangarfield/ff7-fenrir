@@ -6,7 +6,7 @@ import { loadField } from './field/field-module.js'
 import { initRenderer } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
-import { initNewSaveMap } from './data/savemap.js'
+import { loadSaveMap } from './data/savemap.js'
 
 // let anim = window.anim // Handle this better in the future
 
@@ -31,11 +31,11 @@ const initManager = async () => {
     await loadWindowTextures()
 
     // Initialise new savemap - Replace with menu
-    initNewSaveMap()
-
+    // initNewSaveMap()
+    loadSaveMap(1)
 
     // Load field - Replace with menu
-    loadField('mrkt2')
+    loadField('md1stin')
     // loadField('md1_2')
     // loadField('blin67_2')
 }

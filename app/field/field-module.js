@@ -9,6 +9,7 @@ import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
+import { initialiseOpLoops } from './field-op-loop.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -115,35 +116,7 @@ const drawWalkmesh = () => {
 }
 
 const getModelScaleDownValue = () => {
-    // const scaleDownValue = 1 / (window.currentField.data.model.header.modelScale * 0.5)
-    // SEE workings-out -> getModelScaleDownValue.js
-    // [
-    //     { 'scale': '400', 'count': 4, 'exampleField': 'gidun_1' },
-    //     { 'scale': '448', 'count': 1, 'exampleField': 'rcktin3' },
-    //     { 'scale': '480', 'count': 2, 'exampleField': 'mkt_w' },
-    //     { 'scale': '512', 'count': 643, 'exampleField': 'ancnt1' },
-    //     { 'scale': '576', 'count': 5, 'exampleField': 'fship_2' },
-    //     { 'scale': '600', 'count': 5, 'exampleField': 'ealin_12' },
-    //     { 'scale': '640', 'count': 2, 'exampleField': 'del1' },
-    //     { 'scale': '650', 'count': 2, 'exampleField': 'mds7st3' },
-    //     { 'scale': '700', 'count': 6, 'exampleField': 'astage_b' },
-    //     { 'scale': '720', 'count': 1, 'exampleField': 'mtcrl_8' },
-    //     { 'scale': '768', 'count': 12, 'exampleField': 'bwhlin' },
-    //     { 'scale': '1024', 'count': 9, 'exampleField': 'ancnt3' },
-    //     { 'scale': '2048', 'count': 7, 'exampleField': 'fr_e' },
-    //     { 'scale': '4096', 'count': 2, 'exampleField': 'bugin1b' },
-    //     { 'scale': '5120', 'count': 1, 'exampleField': 'rootmap' }
-    // ]
-
-    // Looks like:
-    // 256  -> 1 / 1280        linear
-    // 512  -> 1 / 1024        linear
-    // 768  -> 1 / 768         linear
-    // 1024 -> 1 / 512         linear
-    // 2048 -> 1 / 256         power
-    // 4096 -> 1 / 128         power
-
-    let factor = ((window.currentField.data.model.header.modelScale - 768) * -1) + 768
+    let factor = ((window.currentField.data.model.header.modelScale - 768) * -1) + 768 // Looks about right now
     if (window.currentField.data.model.header.modelScale >= 1024) {
         factor = (Math.pow(2, (Math.log2(window.currentField.data.model.header.modelScale) * -1) + 19))
     }
@@ -153,18 +126,10 @@ const getModelScaleDownValue = () => {
     //   window.currentField.data.model.header.modelScale)
     return scaleDownValue
 }
-const placeModels = (mode) => {
+const placeModelsDebug = () => {
 
     // console.log('window.currentField.data.script.entities', window.currentField.data.script.entities)
     // console.log('window.currentField.models', window.currentField.models)
-
-    // let sphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1)
-    // sphere.position.set(0, 0, 0)
-    // let geometry = new THREE.SphereGeometry(50, 32, 32);
-    // let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    // let sphere = new THREE.Mesh(geometry, material);
-    // sphere.position.set(0.2745535969734192, -0.2197556495666504, 0.0959818959236145)
-    // window.currentField.fieldScene.add(sphere);
 
     window.anim.axesHelper = new THREE.AxesHelper(0.1);
     window.anim.axesHelper.visible = false
@@ -597,10 +562,16 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     await setupViewClipping()
     drawWalkmesh()
     drawArrowPositionHelpers()
-    placeModels()
+    if (window.config.debug.debugModeNoOpLoops) {
+        placeModelsDebug()
+    }
+
     positionPlayableCharacterFromTransition()
     if (window.config.debug.active) {
         await initFieldDebug(loadField)
+    }
+    if (!window.config.debug.debugModeNoOpLoops) {
+        await initialiseOpLoops()
     }
     await fadeIn()
     initFieldKeypressActions()

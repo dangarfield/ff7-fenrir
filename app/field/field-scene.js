@@ -227,6 +227,9 @@ const initFieldDebug = async (loadFieldCB) => {
     //         console.log('window.config.sizing.factor', val)
     //     }
     // })
+    debugGUI.add(window.config.debug, 'debugModeNoOpLoops').onChange(() => {
+        window.alert('Cannot change this whilst running. This setting needs to changed in global-data.js then page refreshed')
+    })
     debugGUI.add(window.config.debug, 'showDebugCamera').onChange(function () {
         activateDebugCamera()
     }).setValue(window.config.debug.showDebugCamera)
