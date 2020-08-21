@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import { sleep } from '../helpers/helpers.js'
 
 let fadeInProgress = false
 const isFadeInProgress = () => { return fadeInProgress }
@@ -18,9 +19,6 @@ const drawFader = async () => {
     window.currentField.fieldScene.add(fieldFader)
 }
 
-const sleep = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 const fadeOut = async () => {
     // console.log('fadeOut')

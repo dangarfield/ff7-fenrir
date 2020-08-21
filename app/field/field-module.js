@@ -517,6 +517,7 @@ const positionPlayableCharacterFromTransition = () => {
         const deg = window.currentField.playableCharacter.scene.userData.placeModeInitialDirection
         window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(-deg))
         const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+        console.log('positionPlayableCharacterFromTransition', adjustViewClipping, relativeToCamera.x, relativeToCamera.y)
         adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     }
 }
@@ -570,11 +571,11 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     if (window.config.debug.active) {
         await initFieldDebug(loadField)
     }
+    await fadeIn()
+    initFieldKeypressActions()
     if (!window.config.debug.debugModeNoOpLoops) {
         await initialiseOpLoops()
     }
-    await fadeIn()
-    initFieldKeypressActions()
 }
 
 

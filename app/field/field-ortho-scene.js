@@ -2,6 +2,7 @@ import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cd
 import { getDialogTextures, getDialogLetter, getPointRight } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/savemap-config.js'
+import { sleep } from '../helpers/helpers.js'
 
 let scene
 let camera
@@ -477,9 +478,6 @@ const nextPageOrCloseActiveDialogs = async () => {
         }
     }
     console.log('nextPageOrCloseActiveDialogs: END', dialogBoxes)
-}
-const sleep = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 const loadFont = async () => {
     return new Promise((resolve, reject) => {

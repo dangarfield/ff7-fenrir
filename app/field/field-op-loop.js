@@ -10,8 +10,24 @@ import * as misc from './field-op-codes-misc.js'
 
 let STOP_ALL_LOOPS = false
 
-const sleep = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms))
+const executeOp = async (ops, op) => {
+    console.log('   - executeOp: START', op)
+    if (STOP_ALL_LOOPS) {
+        console.log('Loop stopping')
+    }
+    switch (op.op) {
+        case 'SCR2D': await cameraMedia.SCR2D(ops, op); break;
+
+        default:
+            console.log(`--------- OP: ${op.op} - NOT YET IMPLEMENTED ---------`)
+            break;
+    }
+
+    console.log('   - executeOp: END', op)
+    return
+}
+const stopAllLoops = () => {
+    STOP_ALL_LOOPS = true
 }
 
 const executeScriptLoop = async (loop) => {
@@ -46,7 +62,7 @@ const initEntity = async (entity) => {
 
 const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
-
+    STOP_ALL_LOOPS = false
     const entities = window.currentField.data.script.entities
     for (let i = 0; i < 1; i++) {
         const entity = entities[i]
@@ -54,19 +70,7 @@ const initialiseOpLoops = async () => {
     }
     console.log('initialiseOpLoops: END')
 }
-const executeOp = async (ops, op) => {
-    console.log('   - executeOp: START', op)
-    switch (op.op) {
-        case 'SCR2D': await flow.SCR2D(ops, op); break;
-
-        default:
-            console.log(`--------- OP: ${op.op} - NOT YET IMPLEMENTED ---------`)
-            break;
-    }
-
-    console.log('   - executeOp: END', op)
-    return
-}
 export {
-    initialiseOpLoops
+    initialiseOpLoops,
+    stopAllLoops
 }
