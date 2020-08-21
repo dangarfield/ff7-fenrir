@@ -4,8 +4,9 @@ import Stats from '../assets/threejs-r118/jsm/libs/stats.module.js' //'https://r
 import { setupInputs } from './interaction/inputs.js'
 import { loadField } from './field/field-module.js'
 import { initRenderer } from './render/renderer.js'
-import { enableLoadingCache, loadWindowTextures } from './data/kernel-fetch-data.js'
+import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
+import { initNewSaveMap } from './data/savemap.js'
 
 // let anim = window.anim // Handle this better in the future
 
@@ -16,7 +17,8 @@ const showStats = () => {
 }
 
 const initManager = async () => {
-    enableLoadingCache()
+
+    // Generic Game loading
     anim.container = document.getElementById('container')
     if (window.config.debug.active) {
         showStats()
@@ -25,8 +27,15 @@ const initManager = async () => {
     await initLoadingModule()
     showLoadingScreen()
     setupInputs()
+    await loadKernelData()
     await loadWindowTextures()
-    loadField('anfrst_1')
+
+    // Initialise new savemap - Replace with menu
+    initNewSaveMap()
+
+
+    // Load field - Replace with menu
+    loadField('mrkt2')
     // loadField('md1_2')
     // loadField('blin67_2')
 }

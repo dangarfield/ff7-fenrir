@@ -34,13 +34,15 @@ const loadWindowTextures = async () => {
         }
     })
 }
-
-const enableLoadingCache = () => {
-    THREE.Cache.enabled = true
+const loadKernelData = async () => {
+    const kernelBinRes = await fetch(`${KUJATA_BASE}/data/kernel/kernel.bin.json`)
+    const kernelBin = await kernelBinRes.json()
+    window.data.kernel = kernelBin
 }
+
 export {
     KUJATA_BASE,
     loadWindowTextures,
     getWindowTextures,
-    enableLoadingCache
+    loadKernelData
 }

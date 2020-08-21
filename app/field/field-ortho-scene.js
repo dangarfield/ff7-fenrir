@@ -1,15 +1,13 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
 import { getDialogTextures, getDialogLetter, getPointRight } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-
+import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/savemap-config.js'
 
 let scene
 let camera
 let dialogBoxes = []
 
 let EDGE_SIZE = 8
-let CONFIG_WINDOW_COLOR = ['rgb(0,88,176)', 'rgb(0,0,80)', 'rgb(0,0,128)', 'rgb(0,0,32)']
-let CONFIG_FIELD_MESSAGE = 0 // 0-255 slow - fast
 
 let CHARACTER_NAMES = [
     { id: 'CLOUD', name: 'Cloud' },
@@ -59,10 +57,11 @@ const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
         mesh.userData.sizeSmall.w - ((mesh.userData.sizeSmall.w - mesh.userData.sizeExpand.w) / stepTotal * step),
         mesh.userData.sizeSmall.h - ((mesh.userData.sizeSmall.h - mesh.userData.sizeExpand.h) / stepTotal * step))
     bgGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(4 * 3), 3))
-    for (let i = 0; i < CONFIG_WINDOW_COLOR.length; i++) {
+    const windowColours = getConfigWindowColours()
+    for (let i = 0; i < windowColours.length; i++) {
         // This is not a smooth blend, but instead changes the vertices of the two triangles
         // This is how they do it in the game
-        const color = new THREE.Color(CONFIG_WINDOW_COLOR[i])
+        const color = new THREE.Color(windowColours[i])
         bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
     }
 }
@@ -101,10 +100,11 @@ const createDialogBox = async (id, x, y, w, h, z) => {
     bgGeo.colorsNeedUpdate = true
 
     bgGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(4 * 3), 3))
-    for (let i = 0; i < CONFIG_WINDOW_COLOR.length; i++) {
+    const windowColours = getConfigWindowColours()
+    for (let i = 0; i < windowColours.length; i++) {
         // This is not a smooth blend, but instead changes the vertices of the two triangles
         // This is how they do it in the game
-        const color = new THREE.Color(CONFIG_WINDOW_COLOR[i])
+        const color = new THREE.Color(windowColours[i])
         bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
     }
     const bg = new THREE.Mesh(bgGeo, new THREE.MeshBasicMaterial({ transparent: true, vertexColors: THREE.VertexColors }))
@@ -234,7 +234,8 @@ const showDialogPageText = async (dialogBox) => {
         if (speedUpHoldLetter === -1 && getActiveInputs().o) {
             speedUpHoldLetter = i
         }
-        let speed = Math.floor((CONFIG_FIELD_MESSAGE / (255 / 52)) + 3)
+        let speed = Math.floor((getConfigFieldMessageSpeed() / (255 / 52)) + 3)
+        console.log('field message speed', speed)
         if (speedUpHoldLetter !== -1 && (speedUpHoldLetter + 7) < i) {
             speed = Math.floor(speed / 3)
         }

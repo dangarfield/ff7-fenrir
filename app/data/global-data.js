@@ -37,6 +37,11 @@ window.config = {
     }
 }
 
+window.data = {
+    kernel: undefined,
+    savemap: undefined
+}
+
 if (window.config.sizing.factor === 0) {
     const width = window.innerWidth || document.documentElement.clientWidth ||
         document.body.clientWidth
