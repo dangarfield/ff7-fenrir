@@ -10,8 +10,8 @@ import * as misc from './field-op-codes-misc.js'
 
 let STOP_ALL_LOOPS = false
 
-const executeOp = async (ops, op) => {
-    console.log('   - executeOp: START', op)
+const executeOp = async (entityName, scriptType, ops, op) => {
+    console.log('   - executeOp: START', entityName, scriptType, op)
     if (STOP_ALL_LOOPS) {
         console.log('Loop stopping')
     }
@@ -20,6 +20,13 @@ const executeOp = async (ops, op) => {
     switch (op.op) {
         // Script Flow and Control
         case 'RET': result = await flow.RET(); break
+
+        case 'REQ': result = await flow.REQ(entityName, scriptType, op); break
+        case 'REQSW': result = await flow.REQSW(entityName, scriptType, op); break
+        case 'REQEW': result = await flow.REQEW(entityName, scriptType, op); break
+        case 'RETTO': result = await flow.RETTO(entityName, scriptType, op); break
+
+
         case 'IFUB': result = await flow.IFUB(ops, op); break
         case 'IFUBL': result = await flow.IFUBL(ops, op); break
         case 'IFSW': result = await flow.IFSW(ops, op); break
@@ -57,15 +64,16 @@ const executeOp = async (ops, op) => {
             break;
     }
 
-    console.log('   - executeOp: END', op, result)
+    console.log('   - executeOp: END', entityName, scriptType, op, result)
     return result
 }
 const stopAllLoops = () => {
     STOP_ALL_LOOPS = true
 }
 
-const executeScriptLoop = async (loop) => {
-    console.log(' - executeScriptLoop: START', loop)
+const executeScriptLoop = async (entityName, loop) => {
+    console.log(' - executeScriptLoop: START', entityName, loop)
+    loop.isRunning = true
     const ops = loop.ops
     let currentOpIndex = 0
     let flowActionCount = 0
@@ -77,10 +85,10 @@ const executeScriptLoop = async (loop) => {
         }
 
         let op = ops[currentOpIndex]
-        const result = await executeOp(ops, op)
-        console.log(' - executeScriptLoop: RESULT', result, currentOpIndex, flowActionCount)
+        const result = await executeOp(entityName, loop.scriptType, ops, op)
+        console.log(' - executeScriptLoop: RESULT', entityName, result, currentOpIndex, flowActionCount)
         if (result.exit) {
-            console.log(' - executeScriptLoop: EXIT')
+            console.log(' - executeScriptLoop: EXIT', entityName, loop)
         }
         if (result.flow) {
             flowActionCount++
@@ -96,16 +104,17 @@ const executeScriptLoop = async (loop) => {
         }
 
     }
-    console.log(' - executeScriptLoop: END')
+    loop.isRunning = false
+    console.log(' - executeScriptLoop: END', entityName, loop)
 }
 const initEntity = async (entity) => {
     console.log('initEntity: START', entity.entityName, entity)
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
-    await executeScriptLoop(initLoop)
+    // await executeScriptLoop(initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    // await executeScriptLoop(mainLoop)
+    await executeScriptLoop(entity.entityName, mainLoop)
     console.log('initEntity: END', entity.entityName)
 }
 
@@ -121,5 +130,6 @@ const initialiseOpLoops = async () => {
 }
 export {
     initialiseOpLoops,
-    stopAllLoops
+    stopAllLoops,
+    executeScriptLoop
 }
