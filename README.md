@@ -51,7 +51,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
 
 ### OP Code Completion Status
-See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/OPS_CODES_README.md) for updates
+See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_README.md) for updates
 
 
 ### Thanks

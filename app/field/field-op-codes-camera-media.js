@@ -7,7 +7,7 @@ const SCR2D = async (ops, op) => {
     // await sleep(2000)
     console.log('SCR2D', op, x, y)
     adjustViewClipping(x, y)
-    return
+    return {}
 }
 
 export {
