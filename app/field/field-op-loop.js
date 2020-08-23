@@ -58,6 +58,16 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'DEC!': result = assign.DEC_(op); break
         case 'DEC2!': result = assign.DEC2_(op); break
 
+
+        case 'PLUS': result = assign.PLUS(op); break
+        case 'PLUS2': result = assign.PLUS2(op); break
+        case 'MINUS': result = assign.MINUS(op); break
+        case 'MINUS2': result = assign.MINUS2(op); break
+        case 'INC': result = assign.INC(op); break
+        case 'INC2': result = assign.INC2(op); break
+        case 'DEC': result = assign.DEC(op); break
+        case 'DEC2': result = assign.DEC2(op); break
+
         // Windowing and Menu
 
         // Party and Inventory

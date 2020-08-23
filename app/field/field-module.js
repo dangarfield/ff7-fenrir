@@ -10,6 +10,7 @@ import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
+import { resetTempBank } from '../data/savemap.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -548,6 +549,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         playableCharacterInitData: playableCharacterInitData
     }
     showLoadingScreen()
+    resetTempBank()
     window.currentField.data = await loadFieldData(fieldName)
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
