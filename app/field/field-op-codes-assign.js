@@ -172,8 +172,6 @@ const XOR2 = (op) => {
 }
 
 
-
-
 const UNUSED = () => {
     console.log('UNUSED')
 }
@@ -233,6 +231,28 @@ const DEC2 = (op) => {
     setBankData(op.b, op.a, val)
 }
 
+const LBYTE = (op) => {
+    console.log('LBYTE', op)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    // const highByte = ((sDesc >> 8) & 0xff)
+    const lowByte = sDesc & 0xff
+    setBankData(op.bd, op.d, lowByte)
+}
+const HBYTE = (op) => {
+    console.log('HBYTE', op)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const highByte = ((sDesc >> 8) & 0xff)
+    // const lowByte = sDesc & 0xff
+    setBankData(op.bd, op.d, highByte)
+}
+const TWO_BYTE = (op) => {
+    console.log('2BYTE', op)
+    const lDesc = op.b2 == 0 ? op.l : getBankData(op.b2, op.l)
+    const hDesc = op.b3 == 0 ? op.h : getBankData(op.b3, op.h)
+    const bit16 = (((hDesc & 0xff) << 8) | (lDesc & 0xff))
+    setBankData(op.b1, op.d, bit16)
+}
+
 // SIN & COS, have a lot of parameters, will look another time. I believe its only on temple of ancients clock
 
 export {
@@ -273,5 +293,9 @@ export {
     INC,
     INC2,
     DEC,
-    DEC2
+    DEC2,
+
+    LBYTE,
+    HBYTE,
+    TWO_BYTE
 }

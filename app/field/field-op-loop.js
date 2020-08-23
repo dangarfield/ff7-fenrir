@@ -88,6 +88,10 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'DEC': result = assign.DEC(op); break
         case 'DEC2': result = assign.DEC2(op); break
 
+        case 'LBYTE': result = assign.LBYTE(op); break
+        case 'HBYTE': result = assign.HBYTE(op); break
+        case '2BYTE': result = assign.TWO_(op); break
+
         // Windowing and Menu
 
         // Party and Inventory

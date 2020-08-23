@@ -34,6 +34,7 @@ const getCompletedOpCodes = async () => {
             c = c[1].replace('}', '').split(',')
             for (let i = 0; i < c.length; i++) {
                 let name = c[i].trim()
+                name = name.replace('TWO_', '2')
                 name = name.replace('_', '!')
                 completedCodes.push(name)
             }
