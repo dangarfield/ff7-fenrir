@@ -1,6 +1,11 @@
 import { getBankData, setBankData } from '../data/savemap.js'
 import { setBitOn, toggleBit } from './field-op-codes-assign-helper.js'
 
+/*
+Note: I haven't checked that many of these and assume the Long (!)
+functions will be the same because the banks will be specified. But it may be that
+in the low/high bytes may have to be parsed in the saving
+*/
 const PLUS_ = (op) => {
     console.log('PLUS!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
@@ -59,6 +64,15 @@ const DEC2_ = (op) => {
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
     const val = Math.max(bankVal - 1, 0)
     setBankData(op.b, op.a, val)
+    return {}
+}
+
+const RDMSD = (op) => {
+    console.log('RDMSD', op)
+    // Note: I believe FF7 uses tables for RNG, let's just use JS for now
+    // http://forums.qhimm.com/index.php?topic=6431
+    const val = Math.floor(Math.random() * 255)
+    setBankData(op.b, op.s, val)
     return {}
 }
 
@@ -264,6 +278,15 @@ const DEC2 = (op) => {
     return {}
 }
 
+const RANDOM = (op) => {
+    console.log('RANDOM', op)
+    // Note: I believe FF7 uses tables for RNG, let's just use JS for now
+    // http://forums.qhimm.com/index.php?topic=6431
+    const val = Math.floor(Math.random() * 255)
+    setBankData(op.b, op.s, val)
+    return {}
+}
+
 const LBYTE = (op) => {
     console.log('LBYTE', op)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
@@ -289,7 +312,8 @@ const TWO_BYTE = (op) => {
     return {}
 }
 
-// SIN & COS, have a lot of parameters, will look another time. I believe its only on temple of ancients clock
+// SIN & COS, have a lot of parameters, will look another time
+//I believe its only on temple of ancients clock
 
 export {
     PLUS_,
@@ -301,6 +325,7 @@ export {
     DEC_,
     DEC2_,
 
+    RDMSD,
     SETBYTE,
     SETWORD,
     BITON,
@@ -331,6 +356,7 @@ export {
     DEC,
     DEC2,
 
+    RANDOM,
     LBYTE,
     HBYTE,
     TWO_BYTE
