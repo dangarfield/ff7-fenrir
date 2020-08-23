@@ -71,6 +71,13 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'MOD': result = assign.MOD(op); break
         case 'MOD2': result = assign.MOD2(op); break
 
+        case 'AND': result = assign.AND(op); break
+        case 'AND2': result = assign.AND2(op); break
+        case 'OR': result = assign.OR(op); break
+        case 'OR2': result = assign.OR2(op); break
+        case 'XOR': result = assign.XOR(op); break
+        case 'XOR2': result = assign.XOR2(op); break
+
         case 'UNUSED': result = assign.UNUSED(); break
         case 'PLUS': result = assign.PLUS(op); break
         case 'PLUS2': result = assign.PLUS2(op); break

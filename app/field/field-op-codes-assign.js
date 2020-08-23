@@ -128,6 +128,52 @@ const MOD2 = (op) => {
     setBankData(op.bd, op.d, val)
 }
 
+const AND = (op) => {
+    console.log('AND', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc & sDesc
+    setBankData(op.bd, op.d, val)
+}
+const AND2 = (op) => {
+    console.log('AND2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc & sDesc
+    setBankData(op.bd, op.d, val)
+}
+const OR = (op) => {
+    console.log('OR', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc | sDesc
+    setBankData(op.bd, op.d, val)
+}
+const OR2 = (op) => {
+    console.log('OR2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc | sDesc
+    setBankData(op.bd, op.d, val)
+}
+const XOR = (op) => {
+    console.log('XOR', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc ^ sDesc
+    setBankData(op.bd, op.d, val)
+}
+const XOR2 = (op) => {
+    console.log('XOR2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc ^ sDesc
+    setBankData(op.bd, op.d, val)
+}
+
+
+
+
 const UNUSED = () => {
     console.log('UNUSED')
 }
@@ -212,6 +258,12 @@ export {
     MOD,
     MOD2,
 
+    AND,
+    AND2,
+    OR,
+    OR2,
+    XOR,
+    XOR2,
 
     UNUSED,
     PLUS,
