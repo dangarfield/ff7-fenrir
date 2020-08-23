@@ -54,6 +54,50 @@ const DEC2_ = (op) => {
 }
 
 
+const MUL = (op) => {
+    console.log('MUL', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = Math.min(dDesc * sDesc, 255)
+    setBankData(op.bs, op.s, val)
+}
+const MUL2 = (op) => {
+    console.log('MUL2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = Math.min(dDesc * sDesc, 255)
+    setBankData(op.bs, op.s, val)
+}
+const DIV = (op) => {
+    console.log('DIV', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = Math.floor(dDesc / sDesc)
+    setBankData(op.bs, op.s, val)
+}
+const DIV2 = (op) => {
+    console.log('DIV2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = Math.floor(dDesc / sDesc)
+    setBankData(op.bs, op.s, val)
+}
+const MOD = (op) => {
+    console.log('MOD', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc % sDesc
+    setBankData(op.bs, op.s, val)
+}
+const MOD2 = (op) => {
+    console.log('MOD2', op)
+    const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    const val = dDesc % sDesc
+    setBankData(op.bs, op.s, val)
+}
+
+
 const PLUS = (op) => {
     console.log('PLUS', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
@@ -110,6 +154,8 @@ const DEC2 = (op) => {
     setBankData(op.b, op.a, val)
 }
 
+// SIN & COS, have a lot of parameters, will look another time. I believe its only on temple of ancients clock
+
 export {
     PLUS_,
     PLUS2_,
@@ -119,6 +165,15 @@ export {
     INC2_,
     DEC_,
     DEC2_,
+
+    MUL,
+    MUL2,
+    DIV,
+    DIV2,
+    MOD,
+    MOD2,
+
+
 
     PLUS,
     PLUS2,

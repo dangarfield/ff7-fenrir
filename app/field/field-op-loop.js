@@ -58,6 +58,12 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'DEC!': result = assign.DEC_(op); break
         case 'DEC2!': result = assign.DEC2_(op); break
 
+        case 'MUL': result = assign.MUL(op); break
+        case 'MUL2': result = assign.MUL2(op); break
+        case 'DIV': result = assign.DIV(op); break
+        case 'DIV2': result = assign.DIV2(op); break
+        case 'MOD': result = assign.MOD(op); break
+        case 'MOD2': result = assign.MOD2(op); break
 
         case 'PLUS': result = assign.PLUS(op); break
         case 'PLUS2': result = assign.PLUS2(op); break
