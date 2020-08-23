@@ -30,19 +30,7 @@ const saveSaveMap = (index) => {
 const resetTempBank = () => {
     TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
 }
-const getValueFromBank = (bank, type, index) => {
-    if (type === 1) {
-        return bank[index]
-    } else {
-        const bit1 = bank[(index * 2) + 1]
-        const bit2 = bank[(index * 2) + 0]
-        const bit16 = (((bit2 & 0xff) << 8) | (bit1 & 0xff))
-        // console.log('bit1', bit1, 'bit2', bit2, 'bit16', bit16)
-        return bit16
-    }
-}
-const getBankData = (bankRef, index) => {
-    // console.log('getBankData', bankRef, index, window.data.savemap)
+const identifyBank = (bankRef) => {
     let bank = 1
     let bytes = 1
     switch (bankRef) {
@@ -67,12 +55,45 @@ const getBankData = (bankRef, index) => {
         default:
             break;
     }
-    return getValueFromBank(bank, bytes, index)
+    return { bank, bytes }
+}
+const getValueFromBank = (bank, type, index) => {
+    if (type === 1) {
+        return bank[index]
+    } else {
+        const bit1 = bank[(index * 2) + 1]
+        const bit2 = bank[(index * 2) + 0]
+        const bit16 = (((bit2 & 0xff) << 8) | (bit1 & 0xff))
+        // console.log('bit1', bit1, 'bit2', bit2, 'bit16', bit16)
+        return bit16
+    }
+}
+const setValueToBank = (bank, type, index, newValue) => {
+    if (type === 1) {
+        bank[index] = newValue
+    } else {
+        var bit1 = ((newValue >> 8) & 0xff)
+        var bit2 = newValue & 0xff
+        bank[(index * 2) + 1] = bit2
+        bank[(index * 2) + 0] = bit1
+        console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
+    }
+}
+const getBankData = (bankRef, index) => {
+    // console.log('getBankData', bankRef, index, window.data.savemap)
+    const bankData = identifyBank(bankRef)
+    return getValueFromBank(bankData.bank, bankData.bytes, index)
+}
+const setBankData = (bankRef, index, value) => {
+    console.log('setBankData', bankRef, index, window.data.savemap)
+    const bankData = identifyBank(bankRef)
+    setValueToBank(bankData.bank, bankData.bytes, index, value)
 }
 export {
     initNewSaveMap,
     loadSaveMap,
     saveSaveMap,
     getBankData,
+    setBankData,
     resetTempBank
 }

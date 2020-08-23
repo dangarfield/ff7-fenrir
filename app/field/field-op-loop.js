@@ -49,6 +49,14 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         // System and Module Control
 
         // Assignment and Mathematics
+        case 'PLUS!': result = assign.PLUS_(op); break
+        case 'PLUS2!': result = assign.PLUS2_(op); break
+        case 'MINUS!': result = assign.MINUS_(op); break
+        case 'MINUS2!': result = assign.MINUS2_(op); break
+        case 'INC!': result = assign.INC_(op); break
+        case 'INC2!': result = assign.INC2_(op); break
+        case 'DEC!': result = assign.DEC_(op); break
+        case 'DEC2!': result = assign.DEC2_(op); break
 
         // Windowing and Menu
 

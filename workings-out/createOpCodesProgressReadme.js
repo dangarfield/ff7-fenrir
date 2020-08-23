@@ -33,7 +33,9 @@ const getCompletedOpCodes = async () => {
             c = c.split('export {')
             c = c[1].replace('}', '').split(',')
             for (let i = 0; i < c.length; i++) {
-                completedCodes.push(c[i].trim())
+                let name = c[i].trim()
+                name = name.replace('_', '!')
+                completedCodes.push(name)
             }
         }
 
