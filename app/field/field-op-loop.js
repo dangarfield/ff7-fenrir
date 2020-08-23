@@ -26,6 +26,10 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'REQEW': result = await flow.REQEW(entityName, scriptType, op); break
         case 'RETTO': result = await flow.RETTO(entityName, scriptType, op); break
 
+        case 'JMPF': result = await flow.JMPF(ops, op); break
+        case 'JMPFL': result = await flow.JMPFL(ops, op); break
+        case 'JMPB': result = await flow.JMPB(ops, op); break
+        case 'JMPBL': result = await flow.JMPBL(ops, op); break
 
         case 'IFUB': result = await flow.IFUB(ops, op); break
         case 'IFUBL': result = await flow.IFUBL(ops, op); break
@@ -34,10 +38,11 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'IFUW': result = await flow.IFUW(ops, op); break
         case 'IFUWL': result = await flow.IFUWL(ops, op); break
 
-        case 'JMPF': result = await flow.JMPF(ops, op); break
-        case 'JMPFL': result = await flow.JMPFL(ops, op); break
-        case 'JMPB': result = await flow.JMPB(ops, op); break
-        case 'JMPBL': result = await flow.JMPBL(ops, op); break
+        case 'WAIT': result = await flow.WAIT(op); break
+        case 'IFKEY': result = await flow.IFKEY(ops, op); break
+        case 'IFKEYON': result = await flow.IFKEYON(ops, op); break
+        case 'IFKEYOFF': result = await flow.IFKEYOFF(ops, op); break
+
 
         case 'NOP': result = await flow.NOP(); break
 

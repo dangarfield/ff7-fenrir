@@ -17,6 +17,7 @@ let keys = {
     select: false,
     start: false
 }
+let history = []
 let input = {
     up: { lastCall: 0, count: 0, keyDown: false, key: 'up' },
     right: { lastCall: 0, count: 0, keyDown: false, key: 'right' },
@@ -37,6 +38,7 @@ const sendEvent = (key, firstPress) => {
     emitter.emit(key, firstPress)
 }
 const sendSteppedThrottleEvent = (keyData, keyDown) => {
+    addToHistory(keyData.key, keyDown)
     keyData.keyDown = keyDown
 
     if (!keyDown) {
@@ -64,6 +66,14 @@ const sendSteppedThrottleEvent = (keyData, keyDown) => {
 }
 const getActiveInputs = () => {
     return keys
+}
+const getInputHistory = () => {
+    return history
+}
+const addToHistory = (key, keyDown) => {
+    history.unshift({ key, keyDown })
+    while (history.length > 20) { history.pop() }
+    console.log('history', history)
 }
 const setKeyPress = (keyCode, state) => {
     if (keyCode === 87) { // w -> up
@@ -133,5 +143,6 @@ const getKeyPressEmitter = () => {
 export {
     setupInputs,
     getActiveInputs,
+    getInputHistory,
     getKeyPressEmitter
 }

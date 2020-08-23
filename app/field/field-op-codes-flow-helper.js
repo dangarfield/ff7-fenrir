@@ -54,7 +54,33 @@ const compareFromBankData = (ops, op) => {
         return getOpIndexForByteIndex(ops, op.goto)
     }
 }
+const KEYS = {
+    select: 0x0001, // Assist
+    start: 0x0008, // Start
+    up: 0x0010, // Up
+    right: 0x0020, // Right
+    down: 0x0040, // Down
+    left: 0x0080, // Left
+    l2: 0x0100, // Camera
+    r2: 0x0200, // Target
+    l1: 0x0400, // PageUp
+    r1: 0x0800, // PageDown
+    triangle: 0x1000, // Menu
+    o: 0x2000, // OK
+    x: 0x4000, // Cancel
+    square: 0x8000 // Switch
+}
+const getKeysFromBytes = (val) => {
+    let enums = []
+    for (var prop in KEYS) {
+        if ((val & KEYS[prop]) === KEYS[prop]) { // Bitwise matching
+            enums.push(prop)
+        }
+    }
+    return enums
+}
 export {
     getOpIndexForByteIndex,
-    compareFromBankData
+    compareFromBankData,
+    getKeysFromBytes
 }
