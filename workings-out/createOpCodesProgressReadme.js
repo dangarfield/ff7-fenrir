@@ -88,7 +88,7 @@ const createReadmeCell = (op) => {
             color = 'red'
             status = 'INCOMPLETE'
         }
-        return `![Generic badge](https://img.shields.io/badge/${op.name}-${status}-${color}.svg)<br>${op.description}<br>Usage - ${op.usage}`
+        return `[![Generic badge](https://img.shields.io/badge/${op.name}-${status}-${color}.svg)](https://picklejar76.github.io/kujata-webapp/field-op-code-details/${op.code})<br>${op.description}<br>Usage - ${op.usage}`
     }
 }
 const renderReadme = async (data) => {
