@@ -58,6 +58,12 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'DEC!': result = assign.DEC_(op); break
         case 'DEC2!': result = assign.DEC2_(op); break
 
+        case 'SETBYTE': result = assign.SETBYTE(op); break
+        case 'SETWORD': result = assign.SETWORD(op); break
+        case 'BITON': result = assign.BITON(op); break
+        case 'BITOFF': result = assign.BITOFF(op); break
+        case 'BITXOR': result = assign.BITXOR(op); break
+
         case 'MUL': result = assign.MUL(op); break
         case 'MUL2': result = assign.MUL2(op); break
         case 'DIV': result = assign.DIV(op); break
@@ -65,6 +71,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'MOD': result = assign.MOD(op); break
         case 'MOD2': result = assign.MOD2(op); break
 
+        case 'UNUSED': result = assign.UNUSED(); break
         case 'PLUS': result = assign.PLUS(op); break
         case 'PLUS2': result = assign.PLUS2(op); break
         case 'MINUS': result = assign.MINUS(op); break

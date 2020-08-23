@@ -1,32 +1,33 @@
 import { getBankData, setBankData } from '../data/savemap.js'
+import { setBitOn, toggleBit } from './field-op-codes-assign-helper.js'
 
 const PLUS_ = (op) => {
     console.log('PLUS!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.min(dDesc + sDesc, 255)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const PLUS2_ = (op) => {
     console.log('PLUS2!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.min(dDesc + sDesc, 255)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MINUS_ = (op) => {
     console.log('MINUS!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.max(dDesc - sDesc, 0)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MINUS2_ = (op) => {
     console.log('MINUS2!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.max(dDesc - sDesc, 0)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const INC_ = (op) => {
     console.log('INC!', op)
@@ -53,64 +54,96 @@ const DEC2_ = (op) => {
     setBankData(op.b, op.a, val)
 }
 
+const SETBYTE = (op) => {
+    console.log('SETBYTE', op)
+    // const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const vDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    setBankData(op.bd, op.d, vDesc)
+}
+const SETWORD = (op) => {
+    console.log('SETWORD', op)
+    // const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
+    const vDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
+    setBankData(op.bd, op.d, vDesc)
+}
+const BITON = (op) => {
+    console.log('BITON', op)
+    let bankVal = getBankData(op.bd, op.d)
+    const val = setBitOn(bankVal, op.bit)
+    setBankData(op.bd, op.d, val)
+}
+const BITOFF = (op) => {
+    console.log('BITOFF', op)
+    let bankVal = getBankData(op.bd, op.d)
+    const val = setBitOff(bankVal, op.bit)
+    setBankData(op.bd, op.d, val)
+}
+const BITXOR = (op) => {
+    console.log('BITXOR', op)
+    let bankVal = getBankData(op.bd, op.d)
+    const val = toggleBit(bankVal, op.bit)
+    setBankData(op.bd, op.d, val)
+}
 
 const MUL = (op) => {
     console.log('MUL', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.min(dDesc * sDesc, 255)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MUL2 = (op) => {
     console.log('MUL2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.min(dDesc * sDesc, 255)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const DIV = (op) => {
     console.log('DIV', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.floor(dDesc / sDesc)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const DIV2 = (op) => {
     console.log('DIV2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = Math.floor(dDesc / sDesc)
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MOD = (op) => {
     console.log('MOD', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = dDesc % sDesc
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MOD2 = (op) => {
     console.log('MOD2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = dDesc % sDesc
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 
-
+const UNUSED = () => {
+    console.log('UNUSED')
+}
 const PLUS = (op) => {
     console.log('PLUS', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = (dDesc + sDesc) % 255
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const PLUS2 = (op) => {
     console.log('PLUS2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     const val = (dDesc + sDesc) % 255
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MINUS = (op) => {
     console.log('MINUS', op)
@@ -118,7 +151,7 @@ const MINUS = (op) => {
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     let val = (dDesc - sDesc) % 255
     if (val < 0) { val = 255 - Math.abs(val) }
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const MINUS2 = (op) => {
     console.log('MINUS2', op)
@@ -126,7 +159,7 @@ const MINUS2 = (op) => {
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
     let val = (dDesc - sDesc) % 255
     if (val < 0) { val = 255 - Math.abs(val) }
-    setBankData(op.bs, op.s, val)
+    setBankData(op.bd, op.d, val)
 }
 const INC = (op) => {
     console.log('INC', op)
@@ -166,6 +199,12 @@ export {
     DEC_,
     DEC2_,
 
+    SETBYTE,
+    SETWORD,
+    BITON,
+    BITOFF,
+    BITXOR,
+
     MUL,
     MUL2,
     DIV,
@@ -174,7 +213,7 @@ export {
     MOD2,
 
 
-
+    UNUSED,
     PLUS,
     PLUS2,
     MINUS,
