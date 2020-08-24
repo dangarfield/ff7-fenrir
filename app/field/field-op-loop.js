@@ -118,6 +118,10 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'MPUP': result = party.MPUP(op); break
         case 'MPDWN': result = party.MPDWN(op); break
 
+        case 'STITM': result = party.STITM(op); break
+        case 'DLITM': result = party.DLITM(op); break
+        case 'CKITM': result = party.CKITM(op); break
+
         case 'GETPC': result = party.GETPC(op); break
         case 'PRTYP': result = party.PRTYP(op); break
         case 'PRTYM': result = party.PRTYM(op); break

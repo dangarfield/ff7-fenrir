@@ -1,5 +1,5 @@
 import { getPlayableCharacterName, getPlayableCharacterId } from "./field-op-codes-party-helper.js"
-import { setBankData, getBankData } from '../data/savemap.js'
+import { setBankData, getBankData, saveSaveMap } from '../data/savemap.js'
 
 const SPTYE = async (op) => {
     console.log('SPTYE', op)
@@ -105,7 +105,62 @@ const HPDWN = async (op) => {
     return {}
 }
 
+const STITM = async (op) => {
+    console.log('STITM', op)
+    const itemId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
+    const amount = op.b2 == 0 ? op.a : getBankData(op.b2, op.a)
+    const items = window.data.savemap.items
+    let updated = false
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.id === itemId) {
+            // The game technically lets you set more, but we'll just limit it to 99
+            item.quantity = Math.min(item.quantity + amount, 99)
+            updated = true
+            break
+        }
+    }
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.id === 0x7F) {
+            item.id = itemId
+            item.quantity = Math.min(amount, 99)
+            item.name = window.data.kernel.itemData[itemId].name
+            item.description = window.data.kernel.itemData[itemId].description
+            break
+        }
+    }
+    console.log('STITM', items)
+    return {}
+}
 
+const DLITM = async (op) => {
+    console.log('DLITM', op)
+    const itemId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
+    const amount = op.b2 == 0 ? op.a : getBankData(op.b2, op.a)
+    const items = window.data.savemap.items
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.id === itemId) {
+            item.quantity = Math.max(item.quantity - amount, 0)
+            break
+        }
+    }
+    console.log('DLITM', items)
+    return {}
+}
+const CKITM = async (op) => {
+    console.log('CKITM', op)
+    const items = window.data.savemap.items
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (item.id === op.i) {
+            setBankData(op.b, op.a, item.quantity)
+            break
+        }
+    }
+    return {}
+}
 const GETPC = async (op) => {
     console.log('GETPC', op)
     const partyMember = getPlayableCharacterId(window.data.savemap.party.members[p])
@@ -188,6 +243,10 @@ export {
     MPDWN,
     HPUP,
     HPDWN,
+
+    STITM,
+    DLITM,
+    CKITM,
 
     GETPC,
     PRTYP,
