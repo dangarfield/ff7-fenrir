@@ -1,4 +1,4 @@
-import { getPlayableCharacterName, getPlayableCharacterId } from "./field-op-codes-party-helper"
+import { getPlayableCharacterName, getPlayableCharacterId } from "./field-op-codes-party-helper.js"
 import { setBankData, getBankData } from '../data/savemap.js'
 
 const SPTYE = async (op) => {
@@ -25,6 +25,86 @@ const GTPYE = async (op) => {
     console.log('GTPYE result', window.data.savemap.party.members)
     return {}
 }
+
+const GOLDU = async (op) => {
+    console.log('GOLDU', op)
+    const gilChange = op.b1 == 0 ? op.a : getBankData(op.b1, op.a)
+    const newGil = Math.min(window.data.savemap.gil + gilChange, 0xFFFFFFFF)
+    window.data.savemap.gil = newGil
+    console.log('GOLDU result', window.data.savemap.gil)
+    return {}
+}
+const GOLDD = async (op) => {
+    console.log('GOLDD', op)
+    const gilChange = op.b1 == 0 ? op.a : getBankData(op.b1, op.a)
+    const newGil = Math.max(window.data.savemap.gil - gilChange, 0)
+    window.data.savemap.gil = newGil
+    console.log('GOLDD result', window.data.savemap.gil)
+    return {}
+}
+const CHGLD = async (op) => {
+    console.log('CHGLD', op)
+    const gil = window.data.savemap.gil
+    const highByte = ((gil >> 16) & 0xffff)
+    const lowByte = gil & 0xffff
+    // const bit32 = (((highByte & 0xffff) << 16) | (lowByte & 0xffff))
+    setBankData(op.b1, op.nLow, lowByte)
+    setBankData(op.b2, op.nHigh, highByte)
+    console.log('CHGLD result', window.data.savemap.gil, highByte, lowByte)
+    return {}
+}
+
+const HMPMAX1 = async (op) => { return HMPMAX3(op) }
+const HMPMAX2 = async (op) => { return HMPMAX3(op) }
+const MHMMX = async (op) => { return HMPMAX3(op) }
+const HMPMAX3 = async (op) => {
+    console.log('HMPMAX3', op)
+    const members = window.data.savemap.party.members
+    for (let i = 0; i < members.length; i++) {
+        const member = members[i]
+        window.data.savemap.characters[member].stats.hp.current = window.data.savemap.characters[member].stats.hp.base
+        window.data.savemap.characters[member].stats.mp.current = window.data.savemap.characters[member].stats.mp.base
+    }
+    console.log('HMPMAX3', window.data.savemap.gil, highByte, lowByte)
+    return {}
+}
+const MPUP = async (op) => {
+    console.log('MPUP', op)
+    const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
+    const memberName = window.data.savemap.party.members[op.p]
+    const member = window.data.savemap.characters[memberName]
+    member.stats.mp.current = Math.min(member.stats.mp.current + change, member.stats.mp.base)
+    console.log('MPUP', member)
+    return {}
+}
+const MPDWN = async (op) => {
+    console.log('MPDWN', op)
+    const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
+    const memberName = window.data.savemap.party.members[op.p]
+    const member = window.data.savemap.characters[memberName]
+    member.stats.mp.current = Math.max(member.stats.mp.current - change, 0)
+    console.log('MPDWN', member)
+    return {}
+}
+const HPUP = async (op) => {
+    console.log('HPUP', op)
+    const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
+    const memberName = window.data.savemap.party.members[op.p]
+    const member = window.data.savemap.characters[memberName]
+    member.stats.hp.current = Math.min(member.stats.hp.current + change, member.stats.hp.base)
+    console.log('HPUP', member)
+    return {}
+}
+const HPDWN = async (op) => {
+    console.log('HPDWN', op)
+    const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
+    const memberName = window.data.savemap.party.members[op.p]
+    const member = window.data.savemap.characters[memberName]
+    member.stats.hp.current = Math.max(member.stats.hp.current - change, 0)
+    console.log('HPDWN', member)
+    return {}
+}
+
 
 const GETPC = async (op) => {
     console.log('GETPC', op)
@@ -95,6 +175,20 @@ const MMBUK = async (op) => {
 export {
     SPTYE,
     GTPYE,
+    GOLDU,
+    GOLDD,
+    CHGLD,
+
+    HMPMAX1,
+    HMPMAX2,
+    MHMMX,
+    HMPMAX3,
+
+    MPUP,
+    MPDWN,
+    HPUP,
+    HPDWN,
+
     GETPC,
     PRTYP,
     PRTYM,

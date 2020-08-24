@@ -104,6 +104,20 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'SPTYE': result = party.SPTYE(op); break
         case 'GTPYE': result = party.GTPYE(op); break
 
+        case 'GOLDU': result = party.GOLDU(op); break
+        case 'GOLDD': result = party.GOLDD(op); break
+        case 'CHGLD': result = party.CHGLD(op); break
+
+        case 'HMPMAX1': result = party.HMPMAX1(op); break
+        case 'HMPMAX2': result = party.HMPMAX2(op); break
+        case 'MHMMX': result = party.MHMMX(op); break
+        case 'HMPMAX3': result = party.HMPMAX3(op); break
+
+        case 'HPUP': result = party.HPUP(op); break
+        case 'HPDWN': result = party.HPDWN(op); break
+        case 'MPUP': result = party.MPUP(op); break
+        case 'MPDWN': result = party.MPDWN(op); break
+
         case 'GETPC': result = party.GETPC(op); break
         case 'PRTYP': result = party.PRTYP(op); break
         case 'PRTYM': result = party.PRTYM(op); break
