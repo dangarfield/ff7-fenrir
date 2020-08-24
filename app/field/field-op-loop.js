@@ -139,7 +139,9 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         // Background and Palette
 
         // Camera, Audio and Video
-        case 'SCR2D': result = await cameraMedia.SCR2D(ops, op); break
+        case 'SCR2D': result = await cameraMedia.SCR2D(op); break
+        case 'SCR2DC': result = await cameraMedia.SCR2DC(op); break
+        case 'SCR2DL': result = await cameraMedia.SCR2DL(op); break
 
         // Uncategorized
 
@@ -196,10 +198,10 @@ const initEntity = async (entity) => {
     console.log('initEntity: START', entity.entityName, entity)
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
-    // await executeScriptLoop(initLoop)
+    await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    await executeScriptLoop(entity.entityName, mainLoop)
+    // await executeScriptLoop(entity.entityName, mainLoop)
     console.log('initEntity: END', entity.entityName)
 }
 

@@ -29,6 +29,15 @@
 			</div>
 		</div>
 	</div>
+	<!-- Not entirely how to register these within es6... -->
+	<script src="./assets/between.js"></script>
+	<script>
+		window.assets = {
+			Between: Between
+		}
+		console.log('window.assets', window.assets)
+	</script>
+
 	<script type="module" src="./app/data/global-data.js"></script>
 	<script type="module" src="./app/manager.mjs"></script>
 
