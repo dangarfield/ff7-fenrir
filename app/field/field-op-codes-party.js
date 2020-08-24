@@ -146,7 +146,7 @@ const DLITM = async (op) => {
             break
         }
     }
-    console.log('DLITM', items)
+    console.log('DLITM results', items)
     return {}
 }
 const CKITM = async (op) => {
@@ -159,8 +159,50 @@ const CKITM = async (op) => {
             break
         }
     }
+    console.log('CKITM results', items)
     return {}
 }
+
+const SMTRA = async (op) => {
+    console.log('SMTRA', op)
+    // Actual calculation is fairly lengthy for ap calculation, but it is one of 2 values as outputted in kujata-data
+    let materiaId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
+    const materias = window.data.savemap.materias
+    for (let i = 0; i < materias.length; i++) {
+        const materia = materias[i]
+        if (materia.id === 0xFF) {
+            materia.id = itemId
+            materia.ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
+            materia.name = window.data.kernel.materiaData[materiaId].name
+            materia.description = window.data.kernel.materiaData[materiaId].description
+        }
+    }
+    console.log('SMTRA results', materias)
+    return {}
+}
+const DMTRA = async (op) => {
+    console.log('DMTRA', op)
+    // Only used in blackbg4, I'm just going to delete all instances regardless of ap...
+    let materiaId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
+    const materias = window.data.savemap.materias
+    for (let i = 0; i < materias.length; i++) {
+        const materia = materias[i]
+        if (materia.id === materiaId) {
+            materia.id = 0xFF
+            materia.ap = 0xFFFFFF
+            materia.name = ''
+            materia.description = ''
+        }
+    }
+    console.log('DMTRA results', materias)
+    return {}
+}
+const CMTRA = async (op) => {
+    console.log('CMTRA', op)
+    // This is not actually used in the game at all, so I won't implement it
+    return {}
+}
+
 const GETPC = async (op) => {
     console.log('GETPC', op)
     const partyMember = getPlayableCharacterId(window.data.savemap.party.members[p])
@@ -247,6 +289,10 @@ export {
     STITM,
     DLITM,
     CKITM,
+
+    SMTRA,
+    DMTRA,
+    CMTRA,
 
     GETPC,
     PRTYP,

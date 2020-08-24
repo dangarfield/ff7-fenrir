@@ -122,6 +122,10 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'DLITM': result = party.DLITM(op); break
         case 'CKITM': result = party.CKITM(op); break
 
+        case 'SMTRA': result = party.SMTRA(op); break
+        case 'DMTRA': result = party.DMTRA(op); break
+        case 'CMTRA': result = party.CMTRA(op); break
+
         case 'GETPC': result = party.GETPC(op); break
         case 'PRTYP': result = party.PRTYP(op); break
         case 'PRTYM': result = party.PRTYM(op); break
