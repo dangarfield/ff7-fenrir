@@ -24,6 +24,9 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'REQ': result = await flow.REQ(entityName, scriptType, op); break
         case 'REQSW': result = await flow.REQSW(entityName, scriptType, op); break
         case 'REQEW': result = await flow.REQEW(entityName, scriptType, op); break
+        case 'PREQ': result = await flow.PREQ(entityName, scriptType, op); break
+        case 'PRQSW': result = await flow.PRQSW(entityName, scriptType, op); break
+        case 'PRQEW': result = await flow.PRQEW(entityName, scriptType, op); break
         case 'RETTO': result = await flow.RETTO(entityName, scriptType, op); break
 
         case 'JMPF': result = await flow.JMPF(ops, op); break
@@ -43,8 +46,9 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'IFKEYON': result = await flow.IFKEYON(ops, op); break
         case 'IFKEYOFF': result = await flow.IFKEYOFF(ops, op); break
 
-
         case 'NOP': result = await flow.NOP(); break
+        case 'IFPRTYQ': restul = await flow.IFPRTYQ(ops, op); break
+        case 'IFMEMBQ': restul = await flow.IFMEMBQ(ops, op); break
 
         // System and Module Control
 

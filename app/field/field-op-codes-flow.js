@@ -2,6 +2,8 @@ import { sleep } from '../helpers/helpers.js'
 import { compareFromBankData, getOpIndexForByteIndex, getKeysFromBytes } from './field-op-codes-flow-helper.js'
 import { executeScriptLoop } from './field-op-loop.js'
 import { getActiveInputs, getInputHistory } from '../interaction/inputs.js'
+import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
+
 // Note: Not sure about priority as of yet. Which may warrant a rewrite
 
 const RET = async () => {
@@ -42,8 +44,34 @@ const REQEW = async (entityName, scriptType, op) => {
     await executeScriptLoop(entity.entityName, script) // Sync
     return {}
 }
-
-// TODO: PREQ, PRQSW, PRQEW is more of a pain as we have to know which characters are in our current party which I haven't done yet
+const PREQ = async () => {
+    console.log('PREQ', entityName, scriptType, op)
+    const opPartyMember = window.data.savemap.party.members[op.e]
+    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+    const script = entity.scripts.filter(s => s.index === op.f)[0]
+    if (script.isRunning) {
+        console.log('PREQ no running script as it is already running', entity, script, script.isRunning)
+        return {}
+    }
+    executeScriptLoop(entity.entityName, script) // Async
+    return {}
+}
+const PRQSW = async () => {
+    console.log('PRQSW', entityName, scriptType, op)
+    const opPartyMember = window.data.savemap.party.members[op.e]
+    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+    const script = entity.scripts.filter(s => s.index === op.f)[0]
+    executeScriptLoop(entity.entityName, script) // Async
+    return {}
+}
+const PRQEW = async () => {
+    console.log('PRQEW', entityName, scriptType, op)
+    const opPartyMember = window.data.savemap.party.members[op.e]
+    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+    const script = entity.scripts.filter(s => s.index === op.f)[0]
+    await executeScriptLoop(entity.entityName, script) // Sync
+    return {}
+}
 
 const RETTO = async (entityName, scriptType, op) => {
     console.log('RETTO', entityName, scriptType, op)
@@ -185,11 +213,34 @@ const NOP = async () => {
     return { flow: true }
 }
 
+const IFPRTYQ = async (ops, op) => {
+    console.log('IFPRTYQ', ops, op)
+    const currentPartyMembers = window.data.savemap.party.members
+    const opPartyMember = getPlayableCharacterName(op.c)
+    if (currentPartyMembers.includes(opPartyMember)) {
+        return { flow: true }
+    } else { // Bypass if statement
+        return getOpIndexForByteIndex(ops, op.goto)
+    }
+}
+const IFMEMBQ = async (ops, op) => {
+    console.log('IFMEMBQ', ops, op)
+    const opPartyMember = getPlayableCharacterName(op.c)
+    const isAvailable = window.data.savemap.party.characterAvailability[opPartyMember]
+    if (isAvailable) {
+        return { flow: true }
+    } else { // Bypass if statement
+        return getOpIndexForByteIndex(ops, op.goto)
+    }
+}
 export {
     RET,
     REQ,
     REQSW,
     REQEW,
+    PREQ,
+    PRQSW,
+    PRQEW,
     RETTO,
     JMPF,
     JMPFL,
@@ -205,5 +256,7 @@ export {
     IFKEY,
     IFKEYON,
     IFKEYOFF,
-    NOP
+    NOP,
+    IFPRTYQ,
+    IFMEMBQ
 }
