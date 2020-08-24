@@ -101,6 +101,16 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         // Windowing and Menu
 
         // Party and Inventory
+        case 'SPTYE': result = party.SPTYE(op); break
+        case 'GTPYE': result = party.GTPYE(op); break
+
+        case 'GETPC': result = party.GETPC(op); break
+        case 'PRTYP': result = party.PRTYP(op); break
+        case 'PRTYM': result = party.PRTYM(op); break
+        case 'PRTYE': result = party.PRTYE(op); break
+        case 'MMBud': result = party.MMBud(op); break
+        case 'MMBLK': result = party.MMBLK(op); break
+        case 'MMBUK': result = party.MMBUK(op); break
 
         // Field Models and Animation
 
