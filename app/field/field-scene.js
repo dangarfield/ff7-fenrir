@@ -3,7 +3,7 @@ import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cd
 import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
-import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js'
+import TWEEN from '../../assets/tween.esm.js'
 
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-module.js'

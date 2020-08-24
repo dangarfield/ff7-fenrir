@@ -15,7 +15,7 @@ const SCR2D = async (op) => {
     }
     // await sleep(2000)
     console.log('SCR2D instant', op, getCurrentCameraPosition(), to)
-    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Instant)
+    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Smooth, 15)
     return {}
 }
 const SCR2DC = async (op) => {
