@@ -112,16 +112,51 @@ const SCRLA = async (op) => { // CHAR -> adds model.userData.entityId = entity s
     }
 
 }
+
+const SCRLP = async (op) => {
+    console.log('SCRLP', op)
+    const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
+    let tweenType = TweenType.Instant
+    if (op.t === 1) {
+        tweenType = TweenType.Instant
+    } else if (op.t === 2) {
+        tweenType = TweenType.Linear
+    } else if (op.t === 3) {
+        tweenType = TweenType.Smooth
+    }
+
+    const memberName = window.data.savemap.party.members[op.e]
+    console.log('memberName', memberName)
+    const entities = window.currentField.models.filter(m => m.userData.playerName === memberName)
+    console.log('entities', entities)
+    if (entities.length > 0 && memberName !== undefined) {
+        const entity = entities[0]
+        let relativeToCamera = calculateViewClippingPointFromVector3(entity.scene.position)
+        console.log('SCRLP smooth?', op, getCurrentCameraPosition(), relativeToCamera)
+        await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed)
+        return {}
+    } else {
+        console.log('SCRLP no entity or members, centering on screen')
+        const centre = {
+            x: window.currentField.metaData.assetDimensions.width / 2,
+            y: window.currentField.metaData.assetDimensions.height / 2
+        }
+        await tweenCameraPosition(getCurrentCameraPosition(), centre, tweenType, speed)
+        return {}
+    }
+
+}
+
 // Just for debug
-setTimeout(async () => {
-    await SCRLA({
-        b: 0,
-        s: 60,
-        e: 202,
-        t: 3
-    })
-    console.log('done')
-}, 10000)
+// setTimeout(async () => {
+//     await SCRLP({
+//         b: 0,
+//         s: 60,
+//         e: 0,
+//         t: 3
+//     })
+//     console.log('done')
+// }, 10000)
 
 // setTimeout(async () => {
 //     const entity = window.currentField.models.filter(m => m.userData.entityId === 20)[0]
@@ -140,5 +175,6 @@ export {
     SCR2D,
     SCRCC,
     SCR2DC,
-    SCR2DL
+    SCR2DL,
+    SCRLP
 }

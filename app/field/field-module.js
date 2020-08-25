@@ -11,6 +11,7 @@ import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
+import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -210,11 +211,14 @@ const placeModelsDebug = () => {
                     // console.log('PC', op)
                     // if (op.c === 0) { // Cloud
                     //     console.log('cloud is playable char')
+                    fieldModel.userData.playerId = op.c
+                    fieldModel.userData.playerName = getPlayableCharacterName(op.c)
                     playableCharacter = true
                 }
             }
         }
     }
+    console.log('placeModelsDebug: END', window.currentField.models)
 }
 
 
