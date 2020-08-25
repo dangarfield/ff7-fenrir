@@ -13,9 +13,11 @@ const getCurrentCameraPosition = () => {
 }
 const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
     return new Promise(async (resolve) => {
+        window.currentField.isScrolling = true
         let time = Math.floor(frames * 1000 / 30)
         if (tweenType === TweenType.Instant) {
             adjustViewClipping(to.x, to.y)
+            window.currentField.isScrolling = false
             resolve()
         } else {
             let easing = tweenType === TweenType.Linear ? TWEEN.Easing.Linear.None : TWEEN.Easing.Exponential.InOut
@@ -36,6 +38,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
                 })
                 .onComplete(function () {
                     // console.log('tweenCameraPosition done', from, easing)
+                    window.currentField.isScrolling = false
                     resolve()
                 })
                 .start()

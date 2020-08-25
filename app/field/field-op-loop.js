@@ -145,6 +145,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'SCR2D': result = await cameraMedia.SCR2D(op); break
         case 'SCRCC': result = await cameraMedia.SCRCC(op); break
         case 'SCR2DC': result = await cameraMedia.SCR2DC(op); break
+        case 'SCRLW': result = await cameraMedia.SCRLW(op); break
         case 'SCR2DL': result = await cameraMedia.SCR2DL(op); break
         case 'SCRLP': result = await cameraMedia.SCRLP(op); break
 
