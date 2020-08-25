@@ -20,7 +20,7 @@ window.config = {
     },
     debug: {
         active: true,
-        debugModeNoOpLoops: false,
+        debugModeNoOpLoops: true,
         showDebugCamera: false,
         showWalkmeshMesh: false,
         showWalkmeshLines: false,

@@ -17,7 +17,7 @@ const tweenCameraPosition = (from, to, tweenType, frames) => {
             adjustViewClipping(to.x, to.y)
             resolve()
         } else {
-            let easing = tweenType === TweenType.Linear ? TWEEN.Easing.Linear.None : TWEEN.Easing.Quadratic.InOut
+            let easing = tweenType === TweenType.Linear ? TWEEN.Easing.Linear.None : TWEEN.Easing.Exponential.InOut
             console.log('tweenCameraPosition', from, to, frames, time, tweenType)
 
             new TWEEN.Tween(from)

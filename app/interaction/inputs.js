@@ -73,7 +73,7 @@ const getInputHistory = () => {
 const addToHistory = (key, keyDown) => {
     history.unshift({ key, keyDown })
     while (history.length > 20) { history.pop() }
-    console.log('history', history)
+    // console.log('history', history)
 }
 const setKeyPress = (keyCode, state) => {
     if (keyCode === 87) { // w -> up

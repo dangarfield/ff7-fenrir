@@ -1,5 +1,5 @@
 import { sleep } from '../helpers/helpers.js'
-import { adjustViewClipping } from './field-scene.js'
+import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition } from './field-op-codes-camera-media-helper.js'
 
@@ -48,9 +48,19 @@ const SCR2DL = async (op) => {
     await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Linear, speed)
     return {}
 }
-
+const SCRCC = async (op) => {
+    console.log('SCRCC', op)
+    let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+    console.log('SCRCC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
+    await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
+    return {}
+}
+// setTimeout(() => {
+//     SCRCC()
+// }, 10000)
 export {
     SCR2D,
+    SCRCC,
     SCR2DC,
     SCR2DL
 }
