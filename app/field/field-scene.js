@@ -324,7 +324,6 @@ const calculateViewClippingPointFromVector3 = (v) => {
     }
     // console.log('maxAdjustedX', maxAdjustedX)
     // console.log('maxAdjustedY', maxAdjustedY)
-
     // console.log('adjustedX', adjustedX, relativeToCamera)
     // console.log('adjustedY', adjustedY, relativeToCamera)
 
@@ -338,7 +337,7 @@ const adjustViewClipping = async (x, y) => {
     let adjustedX = x - (window.config.sizing.width / 2)
     let adjustedY = y - (window.config.sizing.height / 2)
     // Note: Logic to get the edge of scene screen offsets have been moved to calculateViewClippingPointFromVector3(...)
-    console.log('adjustViewClipping', 'x', x, '->', adjustedX, 'y', y, '->', adjustedY)
+    // console.log('adjustViewClipping', 'x', x, '->', adjustedX, 'y', y, '->', adjustedY)
     window.currentField.fieldCamera.setViewOffset(
         window.currentField.metaData.assetDimensions.width * window.config.sizing.factor,
         window.currentField.metaData.assetDimensions.height * window.config.sizing.factor,

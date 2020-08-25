@@ -136,7 +136,8 @@ const placeModelsDebug = () => {
     window.anim.axesHelper.visible = false
     window.currentField.fieldScene.add(window.anim.axesHelper);
 
-    for (let entity of window.currentField.data.script.entities) {
+    for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
+        const entity = window.currentField.data.script.entities[i]
         // console.log('entity', entity)
         let fieldModelId
         let fieldModel
@@ -149,12 +150,18 @@ const placeModelsDebug = () => {
                 // console.log('ops', entity, script, op, op.op)
                 if (op.op === 'CHAR') {
                     fieldModelId = op.n
+                    fieldModel = window.currentField.models[fieldModelId]
+                    fieldModel.userData.modelId = fieldModelId
+                    fieldModel.userData.entityId = i
+                    console.log('CHAR', fieldModel)
                 }
                 if (op.op === 'XYZI') {
 
                     // console.log('fieldModelId', fieldModelId)
-                    fieldModel = window.currentField.models[fieldModelId]
-
+                    // fieldModel = window.currentField.models[fieldModelId]
+                    // fieldModel.userData.modelId = fieldModelId
+                    // fieldModel.userData.entityId = i
+                    // console.log('fieldModel', fieldModel)
                     const scaleDownValue = getModelScaleDownValue()
                     if (fieldModelId !== undefined) {
                         // console.log('ops', entity, op, fieldModelId, fieldModel, fieldModelScene)

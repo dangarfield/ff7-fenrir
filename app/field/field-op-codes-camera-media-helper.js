@@ -1,5 +1,6 @@
-import { adjustViewClipping } from './field-scene.js'
+import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import TWEEN from '../../assets/tween.esm.js'
+import { sleep } from '../helpers/helpers.js'
 
 const TweenType = {
     Instant: 'Instant',
@@ -10,28 +11,42 @@ const TweenType = {
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
 }
-const tweenCameraPosition = (from, to, tweenType, frames) => {
-    return new Promise(resolve => {
+const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
+    return new Promise(async (resolve) => {
         let time = Math.floor(frames * 1000 / 30)
         if (tweenType === TweenType.Instant) {
             adjustViewClipping(to.x, to.y)
             resolve()
         } else {
             let easing = tweenType === TweenType.Linear ? TWEEN.Easing.Linear.None : TWEEN.Easing.Exponential.InOut
-            console.log('tweenCameraPosition', from, to, frames, time, tweenType)
+            // console.log('tweenCameraPosition', from, to, frames, time, tweenType)
 
-            new TWEEN.Tween(from)
+            const tw = new TWEEN.Tween(from)
                 .to(to, time)
                 .easing(easing)
                 .onUpdate(function () {
                     adjustViewClipping(from.x, from.y)
-                    console.log('tweenCameraPosition tween', from)
+                    if (entityToFollow) {
+                        let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entityToFollow.scene.position)
+                        to.x = relativeToCameraUpdate.x
+                        to.y = relativeToCameraUpdate.y
+                        // console.log('tweenCameraPosition tween', from, to)
+                    }
+
                 })
                 .onComplete(function () {
-                    console.log('tweenCameraPosition done', from, easing)
+                    // console.log('tweenCameraPosition done', from, easing)
                     resolve()
                 })
                 .start()
+            // console.log('tw.target', tw.target)
+            // let c = 0
+            // while (c < 60) {
+            //     await sleep(1000 / 60)
+            //     console.log('tw.target', tw, tw._duration)
+            //     c++
+            // }
+
         }
     })
 

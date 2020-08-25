@@ -139,6 +139,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         // Background and Palette
 
         // Camera, Audio and Video
+        case 'SCRLA': result = await cameraMedia.SCRLA(op); break
         case 'SCR2D': result = await cameraMedia.SCR2D(op); break
         case 'SCRCC': result = await cameraMedia.SCRCC(op); break
         case 'SCR2DC': result = await cameraMedia.SCR2DC(op); break
