@@ -8,6 +8,27 @@ const SCRLO = async (op) => {
     console.log('SCRLO', op, 'THIS OP CODE IS NOT IN USE')
     return {}
 }
+
+const SCRLC = async (op) => {
+    // Lots of assumptions here. No docs. Looks like its async and then SCRLW is called before it continues
+    // Looks like it has speed, tween type and potentially member party params
+    // I'm just assuming that it is going to the playableCharacter position for now
+    console.log('SCRLC', op)
+    const speed = op.p1 == 0 ? op.p2 : getBankData(op.p1, op.p2)
+    let tweenType = TweenType.Instant
+    if (op.p4 === 1) {
+        tweenType = TweenType.Instant
+    } else if (op.p4 === 2) {
+        tweenType = TweenType.Linear
+    } else if (op.p4 === 3) {
+        tweenType = TweenType.Smooth
+    }
+
+    let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+    console.log('SCRLC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
+    tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed)
+    return {}
+}
 const SCRLA = async (op) => { // CHAR -> adds model.userData.entityId = entity script array i
     console.log('SCRLA', op)
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
@@ -158,13 +179,15 @@ const SCRLP = async (op) => {
 
 // Just for debug
 // setTimeout(async () => {
-//     await SCRLP({
-//         b: 0,
-//         s: 60,
-//         e: 0,
-//         t: 3
+//     await SCRLC({
+//         p1: 0,
+//         p2: 60,
+//         p3: 0,
+//         p4: 3
 //     })
-//     console.log('done')
+//     console.log('SCRLC after')
+//     await SCRLW()
+//     console.log('SCRLW after')
 // }, 10000)
 
 // setTimeout(async () => {
@@ -180,6 +203,7 @@ const SCRLP = async (op) => {
 // }, 10000)
 export {
     SCRLO,
+    SCRLC,
     SCRLA,
     SCR2D,
     SCRCC,
