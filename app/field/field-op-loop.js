@@ -140,6 +140,8 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Camera, Audio and Video
 
+        case 'SHAKE': result = await cameraMedia.SHAKE(op); break
+
         case 'SCRLO': result = await cameraMedia.SCRLO(op); break
         case 'SCRLC': result = await cameraMedia.SCRLC(op); break
         case 'SCRLA': result = await cameraMedia.SCRLA(op); break

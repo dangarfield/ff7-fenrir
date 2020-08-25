@@ -1,9 +1,24 @@
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition } from './field-op-codes-camera-media-helper.js'
+import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 
-
+const SHAKE = async (op) => {
+    console.log('SHAKE:', op)
+    // There is a lot of guesswork here
+    // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
+    const position = getCurrentCameraPosition()
+    const frames = op.s >= 10 ? op.s : Math.ceil(op.s / 8) // Making this appear of for fast (cargoin) and slow (ship_2)
+    const amplitude = Math.max(1, op.a / 4)
+    for (let count = 0; count <= op.c; count++) {
+        // console.log('SHAKE: COUNT', count, amplitude, frames)
+        await tweenShake(position, { y: `+${amplitude}` }, frames)
+        await tweenShake(position, { y: `-${amplitude * 2}` }, frames)
+        await tweenShake(position, { y: `+${amplitude}` }, frames)
+    }
+    // console.log('SHAKE: END', op)
+    return {}
+}
 const SCRLO = async (op) => {
     console.log('SCRLO', op, 'THIS OP CODE IS NOT IN USE')
     return {}
@@ -179,6 +194,25 @@ const SCRLP = async (op) => {
 
 // Just for debug
 // setTimeout(async () => {
+//     while (true) {
+//         // SEA
+//         // await SHAKE({ u1: 0, u2: 0, c: 3, u3: 0, u4: 0, a: 15, s: 64 })
+//         // await sleep(1000 / 60 * 60)
+//         // await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
+//         // await sleep(1000 / 60 * 50)
+//         // await SHAKE({ u1: 0, u2: 0, c: 17, u3: 0, u4: 0, a: 17, s: 64 })
+//         // await sleep(1000 / 60 * 60)
+//         // await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
+//         // await sleep(1000 / 60 * 200)
+
+//         // TRAIN
+//         await SHAKE({ u1: 0, u2: 0, c: 2, u3: 0, u4: 0, a: 5, s: 2 })
+//         await sleep(1000 / 60 * 10)
+//         await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
+//         await sleep(1000 / 60 * 15)
+
+//         console.log('looped')
+//     }
 //     await SCRLC({
 //         p1: 0,
 //         p2: 60,
@@ -188,7 +222,7 @@ const SCRLP = async (op) => {
 //     console.log('SCRLC after')
 //     await SCRLW()
 //     console.log('SCRLW after')
-// }, 10000)
+// }, 9000)
 
 // setTimeout(async () => {
 //     const entity = window.currentField.models.filter(m => m.userData.entityId === 20)[0]
@@ -202,6 +236,7 @@ const SCRLP = async (op) => {
 //     }
 // }, 10000)
 export {
+    SHAKE,
     SCRLO,
     SCRLC,
     SCRLA,
