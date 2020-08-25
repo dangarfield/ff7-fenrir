@@ -55,6 +55,10 @@ const SCRCC = async (op) => {
     await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
     return {}
 }
+const SCRLO = async (op) => {
+    console.log('SCRLO', op, 'THIS OP CODE IS NOT IN USE')
+    return {}
+}
 const SCRLA = async (op) => { // CHAR -> adds model.userData.entityId = entity script array i
     console.log('SCRLA', op)
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
@@ -131,6 +135,7 @@ setTimeout(async () => {
 //     }
 // }, 10000)
 export {
+    SCRLO,
     SCRLA,
     SCR2D,
     SCRCC,
