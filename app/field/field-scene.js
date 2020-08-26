@@ -18,6 +18,7 @@ import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-or
 
 
 const renderLoop = function () {
+    console.log('renderLoop frame')
     if (window.anim.activeScene !== 'field') {
         console.log('Stopping field renderLoop')
         return
