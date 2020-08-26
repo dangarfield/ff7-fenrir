@@ -2,9 +2,17 @@ import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
-import { fadeOperation, isFadeInProgress } from './field-fader.js'
+import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
 
-const SHAKE = async (op) => {
+const NFADE = async (op) => { // TODO: Lots of improvements
+    console.log('NFADE', op)
+    const r = op.b1 == 0 ? op.r : getBankData(op.b1, op.r)
+    const g = op.b2 == 0 ? op.g : getBankData(op.b2, op.g)
+    const b = op.b3 == 0 ? op.b : getBankData(op.b3, op.b)
+    await nfadeOperation(op.t, r, g, b, op.s)
+    return {}
+}
+const SHAKE = async (op) => { // TODO: Lots of improvements
     console.log('SHAKE:', op)
     // There is a lot of guesswork here
     // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
@@ -169,7 +177,7 @@ const FADE = async (op) => { // TODO: Lots of improvements
 const FADEW = async (op) => {
     console.log('FADEW', op)
     while (isFadeInProgress()) {
-        console.log('FADEW waiting')
+        // console.log('FADEW waiting')
         await sleep(1000 / 30 * 1) // Sleep for 3 frames
     }
     return {}
@@ -180,7 +188,7 @@ const FADEW = async (op) => {
 //     // await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 0, b: 0, s: 32, a: 0, t: 6 })
 //     // await FADEW({})
 //     // await sleep(1000 / 60 * 30)
-//     while (true) {
+// while (true) {
 //         // initial
 
 //         // initial tin_1 main
@@ -256,6 +264,17 @@ const FADEW = async (op) => {
 //         await FADEW({})
 
 //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 0, t: 5 }) // sync or async
+
+//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 30, t: 12 })
+//         await FADEW({})
+//         await sleep(1000 / 60 * 30 * 5)
+
+//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 12 })
+//         await FADEW({})
+//         await sleep(1000 / 60 * 30 * 5)
+
+//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 0 })
+
 //         await sleep(1000 / 60 * 30 * 5)
 //         console.log('looped')
 //     }
@@ -339,6 +358,7 @@ const SCRLP = async (op) => {
 //     }
 // }, 10000)
 export {
+    NFADE,
     SHAKE,
     SCRLO,
     SCRLC,

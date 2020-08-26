@@ -36,7 +36,7 @@ const initManager = async () => {
 
     // Load field - Replace with menu
     // loadField('md1stin')
-    loadField('tin_4')
+    loadField('snmayor')
     // loadField('blin67_2')
 }
 initManager()

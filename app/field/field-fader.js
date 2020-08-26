@@ -166,25 +166,63 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             tweenOpacity(window.currentField.fieldFader.material, { opacity: 0.5 }, frames)
             break
     }
-    // in, out
-    // colour, black
-    // sync, async
-    // blend mode, normal, additive
+}
+const nfadeOperation = async (type, r, g, b, speed) => {
 
-    // in colour sync
-    // in colour async
-    // in black sync
-    // in black async
-    // out colour sync
-    // out colour async
-    // out black sync
-    // out black async
+    const color = `rgb(${r},${g},${b})`
+    const colorInverse1 = `rgb(${getColorInverse1(r)},${getColorInverse1(g)},${getColorInverse1(b)})` // Should probably be x4 but x3 looks better
+    const colorInverse3 = `rgb(${getColorInverse3(r)},${getColorInverse3(g)},${getColorInverse3(b)})` // Should probably be x4 but x3 looks better
 
+    const frames = speed // ??? This ranges from 1 to 255, with s30 = f8
+    // Note: I've -2 adjusted as some calls are async and when wait is not called
+    // I'm not sure about the speeds, I'll improve this another day
+    /*
+    16 - 16 ?! niv_ti2
+    32 - 8
+    64 - 16
+    */
+
+    // TODO: Some issues here with the blending modes not taking the screen value instead starting from black
+    let m
+    setFadeInProgress(true)
+    switch (type) {
+        case 0: // Instantly show the screen
+            console.log('nfadeOperation 0', type, color, speed, frames)
+            window.currentField.fieldFader.material.blending = THREE.NormalBlending
+            window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
+            window.currentField.fieldFader.material.opacity = 0
+            setFadeInProgress(false)
+            break
+        case 11: // Fade color to black
+            console.log('nfadeOperation 11', type, color, speed, frames)
+            break
+        case 12: // black to colour with subtractive blending, unless 255,255,255, in which case fade screen to black
+            if (r === 255 && g === 255 && b === 255) {
+                console.log('nfadeOperation 12', type, '255s', color, speed, frames)
+                window.currentField.fieldFader.material.blending = THREE.NormalBlending
+                window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
+                window.currentField.fieldFader.material.opacity = 0
+                tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, frames)
+            } else {
+                console.log('nfadeOperation 12', type, 'subtractive', color, speed, frames)
+                // TODO: There are probably multiple layers of blending here, and therefore multiple layers to add
+                window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
+                window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
+                window.currentField.fieldFader.material.opacity = 0
+                m = { o: 0, r: 0, g: 0, b: 0 }
+                console.log('opacity 1', window.currentField.fieldFader.material.opacity)
+                tweenOpacity(m, {
+                    o: 1, r: r, g: g, b: b
+                }, frames)
+            }
+            break
+    }
 }
 export {
     drawFader,
     fadeIn,
     fadeOut,
     fadeOperation,
+    nfadeOperation,
     isFadeInProgress
 }
