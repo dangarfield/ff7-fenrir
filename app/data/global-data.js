@@ -20,7 +20,7 @@ window.config = {
     },
     debug: {
         active: true,
-        debugModeNoOpLoops: true,
+        debugModeNoOpLoops: window.location.search.includes('debug'),
         showDebugCamera: false,
         showWalkmeshMesh: false,
         showWalkmeshLines: false,

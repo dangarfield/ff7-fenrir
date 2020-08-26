@@ -18,7 +18,7 @@ import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-or
 
 
 const renderLoop = function () {
-    console.log('renderLoop frame')
+    // console.log('renderLoop frame')
     if (window.anim.activeScene !== 'field') {
         console.log('Stopping field renderLoop')
         return
@@ -229,8 +229,12 @@ const initFieldDebug = async (loadFieldCB) => {
     //         console.log('window.config.sizing.factor', val)
     //     }
     // })
-    debugGUI.add(window.config.debug, 'debugModeNoOpLoops').onChange(() => {
-        window.alert('Cannot change this whilst running. This setting needs to changed in global-data.js then page refreshed')
+    debugGUI.add(window.config.debug, 'debugModeNoOpLoops').onChange((isDebugMode) => {
+        if (isDebugMode) {
+            window.location.href = window.location.href + '?debug'
+        } else {
+            window.location.href = window.location.href.replace('?debug', '')
+        }
     })
     debugGUI.add(window.config.debug, 'showDebugCamera').onChange(function () {
         activateDebugCamera()
