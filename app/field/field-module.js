@@ -12,6 +12,7 @@ import { setupOrthoCamera } from './field-ortho-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
+import { preLoadFieldMediaData } from '../media/media.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -557,11 +558,13 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         positionHelpers: undefined,
         cameraTarget: undefined,
         fieldFader: undefined,
-        playableCharacterInitData: playableCharacterInitData
+        playableCharacterInitData: playableCharacterInitData,
+        media: undefined
     }
     showLoadingScreen()
     resetTempBank()
     window.currentField.data = await loadFieldData(fieldName)
+    window.currentField.media = await preLoadFieldMediaData()
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
     window.currentField.cameraTarget = setupFieldCamera()

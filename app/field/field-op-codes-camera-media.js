@@ -3,6 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
+import { playSound } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -357,6 +358,39 @@ const SCRLP = async (op) => {
 
 //     }
 // }, 10000)
+
+
+
+const SOUND = async (op) => {
+    const pan = (op.d / 64) - 1
+    console.log('SOUND', op, pan)
+
+    playSound(op.i, pan)
+    return {}
+}
+
+// setTimeout(async () => {
+//     while (true) {
+//         await SOUND({ i: 151, d: 64 })
+//         await sleep(1000 / 30 * 30)
+
+//         await SOUND({ i: 123, d: 64 })
+//         await sleep(1000 / 30 * 30)
+
+//         await SOUND({ i: 28, d: 64 })
+//         await sleep(1000 / 30 * 30)
+
+//         await SOUND({ i: 1, d: 0 })
+//         await sleep(1000 / 30 * 30)
+
+//         await SOUND({ i: 2, d: 64 })
+//         await sleep(1000 / 30 * 30)
+
+//         await SOUND({ i: 3, d: 128 })
+//         await sleep(1000 / 30 * 30)
+//     }
+// }, 9000)
+
 export {
     NFADE,
     SHAKE,
@@ -370,5 +404,6 @@ export {
     SCR2DL,
     FADE,
     FADEW,
-    SCRLP
+    SCRLP,
+    SOUND
 }

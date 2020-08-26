@@ -1,5 +1,13 @@
 // Global Objects - Improve in a better way another time
 
+window.libraries = {
+    howler: {
+        Howl: Howl,
+        Howler: Howler
+    }
+}
+console.log('window.libraries', Howler)
+
 window.currentField // Contains field data
 
 window.anim = {

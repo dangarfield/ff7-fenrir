@@ -1,20 +1,14 @@
-import Stats from '../assets/threejs-r118/jsm/libs/stats.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
-
 // import * as DATA from './data/globalData.js' // Handle this better in the future
 import { setupInputs } from './interaction/inputs.js'
 import { loadField } from './field/field-module.js'
-import { initRenderer } from './render/renderer.js'
+import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadSaveMap } from './data/savemap.js'
+import { setDefaultMediaConfig } from './media/media.js'
 
-// let anim = window.anim // Handle this better in the future
 
-const showStats = () => {
-    anim.stats = new Stats()
-    anim.stats.dom.style.cssText = 'position:fixed;top:0;right:270px;cursor:pointer;opacity:0.9;z-index:10000';
-    document.querySelector('.stats').appendChild(anim.stats.dom)
-}
+
 
 const initManager = async () => {
 
@@ -29,6 +23,7 @@ const initManager = async () => {
     setupInputs()
     await loadKernelData()
     await loadWindowTextures()
+    setDefaultMediaConfig()
 
     // Initialise new savemap - Replace with menu
     // initNewSaveMap()
