@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic } from '../media/media.js'
+import { playSound, playMusic, executeAkaoOperation } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -371,21 +371,27 @@ const SOUND = async (op) => {
     return {}
 }
 
+const AKAO = async (op) => {
+    console.log('AKAO', op)
+    executeAkaoOperation(op.akaoOp, op.p1, op.p2, op.p3, op.p4, op.p5)
+    return {}
+}
+const AKAO2 = async (op) => {
+    console.log('AKAO2', op)
+    executeAkaoOperation(op.akaoOp, op.p1, op.p2, op.p3, op.p4, op.p5)
+    return {}
+}
 // setTimeout(async () => {
-//     await MUSIC({ id: 0 })
-//     await sleep(1000 / 30 * 30 * 10)
-//     await MUSIC({ id: 0 })
-//     await SOUND({ i: 151, d: 64 })
-//     await sleep(1000 / 30 * 30 * 4)
+//     await AKAO2({ akaoOp: 16, p1: 0 })
+//     await sleep(1000 / 30 * 30 * 2)
 
-//     await SOUND({ i: 1, d: 64 })
+//     // await AKAO2({ akaoOp: 155 })
+//     // await sleep(1000 / 30 * 30 * 0.5)
+
+//     await AKAO2({ akaoOp: 32, p1: 0, p2: 6 })
+//     // await AKAO2({ akaoOp: 192, p1: 2 })
 //     await sleep(1000 / 30 * 30 * 1)
-
-//     await SOUND({ i: 0, d: 64 })
-//     await sleep(1000 / 30 * 30 * 1)
-
-//     await SOUND({ i: 2, d: 64 })
-
+//     await AKAO2({ akaoOp: 208, p1: 33 })
 // }, 9000)
 
 export {
@@ -402,6 +408,8 @@ export {
     FADE,
     FADEW,
     SCRLP,
+    AKAO2,
     MUSIC,
-    SOUND
+    SOUND,
+    AKAO
 }
