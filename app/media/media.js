@@ -761,6 +761,18 @@ const setBattleMusic = (id) => {
     musicMetadata.currentBattleMusic = name
     console.log('musicMetadata', musicMetadata)
 }
+const isMusicPlaying = () => {
+    let isPlaying = 0
+    for (let i = 0; i < musics.length; i++) {
+        const music = musics[i]
+        if (music.sound.playing()) {
+            isPlaying = 1
+            break
+        }
+    }
+    console.log('isMusicPlaying', isPlaying)
+    return isPlaying
+}
 export {
     preLoadFieldMediaData,
     setDefaultMediaConfig,
@@ -769,5 +781,6 @@ export {
     playMusic,
     lockMusic,
     setBattleMusic,
-    executeAkaoOperation
+    executeAkaoOperation,
+    isMusicPlaying
 }
