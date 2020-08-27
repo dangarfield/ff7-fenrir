@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound } from '../media/media.js'
+import { playSound, playMusic } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -359,8 +359,10 @@ const SCRLP = async (op) => {
 //     }
 // }, 10000)
 
-
-
+const MUSIC = async (op) => {
+    playMusic(op.id)
+    return {}
+}
 const SOUND = async (op) => {
     const pan = (op.d / 64) - 1
     console.log('SOUND', op, pan)
@@ -369,38 +371,22 @@ const SOUND = async (op) => {
     return {}
 }
 
-setTimeout(async () => {
-    await SOUND({ i: 151, d: 64 })
-    await sleep(1000 / 30 * 30 * 4)
+// setTimeout(async () => {
+//     await MUSIC({ id: 0 })
+//     await sleep(1000 / 30 * 30 * 10)
+//     await MUSIC({ id: 0 })
+//     await SOUND({ i: 151, d: 64 })
+//     await sleep(1000 / 30 * 30 * 4)
 
-    await SOUND({ i: 1, d: 64 })
-    await sleep(1000 / 30 * 30 * 1)
+//     await SOUND({ i: 1, d: 64 })
+//     await sleep(1000 / 30 * 30 * 1)
 
-    await SOUND({ i: 0, d: 64 })
-    await sleep(1000 / 30 * 30 * 1)
+//     await SOUND({ i: 0, d: 64 })
+//     await sleep(1000 / 30 * 30 * 1)
 
-    await SOUND({ i: 2, d: 64 })
+//     await SOUND({ i: 2, d: 64 })
 
-    // while (true) {
-    // await SOUND({ i: 151, d: 64 })
-    // await sleep(1000 / 30 * 30)
-
-    // await SOUND({ i: 123, d: 64 })
-    // await sleep(1000 / 30 * 30)
-
-    // await SOUND({ i: 28, d: 64 })
-    // await sleep(1000 / 30 * 30)
-
-    // await SOUND({ i: 1, d: 0 })
-    // await sleep(1000 / 30 * 30)
-
-    // await SOUND({ i: 2, d: 64 })
-    // await sleep(1000 / 30 * 30)
-
-    // await SOUND({ i: 3, d: 128 })
-    // await sleep(1000 / 30 * 30)
-    // }
-}, 9000)
+// }, 9000)
 
 export {
     NFADE,
@@ -416,5 +402,6 @@ export {
     FADE,
     FADEW,
     SCRLP,
+    MUSIC,
     SOUND
 }

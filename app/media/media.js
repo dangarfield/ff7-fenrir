@@ -7,8 +7,14 @@ const Howler = window.libraries.howler.Howler
 
 let config = {} // set on field selection and global init with setDefaultConfig
 let sounds = []
-let music = []
+let musics = []
 let soundMetadata
+let musicMetadata = {
+    currentFieldList: [],
+    currentFieldMusic: null,
+    currentBattleMusic: null,
+    currentWorldMusic: null
+}
 
 const loadSoundMetadata = async () => {
     soundMetadata = await getSoundMetadata()
@@ -29,6 +35,9 @@ const setDefaultMediaConfig = () => {
 const getSoundUrl = (id) => {
     return `${KUJATA_BASE}/media/sounds/${id}.ogg`
 }
+const getMusicUrl = (name) => {
+    return `${KUJATA_BASE}/media/music/${name}.ogg`
+}
 const preloadCommonSounds = () => {
     // TODO - Things like menu sounds, door sounds, save collision sound, anything not as a op code
     loadSound(1)
@@ -40,43 +49,63 @@ const loadSound = (id) => {
     if (sounds.filter(s => s.id === id).length > 0) {
         return
     }
-    const soundItem = {
+    const mediaItem = {
         url: getSoundUrl(id),
         id: id,
         loop: soundMetadata.filter(s => s.name === id)[0].loop
     }
-    let howlParams = { src: [soundItem.url] }
-    if (soundItem.loop) {
+    let howlParams = { src: [mediaItem.url] }
+    if (mediaItem.loop) {
         howlParams.sprite = {}
         howlParams.sprite[`${id}Loop`] = [100, 200]
     }
-    soundItem.sound = new Howl(howlParams)
-    soundItem.sound.once('load', function () {
-        console.log(' - sound loaded', soundItem)
-        if (soundItem.sound._sprite && soundItem.sound._sprite[`${id}Loop`]) {
+    mediaItem.sound = new Howl(howlParams)
+    mediaItem.sound.once('load', function () {
+        console.log(' - sound loaded', mediaItem)
+        if (mediaItem.sound._sprite && mediaItem.sound._sprite[`${id}Loop`]) {
 
-            soundItem.sound._sprite[`${id}Loop`] = [ // Ideally this would be set by our metadata values
+            mediaItem.sound._sprite[`${id}Loop`] = [ // Ideally this would be set by our metadata values
                 100,
-                (soundItem.sound._duration * 1000) - 300
+                (mediaItem.sound._duration * 1000) - 300
             ]
-            console.log(' - loop updated loaded', soundItem)
+            console.log(' - loop updated loaded', mediaItem)
         }
 
     })
-    soundItem.sound.on('end', function () {
-        console.log(' - sound ended', soundItem)
+    mediaItem.sound.on('end', function () {
+        console.log(' - sound ended', mediaItem)
     })
-    sounds.push(soundItem)
+    sounds.push(mediaItem)
+}
+const loadMusic = (name) => {
+    if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
+        return
+    }
+    const mediaItem = {
+        url: getMusicUrl(name),
+        name: name
+    }
+    mediaItem.sound = new Howl({ src: [mediaItem.url] })
+    mediaItem.sound.loop(true)
+
+    mediaItem.sound.once('load', function () {
+        console.log(' - music loaded', mediaItem)
+        // There are no fflp flags in the music oggs, it's not looping perfectly...
+    })
+    mediaItem.sound.on('end', function () {
+        console.log(' - music ended', mediaItem)
+    })
+    musics.push(mediaItem)
 }
 const preLoadFieldMediaData = async () => {
     console.log('preLoadFieldMediaData: START')
     setDefaultMediaConfig() // Assuming channel pan, volume through AKAO is reset each field transition
-    const musicIds = window.currentField.data.script.akao.filter(m => m.name !== 'none').map((m, i) => {
-        return {
-            url: `${KUJATA_BASE}/media/music/${m.name}.ogg`,
-            id: m.name
-        }
-    })
+    const musicIds = window.currentField.data.script.akao
+    musicMetadata.currentFieldList = []
+    for (let i = 0; i < musicIds.length; i++) {
+        loadMusic(musicIds[i].name)
+        musicMetadata.currentFieldList[i] = musicIds[i].name
+    }
     preloadCommonSounds()
 
     for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
@@ -103,6 +132,8 @@ const preLoadFieldMediaData = async () => {
     }
 
     console.log('musicIds', musicIds)
+    console.log('musics', musics)
+    console.log('musicMetadata', musicMetadata)
     console.log('sounds', sounds)
 
     console.log('preLoadFieldMediaData: END')
@@ -110,10 +141,10 @@ const preLoadFieldMediaData = async () => {
 const stopSounds = () => {
     console.log('stop all sounds', Howler.volume)
     for (let i = 0; i < sounds.length; i++) {
-        const soundItem = sounds[i]
-        if (soundItem.sound.playing()) {
-            console.log('stop soundItem', soundItem.id)
-            soundItem.sound.stop()
+        const mediaItem = sounds[i]
+        if (mediaItem.sound.playing()) {
+            console.log('stop mediaItem', mediaItem.id)
+            mediaItem.sound.stop()
         }
     }
 }
@@ -122,22 +153,50 @@ const playSound = (id, pan) => {
         stopSounds()
         return
     }
-    const soundItem = sounds.filter(s => s.id === id)[0]
-    console.log('playSound', soundItem, soundItem.loop)
-    soundItem.sound.stereo(pan)
-    if (soundItem.loop) {
-        soundItem.sound.loop(true)
+    const mediaItem = sounds.filter(s => s.id === id)[0]
+    console.log('playSound', mediaItem, mediaItem.loop)
+    mediaItem.sound.stereo(pan)
+    if (mediaItem.loop) {
+        mediaItem.sound.loop(true)
         console.log('play loop')
-        soundItem.sound.play(`${id}Loop`)
+        mediaItem.sound.play(`${id}Loop`)
     } else {
         console.log('play normal')
-        soundItem.sound.play()
+        mediaItem.sound.play()
     }
+}
+
+const playMusic = (id) => {
+    const name = musicMetadata.currentFieldList[id]
+    console.log('playMusic', id, name)
+    for (let i = 0; i < musics.length; i++) {
+        const music = musics[i]
+        console.log('music', i, music)
+        if (music.name === name) {
+            if (!music.sound.playing()) {
+                console.log('play music', music)
+                music.sound.play()
+            } else {
+                console.log('keep music playing', music)
+            }
+        } else {
+            if (music.sound.playing()) {
+                console.log('stop music', music)
+                music.sound.stop()
+            }
+        }
+    }
+
+    console.log('musics', musics)
+    console.log('musicMetadata', musicMetadata)
+    console.log('sounds', sounds)
+
 }
 
 export {
     preLoadFieldMediaData,
+    setDefaultMediaConfig,
     loadSoundMetadata,
     playSound,
-    setDefaultMediaConfig
+    playMusic
 }
