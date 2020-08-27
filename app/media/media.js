@@ -120,11 +120,13 @@ const preLoadFieldMediaData = async () => {
     setDefaultMediaConfig() // Assuming channel pan, volume through AKAO is reset each field transition
     const musicIds = window.currentField.data.script.akao
     musicMetadata.currentFieldList = []
+
     for (let i = 0; i < musicIds.length; i++) {
         loadMusic(musicIds[i].name)
         musicMetadata.currentFieldList[i] = musicIds[i].name
     }
     preloadCommonSounds()
+    setBattleMusic(1)
 
     for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
         const entity = window.currentField.data.script.entities[i]
@@ -316,8 +318,10 @@ const stopMusic = () => {
         if (music.sound.playing()) {
             console.log('stop music ->', music)
             music.sound.stop()
+
         }
     }
+    musicMetadata.currentFieldMusic = ''
 }
 const resumeMusic = () => {
     console.log('resume music')
@@ -327,6 +331,7 @@ const resumeMusic = () => {
         if (music.paused) {
             console.log('resume music ->', music)
             music.sound.play()
+            musicMetadata.currentFieldMusic = music.name
             delete music.paused
             break
         }
@@ -346,6 +351,7 @@ const playMusic = (id) => {
                 music.sound.volume(config.music.volume)
                 music.sound.rate(config.music.tempo)
                 music.sound.play()
+                musicMetadata.currentFieldMusic = music.name
             } else {
                 console.log('keep music playing', music)
             }
@@ -749,6 +755,12 @@ const lockMusic = (isMusicLocked) => {
     console.log('lockMusic', isMusicLocked)
     musicMetadata.isMusicLocked = isMusicLocked
 }
+const setBattleMusic = (id) => {
+    console.log('setBattleMusic', id)
+    const name = musicMetadata.currentFieldList[id]
+    musicMetadata.currentBattleMusic = name
+    console.log('musicMetadata', musicMetadata)
+}
 export {
     preLoadFieldMediaData,
     setDefaultMediaConfig,
@@ -756,5 +768,6 @@ export {
     playSound,
     playMusic,
     lockMusic,
+    setBattleMusic,
     executeAkaoOperation
 }
