@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic, executeAkaoOperation } from '../media/media.js'
+import { playSound, playMusic, lockMusic, executeAkaoOperation } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -381,18 +381,31 @@ const AKAO2 = async (op) => {
     executeAkaoOperation(op.akaoOp, op.p1, op.p2, op.p3, op.p4, op.p5)
     return {}
 }
-// setTimeout(async () => {
-//     await AKAO2({ akaoOp: 16, p1: 0 })
-//     await sleep(1000 / 30 * 30 * 2)
+const MUSVM = async (op) => {
+    console.log('MUSVM', op)
+    // No instances of this in fields
+    return {}
+}
+const MULCK = async (op) => {
+    console.log('MULCK', op)
+    // No instances of this in fields
+    lockMusic(op.s === 1)
+    return {}
+}
+setTimeout(async () => {
+    await AKAO2({ akaoOp: 16, p1: 0 })
+    await sleep(1000 / 30 * 30 * 2)
 
-//     // await AKAO2({ akaoOp: 155 })
-//     // await sleep(1000 / 30 * 30 * 0.5)
+    await MULCK({ s: 1 })
+    await AKAO2({ akaoOp: 32, p1: 0, p2: 2 })
+    await AKAO2({ akaoOp: 16, p1: 2 })
+    await sleep(1000 / 30 * 30 * 2)
 
-//     await AKAO2({ akaoOp: 32, p1: 0, p2: 6 })
-//     // await AKAO2({ akaoOp: 192, p1: 2 })
-//     await sleep(1000 / 30 * 30 * 1)
-//     await AKAO2({ akaoOp: 208, p1: 33 })
-// }, 9000)
+    await MULCK({ s: 0 })
+    await AKAO2({ akaoOp: 32, p1: 0, p2: 2 })
+    await AKAO2({ akaoOp: 16, p1: 2 })
+    await sleep(1000 / 30 * 30 * 2)
+}, 9000)
 
 export {
     NFADE,
@@ -411,5 +424,7 @@ export {
     AKAO2,
     MUSIC,
     SOUND,
-    AKAO
+    AKAO,
+    MUSVM,
+    MULCK
 }

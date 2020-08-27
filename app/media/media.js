@@ -14,6 +14,7 @@ Potential bugs / todo:
 - Have not tested how channel volume / pan etc effects looped objects when going back to the beginning
 - Have not fully tested setting channel volumes then playing sounds after
 - Tempo also affects pitch, not sure if this is right or not
+- Haven't looked at battle music, pausing and restarting field after battle etc
 */
 let config = {} // set on field selection and global init with setDefaultConfig
 let sounds = []
@@ -23,7 +24,8 @@ let musicMetadata = {
     currentFieldList: [],
     currentFieldMusic: null,
     currentBattleMusic: null,
-    currentWorldMusic: null
+    currentWorldMusic: null,
+    isMusicLocked: false
 }
 
 // Loading & Config
@@ -295,6 +297,7 @@ const setSoundTempoTransition = (channel, tempo, time) => {
 // Music
 const pauseMusic = () => {
     console.log('pause music')
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
@@ -307,6 +310,7 @@ const pauseMusic = () => {
 }
 const stopMusic = () => {
     console.log('stop music')
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
@@ -317,6 +321,7 @@ const stopMusic = () => {
 }
 const resumeMusic = () => {
     console.log('resume music')
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.paused) {
@@ -330,6 +335,7 @@ const resumeMusic = () => {
 const playMusic = (id) => {
     const name = musicMetadata.currentFieldList[id]
     console.log('playMusic', id, name)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         console.log('music', i, music)
@@ -360,6 +366,7 @@ const setMusicVolume = (vol) => {
     vol = Math.min(vol, 1)
     vol = Math.max(vol, 0)
     console.log('setMusicVolume', vol)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.volume = vol
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -376,6 +383,7 @@ const setMusicVolumeTransition = (fromVol, vol, time) => {
     vol = Math.min(vol, 1)
     vol = Math.max(vol, 0)
     console.log('setMusicVolumeTransition', config.music, fromVol, vol, time)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.volume = vol
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -390,6 +398,7 @@ const setMusicVolumeTransition = (fromVol, vol, time) => {
 }
 const setMusicPan = (pan) => {
     console.log('setMusicPan', pan)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.pan = pan
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -400,6 +409,7 @@ const setMusicPan = (pan) => {
 }
 const setMusicPanTransition = (fromPan, pan, time) => {
     console.log('setMusicPanTransition', config.music, fromPan, pan, time)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.pan = pan
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -415,6 +425,7 @@ const setMusicPanTransition = (fromPan, pan, time) => {
 }
 const setMusicTempo = (tempo) => {
     console.log('setMusicTempo', tempo)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.tempo = tempo
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -425,6 +436,7 @@ const setMusicTempo = (tempo) => {
 }
 const setMusicTempoTransition = (fromTempo, tempo, time) => {
     console.log('setMusicTempoTransition', config.music, fromTempo, tempo, time)
+    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     config.music.tempo = tempo
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -732,11 +744,17 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
             break
     }
 }
+
+const lockMusic = (isMusicLocked) => {
+    console.log('lockMusic', isMusicLocked)
+    musicMetadata.isMusicLocked = isMusicLocked
+}
 export {
     preLoadFieldMediaData,
     setDefaultMediaConfig,
     loadSoundMetadata,
     playSound,
     playMusic,
+    lockMusic,
     executeAkaoOperation
 }
