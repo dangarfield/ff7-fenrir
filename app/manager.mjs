@@ -5,7 +5,7 @@ import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadSaveMap } from './data/savemap.js'
-import { setDefaultMediaConfig } from './media/media.js'
+import { setDefaultMediaConfig, loadSoundMetadata } from './media/media.js'
 
 
 
@@ -23,6 +23,7 @@ const initManager = async () => {
     setupInputs()
     await loadKernelData()
     await loadWindowTextures()
+    loadSoundMetadata()
     setDefaultMediaConfig()
 
     // Initialise new savemap - Replace with menu

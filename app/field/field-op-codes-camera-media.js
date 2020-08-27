@@ -369,27 +369,38 @@ const SOUND = async (op) => {
     return {}
 }
 
-// setTimeout(async () => {
-//     while (true) {
-//         await SOUND({ i: 151, d: 64 })
-//         await sleep(1000 / 30 * 30)
+setTimeout(async () => {
+    await SOUND({ i: 151, d: 64 })
+    await sleep(1000 / 30 * 30 * 4)
 
-//         await SOUND({ i: 123, d: 64 })
-//         await sleep(1000 / 30 * 30)
+    await SOUND({ i: 1, d: 64 })
+    await sleep(1000 / 30 * 30 * 1)
 
-//         await SOUND({ i: 28, d: 64 })
-//         await sleep(1000 / 30 * 30)
+    await SOUND({ i: 0, d: 64 })
+    await sleep(1000 / 30 * 30 * 1)
 
-//         await SOUND({ i: 1, d: 0 })
-//         await sleep(1000 / 30 * 30)
+    await SOUND({ i: 2, d: 64 })
 
-//         await SOUND({ i: 2, d: 64 })
-//         await sleep(1000 / 30 * 30)
+    // while (true) {
+    // await SOUND({ i: 151, d: 64 })
+    // await sleep(1000 / 30 * 30)
 
-//         await SOUND({ i: 3, d: 128 })
-//         await sleep(1000 / 30 * 30)
-//     }
-// }, 9000)
+    // await SOUND({ i: 123, d: 64 })
+    // await sleep(1000 / 30 * 30)
+
+    // await SOUND({ i: 28, d: 64 })
+    // await sleep(1000 / 30 * 30)
+
+    // await SOUND({ i: 1, d: 0 })
+    // await sleep(1000 / 30 * 30)
+
+    // await SOUND({ i: 2, d: 64 })
+    // await sleep(1000 / 30 * 30)
+
+    // await SOUND({ i: 3, d: 128 })
+    // await sleep(1000 / 30 * 30)
+    // }
+}, 9000)
 
 export {
     NFADE,

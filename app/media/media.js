@@ -1,12 +1,19 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
+import { getSoundMetadata } from '../data/media-fetch-data.js'
 import { sleep } from '../helpers/helpers.js'
+
 const Howl = window.libraries.howler.Howl
 const Howler = window.libraries.howler.Howler
 
 let config = {} // set on field selection and global init with setDefaultConfig
 let sounds = []
 let music = []
+let soundMetadata
 
+const loadSoundMetadata = async () => {
+    soundMetadata = await getSoundMetadata()
+    console.log('soundMetadata', soundMetadata)
+}
 const setDefaultMediaConfig = () => {
     const channels = ['channel1', 'channel2', 'channel3', 'channel4', 'channel5', 'music']
     for (let i = 0; i < channels.length; i++) {
@@ -36,10 +43,25 @@ const loadSound = (id) => {
     const soundItem = {
         url: getSoundUrl(id),
         id: id,
+        loop: soundMetadata.filter(s => s.name === id)[0].loop
     }
-    soundItem.sound = new Howl({ src: [soundItem.url] })
+    let howlParams = { src: [soundItem.url] }
+    if (soundItem.loop) {
+        howlParams.sprite = {}
+        howlParams.sprite[`${id}Loop`] = [100, 200]
+    }
+    soundItem.sound = new Howl(howlParams)
     soundItem.sound.once('load', function () {
-        // console.log(' - sound loaded', soundItem)
+        console.log(' - sound loaded', soundItem)
+        if (soundItem.sound._sprite && soundItem.sound._sprite[`${id}Loop`]) {
+
+            soundItem.sound._sprite[`${id}Loop`] = [ // Ideally this would be set by our metadata values
+                100,
+                (soundItem.sound._duration * 1000) - 300
+            ]
+            console.log(' - loop updated loaded', soundItem)
+        }
+
     })
     soundItem.sound.on('end', function () {
         console.log(' - sound ended', soundItem)
@@ -85,17 +107,37 @@ const preLoadFieldMediaData = async () => {
 
     console.log('preLoadFieldMediaData: END')
 }
-
+const stopSounds = () => {
+    console.log('stop all sounds', Howler.volume)
+    for (let i = 0; i < sounds.length; i++) {
+        const soundItem = sounds[i]
+        if (soundItem.sound.playing()) {
+            console.log('stop soundItem', soundItem.id)
+            soundItem.sound.stop()
+        }
+    }
+}
 const playSound = (id, pan) => {
+    if (id === 0) {
+        stopSounds()
+        return
+    }
     const soundItem = sounds.filter(s => s.id === id)[0]
-    console.log('playSound', soundItem)
+    console.log('playSound', soundItem, soundItem.loop)
     soundItem.sound.stereo(pan)
-    soundItem.sound.play()
-    // TODO - Decode the wav and see if looping is present or not
+    if (soundItem.loop) {
+        soundItem.sound.loop(true)
+        console.log('play loop')
+        soundItem.sound.play(`${id}Loop`)
+    } else {
+        console.log('play normal')
+        soundItem.sound.play()
+    }
 }
 
 export {
     preLoadFieldMediaData,
+    loadSoundMetadata,
     playSound,
     setDefaultMediaConfig
 }
