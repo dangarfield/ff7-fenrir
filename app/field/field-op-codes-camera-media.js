@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData, setBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic, pauseMusic, lockMusic, setBattleMusic, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
+import { playSound, playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -415,29 +415,50 @@ const MUSVT = async (op) => {
     playMusic(op.id, true)
     return {}
 }
+const CMUSC = async (op) => {
+    console.log('CMUSC', op)
+    // combination of p2 =24 and p3 > 0 (eg, 30) lead to a fade out of the playing music and a fade in of op.i music
+    // i = position of yado (sleep) song, p2, fade out time?, p3 fade in time?
+    if (op.p3 > 0) {
+        stopMusic(1000 / 30 * op.p2) // Fade out
+        await sleep(1000 / 30 * op.p2) // Doesn't appear to cross fade
+        playMusic(op.i, false, 1000 / 30 * op.p3) // i = position of yado (sleep) song, p2, fade out time?, p3 fade in time?
+    } else {
+        stopMusic()
+        playMusic(op.i, true)
+    }
+
+    return {}
+}
 
 // setTimeout(async () => {
-//     await CHMST({ a: 1, b: 2 })
-//     await sleep(1000 / 30 * 30 * 2)
+//     await MUSIC({ id: 0 })
+//     await sleep(1000 / 30 * 30 * 3)
 
-//     await AKAO2({ akaoOp: 16, p1: 2 })
-//     await sleep(1000 / 30 * 30 * 5)
+//     // await FADE({ r: 0, g: 0, b: 0, s: 12, t: 2, a: 0 })
+//     // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 12, a: 0, t: 2 })
+//     // await FADEW({})
+//     // console.log('fade complete')
 
-//     await MUSVT({ id: 0 })
+//     // await SOUND({ i: 1, d: 0 })
+//     // await CMUSC({ i: 4, p1: 0, p2: 20, p3: 30, p4: 0, p5: 0, p6: 0 })
+//     await CMUSC({ i: 1, p1: 0, p2: 20, p3: 0, p4: 0, p5: 0, p6: 0 })
 
 
 //     await CHMST({ b: 2, a: 2 })
-//     let isPlaying = getBankData(2, 2)
-//     console.log('isPlaying bank', isPlaying)
-//     let i = 0
-//     while (isPlaying) {
-//         await CHMST({ b: 2, a: 2 })
-//         isPlaying = getBankData(2, 2)
-//         i++
-//         console.log(i, 'isPlaying bank', isPlaying)
-//     }
-//     console.log('Not longer playing')
-//     await AKAO2({ akaoOp: 16, p1: 2 })
+//     // let isPlaying = getBankData(2, 2)
+//     // console.log('isPlaying bank', isPlaying)
+//     // let i = 0
+//     // while (isPlaying) {
+//     //     await CHMST({ b: 2, a: 2 })
+//     //     isPlaying = getBankData(2, 2)
+//     //     i++
+//     //     console.log(i, 'isPlaying bank', isPlaying)
+//     // }
+//     // console.log('Not longer playing')
+//     // await MUSIC({ id: 0 })
+//     // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 255, t: 1 })
+//     // await FADEW({})
 // }, 9000)
 
 export {

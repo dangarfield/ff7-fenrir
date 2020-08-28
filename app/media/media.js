@@ -311,14 +311,21 @@ const pauseMusic = () => {
         }
     }
 }
-const stopMusic = () => {
+const stopMusic = (fadeOutTime) => {
     console.log('stop music')
     if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
             console.log('stop music ->', music)
-            music.sound.stop()
+            if (fadeOutTime === undefined) {
+                music.sound.stop()
+            } else {
+                music.sound.fade(music.sound.volume(), 0, fadeOutTime)
+                setTimeout(() => {
+                    music.sound.stop()
+                }, fadeOutTime)
+            }
 
         }
     }
@@ -339,9 +346,9 @@ const resumeMusic = () => {
         }
     }
 }
-const playMusic = (id, noLoop) => {
+const playMusic = (id, noLoop, fadeInTime) => {
     const name = musicMetadata.currentFieldList[id]
-    console.log('playMusic', id, name)
+    console.log('playMusic', id, name, noLoop, fadeInTime)
     if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -361,6 +368,9 @@ const playMusic = (id, noLoop) => {
                 if (music.paused) {
                     music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
                     delete music.paused
+                }
+                if (fadeInTime) {
+                    music.sound.fade(0, music.sound.volume(), 1500)
                 }
                 musicMetadata.currentFieldMusic = music.name
             } else {
@@ -761,9 +771,6 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
             break
     }
 }
-const playVTMusic = (id) => {
-    const name = musicMetadata.currentFieldList[id]
-}
 
 const lockMusic = (isMusicLocked) => {
     console.log('lockMusic', isMusicLocked)
@@ -794,6 +801,7 @@ export {
     playSound,
     playMusic,
     pauseMusic,
+    stopMusic,
     lockMusic,
     setBattleMusic,
     executeAkaoOperation,

@@ -75,7 +75,7 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
     const colorInverse1 = `rgb(${getColorInverse1(r)},${getColorInverse1(g)},${getColorInverse1(b)})` // Should probably be x4 but x3 looks better
     const colorInverse3 = `rgb(${getColorInverse3(r)},${getColorInverse3(g)},${getColorInverse3(b)})` // Should probably be x4 but x3 looks better
 
-    const frames = Math.max(Math.ceil(speed / 4) - 2, 1) // ??? This ranges from 1 to 255, with s30 = f8
+    const frames = Math.max(Math.ceil((fadeIn ? 255 - speed : 255 - speed) / 4) - 2, 1) // ??? This ranges from 1 to 255, with s30 = f8
     // Note: I've -2 adjusted as some calls are async and when wait is not called
     // I'm not sure about the speeds, I'll improve this another day
     /*
@@ -106,7 +106,7 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             m = { o: 0, r: 0, g: 0, b: 0 }
             console.log('opacity 1', window.currentField.fieldFader.material.opacity)
             tweenOpacity(m, {
-                o: 0, r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b)
+                o: 1, r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b)
             }, frames)
             break
         case 3: // THERE ARE NONE OF THESE IN THE ACTUAL GAME...
