@@ -19,8 +19,10 @@ const getSoundUrl = (id) => {
     return `${KUJATA_BASE}/media/sounds/${id}.ogg`
 }
 const loadSoundMetadata = async () => {
-    soundMetadata = await getSoundMetadata()
-    console.log('soundMetadata', soundMetadata)
+    if (soundMetadata === undefined) {
+        soundMetadata = await getSoundMetadata()
+        console.log('soundMetadata', soundMetadata)
+    }
 }
 const loadSound = (id) => {
     if (sounds.filter(s => s.id === id).length > 0) {

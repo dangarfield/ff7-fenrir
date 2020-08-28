@@ -8,7 +8,7 @@ import {
     resumeMusic, setMusicVolume, setMusicVolumeTransition, setMusicPan, setMusicPanTransition,
     setMusicTempo, setMusicTempoTransition
 } from './media-music.js'
-import { } from './media-movies.js'
+import { loadMovieMetadata } from './media-movies.js'
 
 
 
@@ -34,7 +34,7 @@ let config = {} // set on field selection and global init with setDefaultConfig
 const getConfig = () => {
     return config
 }
-const setDefaultMediaConfig = () => {
+const setDefaultMediaConfig = async () => {
     const channels = ['channel1', 'channel2', 'channel3', 'channel4', 'channel5', 'music']
     for (let i = 0; i < channels.length; i++) {
         const channel = channels[i]
@@ -47,7 +47,8 @@ const setDefaultMediaConfig = () => {
         }
     }
     resetCurrentFieldMusicList()
-    loadSoundMetadata()
+    await loadSoundMetadata()
+    await loadMovieMetadata()
 }
 const preLoadFieldMediaData = async () => {
     console.log('preLoadFieldMediaData: START')

@@ -18,9 +18,12 @@ const BUTTON_IMAGES = [
     { text: 'SELECT', char: '▅', key: 'button select' }, // ???
     { text: 'START', char: '▶', key: 'button start' },
 ]
+let chapters
 const getFieldList = async () => {
-    let chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
-    let chapters = await chaptersRes.json()
+    if (chapters === undefined) {
+        const chaptersRes = await fetch(`${KUJATA_BASE}/metadata/chapters.json`)
+        chapters = await chaptersRes.json()
+    }
     // console.log('chapters', chapters)
     let fields = {}
     for (let i = 0; i < chapters.length; i++) {

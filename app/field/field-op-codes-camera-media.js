@@ -7,7 +7,7 @@ import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.j
 import { executeAkaoOperation } from '../media/media-module.js'
 import { playSound } from '../media/media-sound.js'
 import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
-// import { } from '../media/media-movies.js'
+import { setNextMovie } from '../media/media-movies.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -439,7 +439,6 @@ const CMUSC = async (op) => {
 
     return {}
 }
-
 // setTimeout(async () => {
 //     await MUSIC({ id: 0 })
 //     await AKAO({ akaoOp: 32, p1: 64, p2: 2, p3: 0, p4: 0, p5: 0 })
@@ -449,6 +448,17 @@ const CMUSC = async (op) => {
 //     await CMUSC({ i: 4, p1: 0, p2: 20, p3: 30, p4: 0, p5: 0, p6: 0 })
 //     // await CMUSC({ i: 1, p1: 0, p2: 20, p3: 0, p4: 0, p5: 0, p6: 0 })
 // }, 9000)
+
+
+const PMVIE = async (op) => {
+    console.log('PMVIE', op)
+    setNextMovie(op.m)
+    return {}
+}
+setTimeout(async () => {
+    // await MUSIC({ id: 0 })
+    await PMVIE({ m: 53 })
+}, 9000)
 
 export {
     NFADE,
@@ -473,6 +483,7 @@ export {
     MULCK,
     BMUSC,
     CHMPH,
+    PMVIE,
     FMUSC,
     CMUSC,
     CHMST

@@ -51,6 +51,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
+- :black_square_button: Have assumed all movies are disc1, need to improve
 
 ### OP Code Completion Status
 See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_README.md) for updates
