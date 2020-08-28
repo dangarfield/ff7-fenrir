@@ -484,5 +484,6 @@ export {
     MULCK,
     BMUSC,
     CHMPH,
+    CMUSC,
     CHMST
 }
