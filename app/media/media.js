@@ -329,7 +329,7 @@ const stopMusic = (fadeOutTime) => {
 
         }
     }
-    musicMetadata.currentFieldMusic = ''
+    setCurrentFieldMusic('')
 }
 const resumeMusic = () => {
     console.log('resume music')
@@ -341,7 +341,7 @@ const resumeMusic = () => {
             music.sound.play()
             music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
             delete music.paused
-            musicMetadata.currentFieldMusic = music.name
+            setCurrentFieldMusic(music.name)
             break
         }
     }
@@ -372,7 +372,7 @@ const playMusic = (id, noLoop, fadeInTime) => {
                 if (fadeInTime) {
                     music.sound.fade(0, music.sound.volume(), 1500)
                 }
-                musicMetadata.currentFieldMusic = music.name
+                setCurrentFieldMusic(music.name)
             } else {
                 console.log('keep music playing', music)
             }
@@ -476,6 +476,12 @@ const setMusicTempoTransition = (fromTempo, tempo, time) => {
             // TODO - Implement fadeRate
         }
     }
+}
+const setCurrentFieldMusicFromId = (id) => {
+    setCurrentFieldMusic(musicMetadata.currentFieldList[id])
+}
+const setCurrentFieldMusic = (name) => {
+    musicMetadata.currentFieldMusic = name
 }
 
 
@@ -804,6 +810,7 @@ export {
     stopMusic,
     lockMusic,
     setBattleMusic,
+    setCurrentFieldMusicFromId,
     executeAkaoOperation,
     isMusicPlaying
 }

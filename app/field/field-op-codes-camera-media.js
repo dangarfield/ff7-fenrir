@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData, setBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
+import { playSound, playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -415,6 +415,11 @@ const MUSVT = async (op) => {
     playMusic(op.id, true)
     return {}
 }
+const FMUSC = async (op) => {
+    console.log('FMUSC', op)
+    setCurrentFieldMusicFromId(op.p)
+    return {}
+}
 const CMUSC = async (op) => {
     console.log('CMUSC', op)
     // combination of p2 =24 and p3 > 0 (eg, 30) lead to a fade out of the playing music and a fade in of op.i music
@@ -484,6 +489,7 @@ export {
     MULCK,
     BMUSC,
     CHMPH,
+    FMUSC,
     CMUSC,
     CHMST
 }
