@@ -139,7 +139,7 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             await sleep(1000 / 30) // Add this so it doesn't completely block the game loop
             setFadeInProgress(false)
             break
-        case 8: // Screen to colour fadeIn (alpha 0 -> 1) with multiply blening - async but i'll put sync anyway
+        case 8: // Screen to colour fadeIn (alpha 0 -> 1) with multiply blending - async but i'll put sync anyway
             console.log('fadeOperation', type, color, speed, frames, fadeIn, 'multiply', color)
             window.currentField.fieldFader.material.blending = THREE.MultiplyBlending
             window.currentField.fieldFader.material.color = new THREE.Color(color)

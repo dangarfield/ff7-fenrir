@@ -157,11 +157,11 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         case 'SCRLP': result = await cameraMedia.SCRLP(op); break
 
-
         case 'AKAO2': result = await cameraMedia.AKAO2(op); break
         case 'MUSIC': result = await cameraMedia.MUSIC(op); break
         case 'SOUND': result = await cameraMedia.SOUND(op); break
         case 'AKAO': result = await cameraMedia.AKAO(op); break
+        case 'MUSVT': result = await cameraMedia.MUSVT(op); break
         case 'MUSVM': result = await cameraMedia.MUSVM(op); break
         case 'MULCK': result = await cameraMedia.MULCK(op); break
         case 'BMUSC': result = await cameraMedia.BMUSC(op); break

@@ -3,7 +3,7 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData, setBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic, lockMusic, setBattleMusic, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
+import { playSound, playMusic, pauseMusic, lockMusic, setBattleMusic, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -406,6 +406,13 @@ const CHMST = async (op) => {
     console.log('CHMST', op)//b,a
     const isPlaying = isMusicPlaying()
     setBankData(op.b, op.a, isPlaying)
+    await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
+    return {}
+}
+const MUSVT = async (op) => {
+    console.log('MUSVT', op)
+    pauseMusic()
+    playMusic(op.id, true)
     return {}
 }
 
@@ -413,19 +420,24 @@ const CHMST = async (op) => {
 //     await CHMST({ a: 1, b: 2 })
 //     await sleep(1000 / 30 * 30 * 2)
 
-//     await AKAO2({ akaoOp: 16, p1: 0 })
-//     await sleep(1000 / 30 * 30 * 2)
+//     await AKAO2({ akaoOp: 16, p1: 2 })
+//     await sleep(1000 / 30 * 30 * 5)
 
-//     await CHMST({ a: 1, b: 2 })
-//     await sleep(1000 / 30 * 30 * 2)
-
-//     await AKAO2({ akaoOp: 240 })
-//     await sleep(1000 / 30 * 30 * 2)
-
-//     await CHMST({ a: 1, b: 2 })
-//     await sleep(1000 / 30 * 30 * 2)
+//     await MUSVT({ id: 0 })
 
 
+//     await CHMST({ b: 2, a: 2 })
+//     let isPlaying = getBankData(2, 2)
+//     console.log('isPlaying bank', isPlaying)
+//     let i = 0
+//     while (isPlaying) {
+//         await CHMST({ b: 2, a: 2 })
+//         isPlaying = getBankData(2, 2)
+//         i++
+//         console.log(i, 'isPlaying bank', isPlaying)
+//     }
+//     console.log('Not longer playing')
+//     await AKAO2({ akaoOp: 16, p1: 2 })
 // }, 9000)
 
 export {
@@ -446,6 +458,7 @@ export {
     MUSIC,
     SOUND,
     AKAO,
+    MUSVT,
     MUSVM,
     MULCK,
     BMUSC,

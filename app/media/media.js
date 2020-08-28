@@ -14,6 +14,7 @@ Potential bugs / todo:
 - Have not tested how channel volume / pan etc effects looped objects when going back to the beginning
 - Have not fully tested setting channel volumes then playing sounds after
 - Tempo also affects pitch, not sure if this is right or not
+- Not sure about tempo change scale, 0x00 -> x1, 0xFF -> x3 ? - (state.sound_format.nSamplesPerSec * (tempo + 480)) / 512
 - Haven't looked at battle music, pausing and restarting field after battle etc
 */
 let config = {} // set on field selection and global init with setDefaultConfig
@@ -329,15 +330,16 @@ const resumeMusic = () => {
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.paused) {
-            console.log('resume music ->', music)
+            console.log('resume music ->', music, music.sound.volume())
             music.sound.play()
-            musicMetadata.currentFieldMusic = music.name
+            music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
             delete music.paused
+            musicMetadata.currentFieldMusic = music.name
             break
         }
     }
 }
-const playMusic = (id) => {
+const playMusic = (id, noLoop) => {
     const name = musicMetadata.currentFieldList[id]
     console.log('playMusic', id, name)
     if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
@@ -351,6 +353,15 @@ const playMusic = (id) => {
                 music.sound.volume(config.music.volume)
                 music.sound.rate(config.music.tempo)
                 music.sound.play()
+                if (noLoop) {
+                    music.sound.loop(false)
+                } else {
+                    music.sound.loop(true)
+                }
+                if (music.paused) {
+                    music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
+                    delete music.paused
+                }
                 musicMetadata.currentFieldMusic = music.name
             } else {
                 console.log('keep music playing', music)
@@ -750,6 +761,9 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
             break
     }
 }
+const playVTMusic = (id) => {
+    const name = musicMetadata.currentFieldList[id]
+}
 
 const lockMusic = (isMusicLocked) => {
     console.log('lockMusic', isMusicLocked)
@@ -779,6 +793,7 @@ export {
     loadSoundMetadata,
     playSound,
     playMusic,
+    pauseMusic,
     lockMusic,
     setBattleMusic,
     executeAkaoOperation,
