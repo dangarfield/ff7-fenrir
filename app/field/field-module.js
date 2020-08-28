@@ -12,7 +12,7 @@ import { setupOrthoCamera } from './field-ortho-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
-import { preLoadFieldMediaData } from '../media/media.js'
+import { preLoadFieldMediaData } from '../media/media-module.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future

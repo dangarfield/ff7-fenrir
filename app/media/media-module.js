@@ -1,9 +1,19 @@
-import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
-import { getSoundMetadata } from '../data/media-fetch-data.js'
-import { sleep } from '../helpers/helpers.js'
+import {
+    loadSoundMetadata, preloadCommonSounds, loadSound, playSound, resumeSounds, pauseSounds,
+    setSoundVolume, setSoundVolumeTransition, setSoundPan, setSoundPanTransition, setSoundTempo,
+    setSoundTempoTransition, stopSounds
+} from './media-sound.js'
+import {
+    loadMusic, resetCurrentFieldMusicList, setBattleMusic, playMusic, pauseMusic, stopMusic,
+    resumeMusic, setMusicVolume, setMusicVolumeTransition, setMusicPan, setMusicPanTransition,
+    setMusicTempo, setMusicTempoTransition
+} from './media-music.js'
+import { } from './media-movies.js'
 
-const Howl = window.libraries.howler.Howl
-const Howler = window.libraries.howler.Howler
+
+
+
+
 
 /*
 Potential bugs / todo:
@@ -16,23 +26,13 @@ Potential bugs / todo:
 - Tempo also affects pitch, not sure if this is right or not
 - Not sure about tempo change scale, 0x00 -> x1, 0xFF -> x3 ? - (state.sound_format.nSamplesPerSec * (tempo + 480)) / 512
 - Haven't looked at battle music, pausing and restarting field after battle etc
+- Is battle music always in position 1 (0,1,2 etc...) unless set with BMUSC
 */
 let config = {} // set on field selection and global init with setDefaultConfig
-let sounds = []
-let musics = []
-let soundMetadata
-let musicMetadata = {
-    currentFieldList: [],
-    currentFieldMusic: null,
-    currentBattleMusic: null,
-    currentWorldMusic: null,
-    isMusicLocked: false
-}
 
 // Loading & Config
-const loadSoundMetadata = async () => {
-    soundMetadata = await getSoundMetadata()
-    console.log('soundMetadata', soundMetadata)
+const getConfig = () => {
+    return config
 }
 const setDefaultMediaConfig = () => {
     const channels = ['channel1', 'channel2', 'channel3', 'channel4', 'channel5', 'music']
@@ -46,88 +46,19 @@ const setDefaultMediaConfig = () => {
             tempoTransition: 1
         }
     }
-}
-const getSoundUrl = (id) => {
-    return `${KUJATA_BASE}/media/sounds/${id}.ogg`
-}
-const getMusicUrl = (name) => {
-    return `${KUJATA_BASE}/media/music/${name}.ogg`
-}
-const preloadCommonSounds = () => {
-    // TODO - Things like menu sounds, door sounds, save collision sound, anything not as a op code
-    loadSound(1)
-    loadSound(2)
-    loadSound(3)
-    loadSound(4)
-    loadSound(5)
-    loadSound(6)
-}
-const loadSound = (id) => {
-    if (sounds.filter(s => s.id === id).length > 0) {
-        return
-    }
-    const mediaItem = {
-        url: getSoundUrl(id),
-        id: id,
-        loop: soundMetadata.filter(s => s.name === id)[0].loop
-    }
-    let howlParams = { src: [mediaItem.url] }
-    if (mediaItem.loop) {
-        howlParams.sprite = {}
-        howlParams.sprite[`${id}Loop`] = [100, 200]
-    }
-    mediaItem.sound = new Howl(howlParams)
-    mediaItem.sound.once('load', function () {
-        console.log(' - sound loaded', mediaItem)
-        if (mediaItem.sound._sprite && mediaItem.sound._sprite[`${id}Loop`]) {
-
-            mediaItem.sound._sprite[`${id}Loop`] = [ // Ideally this would be set by our metadata values
-                100,
-                (mediaItem.sound._duration * 1000) - 300
-            ]
-            console.log(' - loop updated loaded', mediaItem)
-        }
-
-    })
-    mediaItem.sound.on('end', function () {
-        console.log(' - sound ended', mediaItem)
-        delete mediaItem.channel
-        console.log(' - sound ended cleared list', mediaItem)
-    })
-    sounds.push(mediaItem)
-}
-const loadMusic = (name) => {
-    if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
-        return
-    }
-    const mediaItem = {
-        url: getMusicUrl(name),
-        name: name
-    }
-    mediaItem.sound = new Howl({ src: [mediaItem.url] })
-    mediaItem.sound.loop(true)
-
-    mediaItem.sound.once('load', function () {
-        console.log(' - music loaded', mediaItem)
-        // There are no fflp flags in the music oggs, it's not looping perfectly...
-    })
-    mediaItem.sound.on('end', function () {
-        console.log(' - music ended', mediaItem)
-    })
-    musics.push(mediaItem)
+    resetCurrentFieldMusicList()
+    loadSoundMetadata()
 }
 const preLoadFieldMediaData = async () => {
     console.log('preLoadFieldMediaData: START')
     setDefaultMediaConfig() // Assuming channel pan, volume through AKAO is reset each field transition
     const musicIds = window.currentField.data.script.akao
-    musicMetadata.currentFieldList = []
 
     for (let i = 0; i < musicIds.length; i++) {
-        loadMusic(musicIds[i].name)
-        musicMetadata.currentFieldList[i] = musicIds[i].name
+        loadMusic(i, musicIds[i].name)
     }
     preloadCommonSounds()
-    setBattleMusic(1)
+    setBattleMusic(1) // Is this always position 1 unless overridden by ? 
 
     for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
         const entity = window.currentField.data.script.entities[i]
@@ -152,337 +83,15 @@ const preLoadFieldMediaData = async () => {
         }
     }
 
-    console.log('musicIds', musicIds)
-    console.log('musics', musics)
-    console.log('musicMetadata', musicMetadata)
-    console.log('sounds', sounds)
+    // console.log('musicIds', musicIds)
+    // console.log('musics', musics)
+    // console.log('musicMetadata', musicMetadata)
+    // console.log('sounds', sounds)
 
     console.log('preLoadFieldMediaData: END')
 }
 
-// Sounds
 
-const playSound = (id, pan, channelData) => {
-    if (id === 0) {
-        stopSounds()
-        return
-    }
-    if (channelData === undefined) {
-        channelData = config.channel1
-    }
-
-    const mediaItems = sounds.filter(s => s.id === id)
-    if (mediaItems.length === 0) {
-        window.alert('No sound with id', id)
-        return
-    }
-    const mediaItem = mediaItems[0]
-
-    console.log('playSound', mediaItem, mediaItem.loop, pan, channelData)
-    mediaItem.sound.stereo(pan) // channel.pan override?!
-    mediaItem.sound.volume(channelData.volume)
-    mediaItem.sound.rate(channelData.tempo)
-    if (mediaItem.loop) {
-        mediaItem.sound.loop(true)
-        console.log('play loop')
-        mediaItem.sound.play(`${id}Loop`)
-    } else {
-        console.log('play normal')
-        mediaItem.sound.play()
-    }
-    // watch out for multiple invocations
-    mediaItem.channel = channelData.name
-}
-
-const pauseSounds = () => {
-    console.log('pause sounds')
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.sound.playing()) {
-            console.log('pause sound ->', sound)
-            sound.sound.pause()
-            sound.paused = true
-        }
-    }
-}
-const stopSounds = () => {
-    console.log('stop sounds')
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.sound.playing()) {
-            console.log('stop sound ->', sound)
-            sound.sound.stop()
-        }
-    }
-}
-const resumeSounds = () => {
-    console.log('resume sounds')
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.paused) {
-            console.log('resume sound ->', sound)
-            sound.sound.play()
-            delete sound.paused
-        }
-    }
-}
-
-const setSoundVolume = (channel, vol) => {
-    vol = Math.min(vol, 1)
-    vol = Math.max(vol, 0)
-    console.log('setSoundVolume', channel, vol)
-    channel.volume = vol
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            sound.sound.volume(vol)
-        }
-    }
-}
-const setSoundVolumeTransition = (channel, vol, time) => {
-    vol = Math.min(vol, 1)
-    vol = Math.max(vol, 0)
-    console.log('setSoundVolumeTransition', channel, vol, time)
-    channel.volume = vol
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            console.log('setSoundVolumeTransition ->', sound, channel, sound.sound.volume(), vol, time)
-            sound.sound.fade(sound.sound.volume(), vol, time)
-        }
-    }
-}
-const setSoundPan = (channel, pan) => {
-    console.log('setSoundVolume', channel, pan)
-    channel.pan = pan
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            sound.sound.stereo(pan)
-        }
-    }
-}
-const setSoundPanTransition = (channel, pan, time) => {
-    console.log('setSoundPanTransition', channel, pan, time)
-    channel.pan = pan
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            console.log('setSoundPanTransition ->', sound, channel, sound.sound.stereo(), pan, time)
-            // sound.sound.fadePan(sound.sound.stereo(), pan, time)
-            // TODO - Implement fadePan
-        }
-    }
-}
-const setSoundTempo = (channel, tempo) => {
-    console.log('setSoundTempo', channel, tempo)
-    channel.tempo = tempo
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            sound.sound.rate(tempo)
-        }
-    }
-}
-const setSoundTempoTransition = (channel, tempo, time) => {
-    console.log('setSoundTempoTransition', channel, tempo, time)
-    channel.tempo = tempo
-    for (let i = 0; i < sounds.length; i++) {
-        const sound = sounds[i]
-        if (sound.channel === channel.name) {
-            console.log('setSoundTempoTransition ->', sound, channel, sound.sound.stereo(), tempo, time)
-            // sound.sound.fadeRate(sound.sound.stereo(), tempo, time)
-            // TODO - Implement fadeRate
-        }
-    }
-}
-
-// Music
-const pauseMusic = () => {
-    console.log('pause music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            console.log('pause music ->', music)
-            music.sound.pause()
-            music.paused = true
-            break
-        }
-    }
-}
-const stopMusic = (fadeOutTime) => {
-    console.log('stop music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            console.log('stop music ->', music)
-            if (fadeOutTime === undefined) {
-                music.sound.stop()
-            } else {
-                music.sound.fade(music.sound.volume(), 0, fadeOutTime)
-                setTimeout(() => {
-                    music.sound.stop()
-                }, fadeOutTime)
-            }
-
-        }
-    }
-    setCurrentFieldMusic('')
-}
-const resumeMusic = () => {
-    console.log('resume music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.paused) {
-            console.log('resume music ->', music, music.sound.volume())
-            music.sound.play()
-            music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
-            delete music.paused
-            setCurrentFieldMusic(music.name)
-            break
-        }
-    }
-}
-const playMusic = (id, noLoop, fadeInTime) => {
-    const name = musicMetadata.currentFieldList[id]
-    console.log('playMusic', id, name, noLoop, fadeInTime)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        console.log('music', i, music)
-        if (music.name === name) {
-            if (!music.sound.playing()) {
-                console.log('play music', music, config.music)
-                music.sound.stereo(config.music.pan)
-                music.sound.volume(config.music.volume)
-                music.sound.rate(config.music.tempo)
-                music.sound.play()
-                if (noLoop) {
-                    music.sound.loop(false)
-                } else {
-                    music.sound.loop(true)
-                }
-                if (music.paused) {
-                    music.sound.fade(0, music.sound.volume(), 500) // Has a little fade on resume...
-                    delete music.paused
-                }
-                if (fadeInTime) {
-                    music.sound.fade(0, music.sound.volume(), 1500)
-                }
-                setCurrentFieldMusic(music.name)
-            } else {
-                console.log('keep music playing', music)
-            }
-        } else {
-            if (music.sound.playing()) {
-                console.log('stop music', music)
-                music.sound.stop()
-            }
-        }
-    }
-
-    console.log('musics', musics)
-    console.log('musicMetadata', musicMetadata)
-    console.log('sounds', sounds)
-
-}
-const setMusicVolume = (vol) => {
-    vol = Math.min(vol, 1)
-    vol = Math.max(vol, 0)
-    console.log('setMusicVolume', vol)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.volume = vol
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            music.sound.volume(vol)
-        }
-    }
-}
-const setMusicVolumeTransition = (fromVol, vol, time) => {
-    if (fromVol === null) {
-        fromVol = Math.min(fromVol, 1)
-        fromVol = Math.max(fromVol, 0)
-    }
-    vol = Math.min(vol, 1)
-    vol = Math.max(vol, 0)
-    console.log('setMusicVolumeTransition', config.music, fromVol, vol, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.volume = vol
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            if (fromVol === null) {
-                fromVol = music.sound.volume()
-            }
-            console.log('setMusicVolumeTransition ->', music, config.music, fromVol, music.sound.volume(), vol, time)
-            music.sound.fade(fromVol, vol, time)
-        }
-    }
-}
-const setMusicPan = (pan) => {
-    console.log('setMusicPan', pan)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.pan = pan
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            music.sound.stereo(pan)
-        }
-    }
-}
-const setMusicPanTransition = (fromPan, pan, time) => {
-    console.log('setMusicPanTransition', config.music, fromPan, pan, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.pan = pan
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            if (fromPan === null) {
-                fromPan = music.sound.stereo()
-            }
-            console.log('setMusicPanTransition ->', music, config.music, fromPan, music.sound.stereo(), pan, time)
-            // music.sound.fadePan(fromPan, pan, time)
-            // TODO - Implement fadePan
-        }
-    }
-}
-const setMusicTempo = (tempo) => {
-    console.log('setMusicTempo', tempo)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.tempo = tempo
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            music.sound.rate(tempo)
-        }
-    }
-}
-const setMusicTempoTransition = (fromTempo, tempo, time) => {
-    console.log('setMusicTempoTransition', config.music, fromTempo, tempo, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
-    config.music.tempo = tempo
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            if (fromTempo === null) {
-                fromTempo = music.sound.rate()
-            }
-            console.log('setMusicTempoTransition ->', music, config.music, fromTempo, music.sound.rate(), tempo, time)
-            // music.sound.fadeRate(fromTempo, tempo, time)
-            // TODO - Implement fadeRate
-        }
-    }
-}
-const setCurrentFieldMusicFromId = (id) => {
-    setCurrentFieldMusic(musicMetadata.currentFieldList[id])
-}
-const setCurrentFieldMusic = (name) => {
-    musicMetadata.currentFieldMusic = name
-}
 
 
 // Main actions
@@ -778,39 +387,9 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
     }
 }
 
-const lockMusic = (isMusicLocked) => {
-    console.log('lockMusic', isMusicLocked)
-    musicMetadata.isMusicLocked = isMusicLocked
-}
-const setBattleMusic = (id) => {
-    console.log('setBattleMusic', id)
-    const name = musicMetadata.currentFieldList[id]
-    musicMetadata.currentBattleMusic = name
-    console.log('musicMetadata', musicMetadata)
-}
-const isMusicPlaying = () => {
-    let isPlaying = 0
-    for (let i = 0; i < musics.length; i++) {
-        const music = musics[i]
-        if (music.sound.playing()) {
-            isPlaying = 1
-            break
-        }
-    }
-    console.log('isMusicPlaying', isPlaying)
-    return isPlaying
-}
 export {
     preLoadFieldMediaData,
     setDefaultMediaConfig,
-    loadSoundMetadata,
-    playSound,
-    playMusic,
-    pauseMusic,
-    stopMusic,
-    lockMusic,
-    setBattleMusic,
-    setCurrentFieldMusicFromId,
     executeAkaoOperation,
-    isMusicPlaying
+    getConfig
 }

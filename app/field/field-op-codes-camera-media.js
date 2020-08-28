@@ -3,7 +3,11 @@ import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './fie
 import { getBankData, setBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
-import { playSound, playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying, executeAkaoOperation } from '../media/media.js'
+
+import { executeAkaoOperation } from '../media/media-module.js'
+import { playSound } from '../media/media-sound.js'
+import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
+// import { } from '../media/media-movies.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -438,32 +442,12 @@ const CMUSC = async (op) => {
 
 // setTimeout(async () => {
 //     await MUSIC({ id: 0 })
+//     await AKAO({ akaoOp: 32, p1: 64, p2: 2, p3: 0, p4: 0, p5: 0 })
 //     await sleep(1000 / 30 * 30 * 3)
 
-//     // await FADE({ r: 0, g: 0, b: 0, s: 12, t: 2, a: 0 })
-//     // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 12, a: 0, t: 2 })
-//     // await FADEW({})
-//     // console.log('fade complete')
-
-//     // await SOUND({ i: 1, d: 0 })
-//     // await CMUSC({ i: 4, p1: 0, p2: 20, p3: 30, p4: 0, p5: 0, p6: 0 })
-//     await CMUSC({ i: 1, p1: 0, p2: 20, p3: 0, p4: 0, p5: 0, p6: 0 })
-
-
-//     await CHMST({ b: 2, a: 2 })
-//     // let isPlaying = getBankData(2, 2)
-//     // console.log('isPlaying bank', isPlaying)
-//     // let i = 0
-//     // while (isPlaying) {
-//     //     await CHMST({ b: 2, a: 2 })
-//     //     isPlaying = getBankData(2, 2)
-//     //     i++
-//     //     console.log(i, 'isPlaying bank', isPlaying)
-//     // }
-//     // console.log('Not longer playing')
-//     // await MUSIC({ id: 0 })
-//     // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 255, t: 1 })
-//     // await FADEW({})
+//     await SOUND({ i: 1, d: 0 })
+//     await CMUSC({ i: 4, p1: 0, p2: 20, p3: 30, p4: 0, p5: 0, p6: 0 })
+//     // await CMUSC({ i: 1, p1: 0, p2: 20, p3: 0, p4: 0, p5: 0, p6: 0 })
 // }, 9000)
 
 export {
