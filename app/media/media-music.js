@@ -40,7 +40,7 @@ const getMusicUrl = (name) => {
 
 const pauseMusic = () => {
     console.log('pause music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
@@ -53,7 +53,7 @@ const pauseMusic = () => {
 }
 const stopMusic = (fadeOutTime) => {
     console.log('stop music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
@@ -73,7 +73,7 @@ const stopMusic = (fadeOutTime) => {
 }
 const resumeMusic = () => {
     console.log('resume music')
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.paused) {
@@ -89,7 +89,7 @@ const resumeMusic = () => {
 const playMusic = (id, noLoop, fadeInTime) => {
     const name = musicMetadata.currentFieldList[id]
     console.log('playMusic', id, name, noLoop, fadeInTime)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         console.log('music', i, music)
@@ -133,7 +133,7 @@ const setMusicVolume = (vol) => {
     vol = Math.min(vol, 1)
     vol = Math.max(vol, 0)
     console.log('setMusicVolume', vol)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    // if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.volume = vol
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -150,7 +150,7 @@ const setMusicVolumeTransition = (fromVol, vol, time) => {
     vol = Math.min(vol, 1)
     vol = Math.max(vol, 0)
     console.log('setMusicVolumeTransition', getConfig().music, fromVol, vol, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.volume = vol
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -165,7 +165,7 @@ const setMusicVolumeTransition = (fromVol, vol, time) => {
 }
 const setMusicPan = (pan) => {
     console.log('setMusicPan', pan)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.pan = pan
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -176,7 +176,7 @@ const setMusicPan = (pan) => {
 }
 const setMusicPanTransition = (fromPan, pan, time) => {
     console.log('setMusicPanTransition', getConfig().music, fromPan, pan, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.pan = pan
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -192,7 +192,7 @@ const setMusicPanTransition = (fromPan, pan, time) => {
 }
 const setMusicTempo = (tempo) => {
     console.log('setMusicTempo', tempo)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.tempo = tempo
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
@@ -203,7 +203,7 @@ const setMusicTempo = (tempo) => {
 }
 const setMusicTempoTransition = (fromTempo, tempo, time) => {
     console.log('setMusicTempoTransition', getConfig().music, fromTempo, tempo, time)
-    if (musicMetadata.isMusicLocked) { console.log('music is locked'); return }
+    if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.tempo = tempo
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]

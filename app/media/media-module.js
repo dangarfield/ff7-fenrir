@@ -344,19 +344,32 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
 
         case 200: // 0xC8
             // Music balance [param1=balance]
-            setMusicPan(p1 > 127 ? (p1 / 16384) - 1 : (p1 / 64) - 1) //TODO - Some pans are 16843, 28672,32767,12288
+            //TODO - Some pans are 16843, 28672,32767,12288, looks like master voluem fade in / out to me
+            if (p1 < 128) {
+                setMusicPan((p1 / 64) - 1)
+            } else {
+                if (p1 < 30000) { // Works for md1stin, need to at others more
+                    setMusicVolume(0)
+                } else {
+                    setMusicVolume(1)
+                }
+            }
             break
         case 201: // 0xC9
             // Music balance transition [param1=Transition time, param2=Target balance]
-            setMusicPanTransition(null,
-                p2 > 127 ? (p2 / 16384) - 1 : (p2 / 64) - 1,
-                p1 / 60 * 1000)
+            if (p2 < 128) {
+                setMusicPanTransition(null, (p2 / 64) - 1, p1 / 60 * 1000)
+            } else {
+                window.alert(`not sure what to do with this AKAO, should be musicPanTransition, but p2 is: ${p2}`)
+            }
             break
         case 202: // 0xCA
             // Music From-To balance transition [param1=Transition time, param2=Starting balance, param3=Ending balance]
-            setMusicPanTransition(p2 > 127 ? (p2 / 16384) - 1 : (p2 / 64) - 1,
-                p3 > 127 ? (p3 / 16384) - 1 : (p3 / 64) - 1,
-                p1 / 60 * 1000)
+            if (p2 < 128 && p3 < 128) {
+                setMusicPanTransition((p2 / 64) - 1, (p3 / 64) - 1, p1 / 60 * 1000)
+            } else {
+                window.alert(`not sure what to do with this AKAO, should be musicPanTransition, but p2 is: ${p2} - p3 is: ${p3}`)
+            }
             break
 
         case 208: // 0xD0 // Not used in fields
