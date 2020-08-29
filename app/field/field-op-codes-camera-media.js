@@ -7,7 +7,7 @@ import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.j
 import { executeAkaoOperation } from '../media/media-module.js'
 import { playSound } from '../media/media-sound.js'
 import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
-import { setNextMovie } from '../media/media-movies.js'
+import { setNextMovie, playNextMovie, getCurrentMovieFrame } from '../media/media-movies.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -117,12 +117,12 @@ const SCR2D = async (op) => {
     const targetY = op.b2 == 0 ? op.targetY : getBankData(op.b2, op.targetY) // In frames
 
     const to = {
-        x: (window.currentField.metaData.assetDimensions.width / 2) + targetX,
-        y: (window.currentField.metaData.assetDimensions.height / 2) + targetY
+        x: (window.currentField.metaData.assetDimensions.width / 2) - targetX,
+        y: (window.currentField.metaData.assetDimensions.height / 2) - targetY
     }
     // await sleep(2000)
     console.log('SCR2D instant', op, getCurrentCameraPosition(), to)
-    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Smooth, 15)
+    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Instant, 1)
     return {}
 }
 const SCRCC = async (op) => {
@@ -139,8 +139,8 @@ const SCR2DC = async (op) => {
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
 
     const to = {
-        x: (window.currentField.metaData.assetDimensions.width / 2) + targetX,
-        y: (window.currentField.metaData.assetDimensions.height / 2) + targetY
+        x: (window.currentField.metaData.assetDimensions.width / 2) - targetX,
+        y: (window.currentField.metaData.assetDimensions.height / 2) - targetY
     }
     // await sleep(2000)
     console.log('SCR2DC smooth', op, getCurrentCameraPosition(), to)
@@ -163,8 +163,8 @@ const SCR2DL = async (op) => {
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
 
     const to = {
-        x: (window.currentField.metaData.assetDimensions.width / 2) + targetX,
-        y: (window.currentField.metaData.assetDimensions.height / 2) + targetY
+        x: (window.currentField.metaData.assetDimensions.width / 2) - targetX,
+        y: (window.currentField.metaData.assetDimensions.height / 2) - targetY
     }
     // await sleep(2000)
     console.log('SCR2DL linear', op, getCurrentCameraPosition(), to)
@@ -455,10 +455,28 @@ const PMVIE = async (op) => {
     setNextMovie(op.m)
     return {}
 }
+const MOVIE = async (op) => {
+    console.log('MOVIE', op)
+    await playNextMovie()
+    return {}
+}
+
+const MVIEF = async (op) => {
+    console.log('MVIEF', op)
+    const frame = getCurrentMovieFrame()
+    setBankData(op.b, op.a, frame)
+    console.log('MVIEF frame -', frame, 'set to', op.b, op.a)
+    await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
+    return {}
+}
 setTimeout(async () => {
     // await MUSIC({ id: 0 })
-    await PMVIE({ m: 53 })
-}, 9000)
+    // await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
+    // await sleep(1000)
+    // await PMVIE({ m: 53 })
+    // await MOVIE()
+    // console.log('MOVIE ENDED')
+}, 10000)
 
 export {
     NFADE,
@@ -484,6 +502,8 @@ export {
     BMUSC,
     CHMPH,
     PMVIE,
+    MOVIE,
+    MVIEF,
     FMUSC,
     CMUSC,
     CHMST

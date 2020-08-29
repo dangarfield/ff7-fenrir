@@ -169,6 +169,9 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         case 'PMVIE': result = await cameraMedia.PMVIE(op); break
 
+        case 'MOVIE': result = await cameraMedia.MOVIE(op); break
+        case 'MVIEF': result = await cameraMedia.MVIEF(op); break
+
         case 'FMUSC': result = await cameraMedia.FMUSC(op); break
         case 'CMUSC': result = await cameraMedia.CMUSC(op); break
         case 'CHMST': result = await cameraMedia.CHMST(op); break
@@ -231,7 +234,7 @@ const initEntity = async (entity) => {
     await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    // await executeScriptLoop(entity.entityName, mainLoop)
+    await executeScriptLoop(entity.entityName, mainLoop)
     console.log('initEntity: END', entity.entityName)
 }
 

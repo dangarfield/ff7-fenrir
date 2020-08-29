@@ -9,7 +9,9 @@ import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-module.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
+import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
+
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -44,10 +46,14 @@ const renderLoop = function () {
             raycasterFieldRendering(activeCamera)
         }
         window.anim.renderer.clear()
+        window.anim.renderer.render(orthoBackScene, orthoBackCamera)
+
+        window.anim.renderer.clearDepth()
         window.anim.renderer.render(window.currentField.fieldScene, activeCamera)
 
         window.anim.renderer.clearDepth()
         window.anim.renderer.render(orthoFrontScene, orthoFrontCamera)
+
         // window.anim.renderer.render(bgScene, bgCamera)
     }
     if (window.config.debug.active) {
@@ -103,7 +109,7 @@ const setupFieldCamera = () => {
     let ffCamera = window.currentField.data.cameraSection.cameras[0] // TODO: Support multiple cameras
     let baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951
     window.currentField.fieldScene = new THREE.Scene()
-    window.currentField.fieldScene.background = new THREE.Color(0x000000)
+    // window.currentField.fieldScene.background = new THREE.Color(0x000000)
     window.currentField.fieldCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000); // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
     window.anim.clock = new THREE.Clock();
 

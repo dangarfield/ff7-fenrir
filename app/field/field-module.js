@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r118/three.module.js'
 
 import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
@@ -9,6 +9,7 @@ import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
+import { setupOrthoBgCamera } from './field-ortho-bg-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
@@ -555,6 +556,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         gatewayLines: undefined,
         triggerLines: undefined,
         backgroundLayers: undefined,
+        backgroundVideo: undefined,
         positionHelpers: undefined,
         cameraTarget: undefined,
         fieldFader: undefined,
@@ -568,6 +570,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     // console.log('field-module -> window.currentField.data', window.currentField.data)
     // console.log('field-module -> window.anim', window.anim)
     window.currentField.cameraTarget = setupFieldCamera()
+    await setupOrthoBgCamera()
     await setupOrthoCamera()
     drawFader()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)

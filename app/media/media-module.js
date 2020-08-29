@@ -8,7 +8,7 @@ import {
     resumeMusic, setMusicVolume, setMusicVolumeTransition, setMusicPan, setMusicPanTransition,
     setMusicTempo, setMusicTempoTransition
 } from './media-music.js'
-import { loadMovieMetadata } from './media-movies.js'
+import { loadMovieMetadata, loadMovie } from './media-movies.js'
 
 
 
@@ -52,7 +52,7 @@ const setDefaultMediaConfig = async () => {
 }
 const preLoadFieldMediaData = async () => {
     console.log('preLoadFieldMediaData: START')
-    setDefaultMediaConfig() // Assuming channel pan, volume through AKAO is reset each field transition
+    await setDefaultMediaConfig() // Assuming channel pan, volume through AKAO is reset each field transition
     const musicIds = window.currentField.data.script.akao
 
     for (let i = 0; i < musicIds.length; i++) {
@@ -79,6 +79,8 @@ const preLoadFieldMediaData = async () => {
                     if (op.p3 !== 0) { loadSound(op.p3) }
                     if (op.p4 !== 0) { loadSound(op.p4) }
                     if (op.p5 !== 0) { loadSound(op.p5) }
+                } else if (op.op === 'PMVIE') {
+                    loadMovie(op.m)
                 }
             }
         }
@@ -342,15 +344,19 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
 
         case 200: // 0xC8
             // Music balance [param1=balance]
-            setMusicPan((p1 / 64) - 1)
+            setMusicPan(p1 > 127 ? (p1 / 16384) - 1 : (p1 / 64) - 1) //TODO - Some pans are 16843, 28672,32767,12288
             break
         case 201: // 0xC9
             // Music balance transition [param1=Transition time, param2=Target balance]
-            setMusicPanTransition(null, (p2 / 64) - 1, p1 / 60 * 1000)
+            setMusicPanTransition(null,
+                p2 > 127 ? (p2 / 16384) - 1 : (p2 / 64) - 1,
+                p1 / 60 * 1000)
             break
         case 202: // 0xCA
             // Music From-To balance transition [param1=Transition time, param2=Starting balance, param3=Ending balance]
-            setMusicPanTransition((p2 / 64) - 1, (p3 / 64) - 1, p1 / 60 * 1000)
+            setMusicPanTransition(p2 > 127 ? (p2 / 16384) - 1 : (p2 / 64) - 1,
+                p3 > 127 ? (p3 / 16384) - 1 : (p3 / 64) - 1,
+                p1 / 60 * 1000)
             break
 
         case 208: // 0xD0 // Not used in fields
