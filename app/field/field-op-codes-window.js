@@ -90,6 +90,12 @@ const GWCOL = async (op) => {
     // No instances in the game so I won't implement
     return {}
 }
+const MPNAM = async (op) => {
+    console.log('MPNAM', op)
+    window.data.savemap.location.currentLocation = window.currentField.data.script.dialogStrings[op.dialogId]
+    console.log('set map name', window.data.savemap.location.currentLocation, window.data.savemap)
+    return {}
+}
 
 setTimeout(async () => {
     await SOUND({ i: 1, d: 64 })
@@ -107,6 +113,7 @@ setTimeout(async () => {
     // await WSPCL({ w: 1, t: 1, x: 30, y: 30 })
     // await STTIM({ b1: 0, b2: 0, b3: 0, h: 1, m: 2, s: 3 })
     // await WNUMB({ w: 1, b1: 0, b2: 0, nLow: 1234, nHigh: 5678, c: 7 })
+    await MPNAM({ dialogId: 0 })
     console.log('WINDOW ENDED')
 }, 10000)
 
@@ -117,6 +124,7 @@ export {
     STTIM,
     MPARA,
     MPRA2,
+    MPNAM,
     WINDOW,
     WMOVE,
     WMODE,
