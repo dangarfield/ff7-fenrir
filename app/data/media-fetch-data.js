@@ -11,7 +11,7 @@ const getMusicMetadata = async () => {
     return musicMeta
 }
 const getMovieMetadata = async () => {
-    const movieMetaRes = await fetch(`${KUJATA_BASE}/media/movies/movies.json`)
+    const movieMetaRes = await fetch(`${KUJATA_BASE}/media/movies/movies-metadata.json`)
     const movieMeta = await movieMetaRes.json()
     return movieMeta
 }
