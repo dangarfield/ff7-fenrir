@@ -399,11 +399,14 @@ const updateFieldMovement = (delta) => {
     window.currentField.playableCharacter.scene.position.y = nextPosition.y
     window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
-    // Adjust the camera offset to centre on character // TODO unless overridden by op codes?!
-    const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
+    // Update camera position if camera is following user
+    if (window.currentField.fieldCamera.userData.followUser) {
+        // Adjust the camera offset to centre on character
+        const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
+        // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
+        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    }
 
-    // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
-    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
 
     // Maybe should change this to distance to the normal of the camera position -> camera target line ?
     // Looks ok so far, but there are a few maps with clipping that should therefore switch

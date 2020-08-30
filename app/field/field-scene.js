@@ -150,12 +150,13 @@ const setupFieldCamera = () => {
 
     let cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
 
+    window.currentField.fieldCamera.userData.followUser = true
+
     setupFieldDebugCamera()
     window.currentField.fieldCameraHelper = new THREE.CameraHelper(window.currentField.fieldCamera)
     window.currentField.fieldCameraHelper.visible = true
     window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
     window.currentField.fieldScene.add(window.currentField.fieldCamera)
-
 
     return cameraTarget
 }

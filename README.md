@@ -46,6 +46,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
 - :point_right: Begin properly implementing field op codes
+- :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)

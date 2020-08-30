@@ -38,11 +38,12 @@ const SCRLO = async (op) => {
     return {}
 }
 
-const SCRLC = async (op) => {
+const SCRLC = async (op) => { // Scroll to party member?
     // Lots of assumptions here. No docs. Looks like its async and then SCRLW is called before it continues
     // Looks like it has speed, tween type and potentially member party params
     // I'm just assuming that it is going to the playableCharacter position for now
     console.log('SCRLC', op)
+    window.currentField.fieldCamera.userData.followUser = false // ?!
     const speed = op.p1 == 0 ? op.p2 : getBankData(op.p1, op.p2)
     let tweenType = TweenType.Instant
     if (op.p4 === 1) {
@@ -52,14 +53,14 @@ const SCRLC = async (op) => {
     } else if (op.p4 === 3) {
         tweenType = TweenType.Smooth
     }
-
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('SCRLC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
     tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed)
     return {}
 }
-const SCRLA = async (op) => { // CHAR -> adds model.userData.entityId = entity script array i
+const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData.entityId = entity script array i
     console.log('SCRLA', op)
+    window.currentField.fieldCamera.userData.followUser = false // ?!
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
     let tweenType = TweenType.Instant
     if (op.t === 1) {
@@ -111,8 +112,9 @@ const SCRLA = async (op) => { // CHAR -> adds model.userData.entityId = entity s
     }
 
 }
-const SCR2D = async (op) => {
+const SCR2D = async (op) => { // Scroll to position instantly
     console.log('SCR2D', op)
+    window.currentField.fieldCamera.userData.followUser = false // ?!
     const targetX = op.b1 == 0 ? op.targetX : getBankData(op.b1, op.targetX)
     const targetY = op.b2 == 0 ? op.targetY : getBankData(op.b2, op.targetY) // In frames
 
@@ -125,15 +127,17 @@ const SCR2D = async (op) => {
     await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Instant, 1)
     return {}
 }
-const SCRCC = async (op) => {
+const SCRCC = async (op) => { // Scroll to leader
     console.log('SCRCC', op)
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('SCRCC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
     await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
+    window.currentField.fieldCamera.userData.followUser = true // ?!
     return {}
 }
-const SCR2DC = async (op) => {
+const SCR2DC = async (op) => { // Scroll to position with smooth tween
     console.log('SCR2DC', op)
+    window.currentField.fieldCamera.userData.followUser = false // ?!
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -147,7 +151,7 @@ const SCR2DC = async (op) => {
     await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Smooth, speed)
     return {}
 }
-const SCRLW = async (op) => {
+const SCRLW = async (op) => { // Wait for scrolling
     console.log('SCRLW', op)
     // Note: I have made all of the scrolls sync execution and haven't been convinced otherwise therefore, this
     // should just work. If I need to make selective scoll op codes sync, then just add a isScrolling 
@@ -156,8 +160,9 @@ const SCRLW = async (op) => {
     }
     return {}
 }
-const SCR2DL = async (op) => {
+const SCR2DL = async (op) => { // Scroll to position with linear tween
     console.log('SCR2DL', op)
+    window.currentField.fieldCamera.userData.followUser = false // ?!
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -469,14 +474,14 @@ const MVIEF = async (op) => {
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}
 }
-setTimeout(async () => {
-    // await MUSIC({ id: 1 })
-    // await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
-    // await sleep(1000)
-    // await PMVIE({ m: 53 })
-    // await MOVIE()
-    // console.log('MOVIE ENDED')
-}, 10000)
+// setTimeout(async () => {
+//     await SOUND({ i: 3, d: 64 })
+//     await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
+//     // await sleep(1000)
+//     // await PMVIE({ m: 53 })
+//     // await MOVIE()
+//     // console.log('MOVIE ENDED')
+// }, 10000)
 
 export {
     NFADE,
