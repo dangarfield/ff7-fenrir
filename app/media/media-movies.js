@@ -112,7 +112,8 @@ const playNextMovie = async () => {
             console.log('video.onended', nextMovie.name)
             // - clear capture frame interval
             clearInterval(frameCaptureInterval)
-            // - switch back to field camera
+            // - TODO - switch back to field camera
+
             // - destroy the objects in the backgroundVideo group
             console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
             window.currentField.backgroundVideo.remove(...window.currentField.backgroundVideo.children)

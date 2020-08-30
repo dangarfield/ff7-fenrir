@@ -100,6 +100,19 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Windowing and Menu
 
+        case 'WSIZW': result = windowMenu.WSIZW(op); break
+        case 'WSPCL': result = windowMenu.WSPCL(op); break
+        case 'WNUMB': result = windowMenu.WNUMB(op); break
+        case 'STTIM': result = windowMenu.STTIM(op); break
+        case 'MPARA': result = windowMenu.MPARA(op); break
+        case 'MPRA2': result = windowMenu.MPRA2(op); break
+        case 'WINDOW': result = windowMenu.WINDOW(op); break
+        case 'WMOVE': result = windowMenu.WMOVE(op); break
+        case 'WMODE': result = windowMenu.WMODE(op); break
+        case 'WREST': result = windowMenu.WREST(op); break
+        case 'WROW': result = windowMenu.WROW(op); break
+        case 'GWCOL': result = windowMenu.GWCOL(op); break
+
         // Party and Inventory
         case 'SPTYE': result = party.SPTYE(op); break
         case 'GTPYE': result = party.GTPYE(op); break

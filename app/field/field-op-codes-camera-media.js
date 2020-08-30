@@ -474,14 +474,14 @@ const MVIEF = async (op) => {
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}
 }
-setTimeout(async () => {
-    await SOUND({ i: 3, d: 64 })
-    await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
-    // await sleep(1000)
-    await PMVIE({ m: 53 })
-    await MOVIE()
-    // console.log('MOVIE ENDED')
-}, 10000)
+// setTimeout(async () => {
+//     await SOUND({ i: 3, d: 64 })
+//     await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
+//     // await sleep(1000)
+//     await PMVIE({ m: 53 })
+//     await MOVIE()
+//     // console.log('MOVIE ENDED')
+// }, 10000)
 
 export {
     NFADE,

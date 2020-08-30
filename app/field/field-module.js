@@ -14,6 +14,7 @@ import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { preLoadFieldMediaData } from '../media/media-module.js'
+import { clearAllDialogs } from './field-dialog.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -577,6 +578,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     await setupOrthoBgCamera()
     await setupOrthoCamera()
     drawFader()
+    clearAllDialogs()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
     console.log('window.currentField', window.currentField)

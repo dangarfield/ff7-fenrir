@@ -15,7 +15,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - None, [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/) link. If you want to install locally:
 - Clone this repo `git clone https://github.com/dangarfield/ff7-fenrir.git`
 - Clone `git clone https://github.com/dangarfield/kujata-data.git` into a seperate directory and symlink into a previously created `ff7-fenrir` folder, ensuring that it is called `kujata-data-dg`. Alternatively, edit `KUJATA_BASE` variable in `app.mjs` to NOT point to localhost
-- Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser
+- Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser, or `http-server -p 5000 -s`
 
 ### Progress - Field
 - :white_check_mark: Extract model assets from kujata
@@ -46,6 +46,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
 - :point_right: Begin properly implementing field op codes
+- :black_square_button: Add visual script progress debug mechanism
 - :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
