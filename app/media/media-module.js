@@ -4,7 +4,7 @@ import {
     setSoundTempoTransition, stopSounds
 } from './media-sound.js'
 import {
-    loadMusic, resetCurrentFieldMusicList, setBattleMusic, playMusic, pauseMusic, stopMusic,
+    loadMusicMetadata, loadMusic, resetCurrentFieldMusicList, setBattleMusic, playMusic, pauseMusic, stopMusic,
     resumeMusic, setMusicVolume, setMusicVolumeTransition, setMusicPan, setMusicPanTransition,
     setMusicTempo, setMusicTempoTransition
 } from './media-music.js'
@@ -48,6 +48,7 @@ const setDefaultMediaConfig = async () => {
     }
     resetCurrentFieldMusicList()
     await loadSoundMetadata()
+    await loadMusicMetadata()
     await loadMovieMetadata()
 }
 const preLoadFieldMediaData = async () => {
@@ -360,7 +361,7 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
             if (p2 < 128) {
                 setMusicPanTransition(null, (p2 / 64) - 1, p1 / 60 * 1000)
             } else {
-                window.alert(`not sure what to do with this AKAO, should be musicPanTransition, but p2 is: ${p2}`)
+                console.log(`not sure what to do with this AKAO, should be musicPanTransition, but p2 is: ${p2}`)
             }
             break
         case 202: // 0xCA

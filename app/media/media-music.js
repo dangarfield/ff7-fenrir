@@ -1,4 +1,5 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
+import { getMusicMetadata } from '../data/media-fetch-data.js'
 import { getConfig } from './media-module.js'
 const Howl = window.libraries.howler.Howl
 
@@ -8,26 +9,40 @@ let musicMetadata = {
     currentFieldMusic: null,
     currentBattleMusic: null,
     currentWorldMusic: null,
-    isMusicLocked: false
+    isMusicLocked: false,
+    metadata: undefined
 }
 
+
+const loadMusicMetadata = async () => {
+    if (musicMetadata.metadata === undefined) {
+        musicMetadata.metadata = await getMusicMetadata()
+        console.log('musicMetadata.metadata', musicMetadata.metadata)
+    }
+}
 const loadMusic = (i, name) => {
     if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
         return
     }
     const mediaItem = {
         url: getMusicUrl(name),
-        name: name
+        name: name,
+        metadata: musicMetadata.metadata.filter(m => m.name === name)[0],
+        firstPlay: true
     }
     mediaItem.sound = new Howl({ src: [mediaItem.url] })
     mediaItem.sound.loop(true)
 
     mediaItem.sound.once('load', function () {
         console.log(' - music loaded', mediaItem)
-        // There are no fflp flags in the music oggs, it's not looping perfectly...
     })
-    mediaItem.sound.on('end', function () {
-        console.log(' - music ended', mediaItem)
+    mediaItem.sound.on('play', function () {
+        console.log(' - music play', mediaItem)
+        if (!mediaItem.firstPlay && mediaItem.metadata.startMs) {
+            console.log('Jump to loop beginning', mediaItem)
+            mediaItem.sound.seek(mediaItem.metadata.startMs / 1000)
+        }
+        mediaItem.firstPlay = false
     })
     musics.push(mediaItem)
     musicMetadata.currentFieldList[i] = name
@@ -60,6 +75,7 @@ const stopMusic = (fadeOutTime) => {
             console.log('stop music ->', music)
             if (fadeOutTime === undefined) {
                 music.sound.stop()
+                music.firstPlay = true // Need to double check this works as desired
             } else {
                 music.sound.fade(music.sound.volume(), 0, fadeOutTime)
                 setTimeout(() => {
@@ -252,6 +268,7 @@ const resetCurrentFieldMusicList = () => {
     musicMetadata.currentFieldList = []
 }
 export {
+    loadMusicMetadata,
     loadMusic,
     resetCurrentFieldMusicList,
     setBattleMusic,

@@ -470,7 +470,7 @@ const MVIEF = async (op) => {
     return {}
 }
 setTimeout(async () => {
-    // await MUSIC({ id: 0 })
+    // await MUSIC({ id: 1 })
     // await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
     // await sleep(1000)
     // await PMVIE({ m: 53 })
