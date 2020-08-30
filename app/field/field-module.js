@@ -561,6 +561,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         backgroundLayers: undefined,
         backgroundVideo: undefined,
         positionHelpers: undefined,
+        positionHelpersEnabled: true,
         cameraTarget: undefined,
         fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData,

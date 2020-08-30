@@ -1,6 +1,7 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
 import { getMovieMetadata } from '../data/media-fetch-data.js'
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
+import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
 
 let movieMetadata
 let movies = []
@@ -46,6 +47,7 @@ const setNextMovie = async (i) => {
     // Ideally this will also work when changing fields
     // So I potentially COULD hardcode the field names for the disc 2, 3 videos...
     // For now, just assume everything is disc 1 and I'll fix later
+    // Update - Save memory Bank D/E has 0x0EA4, 1 byte - Which game-play Disc is needed, could be used
 
     console.log('setNextMovie', movieMetadata, movieMetadata.disc1, i)
     nextMovie.name = getMovieName(i)
@@ -86,6 +88,8 @@ const playNextMovie = async () => {
 
     return new Promise(async (resolve, reject) => {
         // Disable hand pointer
+        window.currentField.positionHelpersEnabled = false
+        updatePositionHelperVisility()
 
         // Hide all backgrounds
         window.currentField.backgroundLayers.visible = false
@@ -94,15 +98,15 @@ const playNextMovie = async () => {
         createVideoBackground(nextMovie.video)
         window.currentField.backgroundVideo.visible = true
         console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
-        // Swap to videoCamera (if relevant and start videoCamera position tweens)
+
+        // TODO - Swap to videoCamera (if relevant and start videoCamera position tweens)
 
         // Play video
-        // nextMovie.video.currentTime = 114
         nextMovie.video.play()
 
         // Begin capturing frame
         const frameCaptureInterval = setInterval(() => { nextMovie.frame++ }, 1000 / 15) // Looks like 15 frames per second
-        //frame 664 roughly equal to 117 seconds
+        // frame 664 roughly equal to 117 seconds
         // Once video has finished
         nextMovie.video.onended = () => {
             console.log('video.onended', nextMovie.name)

@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { getAnimatedArrowPositionHelperTextures, getCursorPositionHelperTexture } from './field-fetch-data.js'
+import { areFieldPointersActive, setFieldPointersActive } from '../data/savemap-alias.js'
 
 const updateArrowPositionHelpers = () => {
     // console.log('updatePositionHelpers', window.currentField.positionHelpers.children.length)
@@ -70,7 +71,7 @@ const drawArrowPositionHelpers = () => {
         }
     }
     drawCursorPositionHelper()
-    window.currentField.positionHelpers.visible = false
+    updatePositionHelperVisility()
     window.currentField.fieldScene.add(window.currentField.positionHelpers)
     // Not sure when is best to initilise the cursor pointer, on placement of the main character of at once
     updateCursorPositionHelpers()
@@ -115,8 +116,30 @@ const drawCursorPositionHelper = () => {
     // sprite.scale.set(scale, scale, scale)
     window.currentField.positionHelpers.add(sprite)
 }
+
+const updatePositionHelperVisility = () => {
+    // TODO - This sets both the pointer and the green / red arrows. But I believe this should be separately controlled
+    let fieldPointersActive = areFieldPointersActive()
+    if (window.currentField.positionHelpersEnabled && fieldPointersActive) {
+        window.currentField.positionHelpers.visible = true
+    } else {
+        window.currentField.positionHelpers.visible = false
+    }
+}
 const togglePositionHelperVisility = () => {
-    window.currentField.positionHelpers.visible = !window.currentField.positionHelpers.visible
+    let fieldPointersActive = areFieldPointersActive()
+    console.log('setFieldPointersActive', !fieldPointersActive)
+    setFieldPointersActive(!fieldPointersActive)
+
+    updatePositionHelperVisility()
+    // 0x0BA4 = 2980
+    // 0x0CA4 = 3236
+    // 0x0DA4 = 3492
+
+    // Save Memory Bank D/E - // 0x0EC2 = 3778, eg // 0x0EA4 = 3748 = 0
+    // 1 byte - Field pointers mask (hand over party leader's head + red and green arrows)
+    // 0x00: Inactive
+    // 0x02: Active
 }
 export {
     updateArrowPositionHelpers,
@@ -124,5 +147,6 @@ export {
     drawArrowPositionHelper,
     drawArrowPositionHelpers,
     drawCursorPositionHelper,
-    togglePositionHelperVisility
+    togglePositionHelperVisility,
+    updatePositionHelperVisility
 }
