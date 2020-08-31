@@ -1,26 +1,33 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { nextPageOrCloseActiveDialogs, navigateChoice } from './field-ortho-scene.js'
+import { nextPageOrCloseActiveDialogs, navigateChoice } from './field-dialog-helper.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
-        if (firstPress && !isActionInProgress()) {
-            // Check talk request - Initiate talk
-            console.log('o', isActionInProgress())
-            for (let i = 0; i < window.currentField.models.length; i++) {
-                if (window.currentField.models[i].scene.userData.closeToTalk === true) {
-                    setActionInProgress('talk')
-                    initiateTalk(i, window.currentField.models[i])
-                }
-            }
 
-        } else if (firstPress && isActionInProgress() === 'talk') {
-            console.log('speed up or cancel talk')
-            // Need to test this when there are multiple dialogs on screen etc, will probably want amending
-            // Ideally there woud be an opcode for closing, but I haven't looked too much yet
+        if (firstPress) {
             nextPageOrCloseActiveDialogs()
         }
+
+
+        // TODO - Refactor
+        // if (firstPress && !isActionInProgress()) {
+        //     // Check talk request - Initiate talk
+        //     console.log('o', isActionInProgress())
+        //     for (let i = 0; i < window.currentField.models.length; i++) {
+        //         if (window.currentField.models[i].scene.userData.closeToTalk === true) {
+        //             setActionInProgress('talk')
+        //             initiateTalk(i, window.currentField.models[i])
+        //         }
+        //     }
+
+        // } else if (firstPress && isActionInProgress() === 'talk') {
+        //     console.log('speed up or cancel talk')
+        //     // Need to test this when there are multiple dialogs on screen etc, will probably want amending
+        //     // Ideally there woud be an opcode for closing, but I haven't looked too much yet
+        //     nextPageOrCloseActiveDialogs()
+        // }
     })
     getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
         if (firstPress && isActionInProgress() === 'talk') {

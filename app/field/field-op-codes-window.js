@@ -1,6 +1,6 @@
 import {
     createWindow, resetWindow, moveWindow, resizeWindow, setWindowMode, setWindowTextParam,
-    setSpecialMode, setSpecialClock, setSpecialNumber
+    setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction
 } from './field-dialog.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData } from '../data/savemap.js'
@@ -97,13 +97,24 @@ const MPNAM = async (op) => {
     return {}
 }
 
+const MESSAGE = async (op) => {
+    console.log('MESSAGE', op)
+    await showMessageWaitForInteraction(op.n, window.currentField.data.script.dialogStrings[op.d])
+    return {}
+}
+
 setTimeout(async () => {
     await SOUND({ i: 1, d: 64 })
 
     // await createDialogBox(1, 10, 10, 239, 217, 1)
     // const currentChoice = await showWindowWithDialog(1, 'Do <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]')
 
-    // await WINDOW({ n: 1, x: 20, y: 20, w: 100, h: 100 })
+    await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
+    await MESSAGE({ n: 1, d: 30 })
+    console.log('WINDOW ENDED 1')
+    await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
+    // await WMODE({ w: 2, m: 0, p: 1 })
+    await MESSAGE({ n: 2, d: 30 })
     // await WREST({ w: 1 })
     // await WMOVE({ w: 1, x: 50, y: 50 })
     // await WSIZW({ i: 1, x: 10, y: 10, w: 239, h: 217 })
@@ -113,8 +124,8 @@ setTimeout(async () => {
     // await WSPCL({ w: 1, t: 1, x: 30, y: 30 })
     // await STTIM({ b1: 0, b2: 0, b3: 0, h: 1, m: 2, s: 3 })
     // await WNUMB({ w: 1, b1: 0, b2: 0, nLow: 1234, nHigh: 5678, c: 7 })
-    await MPNAM({ dialogId: 0 })
-    console.log('WINDOW ENDED')
+    // await MPNAM({ dialogId: 0 })
+    console.log('WINDOW ENDED 2')
 }, 10000)
 
 export {
@@ -122,6 +133,7 @@ export {
     WSPCL,
     WNUMB,
     STTIM,
+    MESSAGE,
     MPARA,
     MPRA2,
     MPNAM,
