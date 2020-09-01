@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { nextPageOrCloseActiveDialogs, navigateChoice } from './field-dialog-helper.js'
+import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive, isNumericChoiceActive } from './field-dialog-helper.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
@@ -73,14 +73,14 @@ const initFieldKeypressActions = () => {
     })
 
     getKeyPressEmitter().on('up', (firstPress) => {
-        if (isActionInProgress() === 'talk') {
-            console.log('navigate seletion UP')
+        if (isChoiceActive) {
+            console.log('navigate choice UP')
             navigateChoice(false)
         }
     })
     getKeyPressEmitter().on('down', (firstPress) => {
-        if (isActionInProgress() === 'talk') {
-            console.log('navigate seletion DOWN')
+        if (isChoiceActive) {
+            console.log('navigate choice DOWN')
             navigateChoice(true)
         }
     })

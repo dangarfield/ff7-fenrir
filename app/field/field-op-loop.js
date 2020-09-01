@@ -109,6 +109,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'MPARA': result = windowMenu.MPARA(op); break
         case 'MPRA2': result = windowMenu.MPRA2(op); break
         case 'MPNAM': result = windowMenu.MPNAM(op); break
+        case 'ASK': result = windowMenu.ASK(op); break
         case 'WINDOW': result = windowMenu.WINDOW(op); break
         case 'WMOVE': result = windowMenu.WMOVE(op); break
         case 'WMODE': result = windowMenu.WMODE(op); break

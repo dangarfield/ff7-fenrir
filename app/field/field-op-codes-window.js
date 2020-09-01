@@ -3,7 +3,7 @@ import {
     setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow
 } from './field-dialog.js'
 import { SOUND } from './field-op-codes-camera-media.js'
-import { getBankData } from '../data/savemap.js'
+import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
 
 
@@ -103,6 +103,13 @@ const MESSAGE = async (op) => {
     await showMessageWaitForInteraction(op.n, window.currentField.data.script.dialogStrings[op.d])
     return {}
 }
+const ASK = async (op) => {
+    console.log('ASK', op)
+    const answer = await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d])
+    setBankData(op.ba, op.a, answer)
+    console.log('ASK answer:', answer, '->', op.ba, op.a)
+    return {}
+}
 const WCLSE = async (op) => {
     console.log('WCLSE', op)
     await closeWindow(op.w)
@@ -121,20 +128,23 @@ setTimeout(async () => {
     // const currentChoice = await showWindowWithDialog(1, 'Do <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]')
 
 
-    await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
-    // await WMODE({ w: 1, m: 2, p: 1 })
-    await MESSAGE({ n: 1, d: 30 })
+    // await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
+    // // await WMODE({ w: 1, m: 2, p: 1 })
+    // await MESSAGE({ n: 1, d: 30 })
 
-    await sleep(3000)
-    await WCLSE({ w: 1 })
-    console.log('WINDOW ENDED 1')
+    await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
+    await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
+    // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
+
+    // await sleep(3000)
+    // await WCLSE({ w: 1 })
+    // console.log('WINDOW ENDED 1')
     // // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
     // // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
-    // await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
+    await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
     // // await WMODE({ w: 2, m: 0, p: 1 })
-    // await WMODE({ w: 2, m: 1, p: 0 })
-    // await MESSAGE({ n: 2, d: 30 })
-
+    await WMODE({ w: 2, m: 2, p: 0 })
+    await MESSAGE({ n: 2, d: 30 })
 
     // await WMODE({ w: 3, m: 1, p: 0 })
     // await WINDOW({ n: 3, x: 40, y: 20, w: 133, h: 41 })
@@ -163,6 +173,7 @@ export {
     MPARA,
     MPRA2,
     MPNAM,
+    ASK,
     WINDOW,
     WMOVE,
     WMODE,

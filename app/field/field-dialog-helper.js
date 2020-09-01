@@ -8,19 +8,36 @@ import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-di
 
 // Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
-let EDGE_SIZE = 8
+/* TODO:
+ DONE - Swap character names to use savemap
+ DONE - Implement the ASK op code
+ - Implement clock
+ - Implement clock interaction
+ - Implement numeric special
+ - Implement numeric special interaction
+ - Implement FLASH and RAINBOW text animation effects
+ - Add tweens to use threejs clock rather than sleep
+ - Implement {PAUSE} if that is a thing?!
+ - There was some sort of scroll mentioned somewhere too if the text didn't fit...
+*/
+
+let isChoiceActive = false
+let isNumericChoiceActive = false
+
+const EDGE_SIZE = 8
+const LINE_HEIGHT = 16
 
 let CHARACTER_NAMES = [
     { id: 'CLOUD', name: 'Cloud' },
     { id: 'BARRET', name: 'Barret' },
-    { id: 'TIFA', name: 'TIFA' },
+    { id: 'TIFA', name: 'Tifa' },
     { id: 'AERIS', name: 'Aeris' },
-    { id: 'RED XIII', name: 'Red XIII' },
+    { id: 'RED XIII', name: 'RedXIII' },
     { id: 'YUFFIE', name: 'Yuffie' },
-    { id: 'CAIT SITH', name: 'Cait Sith' },
-    { id: 'YOUNG CLOUD', name: 'Young Cloud' },
+    { id: 'CAIT SITH', name: 'CaitSith' },
+    { id: 'YOUNG CLOUD', name: 'CaitSith' },
     { id: 'VINCENT', name: 'Vincent' },
-    { id: 'SEPHROTH', name: 'Sephiroth' },
+    { id: 'SEPHIROTH', name: 'Vincent' },
     { id: 'CID', name: 'Cid' },
 ]
 const BUTTON_IMAGES = [
@@ -216,7 +233,8 @@ const createDialogBox = async (dialog) => {
 const replaceCharacterNames = (text) => {
     for (let i = 0; i < CHARACTER_NAMES.length; i++) {
         const characterName = CHARACTER_NAMES[i]
-        text = text.replace(new RegExp(`{${characterName.id}}`, 'g'), characterName.name)
+        console.log('replaceCharacterNames', characterName, window.data.savemap.characters)
+        text = text.replace(new RegExp(`{${characterName.id}}`, 'g'), window.data.savemap.characters[characterName.name].name)
     }
     return text
 }
@@ -305,11 +323,11 @@ const showDialogPageText = async (dialogBox) => {
 }
 
 const showWindowWithDialog = async (dialog) => {
-    console.log('showWindowWithDialog', dialog)
     const dialogBox = dialog.group
     let text = dialog.text
 
-
+    if (dialog.text.includes('{CHOICE}')) { isChoiceActive = true }
+    console.log('showWindowWithDialog', dialog, isChoiceActive)
 
     // Show dialog
     dialogBox.visible = true
@@ -326,7 +344,6 @@ const showWindowWithDialog = async (dialog) => {
 
 
     // Configure text
-    const LINE_HEIGHT = 16
     text = text.replace(/\t/, '    ')
     text = replaceCharacterNames(text)
     text = replaceButtonImages(text)
@@ -452,10 +469,12 @@ const showWindowWithDialog = async (dialog) => {
 //     return currentChoice
 // }
 const navigateChoice = (navigateDown) => {
-    for (let i = 0; i < dialogBoxes.length; i++) {
-        if (dialogBoxes[i] !== null && dialogBoxes[i] !== undefined) {
-            if (dialogBoxes[i].userData.state === 'choice') {
-                const dialogBox = dialogBoxes[i]
+    const dialogs = getDialogs()
+    for (let i = 0; i < dialogs.length; i++) {
+        const dialog = dialogs[i]
+        if (dialog !== null && dialog !== undefined && dialog.group !== null && dialog.group !== undefined) {
+            const dialogBox = dialog.group
+            if (dialogBox.userData.state === 'choice') {
                 // console.log('navigate choice for dialogBox', dialogBox)
                 for (let j = 0; j < dialogBox.children.length; j++) {
                     if (dialogBox.children[j].userData.choices) {
@@ -475,7 +494,7 @@ const navigateChoice = (navigateDown) => {
         }
     }
 }
-const closeDialog = async (dialog) => {
+const closeDialog = async (dialog, choiceResult) => {
     const dialogBox = dialog.group
     for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
 
@@ -495,7 +514,13 @@ const closeDialog = async (dialog) => {
     }
     dialogBox.userData.state = 'closed'
     scene.remove(dialogBox)
-    dialog.resolveCallback()
+    if (choiceResult !== undefined) {
+        isChoiceActive = false
+        dialog.resolveCallback(choiceResult)
+    } else {
+        dialog.resolveCallback()
+    }
+
     console.log('dialog', dialog)
     console.log('dialogs', getDialogs())
 }
@@ -512,8 +537,11 @@ const nextPageOrCloseActiveDialog = async (dialog) => {
     if (dialogBox.userData.state === 'page') {
         console.log('Trigger next page', dialogBox.userData)
         await showDialogPageText(dialogBox)
-    } else if (dialogBox.userData.state === 'done' || dialogBox.userData.state === 'choice') {
+    } else if (dialogBox.userData.state === 'done') {
         await closeDialog(dialog)
+    } else if (dialogBox.userData.state === 'choice') {
+        console.log('CLOSE CHOICE', dialogBox.userData.currentChoice)
+        await closeDialog(dialog, dialogBox.userData.currentChoice)
     }
 
 }
@@ -534,5 +562,7 @@ export {
     showWindowWithDialog,
     nextPageOrCloseActiveDialogs,
     navigateChoice,
-    closeDialog
+    closeDialog,
+    isChoiceActive,
+    isNumericChoiceActive
 }
