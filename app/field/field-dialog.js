@@ -1,4 +1,4 @@
-import { createDialogBox, showWindowWithDialog, closeDialog } from './field-dialog-helper.js'
+import { createDialogBox, showWindowWithDialog, closeDialog, updateSpecialNumber } from './field-dialog-helper.js'
 
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
@@ -130,13 +130,13 @@ const setSpecialNumber = (id, number, noDigitsToDisplay) => {
     if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
         createWindow(id, 10, 10, 10, 10)
     }
-    // TODO - Interactivity ?!
-    // TODO - Multiple numbers ?!
     dialogs[id].specialData.number = number
     dialogs[id].specialData.noDigitsToDisplay = noDigitsToDisplay
+    // The interactivity happens by calling WNUMB op code after window is displayed and the bank value has been updated
+    updateSpecialNumber(dialogs[id])
     console.log('setSpecialNumber', id, dialogs[id])
 }
-const showMessageWaitForInteraction = async (id, dialogString) => {
+const showMessageWaitForInteraction = async (id, dialogString, showChoicePointers) => {
 
     return new Promise(async (resolve) => {
         const dialog = dialogs[id]
@@ -149,7 +149,7 @@ const showMessageWaitForInteraction = async (id, dialogString) => {
         }
         console.log('showMessageWaitForInteraction', id, dialogString, dialog)
         await createDialogBox(dialog)
-        await showWindowWithDialog(dialog)
+        await showWindowWithDialog(dialog, showChoicePointers)
 
         if (!dialog.playerCanClose) {
             dialog.resolveCallback()

@@ -100,12 +100,12 @@ const MPNAM = async (op) => {
 
 const MESSAGE = async (op) => {
     console.log('MESSAGE', op)
-    await showMessageWaitForInteraction(op.n, window.currentField.data.script.dialogStrings[op.d])
+    await showMessageWaitForInteraction(op.n, window.currentField.data.script.dialogStrings[op.d], false)
     return {}
 }
 const ASK = async (op) => {
     console.log('ASK', op)
-    const answer = await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d])
+    const answer = await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d], true)
     setBankData(op.ba, op.a, answer)
     console.log('ASK answer:', answer, '->', op.ba, op.a)
     return {}
@@ -132,8 +132,8 @@ setTimeout(async () => {
     // // await WMODE({ w: 1, m: 2, p: 1 })
     // await MESSAGE({ n: 1, d: 30 })
 
-    await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
-    await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
+    // await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
+    // await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
     // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
 
     // await sleep(3000)
@@ -141,10 +141,10 @@ setTimeout(async () => {
     // console.log('WINDOW ENDED 1')
     // // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
     // // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
-    await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
+    // await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
     // // await WMODE({ w: 2, m: 0, p: 1 })
-    await WMODE({ w: 2, m: 2, p: 0 })
-    await MESSAGE({ n: 2, d: 30 })
+    // await WMODE({ w: 2, m: 2, p: 0 })
+    // await MESSAGE({ n: 2, d: 30 })
 
     // await WMODE({ w: 3, m: 1, p: 0 })
     // await WINDOW({ n: 3, x: 40, y: 20, w: 133, h: 41 })
@@ -156,10 +156,34 @@ setTimeout(async () => {
     // await WMODE({ w: 1, m: 1, p: 1 })
     // await MPARA({ w: 1, b: 0, i: 0, v: 'booya' })
     // await MPRA2({ w: 1, b: 0, i: 1, v: 'booya2' })
-    // await WSPCL({ w: 1, t: 1, x: 30, y: 30 })
-    // await STTIM({ b1: 0, b2: 0, b3: 0, h: 1, m: 2, s: 3 })
+    // await WSPCL({ w: 1, t: 2, x: 30, y: 30 })
+    // // await STTIM({ b1: 0, b2: 0, b3: 0, h: 1, m: 2, s: 3 })
+    // await WINDOW({ n: 1, x: 10, y: 10, w: 239, h: 217 })
     // await WNUMB({ w: 1, b1: 0, b2: 0, nLow: 1234, nHigh: 5678, c: 7 })
+    // await MESSAGE({ n: 1, d: 1 })
     // await MPNAM({ dialogId: 0 })
+
+    // await WSPCL({ w: 0, t: 2, x: 10, y: 10 })
+    // await WSPCL({ w: 1, t: 2, x: 10, y: 10 })
+
+    // setBankData(6, 20, 10)
+    // await WNUMB({ w: 0, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 3 })
+    // await WNUMB({ w: 1, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 5 })
+
+    // await WINDOW({ n: 0, x: 141, y: 0, w: 102, h: 57 })
+    // await WINDOW({ n: 1, x: 131, y: 70, w: 122, h: 57 })
+
+    // await WMODE({ w: 0, m: 0, p: 1 })
+    // await WMODE({ w: 1, m: 0, p: 1 })
+
+    // await MESSAGE({ n: 0, d: 29 })
+    // await MESSAGE({ n: 1, d: 30 })
+
+    // setBankData(6, 20, 20)
+    // await WNUMB({ w: 0, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 3 })
+    // await WNUMB({ w: 1, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 5 })
+
+
     console.log('WINDOW ENDED 2')
 }, 10000)
 

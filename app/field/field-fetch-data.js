@@ -199,6 +199,9 @@ const getDialogLetter = (letter, color) => {
 const getPointRight = () => {
     return getWindowTextures()['battle-menu']['point - right']
 }
+const getFieldDialogNumber = (number) => {
+    return getWindowTextures()['clock'][`clock ${number}`]
+}
 export {
     getFieldList,
     loadFieldData,
@@ -210,5 +213,6 @@ export {
     getCursorPositionHelperTexture,
     getDialogTextures,
     getDialogLetter,
-    getPointRight
+    getPointRight,
+    getFieldDialogNumber
 }

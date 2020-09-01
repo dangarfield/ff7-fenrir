@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getDialogTextures, getDialogLetter, getPointRight } from './field-fetch-data.js'
+import { getDialogTextures, getDialogLetter, getPointRight, getFieldDialogNumber } from './field-fetch-data.js'
 import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/savemap-config.js'
 import { sleep } from '../helpers/helpers.js'
 import { scene } from './field-ortho-scene.js'
@@ -13,8 +13,8 @@ import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-di
  DONE - Implement the ASK op code
  - Implement clock
  - Implement clock interaction
- - Implement numeric special
- - Implement numeric special interaction
+ DONE - Implement numeric special
+ DONE - Implement numeric special interaction
  - Implement FLASH and RAINBOW text animation effects
  - Add tweens to use threejs clock rather than sleep
  - Implement {PAUSE} if that is a thing?!
@@ -22,7 +22,6 @@ import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-di
 */
 
 let isChoiceActive = false
-let isNumericChoiceActive = false
 
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
@@ -261,7 +260,45 @@ const replaceVariables = (text, id) => {
     }
     return text
 }
-const showDialogPageText = async (dialogBox) => {
+const updateSpecialNumber = async (dialog) => {
+    if (dialog.special === SPECIAL_MODE.Numeric && dialog.group !== null && dialog.group !== undefined) {
+        console.log('updateSpecialNumber', dialog)
+
+        // TODO - remove all existing numberMesh.userData.special = 'numeric'
+        for (let i = 0; i < dialog.group.children.length; i++) {
+            const mesh = dialog.group.children[i]
+            if (mesh.userData.special === 'numeric') {
+                dialog.group.remove(mesh)
+                console.log('remove numeric', mesh)
+            }
+        }
+
+        // TODO - border ?
+
+        // Ensure correct number padding
+        const numbers = `${dialog.specialData.number}`.split('')
+        for (let i = 0; i < dialog.specialData.noDigitsToDisplay; i++) { numbers.unshift('0') }
+        while (numbers.length > dialog.specialData.noDigitsToDisplay) { numbers.shift() }
+
+        // Assumptions, noDigits is taken from right to left, high is right, low is left
+        console.log('numbers', numbers)
+        for (let i = 0; i < numbers.length; i++) {
+            const number = numbers[i]
+            const numberAsset = Object.assign({}, getFieldDialogNumber(number))
+            console.log('numberAsset', numberAsset)
+            const numberMesh = createTextureMesh(numberAsset.w, numberAsset.h, numberAsset.texture)
+            // console.log('numberMesh', numberMesh)
+            numberMesh.position.set(
+                dialog.x + 11 + dialog.specialData.x + (i * numberAsset.w),
+                window.config.sizing.height - dialog.y - 14 - dialog.specialData.y,
+                1)
+            numberMesh.userData.special = 'numeric'
+            dialog.group.add(numberMesh)
+        }
+    }
+
+}
+const showDialogPageText = async (dialogBox, showChoicePointers) => {
     dialogBox.userData.state = 'writing-text'
 
     // Remove any existing text from previous pages
@@ -309,6 +346,9 @@ const showDialogPageText = async (dialogBox) => {
         pointerMesh.userData.totalChoices = choiceLines.length
         pointerMesh.userData.isPointer = true
         // console.log('pointerPositions', pointerPositions)
+        if (!showChoicePointers) {
+            pointerMesh.visible = false
+        }
         pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
         dialogBox.userData.state = 'choice'
         dialogBox.add(pointerMesh)
@@ -322,7 +362,7 @@ const showDialogPageText = async (dialogBox) => {
     }
 }
 
-const showWindowWithDialog = async (dialog) => {
+const showWindowWithDialog = async (dialog, showChoicePointers) => {
     const dialogBox = dialog.group
     let text = dialog.text
 
@@ -449,14 +489,15 @@ const showWindowWithDialog = async (dialog) => {
     dialogBox.userData.currentPage = 0
     // console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
 
+    await updateSpecialNumber(dialog)
+
     // Show page / multiple Pages
-    await showDialogPageText(dialogBox) // Subsequent pages are triggered from nextPageOrCloseActiveDialog()
+    await showDialogPageText(dialogBox, showChoicePointers) // Subsequent pages are triggered from nextPageOrCloseActiveDialog()
 
     // Wait for closing ?!
     // const currentChoice = await waitForDialogToClose(windowId)
     // return currentChoice
 }
-
 // const waitForDialogToClose = async (id) => {
 //     // console.log('waitForDialogToClose: START')
 //     let currentChoice = dialogBoxes[id].userData.currentChoice
@@ -563,6 +604,6 @@ export {
     nextPageOrCloseActiveDialogs,
     navigateChoice,
     closeDialog,
-    isChoiceActive,
-    isNumericChoiceActive
+    updateSpecialNumber,
+    isChoiceActive
 }
