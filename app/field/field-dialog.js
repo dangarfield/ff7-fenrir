@@ -149,10 +149,10 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         dialog.resolveCallback = resolve
 
         dialog.text = dialogString
-        if (id === 2) { // Temp for testing
-            // dialog.text = 'Do {CLOUD} <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
-            dialog.text = '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind'
-        }
+        // if (id === 2) { // Temp for testing
+        //     // dialog.text = 'Do {CLOUD} <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
+        //     dialog.text = '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind'
+        // }
         console.log('showMessageWaitForInteraction', id, dialogString, dialog)
         await createDialogBox(dialog)
         await showWindowWithDialog(dialog, showChoicePointers)
@@ -165,6 +165,14 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 }
 const closeWindow = async (id) => {
     await closeDialog(dialogs[id])
+}
+const setDialogColor = (cornerId, r, g, b) => {
+    switch (cornerId) {
+        case 0: window.data.savemap.config.windowColorTL = [r, g, b]; break
+        case 1: window.data.savemap.config.windowColorBL = [r, g, b]; break
+        case 2: window.data.savemap.config.windowColorTR = [r, g, b]; break
+        case 3: window.data.savemap.config.windowColorBR = [r, g, b]; break
+    }
 }
 
 export {
@@ -184,5 +192,6 @@ export {
     closeWindow,
     decrementCountdownClockAndUpdateDisplay,
     WINDOW_MODE,
-    SPECIAL_MODE
+    SPECIAL_MODE,
+    setDialogColor
 }

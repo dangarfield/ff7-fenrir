@@ -1,6 +1,7 @@
 import {
     createWindow, resetWindow, moveWindow, resizeWindow, setWindowMode, setWindowTextParam,
-    setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow
+    setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow,
+    setDialogColor
 } from './field-dialog.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
@@ -91,6 +92,18 @@ const GWCOL = async (op) => {
     // No instances in the game so I won't implement
     return {}
 }
+const SWCOL = async (op) => {
+    console.log('SWCOL', op)
+
+    const c = op.b1 == 0 ? op.c : getBankData(op.b1, op.c)
+    const r = op.b2 == 0 ? op.r : getBankData(op.b2, op.r)
+    const g = op.b3 == 0 ? op.g : getBankData(op.b3, op.g)
+    const b = op.b4 == 0 ? op.b : getBankData(op.b4, op.b)
+
+    setDialogColor(c, r, g, b)
+
+    return {}
+}
 const MPNAM = async (op) => {
     console.log('MPNAM', op)
     window.data.savemap.location.currentLocation = window.currentField.data.script.dialogStrings[op.dialogId]
@@ -122,12 +135,12 @@ const WCLS = async (op) => {
 }
 
 setTimeout(async () => {
-    await SOUND({ i: 1, d: 64 })
+    // await SOUND({ i: 1, d: 64 })
 
 
-    await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
-    await WMODE({ w: 1, m: 2, p: 1 })
-    await MESSAGE({ n: 1, d: 30 })
+    // await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
+    // await WMODE({ w: 1, m: 2, p: 1 })
+    // await MESSAGE({ n: 1, d: 30 })
 
     // await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
     // await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
@@ -206,5 +219,6 @@ export {
     WREST,
     WCLSE,
     WROW,
-    GWCOL
+    GWCOL,
+    SWCOL
 }

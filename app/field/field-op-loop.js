@@ -117,6 +117,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'WCLSE': result = windowMenu.WCLSE(op); break
         case 'WROW': result = windowMenu.WROW(op); break
         case 'GWCOL': result = windowMenu.GWCOL(op); break
+        case 'SWCOL': result = windowMenu.GWCOL(op); break
 
         // Party and Inventory
         case 'SPTYE': result = party.SPTYE(op); break
