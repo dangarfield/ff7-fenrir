@@ -1,9 +1,10 @@
 import {
     createWindow, resetWindow, moveWindow, resizeWindow, setWindowMode, setWindowTextParam,
-    setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction
+    setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow
 } from './field-dialog.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData } from '../data/savemap.js'
+import { sleep } from '../helpers/helpers.js'
 
 
 const WINDOW = async (op) => {
@@ -102,6 +103,16 @@ const MESSAGE = async (op) => {
     await showMessageWaitForInteraction(op.n, window.currentField.data.script.dialogStrings[op.d])
     return {}
 }
+const WCLSE = async (op) => {
+    console.log('WCLSE', op)
+    await closeWindow(op.w)
+    return {}
+}
+const WCLS = async (op) => {
+    console.log('WCLS', op)
+    await closeWindow(op.w)
+    return {}
+}
 
 setTimeout(async () => {
     await SOUND({ i: 1, d: 64 })
@@ -109,14 +120,26 @@ setTimeout(async () => {
     // await createDialogBox(1, 10, 10, 239, 217, 1)
     // const currentChoice = await showWindowWithDialog(1, 'Do <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]')
 
+
     await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
+    // await WMODE({ w: 1, m: 2, p: 1 })
     await MESSAGE({ n: 1, d: 30 })
+
+    await sleep(3000)
+    await WCLSE({ w: 1 })
     console.log('WINDOW ENDED 1')
-    // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
-    // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
-    await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
-    // await WMODE({ w: 2, m: 0, p: 1 })
-    await MESSAGE({ n: 2, d: 30 })
+    // // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
+    // // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
+    // await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
+    // // await WMODE({ w: 2, m: 0, p: 1 })
+    // await WMODE({ w: 2, m: 1, p: 0 })
+    // await MESSAGE({ n: 2, d: 30 })
+
+
+    // await WMODE({ w: 3, m: 1, p: 0 })
+    // await WINDOW({ n: 3, x: 40, y: 20, w: 133, h: 41 })
+    // await MESSAGE({ n: 3, d: 30 })
+
     // await WREST({ w: 1 })
     // await WMOVE({ w: 1, x: 50, y: 50 })
     // await WSIZW({ i: 1, x: 10, y: 10, w: 239, h: 217 })

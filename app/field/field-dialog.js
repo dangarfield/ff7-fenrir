@@ -1,4 +1,4 @@
-import { createDialogBox, showWindowWithDialog } from './field-dialog-helper.js'
+import { createDialogBox, showWindowWithDialog, closeDialog } from './field-dialog-helper.js'
 
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
@@ -26,23 +26,32 @@ const clearAllDialogs = () => {
 }
 
 const createWindow = (id, x, y, w, h) => {
-    const dialog = {
-        id: id,
-        x: x,
-        y: y,
-        w: w,
-        h: h,
-        type: WINDOW_MODE.Normal,
-        special: SPECIAL_MODE.None,
-        // specialData: {}, // Example attribute, will be set by additional op codes
-        playerCanClose: true,
-        numbers: {},
-        text: ''
-        // group: new THREE.Group() // Example attribute, 
-        // resolveCallback: {} // Example attribute, will be set by MESSAGE and ASK commands for interaction
+    if (dialogs[id] === undefined) {
+        const dialog = {
+            id: id,
+            x: x,
+            y: y,
+            w: w,
+            h: h,
+            mode: WINDOW_MODE.Normal, // Not sure, but  
+            special: SPECIAL_MODE.None,
+            // specialData: {}, // Example attribute, will be set by additional op codes
+            playerCanClose: true,
+            numbers: {},
+            text: ''
+            // group: new THREE.Group() // Example attribute, 
+            // resolveCallback: {} // Example attribute, will be set by MESSAGE and ASK commands for interaction
+        }
+        console.log('createWindow NEW', dialog)
+        dialogs[id] = dialog
+    } else {
+        dialogs[id].x = x
+        dialogs[id].y = y
+        dialogs[id].w = w
+        dialogs[id].h = h
+        console.log('createWindow UPDATE', dialogs[id])
     }
-    console.log('createWindow', dialog)
-    dialogs[id] = dialog
+
 }
 
 const resetWindow = (id) => {
@@ -50,7 +59,7 @@ const resetWindow = (id) => {
     dialogs[id].y = 5
     dialogs[id].w = 304
     dialogs[id].h = 69
-    dialogs[id].type = WINDOW_MODE.Normal
+    dialogs[id].mode = WINDOW_MODE.Normal
     dialogs[id].special = SPECIAL_MODE.None
     delete dialogs[id].specialData
     dialogs[id].playerCanClose = true
@@ -71,10 +80,13 @@ const resizeWindow = (id, x, y, w, h) => {
     console.log('resizeWindow', id, dialogs[id])
 }
 const setWindowMode = (id, modeId, closabilityId) => {
+    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
+        createWindow(id, 10, 10, 10, 10)
+    }
     switch (modeId) {
-        case 0: dialogs[id].type = WINDOW_MODE.Normal; break
-        case 1: dialogs[id].type = WINDOW_MODE.NoBackgroundBorder; break
-        case 2: dialogs[id].type = WINDOW_MODE.TransparentBackground; break
+        case 0: dialogs[id].mode = WINDOW_MODE.Normal; break
+        case 1: dialogs[id].mode = WINDOW_MODE.NoBackgroundBorder; break
+        case 2: dialogs[id].mode = WINDOW_MODE.TransparentBackground; break
     }
     switch (closabilityId) {
         case 0: dialogs[id].playerCanClose = true; break
@@ -93,6 +105,9 @@ const setWindowTextParam = (windowId, varId, value) => {
 }
 
 const setSpecialMode = (id, specialId, x, y) => {
+    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
+        createWindow(id, 10, 10, 10, 10)
+    }
     switch (specialId) {
         case 0: dialogs[id].special = SPECIAL_MODE.None; break
         case 1: dialogs[id].special = SPECIAL_MODE.Clock; break
@@ -112,6 +127,9 @@ const setSpecialClock = (h, m, s) => {
     console.log('setSpecialClock', h, m, s, displayClock)
 }
 const setSpecialNumber = (id, number, noDigitsToDisplay) => {
+    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
+        createWindow(id, 10, 10, 10, 10)
+    }
     // TODO - Interactivity ?!
     // TODO - Multiple numbers ?!
     dialogs[id].specialData.number = number
@@ -121,19 +139,26 @@ const setSpecialNumber = (id, number, noDigitsToDisplay) => {
 const showMessageWaitForInteraction = async (id, dialogString) => {
 
     return new Promise(async (resolve) => {
-        dialogs[id].resolveCallback = resolve
+        const dialog = dialogs[id]
+        dialog.resolveCallback = resolve
 
-        dialogs[id].text = dialogString
+        dialog.text = dialogString
         if (id === 2) { // Temp for testing
-            dialogs[id].text = 'Do <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
+            dialog.text = 'Do <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
         }
-        console.log('showMessageWaitForInteraction', id, dialogString, dialogs[id])
-        await createDialogBox(dialogs[id])
-        await showWindowWithDialog(dialogs[id])
+        console.log('showMessageWaitForInteraction', id, dialogString, dialog)
+        await createDialogBox(dialog)
+        await showWindowWithDialog(dialog)
+
+        if (!dialog.playerCanClose) {
+            dialog.resolveCallback()
+        }
     })
 
 }
-
+const closeWindow = async (id) => {
+    await closeDialog(dialogs[id])
+}
 
 export {
     clearAllDialogs,
@@ -148,5 +173,8 @@ export {
     setSpecialNumber,
     showMessageWaitForInteraction,
     getDialogs,
-    getTextParams
+    getTextParams,
+    closeWindow,
+    WINDOW_MODE,
+    SPECIAL_MODE
 }

@@ -4,9 +4,9 @@ import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/save
 import { sleep } from '../helpers/helpers.js'
 import { scene } from './field-ortho-scene.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-import { getDialogs, getTextParams } from './field-dialog.js'
+import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-dialog.js'
 
-// Note: Most of this needs refactoring
+// Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
 let EDGE_SIZE = 8
 
@@ -101,6 +101,9 @@ const createDialogBox = async (dialog) => {
     const w = dialog.w
     const h = dialog.h
     const z = 1
+    const isTransparent = dialog.mode === WINDOW_MODE.TransparentBackground
+    const isNoBackgroundBorder = dialog.mode === WINDOW_MODE.NoBackgroundBorder
+    console.log('createDialogBox', dialog, isTransparent, isNoBackgroundBorder)
 
     const dialogBox = new THREE.Group()
     const dialogTextures = getDialogTextures()
@@ -122,30 +125,36 @@ const createDialogBox = async (dialog) => {
     bg.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2), z: z }
     bg.userData.posExpand = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2), z: z }
     bg.position.set(bg.userData.posSmall.x, bg.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { bg.material.opacity = 0; console.log('isNoBackgroundBorder bg', bg) }
+    if (isTransparent) { bg.material.opacity = 0.5 }
     dialogBox.add(bg)
 
     const tl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tl)
     tl.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     tl.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
     tl.position.set(tl.userData.posSmall.x, tl.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { tl.material.opacity = 0 }
     dialogBox.add(tl)
 
     const tr = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tr)
     tr.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     tr.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
     tr.position.set(tr.userData.posSmall.x, tr.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { tr.material.opacity = 0 }
     dialogBox.add(tr)
 
     const bl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.bl)
     bl.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z: z }
     bl.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
     bl.position.set(bl.userData.posSmall.x, bl.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { bl.material.opacity = 0 }
     dialogBox.add(bl)
 
     const br = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.br)
     br.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z }
     br.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
     br.position.set(br.userData.posSmall.x, br.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { br.material.opacity = 0 }
     dialogBox.add(br)
 
     const l = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.l)
@@ -154,6 +163,7 @@ const createDialogBox = async (dialog) => {
     l.userData.posSmall = { x: x + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z: z }
     l.userData.posExpand = { x: x + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z: z }
     l.position.set(l.userData.posSmall.x, l.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { l.material.opacity = 0 }
     dialogBox.add(l)
 
     const r = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.r)
@@ -162,6 +172,7 @@ const createDialogBox = async (dialog) => {
     r.userData.posSmall = { x: x + (w / 2) + (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z }
     r.userData.posExpand = { x: x + (EDGE_SIZE / 2) + w - EDGE_SIZE, y: window.config.sizing.height - y - (EDGE_SIZE / 2) - (h / 2) + (EDGE_SIZE / 2), z }
     r.position.set(r.userData.posSmall.x, r.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { r.material.opacity = 0 }
     dialogBox.add(r)
 
     const t = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.t)
@@ -170,6 +181,7 @@ const createDialogBox = async (dialog) => {
     t.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2) + (EDGE_SIZE / 2), z: z }
     t.userData.posExpand = { x: x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2), z: z }
     t.position.set(t.userData.posSmall.x, t.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { t.material.opacity = 0 }
     dialogBox.add(t)
 
     const b = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.b)
@@ -178,6 +190,7 @@ const createDialogBox = async (dialog) => {
     b.userData.posSmall = { x: x + (w / 2), y: window.config.sizing.height - y - (h / 2) - (EDGE_SIZE / 2), z: z }
     b.userData.posExpand = { x: x + (EDGE_SIZE / 2) + (w / 2) - (EDGE_SIZE / 2), y: window.config.sizing.height - y - (EDGE_SIZE / 2) - h + EDGE_SIZE, z: z }
     b.position.set(b.userData.posSmall.x, b.userData.posSmall.y, z)
+    if (isNoBackgroundBorder) { b.material.opacity = 0 }
     dialogBox.add(b)
 
     // All this metadata isn't nice, but would like to keep to createWindow and showWindowWithDialog methods
@@ -462,6 +475,30 @@ const navigateChoice = (navigateDown) => {
         }
     }
 }
+const closeDialog = async (dialog) => {
+    const dialogBox = dialog.group
+    for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
+
+        dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
+        dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
+        const clippingPlanes = createClippingPlanes(
+            dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
+            dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
+
+        dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
+        for (let i = 0; i < dialogBox.children.length; i++) {
+            if (dialogBox.children[i].userData.isText || dialogBox.children[i].userData.isPointer) {
+                dialogBox.children[i].material.clippingPlanes = clippingPlanes
+            }
+        }
+        await sleep(DIALOG_APPEAR_SPEED)
+    }
+    dialogBox.userData.state = 'closed'
+    scene.remove(dialogBox)
+    dialog.resolveCallback()
+    console.log('dialog', dialog)
+    console.log('dialogs', getDialogs())
+}
 const nextPageOrCloseActiveDialog = async (dialog) => {
     const dialogBox = dialog.group
     console.log('closeActiveDialog', dialog, dialogBox, dialogBox.userData.state)
@@ -476,27 +513,7 @@ const nextPageOrCloseActiveDialog = async (dialog) => {
         console.log('Trigger next page', dialogBox.userData)
         await showDialogPageText(dialogBox)
     } else if (dialogBox.userData.state === 'done' || dialogBox.userData.state === 'choice') {
-        for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
-
-            dialogBox.userData.posAdjustList.map(mesh => adjustDialogExpandPos(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.z))
-            dialogBox.userData.sizeAdjustList.map(mesh => adjustDialogExpandSize(mesh, step, DIALOG_APPEAR_STEP_TOTAL, dialogBox.userData.bgGeo))
-            const clippingPlanes = createClippingPlanes(
-                dialogBox.userData.w, dialogBox.userData.h, dialogBox.userData.z,
-                dialogBox.userData.sizeAdjustList[0], dialogBox.userData.sizeAdjustList[1], dialogBox.userData.sizeAdjustList[2], dialogBox.userData.sizeAdjustList[3])
-
-            dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
-            for (let i = 0; i < dialogBox.children.length; i++) {
-                if (dialogBox.children[i].userData.isText || dialogBox.children[i].userData.isPointer) {
-                    dialogBox.children[i].material.clippingPlanes = clippingPlanes
-                }
-            }
-            await sleep(DIALOG_APPEAR_SPEED)
-        }
-        dialogBox.userData.state = 'closed'
-        scene.remove(dialogBox)
-        dialog.resolveCallback()
-        console.log('dialog', dialog)
-        console.log('dialogs', getDialogs())
+        await closeDialog(dialog)
     }
 
 }
@@ -516,5 +533,6 @@ export {
     createDialogBox,
     showWindowWithDialog,
     nextPageOrCloseActiveDialogs,
-    navigateChoice
+    navigateChoice,
+    closeDialog
 }
