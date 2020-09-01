@@ -6,6 +6,7 @@ import {
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
+import { setMenuEnabled } from './field-module.js'
 
 
 const WINDOW = async (op) => {
@@ -133,11 +134,19 @@ const WCLS = async (op) => {
     await closeWindow(op.w)
     return {}
 }
+const MENU2 = async (op) => {
+    console.log('MENU2', op)
+    setMenuEnabled(op.s === 0)
+    // console.log('window.currentField.menuEnabled', window.currentField.menuEnabled)
+    return {}
+}
 
 setTimeout(async () => {
     // await SOUND({ i: 1, d: 64 })
 
-
+    // await MENU2({ s: 1 })
+    // await sleep(3000)
+    // await MENU2({ s: 0 })
     // await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
     // await WMODE({ w: 1, m: 2, p: 1 })
     // await MESSAGE({ n: 1, d: 30 })
@@ -213,6 +222,7 @@ export {
     MPRA2,
     MPNAM,
     ASK,
+    MENU2,
     WINDOW,
     WMOVE,
     WMODE,

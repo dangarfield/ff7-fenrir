@@ -540,6 +540,9 @@ const positionPlayableCharacterFromTransition = () => {
     }
 }
 
+const setMenuEnabled = (enabled) => { window.currentField.menuEnabled = enabled }
+const isMenuEnabled = () => { return window.currentField.menuEnabled }
+
 const loadField = async (fieldName, playableCharacterInitData) => {
 
 
@@ -566,7 +569,8 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         cameraTarget: undefined,
         fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData,
-        media: undefined
+        media: undefined,
+        menuEnabled: true
     }
     showLoadingScreen()
     resetTempBank()
@@ -606,5 +610,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
 
 export {
     loadField,
-    updateFieldMovement
+    updateFieldMovement,
+    setMenuEnabled,
+    isMenuEnabled
 }

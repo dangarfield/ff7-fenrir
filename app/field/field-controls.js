@@ -2,6 +2,7 @@ import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
+import { isMenuEnabled } from './field-module.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
@@ -39,7 +40,8 @@ const initFieldKeypressActions = () => {
 
 
     getKeyPressEmitter().on('triangle', async (firstPress) => {
-        if (firstPress && !isActionInProgress()) { // Also need to check is menu is disabled
+        console.log('triangle', window.currentField.menuEnabled)
+        if (firstPress && !isActionInProgress() && isMenuEnabled()) { // Also need to check is menu is disabled
             // Toggle position helper visibility
             console.log('triangle', isActionInProgress())
             loadMenu()
