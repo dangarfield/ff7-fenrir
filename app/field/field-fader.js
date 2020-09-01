@@ -1,24 +1,22 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import TWEEN from '../../assets/tween.esm.js'
 import { sleep } from '../helpers/helpers.js'
+import { scene as orthoFrontScene } from './field-ortho-scene.js'
 
 let fadeInProgress = false
 const isFadeInProgress = () => { return fadeInProgress }
 const setFadeInProgress = (progress) => { fadeInProgress = progress }
 
 const drawFader = async () => {
-    // Should probably move this to the ortho scene now that there is one
-    let geometry = new THREE.PlaneBufferGeometry(0.1, 0.1, 0.1)
+    let geometry = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
     let material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
     let fieldFader = new THREE.Mesh(geometry, material)
-    let faderPos = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, 0.008)
 
     fieldFader.doubleSided = true
-    fieldFader.position.set(faderPos.x, faderPos.y, faderPos.z)
-    fieldFader.lookAt(window.currentField.fieldCamera.position)
+    fieldFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 1000)
 
     window.currentField.fieldFader = fieldFader
-    window.currentField.fieldScene.add(fieldFader)
+    orthoFrontScene.add(fieldFader)
 }
 
 const tweenOpacity = (from, to, frames) => {

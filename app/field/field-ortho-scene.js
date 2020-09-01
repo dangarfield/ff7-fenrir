@@ -13,8 +13,8 @@ const setupOrthoCamera = async () => {
         window.config.sizing.width,
         window.config.sizing.height,
         0,
-        0, 1000)
-    camera.position.z = 1000
+        0, 1001)
+    camera.position.z = 1001
 
     // const textGeo = new THREE.TextGeometry('ORTHO TEST', {
     //     font: font,
