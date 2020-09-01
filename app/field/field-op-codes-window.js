@@ -3,6 +3,7 @@ import {
     setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow,
     setDialogColor
 } from './field-dialog.js'
+import { fadeOutAndloadMenu } from './field-actions.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
@@ -134,6 +135,12 @@ const WCLS = async (op) => {
     await closeWindow(op.w)
     return {}
 }
+const MENU = async (op) => {
+    console.log('MENU', op)
+    const param = op.b == 0 ? op.p : getBankData(op.b, op.p)
+    fadeOutAndloadMenu(op.t, param)
+    return {}
+}
 const MENU2 = async (op) => {
     console.log('MENU2', op)
     setMenuEnabled(op.s === 0)
@@ -142,7 +149,8 @@ const MENU2 = async (op) => {
 }
 
 setTimeout(async () => {
-    // await SOUND({ i: 1, d: 64 })
+    await SOUND({ i: 1, d: 64 })
+    await MENU({ t: 9, b: 0, p: 1 })
 
     // await MENU2({ s: 1 })
     // await sleep(3000)
@@ -222,6 +230,7 @@ export {
     MPRA2,
     MPNAM,
     ASK,
+    MENU,
     MENU2,
     WINDOW,
     WMOVE,

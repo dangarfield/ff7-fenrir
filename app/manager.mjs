@@ -6,7 +6,7 @@ import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadSaveMap } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
-
+import { initMenuModule } from './menu/menu-module.js'
 
 
 
@@ -21,6 +21,7 @@ const initManager = async () => {
     await initLoadingModule()
     showLoadingScreen()
     setupInputs()
+    initMenuModule()
     await loadKernelData()
     await loadWindowTextures()
     setDefaultMediaConfig()

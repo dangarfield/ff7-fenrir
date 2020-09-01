@@ -1,6 +1,7 @@
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
-
+import { startFieldRenderLoop } from './field-scene.js'
+import { loadMenu } from '../menu/menu-module.js'
 let actionInProgress = false
 
 const isActionInProgress = () => {
@@ -101,14 +102,15 @@ const initiateTalk = async (i, fieldModel) => {
 const setPlayableCharacterMovability = (canMove) => {
     window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove
 }
-const loadMenu = async () => {
+const fadeOutAndloadMenu = async (menuType, menuParam) => {
     setActionInProgress('menu')
     window.anim.clock.stop()
     setPlayableCharacterMovability(false)
     await fadeOut()
-    // TODO - LoadMenuModule
+    loadMenu(menuType, menuParam)
 }
 const unfreezeFieldFromClosedMenu = async () => {
+    startFieldRenderLoop()
     clearActionInProgress()
     window.anim.clock.start()
     setPlayableCharacterMovability(true)
@@ -133,6 +135,6 @@ export {
     isActionInProgress,
     setActionInProgress,
     clearActionInProgress,
-    loadMenu,
+    fadeOutAndloadMenu,
     unfreezeFieldFromClosedMenu
 }

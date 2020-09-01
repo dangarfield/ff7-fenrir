@@ -1,13 +1,18 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
-import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
+import {
+    setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress,
+    clearActionInProgress, fadeOutAndloadMenu, unfreezeFieldFromClosedMenu
+} from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
+import { MENU_TYPE } from '../menu/menu-module.js'
 
+const areFieldControlsActive = () => { return window.anim.activeScene === 'field' }
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {
 
-        if (firstPress) {
+        if (areFieldControlsActive() && firstPress) {
             nextPageOrCloseActiveDialogs()
         }
 
@@ -31,7 +36,7 @@ const initFieldKeypressActions = () => {
         // }
     })
     getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
-        if (firstPress && isActionInProgress() === 'talk') {
+        if (areFieldControlsActive && firstPress && isActionInProgress() === 'talk') {
             console.log('r1', isActionInProgress())
             clearActionInProgress()
             setPlayableCharacterMovability(true)
@@ -40,15 +45,14 @@ const initFieldKeypressActions = () => {
 
 
     getKeyPressEmitter().on('triangle', async (firstPress) => {
-        console.log('triangle', window.currentField.menuEnabled)
-        if (firstPress && !isActionInProgress() && isMenuEnabled()) { // Also need to check is menu is disabled
+        if (areFieldControlsActive && firstPress && !isActionInProgress() && isMenuEnabled()) { // Also need to check is menu is disabled
             // Toggle position helper visibility
             console.log('triangle', isActionInProgress())
-            loadMenu()
+            fadeOutAndloadMenu(MENU_TYPE.MainMenu, 1)
         }
     })
     getKeyPressEmitter().on('r2', async (firstPress) => { // Just for debugging purposes to get 'back' from the menu
-        if (firstPress && isActionInProgress() === 'menu') {
+        if (areFieldControlsActive && firstPress && isActionInProgress() === 'menu') {
             // Toggle position helper visibility
             console.log('r2', isActionInProgress())
             unfreezeFieldFromClosedMenu()
@@ -57,31 +61,31 @@ const initFieldKeypressActions = () => {
 
 
     getKeyPressEmitter().on('select', (firstPress) => {
-        if (firstPress) {
+        if (areFieldControlsActive && firstPress) {
             // Toggle position helper visibility
             togglePositionHelperVisility()
         }
     })
 
     getKeyPressEmitter().on('l1', async (firstPress) => {
-        if (firstPress) {
+        if (areFieldControlsActive && firstPress) {
 
         }
     })
     getKeyPressEmitter().on('l2', async (firstPress) => {
-        if (firstPress) {
+        if (areFieldControlsActive && firstPress) {
             await nextPageOrCloseActiveDialogs()
         }
     })
 
     getKeyPressEmitter().on('up', (firstPress) => {
-        if (isChoiceActive) {
+        if (areFieldControlsActive && isChoiceActive) {
             console.log('navigate choice UP')
             navigateChoice(false)
         }
     })
     getKeyPressEmitter().on('down', (firstPress) => {
-        if (isChoiceActive) {
+        if (areFieldControlsActive && isChoiceActive) {
             console.log('navigate choice DOWN')
             navigateChoice(true)
         }
