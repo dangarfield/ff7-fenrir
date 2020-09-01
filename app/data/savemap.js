@@ -76,7 +76,7 @@ const setValueToBank = (bank, type, index, newValue) => {
         var bit2 = newValue & 0xff
         bank[(index * 2) + 1] = bit2
         bank[(index * 2) + 0] = bit1
-        console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
+        // console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
     }
 }
 const getBankData = (bankRef, index) => {
@@ -85,7 +85,7 @@ const getBankData = (bankRef, index) => {
     return getValueFromBank(bankData.bank, bankData.bytes, index)
 }
 const setBankData = (bankRef, index, value) => {
-    console.log('setBankData', bankRef, index, window.data.savemap)
+    // console.log('setBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
     setValueToBank(bankData.bank, bankData.bytes, index, value)
 }

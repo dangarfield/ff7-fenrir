@@ -1,8 +1,11 @@
-import { createDialogBox, showWindowWithDialog, closeDialog, updateSpecialNumber } from './field-dialog-helper.js'
+import {
+    createDialogBox, showWindowWithDialog, closeDialog, updateSpecialNumber,
+    updateCountdownDisplays
+} from './field-dialog-helper.js'
+import { setCurrentCountdownClockTime, decrementCountdownClock } from '../data/savemap-alias.js'
 
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
-let displayClock = { h: 0, m: 0, s: 0 }
 
 const WINDOW_MODE = {
     Normal: 'Normal',
@@ -117,14 +120,17 @@ const setSpecialMode = (id, specialId, x, y) => {
     console.log('setSpecialMode', id, specialId, dialogs[id])
 }
 const setSpecialClock = (h, m, s) => {
-    // Not entirely sure how this works, need to investigate and come back later.
-    // Think about pausing, menu, fields changes, battles etc
-    // TODO - Stop clock interval
-    displayClock.h = h
-    displayClock.m = m
-    displayClock.s = s
-    // TODO - Begin clock countdown
-    console.log('setSpecialClock', h, m, s, displayClock)
+    setCurrentCountdownClockTime(h, m, s)
+    console.log('setSpecialClock', h, m, s)
+}
+const decrementCountdownClockAndUpdateDisplay = () => {
+    // console.log('decrementCountdownClockAndUpdateDisplay')
+    const activeCountdown = decrementCountdownClock()
+    // console.log('decrementCountdownClockAndUpdateDisplay', activeCountdown)
+    if (activeCountdown) {
+        // console.log('decrementCountdownClockAndUpdateDisplay updateCountdownDisplays')
+        updateCountdownDisplays()
+    }
 }
 const setSpecialNumber = (id, number, noDigitsToDisplay) => {
     if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
@@ -176,6 +182,7 @@ export {
     getDialogs,
     getTextParams,
     closeWindow,
+    decrementCountdownClockAndUpdateDisplay,
     WINDOW_MODE,
     SPECIAL_MODE
 }

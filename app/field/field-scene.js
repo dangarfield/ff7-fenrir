@@ -1,8 +1,6 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-
-import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/dat.gui.module.js';
-
-import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
+import * as THREE from '../../assets/threejs-r118/three.module.js'
+import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js'
+import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js'
 import TWEEN from '../../assets/tween.esm.js'
 
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
@@ -11,6 +9,7 @@ import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
+import { decrementCountdownClockAndUpdateDisplay } from './field-dialog.js'
 
 
 // Uses global states:
@@ -18,7 +17,27 @@ import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-or
 // let anim = window.anim
 // let config = window.config
 
-
+let deltaTotal = 0
+let deltaSecond = 0
+const executeOnceASecond = () => {
+    decrementCountdownClockAndUpdateDisplay() // Should this be here, as it has to span battle field also?
+    // incrementGameTimeClock() // Should this be here
+}
+const updateOnceASecond = (delta) => {
+    deltaTotal += delta
+    const deltaSecondTemp = parseInt(deltaTotal)
+    // console.log('updateOnceASecond', delta, deltaTotal, deltaSecond, deltaSecondTemp)
+    if (deltaSecond !== deltaSecondTemp) {
+        deltaSecond = deltaSecondTemp
+        // console.log('updateOnceASecond SECOND', deltaSecond)
+        executeOnceASecond()
+    }
+    if (deltaSecond > 10000000) {
+        deltaTotal = 0
+        deltaSecond = 0
+        // console.log('updateOnceASecond RESET TO ZERO', delta, deltaTotal, deltaSecond)
+    }
+}
 const renderLoop = function () {
     // console.log('renderLoop frame')
     if (window.anim.activeScene !== 'field') {
@@ -39,6 +58,7 @@ const renderLoop = function () {
     TWEEN.update()
     updateFieldMovement(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
+    updateOnceASecond(delta)
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
         // console.log('render')
         let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera

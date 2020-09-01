@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import { setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress, clearActionInProgress, loadMenu, unfreezeFieldFromClosedMenu } from './field-actions.js'
-import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive, isNumericChoiceActive } from './field-dialog-helper.js'
+import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 
 const initFieldKeypressActions = () => {
     getKeyPressEmitter().on('o', (firstPress) => {

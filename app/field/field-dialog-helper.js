@@ -5,20 +5,23 @@ import { sleep } from '../helpers/helpers.js'
 import { scene } from './field-ortho-scene.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-dialog.js'
+import { getCurrentCountdownClockTime } from '../data/savemap-alias.js'
 
 // Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
 /* TODO:
  DONE - Swap character names to use savemap
  DONE - Implement the ASK op code
- - Implement clock
- - Implement clock interaction
+ DONE - Implement clock
+ DONE - Implement clock interaction
  DONE - Implement numeric special
  DONE - Implement numeric special interaction
  - Implement FLASH and RAINBOW text animation effects
  - Add tweens to use threejs clock rather than sleep
  - Implement {PAUSE} if that is a thing?!
  - There was some sort of scroll mentioned somewhere too if the text didn't fit...
+ - Window positions don't look exactly right
+ - Loading fade screen goes on top of everything
 */
 
 let isChoiceActive = false
@@ -260,20 +263,93 @@ const replaceVariables = (text, id) => {
     }
     return text
 }
+
+const createClockBackgroundMesh = (w, h) => {
+    const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true })
+    return new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(w, h),
+        bgMaterial)
+}
+
+const updateCountdownDisplays = () => {
+    const dialogs = getDialogs()
+    for (let i = 0; i < dialogs.length; i++) {
+        if (dialogs[i] !== null && dialogs[i] !== undefined && dialogs[i].group !== null && dialogs[i].group !== undefined) {
+            const dialog = dialogs[i]
+            if (dialog.special === SPECIAL_MODE.Clock) {
+                updateCountdownDisplay(dialog)
+                break
+            }
+        }
+
+    }
+}
+const updateCountdownDisplay = async (dialog) => {
+    if (dialog.special === SPECIAL_MODE.Clock && dialog.group !== null && dialog.group !== undefined) {
+        // console.log('updateCountdownDisplay', dialog)
+
+        // Remove existing meshes
+        for (let i = 0; i < dialog.group.children.length; i++) {
+            const mesh = dialog.group.children[i]
+            if (mesh.userData.special === 'clock') {
+                dialog.group.remove(mesh)
+                // console.log('remove clock', mesh)
+            }
+        }
+        // Ensure correct number padding & times
+        const clockTime = getCurrentCountdownClockTime()
+        const m = `${(clockTime.h * 60) + clockTime.m}`.padStart(2, '0')
+        const s = `${clockTime.s}`.padStart(2, '0')
+        const timeArray = `${m}:${s}`.split('')
+        // console.log('clockTime', clockTime, timeArray)
+
+
+
+        // Display clock
+        let xCumulative = dialog.x + 11 + dialog.specialData.x
+        for (let i = 0; i < timeArray.length; i++) {
+            let value = timeArray[i]
+            if (value === ':') {
+                if (clockTime.s % 2 == 0) {
+                    value = 'colon on'
+                } else {
+                    value = 'colon off'
+                }
+            }
+
+            const clockAsset = getFieldDialogNumber(value)
+            // console.log('clockAsset', clockAsset)
+            const clockMesh = createTextureMesh(clockAsset.w, clockAsset.h, clockAsset.texture)
+            const clockBgMesh = createClockBackgroundMesh(clockAsset.w, clockAsset.h)
+            // console.log('clockMesh', clockMesh)
+
+            const x = xCumulative + (clockAsset.w / 2)
+            xCumulative += clockAsset.w
+            const y = window.config.sizing.height - dialog.y - 14 - dialog.specialData.y
+
+            clockBgMesh.position.set(x, y, 1)
+            clockBgMesh.userData.special = 'clock'
+            dialog.group.add(clockBgMesh)
+
+            clockMesh.position.set(x, y, 1.001)
+            clockMesh.userData.special = 'clock'
+            dialog.group.add(clockMesh)
+        }
+
+    }
+}
 const updateSpecialNumber = async (dialog) => {
     if (dialog.special === SPECIAL_MODE.Numeric && dialog.group !== null && dialog.group !== undefined) {
         console.log('updateSpecialNumber', dialog)
 
-        // TODO - remove all existing numberMesh.userData.special = 'numeric'
+        // Remove existing meshes
         for (let i = 0; i < dialog.group.children.length; i++) {
             const mesh = dialog.group.children[i]
             if (mesh.userData.special === 'numeric') {
                 dialog.group.remove(mesh)
-                console.log('remove numeric', mesh)
+                // console.log('remove numeric', mesh)
             }
         }
-
-        // TODO - border ?
 
         // Ensure correct number padding
         const numbers = `${dialog.specialData.number}`.split('')
@@ -284,19 +360,23 @@ const updateSpecialNumber = async (dialog) => {
         console.log('numbers', numbers)
         for (let i = 0; i < numbers.length; i++) {
             const number = numbers[i]
-            const numberAsset = Object.assign({}, getFieldDialogNumber(number))
+            const numberAsset = getFieldDialogNumber(number)
             console.log('numberAsset', numberAsset)
             const numberMesh = createTextureMesh(numberAsset.w, numberAsset.h, numberAsset.texture)
-            // console.log('numberMesh', numberMesh)
-            numberMesh.position.set(
-                dialog.x + 11 + dialog.specialData.x + (i * numberAsset.w),
-                window.config.sizing.height - dialog.y - 14 - dialog.specialData.y,
-                1)
+            const numberBgMesh = createClockBackgroundMesh(clockAsset.w, clockAsset.h)
+
+            const x = dialog.x + 11 + dialog.specialData.x + (i * numberAsset.w)
+            const y = window.config.sizing.height - dialog.y - 14 - dialog.specialData.y
+
+            numberBgMesh.position.set(x, y, 1)
+            numberBgMesh.userData.special = 'numeric'
+            dialog.group.add(numberBgMesh)
+
+            numberMesh.position.set(x, y, 1.001)
             numberMesh.userData.special = 'numeric'
             dialog.group.add(numberMesh)
         }
     }
-
 }
 const showDialogPageText = async (dialogBox, showChoicePointers) => {
     dialogBox.userData.state = 'writing-text'
@@ -489,6 +569,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
     dialogBox.userData.currentPage = 0
     // console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
 
+    await updateCountdownDisplay(dialog)
     await updateSpecialNumber(dialog)
 
     // Show page / multiple Pages
@@ -605,5 +686,6 @@ export {
     navigateChoice,
     closeDialog,
     updateSpecialNumber,
-    isChoiceActive
+    isChoiceActive,
+    updateCountdownDisplays
 }
