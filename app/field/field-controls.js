@@ -2,7 +2,7 @@ import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
     setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress,
-    clearActionInProgress, fadeOutAndloadMenu, unfreezeFieldFromClosedMenu
+    clearActionInProgress, fadeOutAndLoadMenu, unfreezeField
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -48,14 +48,14 @@ const initFieldKeypressActions = () => {
         if (areFieldControlsActive && firstPress && !isActionInProgress() && isMenuEnabled()) { // Also need to check is menu is disabled
             // Toggle position helper visibility
             console.log('triangle', isActionInProgress())
-            fadeOutAndloadMenu(MENU_TYPE.MainMenu, 1)
+            fadeOutAndLoadMenu(MENU_TYPE.MainMenu, 1)
         }
     })
     getKeyPressEmitter().on('r2', async (firstPress) => { // Just for debugging purposes to get 'back' from the menu
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'menu') {
             // Toggle position helper visibility
             console.log('r2', isActionInProgress())
-            unfreezeFieldFromClosedMenu()
+            unfreezeField()
         }
     })
 

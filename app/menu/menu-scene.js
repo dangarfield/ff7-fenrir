@@ -33,17 +33,6 @@ const renderLoop = function () {
     }
     requestAnimationFrame(renderLoop)
 
-    // const opacity = text.material.opacity // Fade in and out quickly
-    // if (progress < 0.9) {
-    //     text.material.opacity = opacity > 1 ? 1 : opacity + 0.05
-    //     bar.material.opacity = opacity > 1 ? 1 : opacity + 0.05
-    // } else {
-    //     text.material.opacity = opacity < 0 ? 0 : opacity - 0.05
-    //     bar.material.opacity = opacity < 0 ? 0 : opacity - 0.05
-    // }
-
-
-
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, camera)
     window.anim.renderer.clearDepth()

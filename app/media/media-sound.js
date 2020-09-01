@@ -14,6 +14,7 @@ const preloadCommonSounds = () => {
     loadSound(4)
     loadSound(5)
     loadSound(6)
+    loadSound(43)
 }
 const getSoundUrl = (id) => {
     return `${KUJATA_BASE}/media/sounds/${id}.ogg`

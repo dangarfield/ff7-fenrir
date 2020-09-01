@@ -7,6 +7,8 @@ import { initLoadingModule, showLoadingScreen } from './loading/loading-module.j
 import { loadSaveMap } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
 import { initMenuModule } from './menu/menu-module.js'
+import { initBattleModule } from './battle/battle-module.js'
+import { initBattleSwirlModule } from './battle-swirl/battle-swirl-module.js'
 
 
 
@@ -22,6 +24,8 @@ const initManager = async () => {
     showLoadingScreen()
     setupInputs()
     initMenuModule()
+    initBattleSwirlModule()
+    initBattleModule()
     await loadKernelData()
     await loadWindowTextures()
     setDefaultMediaConfig()

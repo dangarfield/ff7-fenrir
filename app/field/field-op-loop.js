@@ -51,6 +51,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'IFMEMBQ': restul = await flow.IFMEMBQ(ops, op); break
 
         // System and Module Control
+        case 'BATTLE': result = assign.BATTLE(op); break
 
         // Assignment and Mathematics
         case 'PLUS!': result = assign.PLUS_(op); break

@@ -2,6 +2,8 @@ import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
 import { loadMenu } from '../menu/menu-module.js'
+import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
+
 let actionInProgress = false
 
 const isActionInProgress = () => {
@@ -102,14 +104,14 @@ const initiateTalk = async (i, fieldModel) => {
 const setPlayableCharacterMovability = (canMove) => {
     window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove
 }
-const fadeOutAndloadMenu = async (menuType, menuParam) => {
+const fadeOutAndLoadMenu = async (menuType, menuParam) => {
     setActionInProgress('menu')
     window.anim.clock.stop()
     setPlayableCharacterMovability(false)
     await fadeOut()
     loadMenu(menuType, menuParam)
 }
-const unfreezeFieldFromClosedMenu = async () => {
+const unfreezeField = async () => {
     startFieldRenderLoop()
     clearActionInProgress()
     window.anim.clock.start()
@@ -126,6 +128,13 @@ const gatewayTriggered = async (i) => {
     const playableCharacterInitData = { position: gateway.destinationVertex, direction: 100 }
     loadField(gateway.fieldName, playableCharacterInitData)
 }
+const triggerBattleWithSwirl = (battleId) => {
+    setActionInProgress('battle')
+    window.anim.clock.stop()
+    setPlayableCharacterMovability(false)
+    const options = { things: 'more-things' } // get options from currentField / somewhere
+    loadBattleWithSwirl(battleId, options)
+}
 export {
     gatewayTriggered,
     triggerTriggered,
@@ -135,6 +144,7 @@ export {
     isActionInProgress,
     setActionInProgress,
     clearActionInProgress,
-    fadeOutAndloadMenu,
-    unfreezeFieldFromClosedMenu
+    fadeOutAndLoadMenu,
+    unfreezeField,
+    triggerBattleWithSwirl
 }

@@ -130,7 +130,7 @@ const setupFieldCamera = () => {
     let baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951
     window.currentField.fieldScene = new THREE.Scene()
     // window.currentField.fieldScene.background = new THREE.Color(0x000000)
-    window.currentField.fieldCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000); // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
+    window.currentField.fieldCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000) // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
     window.anim.clock = new THREE.Clock();
 
     let camAxisXx = ffCamera.xAxis.x / 4096.0
