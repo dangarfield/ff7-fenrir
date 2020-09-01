@@ -112,6 +112,8 @@ setTimeout(async () => {
     await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
     await MESSAGE({ n: 1, d: 30 })
     console.log('WINDOW ENDED 1')
+    // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
+    // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
     await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
     // await WMODE({ w: 2, m: 0, p: 1 })
     await MESSAGE({ n: 2, d: 30 })

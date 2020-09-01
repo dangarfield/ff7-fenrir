@@ -4,7 +4,7 @@ import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/save
 import { sleep } from '../helpers/helpers.js'
 import { scene } from './field-ortho-scene.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-import { getDialogs } from './field-dialog.js'
+import { getDialogs, getTextParams } from './field-dialog.js'
 
 // Note: Most of this needs refactoring
 
@@ -218,6 +218,18 @@ const replaceButtonImages = (text) => {
     }
     return text
 }
+const replaceVariables = (text, id) => {
+    let params = getTextParams()[id]
+    if (params !== undefined) {
+        console.log('replaceVariables', text, params)
+        for (let i = 0; i < params.length; i++) {
+            const param = params[i]
+            // param[0] replaces first instance of {MEM1}, param[1] replaces the second instance etc
+            text = text.replace('<fe>{MEM1}', param)
+        }
+    }
+    return text
+}
 const showDialogPageText = async (dialogBox) => {
     dialogBox.userData.state = 'writing-text'
 
@@ -305,13 +317,14 @@ const showWindowWithDialog = async (dialog) => {
     text = text.replace(/\t/, '    ')
     text = replaceCharacterNames(text)
     text = replaceButtonImages(text)
+    text = replaceVariables(text, dialog.id)
     // Done - Basic Colours, eg <fe>{PURPLE}
     // TODO - Colour animations, eg <fe>{FLASH}, <fe>{RAINBOW}
     // Done - Buttons, eg [CANCEL], no direction button image?!
     // Done - Choices, eg {CHOICE}
     // TODO - Pauses, eg {PAUSE} - Not sure, but these might be pages?!
     // Done - Pages, eg {PAGE}
-    // TODO - Text Variables, eg <fe>{MEM1}
+    // Done - Text Variables, eg <fe>{MEM1}
 
     // console.log('Configured text', text)
     let pagesText = text.split('{PAUSE}')
