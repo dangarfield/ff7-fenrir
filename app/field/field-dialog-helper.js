@@ -21,7 +21,7 @@ import { getCurrentCountdownClockTime } from '../data/savemap-alias.js'
  - Implement {PAUSE} if that is a thing?!
  - There was some sort of scroll mentioned somewhere too if the text didn't fit...
  - Window positions don't look exactly right
- - Loading fade screen goes on top of everything
+ DONE - Loading fade screen goes on top of everything
 */
 
 let isChoiceActive = false
