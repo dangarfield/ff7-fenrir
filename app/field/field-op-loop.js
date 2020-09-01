@@ -100,6 +100,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Windowing and Menu
 
+        case 'WCLS': result = windowMenu.WCLS(op); break
         case 'WSIZW': result = windowMenu.WSIZW(op); break
         case 'WSPCL': result = windowMenu.WSPCL(op); break
         case 'WNUMB': result = windowMenu.WNUMB(op); break
@@ -112,6 +113,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'WMOVE': result = windowMenu.WMOVE(op); break
         case 'WMODE': result = windowMenu.WMODE(op); break
         case 'WREST': result = windowMenu.WREST(op); break
+        case 'WCLSE': result = windowMenu.WCLSE(op); break
         case 'WROW': result = windowMenu.WROW(op); break
         case 'GWCOL': result = windowMenu.GWCOL(op); break
 

@@ -154,6 +154,7 @@ setTimeout(async () => {
 }, 10000)
 
 export {
+    WCLS,
     WSIZW,
     WSPCL,
     WNUMB,
@@ -166,6 +167,7 @@ export {
     WMOVE,
     WMODE,
     WREST,
+    WCLSE,
     WROW,
     GWCOL
 }
