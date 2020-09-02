@@ -2,6 +2,7 @@ import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
 import { getMovieMetadata } from '../data/media-fetch-data.js'
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
 import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
+import { getCurrentDisc } from '../data/savemap-alias.js'
 
 let movieMetadata
 let movies = []
@@ -22,7 +23,9 @@ const loadMovieMetadata = async () => {
     }
 }
 const getMovieName = (i) => {
-    return movieMetadata.disc1[i]
+    const disc = getCurrentDisc()
+    console.log('getMovieName', `disc${disc}`, i, movieMetadata, movieMetadata[`disc${disc}`], movieMetadata[`disc${disc}`][i])
+    return movieMetadata[`disc${disc}`][i]
 }
 const loadMovie = (i) => {
     // Should really add a download progress loader
@@ -49,8 +52,9 @@ const setNextMovie = async (i) => {
     // For now, just assume everything is disc 1 and I'll fix later
     // Update - Save memory Bank D/E has 0x0EA4, 1 byte - Which game-play Disc is needed, could be used
 
-    console.log('setNextMovie', movieMetadata, movieMetadata.disc1, i)
+
     nextMovie.name = getMovieName(i)
+    console.log('setNextMovie', movieMetadata, i, nextMovie.name)
     nextMovie.cameraData = await getCameraData(nextMovie.name)
     nextMovie.frame = 0
     nextMovie.video = movies.filter(v => v.name === nextMovie.name)[0].video

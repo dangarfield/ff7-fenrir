@@ -457,7 +457,7 @@ const CMUSC = async (op) => {
 
 const PMVIE = async (op) => {
     console.log('PMVIE', op)
-    setNextMovie(op.m)
+    await setNextMovie(op.m)
     return {}
 }
 const MOVIE = async (op) => {
@@ -479,7 +479,7 @@ const MVIEF = async (op) => {
 //     await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
 //     // await sleep(1000)
 //     await PMVIE({ m: 53 })
-//     await MOVIE()
+//     await MOVIE({})
 //     // console.log('MOVIE ENDED')
 // }, 10000)
 

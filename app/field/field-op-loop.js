@@ -51,6 +51,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'IFMEMBQ': restul = await flow.IFMEMBQ(ops, op); break
 
         // System and Module Control
+        case 'DSKCG': result = await control.DSKCG(op); break
         case 'BTMD2': result = await control.BTMD2(op); break
         case 'BTRLD': result = await control.BTRLD(op); break
         case 'BTLTB': result = await control.BTLTB(op); break

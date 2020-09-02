@@ -46,11 +46,23 @@ const decrementCountdownClock = () => {
     // console.log('decrementCountdownClock NEW', h, m, s, activeCountdown)
     return activeCountdown
 }
-
+const getCurrentDisc = () => {
+    let disc = getBankData(13, 0)
+    if (disc === 0) {
+        setBankData(13, 0, 1)
+        disc = getBankData(13, 0)
+    }
+    return disc
+}
+const setCurrentDisc = (disc) => {
+    setBankData(13, 0, disc)
+}
 export {
     areFieldPointersActive,
     setFieldPointersActive,
     getCurrentCountdownClockTime,
     setCurrentCountdownClockTime,
-    decrementCountdownClock
+    decrementCountdownClock,
+    getCurrentDisc,
+    setCurrentDisc
 }

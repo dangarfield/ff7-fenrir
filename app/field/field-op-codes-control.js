@@ -1,5 +1,6 @@
 import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
+import { setCurrentDisc } from '../data/savemap-alias.js'
 import {
     setRandomEncountersEnabled, setBattleOptions, getLastBattleResult,
     setBattleEncounterTableIndex
@@ -94,20 +95,26 @@ const GAMEOVER = async (op) => {
     await fadeOutAndLoadMenu(MENU_TYPE.GameOver)
     return {}
 }
-setTimeout(async () => {
-    console.log('DEBUG: START')
+const DSKCG = async (op) => {
+    console.log('DSKCG', op)
+    setCurrentDisc(op.d)
+    return {}
+}
+// setTimeout(async () => {
+//     console.log('DEBUG: START')
 
-    await BTLON({ s: 1 })
-    await BTLMD({ bits1: 3456, bits2: 245 })
-    await BTMD2({ bits1: 12, bits2: 245, bits3: 214, bits4: 21 })
-    // await BATTLE({ b: 0, n: 64 })
-    await BTLTB({ i: 1 })
-    await MPJPO({ s: 1 })
-    await GAMEOVER({})
-    console.log('DEBUG: END')
-}, 10000)
+//     await BTLON({ s: 1 })
+//     await BTLMD({ bits1: 3456, bits2: 245 })
+//     await BTMD2({ bits1: 12, bits2: 245, bits3: 214, bits4: 21 })
+//     // await BATTLE({ b: 0, n: 64 })
+//     await BTLTB({ i: 1 })
+//     await MPJPO({ s: 1 })
+//     await DSKCG({ d: 2 })
+//     console.log('DEBUG: END')
+// }, 10000)
 
 export {
+    DSKCG,
     BTMD2,
     BTRLD,
     BTLTB,
