@@ -52,6 +52,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // System and Module Control
         case 'BATTLE': result = assign.BATTLE(op); break
+        case 'BTLON': result = assign.BTLON(op); break
 
         // Assignment and Mathematics
         case 'PLUS!': result = assign.PLUS_(op); break
