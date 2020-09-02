@@ -20,6 +20,21 @@ const setCurrentCountdownClockTime = (h, m, s) => {
     setBankData(1, 21, m)
     setBankData(1, 22, s)
 }
+const getCurrentGameTime = () => {
+    return {
+        h: getBankData(1, 16),
+        m: getBankData(1, 17),
+        s: getBankData(1, 18)
+    }
+}
+const setCurrentGameTime = (h, m, s) => {
+    setBankData(1, 16, h)
+    setBankData(1, 17, m)
+    setBankData(1, 18, s)
+}
+const incrementGameTime = () => {
+    // TODO later
+}
 const decrementCountdownClock = () => {
     let { h, m, s } = getCurrentCountdownClockTime()
     // console.log('decrementCountdownClock OLD', h, m, s)
@@ -64,5 +79,8 @@ export {
     setCurrentCountdownClockTime,
     decrementCountdownClock,
     getCurrentDisc,
-    setCurrentDisc
+    setCurrentDisc,
+    getCurrentGameTime,
+    setCurrentGameTime,
+    incrementGameTime
 }

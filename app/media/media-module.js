@@ -8,7 +8,7 @@ import {
     resumeMusic, setMusicVolume, setMusicVolumeTransition, setMusicPan, setMusicPanTransition,
     setMusicTempo, setMusicTempoTransition
 } from './media-music.js'
-import { loadMovieMetadata, loadMovie } from './media-movies.js'
+import { loadMovieMetadata, loadMovie, setMovieLockEnabled } from './media-movies.js'
 
 
 
@@ -50,6 +50,7 @@ const setDefaultMediaConfig = async () => {
     await loadSoundMetadata()
     await loadMusicMetadata()
     await loadMovieMetadata()
+    setMovieLockEnabled(false)
 }
 const preLoadFieldMediaData = async () => {
     console.log('preLoadFieldMediaData: START')

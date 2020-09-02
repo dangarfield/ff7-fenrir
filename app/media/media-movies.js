@@ -12,7 +12,13 @@ let nextMovie = {
     frame: 0,
     video: undefined
 }
+let movieLockEnabled = false
 
+const isMovieLockEnabled = () => { return movieLockEnabled }
+const setMovieLockEnabled = (enabled) => {
+    movieLockEnabled = enabled
+    console.log('setMovieLockEnabled', isMovieLockEnabled())
+}
 const getMusicUrl = (name) => {
     return `${KUJATA_BASE}/media/movies/${name}.mp4`
 }
@@ -91,6 +97,13 @@ const playNextMovie = async () => {
     // - Something else entirely
 
     return new Promise(async (resolve, reject) => {
+        // Is movie lock on?
+        console.log('play video isMovieLockEnabled', isMovieLockEnabled())
+        if (isMovieLockEnabled()) {
+            resolve()
+            return
+        }
+
         // Disable hand pointer
         window.currentField.positionHelpersEnabled = false
         updatePositionHelperVisility()
@@ -136,5 +149,7 @@ export {
     setNextMovie,
     playNextMovie,
     loadMovie,
-    getCurrentMovieFrame
+    getCurrentMovieFrame,
+    isMovieLockEnabled,
+    setMovieLockEnabled
 }

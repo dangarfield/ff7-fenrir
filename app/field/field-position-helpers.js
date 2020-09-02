@@ -120,10 +120,12 @@ const drawCursorPositionHelper = () => {
 const updatePositionHelperVisility = () => {
     // TODO - This sets both the pointer and the green / red arrows. But I believe this should be separately controlled
     let fieldPointersActive = areFieldPointersActive()
-    if (window.currentField.positionHelpersEnabled && fieldPointersActive) {
-        window.currentField.positionHelpers.visible = true
-    } else {
-        window.currentField.positionHelpers.visible = false
+    if (window.currentField.positionHelpers) {
+        if (window.currentField.positionHelpersEnabled && fieldPointersActive) {
+            window.currentField.positionHelpers.visible = true
+        } else {
+            window.currentField.positionHelpers.visible = false
+        }
     }
 }
 const togglePositionHelperVisility = () => {
@@ -141,6 +143,10 @@ const togglePositionHelperVisility = () => {
     // 0x00: Inactive
     // 0x02: Active
 }
+const setFieldPointersEnabled = (enabled) => {
+    window.currentField.positionHelpersEnabled = enabled
+    updatePositionHelperVisility()
+}
 export {
     updateArrowPositionHelpers,
     updateCursorPositionHelpers,
@@ -148,5 +154,6 @@ export {
     drawArrowPositionHelpers,
     drawCursorPositionHelper,
     togglePositionHelperVisility,
-    updatePositionHelperVisility
+    updatePositionHelperVisility,
+    setFieldPointersEnabled
 }

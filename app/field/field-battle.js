@@ -1,4 +1,5 @@
 let randomEncountersEnabled = true
+let battleLockEnabled = false
 let encouterTableIndex = 0
 let battleOptions = []
 let lastBattleResult = { escaped: false, defeated: false }
@@ -23,9 +24,15 @@ const setBattleEncounterTableIndex = (index) => {
     encouterTableIndex = index
     console.log('setBattleEncounterTableIndex', encouterTableIndex)
 }
+const isBattleLockEnabled = () => { return battleLockEnabled }
+const setBattleLockEnabled = (enabled) => {
+    battleLockEnabled = enabled
+    console.log('setBattleLockEnabled', isBattleLockEnabled())
+}
 const initBattleSettings = () => {
     console.log('initBattleSettings')
     randomEncountersEnabled = true
+    battleLockEnabled = false
     encouterTableIndex = 0
     battleOptions = []
     lastBattleResult = { escaped: false, defeated: false } // Reset this every field change ?!
@@ -36,5 +43,7 @@ export {
     setBattleOptions,
     getLastBattleResult,
     setLastBattleResult,
-    setBattleEncounterTableIndex
+    setBattleEncounterTableIndex,
+    isBattleLockEnabled,
+    setBattleLockEnabled
 }

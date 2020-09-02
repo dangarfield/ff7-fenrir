@@ -1,11 +1,17 @@
 import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
+import { setConfigFieldMessageSpeed, debugResetGame } from '../data/savemap-config.js'
+import { debugFillMateria } from '../materia/materia-module.js'
+import { debugFillItems, debugClearItems } from '../items/items-module.js'
 import {
     setRandomEncountersEnabled, setBattleOptions, getLastBattleResult,
-    setBattleEncounterTableIndex
+    setBattleEncounterTableIndex, setBattleLockEnabled
 } from './field-battle.js'
 import { MENU_TYPE } from '../menu/menu-module.js'
+import { setFieldPointersEnabled } from './field-position-helpers.js'
+import { setMovieLockEnabled } from '../media/media-movies.js'
+import { setCharacterNameFromSpecialText } from './field-op-codes-party-helper.js'
 
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
@@ -100,21 +106,50 @@ const DSKCG = async (op) => {
     setCurrentDisc(op.d)
     return {}
 }
-// setTimeout(async () => {
-//     console.log('DEBUG: START')
+const SPECIAL = async (op) => {
+    console.log('SPECIAL', op)
+    switch (op.subOpName) {
+        // Kernel based
+        case 'ARROW': setFieldPointersEnabled(op.params[0] === 0); break
+        case 'PNAME': window.alert('opcode SPECIAL:PNAME used, there should be no instances of this'); break
+        case 'GMSPD': window.alert('opcode SPECIAL:GMSPD used, there should be no instances of this'); break
+        case 'SMSPD': setConfigFieldMessageSpeed(op.params[1]); break
+        case 'BTLCK': setBattleLockEnabled(op.params[0] === 0); break
+        case 'MVLCK': setMovieLockEnabled(op.params[0] === 0); break
+        case 'SPCNM': setCharacterNameFromSpecialText(op.params[0], op.params[1]); break
+        case 'RSGLB': debugResetGame(); break
 
-//     await BTLON({ s: 1 })
-//     await BTLMD({ bits1: 3456, bits2: 245 })
-//     await BTMD2({ bits1: 12, bits2: 245, bits3: 214, bits4: 21 })
-//     // await BATTLE({ b: 0, n: 64 })
-//     await BTLTB({ i: 1 })
-//     await MPJPO({ s: 1 })
-//     await DSKCG({ d: 2 })
-//     console.log('DEBUG: END')
-// }, 10000)
+        // Inventory
+        case 'FLMAT': debugFillMateria(); break
+        case 'FLITM': debugFillItems(); break
+        case 'CLITM': debugClearItems(); break
+
+        default:
+            console.log('Unknown special code', op)
+            break;
+    }
+    return {}
+}
+setTimeout(async () => {
+    console.log('DEBUG: START')
+    await SPECIAL({ subOpName: 'ARROW', params: [1] })
+    await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
+    await SPECIAL({ subOpName: 'BTLCK', params: [1] })
+    await SPECIAL({ subOpName: 'MVLCK', params: [1] })
+    await SPECIAL({ subOpName: 'SPCNM', params: [1, 2] })
+    await SPECIAL({ subOpName: 'RSGLB', params: [0] })
+
+    await SPECIAL({ subOpName: 'FLMAT', params: [0] })
+    await SPECIAL({ subOpName: 'FLITM', params: [0] })
+    await SPECIAL({ subOpName: 'CLITM', params: [0] })
+
+    // await BATTLE({ b: 0, n: 64 })
+    console.log('DEBUG: END')
+}, 10000)
 
 export {
     DSKCG,
+    SPECIAL,
     BTMD2,
     BTRLD,
     BTLTB,

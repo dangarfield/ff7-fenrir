@@ -3,6 +3,7 @@ import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
 import { loadMenu } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
+import { isBattleLockEnabled } from './field-battle.js'
 
 let actionInProgress = false
 
@@ -133,6 +134,9 @@ const setGatewayTriggerEnabled = (enabled) => {
     console.log('setGatewayTriggerEnabled', window.currentField.gatewayTriggersEnabled)
 }
 const triggerBattleWithSwirl = (battleId) => {
+    if (isBattleLockEnabled()) {
+        return
+    }
     setActionInProgress('battle')
     window.anim.clock.stop()
     setPlayableCharacterMovability(false)

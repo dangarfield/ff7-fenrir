@@ -481,7 +481,7 @@ const MVIEF = async (op) => {
 //     await PMVIE({ m: 53 })
 //     await MOVIE({})
 //     // console.log('MOVIE ENDED')
-// }, 10000)
+// }, 11000)
 
 export {
     NFADE,

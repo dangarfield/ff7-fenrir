@@ -29,8 +29,17 @@ const getPlayableCharacterName = (c) => {
     if (c == 11) return 'Chocobo'
     return 'None'
 }
-
+const getSpecialTextName = (textId) => {
+    return `Name ${textId}` // TODO - Doesn't look like currentField dialogStrings
+}
+const setCharacterNameFromSpecialText = (c, textId) => {
+    // This is not really used in the game
+    const characterName = getPlayableCharacterName(c)
+    window.data.savemap.characters[characterName].name = getSpecialTextName(textId)
+    console.log('setCharacterNameFromSpecialText', characterName, window.data.savemap.characters[characterName])
+}
 export {
     getPlayableCharacterName,
-    getPlayableCharacterId
+    getPlayableCharacterId,
+    setCharacterNameFromSpecialText
 }
