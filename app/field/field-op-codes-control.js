@@ -1,6 +1,6 @@
 import { triggerBattleWithSwirl } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { setRandomEncountersEnabled, setBattleOptions, getLastBattleResult } from './field-battle.js'
+import { setRandomEncountersEnabled, setBattleOptions, getLastBattleResult, setBattleEncounterTableIndex } from './field-battle.js'
 
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
@@ -75,6 +75,11 @@ const BTRLD = async (op) => {
     setBankData(op.b, op.a, memResult)
     return {}
 }
+const BTLTB = async (op) => {
+    console.log('BTLTB', op)
+    setBattleEncounterTableIndex(op.i)
+    return {}
+}
 
 setTimeout(async () => {
     console.log('DEBUG: START')
@@ -82,21 +87,15 @@ setTimeout(async () => {
     await BTLON({ s: 1 })
     await BTLMD({ bits1: 3456, bits2: 245 })
     await BTMD2({ bits1: 12, bits2: 245, bits3: 214, bits4: 21 })
-    await BATTLE({ b: 0, n: 64 })
+    // await BATTLE({ b: 0, n: 64 })
+    await BTLTB({ i: 1 })
     console.log('DEBUG: END')
 }, 10000)
-setTimeout(async () => {
-    console.log('DEBUG: START')
-
-    await BTRLD({ b: 3, a: 3 })
-    const b = getBankData(3, 3)
-    console.log('battle result memory', b)
-    console.log('DEBUG: END')
-}, 20000)
 
 export {
     BTMD2,
     BTRLD,
+    BTLTB,
     BATTLE,
     BTLON,
     BTLMD
