@@ -52,6 +52,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // System and Module Control
         case 'BTMD2': result = await control.BTMD2(op); break
+        case 'BTRLD': result = await control.BTRLD(op); break
         case 'BATTLE': result = await control.BATTLE(op); break
         case 'BTLON': result = await control.BTLON(op); break
         case 'BTLMD': result = await control.BTLMD(op); break

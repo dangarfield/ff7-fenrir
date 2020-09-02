@@ -1,5 +1,6 @@
 let randomEncountersEnabled = true
 let battleOptions = []
+let lastBattleResult = { escaped: false, defeated: false }
 
 const setRandomEncountersEnabled = (enabled) => {
     randomEncountersEnabled = enabled
@@ -15,8 +16,17 @@ const initBattleSettings = () => {
     battleOptions = []
 }
 
+const getLastBattleResult = () => { return lastBattleResult }
+
+const setLastBattleResult = (escaped, defeated) => {
+    lastBattleResult.escaped = escaped
+    lastBattleResult.defeated = defeated
+    console.log('setLastBattleResult', getLastBattleResult())
+}
 export {
     initBattleSettings,
     setRandomEncountersEnabled,
-    setBattleOptions
+    setBattleOptions,
+    getLastBattleResult,
+    setLastBattleResult
 }
