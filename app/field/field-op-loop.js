@@ -51,8 +51,10 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'IFMEMBQ': restul = await flow.IFMEMBQ(ops, op); break
 
         // System and Module Control
-        case 'BATTLE': result = assign.BATTLE(op); break
-        case 'BTLON': result = assign.BTLON(op); break
+        case 'BTMD2': result = await control.BTMD2(op); break
+        case 'BATTLE': result = await control.BATTLE(op); break
+        case 'BTLON': result = await control.BTLON(op); break
+        case 'BTLMD': result = await control.BTLMD(op); break
 
         // Assignment and Mathematics
         case 'PLUS!': result = assign.PLUS_(op); break
@@ -102,60 +104,60 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Windowing and Menu
 
-        case 'WCLS': result = windowMenu.WCLS(op); break
-        case 'WSIZW': result = windowMenu.WSIZW(op); break
-        case 'WSPCL': result = windowMenu.WSPCL(op); break
-        case 'WNUMB': result = windowMenu.WNUMB(op); break
-        case 'STTIM': result = windowMenu.STTIM(op); break
-        case 'MESSAGE': result = windowMenu.MESSAGE(op); break
-        case 'MPARA': result = windowMenu.MPARA(op); break
-        case 'MPRA2': result = windowMenu.MPRA2(op); break
-        case 'MPNAM': result = windowMenu.MPNAM(op); break
-        case 'ASK': result = windowMenu.ASK(op); break
-        case 'MENU': result = windowMenu.MENU(op); break
-        case 'MENU2': result = windowMenu.MENU2(op); break
-        case 'WINDOW': result = windowMenu.WINDOW(op); break
-        case 'WMOVE': result = windowMenu.WMOVE(op); break
-        case 'WMODE': result = windowMenu.WMODE(op); break
-        case 'WREST': result = windowMenu.WREST(op); break
-        case 'WCLSE': result = windowMenu.WCLSE(op); break
-        case 'WROW': result = windowMenu.WROW(op); break
-        case 'GWCOL': result = windowMenu.GWCOL(op); break
-        case 'SWCOL': result = windowMenu.GWCOL(op); break
+        case 'WCLS': result = await windowMenu.WCLS(op); break
+        case 'WSIZW': result = await windowMenu.WSIZW(op); break
+        case 'WSPCL': result = await windowMenu.WSPCL(op); break
+        case 'WNUMB': result = await windowMenu.WNUMB(op); break
+        case 'STTIM': result = await windowMenu.STTIM(op); break
+        case 'MESSAGE': result = await windowMenu.MESSAGE(op); break
+        case 'MPARA': result = await windowMenu.MPARA(op); break
+        case 'MPRA2': result = await windowMenu.MPRA2(op); break
+        case 'MPNAM': result = await windowMenu.MPNAM(op); break
+        case 'ASK': result = await windowMenu.ASK(op); break
+        case 'MENU': result = await windowMenu.MENU(op); break
+        case 'MENU2': result = await windowMenu.MENU2(op); break
+        case 'WINDOW': result = await windowMenu.WINDOW(op); break
+        case 'WMOVE': result = await windowMenu.WMOVE(op); break
+        case 'WMODE': result = await windowMenu.WMODE(op); break
+        case 'WREST': result = await windowMenu.WREST(op); break
+        case 'WCLSE': result = await windowMenu.WCLSE(op); break
+        case 'WROW': result = await windowMenu.WROW(op); break
+        case 'GWCOL': result = await windowMenu.GWCOL(op); break
+        case 'SWCOL': result = await windowMenu.GWCOL(op); break
 
         // Party and Inventory
-        case 'SPTYE': result = party.SPTYE(op); break
-        case 'GTPYE': result = party.GTPYE(op); break
+        case 'SPTYE': result = await party.SPTYE(op); break
+        case 'GTPYE': result = await party.GTPYE(op); break
 
-        case 'GOLDU': result = party.GOLDU(op); break
-        case 'GOLDD': result = party.GOLDD(op); break
-        case 'CHGLD': result = party.CHGLD(op); break
+        case 'GOLDU': result = await party.GOLDU(op); break
+        case 'GOLDD': result = await party.GOLDD(op); break
+        case 'CHGLD': result = await party.CHGLD(op); break
 
-        case 'HMPMAX1': result = party.HMPMAX1(op); break
-        case 'HMPMAX2': result = party.HMPMAX2(op); break
-        case 'MHMMX': result = party.MHMMX(op); break
-        case 'HMPMAX3': result = party.HMPMAX3(op); break
+        case 'HMPMAX1': result = await party.HMPMAX1(op); break
+        case 'HMPMAX2': result = await party.HMPMAX2(op); break
+        case 'MHMMX': result = await party.MHMMX(op); break
+        case 'HMPMAX3': result = await party.HMPMAX3(op); break
 
-        case 'HPUP': result = party.HPUP(op); break
-        case 'HPDWN': result = party.HPDWN(op); break
-        case 'MPUP': result = party.MPUP(op); break
-        case 'MPDWN': result = party.MPDWN(op); break
+        case 'HPUP': result = await party.HPUP(op); break
+        case 'HPDWN': result = await party.HPDWN(op); break
+        case 'MPUP': result = await party.MPUP(op); break
+        case 'MPDWN': result = await party.MPDWN(op); break
 
-        case 'STITM': result = party.STITM(op); break
-        case 'DLITM': result = party.DLITM(op); break
-        case 'CKITM': result = party.CKITM(op); break
+        case 'STITM': result = await party.STITM(op); break
+        case 'DLITM': result = await party.DLITM(op); break
+        case 'CKITM': result = await party.CKITM(op); break
 
-        case 'SMTRA': result = party.SMTRA(op); break
-        case 'DMTRA': result = party.DMTRA(op); break
-        case 'CMTRA': result = party.CMTRA(op); break
+        case 'SMTRA': result = await party.SMTRA(op); break
+        case 'DMTRA': result = await party.DMTRA(op); break
+        case 'CMTRA': result = await party.CMTRA(op); break
 
-        case 'GETPC': result = party.GETPC(op); break
-        case 'PRTYP': result = party.PRTYP(op); break
-        case 'PRTYM': result = party.PRTYM(op); break
-        case 'PRTYE': result = party.PRTYE(op); break
-        case 'MMBud': result = party.MMBud(op); break
-        case 'MMBLK': result = party.MMBLK(op); break
-        case 'MMBUK': result = party.MMBUK(op); break
+        case 'GETPC': result = await party.GETPC(op); break
+        case 'PRTYP': result = await party.PRTYP(op); break
+        case 'PRTYM': result = await party.PRTYM(op); break
+        case 'PRTYE': result = await party.PRTYE(op); break
+        case 'MMBud': result = await party.MMBud(op); break
+        case 'MMBLK': result = await party.MMBLK(op); break
+        case 'MMBUK': result = await party.MMBUK(op); break
 
         // Field Models and Animation
 
