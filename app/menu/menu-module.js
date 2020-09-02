@@ -8,6 +8,8 @@ import { loadShopMenu } from './menu-shop.js'
 import { loadMainMenu } from './menu-main.js'
 import { loadSaveMenu } from './menu-save.js'
 import { loadTitleMenu } from './menu-title.js'
+import { loadGameOverMenu } from './menu-game-over.js'
+import { loadChangeDiscMenu } from './menu-change-disc.js'
 
 
 const MENU_TYPE = {
@@ -32,6 +34,8 @@ const MENU_TYPE = {
     Unknown24: 24,
     Unknown25: 25,
 
+    ChangeDisc: 97, // Not on documentation, but it will be there somewhere, should have params too or even 3 separate codes
+    GameOver: 98, // Not on documentation, but it will be there somewhere
     Title: 99 // Not on documentation, but it will be there somewhere
 }
 const getMenuTypeStringFromCode = (menuCode) => {
@@ -58,7 +62,9 @@ const loadMenu = (menuCode, param) => {
         case MENU_TYPE.MainMenu: loadMainMenu(); break
         case MENU_TYPE.SaveScreen: loadSaveMenu(); break
 
+        case MENU_TYPE.ChangeDisc: loadChangeDiscMenu(param); break
         case MENU_TYPE.Title: loadTitleMenu(); break
+        case MENU_TYPE.GameOver: loadGameOverMenu(); break
         // case MENU_TYPE.YuffieSteal: console.log('TODO: YuffieSteal'); break
         // case MENU_TYPE.RemoveCloudMateria: console.log('TODO: RemoveCloudMateria'); break
         // case MENU_TYPE.RestoreCloudMateria: console.log('TODO: RestoreCloudMateria'); break

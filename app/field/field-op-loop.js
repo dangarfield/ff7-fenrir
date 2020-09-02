@@ -58,6 +58,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'BTLON': result = await control.BTLON(op); break
         case 'BTLMD': result = await control.BTLMD(op); break
         case 'MPJPO': result = await control.MPJPO(op); break
+        case 'GAMEOVER': result = await control.GAMEOVER(op); break
 
         // Assignment and Mathematics
         case 'PLUS!': result = assign.PLUS_(op); break

@@ -1,9 +1,10 @@
-import { triggerBattleWithSwirl, setGatewayTriggerEnabled } from './field-actions.js'
+import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import {
     setRandomEncountersEnabled, setBattleOptions, getLastBattleResult,
     setBattleEncounterTableIndex
 } from './field-battle.js'
+import { MENU_TYPE } from '../menu/menu-module.js'
 
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
@@ -88,6 +89,11 @@ const MPJPO = async (op) => {
     setGatewayTriggerEnabled(op.s === 0)
     return {}
 }
+const GAMEOVER = async (op) => {
+    console.log('GAMEOVER', op)
+    await fadeOutAndLoadMenu(MENU_TYPE.GameOver)
+    return {}
+}
 setTimeout(async () => {
     console.log('DEBUG: START')
 
@@ -97,6 +103,7 @@ setTimeout(async () => {
     // await BATTLE({ b: 0, n: 64 })
     await BTLTB({ i: 1 })
     await MPJPO({ s: 1 })
+    await GAMEOVER({})
     console.log('DEBUG: END')
 }, 10000)
 
@@ -107,5 +114,6 @@ export {
     BATTLE,
     BTLON,
     BTLMD,
-    MPJPO
+    MPJPO,
+    GAMEOVER
 }
