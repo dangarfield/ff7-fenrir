@@ -202,6 +202,11 @@ const getPointRight = () => {
 const getFieldDialogNumber = (number) => {
     return getWindowTextures()['clock'][`clock ${number}`]
 }
+const getFieldMapList = async () => {
+    const res = await fetch(`${KUJATA_BASE}/data/field/flevel.lgp/maplist.json`)
+    const mapList = await res.json()
+    return mapList
+}
 export {
     getFieldList,
     loadFieldData,
@@ -214,5 +219,6 @@ export {
     getDialogTextures,
     getDialogLetter,
     getPointRight,
-    getFieldDialogNumber
+    getFieldDialogNumber,
+    getFieldMapList
 }

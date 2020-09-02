@@ -547,10 +547,11 @@ const isMenuEnabled = () => { return window.currentField.menuEnabled }
 
 const loadField = async (fieldName, playableCharacterInitData) => {
 
-
     // Reset field values
+    const lastFieldName = window.currentField && window.currentField.name ? window.currentField.name : ''
     window.currentField = {
         name: fieldName,
+        lastFieldName: lastFieldName,
         data: undefined,
         backgroundData: undefined,
         metaData: undefined,
@@ -575,6 +576,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         menuEnabled: true,
         gatewayTriggersEnabled: true
     }
+
     showLoadingScreen()
     resetTempBank()
     window.currentField.data = await loadFieldData(fieldName)

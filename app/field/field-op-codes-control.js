@@ -12,6 +12,7 @@ import { MENU_TYPE } from '../menu/menu-module.js'
 import { setFieldPointersEnabled } from './field-position-helpers.js'
 import { setMovieLockEnabled } from '../media/media-movies.js'
 import { setCharacterNameFromSpecialText } from './field-op-codes-party-helper.js'
+import { getLastFieldId } from './field-metadata.js'
 
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
@@ -130,22 +131,31 @@ const SPECIAL = async (op) => {
     }
     return {}
 }
+const LSTMP = async (op) => {
+    console.log('LSTMP', op)
+    const fieldId = await getLastFieldId() // Note: dat.gui debug breaks this
+    setBankData(op.b, op.a, fieldId)
+    return {}
+}
 setTimeout(async () => {
     console.log('DEBUG: START')
-    await SPECIAL({ subOpName: 'ARROW', params: [1] })
-    await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
-    await SPECIAL({ subOpName: 'BTLCK', params: [1] })
-    await SPECIAL({ subOpName: 'MVLCK', params: [1] })
-    await SPECIAL({ subOpName: 'SPCNM', params: [1, 2] })
-    await SPECIAL({ subOpName: 'RSGLB', params: [0] })
+    // await SPECIAL({ subOpName: 'ARROW', params: [1] })
+    // await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
+    // await SPECIAL({ subOpName: 'BTLCK', params: [1] })
+    // await SPECIAL({ subOpName: 'MVLCK', params: [1] })
+    // await SPECIAL({ subOpName: 'SPCNM', params: [1, 2] })
+    // await SPECIAL({ subOpName: 'RSGLB', params: [0] })
 
-    await SPECIAL({ subOpName: 'FLMAT', params: [0] })
-    await SPECIAL({ subOpName: 'FLITM', params: [0] })
-    await SPECIAL({ subOpName: 'CLITM', params: [0] })
+    // await SPECIAL({ subOpName: 'FLMAT', params: [0] })
+    // await SPECIAL({ subOpName: 'FLITM', params: [0] })
+    // await SPECIAL({ subOpName: 'CLITM', params: [0] })
 
+    await LSTMP({ b: 3, a: 3 })
+    const fieldId = getBankData(3, 3)
+    console.log('getBankData lastFieldid', fieldId)
     // await BATTLE({ b: 0, n: 64 })
     console.log('DEBUG: END')
-}, 10000)
+}, 20000)
 
 export {
     DSKCG,
@@ -153,6 +163,7 @@ export {
     BTMD2,
     BTRLD,
     BTLTB,
+    LSTMP,
     BATTLE,
     BTLON,
     BTLMD,
