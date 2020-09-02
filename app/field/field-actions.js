@@ -120,13 +120,17 @@ const unfreezeField = async () => {
 }
 const gatewayTriggered = async (i) => {
     const gateway = window.currentField.data.triggers.gateways[i]
-    console.log('gatewayTriggered', i, gateway, gateway.fieldName)
+    console.log('gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
     window.anim.clock.stop()
     setPlayableCharacterMovability(false)
     await fadeOut()
     const playableCharacterInitData = { position: gateway.destinationVertex, direction: 100 }
     loadField(gateway.fieldName, playableCharacterInitData)
+}
+const setGatewayTriggerEnabled = (enabled) => {
+    window.currentField.gatewayTriggersEnabled = enabled
+    console.log('setGatewayTriggerEnabled', window.currentField.gatewayTriggersEnabled)
 }
 const triggerBattleWithSwirl = (battleId) => {
     setActionInProgress('battle')
@@ -146,5 +150,6 @@ export {
     clearActionInProgress,
     fadeOutAndLoadMenu,
     unfreezeField,
-    triggerBattleWithSwirl
+    triggerBattleWithSwirl,
+    setGatewayTriggerEnabled
 }

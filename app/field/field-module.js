@@ -303,23 +303,24 @@ const updateFieldMovement = (delta) => {
 
 
     // Detect gateways
-    for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
-        const gatewayLine = window.currentField.gatewayLines.children[i]
-        const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
-        const distance = nextPosition.distanceTo(closestPointOnLine)
-        if (distance < 0.005) {
-            console.log('gateway hit')
-            if (animNo === 2) { // Run
-                window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
-            } else if (animNo === 1) { // Walk
-                window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
+    if (window.currentField.gatewayTriggersEnabled) {
+        for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
+            const gatewayLine = window.currentField.gatewayLines.children[i]
+            const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+            const distance = nextPosition.distanceTo(closestPointOnLine)
+            if (distance < 0.005) {
+                console.log('gateway hit')
+                if (animNo === 2) { // Run
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
+                } else if (animNo === 1) { // Walk
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
+                }
+                // Should probably also pause ALL animations including screen background loops like in the game
+                gatewayTriggered(i)
+                return
             }
-            // Should probably also pause ALL animations including screen background loops like in the game
-            gatewayTriggered(i)
-            return
         }
     }
-
     // Detect triggers
     for (let i = 0; i < window.currentField.triggerLines.children.length; i++) {
         const triggerLine = window.currentField.triggerLines.children[i]
@@ -571,7 +572,8 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData,
         media: undefined,
-        menuEnabled: true
+        menuEnabled: true,
+        gatewayTriggersEnabled: true
     }
     showLoadingScreen()
     resetTempBank()

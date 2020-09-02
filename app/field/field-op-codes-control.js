@@ -1,6 +1,9 @@
-import { triggerBattleWithSwirl } from './field-actions.js'
+import { triggerBattleWithSwirl, setGatewayTriggerEnabled } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { setRandomEncountersEnabled, setBattleOptions, getLastBattleResult, setBattleEncounterTableIndex } from './field-battle.js'
+import {
+    setRandomEncountersEnabled, setBattleOptions, getLastBattleResult,
+    setBattleEncounterTableIndex
+} from './field-battle.js'
 
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
@@ -80,7 +83,11 @@ const BTLTB = async (op) => {
     setBattleEncounterTableIndex(op.i)
     return {}
 }
-
+const MPJPO = async (op) => {
+    console.log('MPJPO', op)
+    setGatewayTriggerEnabled(op.s === 0)
+    return {}
+}
 setTimeout(async () => {
     console.log('DEBUG: START')
 
@@ -89,6 +96,7 @@ setTimeout(async () => {
     await BTMD2({ bits1: 12, bits2: 245, bits3: 214, bits4: 21 })
     // await BATTLE({ b: 0, n: 64 })
     await BTLTB({ i: 1 })
+    await MPJPO({ s: 1 })
     console.log('DEBUG: END')
 }, 10000)
 
@@ -98,5 +106,6 @@ export {
     BTLTB,
     BATTLE,
     BTLON,
-    BTLMD
+    BTLMD,
+    MPJPO
 }
