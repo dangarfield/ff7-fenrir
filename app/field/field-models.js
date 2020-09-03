@@ -118,7 +118,7 @@ const setModelCollisionRadius = (entityName, radius) => {
     const model = getModelByEntityName(entityName)
     model.userData.collisionRadius = radius
 }
-const setModelAsLeader = (entityId) => {
+const setModelAsLeader = async (entityId) => {
     console.log('setModelAsLeader', entityId)
     window.currentField.models.map(m => {
         m.userData.isLeader = false

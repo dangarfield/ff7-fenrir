@@ -7,15 +7,16 @@ import * as models from './field-op-codes-models.js'
 import * as background from './field-op-codes-background.js'
 import * as cameraMedia from './field-op-codes-camera-media.js'
 import * as misc from './field-op-codes-misc.js'
+import { sendOpFlowEvent } from './field-op-loop-visualiser.js'
 
 let STOP_ALL_LOOPS = false
 
-const executeOp = async (entityName, scriptType, ops, op) => {
+const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
     console.log('   - executeOp: START', entityName, scriptType, op)
     if (STOP_ALL_LOOPS) {
         console.log('Loop stopping')
     }
-
+    sendOpFlowEvent(entityName, scriptType, op.op, currentOpIndex)
     let result = {}
     switch (op.op) {
         // Script Flow and Control
@@ -258,11 +259,12 @@ const executeScriptLoop = async (entityName, loop) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP')
+            sendOpFlowEvent(entityName, loop.scriptType, 'QUIT', currentOpIndex)
             break
         }
 
         let op = ops[currentOpIndex]
-        const result = await executeOp(entityName, loop.scriptType, ops, op)
+        const result = await executeOp(entityName, loop.scriptType, ops, op, currentOpIndex)
         console.log(' - executeScriptLoop: RESULT', entityName, result, currentOpIndex, flowActionCount)
         if (result.exit) {
             console.log(' - executeScriptLoop: EXIT', entityName, loop)

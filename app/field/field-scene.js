@@ -10,7 +10,7 @@ import { getActiveInputs } from '../interaction/inputs.js'
 import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
 import { decrementCountdownClockAndUpdateDisplay } from './field-dialog.js'
-
+import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -320,7 +320,7 @@ const initFieldDebug = async (loadFieldCB) => {
     inputsGUI.add(getActiveInputs(), 'start').listen()
 
     activateDebugCamera()
-
+    initOpLoopVisualiser()
 }
 const setupViewClipping = async () => {
     window.anim.renderer.setSize(window.config.sizing.width * window.config.sizing.factor, window.config.sizing.height * window.config.sizing.factor)

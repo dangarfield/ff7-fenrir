@@ -1,0 +1,55 @@
+.field-op-loop-visualiser {
+	width: 260px;
+	height: 700px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 100000;
+	background-color: black;
+	font-size: 12px;
+	cursor: pointer;
+}
+.field-op-loop-visualiser.hide .entities{
+	display: none;
+}
+.field-op-loop-visualiser.hide{
+	height: 24px;
+}
+.field-op-loop-visualiser .entities {
+	position: relative;
+}
+.field-op-loop-visualiser .entities-1 {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50%;
+	height: 100%;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+.field-op-loop-visualiser .entities-2 {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 50%;
+	height: 100%;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.field-op-loop-visualiser .toggle {
+	text-align: center;
+}
+.field-op-loop-visualiser .btn-tiny {
+	padding: 1px;
+	font-size: 9px;
+	line-height: 1;
+	border-radius: 1px;
+} 
+.field-op-loop-visualiser .btn-group {
+	/* padding: 1px;
+	font-size: 9px; */
+	line-height: 1;
+	display: block;
+	/* border-radius: 1px; */
+} 
