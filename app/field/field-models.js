@@ -24,15 +24,23 @@ const getModelByEntityName = (entityName) => {
     return window.currentField.models.filter(m => m.userData.entityName === entityName)[0]
 }
 
+// This method also initialises defaults for model.userData and adds model to the field
 const setModelAsEntity = (entityName, modelId) => {
     // console.log('setModelAsEntity', entityName, modelId)
     const model = window.currentField.models[modelId]
     model.userData.entityName = entityName
     const scaleDownValue = getModelScaleDownValue()
     model.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
-    // model.scene.position.set(op.x / 4096, op.y / 4096, op.z / 4096)
     model.scene.rotation.x = THREE.Math.degToRad(90)
     model.scene.up.set(0, 0, 1)
+
+    model.userData.movementSpeed = 2048 // TODO - Absolute guess for default
+    model.userData.animationSpeed = 1 // TODO - Absolute guess for default
+    model.userData.talkEnabled = true
+    model.userData.talkRadius = 48 // TODO - Absolute guess for default
+    model.userData.collisionEnabled = true
+    model.userData.collisionRadius = 24 // TODO - Absolute guess for default
+
     // console.log('setModelAsEntity: END', entityName, modelId, model)
     window.currentField.fieldScene.add(model.scene)
 }
@@ -79,6 +87,36 @@ const setModelDirection = (entityName, direction) => {
     const model = getModelByEntityName(entityName)
     model.scene.rotateY(THREE.Math.degToRad(direction))
 }
+const setModelMovementSpeed = (entityName, speed) => {
+    console.log('setModelMovementSpeed', entityName, speed)
+    const model = getModelByEntityName(entityName)
+    model.userData.movementSpeed = speed
+}
+const setModelAnimationSpeed = (entityName, speed) => {
+    console.log('setModelAnimationSpeed', entityName, speed)
+    const model = getModelByEntityName(entityName)
+    model.userData.animationSpeed = speed
+}
+const setModelTalkEnabled = (entityName, isEnabled) => {
+    console.log('setModelTalkEnabled', entityName, isEnabled)
+    const model = getModelByEntityName(entityName)
+    model.userData.talkEnabled = isEnabled
+}
+const setModelTalkRadius = (entityName, radius) => {
+    console.log('setModelTalkRadius', entityName, radius)
+    const model = getModelByEntityName(entityName)
+    model.userData.talkRadius = radius
+}
+const setModelCollisionEnabled = (entityName, isEnabled) => {
+    console.log('setModelCollisionEnabled', entityName, isEnabled)
+    const model = getModelByEntityName(entityName)
+    model.userData.collisionEnabled = isEnabled
+}
+const setModelCollisionRadius = (entityName, radius) => {
+    console.log('setModelCollisionRadius', entityName, radius)
+    const model = getModelByEntityName(entityName)
+    model.userData.collisionRadius = radius
+}
 
 
 export {
@@ -86,5 +124,11 @@ export {
     setModelAsPlayableCharacter,
     placeModel,
     setModelVisibility,
-    setModelDirection
+    setModelDirection,
+    setModelMovementSpeed,
+    setModelAnimationSpeed,
+    setModelTalkEnabled,
+    setModelTalkRadius,
+    setModelCollisionEnabled,
+    setModelCollisionRadius
 }

@@ -169,13 +169,21 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Field Models and Animation
 
+        case 'TLKON': result = await models.TLKON(entityName, op); break
         case 'PC': result = await models.PC(entityName, op); break
         case 'CHAR': result = await models.CHAR(entityName, op); break
         case 'VISI': result = await models.VISI(entityName, op); break
         case 'XYZI': result = await models.XYZI(entityName, op); break
         case 'XYI': result = await models.XYI(entityName, op); break
         case 'XYZ': result = await models.XYZ(entityName, op); break
+        case 'MSPED': result = await models.MSPED(entityName, op); break
         case 'DIR': result = await models.DIR(entityName, op); break
+        case 'ASPED': result = await models.ASPED(entityName, op); break
+        case 'TALKR': result = await models.TALKR(entityName, op); break
+        case 'SLIDR': result = await models.SLIDR(entityName, op); break
+        case 'SOLID': result = await models.SOLID(entityName, op); break
+        case 'TLKR2': result = await models.TLKR2(entityName, op); break
+        case 'SLDR2': result = await models.SLDR2(entityName, op); break
 
 
         // Background and Palette

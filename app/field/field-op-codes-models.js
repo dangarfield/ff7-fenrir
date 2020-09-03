@@ -1,6 +1,8 @@
 import * as fieldModels from './field-models.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { createNanoEvents } from '../../assets/nanoevents.js'
+
+// General placement and init
 const CHAR = async (entityName, op) => {
     console.log('CHAR', entityName, op)
     fieldModels.setModelAsEntity(entityName, op.n)
@@ -49,14 +51,70 @@ const DIR = async (entityName, op) => {
     fieldModels.setModelDirection(entityName, direction)
     return {}
 }
-export {
 
+// Change entity settings
+const MSPED = async (entityName, op) => {
+    console.log('MSPED', entityName, op)
+    const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
+    fieldModels.setModelMovementSpeed(entityName, speed)
+    return {}
+}
+const ASPED = async (entityName, op) => {
+    console.log('ASPED', entityName, op)
+    const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
+    fieldModels.setModelAnimationSpeed(entityName, speed)
+    return {}
+}
+const TLKON = async (entityName, op) => {
+    console.log('TLKON', entityName, op)
+    fieldModels.setModelTalkEnabled(entityName, op.s === 0)
+    return {}
+}
+const TALKR = async (entityName, op) => {
+    console.log('TALKR', entityName, op)
+    const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    fieldModels.setModelTalkRadius(entityName, radius)
+    return {}
+}
+const TLKR2 = async (entityName, op) => { // Kujata has TALKR2, will add both to switch case
+    console.log('TLKR2', entityName, op)
+    const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    fieldModels.setModelTalkRadius(entityName, radius)
+    return {}
+}
+const SOLID = async (entityName, op) => {
+    console.log('SOLID', entityName, op)
+    fieldModels.setModelCollisionEnabled(entityName, op.s === 0)
+    return {}
+}
+const SLIDR = async (entityName, op) => {
+    console.log('SLIDR', entityName, op)
+    const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    fieldModels.setModelCollisionRadius(entityName, radius)
+    return {}
+}
+const SLDR2 = async (entityName, op) => {
+    console.log('SLDR2', entityName, op)
+    const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    fieldModels.setModelCollisionRadius(entityName, radius)
+    return {}
+}
+
+
+export {
+    TLKON,
     PC,
     CHAR,
     VISI,
     XYZI,
     XYI,
     XYZ,
-    DIR
-
+    MSPED,
+    DIR,
+    ASPED,
+    TALKR,
+    SLIDR,
+    SOLID,
+    TLKR2,
+    SLDR2
 }
