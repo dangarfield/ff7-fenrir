@@ -210,7 +210,11 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'CHMST': result = await cameraMedia.CHMST(op); break
 
         // Uncategorized
-
+        case 'SETX': result = misc.SETX(op); break
+        case 'GETX': result = misc.GETX(op); break
+        case 'SEARCHX': result = misc.SEARCHX(op); break
+        case 'PMJMP': result = misc.PMJMP(op); break
+        case 'PMJMP2': result = misc.PMJMP2(op); break
 
         default:
             console.log(`--------- OP: ${op.op} - NOT YET IMPLEMENTED ---------`)
