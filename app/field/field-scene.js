@@ -320,7 +320,10 @@ const initFieldDebug = async (loadFieldCB) => {
     inputsGUI.add(getActiveInputs(), 'start').listen()
 
     activateDebugCamera()
-    initOpLoopVisualiser()
+    if (!window.config.debug.debugModeNoOpLoops) {
+        initOpLoopVisualiser()
+    }
+
 }
 const setupViewClipping = async () => {
     window.anim.renderer.setSize(window.config.sizing.width * window.config.sizing.factor, window.config.sizing.height * window.config.sizing.factor)

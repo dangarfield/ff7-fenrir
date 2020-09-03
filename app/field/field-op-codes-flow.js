@@ -105,7 +105,7 @@ const JMPBL = async (ops, op) => {
     // This sleep shouldn't really happen here
     // but it's just a safeguard as to protect fast processing loops
     // whilst waiting for a var to be set
-    await sleep(200)
+    await sleep(1000 / 30)
     return getOpIndexForByteIndex(ops, op.goto)
 }
 const IFUB = async (ops, op) => {

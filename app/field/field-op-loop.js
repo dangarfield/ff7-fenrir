@@ -259,7 +259,7 @@ const executeScriptLoop = async (entityName, loop) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP')
-            sendOpFlowEvent(entityName, loop.scriptType, 'QUIT', currentOpIndex)
+            sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex)
             break
         }
 

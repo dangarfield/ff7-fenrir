@@ -4,7 +4,7 @@ let emitter
 const renderInitialState = (data) => {
     console.log('renderInitialState', data)
 
-    let colHeight = 36
+    let colHeight = 34
     let cumulativeTotal = 0
 
     let html = `<div class="toggle">Toggle Op Loop Visualiser</div><div class="entities">`
@@ -68,7 +68,7 @@ const initOpLoopVisualiser = () => {
         }
         data.push(entityData)
     }
-    console.log('data', data)
+    // console.log('data', data)
     renderInitialState(data)
 
     createNanoEvents
@@ -79,14 +79,14 @@ const initOpLoopVisualiser = () => {
 }
 const visualiseOpFlowEvent = (data) => {
     const id = `op-${data.entityName}-${data.scriptType}`
-    console.log('visualiseOpFlowEvent', data, id)
+    // console.log('visualiseOpFlowEvent', data, id)
     const opEle = document.getElementById(`${id}-current`)
     opEle.innerHTML = data.opCode
     if (opEle.classList.contains('btn-dark')) {
         opEle.classList.remove('btn-dark')
         opEle.classList.add('btn-primary')
     }
-    if (data.opCode === 'RET' || data.opCode === 'QUIT') {
+    if (data.opCode === 'RET' || data.opCode === '...') {
         opEle.classList.remove('btn-primary')
         opEle.classList.add('btn-dark')
     }
