@@ -169,6 +169,15 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Field Models and Animation
 
+        case 'PC': result = await models.PC(entityName, op); break
+        case 'CHAR': result = await models.CHAR(entityName, op); break
+        case 'VISI': result = await models.VISI(entityName, op); break
+        case 'XYZI': result = await models.XYZI(entityName, op); break
+        case 'XYI': result = await models.XYI(entityName, op); break
+        case 'XYZ': result = await models.XYZ(entityName, op); break
+        case 'DIR': result = await models.DIR(entityName, op); break
+
+
         // Background and Palette
 
         // Camera, Audio and Video
@@ -279,7 +288,7 @@ const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
     STOP_ALL_LOOPS = false
     const entities = window.currentField.data.script.entities
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async
     }
