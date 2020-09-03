@@ -4,6 +4,7 @@ import { startFieldRenderLoop } from './field-scene.js'
 import { loadMenu } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
+import { getFieldNameForId } from './field-metadata.js'
 
 let actionInProgress = false
 
@@ -126,8 +127,18 @@ const gatewayTriggered = async (i) => {
     window.anim.clock.stop()
     setPlayableCharacterMovability(false)
     await fadeOut()
-    const playableCharacterInitData = { position: gateway.destinationVertex, direction: 100 }
+    const playableCharacterInitData = { triangleId: gateway.destinationVertex.triangleId, position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y, z: 0 }, direction: gateway.destinationVertex.direction } // TODO - This doesn't look right
     loadField(gateway.fieldName, playableCharacterInitData)
+}
+const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
+    const fieldName = await getFieldNameForId(fieldId)
+    console.log('jumpToMap', fieldId, fieldName, x, y, triangleId, direction)
+    setActionInProgress('gateway')
+    window.anim.clock.stop()
+    setPlayableCharacterMovability(false)
+    await fadeOut()
+    const playableCharacterInitData = { triangleId: triangleId, position: { x: x, y: y, z: 0 }, direction: direction }
+    loadField(fieldName, playableCharacterInitData)
 }
 const setGatewayTriggerEnabled = (enabled) => {
     window.currentField.gatewayTriggersEnabled = enabled
@@ -155,5 +166,6 @@ export {
     fadeOutAndLoadMenu,
     unfreezeField,
     triggerBattleWithSwirl,
-    setGatewayTriggerEnabled
+    setGatewayTriggerEnabled,
+    jumpToMap
 }

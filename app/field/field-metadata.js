@@ -17,15 +17,15 @@ const getFieldNameForId = async (id) => {
     if (maplist === undefined) {
         maplist = await getFieldMapList()
     }
-    return maplist[i]
+    return maplist[id]
 }
 const getLastFieldId = async () => {
     const fieldName = window.currentField && window.currentField.lastFieldName ? window.currentField.lastFieldName : ''
     const fieldId = await getFieldIdForName(fieldName)
-    console.log('getLastFieldId', fieldName, fieldId)
     return fieldId
 }
 
 export {
-    getLastFieldId
+    getLastFieldId,
+    getFieldNameForId
 }

@@ -1,4 +1,4 @@
-import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu } from './field-actions.js'
+import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu, jumpToMap } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 import { setConfigFieldMessageSpeed, debugResetGame } from '../data/savemap-config.js'
@@ -137,6 +137,11 @@ const LSTMP = async (op) => {
     setBankData(op.b, op.a, fieldId)
     return {}
 }
+const MAPJUMP = async (op) => {
+    console.log('MAPJUMP', op)
+    await jumpToMap(op.f, op.x, op.y, op.i, op.d)
+    return {}
+}
 setTimeout(async () => {
     console.log('DEBUG: START')
     // await SPECIAL({ subOpName: 'ARROW', params: [1] })
@@ -150,12 +155,14 @@ setTimeout(async () => {
     // await SPECIAL({ subOpName: 'FLITM', params: [0] })
     // await SPECIAL({ subOpName: 'CLITM', params: [0] })
 
-    await LSTMP({ b: 3, a: 3 })
-    const fieldId = getBankData(3, 3)
-    console.log('getBankData lastFieldid', fieldId)
+    // await MAPJUMP({ f: 74, x: 887, y: -810, i: 46, d: 192 })
+
+    // await LSTMP({ b: 3, a: 3 })
+    // const fieldId = getBankData(3, 3)
+    // console.log('getBankData lastFieldid', fieldId)
     // await BATTLE({ b: 0, n: 64 })
     console.log('DEBUG: END')
-}, 20000)
+}, 10000)
 
 export {
     DSKCG,
@@ -163,6 +170,7 @@ export {
     BTMD2,
     BTRLD,
     BTLTB,
+    MAPJUMP,
     LSTMP,
     BATTLE,
     BTLON,
