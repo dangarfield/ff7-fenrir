@@ -3,7 +3,7 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping, adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { loadFieldData, loadFieldBackground, loadModels, getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
-import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, setPlayableCharacterMovability } from './field-actions.js'
+import { gatewayTriggered, triggerTriggered, modelCollisionTriggered, setPlayableCharacterIsInteracting } from './field-actions.js'
 import { drawArrowPositionHelper, drawArrowPositionHelpers, updateCursorPositionHelpers } from './field-position-helpers.js'
 import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
@@ -206,7 +206,7 @@ const placeModelsDebug = () => {
                         window.currentField.playableCharacter = fieldModel
 
                         // console.log('window.currentField.playableCharacter', fieldModel)
-                        setPlayableCharacterMovability(true)
+                        setPlayableCharacterIsInteracting(false)
                     }
                     // fieldModelScene.rotateY(THREE.Math.degToRad(window.currentField.data.triggers.header.controlDirection))
                     break placeOperationLoop
@@ -234,7 +234,10 @@ const updateFieldMovement = (delta) => {
     }
 
     // Can player move?
-    if (!window.currentField.playableCharacter.scene.userData.playableCharacterMovability) {
+    if (!window.currentField.playableCharacterCanMove) {
+        return
+    }
+    if (window.currentField.setPlayableCharacterIsInteracting) {
         return
     }
 
@@ -568,6 +571,8 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         metaData: undefined,
         models: undefined,
         playableCharacter: undefined,
+        playableCharacterCanMove: true,
+        playableCharacterIsInteracting: false,
         fieldScene: undefined,
         fieldCamera: undefined,
         fieldCameraHelper: undefined,

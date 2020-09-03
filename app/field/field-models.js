@@ -1,9 +1,10 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 
 const isCharacterTheLeader = (characterName) => {
     // A lot of logic / assumptions to look at here, for now, just check if it's cloud
     if (characterName === 'Cloud') {
-        return true
+        return false
     }
     return false
 }
@@ -117,7 +118,34 @@ const setModelCollisionRadius = (entityName, radius) => {
     const model = getModelByEntityName(entityName)
     model.userData.collisionRadius = radius
 }
+const setModelAsLeader = (entityId) => {
+    console.log('setModelAsLeader', entityId)
+    window.currentField.models.map(m => {
+        m.userData.isLeader = false
+        console.log('m', m)
+    })
+    const entityName = window.currentField.data.script.entities[entityId].entityName
+    const model = getModelByEntityName(entityName)
+    model.userData.isLeader = true
+    console.log('setModelAsLeader: END', model)
+    // Leader should be persisted between map jumps by gateways and MAPJUMP
+    // Leader should also be more accessible as it's in the movement section of render loop, eg
+    // We probably shouldn't have to run models.filter(m => m.userData.isLeader)[0] every time
+    window.currentField.playableCharacter = model
 
+    // Screen moves to centre on character
+    // Not sure about this, it takes control of the camera
+    //  which isnt right in all fields where the camera has been previously set
+    await moveCameraToLeader()
+    // Assist cursor hand displays if visible
+    window.currentField.positionHelpersEnabled = true
+}
+const setPlayableCharacterCanMove = (canMove) => {
+    console.log('setPlayableCharacterCanMove', canMove)
+    window.currentField.playableCharacterCanMove = canMove
+    // Also hides / shows cursor arrows if enabled
+    window.currentField.positionHelpersEnabled = canMove
+}
 
 export {
     setModelAsEntity,
@@ -130,5 +158,7 @@ export {
     setModelTalkEnabled,
     setModelTalkRadius,
     setModelCollisionEnabled,
-    setModelCollisionRadius
+    setModelCollisionRadius,
+    setModelAsLeader,
+    setPlayableCharacterCanMove
 }

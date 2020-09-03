@@ -1,6 +1,5 @@
 import * as fieldModels from './field-models.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
-import { createNanoEvents } from '../../assets/nanoevents.js'
 
 // General placement and init
 const CHAR = async (entityName, op) => {
@@ -99,9 +98,21 @@ const SLDR2 = async (entityName, op) => {
     fieldModels.setModelCollisionRadius(entityName, radius)
     return {}
 }
+const CC = async (entityName, op) => {
+    console.log('CC', entityName, op)
+    fieldModels.setModelAsLeader(op.e)
+    return {}
+}
+const UC = async (entityName, op) => {
+    console.log('UC', entityName, op)
+    const canMove = op.s === 0
+    fieldModels.setPlayableCharacterCanMove(canMove)
+    return {}
+}
 
 
 export {
+    UC,
     TLKON,
     PC,
     CHAR,
@@ -112,6 +123,7 @@ export {
     MSPED,
     DIR,
     ASPED,
+    CC,
     TALKR,
     SLIDR,
     SOLID,

@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    setPlayableCharacterMovability, initiateTalk, isActionInProgress, setActionInProgress,
+    setPlayableCharacterIsInteracting, initiateTalk, isActionInProgress, setActionInProgress,
     clearActionInProgress, fadeOutAndLoadMenu, unfreezeField
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
@@ -39,7 +39,7 @@ const initFieldKeypressActions = () => {
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'talk') {
             console.log('r1', isActionInProgress())
             clearActionInProgress()
-            setPlayableCharacterMovability(true)
+            setPlayableCharacterIsInteracting(false)
         }
     })
 

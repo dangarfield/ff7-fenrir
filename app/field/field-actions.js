@@ -5,6 +5,7 @@ import { loadMenu } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
+import { stopAllLoops } from './field-op-loop.js'
 
 let actionInProgress = false
 
@@ -80,7 +81,7 @@ const modelCollisionTriggered = (i) => {
 
 const initiateTalk = async (i, fieldModel) => {
     console.log('initiateTalk', i, fieldModel)
-    setPlayableCharacterMovability(false)
+    setPlayableCharacterIsInteracting(true)
     window.currentField.playableCharacter.mixer.stopAllAction()
 
     // Hardcoded placeholders -> Move these to op code section init
@@ -99,17 +100,17 @@ const initiateTalk = async (i, fieldModel) => {
     // 'Biggs<br/>“Think how many of our people risked their<br/>\tlives, just for this code…”'
 
     console.log('talk progressed', currentChoice)
-    setPlayableCharacterMovability(true)
+    setPlayableCharacterIsInteracting(false)
     clearActionInProgress()
 }
 
-const setPlayableCharacterMovability = (canMove) => {
-    window.currentField.playableCharacter.scene.userData.playableCharacterMovability = canMove
+const setPlayableCharacterIsInteracting = (isInteracting) => {
+    window.currentField.playableCharacterIsInteracting = isInteracting
 }
 const fadeOutAndLoadMenu = async (menuType, menuParam) => {
     setActionInProgress('menu')
     window.anim.clock.stop()
-    setPlayableCharacterMovability(false)
+    setPlayableCharacterIsInteracting(true)
     await fadeOut()
     loadMenu(menuType, menuParam)
 }
@@ -117,7 +118,7 @@ const unfreezeField = async () => {
     startFieldRenderLoop()
     clearActionInProgress()
     window.anim.clock.start()
-    setPlayableCharacterMovability(true)
+    setPlayableCharacterIsInteracting(false)
     await fadeIn()
 }
 const gatewayTriggered = async (i) => {
@@ -125,9 +126,15 @@ const gatewayTriggered = async (i) => {
     console.log('gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
     window.anim.clock.stop()
-    setPlayableCharacterMovability(false)
+    setPlayableCharacterIsInteracting(true)
     await fadeOut()
-    const playableCharacterInitData = { triangleId: gateway.destinationVertex.triangleId, position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y, z: 0 }, direction: gateway.destinationVertex.direction } // TODO - This doesn't look right
+    stopAllLoops()
+    const playableCharacterInitData = {
+        triangleId: gateway.destinationVertex.triangleId,
+        position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y, z: 0 },
+        direction: gateway.destinationVertex.direction,
+        // player: TODO - ensure we now who to flag and place on the scene and on what op code does this
+    }
     loadField(gateway.fieldName, playableCharacterInitData)
 }
 const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
@@ -135,9 +142,15 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     console.log('jumpToMap', fieldId, fieldName, x, y, triangleId, direction)
     setActionInProgress('gateway')
     window.anim.clock.stop()
-    setPlayableCharacterMovability(false)
+    setPlayableCharacterIsInteracting(true)
     await fadeOut()
-    const playableCharacterInitData = { triangleId: triangleId, position: { x: x, y: y, z: 0 }, direction: direction }
+    stopAllLoops()
+    const playableCharacterInitData = {
+        triangleId: triangleId,
+        position: { x: x, y: y, z: 0 },
+        direction: direction,
+        // player: TODO - ensure we now who to flag and place on the scene and on what op code does this
+    }
     loadField(fieldName, playableCharacterInitData)
 }
 const setGatewayTriggerEnabled = (enabled) => {
@@ -145,12 +158,13 @@ const setGatewayTriggerEnabled = (enabled) => {
     console.log('setGatewayTriggerEnabled', window.currentField.gatewayTriggersEnabled)
 }
 const triggerBattleWithSwirl = (battleId) => {
+    // Maybe pause current field loop ?!
     if (isBattleLockEnabled()) {
         return
     }
     setActionInProgress('battle')
     window.anim.clock.stop()
-    setPlayableCharacterMovability(false)
+    setPlayableCharacterIsInteracting(true)
     const options = { things: 'more-things' } // get options from currentField / somewhere
     loadBattleWithSwirl(battleId, options)
 }
@@ -159,7 +173,7 @@ export {
     triggerTriggered,
     modelCollisionTriggered,
     initiateTalk,
-    setPlayableCharacterMovability,
+    setPlayableCharacterIsInteracting,
     isActionInProgress,
     setActionInProgress,
     clearActionInProgress,

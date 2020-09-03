@@ -169,6 +169,7 @@ const executeOp = async (entityName, scriptType, ops, op) => {
 
         // Field Models and Animation
 
+        case 'UC': result = await models.UC(entityName, op); break
         case 'TLKON': result = await models.TLKON(entityName, op); break
         case 'PC': result = await models.PC(entityName, op); break
         case 'CHAR': result = await models.CHAR(entityName, op); break
@@ -179,6 +180,8 @@ const executeOp = async (entityName, scriptType, ops, op) => {
         case 'MSPED': result = await models.MSPED(entityName, op); break
         case 'DIR': result = await models.DIR(entityName, op); break
         case 'ASPED': result = await models.ASPED(entityName, op); break
+        case 'CC': result = await models.CC(entityName, op); break
+
         case 'TALKR': result = await models.TALKR(entityName, op); break
         case 'SLIDR': result = await models.SLIDR(entityName, op); break
         case 'SOLID': result = await models.SOLID(entityName, op); break
