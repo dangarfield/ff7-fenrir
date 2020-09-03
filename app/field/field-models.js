@@ -160,5 +160,6 @@ export {
     setModelCollisionEnabled,
     setModelCollisionRadius,
     setModelAsLeader,
-    setPlayableCharacterCanMove
+    setPlayableCharacterCanMove,
+    getModelByEntityName
 }

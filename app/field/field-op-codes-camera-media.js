@@ -475,15 +475,16 @@ const MVIEF = async (op) => {
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}
 }
-// setTimeout(async () => {
-// await SOUND({ i: 3, d: 64 })
-// await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
-// // await sleep(1000)
-// await PMVIE({ m: 53 })
-// await MOVIE({})
-// setBankData(6, 6, 700)
-// console.log('MOVIE ENDED')
-// }, 11000)
+setTimeout(async () => {
+    await SOUND({ i: 3, d: 64 })
+    await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 0, t: 0 })
+    // await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
+    // // await sleep(1000)
+    // await PMVIE({ m: 53 })
+    // await MOVIE({})
+    // setBankData(6, 6, 700)
+    // console.log('MOVIE ENDED')
+}, 10000)
 
 export {
     NFADE,

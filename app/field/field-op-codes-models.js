@@ -1,4 +1,5 @@
 import * as fieldModels from './field-models.js'
+import * as fieldAnimations from './field-animations.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 
 // General placement and init
@@ -110,18 +111,67 @@ const UC = async (entityName, op) => {
     return {}
 }
 
+// Animations
+const ANIME1 = async (entityName, op) => {
+    console.log('ANIME1', entityName, op)
+    await fieldAnimations.playAnimationOnceSyncReset(entityName, op.a, op.s)
+    return {}
+}
+const ANIME2 = async (entityName, op) => {
+    console.log('ANIME2', entityName, op)
+    await fieldAnimations.playAnimationOnceAsyncReset(entityName, op.a, op.s)
+    return {}
+}
+const ANIM_1 = async (entityName, op) => {
+    console.log('ANIM!1', entityName, op)
+    await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityName, op.a, op.s)
+    return {}
+}
+const ANIM_2 = async (entityName, op) => {
+    console.log('ANIM!2', entityName, op)
+    await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityName, op.a, op.s)
+    return {}
+}
+const DFANM = async (entityName, op) => {
+    console.log('DFANM', entityName, op)
+    await fieldAnimations.playAnimationLoopedAsync(entityName, op.a, op.s)
+    return {}
+}
+
+// PLAY PARTIAL ANIM - CANIM1
+// PLAY PARTIAL ANIM - CANM!1
+
+// PLAY ANIMATION - CANIM1
+// PLAY ANIMATION - CANM!2
+
+// SET ANIMATION ID - CCANM
+
+// STOP ANIMATION - ANIMB
+// WAIT FOR ANIMATION - ANIMW
+setTimeout(async () => {
+    console.log('ANIM: STARTED')
+    // await VISI('av_m', { s: 1 })
+    // await ANIME1('av_m', { a: 3, s: 1 })
+    // await DFANM('av_m', { a: 4, s: 1 })
+    console.log('ANIM: ENDED')
+}, 11000)
 
 export {
     UC,
     TLKON,
     PC,
     CHAR,
+    DFANM,
+    ANIME1,
+    ANIM_1,
     VISI,
     XYZI,
     XYI,
     XYZ,
+    ANIME2,
     MSPED,
     DIR,
+    ANIM_2,
     ASPED,
     CC,
     TALKR,

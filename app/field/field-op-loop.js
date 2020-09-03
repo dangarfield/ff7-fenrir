@@ -16,7 +16,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
     if (STOP_ALL_LOOPS) {
         console.log('Loop stopping')
     }
-    sendOpFlowEvent(entityName, scriptType, op.op, currentOpIndex)
+    sendOpFlowEvent(entityName, scriptType, op.op, currentOpIndex + 1)
     let result = {}
     switch (op.op) {
         // Script Flow and Control
@@ -174,12 +174,21 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'TLKON': result = await models.TLKON(entityName, op); break
         case 'PC': result = await models.PC(entityName, op); break
         case 'CHAR': result = await models.CHAR(entityName, op); break
+
+        case 'DFANM': result = await models.DFANM(entityName, op); break
+        case 'ANIME1': result = await models.ANIME1(entityName, op); break
+        case 'ANIM!1': result = await models.ANIM_1(entityName, op); break
+
         case 'VISI': result = await models.VISI(entityName, op); break
         case 'XYZI': result = await models.XYZI(entityName, op); break
         case 'XYI': result = await models.XYI(entityName, op); break
         case 'XYZ': result = await models.XYZ(entityName, op); break
+
+        case 'ANIME2': result = await models.ANIME2(entityName, op); break
         case 'MSPED': result = await models.MSPED(entityName, op); break
         case 'DIR': result = await models.DIR(entityName, op); break
+
+        case 'ANIM!2': result = await models.ANIM_2(entityName, op); break
         case 'ASPED': result = await models.ASPED(entityName, op); break
         case 'CC': result = await models.CC(entityName, op); break
 
@@ -259,7 +268,7 @@ const executeScriptLoop = async (entityName, loop) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP')
-            sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex)
+            sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex + 1)
             break
         }
 
@@ -292,8 +301,8 @@ const initEntity = async (entity) => {
     console.log('initLoop', initLoop)
     await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
-    console.log('mainLoop', mainLoop)
-    await executeScriptLoop(entity.entityName, mainLoop)
+    // console.log('mainLoop', mainLoop)
+    // await executeScriptLoop(entity.entityName, mainLoop)
     console.log('initEntity: END', entity.entityName)
 }
 
