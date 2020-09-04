@@ -1,6 +1,7 @@
 import * as fieldModels from './field-models.js'
 import * as fieldAnimations from './field-animations.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
+import { sleep } from '../helpers/helpers.js'
 
 // General placement and init
 const CHAR = async (entityName, op) => {
@@ -117,9 +118,19 @@ const ANIME1 = async (entityName, op) => {
     await fieldAnimations.playAnimationOnceSyncReset(entityName, op.a, op.s)
     return {}
 }
+const CANIM1 = async (entityName, op) => {
+    console.log('CANIM1', entityName, op)
+    await fieldAnimations.playAnimationPartialOnceSyncReset(entityName, op.a, op.s, op.f, op.l)
+    return {}
+}
 const ANIME2 = async (entityName, op) => {
     console.log('ANIME2', entityName, op)
     await fieldAnimations.playAnimationOnceAsyncReset(entityName, op.a, op.s)
+    return {}
+}
+const CANIM2 = async (entityName, op) => {
+    console.log('CANIM2', entityName, op)
+    await fieldAnimations.playAnimationPartialOnceAsyncReset(entityName, op.a, op.s, op.f, op.l)
     return {}
 }
 const ANIM_1 = async (entityName, op) => {
@@ -127,9 +138,19 @@ const ANIM_1 = async (entityName, op) => {
     await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityName, op.a, op.s)
     return {}
 }
+const CANM_1 = async (entityName, op) => {
+    console.log('CANM!1', entityName, op)
+    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityName, op.a, op.s, op.f, op.l)
+    return {}
+}
 const ANIM_2 = async (entityName, op) => {
     console.log('ANIM!2', entityName, op)
     await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityName, op.a, op.s)
+    return {}
+}
+const CANM_2 = async (entityName, op) => {
+    console.log('CANM!2', entityName, op)
+    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityName, op.a, op.s, op.f, op.l)
     return {}
 }
 const DFANM = async (entityName, op) => {
@@ -138,21 +159,33 @@ const DFANM = async (entityName, op) => {
     return {}
 }
 
-// PLAY PARTIAL ANIM - CANIM1
-// PLAY PARTIAL ANIM - CANM!1
+const ANIMB = async (entityName, op) => {
+    console.log('ANIMB', entityName, op)
+    fieldAnimations.stopAnimationHoldLastFrame(entityName)
+    return {}
+}
 
-// PLAY ANIMATION - CANIM1
-// PLAY ANIMATION - CANM!2
+const ANIMW = async (entityName, op) => {
+    console.log('ANIMW', entityName, op)
+    await fieldAnimations.waitForAnimationToFinish(entityName)
+    return {}
+}
 
-// SET ANIMATION ID - CCANM
-
-// STOP ANIMATION - ANIMB
-// WAIT FOR ANIMATION - ANIMW
+const CCANM = async (entityName, op) => {
+    console.log('CCANM', entityName, op)
+    fieldAnimations.setPlayerMovementAnimationId(op.a, op.i)
+    return {}
+}
 setTimeout(async () => {
     console.log('ANIM: STARTED')
-    // await VISI('av_m', { s: 1 })
+    await VISI('av_m', { s: 1 })
     // await ANIME1('av_m', { a: 3, s: 1 })
-    // await DFANM('av_m', { a: 4, s: 1 })
+    // await ANIME2('av_m', { a: 3, s: 1 })
+    // await ANIMW('av_m')
+    await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
+    // await sleep(1000)
+    // await ANIMB('av_m', {})
+    // await ANIMW('av_m', {})
     console.log('ANIM: ENDED')
 }, 11000)
 
@@ -163,20 +196,27 @@ export {
     CHAR,
     DFANM,
     ANIME1,
-    ANIM_1,
     VISI,
     XYZI,
     XYI,
     XYZ,
+    ANIMW,
     ANIME2,
+    ANIM_1,
+    CANIM1,
+    CANM_1,
     MSPED,
     DIR,
     ANIM_2,
+    CANIM2,
+    CANM_2,
     ASPED,
     CC,
     TALKR,
     SLIDR,
     SOLID,
     TLKR2,
-    SLDR2
+    SLDR2,
+    CCANM,
+    ANIMB
 }

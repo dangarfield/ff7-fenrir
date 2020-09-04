@@ -40,6 +40,9 @@
 .field-op-loop-visualiser .toggle {
 	text-align: center;
 }
+.field-op-loop-visualiser .toggle:hover {
+	background-color: #111111;
+}
 .field-op-loop-visualiser .btn-tiny {
 	padding: 1px;
 	font-size: 9px;

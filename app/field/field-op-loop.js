@@ -177,18 +177,25 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
 
         case 'DFANM': result = await models.DFANM(entityName, op); break
         case 'ANIME1': result = await models.ANIME1(entityName, op); break
-        case 'ANIM!1': result = await models.ANIM_1(entityName, op); break
 
         case 'VISI': result = await models.VISI(entityName, op); break
         case 'XYZI': result = await models.XYZI(entityName, op); break
         case 'XYI': result = await models.XYI(entityName, op); break
         case 'XYZ': result = await models.XYZ(entityName, op); break
 
+        case 'ANIMW': result = await models.ANIMW(entityName, op); break
         case 'ANIME2': result = await models.ANIME2(entityName, op); break
+        case 'ANIM!1': result = await models.ANIM_1(entityName, op); break
+        case 'CANIM1': result = await models.CANIM1(entityName, op); break
+        case 'CANM!1': result = await models.CANM_1(entityName, op); break
+
         case 'MSPED': result = await models.MSPED(entityName, op); break
         case 'DIR': result = await models.DIR(entityName, op); break
 
         case 'ANIM!2': result = await models.ANIM_2(entityName, op); break
+        case 'CANIM2': result = await models.CANIM2(entityName, op); break
+        case 'CANM!2': result = await models.CANM_2(entityName, op); break
+
         case 'ASPED': result = await models.ASPED(entityName, op); break
         case 'CC': result = await models.CC(entityName, op); break
 
@@ -197,6 +204,9 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'SOLID': result = await models.SOLID(entityName, op); break
         case 'TLKR2': result = await models.TLKR2(entityName, op); break
         case 'SLDR2': result = await models.SLDR2(entityName, op); break
+
+        case 'CCANM': result = await models.CCANM(entityName, op); break
+        case 'ANIMB': result = await models.ANIMB(entityName, op); break
 
 
         // Background and Palette

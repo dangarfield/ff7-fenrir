@@ -1,6 +1,12 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 
+const directionToDegrees = (dir) => {
+    return Math.round(dir * (360 / 255))
+}
+const degreesToDirection = (deg) => {
+    return Math.round(dir * (255 / 360))
+}
 const isCharacterTheLeader = (characterName) => {
     // A lot of logic / assumptions to look at here, for now, just check if it's cloud
     if (characterName === 'Cloud') {
@@ -85,8 +91,9 @@ const setModelVisibility = (entityName, isVisible) => {
 }
 const setModelDirection = (entityName, direction) => {
     console.log('setModelVisibility', entityName, direction)
+    const deg = directionToDegrees(direction)
     const model = getModelByEntityName(entityName)
-    model.scene.rotateY(THREE.Math.degToRad(direction))
+    model.scene.rotateY(THREE.Math.degToRad(deg))
 }
 const setModelMovementSpeed = (entityName, speed) => {
     console.log('setModelMovementSpeed', entityName, speed)
@@ -148,6 +155,8 @@ const setPlayableCharacterCanMove = (canMove) => {
 }
 
 export {
+    directionToDegrees,
+    degreesToDirection,
     setModelAsEntity,
     setModelAsPlayableCharacter,
     placeModel,

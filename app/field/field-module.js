@@ -16,7 +16,7 @@ import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { preLoadFieldMediaData } from '../media/media-module.js'
 import { clearAllDialogs } from './field-dialog.js'
 import { initBattleSettings } from './field-battle.js'
-
+import { directionToDegrees } from './field-models.js'
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
@@ -391,13 +391,13 @@ const updateFieldMovement = (delta) => {
 
     // If walk/run is toggled, stop the existing window.animation
     if (animNo === 2) { // Run
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).stop() // Probably a more efficient way to change these animations
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).stop()
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).play()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.stand]).stop() // Probably a more efficient way to change these animations
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.walk]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.run]).play()
     } else if (animNo === 1) { // Walk
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).stop()
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).stop()
-        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).play()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.stand]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.run]).stop()
+        window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.walk]).play()
     }
 
     // There is movement, set next position
@@ -547,7 +547,7 @@ const positionPlayableCharacterFromTransition = () => {
 
         // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
         let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
-        deg = deg - initData.direction + 12 // TODO - Adjust this as it looks better, check when not in debug mode
+        deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
 
         window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
         const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
@@ -590,7 +590,10 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         playableCharacterInitData: playableCharacterInitData,
         media: undefined,
         menuEnabled: true,
-        gatewayTriggersEnabled: true
+        gatewayTriggersEnabled: true,
+        playerAnimations: {
+            stand: 0, walk: 1, run: 2
+        }
     }
 
     showLoadingScreen()
