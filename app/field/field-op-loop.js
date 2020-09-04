@@ -320,6 +320,12 @@ const initEntity = async (entity) => {
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     // console.log('mainLoop', mainLoop)
     // await executeScriptLoop(entity.entityName, mainLoop)
+    // if (entity.entityName === 'gu0') {
+    //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
+    //     console.log('script3', script3)
+    //     await executeScriptLoop(entity.entityName, script3)
+    // }
+
     console.log('initEntity: END', entity.entityName)
 }
 
@@ -332,6 +338,36 @@ const initialiseOpLoops = async () => {
         initEntity(entity) // All running async
     }
     console.log('initialiseOpLoops: END')
+    debugLogOpCodeCompletionForField()
+}
+const debugLogOpCodeCompletionForField = async () => {
+
+    const completedCodesRes = await fetch(`/workings-out/op-codes-completed.json`)
+    const completedCodes = await completedCodesRes.json()
+
+    const done = []
+    const missing = []
+
+    const entities = window.currentField.data.script.entities
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i]
+        for (let j = 0; j < entity.scripts.length; j++) {
+            const script = entity.scripts[j]
+            for (let k = 0; k < script.ops.length; k++) {
+                const op = script.ops[k].op
+                if (completedCodes.includes(op)) {
+                    if (!done.includes(op)) {
+                        done.push(op)
+                    }
+                } else {
+                    if (!missing.includes(op)) {
+                        missing.push(op)
+                    }
+                }
+            }
+        }
+    }
+    console.log('debugLogOpCodeCompletionForField', 'missing ->', missing)
 }
 export {
     initialiseOpLoops,

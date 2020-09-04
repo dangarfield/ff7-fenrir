@@ -3,6 +3,7 @@ import * as fieldAnimations from './field-animations.js'
 import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
+import { getBankData } from '../data/savemap.js'
 
 // General placement and init
 const CHAR = async (entityName, op) => {
@@ -235,9 +236,9 @@ setTimeout(async () => {
     // await DIR('av_m', { b: 0, d: 104 })
     // await sleep(1000 / 30 * 100)
     // Do the rest
-    await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
     // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
-    await MOVA('av_m', { e: 1 })
+    // await MOVA('av_m', { e: 1 })
 
 
     // await ANIME2('av_m', { a: 3, s: 1 })
@@ -247,6 +248,8 @@ setTimeout(async () => {
     // await ANIMB('av_m', {})
     // await ANIMW('av_m', {})
     console.log('ANIM: ENDED')
+
+    console.log('triangleTarget', getBankData(6, 9))
 }, 11000)
 
 export {

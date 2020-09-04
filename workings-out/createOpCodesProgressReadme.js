@@ -1,12 +1,10 @@
 const fs = require('fs-extra')
 const path = require('path')
 const _ = require('lodash')
-const { split } = require('lodash')
-
-
 
 const OPS_FOLDER = './kujata-data/metadata'
 const OPS_README = './OPS_CODES_README.md'
+const OPS_COMPLETED = './workings-out/op-codes-completed.json'
 
 const getCategories = async () => {
     return fs.readJson(path.join(OPS_FOLDER, 'op-categories.json'))
@@ -41,6 +39,7 @@ const getCompletedOpCodes = async () => {
         }
 
     }
+    await fs.writeJson(OPS_COMPLETED, completedCodes)
     console.log('completedCodes', completedCodes)
     return completedCodes
 }

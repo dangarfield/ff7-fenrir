@@ -23,7 +23,7 @@ const moveEntityToEntityWithAnimationAndRotation = async (entityName, targetEnti
 const moveEntity = async (entityName, x, y, rotate, animate) => {
     const model = getModelByEntityName(entityName)
     const speed = model.userData.movementSpeed
-    console.log('moveEntityWithoutAnimationOrRotation', entityName, x, y, speed, model)
+    console.log('moveEntity', entityName, x, y, rotate, animate, speed, model)
 
     console.log('current position', model.scene.position.x, model.scene.position.y)
     const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: x, y: y })
@@ -32,7 +32,7 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
     const from = { x: model.scene.position.x, y: model.scene.position.y }
     const to = { x: x, y: y }
     const distance = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
-    const time = distance * model.userData.movementSpeed * 8 // TODO - Look at this properly, not sure of the scale here
+    const time = distance * model.userData.movementSpeed * 2 // TODO - Look at this properly, not sure of the scale here
     console.log('distance', from.x - to.x, from.y - to.y,
         Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2),
         distance, time
