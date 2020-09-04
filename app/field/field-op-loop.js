@@ -191,6 +191,8 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
 
         case 'MSPED': result = await models.MSPED(entityName, op); break
         case 'DIR': result = await models.DIR(entityName, op); break
+        case 'TURNGEN': result = await models.TURNGEN(entityName, op); break
+        case 'TURN': result = await models.TURN(entityName, op); break
 
         case 'ANIM!2': result = await models.ANIM_2(entityName, op); break
         case 'CANIM2': result = await models.CANIM2(entityName, op); break

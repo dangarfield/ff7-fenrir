@@ -46,12 +46,6 @@ const VISI = async (entityName, op) => {
     fieldModels.setModelVisibility(entityName, op.s === 1)
     return {}
 }
-const DIR = async (entityName, op) => {
-    console.log('DIR', entityName, op)
-    const direction = op.b == 0 ? op.d : getBankData(op.b, op.d)
-    fieldModels.setModelDirection(entityName, direction)
-    return {}
-}
 
 // Change entity settings
 const MSPED = async (entityName, op) => {
@@ -176,13 +170,46 @@ const CCANM = async (entityName, op) => {
     fieldAnimations.setPlayerMovementAnimationId(op.a, op.i)
     return {}
 }
+
+
+// Turn and rotation
+const TURNGEN = async (entityName, op) => {
+    console.log('TURNGEN', entityName, op)
+    const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    await fieldModels.turnModel(entityName, direction, op.d, op.s, op.t)
+    return {}
+}
+const TURN = async (entityName, op) => {
+    console.log('TURN', entityName, op)
+    const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
+    await fieldModels.turnModel(entityName, direction, op.d, op.s, op.t)
+    return {}
+}
+const DIR = async (entityName, op) => {
+    console.log('DIR', entityName, op)
+    const direction = op.b == 0 ? op.d : getBankData(op.b, op.d)
+    fieldModels.setModelDirection(entityName, direction)
+    return {}
+}
+
 setTimeout(async () => {
     console.log('ANIM: STARTED')
     await VISI('av_m', { s: 1 })
+    // await TURA('av_m', { g: 2, d: 2, s: 2 })
     // await ANIME1('av_m', { a: 3, s: 1 })
+    // await sleep(1000 / 30 * 8)
+    // await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
+    // await sleep(1000 / 30 * 10)
+    // await ANIME1('av_m', { a: 4, s: 1 })
+    // await DIR('av_m', { b: 0, d: 104 })
+    // await sleep(1000 / 30 * 100)
+    // Do the rest
+
+
+
     // await ANIME2('av_m', { a: 3, s: 1 })
     // await ANIMW('av_m')
-    await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
+    // await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
     // await sleep(1000)
     // await ANIMB('av_m', {})
     // await ANIMW('av_m', {})
@@ -207,6 +234,8 @@ export {
     CANM_1,
     MSPED,
     DIR,
+    TURNGEN,
+    TURN,
     ANIM_2,
     CANIM2,
     CANM_2,

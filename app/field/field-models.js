@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 
 const directionToDegrees = (dir) => {
@@ -29,6 +30,10 @@ const getModelScaleDownValue = () => {
 
 const getModelByEntityName = (entityName) => {
     return window.currentField.models.filter(m => m.userData.entityName === entityName)[0]
+}
+const getModelByEntityId = (entityId) => {
+    const entityName = window.currentField.data.script.entities[entityId].entityName
+    return getModelByEntityName(entityName)
 }
 
 // This method also initialises defaults for model.userData and adds model to the field
@@ -154,6 +159,80 @@ const setPlayableCharacterCanMove = (canMove) => {
     window.currentField.positionHelpersEnabled = canMove
 }
 
+const turnModelToFaceEntity = async (entityName, entityIdToFace, whichWayId, steps) => {
+    const model = getModelByEntityName(entityName)
+    const modelToFace = getModelByEntityId(entityIdToFace)
+
+    // TODO - This is not right, look at this later
+    // model.scene.lookAt(modelToFace.scene.position)
+    // const direction = Math.atan2(modelToFace.scene.position.y - model.scene.position.y, modelToFace.scene.position.x - model.scene.position.x) * 180 / Math.PI
+    // console.log('turnModelToFaceEntity direction', direction, modelToFace, modelToFace.scene.position, model.scene.position)
+    // const yDiff = modelToFace.scene.position.y - model.scene.position.y
+    // const xDiff = modelToFace.scene.position.x - model.scene.position.x
+    // console.log('y', yDiff)
+    // console.log('x', xDiff)
+    // console.log('math', Math.atan2(yDiff, xDiff))
+    // await turnModel(entityName, direction, whichWayId, steps, 2)
+}
+const turnModel = async (entityName, direction, whichWayId, steps, stepType) => {
+    return new Promise((resolve) => {
+        console.log('turnModel', entityName, direction, whichWayId, steps, stepType)
+        const model = getModelByEntityName(entityName)
+
+        // Get start and end angles in radians
+        let desiredYDeg = directionToDegrees(direction)
+        let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
+        currentYDeg < 0 ? currentYDeg = 360 + currentYDeg : currentYDeg
+        currentYDeg - 180 > desiredYDeg ? currentYDeg = currentYDeg - 360 : currentYDeg
+
+        if (whichWayId === 0 && currentYDeg < desiredYDeg) {
+            console.log('force clockwise')
+            currentYDeg = currentYDeg + 360
+        }
+        if (whichWayId === 1 && currentYDeg > desiredYDeg) {
+            console.log('force anti-clockwise')
+            currentYDeg = currentYDeg - 360
+        }
+
+
+        const currentYRad = THREE.Math.degToRad(currentYDeg)
+        const desiredYRad = THREE.Math.degToRad(desiredYDeg)
+
+        console.log('turn deg', currentYDeg, '->', desiredYDeg)
+        console.log('turn rad', currentYRad, '->', desiredYRad)
+
+        // Tween from currentYRad to desiredYRad
+        model.scene.rotation.y = currentYRad
+
+        const from = { y: currentYRad }
+        const to = { y: desiredYRad }
+
+
+        let easingType = TWEEN.Easing.Linear.None
+        if (stepType === 2) {
+            easingType = (TWEEN.Easing.Quadratic.InOut)
+        }
+        console.log('easingType', easingType)
+        let time = 200 // Not sure about the speed yet
+        new TWEEN.Tween(from)
+            .to(to, time)
+            .easing(easingType)
+            .onUpdate(function () {
+                // window.currentField.fieldFader.material.opacity = from.opacity
+                // console.log('turnModel: TWEEN', from)
+                model.scene.rotation.y = from.y
+                // if (from.r) {
+                //     // Has to be like this for non THREE.NormalBlending modes
+                //     mesh.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)
+                // }
+            })
+            .onComplete(function () {
+                console.log('turnModel: END', from)
+                resolve()
+            })
+            .start()
+    })
+}
 export {
     directionToDegrees,
     degreesToDirection,
@@ -170,5 +249,7 @@ export {
     setModelCollisionRadius,
     setModelAsLeader,
     setPlayableCharacterCanMove,
-    getModelByEntityName
+    getModelByEntityName,
+    turnModelToFaceEntity,
+    turnModel
 }
