@@ -183,7 +183,12 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'XYI': result = await models.XYI(entityName, op); break
         case 'XYZ': result = await models.XYZ(entityName, op); break
 
+        case 'MOVE': result = await models.MOVE(entityName, op); break
+        case 'CMOVE': result = await models.CMOVE(entityName, op); break
+        case 'MOVA': result = await models.MOVA(entityName, op); break
+
         case 'ANIMW': result = await models.ANIMW(entityName, op); break
+        case 'FMOVE': result = await models.FMOVE(entityName, op); break
         case 'ANIME2': result = await models.ANIME2(entityName, op); break
         case 'ANIM!1': result = await models.ANIM_1(entityName, op); break
         case 'CANIM1': result = await models.CANIM1(entityName, op); break

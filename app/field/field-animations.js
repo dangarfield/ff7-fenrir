@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getModelByEntityName } from './field-models.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { getModelByEntityName, getDegreesFromTwoPoints } from './field-models.js'
 
 const playAnimationOnceSyncReset = async (entityName, animationId, speed) => {
     await playAnimation(entityName, animationId, speed, false, THREE.LoopOnce)

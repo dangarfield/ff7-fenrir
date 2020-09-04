@@ -45,7 +45,7 @@ const setModelAsEntity = (entityName, modelId) => {
     model.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
     model.scene.rotation.x = THREE.Math.degToRad(90)
     model.scene.up.set(0, 0, 1)
-
+    model.scene.visible = false
     model.userData.movementSpeed = 2048 // TODO - Absolute guess for default
     model.userData.animationSpeed = 1 // TODO - Absolute guess for default
     model.userData.talkEnabled = true
@@ -88,6 +88,7 @@ const placeModel = (entityName, x, y, z, triangleId) => {
             z / 4096)
         console.log('placeModel: xyz', x, y, z)
     }
+    model.scene.visible = true
 }
 const setModelVisibility = (entityName, isVisible) => {
     console.log('setModelVisibility', entityName, isVisible)
@@ -158,7 +159,9 @@ const setPlayableCharacterCanMove = (canMove) => {
     // Also hides / shows cursor arrows if enabled
     window.currentField.positionHelpersEnabled = canMove
 }
-
+const getDegreesFromTwoPoints = (point1, point2) => {
+    return Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI
+}
 const turnModelToFaceEntity = async (entityName, entityIdToFace, whichWayId, steps) => {
     const model = getModelByEntityName(entityName)
     const modelToFace = getModelByEntityId(entityIdToFace)
@@ -193,21 +196,15 @@ const turnModel = async (entityName, direction, whichWayId, steps, stepType) => 
             console.log('force anti-clockwise')
             currentYDeg = currentYDeg - 360
         }
-
-
         const currentYRad = THREE.Math.degToRad(currentYDeg)
         const desiredYRad = THREE.Math.degToRad(desiredYDeg)
-
         console.log('turn deg', currentYDeg, '->', desiredYDeg)
         console.log('turn rad', currentYRad, '->', desiredYRad)
 
         // Tween from currentYRad to desiredYRad
         model.scene.rotation.y = currentYRad
-
         const from = { y: currentYRad }
         const to = { y: desiredYRad }
-
-
         let easingType = TWEEN.Easing.Linear.None
         if (stepType === 2) {
             easingType = (TWEEN.Easing.Quadratic.InOut)
@@ -250,6 +247,8 @@ export {
     setModelAsLeader,
     setPlayableCharacterCanMove,
     getModelByEntityName,
+    getModelByEntityId,
     turnModelToFaceEntity,
-    turnModel
+    turnModel,
+    getDegreesFromTwoPoints
 }

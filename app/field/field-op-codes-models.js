@@ -1,5 +1,6 @@
 import * as fieldModels from './field-models.js'
 import * as fieldAnimations from './field-animations.js'
+import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 
@@ -192,6 +193,36 @@ const DIR = async (entityName, op) => {
     return {}
 }
 
+// Movement
+const MOVE = async (entityName, op) => {
+    console.log('MOVE', entityName, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    await fieldMovement.moveEntityWithAnimationAndRotation(entityName, x, y)
+    return {}
+}
+const FMOVE = async (entityName, op) => {
+    console.log('FMOVE', entityName, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    await fieldMovement.moveEntityWithoutAnimationButWithRotation(entityName, x, y)
+    return {}
+}
+const CMOVE = async (entityName, op) => {
+    console.log('CMOVE', entityName, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    await fieldMovement.moveEntityWithoutAnimationOrRotation(entityName, x, y)
+    return {}
+}
+const MOVA = async (entityName, op) => {
+    console.log('MOVA', entityName, op)
+    await fieldMovement.moveEntityToEntityWithAnimationAndRotation(entityName, op.e)
+    return {}
+}
+
+
+
 setTimeout(async () => {
     console.log('ANIM: STARTED')
     await VISI('av_m', { s: 1 })
@@ -204,7 +235,9 @@ setTimeout(async () => {
     // await DIR('av_m', { b: 0, d: 104 })
     // await sleep(1000 / 30 * 100)
     // Do the rest
-
+    await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
+    await MOVA('av_m', { e: 1 })
 
 
     // await ANIME2('av_m', { a: 3, s: 1 })
@@ -227,7 +260,11 @@ export {
     XYZI,
     XYI,
     XYZ,
+    MOVE,
+    CMOVE,
+    MOVA,
     ANIMW,
+    FMOVE,
     ANIME2,
     ANIM_1,
     CANIM1,
