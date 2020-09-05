@@ -171,6 +171,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         // Field Models and Animation
 
         case 'UC': result = await models.UC(entityName, op); break
+        case 'PXYZI': result = await models.PXYZI(entityName, op); break
         case 'TLKON': result = await models.TLKON(entityName, op); break
         case 'PC': result = await models.PC(entityName, op); break
         case 'CHAR': result = await models.CHAR(entityName, op); break
@@ -199,12 +200,15 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'TURNGEN': result = await models.TURNGEN(entityName, op); break
         case 'TURN': result = await models.TURN(entityName, op); break
 
+        case 'GETAXY': result = await models.GETAXY(entityName, op); break
+        case 'GETAI': result = await models.GETAI(entityName, op); break
         case 'ANIM!2': result = await models.ANIM_2(entityName, op); break
         case 'CANIM2': result = await models.CANIM2(entityName, op); break
         case 'CANM!2': result = await models.CANM_2(entityName, op); break
 
         case 'ASPED': result = await models.ASPED(entityName, op); break
         case 'CC': result = await models.CC(entityName, op); break
+        case 'AXYZI': result = await models.AXYZI(entityName, op); break
 
         case 'TALKR': result = await models.TALKR(entityName, op); break
         case 'SLIDR': result = await models.SLIDR(entityName, op); break
@@ -320,6 +324,7 @@ const initEntity = async (entity) => {
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     // console.log('mainLoop', mainLoop)
     // await executeScriptLoop(entity.entityName, mainLoop)
+    // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
     //     console.log('script3', script3)

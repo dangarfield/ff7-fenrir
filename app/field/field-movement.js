@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { getModelByEntityName, getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
+import { getModelByEntityName, getModelByEntityId, getModelByPartyMemberId, getDegreesFromTwoPoints } from './field-models.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityName, x, y) => {
     await moveEntity(entityName, x / 4096, y / 4096, false, false)
@@ -32,7 +32,7 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
     const from = { x: model.scene.position.x, y: model.scene.position.y }
     const to = { x: x, y: y }
     const distance = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
-    const time = distance * model.userData.movementSpeed * 2 // TODO - Look at this properly, not sure of the scale here
+    const time = distance * model.userData.movementSpeed * 4 // TODO - Look at this properly, not sure of the scale here
     console.log('distance', from.x - to.x, from.y - to.y,
         Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2),
         distance, time
@@ -63,6 +63,7 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
                     const point = intersects[0].point
                     // Adjust nextPosition height to adjust for any slopes
                     lastZ = point.z
+                    model.scene.userData.triangleId = intersects[0].object.userData.triangleId
                 }
 
                 // Update the model position
@@ -81,9 +82,49 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
             .start()
     })
 }
+
+const getEntityPositionTriangle = (entityId) => {
+    const model = getModelByEntityId(entityId)
+    console.log('getEntityPositionTriangle', entityId, model)
+    return model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+}
+const getEntityPositionXY = (entityId) => {
+    const model = getModelByEntityId(entityId)
+    console.log('getEntityPositionXY', entityId, model)
+    return {
+        x: Math.floor(model.scene.position.x * 4096),
+        y: Math.floor(model.scene.position.y * 4096),
+    }
+}
+const getEntityPositionXYZTriangle = (entityId) => {
+    const model = getModelByEntityId(entityId)
+    console.log('getEntityPositionXYZTriangle', entityId, model)
+    return {
+        x: Math.floor(model.scene.position.x * 4096),
+        y: Math.floor(model.scene.position.y * 4096),
+        z: Math.floor(model.scene.position.z * 4096),
+        triangleId: model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+    }
+}
+const getPartyMemberPositionXYZTriangle = (partyMemberId) => {
+    const model = getModelByPartyMemberId(partyMemberId)
+    console.log('getPartyMemberPositionXYZTriangle', partyMemberId, model)
+    return {
+        x: Math.floor(model.scene.position.x * 4096),
+        y: Math.floor(model.scene.position.y * 4096),
+        z: Math.floor(model.scene.position.z * 4096),
+        triangleId: model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+    }
+
+}
+
 export {
     moveEntityWithAnimationAndRotation,
     moveEntityWithoutAnimationOrRotation,
     moveEntityWithoutAnimationButWithRotation,
-    moveEntityToEntityWithAnimationAndRotation
+    moveEntityToEntityWithAnimationAndRotation,
+    getEntityPositionTriangle,
+    getEntityPositionXY,
+    getEntityPositionXYZTriangle,
+    getPartyMemberPositionXYZTriangle
 }

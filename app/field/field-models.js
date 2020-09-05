@@ -35,6 +35,11 @@ const getModelByEntityId = (entityId) => {
     const entityName = window.currentField.data.script.entities[entityId].entityName
     return getModelByEntityName(entityName)
 }
+const getModelByPartyMemberId = (partyMemberId) => {
+    const characterName = window.data.savemap.party.members[partyMemberId]
+    console.log('getModelByPartyMemberId', partyMemberId, characterName)
+    return window.currentField.models.filter(m => m.userData.characterName === characterName)[0]
+}
 
 // This method also initialises defaults for model.userData and adds model to the field
 const setModelAsEntity = (entityName, modelId) => {
@@ -70,8 +75,24 @@ const placeModel = (entityName, x, y, z, triangleId) => {
 
     // TODO - Potentially to do a little more, like use x, y, get z from triangle etc
 
-    if (triangleId !== undefined) {
+    if (x && y && z) {
+        console.log('placeModel: x, y, z')
+        model.scene.position.set(
+            x / 4096,
+            y / 4096,
+            z / 4096)
+    } else if (x && y && triangleId) {
         // Get the central point on the triangleId
+        console.log('placeModel: x, y, triangleZ')
+        const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
+        const triangleZ = (triangle[0].z + triangle[1].z + triangle[2].z) / 3
+        model.scene.position.set(
+            x / 4096,
+            y / 4096,
+            triangleZ / 4096)
+        console.log('placeModel: triangleId', triangleId, triangle, '->', x, y, z)
+    } else {
+        console.log('placeModel: triangleX, triangleY, triangleZ')
         const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
         const triangleX = (triangle[0].x + triangle[1].x + triangle[2].x) / 3
         const triangleY = (triangle[0].y + triangle[1].y + triangle[2].y) / 3
@@ -80,13 +101,9 @@ const placeModel = (entityName, x, y, z, triangleId) => {
             triangleX / 4096,
             triangleY / 4096,
             triangleZ / 4096)
-        console.log('placeModel: triangleId', triangleId, triangle, '->', x, y, z)
-    } else {
-        model.scene.position.set(
-            x / 4096,
-            y / 4096,
-            z / 4096)
-        console.log('placeModel: xyz', x, y, z)
+    }
+    if (triangleId !== undefined) {
+        model.scene.userData.triangleId = triangleId
     }
     model.scene.visible = true
 }
@@ -248,6 +265,7 @@ export {
     setPlayableCharacterCanMove,
     getModelByEntityName,
     getModelByEntityId,
+    getModelByPartyMemberId,
     turnModelToFaceEntity,
     turnModel,
     getDegreesFromTwoPoints

@@ -3,7 +3,7 @@ import * as fieldAnimations from './field-animations.js'
 import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
-import { getBankData } from '../data/savemap.js'
+import { getBankData, setBankData } from '../data/savemap.js'
 
 // General placement and init
 const CHAR = async (entityName, op) => {
@@ -222,12 +222,48 @@ const MOVA = async (entityName, op) => {
     return {}
 }
 
+// Position
+const GETAI = async (entityName, op) => {
+    console.log('GETAI', entityName, op)
+    const triangleId = fieldMovement.getEntityPositionTriangle(op.e)
+    setBankData(op.b, op.a, triangleId)
+    // console.log('GETAI triangle ->', getBankData(op.b, op.a))
+    return {}
+}
+const GETAXY = async (entityName, op) => {
+    console.log('GETAXY', entityName, op)
+    const position = fieldMovement.getEntityPositionXY(op.e)
+    setBankData(op.bx, op.x, position.x)
+    setBankData(op.by, op.y, position.y)
+    // console.log('GETAXY -> (x,y)', getBankData(op.bx, op.x), getBankData(op.by, op.y))
+    return {}
+}
+const AXYZI = async (entityName, op) => {
+    console.log('AXYZI', entityName, op)
+    const position = fieldMovement.getEntityPositionXYZTriangle(op.a)
+    setBankData(op.b1, op.x, position.x)
+    setBankData(op.b2, op.y, position.y)
+    setBankData(op.b3, op.z, position.z)
+    setBankData(op.b4, op.i, position.triangleId)
+    // console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
+    return {}
+}
+const PXYZI = async (entityName, op) => {
+    console.log('PXYZI', entityName, op)
+    const position = fieldMovement.getPartyMemberPositionXYZTriangle(op.p)
+    setBankData(op.b1, op.x, position.x)
+    setBankData(op.b2, op.y, position.y)
+    setBankData(op.b3, op.z, position.z)
+    setBankData(op.b4, op.i, position.triangleId)
+    // console.log('PXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
+    return {}
+}
 
 
 setTimeout(async () => {
     console.log('ANIM: STARTED')
-    await VISI('av_m', { s: 1 })
-    // await TURA('av_m', { g: 2, d: 2, s: 2 })
+    // await VISI('av_m', { s: 1 })
+    // // await TURA('av_m', { g: 2, d: 2, s: 2 })
     // await ANIME1('av_m', { a: 3, s: 1 })
     // await sleep(1000 / 30 * 8)
     // await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
@@ -235,7 +271,7 @@ setTimeout(async () => {
     // await ANIME1('av_m', { a: 4, s: 1 })
     // await DIR('av_m', { b: 0, d: 104 })
     // await sleep(1000 / 30 * 100)
-    // Do the rest
+    // // Do the rest
     // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
     // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
     // await MOVA('av_m', { e: 1 })
@@ -247,13 +283,27 @@ setTimeout(async () => {
     // await sleep(1000)
     // await ANIMB('av_m', {})
     // await ANIMW('av_m', {})
-    console.log('ANIM: ENDED')
 
-    console.log('triangleTarget', getBankData(6, 9))
+    // window.data.savemap.party.members = ['Cloud', 'None', 'None']
+
+    // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
+    // await DIR('cl', { b: 0, d: 128 })
+    // await VISI('cl', { s: 1 })
+    // await UC('cl', { s: 0 })
+    // await CC('cl', { e: 1 })
+    // console.log('ANIM: ENDED')
+    // setInterval(async () => {
+    //     await GETAI('cl', { b: 6, a: 4, e: 1 })
+    //     await GETAXY('cl', { bx: 6, x: 1, by: 6, y: 3, e: 1 })
+    //     await AXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, a: 1 })
+    //     await PXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, p: 0 })
+    // }, 1000);
+    // console.log('triangleTarget', getBankData(6, 9))
 }, 11000)
 
 export {
     UC,
+    PXYZI,
     TLKON,
     PC,
     CHAR,
@@ -276,11 +326,14 @@ export {
     DIR,
     TURNGEN,
     TURN,
+    GETAXY,
+    GETAI,
     ANIM_2,
     CANIM2,
     CANM_2,
     ASPED,
     CC,
+    AXYZI,
     TALKR,
     SLIDR,
     SOLID,

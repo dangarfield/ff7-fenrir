@@ -28,8 +28,10 @@ const drawWalkmesh = () => {
     let triangles = window.currentField.data.walkmeshSection.triangles;
     let numTriangles = triangles.length;
 
-    let walkmeshPositions = []
+
     window.currentField.walkmeshLines = new THREE.Group()
+    window.currentField.walkmeshMesh = new THREE.Group()
+    const walkmeshMaterial = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
     for (let i = 0; i < numTriangles; i++) {
         let triangle = window.currentField.data.walkmeshSection.triangles[i];
         let accessor = window.currentField.data.walkmeshSection.accessors[i];
@@ -50,18 +52,24 @@ const drawWalkmesh = () => {
         addLine(window.currentField.fieldScene, v2, v0, accessor[2]);
 
         // positions for mesh buffergeo
+        let walkmeshPositions = []
         walkmeshPositions.push(triangle.vertices[0].x / 4096, triangle.vertices[0].y / 4096, triangle.vertices[0].z / 4096)
         walkmeshPositions.push(triangle.vertices[1].x / 4096, triangle.vertices[1].y / 4096, triangle.vertices[1].z / 4096)
         walkmeshPositions.push(triangle.vertices[2].x / 4096, triangle.vertices[2].y / 4096, triangle.vertices[2].z / 4096)
+        let walkmeshGeo = new THREE.BufferGeometry();
+        walkmeshGeo.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
+        const walkmeshMeshTriangle = new THREE.Mesh(walkmeshGeo, walkmeshMaterial)
+        walkmeshMeshTriangle.userData.triangleId = i
+        window.currentField.walkmeshMesh.add(walkmeshMeshTriangle)
     }
     window.currentField.fieldScene.add(window.currentField.walkmeshLines)
 
 
     // Draw mesh for walkmesh
-    let geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
-    let material = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
-    window.currentField.walkmeshMesh = new THREE.Mesh(geometry, material)
+    // let geometry = new THREE.BufferGeometry();
+    // geometry.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
+    // let material = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
+    // window.currentField.walkmeshMesh = new THREE.Mesh(geometry, material)
     window.currentField.walkmeshMesh.visible = window.config.debug.showWalkmeshMesh
     window.currentField.fieldScene.add(window.currentField.walkmeshMesh)
 
@@ -290,7 +298,7 @@ const updateFieldMovement = (delta) => {
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
     playerMovementRay.set(rayO, rayD)
     playerMovementRay.far = 0.02
-    let intersects = playerMovementRay.intersectObjects([window.currentField.walkmeshMesh])
+    let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
     // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
     // window.currentField.fieldScene.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xff00ff)) // For debugging walkmesh raycaster
     if (intersects.length === 0) {
@@ -301,6 +309,8 @@ const updateFieldMovement = (delta) => {
         const point = intersects[0].point
         // Adjust nextPosition height to to adjust for any slopes
         nextPosition.z = point.z
+        window.currentField.playableCharacter.scene.userData.triangleId = intersects[0].object.userData.triangleId
+        // console.log('player movement', nextPosition.z, intersects[0].object.userData.triangleId)
     }
 
 
