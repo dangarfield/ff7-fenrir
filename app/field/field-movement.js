@@ -115,7 +115,16 @@ const getPartyMemberPositionXYZTriangle = (partyMemberId) => {
         z: Math.floor(model.scene.position.z * 4096),
         triangleId: model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
     }
+}
+const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {
+    console.log('setTriangleBoundaryMovementAllowed', triangleId, allowed)
 
+    // walkmeshMeshTriangle.userData.triangleId = i
+    // walkmeshMeshTriangle.userData.movementAllowed = true
+    const mesh = window.currentField.walkmeshMesh.children.filter(m => m.userData.triangleId === triangleId)[0]
+    console.log('mesh: START', mesh, mesh.userData)
+    mesh.userData.movementAllowed = allowed
+    console.log('mesh: END', mesh.userData)
 }
 
 export {
@@ -126,5 +135,6 @@ export {
     getEntityPositionTriangle,
     getEntityPositionXY,
     getEntityPositionXYZTriangle,
-    getPartyMemberPositionXYZTriangle
+    getPartyMemberPositionXYZTriangle,
+    setTriangleBoundaryMovementAllowed
 }

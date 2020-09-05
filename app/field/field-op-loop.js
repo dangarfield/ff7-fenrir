@@ -171,6 +171,8 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         // Field Models and Animation
 
         case 'UC': result = await models.UC(entityName, op); break
+        case 'IDLCK': result = await models.IDLCK(entityName, op); break
+
         case 'PXYZI': result = await models.PXYZI(entityName, op); break
         case 'TLKON': result = await models.TLKON(entityName, op); break
         case 'PC': result = await models.PC(entityName, op); break

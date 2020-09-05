@@ -50,6 +50,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism
 - :white_check_mark: Add visual script progress debug mechanism
+- :black_square_button: Add animation root translation the kujata models and apply in game
 - :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin

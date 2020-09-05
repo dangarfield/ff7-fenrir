@@ -255,7 +255,12 @@ const PXYZI = async (entityName, op) => {
     setBankData(op.b2, op.y, position.y)
     setBankData(op.b3, op.z, position.z)
     setBankData(op.b4, op.i, position.triangleId)
-    // console.log('PXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
+    console.log('PXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
+    return {}
+}
+const IDLCK = async (entityName, op) => {
+    console.log('IDLCK', entityName, op)
+    fieldMovement.setTriangleBoundaryMovementAllowed(op.i, op.s === 0)
     return {}
 }
 
@@ -291,6 +296,7 @@ setTimeout(async () => {
     // await VISI('cl', { s: 1 })
     // await UC('cl', { s: 0 })
     // await CC('cl', { e: 1 })
+    // await IDLCK('cl', { i: 21, s: 1 })
     // console.log('ANIM: ENDED')
     // setInterval(async () => {
     //     await GETAI('cl', { b: 6, a: 4, e: 1 })
@@ -303,6 +309,7 @@ setTimeout(async () => {
 
 export {
     UC,
+    IDLCK,
     PXYZI,
     TLKON,
     PC,

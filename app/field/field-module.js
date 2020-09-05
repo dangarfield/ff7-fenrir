@@ -60,6 +60,7 @@ const drawWalkmesh = () => {
         walkmeshGeo.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
         const walkmeshMeshTriangle = new THREE.Mesh(walkmeshGeo, walkmeshMaterial)
         walkmeshMeshTriangle.userData.triangleId = i
+        walkmeshMeshTriangle.userData.movementAllowed = true
         window.currentField.walkmeshMesh.add(walkmeshMeshTriangle)
     }
     window.currentField.fieldScene.add(window.currentField.walkmeshLines)
@@ -303,6 +304,10 @@ const updateFieldMovement = (delta) => {
     // window.currentField.fieldScene.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xff00ff)) // For debugging walkmesh raycaster
     if (intersects.length === 0) {
         // Player is off walkmap
+        window.currentField.playableCharacter.mixer.stopAllAction()
+        return
+    } else if (!intersects[0].object.userData.movementAllowed) {
+        // Triangle locked through IDLCK
         window.currentField.playableCharacter.mixer.stopAllAction()
         return
     } else {
