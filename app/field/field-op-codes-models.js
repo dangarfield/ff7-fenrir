@@ -221,6 +221,11 @@ const MOVA = async (entityName, op) => {
     await fieldMovement.moveEntityToEntityWithAnimationAndRotation(entityName, op.e)
     return {}
 }
+const PMOVA = async (entityName, op) => {
+    console.log('PMOVA', entityName, op)
+    await fieldMovement.moveEntityToPartyMemberWithAnimationAndRotation(entityName, op.p)
+    return {}
+}
 
 // Position
 const GETAI = async (entityName, op) => {
@@ -275,12 +280,17 @@ setTimeout(async () => {
     // await sleep(1000 / 30 * 10)
     // await ANIME1('av_m', { a: 4, s: 1 })
     // await DIR('av_m', { b: 0, d: 104 })
-    // await sleep(1000 / 30 * 100)
-    // // Do the rest
-    // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
-    // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
-    // await MOVA('av_m', { e: 1 })
+    // // await sleep(1000 / 30 * 100)
+    // // // Do the rest
+    // // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
+    // // await MOVA('av_m', { e: 1 })
 
+    // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
+    // await DIR('cl', { b: 0, d: 128 })
+    // await VISI('cl', { s: 1 })
+    // window.data.savemap.party.members = ['Cloud', 'None', 'None']
+    // await PMOVA('av_m', { p: 0 })
 
     // await ANIME2('av_m', { a: 3, s: 1 })
     // await ANIMW('av_m')
@@ -308,6 +318,7 @@ setTimeout(async () => {
 }, 11000)
 
 export {
+    PMOVA,
     UC,
     IDLCK,
     PXYZI,

@@ -16,9 +16,15 @@ const moveEntityToEntityWithAnimationAndRotation = async (entityName, targetEnti
     const targetModel = getModelByEntityId(targetEntityId)
     console.log('moveEntityToEntityWithAnimationAndRotation', targetModel)
     if (targetModel.scene.visible) {
-        await moveEntity(entityName, targetModel.scene.position.x, targetModel.scene.position.y, true)
+        await moveEntity(entityName, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
     }
-
+}
+const moveEntityToPartyMemberWithAnimationAndRotation = async (entityName, targetPartyMemberId) => {
+    const targetModel = getModelByPartyMemberId(targetPartyMemberId)
+    console.log('moveEntityToPartyMemberWithAnimationAndRotation', targetModel)
+    if (targetModel.scene.visible) {
+        await moveEntity(entityName, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
+    }
 }
 const moveEntity = async (entityName, x, y, rotate, animate) => {
     const model = getModelByEntityName(entityName)
@@ -132,6 +138,7 @@ export {
     moveEntityWithoutAnimationOrRotation,
     moveEntityWithoutAnimationButWithRotation,
     moveEntityToEntityWithAnimationAndRotation,
+    moveEntityToPartyMemberWithAnimationAndRotation,
     getEntityPositionTriangle,
     getEntityPositionXY,
     getEntityPositionXYZTriangle,

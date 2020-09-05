@@ -73,8 +73,6 @@ const placeModel = (entityName, x, y, z, triangleId) => {
     console.log('placeModel: START', entityName, x, y, z, triangleId)
     const model = getModelByEntityName(entityName)
 
-    // TODO - Potentially to do a little more, like use x, y, get z from triangle etc
-
     if (x && y && z) {
         console.log('placeModel: x, y, z')
         model.scene.position.set(
@@ -226,7 +224,7 @@ const turnModel = async (entityName, direction, whichWayId, steps, stepType) => 
         if (stepType === 2) {
             easingType = (TWEEN.Easing.Quadratic.InOut)
         }
-        console.log('easingType', easingType)
+        // console.log('easingType', easingType)
         let time = 200 // Not sure about the speed yet
         new TWEEN.Tween(from)
             .to(to, time)

@@ -170,6 +170,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
 
         // Field Models and Animation
 
+        case 'PMOVA': result = await models.PMOVA(entityName, op); break
         case 'UC': result = await models.UC(entityName, op); break
         case 'IDLCK': result = await models.IDLCK(entityName, op); break
 
@@ -324,8 +325,8 @@ const initEntity = async (entity) => {
     console.log('initLoop', initLoop)
     await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
-    console.log('mainLoop', mainLoop)
-    await executeScriptLoop(entity.entityName, mainLoop)
+    // console.log('mainLoop', mainLoop)
+    // await executeScriptLoop(entity.entityName, mainLoop)
     // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
