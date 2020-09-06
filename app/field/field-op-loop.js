@@ -175,6 +175,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'PDIRA': result = await models.PDIRA(entityName, op); break
         case 'PTURA': result = await models.PTURA(entityName, op); break
         case 'IDLCK': result = await models.IDLCK(entityName, op); break
+        case 'PGTDR': result = await models.PGTDR(entityName, op); break
 
         case 'PXYZI': result = await models.PXYZI(entityName, op); break
         case 'TLKON': result = await models.TLKON(entityName, op); break
@@ -206,6 +207,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'TURNGEN': result = await models.TURNGEN(entityName, op); break
         case 'TURN': result = await models.TURN(entityName, op); break
         case 'DIRA': result = await models.DIRA(entityName, op); break
+        case 'GETDIR': result = await models.GETDIR(entityName, op); break
 
         case 'GETAXY': result = await models.GETAXY(entityName, op); break
         case 'GETAI': result = await models.GETAI(entityName, op); break

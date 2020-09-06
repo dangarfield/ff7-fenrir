@@ -214,6 +214,20 @@ const PDIRA = async (entityName, op) => {
     fieldModels.setModelDirectionToFaceCharacterOrPartyLeader(entityName, op.c)
     return {}
 }
+const GETDIR = async (entityName, op) => {
+    console.log('GETDIR', entityName, op)
+    const direction = fieldModels.getEntityDirection(op.e)
+    setBankData(op.b, op.a, direction)
+    console.log('GETDIR ->', getBankData(op.b, op.a))
+    return {}
+}
+const PGTDR = async (entityName, op) => {
+    console.log('PGTDR', entityName, op)
+    const direction = fieldModels.getPartyMemberDirection(op.p)
+    setBankData(op.b, op.d, direction)
+    console.log('PGTDR ->', getBankData(op.b, op.d))
+    return {}
+}
 
 // Movement
 const MOVE = async (entityName, op) => {
@@ -294,6 +308,7 @@ const IDLCK = async (entityName, op) => {
 setTimeout(async () => {
     console.log('ANIM: STARTED')
     await VISI('av_m', { s: 1 })
+
     // await ANIME1('av_m', { a: 3, s: 1 })
     // await sleep(1000 / 30 * 8)
     // await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
@@ -306,10 +321,16 @@ setTimeout(async () => {
     // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
     // await MOVA('av_m', { e: 1 })
 
-    // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
-    // await DIR('cl', { b: 0, d: 128 })
-    // await VISI('cl', { s: 1 })
-    // window.data.savemap.party.members = ['Cloud', 'None', 'None']
+    window.data.savemap.party.members = ['Cloud', 'None', 'None']
+    await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
+    await DIR('cl', { b: 0, d: 128 })
+    await VISI('cl', { s: 1 })
+
+    await GETDIR('av_m', { e: 1, b: 6, a: 1 })
+    await GETDIR('av_m', { e: 6, b: 6, a: 3 })
+    await PGTDR('av_m', { p: 0, b: 6, d: 5 })
+
+
     // // await PMOVA('av_m', { p: 0 })
     // // await PDIRA('av_m', { c: 12 })
     // // await DIRA('av_m', { e: 2 })
@@ -349,6 +370,7 @@ export {
     PDIRA,
     PTURA,
     IDLCK,
+    PGTDR,
     PXYZI,
     TLKON,
     PC,
@@ -374,6 +396,7 @@ export {
     TURNGEN,
     TURN,
     DIRA,
+    GETDIR,
     GETAXY,
     GETAI,
     ANIM_2,

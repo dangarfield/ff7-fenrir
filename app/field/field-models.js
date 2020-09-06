@@ -6,7 +6,14 @@ const directionToDegrees = (dir) => {
     return Math.round(dir * (360 / 255))
 }
 const degreesToDirection = (deg) => {
-    return Math.round(dir * (255 / 360))
+    return Math.round(deg * (255 / 360))
+}
+const radiansToDirection = (radians) => {
+    let deg = THREE.Math.radToDeg(radians)
+    if (deg < 0) {
+        deg = 360 - deg
+    }
+    return degreesToDirection(deg)
 }
 const isCharacterTheLeader = (characterName) => {
     // A lot of logic / assumptions to look at here, for now, just check if it's cloud
@@ -141,6 +148,21 @@ const faceModelInstantly = (model, targetModel) => {
     // TODO: This doesn't work properly. Need to fix
     const deg = getDegreesFromTwoPoints(model.scene.position, targetModel.scene.position)
     model.scene.rotation.y = THREE.Math.degToRad(deg)
+}
+const getEntityDirection = (entityId) => {
+    const model = getModelByEntityId(entityId)
+    console.log('getEntityDirection', entityId, model)
+    const direction = radiansToDirection(model.scene.rotation.y)
+    console.log('getEntityDirection', entityId, model, model.scene.rotation.y, direction)
+    return direction
+}
+const getPartyMemberDirection = (partyMemberId) => {
+    const model = getModelByPartyMemberId(partyMemberId)
+    console.log('getPartyMemberDirection', partyMemberId, model)
+    const direction = radiansToDirection(model.scene.rotation.y)
+    console.log('getPartyMemberDirection', partyMemberId, model, model.scene.rotation.y, direction)
+    return direction
+
 }
 const setModelDirection = (entityName, direction) => {
     console.log('setModelVisibility', entityName, direction)
@@ -304,5 +326,7 @@ export {
     turnModelToFaceEntity,
     turnModelToFacePartyMember,
     turnModelToFaceDirection,
-    getDegreesFromTwoPoints
+    getDegreesFromTwoPoints,
+    getEntityDirection,
+    getPartyMemberDirection
 }
