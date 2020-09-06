@@ -6,6 +6,7 @@ const directionToDegrees = (dir) => {
     return Math.round(dir * (360 / 255))
 }
 const degreesToDirection = (deg) => {
+    // TODO - Not 100% sure about this, might have to take into consideration the relative positioning of the field
     return Math.round(deg * (255 / 360))
 }
 const radiansToDirection = (radians) => {
@@ -70,7 +71,7 @@ const setModelAsEntity = (entityName, modelId) => {
     model.userData.talkRadius = 48 // TODO - Absolute guess for default
     model.userData.collisionEnabled = true
     model.userData.collisionRadius = 24 // TODO - Absolute guess for default
-
+    model.userData.rotationEnabled = true
     // console.log('setModelAsEntity: END', entityName, modelId, model)
     window.currentField.fieldScene.add(model.scene)
 }
@@ -122,6 +123,11 @@ const setModelVisibility = (entityName, isVisible) => {
     console.log('setModelVisibility', entityName, isVisible)
     const model = getModelByEntityName(entityName)
     model.scene.visible = isVisible
+}
+const setModelRotationEnabled = (entityName, enabled) => {
+    console.log('setModelRotationEnabled', entityName, enabled)
+    const model = getModelByEntityName(entityName)
+    model.userData.rotationEnabled = enabled
 }
 const setModelDirectionToFaceEntity = (entityName, targetEntityId) => {
     console.log('setModelDirectionToFaceEntity', entityName, targetEntityId)
@@ -253,7 +259,10 @@ const turnModel = async (entityName, degrees, whichWayId, steps, stepType) => {
     return new Promise((resolve) => {
         console.log('turnModel', entityName, degrees, whichWayId, steps, stepType)
         const model = getModelByEntityName(entityName)
-
+        if (!model.userData.rotationEnabled) {
+            resolve()
+            return
+        }
         // Get start and end angles in radians
         let desiredYDeg = degrees
         let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
@@ -328,5 +337,6 @@ export {
     turnModelToFaceDirection,
     getDegreesFromTwoPoints,
     getEntityDirection,
-    getPartyMemberDirection
+    getPartyMemberDirection,
+    setModelRotationEnabled
 }

@@ -43,7 +43,7 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
         Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2),
         distance, time
     )
-    if (rotate) {
+    if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
     }
     if (animate) {

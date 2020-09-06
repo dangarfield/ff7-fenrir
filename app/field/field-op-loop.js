@@ -225,8 +225,10 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'TLKR2': result = await models.TLKR2(entityName, op); break
         case 'SLDR2': result = await models.SLDR2(entityName, op); break
 
+        case 'FCFIX': result = await models.FCFIX(entityName, op); break
         case 'CCANM': result = await models.CCANM(entityName, op); break
         case 'ANIMB': result = await models.ANIMB(entityName, op); break
+        case 'TURNW': result = await models.TURNW(entityName, op); break
 
 
         // Background and Palette
