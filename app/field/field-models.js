@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
-
+import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 const directionToDegrees = (dir) => {
     return Math.round(dir * (360 / 255))
 }
@@ -35,10 +35,16 @@ const getModelByEntityId = (entityId) => {
     const entityName = window.currentField.data.script.entities[entityId].entityName
     return getModelByEntityName(entityName)
 }
+const getModelByCharacterName = (characterName) => {
+    return window.currentField.models.filter(m => m.userData.characterName === characterName)[0]
+}
+const getModelByCurrentPlayableCharacter = () => {
+    return window.currentField.models.filter(m => m.userData.isPlayableCharacter === true)[0]
+}
 const getModelByPartyMemberId = (partyMemberId) => {
     const characterName = window.data.savemap.party.members[partyMemberId]
     console.log('getModelByPartyMemberId', partyMemberId, characterName)
-    return window.currentField.models.filter(m => m.userData.characterName === characterName)[0]
+    return getModelByCharacterName(characterName)
 }
 
 // This method also initialises defaults for model.userData and adds model to the field
@@ -110,11 +116,37 @@ const setModelVisibility = (entityName, isVisible) => {
     const model = getModelByEntityName(entityName)
     model.scene.visible = isVisible
 }
+const setModelDirectionToFaceEntity = (entityName, targetEntityId) => {
+    console.log('setModelDirectionToFaceEntity', entityName, targetEntityId)
+    const model = getModelByEntityName(entityName)
+    const targetModel = getModelByEntityId(targetEntityId)
+    faceModelInstantly(model, targetModel)
+}
+const setModelDirectionToFaceCharacterOrPartyLeader = (entityName, characterId) => {
+    console.log('setModelDirectionToFaceCharacterOrPartyLeader', entityName, characterId)
+    const model = getModelByEntityName(entityName)
+    const characterName = getPlayableCharacterName(characterId)
+    const characterNameFilter = window.currentField.models.filter(m => m.userData.characterName === characterName)
+    let targetModel
+    if (characterNameFilter.length > 0) {
+        targetModel = characterNameFilter[0]
+        console.log('char', characterName, targetModel)
+    } else {
+        targetModel = getModelByCurrentPlayableCharacter()
+        console.log('leader', targetModel)
+    }
+    faceModelInstantly(model, targetModel)
+}
+const faceModelInstantly = (model, targetModel) => {
+    // TODO: This doesn't work properly. Need to fix
+    const deg = getDegreesFromTwoPoints(model.scene.position, targetModel.scene.position)
+    model.scene.rotation.y = THREE.Math.degToRad(deg)
+}
 const setModelDirection = (entityName, direction) => {
     console.log('setModelVisibility', entityName, direction)
     const deg = directionToDegrees(direction)
     const model = getModelByEntityName(entityName)
-    model.scene.rotateY(THREE.Math.degToRad(deg))
+    model.scene.rotation.y = THREE.Math.degToRad(deg)
 }
 const setModelMovementSpeed = (entityName, speed) => {
     console.log('setModelMovementSpeed', entityName, speed)
@@ -180,25 +212,28 @@ const getDegreesFromTwoPoints = (point1, point2) => {
 const turnModelToFaceEntity = async (entityName, entityIdToFace, whichWayId, steps) => {
     const model = getModelByEntityName(entityName)
     const modelToFace = getModelByEntityId(entityIdToFace)
-
-    // TODO - This is not right, look at this later
-    // model.scene.lookAt(modelToFace.scene.position)
-    // const direction = Math.atan2(modelToFace.scene.position.y - model.scene.position.y, modelToFace.scene.position.x - model.scene.position.x) * 180 / Math.PI
-    // console.log('turnModelToFaceEntity direction', direction, modelToFace, modelToFace.scene.position, model.scene.position)
-    // const yDiff = modelToFace.scene.position.y - model.scene.position.y
-    // const xDiff = modelToFace.scene.position.x - model.scene.position.x
-    // console.log('y', yDiff)
-    // console.log('x', xDiff)
-    // console.log('math', Math.atan2(yDiff, xDiff))
-    // await turnModel(entityName, direction, whichWayId, steps, 2)
+    const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
+    // TODO - This doesn't work in the same way that the DIRA operations don't
+    await turnModel(entityName, degrees, whichWayId, steps, 2)
 }
-const turnModel = async (entityName, direction, whichWayId, steps, stepType) => {
+const turnModelToFacePartyMember = async (entityName, partyMemberId, whichWayId, steps) => {
+    const model = getModelByEntityName(entityName)
+    const modelToFace = getModelByPartyMemberId(partyMemberId)
+    const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
+    // TODO - This doesn't work in the same way that the DIRA operations don't
+    await turnModel(entityName, degrees, whichWayId, steps, 2)
+}
+const turnModelToFaceDirection = async (entityName, direction, whichWayId, steps, stepType) => {
+    let degrees = directionToDegrees(direction)
+    await turnModel(entityName, degrees, whichWayId, steps, stepType)
+}
+const turnModel = async (entityName, degrees, whichWayId, steps, stepType) => {
     return new Promise((resolve) => {
-        console.log('turnModel', entityName, direction, whichWayId, steps, stepType)
+        console.log('turnModel', entityName, degrees, whichWayId, steps, stepType)
         const model = getModelByEntityName(entityName)
 
         // Get start and end angles in radians
-        let desiredYDeg = directionToDegrees(direction)
+        let desiredYDeg = degrees
         let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
         currentYDeg < 0 ? currentYDeg = 360 + currentYDeg : currentYDeg
         currentYDeg - 180 > desiredYDeg ? currentYDeg = currentYDeg - 360 : currentYDeg
@@ -253,6 +288,8 @@ export {
     placeModel,
     setModelVisibility,
     setModelDirection,
+    setModelDirectionToFaceEntity,
+    setModelDirectionToFaceCharacterOrPartyLeader,
     setModelMovementSpeed,
     setModelAnimationSpeed,
     setModelTalkEnabled,
@@ -265,6 +302,7 @@ export {
     getModelByEntityId,
     getModelByPartyMemberId,
     turnModelToFaceEntity,
-    turnModel,
+    turnModelToFacePartyMember,
+    turnModelToFaceDirection,
     getDegreesFromTwoPoints
 }

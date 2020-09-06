@@ -178,19 +178,40 @@ const CCANM = async (entityName, op) => {
 const TURNGEN = async (entityName, op) => {
     console.log('TURNGEN', entityName, op)
     const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    await fieldModels.turnModel(entityName, direction, op.d, op.s, op.t)
+    await fieldModels.turnModelToFaceDirection(entityName, direction, op.d, op.s, op.t)
     return {}
 }
 const TURN = async (entityName, op) => {
     console.log('TURN', entityName, op)
     const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    await fieldModels.turnModel(entityName, direction, op.d, op.s, op.t)
+    await fieldModels.turnModelToFaceDirection(entityName, direction, op.d, op.s, op.t)
     return {}
 }
+const TURA = async (entityName, op) => {
+    console.log('TURA', entityName, op)
+    await fieldModels.turnModelToFaceEntity(entityName, op.g, op.d, op.s)
+    return {}
+}
+const PTURA = async (entityName, op) => {
+    console.log('PTURA', entityName, op)
+    await fieldModels.turnModelToFacePartyMember(entityName, op.p, op.a, op.s)
+    return {}
+}
+
 const DIR = async (entityName, op) => {
     console.log('DIR', entityName, op)
     const direction = op.b == 0 ? op.d : getBankData(op.b, op.d)
     fieldModels.setModelDirection(entityName, direction)
+    return {}
+}
+const DIRA = async (entityName, op) => {
+    console.log('DIRA', entityName, op)
+    fieldModels.setModelDirectionToFaceEntity(entityName, op.e)
+    return {}
+}
+const PDIRA = async (entityName, op) => {
+    console.log('PDIRA', entityName, op)
+    fieldModels.setModelDirectionToFaceCharacterOrPartyLeader(entityName, op.c)
     return {}
 }
 
@@ -272,25 +293,30 @@ const IDLCK = async (entityName, op) => {
 
 setTimeout(async () => {
     console.log('ANIM: STARTED')
-    // await VISI('av_m', { s: 1 })
-    // // await TURA('av_m', { g: 2, d: 2, s: 2 })
+    await VISI('av_m', { s: 1 })
     // await ANIME1('av_m', { a: 3, s: 1 })
     // await sleep(1000 / 30 * 8)
     // await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
     // await sleep(1000 / 30 * 10)
     // await ANIME1('av_m', { a: 4, s: 1 })
     // await DIR('av_m', { b: 0, d: 104 })
-    // // await sleep(1000 / 30 * 100)
+    // await sleep(1000 / 30 * 100)
     // // // Do the rest
-    // // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
-    // // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
-    // // await MOVA('av_m', { e: 1 })
+    // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
+    // await MOVA('av_m', { e: 1 })
 
     // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
     // await DIR('cl', { b: 0, d: 128 })
     // await VISI('cl', { s: 1 })
     // window.data.savemap.party.members = ['Cloud', 'None', 'None']
-    // await PMOVA('av_m', { p: 0 })
+    // // await PMOVA('av_m', { p: 0 })
+    // // await PDIRA('av_m', { c: 12 })
+    // // await DIRA('av_m', { e: 2 })
+    // await PTURA('av_m', { p: 0, a: 2, s: 2 })
+    // await sleep(1000)
+    // await TURA('av_m', { g: 2, d: 2, s: 2 })
+
 
     // await ANIME2('av_m', { a: 3, s: 1 })
     // await ANIMW('av_m')
@@ -320,6 +346,8 @@ setTimeout(async () => {
 export {
     PMOVA,
     UC,
+    PDIRA,
+    PTURA,
     IDLCK,
     PXYZI,
     TLKON,
@@ -334,6 +362,7 @@ export {
     MOVE,
     CMOVE,
     MOVA,
+    TURA,
     ANIMW,
     FMOVE,
     ANIME2,
@@ -344,6 +373,7 @@ export {
     DIR,
     TURNGEN,
     TURN,
+    DIRA,
     GETAXY,
     GETAI,
     ANIM_2,
