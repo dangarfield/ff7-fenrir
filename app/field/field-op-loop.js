@@ -220,6 +220,9 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'CC': result = await models.CC(entityName, op); break
         case 'AXYZI': result = await models.AXYZI(entityName, op); break
 
+        case 'OFST': result = await models.OFST(entityName, op); break
+        case 'OFSTW': result = await models.OFSTW(entityName, op); break
+
         case 'TALKR': result = await models.TALKR(entityName, op); break
         case 'SLIDR': result = await models.SLIDR(entityName, op); break
         case 'SOLID': result = await models.SOLID(entityName, op); break

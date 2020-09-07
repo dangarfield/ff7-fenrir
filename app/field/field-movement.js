@@ -1,6 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { getModelByEntityName, getModelByEntityId, getModelByPartyMemberId, getDegreesFromTwoPoints } from './field-models.js'
+import { sleep } from '../helpers/helpers.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityName, x, y) => {
     await moveEntity(entityName, x / 4096, y / 4096, false, false)
@@ -132,6 +133,60 @@ const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {
     mesh.userData.movementAllowed = allowed
     console.log('mesh: END', mesh.userData)
 }
+const offsetEntity = async (entityName, x, y, z, frames, type) => {
+    // TODO - Need to check this later as in the doc it says: (which I haven't done yet)
+    // Offsets the field object, belonging to the entity whose script this opcode resides in,
+    // by a certain amount. After being offset, the character continues to be constrained in
+    // movement as defined by the walkmesh's shape, but at a certain distance away from the
+    // normal walkmesh position. Other field objects are unaffected, and their position or
+    // movements are maintained on the walkmesh's original position
+
+    const model = getModelByEntityName(entityName)
+    model.userData.offsetInProgress = true
+    console.log('offsetEntity', entityName, x, y, z, frames, type, model)
+    const from = {
+        x: model.scene.position.x,
+        y: model.scene.position.y,
+        z: model.scene.position.z
+    }
+    const to = {
+        x: model.scene.position.x + (x / 4096),
+        y: model.scene.position.y + (y / 4096),
+        z: model.scene.position.z + (z / 4096)
+    }
+    // 0 - instant
+    const time = type === 0 ? 1 : 1000 / 30 * frames
+    let easingType = TWEEN.Easing.Linear.None // 1 - linear
+    if (type === 2) {
+        easingType = (TWEEN.Easing.Quadratic.InOut) // 2 - smooth
+    }
+    return new Promise(async (resolve) => {
+        new TWEEN.Tween(from)
+            .to(to, time)
+            .easing(easingType)
+            .onUpdate(function () {
+                // Update the model position
+                model.scene.position.x = from.x
+                model.scene.position.y = from.y
+                model.scene.position.z = from.z
+            })
+            .onComplete(function () {
+                console.log('move: END', from)
+                delete model.userData.offsetInProgress
+                resolve()
+            })
+            .start()
+    })
+}
+const waitForOffset = async (entityName) => {
+    console.log('waitForOffset ', entityName)
+    const model = getModelByEntityName(entityName)
+    while (model.userData.offsetInProgress) {
+        // Should really replace this with promises...
+        await sleep(1000 / 30 * 2)
+        console.log('waitForOffset ', entityName, 'waiting...')
+    }
+}
 
 export {
     moveEntityWithAnimationAndRotation,
@@ -143,5 +198,7 @@ export {
     getEntityPositionXY,
     getEntityPositionXYZTriangle,
     getPartyMemberPositionXYZTriangle,
-    setTriangleBoundaryMovementAllowed
+    setTriangleBoundaryMovementAllowed,
+    offsetEntity,
+    waitForOffset
 }

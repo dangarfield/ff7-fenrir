@@ -73,7 +73,7 @@ const setCurrentDisc = (disc) => {
     setBankData(13, 0, disc)
 }
 const updateSavemapLocationField = (fieldName, fieldDescription) => {
-    console.log('updateSavemapLocationField', fieldName)
+    // console.log('updateSavemapLocationField', fieldName)
     window.data.savemap.location.currentModule = 1
     window.data.savemap.location.currentLocation = fieldDescription // Updated in MPNAM op code
     window.data.savemap.location._currentFieldName = fieldName
@@ -81,14 +81,14 @@ const updateSavemapLocationField = (fieldName, fieldDescription) => {
 }
 const updateSavemapLocationFieldPosition = (x, y, triangleId, degrees) => {
     const direction = degreesToDirection(degrees)
-    console.log('updateSavemapPlayerFieldPosition', x, y, triangleId, degrees, direction)
+    // console.log('updateSavemapPlayerFieldPosition', x, y, triangleId, degrees, direction)
     window.data.savemap.location.fieldXPos = x
     window.data.savemap.location.fieldYPos = y
     window.data.savemap.location.fieldTriangle = triangleId
     window.data.savemap.location.fieldDirection = direction
 }
 const updateSavemapLocationFieldLeader = (characterName) => {
-    console.log('updateSavemapLocationFieldLeader', characterName)
+    // console.log('updateSavemapLocationFieldLeader', characterName)
     // This is not in the game, but a utility method for loading the leader as I haven't looked into that yet
     window.data.savemap.location._fieldLeader = characterName
 }

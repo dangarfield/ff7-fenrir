@@ -3,7 +3,7 @@ import { saveSaveMap } from './savemap.js'
 const initSavemapQuicksaveKeypressActions = () => {
 
     document.addEventListener('keydown', (e) => {
-        console.log('keydown', e.key)
+        // console.log('keydown', e.key)
         if (e.key === '1') {
             saveSaveMap(1)
         }

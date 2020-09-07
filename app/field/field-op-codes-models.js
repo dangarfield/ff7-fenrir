@@ -272,6 +272,21 @@ const PMOVA = async (entityName, op) => {
     await fieldMovement.moveEntityToPartyMemberWithAnimationAndRotation(entityName, op.p)
     return {}
 }
+const OFST = async (entityName, op) => {
+    console.log('OFST', entityName, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    const z = op.b3 == 0 ? op.z : getBankData(op.b3, op.z)
+    const s = op.b4 == 0 ? op.s : getBankData(op.b4, op.s)
+    fieldMovement.offsetEntity(entityName, x, y, z, s, op.t) // async
+    return {}
+}
+const OFSTW = async (entityName, op) => {
+    console.log('OFSTW', entityName, op)
+    await fieldMovement.waitForOffset(entityName)
+    return {}
+}
+
 
 // Position
 const GETAI = async (entityName, op) => {
@@ -318,6 +333,12 @@ const IDLCK = async (entityName, op) => {
 
 setTimeout(async () => {
     console.log('ANIM: STARTED')
+    // await OFST('drL', { b1: 0, b2: 0, b3: 0, b4: 0, x: -202, y: 0, z: 0, s: 500, t: 1 })
+    // await OFST('drR', { b1: 0, b2: 0, b3: 0, b4: 0, x: 184, y: 0, z: 0, s: 500, t: 1 })
+    // console.log('triggered')
+    // await OFSTW('drL')
+    // await OFSTW('drR')
+    // console.log('complete')
     // await VISI('av_m', { s: 1 })
     // await FCFIX('av_m', { e: 1 })
     // await ANIME1('av_m', { a: 3, s: 1 })
@@ -416,6 +437,8 @@ export {
     ASPED,
     CC,
     AXYZI,
+    OFST,
+    OFSTW,
     TALKR,
     SLIDR,
     SOLID,
