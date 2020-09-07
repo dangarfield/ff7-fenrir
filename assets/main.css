@@ -149,3 +149,9 @@ a, button, input, select {
 	width: 100%;
 	height: auto;
 }
+
+.toasts {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}

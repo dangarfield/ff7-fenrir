@@ -1,4 +1,5 @@
 import { getCurrentGameTime } from './savemap-alias.js'
+import { addToast } from '../helpers/toasts.js'
 
 const DEFAULT_SAVE_ID = 1
 
@@ -45,6 +46,7 @@ const saveSaveMap = (index) => {
     console.log('saveSaveMap', index)
     generateSavePreview()
     window.localStorage.setItem(`save-${index}`, JSON.stringify(window.data.savemap))
+    addToast(`Quicksave - ${index}`)
 }
 
 const resetTempBank = () => {
