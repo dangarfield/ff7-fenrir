@@ -16,24 +16,16 @@ const initFieldKeypressActions = () => {
             nextPageOrCloseActiveDialogs()
         }
 
-
-        // TODO - Refactor
-        // if (firstPress && !isActionInProgress()) {
-        //     // Check talk request - Initiate talk
-        //     console.log('o', isActionInProgress())
-        //     for (let i = 0; i < window.currentField.models.length; i++) {
-        //         if (window.currentField.models[i].scene.userData.closeToTalk === true) {
-        //             setActionInProgress('talk')
-        //             initiateTalk(i, window.currentField.models[i])
-        //         }
-        //     }
-
-        // } else if (firstPress && isActionInProgress() === 'talk') {
-        //     console.log('speed up or cancel talk')
-        //     // Need to test this when there are multiple dialogs on screen etc, will probably want amending
-        //     // Ideally there woud be an opcode for closing, but I haven't looked too much yet
-        //     nextPageOrCloseActiveDialogs()
-        // }
+        if (areFieldControlsActive() && firstPress && !isActionInProgress()) {
+            // Check talk request - Initiate talk
+            console.log('o', isActionInProgress())
+            for (let i = 0; i < window.currentField.models.length; i++) {
+                if (window.currentField.models[i].scene.userData.closeToTalk === true) {
+                    setActionInProgress('talk')
+                    initiateTalk(i, window.currentField.models[i])
+                }
+            }
+        }
     })
     getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'talk') {

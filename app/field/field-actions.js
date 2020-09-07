@@ -5,7 +5,7 @@ import { loadMenu } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
-import { stopAllLoops } from './field-op-loop.js'
+import { stopAllLoops, triggerEntityTalkLoop } from './field-op-loop.js'
 
 let actionInProgress = false
 
@@ -98,8 +98,8 @@ const initiateTalk = async (i, fieldModel) => {
     // 'Biggs<br/>“He WAS in SOLDIER, Jessie.”{PAUSE}“But he quit and is with us now.”'
     // 'Jessie<br/>“Push <fe>{PURPLE}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{WHITE}<br/>\tto climb up and down.”'
     // 'Biggs<br/>“Think how many of our people risked their<br/>\tlives, just for this code…”'
-
-    console.log('talk progressed', currentChoice)
+    // console.log('talk progressed', currentChoice)
+    triggerEntityTalkLoop(fieldModel.userData.entityId)
     setPlayableCharacterIsInteracting(false)
     clearActionInProgress()
 }

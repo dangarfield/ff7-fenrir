@@ -335,7 +335,7 @@ const initEntity = async (entity) => {
     await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    await executeScriptLoop(entity.entityName, mainLoop) // eg async
+    await executeScriptLoop(entity.entityName, mainLoop)
     // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
@@ -344,6 +344,23 @@ const initEntity = async (entity) => {
     // }
 
     console.log('initEntity: END', entity.entityName)
+}
+const triggerEntityTalkLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityTalkLoop', entityId, entity)
+    const talkLoop = entity.scripts.filter(s => s.scriptType === 'Talk')[0]
+    console.log('talkLoop', talkLoop)
+    if (!talkLoop.isRunning) {
+        await executeScriptLoop(entity.entityName, talkLoop)
+    }
+
+}
+const triggerEntityCollisionLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityTalkLoop', entityId, entity)
+    const contactLoop = entity.scripts.filter(s => s.scriptType === 'Contact')[0]
+    console.log('contactLoop', contactLoop)
+    await executeScriptLoop(entity.entityName, contactLoop)
 }
 
 const initialiseOpLoops = async () => {
@@ -390,5 +407,7 @@ const debugLogOpCodeCompletionForField = async () => {
 export {
     initialiseOpLoops,
     stopAllLoops,
-    executeScriptLoop
+    executeScriptLoop,
+    triggerEntityTalkLoop,
+    triggerEntityCollisionLoop
 }
