@@ -233,6 +233,9 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
 
 
         // Background and Palette
+        case 'BGON': result = await background.BGON(op); break
+        case 'BGOFF': result = await background.BGOFF(op); break
+        case 'BGCLR': result = await background.BGCLR(op); break
 
         // Camera, Audio and Video
 
