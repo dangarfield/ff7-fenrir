@@ -1,5 +1,5 @@
 import { createNanoEvents } from '../../assets/nanoevents.js'
-
+import { initSavemapQuicksaveKeypressActions } from '../data/savemap-controls.js'
 let emitter
 let keys = {
     up: false,
@@ -136,6 +136,7 @@ const setupInputs = () => {
         setKeyPress(e.which, false)
     }, false)
     emitter = createNanoEvents()
+    initSavemapQuicksaveKeypressActions()
 }
 const getKeyPressEmitter = () => {
     return emitter

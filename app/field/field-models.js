@@ -289,6 +289,7 @@ const setModelAsLeader = async (entityId, instant) => {
     // Leader should also be more accessible as it's in the movement section of render loop, eg
     // We probably shouldn't have to run models.filter(m => m.userData.isLeader)[0] every time
     window.currentField.playableCharacter = model
+    window.data.savemap.location._fieldLeader = model.userData.characterName
 
     // Screen moves to centre on character
     // Not sure about this, it takes control of the camera
@@ -314,6 +315,7 @@ const turnModelToFaceEntity = async (entityName, entityIdToFace, whichWayId, ste
     const modelToFace = getModelByEntityId(entityIdToFace)
     const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
     // TODO - This doesn't work in the same way that the DIRA operations don't
+    // Do something with ? window.currentField.data.triggers.header.controlDirectionDegrees
     await turnModel(entityName, degrees, whichWayId, steps, 2)
 }
 const turnModelToFacePartyMember = async (entityName, partyMemberId, whichWayId, steps) => {
@@ -321,6 +323,7 @@ const turnModelToFacePartyMember = async (entityName, partyMemberId, whichWayId,
     const modelToFace = getModelByPartyMemberId(partyMemberId)
     const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
     // TODO - This doesn't work in the same way that the DIRA operations don't
+    // Do something with ? window.currentField.data.triggers.header.controlDirectionDegrees
     await turnModel(entityName, degrees, whichWayId, steps, 2)
 }
 const turnModelToFaceDirection = async (entityName, direction, whichWayId, steps, stepType) => {

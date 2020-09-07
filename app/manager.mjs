@@ -5,6 +5,7 @@ import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadSaveMap } from './data/savemap.js'
+import { getPlayableCharacterInitData } from './data/savemap-alias.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
 import { initMenuModule } from './menu/menu-module.js'
 import { initBattleModule } from './battle/battle-module.js'
@@ -33,9 +34,15 @@ const initManager = async () => {
     // Initialise new savemap - Replace with menu
     // initNewSaveMap()
     loadSaveMap(1)
-
+    const playableCharacterInitData = getPlayableCharacterInitData()
+    console.log('playableCharacterInitData LOAD', playableCharacterInitData)
+    if (playableCharacterInitData.fieldName) {
+        loadField(playableCharacterInitData.fieldName, playableCharacterInitData)
+    } else {
+        loadField('md1stin')
+    }
     // Load field - Replace with menu
-    loadField('md1stin')
+
     // loadField('nmkin_5')
     // loadField('blin67_2')
 }

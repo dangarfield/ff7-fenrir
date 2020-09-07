@@ -304,7 +304,7 @@ const SCRLP = async (op) => {
 
     const memberName = window.data.savemap.party.members[op.e]
     console.log('memberName', memberName)
-    const entities = window.currentField.models.filter(m => m.userData.playerName === memberName)
+    const entities = window.currentField.models.filter(m => m.userData.characterName === memberName)
     console.log('entities', entities)
     if (entities.length > 0 && memberName !== undefined) {
         const entity = entities[0]

@@ -12,6 +12,7 @@ import { setupOrthoCamera } from './field-ortho-scene.js'
 import { setupOrthoBgCamera } from './field-ortho-bg-scene.js'
 import { initialiseOpLoops } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
+import { updateSavemapLocationField, updateSavemapLocationFieldPosition, updateSavemapLocationFieldLeader } from '../data/savemap-alias.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { preLoadFieldMediaData } from '../media/media-module.js'
 import { clearAllDialogs } from './field-dialog.js'
@@ -167,6 +168,7 @@ const placeModelsDebug = () => {
                     fieldModel = window.currentField.models[fieldModelId]
                     fieldModel.userData.modelId = fieldModelId
                     fieldModel.userData.entityId = i
+                    fieldModel.userData.entityName = entity.entityName
                     console.log('CHAR', fieldModel)
                 }
                 if (op.op === 'XYZI') {
@@ -225,7 +227,7 @@ const placeModelsDebug = () => {
                     // if (op.c === 0) { // Cloud
                     //     console.log('cloud is playable char')
                     fieldModel.userData.playerId = op.c
-                    fieldModel.userData.playerName = getPlayableCharacterName(op.c)
+                    fieldModel.userData.characterName = getPlayableCharacterName(op.c)
                     playableCharacter = true
                 }
             }
@@ -315,6 +317,12 @@ const updateFieldMovement = (delta) => {
         // Adjust nextPosition height to to adjust for any slopes
         nextPosition.z = point.z
         window.currentField.playableCharacter.scene.userData.triangleId = intersects[0].object.userData.triangleId
+        updateSavemapLocationFieldPosition(
+            Math.round(nextPosition.x * 4096),
+            Math.round(nextPosition.y * 4096),
+            window.currentField.playableCharacter.scene.userData.triangleId,
+            direction - window.currentField.data.triggers.header.controlDirectionDegrees)
+        updateSavemapLocationFieldLeader(window.currentField.playableCharacter.userData.characterName)
         // console.log('player movement', nextPosition.z, intersects[0].object.userData.triangleId)
     }
 
@@ -368,6 +376,9 @@ const updateFieldMovement = (delta) => {
         if (fieldModel.scene.position.x === 0 &&
             fieldModel.scene.position.y === 0 &&
             fieldModel.scene.position.z === 0) { // Temporary until we place models properly, playable chars are dropped at 0,0,0
+            continue
+        }
+        if (fieldModel.visible === false) {
             continue
         }
         const distance = nextPosition.distanceTo(fieldModel.scene.position)
@@ -585,7 +596,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
             stand: 0, walk: 1, run: 2
         }
     }
-
+    updateSavemapLocationField(fieldName, fieldName)
     showLoadingScreen()
     resetTempBank()
     window.currentField.data = await loadFieldData(fieldName)

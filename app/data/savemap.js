@@ -1,3 +1,5 @@
+import { getCurrentGameTime } from './savemap-alias.js'
+
 const DEFAULT_SAVE_ID = 1
 
 let TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
@@ -21,9 +23,27 @@ const loadSaveMap = (index) => {
     }
     console.log('window.data.savemap', window.data.savemap)
 }
-
+const generateSavePreview = () => {
+    const savemap = window.data.savemap
+    const leadCharacter = savemap.characters[savemap.party.members[0]] // Assumed, not sure yet how reordering affects this
+    savemap.savePreview.level = leadCharacter.level.current
+    savemap.savePreview.portrait1 = savemap.party.members[0]
+    savemap.savePreview.portrait2 = savemap.party.members[1]
+    savemap.savePreview.portrait3 = savemap.party.members[2]
+    savemap.savePreview.leader = leadCharacter.name
+    savemap.savePreview.currentHP = leadCharacter.stats.hp.current
+    savemap.savePreview.maximumHP = leadCharacter.stats.hp.max
+    savemap.savePreview.currentMP = leadCharacter.stats.mp.current
+    savemap.savePreview.maximumMP = leadCharacter.stats.mp.max
+    savemap.savePreview.gil = savemap.gil
+    const gameTime = getCurrentGameTime()
+    console.log('gameTime', gameTime)
+    savemap.savePreview.time = `${gameTime.h.toString().padStart(2, '0')}:${gameTime.m.toString().padStart(2, '0')}`
+    savemap.savePreview.location = savemap.location.currentLocation // This is the menu description not the fieldName
+}
 const saveSaveMap = (index) => {
     console.log('saveSaveMap', index)
+    generateSavePreview()
     window.localStorage.setItem(`save-${index}`, JSON.stringify(window.data.savemap))
 }
 

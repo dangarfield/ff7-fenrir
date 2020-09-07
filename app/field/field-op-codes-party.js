@@ -239,12 +239,10 @@ const PRTYM = async (op) => {
 }
 const PRTYE = async (op) => {
     console.log('PRTYE', op)
-    window.data.savemap.party.members[
-        getPlayableCharacterName(op.c1),
-        getPlayableCharacterName(op.c2),
-        getPlayableCharacterName(op.c3)
-    ]
-    console.log('PRTYE result', window.data.savemap.party.members)
+    window.data.savemap.party.members[0] = getPlayableCharacterName(op.c1)
+    window.data.savemap.party.members[1] = getPlayableCharacterName(op.c2)
+    window.data.savemap.party.members[2] = getPlayableCharacterName(op.c3)
+    console.log('PRTYE result', window.data.savemap.party.members, getPlayableCharacterName(op.c1), getPlayableCharacterName(op.c2), getPlayableCharacterName(op.c3))
     return {}
 }
 const MMBud = async (op) => {

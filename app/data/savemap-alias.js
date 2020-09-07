@@ -1,5 +1,5 @@
 import { getBankData, setBankData } from './savemap.js'
-
+import { degreesToDirection } from '../field/field-models.js'
 
 const setFieldPointersActive = (active) => {
     setBankData(13, 30, active ? 0x02 : 0x00)
@@ -72,6 +72,37 @@ const getCurrentDisc = () => {
 const setCurrentDisc = (disc) => {
     setBankData(13, 0, disc)
 }
+const updateSavemapLocationField = (fieldName, fieldDescription) => {
+    console.log('updateSavemapLocationField', fieldName)
+    window.data.savemap.location.currentModule = 1
+    window.data.savemap.location.currentLocation = fieldDescription // Updated in MPNAM op code
+    window.data.savemap.location._currentFieldName = fieldName
+    window.data.savemap.location.currentMapValue = window.data.savemap.location.currentModule === 1 ? 2 : 0
+}
+const updateSavemapLocationFieldPosition = (x, y, triangleId, degrees) => {
+    const direction = degreesToDirection(degrees)
+    console.log('updateSavemapPlayerFieldPosition', x, y, triangleId, degrees, direction)
+    window.data.savemap.location.fieldXPos = x
+    window.data.savemap.location.fieldYPos = y
+    window.data.savemap.location.fieldTriangle = triangleId
+    window.data.savemap.location.fieldDirection = direction
+}
+const updateSavemapLocationFieldLeader = (characterName) => {
+    console.log('updateSavemapLocationFieldLeader', characterName)
+    // This is not in the game, but a utility method for loading the leader as I haven't looked into that yet
+    window.data.savemap.location._fieldLeader = characterName
+}
+const getPlayableCharacterInitData = () => {
+    const playableCharacterInitData = {
+        triangleId: window.data.savemap.location.fieldTriangle,
+        position: { x: window.data.savemap.location.fieldXPos, y: window.data.savemap.location.fieldYPos },
+        direction: window.data.savemap.location.fieldDirection,
+        characterName: window.data.savemap.location._fieldLeader,
+        module: window.data.savemap.location.currentModule,
+        fieldName: window.data.savemap.location._currentFieldName
+    }
+    return playableCharacterInitData
+}
 export {
     areFieldPointersActive,
     setFieldPointersActive,
@@ -82,5 +113,9 @@ export {
     setCurrentDisc,
     getCurrentGameTime,
     setCurrentGameTime,
-    incrementGameTime
+    incrementGameTime,
+    updateSavemapLocationField,
+    updateSavemapLocationFieldPosition,
+    updateSavemapLocationFieldLeader,
+    getPlayableCharacterInitData
 }

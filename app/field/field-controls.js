@@ -37,7 +37,7 @@ const initFieldKeypressActions = () => {
 
 
     getKeyPressEmitter().on('triangle', async (firstPress) => {
-        if (areFieldControlsActive && firstPress && !isActionInProgress() && isMenuEnabled()) { // Also need to check is menu is disabled
+        if (areFieldControlsActive && firstPress && isMenuEnabled()) { // Also need to check is menu is disabled
             // Toggle position helper visibility
             console.log('triangle', isActionInProgress())
             fadeOutAndLoadMenu(MENU_TYPE.MainMenu, 1)

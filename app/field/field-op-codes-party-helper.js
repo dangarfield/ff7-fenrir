@@ -11,7 +11,7 @@ const getPlayableCharacterId = (c) => {
     if (c == 'YoungCloud') return 9
     if (c == 'Sephiroth') return 10
     if (c == 'Chocobo') return 11
-    return 0
+    return 255
 }
 
 const getPlayableCharacterName = (c) => {
