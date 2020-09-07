@@ -56,6 +56,15 @@ const getModelByPartyMemberId = (partyMemberId) => {
     console.log('getModelByPartyMemberId', partyMemberId, characterName)
     return getModelByCharacterName(characterName)
 }
+const getEntityIdFromEntityName = (entityName) => {
+    for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
+        const entity = window.currentField.data.script.entities[i]
+        if (entity.userData.entityName === entityName) {
+            return i
+        }
+    }
+    return -1
+}
 
 // This method also initialises defaults for model.userData and adds model to the field
 const setModelAsEntity = (entityName, modelId) => {
@@ -293,6 +302,9 @@ const setPlayableCharacterCanMove = (canMove) => {
     window.currentField.playableCharacterCanMove = canMove
     // Also hides / shows cursor arrows if enabled
     window.currentField.positionHelpersEnabled = canMove
+    if (!canMove && window.currentField.playableCharacter) {
+        window.currentField.playableCharacter.mixer.stopAllAction()
+    }
 }
 const getDegreesFromTwoPoints = (point1, point2) => {
     return Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI

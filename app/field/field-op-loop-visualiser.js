@@ -1,6 +1,11 @@
 import { createNanoEvents } from '../../assets/nanoevents.js'
 let emitter
 
+const LoopVisualiserIcons = {
+    ICON_STOPPED: '■',
+    ICON_FLOWSTOP: '◔'
+}
+
 const renderInitialState = (data) => {
     console.log('renderInitialState', data)
 
@@ -35,6 +40,13 @@ const renderInitialState = (data) => {
     html += entitiesCol1
     html += entitiesCol2
     html += `</div>`
+
+    const existingVisualisers = document.getElementsByClassName('field-op-loop-visualiser')
+    while (existingVisualisers.length > 0) {
+        existingVisualisers[0].parentNode.removeChild(existingVisualisers[0])
+    }
+
+
     const container = document.createElement('div')
     container.className = 'field-op-loop-visualiser'
     container.innerHTML = html
@@ -86,7 +98,7 @@ const visualiseOpFlowEvent = (data) => {
         opEle.classList.remove('btn-dark')
         opEle.classList.add('btn-primary')
     }
-    if (data.opCode === 'RET' || data.opCode === '...') {
+    if (data.opCode === LoopVisualiserIcons.ICON_STOPPED || data.opCode === LoopVisualiserIcons.ICON_FLOWSTOP) {
         opEle.classList.remove('btn-primary')
         opEle.classList.add('btn-dark')
     }
@@ -100,5 +112,6 @@ const sendOpFlowEvent = (entityName, scriptType, opCode, currentOpIndex) => {
 
 export {
     initOpLoopVisualiser,
-    sendOpFlowEvent
+    sendOpFlowEvent,
+    LoopVisualiserIcons
 }

@@ -16,12 +16,12 @@ const initFieldKeypressActions = () => {
             nextPageOrCloseActiveDialogs()
         }
 
-        if (areFieldControlsActive() && firstPress && !isActionInProgress()) {
+        if (areFieldControlsActive() && firstPress) {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             for (let i = 0; i < window.currentField.models.length; i++) {
                 if (window.currentField.models[i].scene.userData.closeToTalk === true) {
-                    setActionInProgress('talk')
+                    // setActionInProgress('talk')
                     initiateTalk(i, window.currentField.models[i])
                 }
             }

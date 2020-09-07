@@ -99,7 +99,7 @@ const initiateTalk = async (i, fieldModel) => {
     // 'Jessie<br/>“Push <fe>{PURPLE}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{WHITE}<br/>\tto climb up and down.”'
     // 'Biggs<br/>“Think how many of our people risked their<br/>\tlives, just for this code…”'
     // console.log('talk progressed', currentChoice)
-    triggerEntityTalkLoop(fieldModel.userData.entityId)
+    triggerEntityTalkLoop(fieldModel.userData.entityName)
     setPlayableCharacterIsInteracting(false)
     clearActionInProgress()
 }

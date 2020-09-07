@@ -7,7 +7,7 @@ import * as models from './field-op-codes-models.js'
 import * as background from './field-op-codes-background.js'
 import * as cameraMedia from './field-op-codes-camera-media.js'
 import * as misc from './field-op-codes-misc.js'
-import { sendOpFlowEvent } from './field-op-loop-visualiser.js'
+import { sendOpFlowEvent, LoopVisualiserIcons } from './field-op-loop-visualiser.js'
 import { positionPlayableCharacterFromTransition } from './field-models.js'
 
 let STOP_ALL_LOOPS = false
@@ -301,7 +301,7 @@ const executeScriptLoop = async (entityName, loop) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP')
-            sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex + 1)
+            // sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex + 1)
             break
         }
 
@@ -326,6 +326,12 @@ const executeScriptLoop = async (entityName, loop) => {
 
     }
     loop.isRunning = false
+    if (flowActionCount >= 10) {
+        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.ICON_FLOWSTOP, currentOpIndex)
+    } else {
+        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.ICON_STOPPED, currentOpIndex)
+    }
+
     console.log(' - executeScriptLoop: END', entityName, loop)
 }
 const initEntity = async (entity) => {
@@ -345,14 +351,18 @@ const initEntity = async (entity) => {
 
     console.log('initEntity: END', entity.entityName)
 }
-const triggerEntityTalkLoop = async (entityId) => {
-    const entity = window.currentField.data.script.entities[entityId]
-    console.log('triggerEntityTalkLoop', entityId, entity)
-    const talkLoop = entity.scripts.filter(s => s.scriptType === 'Talk')[0]
-    console.log('talkLoop', talkLoop)
-    if (!talkLoop.isRunning) {
-        await executeScriptLoop(entity.entityName, talkLoop)
+const triggerEntityTalkLoop = async (entityName) => {
+    const entity = window.currentField.data.script.entities.filter(e => e.entityName === entityName)[0]
+    console.log('triggerEntityTalkLoop', entityName, entity)
+    const filteredTalkLoops = entity.scripts.filter(s => s.scriptType === 'Talk')
+    if (filteredTalkLoops.length > 0) {
+        const talkLoop = filteredTalkLoops[0]
+        console.log('talkLoop', talkLoop)
+        if (!talkLoop.isRunning) {
+            await executeScriptLoop(entity.entityName, talkLoop)
+        }
     }
+
 
 }
 const triggerEntityCollisionLoop = async (entityId) => {
