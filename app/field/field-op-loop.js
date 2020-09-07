@@ -8,6 +8,7 @@ import * as background from './field-op-codes-background.js'
 import * as cameraMedia from './field-op-codes-camera-media.js'
 import * as misc from './field-op-codes-misc.js'
 import { sendOpFlowEvent } from './field-op-loop-visualiser.js'
+import { positionPlayableCharacterFromTransition } from './field-models.js'
 
 let STOP_ALL_LOOPS = false
 
@@ -333,8 +334,8 @@ const initEntity = async (entity) => {
     console.log('initLoop', initLoop)
     await executeScriptLoop(entity.entityName, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
-    // console.log('mainLoop', mainLoop)
-    // await executeScriptLoop(entity.entityName, mainLoop)
+    console.log('mainLoop', mainLoop)
+    await executeScriptLoop(entity.entityName, mainLoop) // eg async
     // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
@@ -349,6 +350,7 @@ const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
     STOP_ALL_LOOPS = false
     const entities = window.currentField.data.script.entities
+    await positionPlayableCharacterFromTransition()
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async

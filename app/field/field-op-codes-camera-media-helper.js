@@ -63,10 +63,15 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
     })
 
 }
-const moveCameraToLeader = async () => { // Scroll to leader
+const moveCameraToLeader = async (instant) => { // Scroll to leader
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('moveCameraToLeader', getCurrentCameraPosition(), relativeToCamera)
-    await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
+    if (instant) {
+        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    } else {
+        await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
+    }
+
     window.currentField.fieldCamera.userData.followUser = true
 }
 

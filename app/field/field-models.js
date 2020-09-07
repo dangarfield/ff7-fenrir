@@ -1,7 +1,9 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
-import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
+import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-codes-party-helper.js'
+import { calculateViewClippingPointFromVector3, adjustViewClipping } from './field-scene.js'
+
 const directionToDegrees = (dir) => {
     return Math.round(dir * (360 / 255))
 }
@@ -65,6 +67,9 @@ const setModelAsEntity = (entityName, modelId) => {
     model.scene.rotation.x = THREE.Math.degToRad(90)
     model.scene.up.set(0, 0, 1)
     model.scene.visible = false
+    if (model.userData.isPlayableCharacter) {
+        model.scene.visible = true
+    }
     model.userData.movementSpeed = 2048 // TODO - Absolute guess for default
     model.userData.animationSpeed = 1 // TODO - Absolute guess for default
     model.userData.talkEnabled = true
@@ -82,7 +87,62 @@ const setModelAsPlayableCharacter = (entityName, characterName) => {
     model.userData.characterName = characterName
     console.log('setModelAsPlayableCharacter', entityName, model)
 }
+const getFieldModelIdAndEntityNameForPlayableCharacter = (characterId) => {
+    const entities = window.currentField.data.script.entities
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i]
+        if (entity.entityType !== 'Playable Character') { continue }
+        for (let j = 0; j < entity.scripts.length; j++) {
+            const script = entity.scripts[j]
+            let modelId
+            for (let k = 0; k < script.ops.length; k++) {
+                const op = script.ops[k]
+                if (op.op === 'CHAR') {
+                    modelId = op.n
+                    console.log('CHAR', op)
+                } else if (op.op === 'PC' && op.c === characterId) {
+                    console.log('PC', op)
+                    return {
+                        entityName: entity.entityName,
+                        entityId: i,
+                        modelId
+                    }
+                }
 
+
+            }
+        }
+    }
+}
+const positionPlayableCharacterFromTransition = async () => {
+    // This is messy and involves placing the character before the loop starts
+    // not sure how this happens in the game, will investigate later
+    if (window.currentField.playableCharacterInitData) {
+
+        const initData = window.currentField.playableCharacterInitData
+        console.log('init player from field transition', initData)
+
+        // Need to ensure that this runs after all other entity inits...
+        const { entityName, entityId, modelId } = getFieldModelIdAndEntityNameForPlayableCharacter(getPlayableCharacterId(initData.characterName))
+        console.log('getFieldModelIdAndEntityNameForPlayableCharacter', entityName, modelId)
+        setModelAsEntity(entityName, modelId)
+        setModelAsPlayableCharacter(entityName, initData.characterName)
+        // const model = getModelByCharacterName(initData.characterName)
+        placeModel(entityName, initData.position.x, initData.position.y, undefined, initData.triangleId)
+        setModelDirection(entityName, initData.direction)
+        setModelVisibility(entityName, true)
+
+        await setModelAsLeader(entityId, true)
+        // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
+        // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
+        // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
+        // window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
+
+        // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+        // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
+        // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    }
+}
 const placeModel = (entityName, x, y, z, triangleId) => {
     console.log('placeModel: START', entityName, x, y, z, triangleId)
     const model = getModelByEntityName(entityName)
@@ -206,7 +266,7 @@ const setModelCollisionRadius = (entityName, radius) => {
     const model = getModelByEntityName(entityName)
     model.userData.collisionRadius = radius
 }
-const setModelAsLeader = async (entityId) => {
+const setModelAsLeader = async (entityId, instant) => {
     console.log('setModelAsLeader', entityId)
     window.currentField.models.map(m => {
         m.userData.isLeader = false
@@ -224,7 +284,7 @@ const setModelAsLeader = async (entityId) => {
     // Screen moves to centre on character
     // Not sure about this, it takes control of the camera
     //  which isnt right in all fields where the camera has been previously set
-    await moveCameraToLeader()
+    await moveCameraToLeader(instant)
     // Assist cursor hand displays if visible
     window.currentField.positionHelpersEnabled = true
 }
@@ -316,6 +376,7 @@ export {
     degreesToDirection,
     setModelAsEntity,
     setModelAsPlayableCharacter,
+    positionPlayableCharacterFromTransition,
     placeModel,
     setModelVisibility,
     setModelDirection,

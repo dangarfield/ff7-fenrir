@@ -127,13 +127,13 @@ const gatewayTriggered = async (i) => {
     setActionInProgress('gateway')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    await fadeOut()
     stopAllLoops()
+    await fadeOut()
     const playableCharacterInitData = {
         triangleId: gateway.destinationVertex.triangleId,
-        position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y, z: 0 },
+        position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y },
         direction: gateway.destinationVertex.direction,
-        // player: TODO - ensure we now who to flag and place on the scene and on what op code does this
+        characterName: window.currentField.playableCharacter.userData.characterName
     }
     loadField(gateway.fieldName, playableCharacterInitData)
 }
@@ -143,13 +143,13 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     setActionInProgress('gateway')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    await fadeOut()
     stopAllLoops()
+    await fadeOut()
     const playableCharacterInitData = {
         triangleId: triangleId,
-        position: { x: x, y: y, z: 0 },
+        position: { x: x, y: y },
         direction: direction,
-        // player: TODO - ensure we now who to flag and place on the scene and on what op code does this
+        characterName: window.currentField.playableCharacter.userData.characterName
     }
     loadField(fieldName, playableCharacterInitData)
 }

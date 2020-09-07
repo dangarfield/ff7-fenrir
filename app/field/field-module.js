@@ -543,39 +543,14 @@ const placeBG = async (fieldName) => {
     }
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 }
-const positionPlayableCharacterFromTransition = () => {
-    if (window.currentField.playableCharacter && window.currentField.playableCharacterInitData) {
-        const initData = window.currentField.playableCharacterInitData
-        console.log('init player from field transition', initData)
 
-        // Get the central point on the triangleId
-        const triangle = window.currentField.data.walkmeshSection.triangles[initData.triangleId].vertices
-        const x = (triangle[0].x + triangle[1].x + triangle[2].x) / 3
-        const y = (triangle[0].y + triangle[1].y + triangle[2].y) / 3
-        const z = (triangle[0].z + triangle[1].z + triangle[2].z) / 3
-        console.log('init player triangle', initData.triangleId, triangle, '->', x, y, z)
-
-        window.currentField.playableCharacter.scene.position.set(
-            x / 4096,
-            y / 4096,
-            z / 4096)
-
-        // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
-        let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
-        deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
-
-        window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
-        const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
-        console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
-        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
-    }
-}
 
 const setMenuEnabled = (enabled) => { window.currentField.menuEnabled = enabled }
 const isMenuEnabled = () => { return window.currentField.menuEnabled }
 
 const loadField = async (fieldName, playableCharacterInitData) => {
 
+    console.log('loadField', fieldName, playableCharacterInitData)
     // Reset field values
     const lastFieldName = window.currentField && window.currentField.name ? window.currentField.name : ''
     window.currentField = {
@@ -636,15 +611,14 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         placeModelsDebug()
     }
 
-    positionPlayableCharacterFromTransition()
     if (window.config.debug.active) {
         await initFieldDebug(loadField)
     }
-    await fadeIn()
     initFieldKeypressActions()
     if (!window.config.debug.debugModeNoOpLoops) {
         await initialiseOpLoops()
     }
+    await fadeIn()
 }
 
 
