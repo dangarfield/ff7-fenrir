@@ -462,15 +462,15 @@ const PMVIE = async (op) => {
 }
 const MOVIE = async (op) => {
     console.log('MOVIE', op)
-    // await playNextMovie() // Temp disabled for testing md1stin
+    await playNextMovie() // Temp disabled for testing md1stin
     return {}
 }
 
 const MVIEF = async (op) => {
     console.log('MVIEF', op)
     const frame = getCurrentMovieFrame()
-    // setBankData(op.b, op.a, frame)
-    setBankData(op.b, op.a, 700) // Temp disabled for testing 
+    setBankData(op.b, op.a, frame)
+    // setBankData(op.b, op.a, 700) // Temp disabled for testing 
     console.log('MVIEF frame -', frame, 'set to', op.b, op.a)
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}

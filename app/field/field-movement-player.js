@@ -25,7 +25,7 @@ const updateFieldMovement = (delta) => {
     let animNo = 2 // run
 
     if (window.config.debug.runByDefault === getActiveInputs().x) { // Adjust to walk
-        speed = speed * 0.18
+        speed = speed * 0.20
         animNo = 1
     }
 

@@ -333,6 +333,16 @@ const IDLCK = async (entityName, op) => {
 
 setTimeout(async () => {
     console.log('ANIM: STARTED')
+
+    // await MOVE('ba', { b1: 0, b2: 0, x: 3607, y: 27712 })
+    // await MOVE('ba', { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // await MOVE('ba', { b1: 0, b2: 0, x: 3578, y: 29360 })
+
+    // await MSPED('ba', { b: 0, s: 2560 })
+    // await MOVE('ba', { b1: 0, b2: 0, x: 1526, y: 1302 })
+    // await MOVE('ba', { b1: 0, b2: 0, x: 1126, y: 1872 })
+    // await MOVE('ba', { b1: 0, b2: 0, x: 1355, y: 3376 })
+
     // await OFST('drL', { b1: 0, b2: 0, b3: 0, b4: 0, x: -202, y: 0, z: 0, s: 500, t: 1 })
     // await OFST('drR', { b1: 0, b2: 0, b3: 0, b4: 0, x: 184, y: 0, z: 0, s: 500, t: 1 })
     // console.log('triggered')
