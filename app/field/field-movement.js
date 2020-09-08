@@ -39,7 +39,7 @@ const moveEntity = async (entityName, x, y, rotate, animate) => {
     const from = { x: model.scene.position.x, y: model.scene.position.y }
     const to = { x: x, y: y }
     const distance = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
-    const time = distance * model.userData.movementSpeed * 4 // TODO - Look at this properly, not sure of the scale here
+    const time = distance * model.userData.movementSpeed * (1 / window.currentField.data.model.header.modelScale) * 1024 // TODO - Look at this properly, not sure of the scale here
     console.log('distance', from.x - to.x, from.y - to.y,
         Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2),
         distance, time

@@ -127,6 +127,7 @@ const gatewayTriggered = async (i) => {
     console.log('gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
     window.anim.clock.stop()
+    window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
     await fadeOut()
@@ -143,6 +144,7 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     console.log('jumpToMap', fieldId, fieldName, x, y, triangleId, direction)
     setActionInProgress('gateway')
     window.anim.clock.stop()
+    window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
     await fadeOut()

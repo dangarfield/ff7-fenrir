@@ -3,6 +3,8 @@ import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-codes-party-helper.js'
 import { calculateViewClippingPointFromVector3, adjustViewClipping } from './field-scene.js'
+import * as modelFieldOpCodes from './field-op-codes-models.js'
+import { playAnimationLoopedAsync } from './field-animations.js'
 
 const directionToDegrees = (dir) => {
     return Math.round(dir * (360 / 255))
@@ -86,7 +88,7 @@ const setModelAsEntity = (entityName, modelId) => {
     model.userData.collisionEnabled = true
     model.userData.collisionRadius = 24 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
-    // console.log('setModelAsEntity: END', entityName, modelId, model)
+    console.log('setModelAsEntity: END', entityName, modelId, model)
     window.currentField.fieldScene.add(model.scene)
 }
 const setModelAsPlayableCharacter = (entityName, characterName) => {
@@ -188,6 +190,75 @@ const placeModel = (entityName, x, y, z, triangleId) => {
     }
     model.scene.visible = true
 }
+const placeModelsDebug = async () => {
+    console.log('placeModelsDebug: START')
+    window.anim.axesHelper = new THREE.AxesHelper(0.1);
+    window.anim.axesHelper.visible = false
+    window.currentField.fieldScene.add(window.anim.axesHelper);
+
+    const ccOps = []
+    for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
+        const entity = window.currentField.data.script.entities[i]
+
+        const allOps = []
+        for (let script of entity.scripts) {
+            for (let op of script.ops) {
+                allOps.push(op)
+            }
+        }
+        // console.log('allOps', entity, allOps)
+
+        const charOps = allOps.filter(o => o.op === 'CHAR')
+        if (charOps.length > 0) {
+            await modelFieldOpCodes.CHAR(entity.entityName, charOps[0])
+            const model = getModelByEntityName(entity.entityName)
+            if (model.animations.length > 0) {
+                playAnimationLoopedAsync(entity.entityName, model.animations.length - 1, 1)
+            }
+        }
+        const xyziOps = allOps.filter(o => o.op === 'XYZI')
+        if (xyziOps.length > 0) {
+            await modelFieldOpCodes.XYZI(entity.entityName, xyziOps[0])
+        }
+        const dirOps = allOps.filter(o => o.op === 'DIR')
+        if (dirOps.length > 0) {
+            await modelFieldOpCodes.DIR(entity.entityName, dirOps[0])
+        }
+        const pcOps = allOps.filter(o => o.op === 'PC')
+        if (pcOps.length > 0) {
+            await modelFieldOpCodes.PC(entity.entityName, pcOps[0])
+        }
+        const entityCcOps = allOps.filter(o => o.op === 'CC')
+        if (entityCcOps.length > 0) {
+            ccOps.push(entityCcOps[0])
+        }
+    }
+
+    if (ccOps.length > 0) {
+        await modelFieldOpCodes.CC('dir', ccOps[0])
+    } else {
+        let charFilter = window.currentField.models.filter(m => m.userData.characterName === 'Cloud')
+        if (charFilter.length === 0) {
+            charFilter = window.currentField.models.filter(m => m.userData.isPlayableCharacter === true)
+            if (charFilter.length === 0) {
+                charFilter = window.currentField.models
+            }
+        }
+        const model = charFilter[0]
+        // console.log('charFilter', charFilter)
+        const entities = window.currentField.data.script.entities
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i]
+            if (entity.entityName === model.userData.entityName) {
+                const triangleId = Math.round(window.currentField.data.walkmeshSection.triangles.length / 2)
+                placeModel(model.userData.entityName, undefined, undefined, undefined, triangleId)
+                setModelVisibility(model.userData.entityName, true)
+                setModelAsLeader(i)
+            }
+        }
+    }
+    console.log('placeModelsDebug: END', window.currentField.models)
+}
 const setModelVisibility = (entityName, isVisible) => {
     console.log('setModelVisibility', entityName, isVisible)
     const model = getModelByEntityName(entityName)
@@ -279,12 +350,11 @@ const setModelAsLeader = async (entityId, instant) => {
     console.log('setModelAsLeader', entityId)
     window.currentField.models.map(m => {
         m.userData.isLeader = false
-        console.log('m', m)
     })
     const entityName = window.currentField.data.script.entities[entityId].entityName
     const model = getModelByEntityName(entityName)
+    console.log('setModelAsLeader 2', entityName, model)
     model.userData.isLeader = true
-    console.log('setModelAsLeader: END', model)
     // Leader should be persisted between map jumps by gateways and MAPJUMP
     // Leader should also be more accessible as it's in the movement section of render loop, eg
     // We probably shouldn't have to run models.filter(m => m.userData.isLeader)[0] every time
@@ -297,6 +367,8 @@ const setModelAsLeader = async (entityId, instant) => {
     await moveCameraToLeader(instant)
     // Assist cursor hand displays if visible
     window.currentField.positionHelpersEnabled = true
+    // TODO - set positionHelpers position on playable character straight away
+    console.log('setModelAsLeader: END', model)
 }
 const setPlayableCharacterCanMove = (canMove) => {
     console.log('setPlayableCharacterCanMove', canMove)
@@ -393,6 +465,7 @@ export {
     setModelAsPlayableCharacter,
     positionPlayableCharacterFromTransition,
     placeModel,
+    placeModelsDebug,
     setModelVisibility,
     setModelDirection,
     setModelDirectionToFaceEntity,

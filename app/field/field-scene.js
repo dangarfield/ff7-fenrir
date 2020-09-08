@@ -4,7 +4,7 @@ import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitContr
 import TWEEN from '../../assets/tween.esm.js'
 
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
-import { updateFieldMovement } from './field-module.js'
+import { updateFieldMovement } from './field-movement-player.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
