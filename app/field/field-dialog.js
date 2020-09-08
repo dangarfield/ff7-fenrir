@@ -7,6 +7,8 @@ import { setCurrentCountdownClockTime, decrementCountdownClock } from '../data/s
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
 
+const MIN_WINDOW_EDGE_DISTANCE = 8
+
 const WINDOW_MODE = {
     Normal: 'Normal',
     NoBackgroundBorder: 'NoBackgroundBorder',
@@ -22,6 +24,13 @@ const SPECIAL_MODE = {
 const getDialogs = () => { return dialogs }
 const getTextParams = () => { return textParams }
 
+const adjustWindowPosition = (dialog, x, y, w, h) => {
+    // Adjust window position if too close to an edge
+    if (x < MIN_WINDOW_EDGE_DISTANCE) { dialog.x = MIN_WINDOW_EDGE_DISTANCE }
+    if (y < MIN_WINDOW_EDGE_DISTANCE) { dialog.y = MIN_WINDOW_EDGE_DISTANCE }
+    if (x + w + MIN_WINDOW_EDGE_DISTANCE > window.config.sizing.width) { dialog.x = window.config.sizing.width - w - MIN_WINDOW_EDGE_DISTANCE }
+    if (y + h + MIN_WINDOW_EDGE_DISTANCE > window.config.sizing.height) { dialog.y = window.config.sizing.height - h - MIN_WINDOW_EDGE_DISTANCE }
+}
 const clearAllDialogs = () => {
     dialogs = []
     textParams = []
@@ -29,6 +38,7 @@ const clearAllDialogs = () => {
 }
 
 const createWindow = (id, x, y, w, h) => {
+    let updateMethod = 'NEW'
     if (dialogs[id] === undefined) {
         const dialog = {
             id: id,
@@ -45,16 +55,17 @@ const createWindow = (id, x, y, w, h) => {
             // group: new THREE.Group() // Example attribute, 
             // resolveCallback: {} // Example attribute, will be set by MESSAGE and ASK commands for interaction
         }
-        console.log('createWindow NEW', dialog)
+        // console.log('createWindow NEW', dialog)
         dialogs[id] = dialog
     } else {
+        updateMethod = 'UPDATE'
         dialogs[id].x = x
         dialogs[id].y = y
         dialogs[id].w = w
         dialogs[id].h = h
-        console.log('createWindow UPDATE', dialogs[id])
     }
-
+    adjustWindowPosition(dialogs[id], x, y, w, h)
+    console.log('createWindow', updateMethod, dialogs[id])
 }
 
 const resetWindow = (id) => {
@@ -68,11 +79,13 @@ const resetWindow = (id) => {
     dialogs[id].playerCanClose = true
     dialogs[id].numbers = {}
     textParams[id] = []
+    adjustWindowPosition(dialogs[id], x, y, w, h)
     console.log('resetWindow', id, dialogs[id])
 }
 const moveWindow = (id, x, y) => {
     dialogs[id].x = x
     dialogs[id].y = y
+    adjustWindowPosition(dialogs[id], x, y, w, h)
     console.log('moveWindow', id, dialogs[id])
 }
 const resizeWindow = (id, x, y, w, h) => {
@@ -80,6 +93,7 @@ const resizeWindow = (id, x, y, w, h) => {
     dialogs[id].y = y
     dialogs[id].w = w
     dialogs[id].h = h
+    adjustWindowPosition(dialogs[id], x, y, w, h)
     console.log('resizeWindow', id, dialogs[id])
 }
 const setWindowMode = (id, modeId, closabilityId) => {
@@ -151,8 +165,13 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         dialog.text = dialogString
         // if (id === 2) { // Temp for testing
         //     // dialog.text = 'Do {CLOUD} <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
-        //     dialog.text = '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind'
+        //     dialog.text = '{BARRET}<br/>“Biggs!”'
         // }
+        // if (id === 3) { // Temp for testing
+        //     // dialog.text = 'Do {CLOUD} <fe>{PURPLE}<fe>{MEM1}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}<fe>{MEM1}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]'
+        //     dialog.text = '{BARRET}<br/>“Wedge!!”'
+        // }
+
         console.log('showMessageWaitForInteraction', id, dialogString, dialog)
         await createDialogBox(dialog)
         await showWindowWithDialog(dialog, showChoicePointers)

@@ -2,8 +2,9 @@ import { createNanoEvents } from '../../assets/nanoevents.js'
 let emitter
 
 const LoopVisualiserIcons = {
-    ICON_STOPPED: '■',
-    ICON_FLOWSTOP: '◔'
+    STOPPED: '■',
+    FLOWSTOP: '◔',
+    KILL: '◈'
 }
 
 const renderInitialState = (data) => {
@@ -98,7 +99,7 @@ const visualiseOpFlowEvent = (data) => {
         opEle.classList.remove('btn-dark')
         opEle.classList.add('btn-primary')
     }
-    if (data.opCode === LoopVisualiserIcons.ICON_STOPPED || data.opCode === LoopVisualiserIcons.ICON_FLOWSTOP) {
+    if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL) {
         opEle.classList.remove('btn-primary')
         opEle.classList.add('btn-dark')
     }

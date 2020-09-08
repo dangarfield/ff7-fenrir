@@ -236,7 +236,7 @@ const replaceCharacterNames = (text) => {
     for (let i = 0; i < CHARACTER_NAMES.length; i++) {
         const characterName = CHARACTER_NAMES[i]
         console.log('replaceCharacterNames', characterName, window.data.savemap.characters)
-        text = text.replace(new RegExp(`{${characterName.id}}`, 'g'), window.data.savemap.characters[characterName.name].name)
+        text = text.replace(new RegExp(`{${characterName.id}}`, 'gi'), window.data.savemap.characters[characterName.name].name)
     }
     return text
 }
@@ -464,7 +464,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
 
 
     // Configure text
-    text = text.replace(/\t/, '    ')
+    text = text.replace(/\t/g, '    ')
     text = replaceCharacterNames(text)
     text = replaceButtonImages(text)
     text = replaceVariables(text, dialog.id)

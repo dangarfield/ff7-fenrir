@@ -16,6 +16,8 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
     console.log('   - executeOp: START', entityName, scriptType, op)
     if (STOP_ALL_LOOPS) {
         console.log('Loop stopping')
+        sendOpFlowEvent(entityName, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+        return { exit: true }
     }
     sendOpFlowEvent(entityName, scriptType, op.op, currentOpIndex + 1)
     let result = {}
@@ -293,8 +295,9 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
     console.log('   - executeOp: END', entityName, scriptType, op, result)
     return result
 }
-const stopAllLoops = () => {
+const stopAllLoops = async () => {
     STOP_ALL_LOOPS = true
+    // await sleep(2000)
 }
 
 const executeScriptLoop = async (entityName, loop) => {
@@ -333,9 +336,9 @@ const executeScriptLoop = async (entityName, loop) => {
     }
     loop.isRunning = false
     if (flowActionCount >= 10) {
-        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.ICON_FLOWSTOP, currentOpIndex)
+        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.FLOWSTOP, currentOpIndex)
     } else {
-        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.ICON_STOPPED, currentOpIndex)
+        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
     }
 
     console.log(' - executeScriptLoop: END', entityName, loop)

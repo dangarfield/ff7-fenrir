@@ -45,12 +45,12 @@ const tweenOpacity = (from, to, frames) => {
 
     })
 }
-const fadeOut = async () => {
+const fadeOut = async (fast) => {
     // console.log('fadeOut')
     setFadeInProgress(true)
     window.currentField.fieldFader.material.blending = THREE.NormalBlending
     window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-    await tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, 30 * 0.8)
+    await tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, fast ? 30 * 0.4 : 30 * 0.8)
     setFadeInProgress(false)
 }
 const fadeIn = async () => {

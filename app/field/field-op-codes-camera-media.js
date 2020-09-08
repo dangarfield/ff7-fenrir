@@ -462,29 +462,29 @@ const PMVIE = async (op) => {
 }
 const MOVIE = async (op) => {
     console.log('MOVIE', op)
-    // await playNextMovie() // Temp disabled for testing md1stin
+    await playNextMovie() // Temp disabled for testing md1stin
     return {}
 }
 
 const MVIEF = async (op) => {
     console.log('MVIEF', op)
     const frame = getCurrentMovieFrame()
-    // setBankData(op.b, op.a, frame)
-    setBankData(op.b, op.a, 700) // Temp disabled for testing 
+    setBankData(op.b, op.a, frame)
+    // setBankData(op.b, op.a, 700) // Temp disabled for testing 
     console.log('MVIEF frame -', frame, 'set to', op.b, op.a)
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}
 }
-setTimeout(async () => {
-    await SOUND({ i: 3, d: 64 })
-    await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 0, t: 0 })
-    // await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
-    // // await sleep(1000)
-    // await PMVIE({ m: 53 })
-    // await MOVIE({})
-    // setBankData(6, 6, 700)
-    // console.log('MOVIE ENDED')
-}, 10000)
+// setTimeout(async () => {
+// await SOUND({ i: 3, d: 64 })
+// await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 0, t: 0 })
+// await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
+// // await sleep(1000)
+// await PMVIE({ m: 53 })
+// await MOVIE({})
+// setBankData(6, 6, 700)
+// console.log('MOVIE ENDED')
+// }, 10000)
 
 export {
     NFADE,

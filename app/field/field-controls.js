@@ -27,11 +27,11 @@ const initFieldKeypressActions = () => {
             }
         }
     })
-    getKeyPressEmitter().on('r1', (firstPress) => { // Just for debugging purposes to get 'back' from the talk interaction
+    getKeyPressEmitter().on('r1', (firstPress) => {
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'talk') {
-            console.log('r1', isActionInProgress())
-            clearActionInProgress()
-            setPlayableCharacterIsInteracting(false)
+            // console.log('r1', isActionInProgress())
+            // clearActionInProgress()
+            // setPlayableCharacterIsInteracting(false)
         }
     })
 
@@ -43,11 +43,11 @@ const initFieldKeypressActions = () => {
             fadeOutAndLoadMenu(MENU_TYPE.MainMenu, 1)
         }
     })
-    getKeyPressEmitter().on('r2', async (firstPress) => { // Just for debugging purposes to get 'back' from the menu
+    getKeyPressEmitter().on('r2', async (firstPress) => {
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'menu') {
-            // Toggle position helper visibility
-            console.log('r2', isActionInProgress())
-            unfreezeField()
+            // // Toggle position helper visibility
+            // console.log('r2', isActionInProgress())
+            // unfreezeField()
         }
     })
 

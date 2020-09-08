@@ -49,26 +49,34 @@ const getMenuTypeStringFromCode = (menuCode) => {
 }
 const cleanScene = () => { while (scene.children.length) { scene.remove(scene.children[0]) } }
 
+let MENU_PROMISE
 
-const loadMenu = (menuCode, param) => {
-    console.log('loadMenu', menuCode, getMenuTypeStringFromCode(menuCode), param)
+const loadMenuWithWait = (menuCode, param) => {
+    console.log('loadMenuWithWait', menuCode, getMenuTypeStringFromCode(menuCode), param)
     cleanScene()
     initMenuRenderLoop()
-    switch (menuCode) {
-        case MENU_TYPE.Credits: loadCreditsMenu(); break
-        case MENU_TYPE.CharacterNameEntry: loadCharNameMenu(param); break
-        case MENU_TYPE.PartySelect: loadPartySelectMenu(); break
-        case MENU_TYPE.Shop: loadShopMenu(param); break
-        case MENU_TYPE.MainMenu: loadMainMenu(); break
-        case MENU_TYPE.SaveScreen: loadSaveMenu(); break
+    return new Promise(async (resolve) => {
+        MENU_PROMISE = resolve
+        switch (menuCode) {
+            case MENU_TYPE.Credits: loadCreditsMenu(); break
+            case MENU_TYPE.CharacterNameEntry: loadCharNameMenu(param); break
+            case MENU_TYPE.PartySelect: loadPartySelectMenu(); break
+            case MENU_TYPE.Shop: loadShopMenu(param); break
+            case MENU_TYPE.MainMenu: loadMainMenu(); break
+            case MENU_TYPE.SaveScreen: loadSaveMenu(); break
 
-        case MENU_TYPE.ChangeDisc: loadChangeDiscMenu(param); break
-        case MENU_TYPE.Title: loadTitleMenu(); break
-        case MENU_TYPE.GameOver: loadGameOverMenu(); break
-        // case MENU_TYPE.YuffieSteal: console.log('TODO: YuffieSteal'); break
-        // case MENU_TYPE.RemoveCloudMateria: console.log('TODO: RemoveCloudMateria'); break
-        // case MENU_TYPE.RestoreCloudMateria: console.log('TODO: RestoreCloudMateria'); break
-    }
+            case MENU_TYPE.ChangeDisc: loadChangeDiscMenu(param); break
+            case MENU_TYPE.Title: loadTitleMenu(); break
+            case MENU_TYPE.GameOver: loadGameOverMenu(); break
+            // case MENU_TYPE.YuffieSteal: console.log('TODO: YuffieSteal'); break
+            // case MENU_TYPE.RemoveCloudMateria: console.log('TODO: RemoveCloudMateria'); break
+            // case MENU_TYPE.RestoreCloudMateria: console.log('TODO: RestoreCloudMateria'); break
+        }
+    })
+}
+
+const resolveMenuPromise = () => {
+    MENU_PROMISE()
 }
 
 const initMenuModule = () => {
@@ -77,6 +85,7 @@ const initMenuModule = () => {
 }
 export {
     initMenuModule,
-    loadMenu,
+    loadMenuWithWait,
+    resolveMenuPromise,
     MENU_TYPE
 }

@@ -1,7 +1,7 @@
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
-import { loadMenu } from '../menu/menu-module.js'
+import { loadMenuWithWait } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
@@ -111,8 +111,9 @@ const fadeOutAndLoadMenu = async (menuType, menuParam) => {
     setActionInProgress('menu')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    await fadeOut()
-    loadMenu(menuType, menuParam)
+    await fadeOut(true)
+    await loadMenuWithWait(menuType, menuParam)
+    await unfreezeField()
 }
 const unfreezeField = async () => {
     startFieldRenderLoop()
@@ -127,7 +128,7 @@ const gatewayTriggered = async (i) => {
     setActionInProgress('gateway')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    stopAllLoops()
+    await stopAllLoops()
     await fadeOut()
     const playableCharacterInitData = {
         triangleId: gateway.destinationVertex.triangleId,
@@ -143,7 +144,7 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     setActionInProgress('gateway')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    stopAllLoops()
+    await stopAllLoops()
     await fadeOut()
     const playableCharacterInitData = {
         triangleId: triangleId,

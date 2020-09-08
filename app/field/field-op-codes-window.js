@@ -138,7 +138,7 @@ const WCLS = async (op) => {
 const MENU = async (op) => {
     console.log('MENU', op)
     const param = op.b == 0 ? op.p : getBankData(op.b, op.p)
-    fadeOutAndLoadMenu(op.t, param)
+    await fadeOutAndLoadMenu(op.t, param)
     return {}
 }
 const MENU2 = async (op) => {
@@ -155,9 +155,14 @@ setTimeout(async () => {
     // await MENU2({ s: 1 })
     // await sleep(3000)
     // await MENU2({ s: 0 })
-    // await WINDOW({ n: 1, x: 40, y: 20, w: 133, h: 41 })
+    // await WINDOW({ n: 0, x: 10, y: 137, w: 254, h: 73 })
+    // await MESSAGE({ n: 0, d: 42 })
+    // await WINDOW({ n: 2, x: 155, y: 8, w: 233, h: 41 })
+    // await MESSAGE({ n: 2, d: 32 })
+    // await WINDOW({ n: 2, x: 120, y: 8, w: 268, h: 41 })
+    // await MESSAGE({ n: 2, d: 33 })
     // await WMODE({ w: 1, m: 2, p: 1 })
-    // await MESSAGE({ n: 1, d: 30 })
+
 
     // await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
     // await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
