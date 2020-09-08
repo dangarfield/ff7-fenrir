@@ -234,7 +234,9 @@ const placeModelsDebug = async () => {
         }
     }
 
-    if (ccOps.length > 0) {
+    if (window.currentField.playableCharacterInitData) {
+        await positionPlayableCharacterFromTransition()
+    } else if (ccOps.length > 0) {
         await modelFieldOpCodes.CC('dir', ccOps[0])
     } else {
         let charFilter = window.currentField.models.filter(m => m.userData.characterName === 'Cloud')
@@ -257,6 +259,7 @@ const placeModelsDebug = async () => {
             }
         }
     }
+
     console.log('placeModelsDebug: END', window.currentField.models)
 }
 const setModelVisibility = (entityName, isVisible) => {

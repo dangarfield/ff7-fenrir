@@ -219,7 +219,8 @@ const PLUS = (op) => {
     console.log('PLUS', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    const val = (dDesc + sDesc) % 255
+    const val = (dDesc + sDesc) % 256
+    console.log('PLUS', op, dDesc, sDesc, val)
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -227,7 +228,7 @@ const PLUS2 = (op) => {
     console.log('PLUS2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    const val = (dDesc + sDesc) % 255
+    const val = (dDesc + sDesc) % 256
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -235,7 +236,7 @@ const MINUS = (op) => {
     console.log('MINUS', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    let val = (dDesc - sDesc) % 255
+    let val = (dDesc - sDesc) % 256
     if (val < 0) { val = 255 - Math.abs(val) }
     setBankData(op.bd, op.d, val)
     return {}
@@ -244,36 +245,36 @@ const MINUS2 = (op) => {
     console.log('MINUS2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    let val = (dDesc - sDesc) % 255
-    if (val < 0) { val = 255 - Math.abs(val) }
+    let val = (dDesc - sDesc) % 256
+    if (val < 0) { val = 256 - Math.abs(val) }
     setBankData(op.bd, op.d, val)
 }
 const INC = (op) => {
     console.log('INC', op)
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
-    const val = (bankVal + 1) % 255
+    const val = (bankVal + 1) % 256
     setBankData(op.b, op.a, val)
     return {}
 }
 const INC2 = (op) => {
     console.log('INC2', op)
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
-    const val = (bankVal + 1) % 255
+    const val = (bankVal + 1) % 256
     setBankData(op.b, op.a, val)
     return {}
 }
 const DEC = (op) => {
     console.log('DEC', op)
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
-    let val = (bankVal - 1) % 255
-    if (val < 0) { val = 255 - Math.abs(val) }
+    let val = (bankVal - 1) % 256
+    if (val < 0) { val = 256 - Math.abs(val) }
     setBankData(op.b, op.a, val)
     return {}
 }
 const DEC2 = (op) => {
     console.log('DEC2', op)
-    let val = (bankVal - 1) % 255
-    if (val < 0) { val = 255 - Math.abs(val) }
+    let val = (bankVal - 1) % 256
+    if (val < 0) { val = 256 - Math.abs(val) }
     setBankData(op.b, op.a, val)
     return {}
 }
