@@ -72,7 +72,9 @@ const updateFieldMovement = (delta) => {
     playerMovementRay.far = 0.02
     let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
     // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
-    // window.currentField.fieldScene.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xff00ff)) // For debugging walkmesh raycaster
+    if (window.config.debug.showMovementHelpers) {
+        window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
+    }
     if (intersects.length === 0) {
         // Player is off walkmap
         window.currentField.playableCharacter.mixer.stopAllAction()

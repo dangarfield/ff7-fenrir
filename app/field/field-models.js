@@ -517,6 +517,8 @@ export {
     setPlayableCharacterCanMove,
     getModelByEntityId,
     getModelByPartyMemberId,
+    getModelByCurrentPlayableCharacter,
+    getModelByCharacterName,
     turnModelToFaceEntity,
     turnModelToFacePartyMember,
     turnModelToFaceDirection,

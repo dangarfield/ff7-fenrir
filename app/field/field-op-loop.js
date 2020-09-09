@@ -173,6 +173,8 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
 
         // Field Models and Animation
 
+        case 'JOIN': result = await models.JOIN(entityId, op); break
+
         case 'PMOVA': result = await models.PMOVA(entityId, op); break
         case 'UC': result = await models.UC(entityId, op); break
         case 'PDIRA': result = await models.PDIRA(entityId, op); break

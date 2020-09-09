@@ -1,6 +1,10 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { getModelByEntityId, getModelByPartyMemberId, getDegreesFromTwoPoints } from './field-models.js'
+import {
+    getModelByEntityId, getModelByPartyMemberId, getModelByCurrentPlayableCharacter,
+    getModelByCharacterName, getDegreesFromTwoPoints, turnModelToFaceEntity,
+    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility
+} from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
@@ -27,7 +31,7 @@ const moveEntityToPartyMemberWithAnimationAndRotation = async (entityId, targetP
         await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
     }
 }
-const moveEntity = async (entityId, x, y, rotate, animate) => {
+const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntity', entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
@@ -39,19 +43,24 @@ const moveEntity = async (entityId, x, y, rotate, animate) => {
     const to = { x: x, y: y }
     const distance = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
     const speed = model.userData.movementSpeed * (1 / window.currentField.data.model.header.modelScale) * 1024 * 2// TODO - Look at this properly, not sure of the scale here
-    const time = distance * speed
+    let time = distance * speed
     console.log('distance', distance)
     console.log('speed', speed)
     console.log('workings out', model.userData.movementSpeed, window.currentField.data.model.header.modelScale)
     console.log('time', time)
     // at 512 & 2048 - speed = 8192
 
+    let animationType = window.currentField.playerAnimations.run
+    if (desiredSpeed && desiredSpeed >= 30) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
+        // time = 1000 / 30 * desiredSpeed
+        animationType = window.currentField.playerAnimations.walk
+    }
     if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
     }
     if (animate) {
         model.mixer.stopAllAction()
-        model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).play()
+        model.mixer.clipAction(model.animations[animationType]).play()
     }
     let lastZ = model.scene.position.z
     return new Promise(async (resolve) => {
@@ -66,10 +75,15 @@ const moveEntity = async (entityId, x, y, rotate, animate) => {
                 movementRay.far = 0.02
                 let intersects = movementRay.intersectObjects([window.currentField.walkmeshMesh])
                 // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
-                // window.currentField.fieldScene.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0xff00ff)) // For debugging walkmesh raycaster
+                if (window.config.debug.showMovementHelpers) {
+                    window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0xff00ff)) // For debugging walkmesh raycaster    
+                }
+
                 if (intersects.length === 0) {
+                    // console.log('no intersects')
                 } else {
                     const point = intersects[0].point
+                    // console.log('intersects', point) // TODO - Bug, this doesn't seem to hit anything, need to fix
                     // Adjust nextPosition height to adjust for any slopes
                     lastZ = point.z
                     model.scene.userData.triangleId = intersects[0].object.userData.triangleId
@@ -189,6 +203,29 @@ const waitForOffset = async (entityId) => {
         console.log('waitForOffset ', entityId, 'waiting...')
     }
 }
+
+const joinLeader = async (speed) => {
+    const leaderModel = getModelByCurrentPlayableCharacter()
+    const targetX = leaderModel.scene.position.x
+    const targetY = leaderModel.scene.position.y
+    const joinerNames = window.data.savemap.party.members.filter(m => m !== 'None' && m !== leaderModel.userData.characterName)
+    console.log('joinLeader', leaderModel, joinerNames)
+    const result = await Promise.all(
+        joinerNames.map(async (joinerName) => {
+            const model = getModelByCharacterName(joinerName)
+            console.log('model', model)
+            await turnModelToFaceEntity(model.userData.entityId, leaderModel.userData.entityId, 2, 15) //TODO not sure about speed here
+            await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed)
+            setModelCollisionEnabled(model.userData.entityId, false)
+            setModelTalkEnabled(model.userData.entityId, false)
+            setModelVisibility(model.userData.entityId, false)
+            return model
+        })
+    )
+    console.log('result', result)
+
+
+}
 export {
     moveEntityWithAnimationAndRotation,
     moveEntityWithoutAnimationOrRotation,
@@ -201,5 +238,6 @@ export {
     getPartyMemberPositionXYZTriangle,
     setTriangleBoundaryMovementAllowed,
     offsetEntity,
-    waitForOffset
+    waitForOffset,
+    joinLeader
 }

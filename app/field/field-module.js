@@ -134,6 +134,12 @@ const drawWalkmesh = () => {
         window.currentField.triggerLines.visible = window.config.debug.showWalkmeshLines
         window.currentField.lineLines.visible = window.config.debug.showWalkmeshLines
     }
+
+    window.currentField.movementHelpers = new THREE.Group()
+    window.currentField.fieldScene.add(window.currentField.movementHelpers)
+    if (!window.config.debug.showMovementHelpers) {
+        window.currentField.movementHelpers.visible = window.config.debug.showMovementHelpers
+    }
 }
 
 const getModelScaleDownValue = () => {
@@ -293,6 +299,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         menuEnabled: true,
         gatewayTriggersEnabled: true,
         lineTriggersEnabled: true,
+        movementHelpers: undefined,
         playerAnimations: {
             stand: 0, walk: 1, run: 2
         }

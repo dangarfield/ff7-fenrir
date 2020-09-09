@@ -352,11 +352,22 @@ const SLINE = async (entityId, op) => {
     fieldModels.setLinePosition(entityId, { x: x1, y: y1, z: z1 }, { x: x2, y: y2, z: z2 })
     return {}
 }
+
+// Party
+const JOIN = async (entityId, op) => {
+    console.log('SLINE', entityId, op)
+    await fieldMovement.joinLeader(op.s)
+    return {}
+}
+
 setTimeout(async () => {
     console.log('ANIM: STARTED')
 
-    // await LINE('evb', { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
-    // await LINE('drE', { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
+    await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
+    await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
+    // window.data.savemap.party.members = ['Cloud', 'Barret', 'None']
+    // await JOIN(12, { s: 30 })
+
     // await LINON('evb', { s: 1 })
     // await sleep(2000)
     // await SLINE('evb', {
@@ -438,6 +449,7 @@ setTimeout(async () => {
 }, 11000)
 
 export {
+    JOIN,
     PMOVA,
     UC,
     PDIRA,

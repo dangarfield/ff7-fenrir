@@ -35,6 +35,7 @@ window.config = {
         showBackgroundLayers: true,
         showModelHelpers: false,
         showAxes: false,
+        showMovementHelpers: false,
         runByDefault: true,
         showInstructions: false
     },

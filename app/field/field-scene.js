@@ -287,6 +287,9 @@ const initFieldDebug = async (loadFieldCB) => {
     debugGUI.add(window.config.debug, 'showAxes').onChange(() => {
         window.anim.axesHelper.visible = window.config.debug.showAxes
     })
+    debugGUI.add(window.config.debug, 'showMovementHelpers').onChange(() => {
+        window.currentField.movementHelpers.visible = window.config.debug.showMovementHelpers
+    })
     debugGUI.open()
 
     let inputsGUI = window.anim.gui.addFolder('Inputs')

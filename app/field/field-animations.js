@@ -32,26 +32,33 @@ const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
 }
 const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
     return new Promise(async (resolve) => {
-        console.log('playAnimation', entityId, animationId, speed)
-        const model = getModelByEntityId(entityId)
-        // play once, sync, reset back to animation 0
-        let animation = model.animations[animationId]
-        if (startFrame !== undefined && endFrame !== undefined) {
-            animation = splitClip(animation, startFrame, endFrame)
+        try {
+            console.log('playAnimation', entityId, animationId, speed)
+            const model = getModelByEntityId(entityId)
+            // play once, sync, reset back to animation 0
+            let animation = model.animations[animationId]
+            if (startFrame !== undefined && endFrame !== undefined) {
+                animation = splitClip(animation, startFrame, endFrame)
+            }
+            const action = model.mixer.clipAction(animation)
+            action.loop = loopType
+            if (holdLastFrame) {
+                action.clampWhenFinished = true
+            } else {
+                action.clampWhenFinished = false
+            }
+            // TODO - speed
+            // console.log('action', action, animation, model.mixer)
+            model.mixer.addEventListener('finished', function (e) {
+                // console.log('finished', e)
+                resolve()
+            })
+            model.mixer.stopAllAction()
+            action.play()
+        } catch (error) {
+            console.log('error', error)
         }
-        const action = model.mixer.clipAction(animation)
-        action.loop = loopType
-        if (holdLastFrame) {
-            action.clampWhenFinished = true
-        } else {
-            action.clampWhenFinished = false
-        }
-        // TODO - speed
-        action.play()
-        model.mixer.addEventListener('finished', function (e) {
-            // console.log('finished', e)
-            resolve()
-        })
+
     })
 }
 const waitForAnimationToFinish = async (entityId) => {
