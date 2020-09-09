@@ -1,39 +1,39 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { getModelByEntityName, getDegreesFromTwoPoints } from './field-models.js'
+import { getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
 
-const playAnimationOnceSyncReset = async (entityName, animationId, speed) => {
-    await playAnimation(entityName, animationId, speed, false, THREE.LoopOnce)
+const playAnimationOnceSyncReset = async (entityId, animationId, speed) => {
+    await playAnimation(entityId, animationId, speed, false, THREE.LoopOnce)
 }
-const playAnimationPartialOnceSyncReset = async (entityName, animationId, speed, startFrame, endFrame) => {
-    await playAnimation(entityName, animationId, speed, false, THREE.LoopOnce, startFrame, endFrame)
+const playAnimationPartialOnceSyncReset = async (entityId, animationId, speed, startFrame, endFrame) => {
+    await playAnimation(entityId, animationId, speed, false, THREE.LoopOnce, startFrame, endFrame)
 }
-const playAnimationOnceAsyncReset = async (entityName, animationId, speed) => {
-    playAnimation(entityName, animationId, speed, false, THREE.LoopOnce)
+const playAnimationOnceAsyncReset = async (entityId, animationId, speed) => {
+    playAnimation(entityId, animationId, speed, false, THREE.LoopOnce)
 }
-const playAnimationPartialOnceAsyncReset = async (entityName, animationId, speed, startFrame, endFrame) => {
-    playAnimation(entityName, animationId, speed, false, THREE.LoopOnce, startFrame, endFrame)
+const playAnimationPartialOnceAsyncReset = async (entityId, animationId, speed, startFrame, endFrame) => {
+    playAnimation(entityId, animationId, speed, false, THREE.LoopOnce, startFrame, endFrame)
 }
-const playAnimationOnceSyncHoldLastFrame = async (entityName, animationId, speed) => {
-    await playAnimation(entityName, animationId, speed, true, THREE.LoopOnce)
+const playAnimationOnceSyncHoldLastFrame = async (entityId, animationId, speed) => {
+    await playAnimation(entityId, animationId, speed, true, THREE.LoopOnce)
 }
-const playAnimationPartialOnceSyncHoldLastFrame = async (entityName, animationId, speed, startFrame, endFrame) => {
-    await playAnimation(entityName, animationId, speed, true, THREE.LoopOnce, startFrame, endFrame)
+const playAnimationPartialOnceSyncHoldLastFrame = async (entityId, animationId, speed, startFrame, endFrame) => {
+    await playAnimation(entityId, animationId, speed, true, THREE.LoopOnce, startFrame, endFrame)
 }
-const playAnimationOnceAsyncHoldLastFrame = async (entityName, animationId, speed) => {
-    playAnimation(entityName, animationId, speed, true, THREE.LoopOnce)
+const playAnimationOnceAsyncHoldLastFrame = async (entityId, animationId, speed) => {
+    playAnimation(entityId, animationId, speed, true, THREE.LoopOnce)
 }
-const playAnimationPartialOnceAsyncHoldLastFrame = async (entityName, animationId, speed, startFrame, endFrame) => {
-    playAnimation(entityName, animationId, speed, true, THREE.LoopOnce, startFrame, endFrame)
+const playAnimationPartialOnceAsyncHoldLastFrame = async (entityId, animationId, speed, startFrame, endFrame) => {
+    playAnimation(entityId, animationId, speed, true, THREE.LoopOnce, startFrame, endFrame)
 }
 
-const playAnimationLoopedAsync = async (entityName, animationId, speed) => {
-    playAnimation(entityName, animationId, speed, false, THREE.LoopRepeat)
+const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
+    playAnimation(entityId, animationId, speed, false, THREE.LoopRepeat)
 }
-const playAnimation = async (entityName, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
+const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
     return new Promise(async (resolve) => {
-        console.log('playAnimation', entityName, animationId, speed)
-        const model = getModelByEntityName(entityName)
+        console.log('playAnimation', entityId, animationId, speed)
+        const model = getModelByEntityId(entityId)
         // play once, sync, reset back to animation 0
         let animation = model.animations[animationId]
         if (startFrame !== undefined && endFrame !== undefined) {
@@ -54,15 +54,15 @@ const playAnimation = async (entityName, animationId, speed, holdLastFrame, loop
         })
     })
 }
-const waitForAnimationToFinish = async (entityName) => {
+const waitForAnimationToFinish = async (entityId) => {
     return new Promise(async (resolve) => {
-        console.log('waitForAnimationToFinish', entityName)
-        const model = getModelByEntityName(entityName)
+        console.log('waitForAnimationToFinish', entityId)
+        const model = getModelByEntityId(entityId)
         let anyAnimationsRunning = false
         for (let i = 0; i < model.animations.length; i++) {
             const animation = model.animations[i]
             const isRunning = model.mixer.clipAction(animation).isRunning()
-            console.log('waitForAnimationToFinish', entityName, 'animationId', i, isRunning)
+            console.log('waitForAnimationToFinish', entityId, 'animationId', i, isRunning)
             if (isRunning) {
                 anyAnimationsRunning = true
             }
@@ -77,13 +77,13 @@ const waitForAnimationToFinish = async (entityName) => {
         }
     })
 }
-const stopAnimationHoldLastFrame = (entityName) => {
-    console.log('stopAnimationHoldLastFrame', entityName)
-    const model = getModelByEntityName(entityName)
+const stopAnimationHoldLastFrame = (entityId) => {
+    console.log('stopAnimationHoldLastFrame', entityId)
+    const model = getModelByEntityId(entityId)
     for (let i = 0; i < model.animations.length; i++) {
         const animation = model.animations[i]
         const clip = model.mixer.clipAction(animation)
-        // console.log('waitForAnimationToFinish', entityName, 'animationId', i, clip.isRunning())
+        // console.log('waitForAnimationToFinish', entityId, 'animationId', i, clip.isRunning())
         if (clip.isRunning()) {
             clip.paused = true
         }

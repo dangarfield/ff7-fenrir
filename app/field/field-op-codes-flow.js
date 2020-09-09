@@ -3,6 +3,7 @@ import { compareFromBankData, getOpIndexForByteIndex, getKeysFromBytes } from '.
 import { executeScriptLoop } from './field-op-loop.js'
 import { getActiveInputs, getInputHistory } from '../interaction/inputs.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
+import { getModelByPartyMemberId } from './field-models.js'
 
 // Note: Not sure about priority as of yet. Which may warrant a rewrite
 
@@ -11,8 +12,8 @@ const RET = async () => {
     return { exit: true }
 }
 
-const REQ = async (entityName, scriptType, op) => {
-    console.log('REQ', entityName, scriptType, op)
+const REQ = async (entityId, scriptType, op) => {
+    console.log('REQ', entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
@@ -23,63 +24,59 @@ const REQ = async (entityName, scriptType, op) => {
         console.log('REQ no running script as it is already running', entity, script, script.isRunning)
         return {}
     }
-    executeScriptLoop(entity.entityName, script) // Async
+    executeScriptLoop(entity.entityId, script) // Async
     return {}
 }
-const REQSW = async (entityName, scriptType, op) => {
-    console.log('REQSW', entityName, scriptType, op)
+const REQSW = async (entityId, scriptType, op) => {
+    console.log('REQSW', entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
     // No need to check it is running
-    executeScriptLoop(entity.entityName, script) // Async
+    executeScriptLoop(entity.entityId, script) // Async
     return {}
 }
-const REQEW = async (entityName, scriptType, op) => {
-    console.log('REQEW', entityName, scriptType, op)
+const REQEW = async (entityId, scriptType, op) => {
+    console.log('REQEW', entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
     // No need to check it is running
-    await executeScriptLoop(entity.entityName, script) // Sync
+    await executeScriptLoop(entity.entityId, script) // Sync
     return {}
 }
-const PREQ = async () => {
-    console.log('PREQ', entityName, scriptType, op)
-    const opPartyMember = window.data.savemap.party.members[op.e]
-    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+const PREQ = async (entityId, scriptType, op) => {
+    console.log('PREQ', entityId, scriptType, op)
+    const model = getModelByPartyMemberId(op.e)
+    const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    if (script.isRunning) {
-        console.log('PREQ no running script as it is already running', entity, script, script.isRunning)
-        return {}
-    }
-    executeScriptLoop(entity.entityName, script) // Async
+    executeScriptLoop(entity.entityId, script) // Async
     return {}
 }
-const PRQSW = async () => {
-    console.log('PRQSW', entityName, scriptType, op)
-    const opPartyMember = window.data.savemap.party.members[op.e]
-    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+const PRQSW = async (entityId, scriptType, op) => {
+    console.log('PRQSW', entityId, scriptType, op)
+    const model = getModelByPartyMemberId(op.e)
+    const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    executeScriptLoop(entity.entityName, script) // Async
+    executeScriptLoop(entity.entityId, script) // Async
     return {}
 }
-const PRQEW = async () => {
-    console.log('PRQEW', entityName, scriptType, op)
-    const opPartyMember = window.data.savemap.party.members[op.e]
-    const entity = window.currentField.data.script.entities.filter(e => e.entityName === opPartyMember)[0]
+const PRQEW = async (entityId, scriptType, op) => {
+    console.log('PRQEW', entityId, scriptType, op)
+    const model = getModelByPartyMemberId(op.e)
+    const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    await executeScriptLoop(entity.entityName, script) // Sync
+    await executeScriptLoop(entity.entityId, script) // Sync
     return {}
 }
 
-const RETTO = async (entityName, scriptType, op) => {
-    console.log('RETTO', entityName, scriptType, op)
-    const entity = window.currentField.data.script.entities.filter(e => e.entityName === entityName)[0]
+const RETTO = async (entityId, scriptType, op) => {
+    console.log('RETTO', entityId, scriptType, op)
+    const entity = window.currentField.data.script.entities[entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
     // No need to check it is running
-    executeScriptLoop(entity.entityName, script) // Async
+    executeScriptLoop(entity.entityId, script) // Async
     return {}
 }
 

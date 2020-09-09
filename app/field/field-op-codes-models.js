@@ -6,306 +6,306 @@ import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 
 // General placement and init
-const CHAR = async (entityName, op) => {
-    console.log('CHAR', entityName, op)
-    fieldModels.setModelAsEntity(entityName, op.n)
+const CHAR = async (entityId, op) => {
+    console.log('CHAR', entityId, op)
+    fieldModels.setModelAsEntity(entityId, op.n)
     // Don't need to explicitly do anything as the window.currentField.models has loaded these already
     return {}
 }
-const PC = async (entityName, op) => {
-    console.log('PC', entityName, op)
-    fieldModels.setModelAsPlayableCharacter(entityName, getPlayableCharacterName(op.c))
+const PC = async (entityId, op) => {
+    console.log('PC', entityId, op)
+    fieldModels.setModelAsPlayableCharacter(entityId, getPlayableCharacterName(op.c))
     return {}
 }
-const XYZI = async (entityName, op) => {
-    console.log('XYZI', entityName, op)
+const XYZI = async (entityId, op) => {
+    console.log('XYZI', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const z = op.b3 == 0 ? op.z : getBankData(op.b3, op.z)
     const triangleId = op.b4 == 0 ? op.i : getBankData(op.b4, op.i)
-    fieldModels.placeModel(entityName, x, y, z, triangleId)
+    fieldModels.placeModel(entityId, x, y, z, triangleId)
     return {}
 }
-const XYI = async (entityName, op) => {
-    console.log('XYI', entityName, op)
+const XYI = async (entityId, op) => {
+    console.log('XYI', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const triangleId = op.b3 == 0 ? op.i : getBankData(op.b3, op.i)
-    fieldModels.placeModel(entityName, x, y, undefined, triangleId)
+    fieldModels.placeModel(entityId, x, y, undefined, triangleId)
     return {}
 }
-const XYZ = async (entityName, op) => {
-    console.log('XYZ', entityName, op)
+const XYZ = async (entityId, op) => {
+    console.log('XYZ', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const z = op.b3 == 0 ? op.z : getBankData(op.b3, op.z)
-    fieldModels.placeModel(entityName, x, y, z, undefined)
+    fieldModels.placeModel(entityId, x, y, z, undefined)
     return {}
 }
 
-const VISI = async (entityName, op) => {
-    console.log('VISI', entityName, op)
-    fieldModels.setModelVisibility(entityName, op.s === 1)
+const VISI = async (entityId, op) => {
+    console.log('VISI', entityId, op)
+    fieldModels.setModelVisibility(entityId, op.s === 1)
     return {}
 }
 
 // Change entity settings
-const MSPED = async (entityName, op) => {
-    console.log('MSPED', entityName, op)
+const MSPED = async (entityId, op) => {
+    console.log('MSPED', entityId, op)
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
-    fieldModels.setModelMovementSpeed(entityName, speed)
+    fieldModels.setModelMovementSpeed(entityId, speed)
     return {}
 }
-const ASPED = async (entityName, op) => {
-    console.log('ASPED', entityName, op)
+const ASPED = async (entityId, op) => {
+    console.log('ASPED', entityId, op)
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
-    fieldModels.setModelAnimationSpeed(entityName, speed)
+    fieldModels.setModelAnimationSpeed(entityId, speed)
     return {}
 }
-const TLKON = async (entityName, op) => {
-    console.log('TLKON', entityName, op)
-    fieldModels.setModelTalkEnabled(entityName, op.s === 0)
+const TLKON = async (entityId, op) => {
+    console.log('TLKON', entityId, op)
+    fieldModels.setModelTalkEnabled(entityId, op.s === 0)
     return {}
 }
-const TALKR = async (entityName, op) => {
-    console.log('TALKR', entityName, op)
+const TALKR = async (entityId, op) => {
+    console.log('TALKR', entityId, op)
     const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    fieldModels.setModelTalkRadius(entityName, radius)
+    fieldModels.setModelTalkRadius(entityId, radius)
     return {}
 }
-const TLKR2 = async (entityName, op) => { // Kujata has TALKR2, will add both to switch case
-    console.log('TLKR2', entityName, op)
+const TLKR2 = async (entityId, op) => { // Kujata has TALKR2, will add both to switch case
+    console.log('TLKR2', entityId, op)
     const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    fieldModels.setModelTalkRadius(entityName, radius)
+    fieldModels.setModelTalkRadius(entityId, radius)
     return {}
 }
-const SOLID = async (entityName, op) => {
-    console.log('SOLID', entityName, op)
-    fieldModels.setModelCollisionEnabled(entityName, op.s === 0)
+const SOLID = async (entityId, op) => {
+    console.log('SOLID', entityId, op)
+    fieldModels.setModelCollisionEnabled(entityId, op.s === 0)
     return {}
 }
-const SLIDR = async (entityName, op) => {
-    console.log('SLIDR', entityName, op)
+const SLIDR = async (entityId, op) => {
+    console.log('SLIDR', entityId, op)
     const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    fieldModels.setModelCollisionRadius(entityName, radius)
+    fieldModels.setModelCollisionRadius(entityId, radius)
     return {}
 }
-const SLDR2 = async (entityName, op) => {
-    console.log('SLDR2', entityName, op)
+const SLDR2 = async (entityId, op) => {
+    console.log('SLDR2', entityId, op)
     const radius = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    fieldModels.setModelCollisionRadius(entityName, radius)
+    fieldModels.setModelCollisionRadius(entityId, radius)
     return {}
 }
-const CC = async (entityName, op) => {
-    console.log('CC', entityName, op)
+const CC = async (entityId, op) => {
+    console.log('CC', entityId, op)
     await fieldModels.setModelAsLeader(op.e)
     return {}
 }
-const UC = async (entityName, op) => {
-    console.log('UC', entityName, op)
+const UC = async (entityId, op) => {
+    console.log('UC', entityId, op)
     const canMove = op.s === 0
     fieldModels.setPlayableCharacterCanMove(canMove)
     return {}
 }
 
 // Animations
-const ANIME1 = async (entityName, op) => {
-    console.log('ANIME1', entityName, op)
-    await fieldAnimations.playAnimationOnceSyncReset(entityName, op.a, op.s)
+const ANIME1 = async (entityId, op) => {
+    console.log('ANIME1', entityId, op)
+    await fieldAnimations.playAnimationOnceSyncReset(entityId, op.a, op.s)
     return {}
 }
-const CANIM1 = async (entityName, op) => {
-    console.log('CANIM1', entityName, op)
-    await fieldAnimations.playAnimationPartialOnceSyncReset(entityName, op.a, op.s, op.f, op.l)
+const CANIM1 = async (entityId, op) => {
+    console.log('CANIM1', entityId, op)
+    await fieldAnimations.playAnimationPartialOnceSyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const ANIME2 = async (entityName, op) => {
-    console.log('ANIME2', entityName, op)
-    await fieldAnimations.playAnimationOnceAsyncReset(entityName, op.a, op.s)
+const ANIME2 = async (entityId, op) => {
+    console.log('ANIME2', entityId, op)
+    await fieldAnimations.playAnimationOnceAsyncReset(entityId, op.a, op.s)
     return {}
 }
-const CANIM2 = async (entityName, op) => {
-    console.log('CANIM2', entityName, op)
-    await fieldAnimations.playAnimationPartialOnceAsyncReset(entityName, op.a, op.s, op.f, op.l)
+const CANIM2 = async (entityId, op) => {
+    console.log('CANIM2', entityId, op)
+    await fieldAnimations.playAnimationPartialOnceAsyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const ANIM_1 = async (entityName, op) => {
-    console.log('ANIM!1', entityName, op)
-    await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityName, op.a, op.s)
+const ANIM_1 = async (entityId, op) => {
+    console.log('ANIM!1', entityId, op)
+    await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityId, op.a, op.s)
     return {}
 }
-const CANM_1 = async (entityName, op) => {
-    console.log('CANM!1', entityName, op)
-    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityName, op.a, op.s, op.f, op.l)
+const CANM_1 = async (entityId, op) => {
+    console.log('CANM!1', entityId, op)
+    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const ANIM_2 = async (entityName, op) => {
-    console.log('ANIM!2', entityName, op)
-    await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityName, op.a, op.s)
+const ANIM_2 = async (entityId, op) => {
+    console.log('ANIM!2', entityId, op)
+    await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityId, op.a, op.s)
     return {}
 }
-const CANM_2 = async (entityName, op) => {
-    console.log('CANM!2', entityName, op)
-    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityName, op.a, op.s, op.f, op.l)
+const CANM_2 = async (entityId, op) => {
+    console.log('CANM!2', entityId, op)
+    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const DFANM = async (entityName, op) => {
-    console.log('DFANM', entityName, op)
-    await fieldAnimations.playAnimationLoopedAsync(entityName, op.a, op.s)
-    return {}
-}
-
-const ANIMB = async (entityName, op) => {
-    console.log('ANIMB', entityName, op)
-    fieldAnimations.stopAnimationHoldLastFrame(entityName)
+const DFANM = async (entityId, op) => {
+    console.log('DFANM', entityId, op)
+    await fieldAnimations.playAnimationLoopedAsync(entityId, op.a, op.s)
     return {}
 }
 
-const ANIMW = async (entityName, op) => {
-    console.log('ANIMW', entityName, op)
-    await fieldAnimations.waitForAnimationToFinish(entityName)
+const ANIMB = async (entityId, op) => {
+    console.log('ANIMB', entityId, op)
+    fieldAnimations.stopAnimationHoldLastFrame(entityId)
     return {}
 }
 
-const CCANM = async (entityName, op) => {
-    console.log('CCANM', entityName, op)
+const ANIMW = async (entityId, op) => {
+    console.log('ANIMW', entityId, op)
+    await fieldAnimations.waitForAnimationToFinish(entityId)
+    return {}
+}
+
+const CCANM = async (entityId, op) => {
+    console.log('CCANM', entityId, op)
     fieldAnimations.setPlayerMovementAnimationId(op.a, op.i)
     return {}
 }
 
 
 // Turn and rotation
-const TURNGEN = async (entityName, op) => {
-    console.log('TURNGEN', entityName, op)
+const TURNGEN = async (entityId, op) => {
+    console.log('TURNGEN', entityId, op)
     const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    await fieldModels.turnModelToFaceDirection(entityName, direction, op.d, op.s, op.t)
+    await fieldModels.turnModelToFaceDirection(entityId, direction, op.d, op.s, op.t)
     return {}
 }
-const TURN = async (entityName, op) => {
-    console.log('TURN', entityName, op)
+const TURN = async (entityId, op) => {
+    console.log('TURN', entityId, op)
     const direction = op.b == 0 ? op.r : getBankData(op.b, op.r)
-    await fieldModels.turnModelToFaceDirection(entityName, direction, op.d, op.s, op.t)
+    await fieldModels.turnModelToFaceDirection(entityId, direction, op.d, op.s, op.t)
     return {}
 }
-const TURA = async (entityName, op) => {
-    console.log('TURA', entityName, op)
-    await fieldModels.turnModelToFaceEntity(entityName, op.g, op.d, op.s)
+const TURA = async (entityId, op) => {
+    console.log('TURA', entityId, op)
+    await fieldModels.turnModelToFaceEntity(entityId, op.g, op.d, op.s)
     return {}
 }
-const PTURA = async (entityName, op) => {
-    console.log('PTURA', entityName, op)
-    await fieldModels.turnModelToFacePartyMember(entityName, op.p, op.a, op.s)
+const PTURA = async (entityId, op) => {
+    console.log('PTURA', entityId, op)
+    await fieldModels.turnModelToFacePartyMember(entityId, op.p, op.a, op.s)
     return {}
 }
 
-const DIR = async (entityName, op) => {
-    console.log('DIR', entityName, op)
+const DIR = async (entityId, op) => {
+    console.log('DIR', entityId, op)
     const direction = op.b == 0 ? op.d : getBankData(op.b, op.d)
-    fieldModels.setModelDirection(entityName, direction)
+    fieldModels.setModelDirection(entityId, direction)
     return {}
 }
-const DIRA = async (entityName, op) => {
-    console.log('DIRA', entityName, op)
-    fieldModels.setModelDirectionToFaceEntity(entityName, op.e)
+const DIRA = async (entityId, op) => {
+    console.log('DIRA', entityId, op)
+    fieldModels.setModelDirectionToFaceEntity(entityId, op.e)
     return {}
 }
-const PDIRA = async (entityName, op) => {
-    console.log('PDIRA', entityName, op)
-    fieldModels.setModelDirectionToFaceCharacterOrPartyLeader(entityName, op.c)
+const PDIRA = async (entityId, op) => {
+    console.log('PDIRA', entityId, op)
+    fieldModels.setModelDirectionToFaceCharacterOrPartyLeader(entityId, op.c)
     return {}
 }
-const GETDIR = async (entityName, op) => {
-    console.log('GETDIR', entityName, op)
+const GETDIR = async (entityId, op) => {
+    console.log('GETDIR', entityId, op)
     const direction = fieldModels.getEntityDirection(op.e)
     setBankData(op.b, op.a, direction)
     console.log('GETDIR ->', getBankData(op.b, op.a))
     return {}
 }
-const PGTDR = async (entityName, op) => {
-    console.log('PGTDR', entityName, op)
+const PGTDR = async (entityId, op) => {
+    console.log('PGTDR', entityId, op)
     const direction = fieldModels.getPartyMemberDirection(op.p)
     setBankData(op.b, op.d, direction)
     console.log('PGTDR ->', getBankData(op.b, op.d))
     return {}
 }
-const TURNW = async (entityName, op) => {
-    console.log('TURNW', entityName, op)
+const TURNW = async (entityId, op) => {
+    console.log('TURNW', entityId, op)
     // Hmm, all TURNs are sync, so this seems irrelevant
     return {}
 }
-const FCFIX = async (entityName, op) => {
-    console.log('FCFIX', entityName, op)
+const FCFIX = async (entityId, op) => {
+    console.log('FCFIX', entityId, op)
     // I can only seem to find 2 instances of this and they both unlock rotation... so what locks them ?!
-    fieldModels.setModelRotationEnabled(entityName, op.s === 0)
+    fieldModels.setModelRotationEnabled(entityId, op.s === 0)
     return {}
 }
 
 // Movement
-const MOVE = async (entityName, op) => {
-    console.log('MOVE', entityName, op)
+const MOVE = async (entityId, op) => {
+    console.log('MOVE', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
-    await fieldMovement.moveEntityWithAnimationAndRotation(entityName, x, y)
+    await fieldMovement.moveEntityWithAnimationAndRotation(entityId, x, y)
     return {}
 }
-const FMOVE = async (entityName, op) => {
-    console.log('FMOVE', entityName, op)
+const FMOVE = async (entityId, op) => {
+    console.log('FMOVE', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
-    await fieldMovement.moveEntityWithoutAnimationButWithRotation(entityName, x, y)
+    await fieldMovement.moveEntityWithoutAnimationButWithRotation(entityId, x, y)
     return {}
 }
-const CMOVE = async (entityName, op) => {
-    console.log('CMOVE', entityName, op)
+const CMOVE = async (entityId, op) => {
+    console.log('CMOVE', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
-    await fieldMovement.moveEntityWithoutAnimationOrRotation(entityName, x, y)
+    await fieldMovement.moveEntityWithoutAnimationOrRotation(entityId, x, y)
     return {}
 }
-const MOVA = async (entityName, op) => {
-    console.log('MOVA', entityName, op)
-    await fieldMovement.moveEntityToEntityWithAnimationAndRotation(entityName, op.e)
+const MOVA = async (entityId, op) => {
+    console.log('MOVA', entityId, op)
+    await fieldMovement.moveEntityToEntityWithAnimationAndRotation(entityId, op.e)
     return {}
 }
-const PMOVA = async (entityName, op) => {
-    console.log('PMOVA', entityName, op)
-    await fieldMovement.moveEntityToPartyMemberWithAnimationAndRotation(entityName, op.p)
+const PMOVA = async (entityId, op) => {
+    console.log('PMOVA', entityId, op)
+    await fieldMovement.moveEntityToPartyMemberWithAnimationAndRotation(entityId, op.p)
     return {}
 }
-const OFST = async (entityName, op) => {
-    console.log('OFST', entityName, op)
+const OFST = async (entityId, op) => {
+    console.log('OFST', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const z = op.b3 == 0 ? op.z : getBankData(op.b3, op.z)
     const s = op.b4 == 0 ? op.s : getBankData(op.b4, op.s)
-    fieldMovement.offsetEntity(entityName, x, y, z, s, op.t) // async
+    fieldMovement.offsetEntity(entityId, x, y, z, s, op.t) // async
     return {}
 }
-const OFSTW = async (entityName, op) => {
-    console.log('OFSTW', entityName, op)
-    await fieldMovement.waitForOffset(entityName)
+const OFSTW = async (entityId, op) => {
+    console.log('OFSTW', entityId, op)
+    await fieldMovement.waitForOffset(entityId)
     return {}
 }
 
 
 // Position
-const GETAI = async (entityName, op) => {
-    console.log('GETAI', entityName, op)
+const GETAI = async (entityId, op) => {
+    console.log('GETAI', entityId, op)
     const triangleId = fieldMovement.getEntityPositionTriangle(op.e)
     setBankData(op.b, op.a, triangleId)
     // console.log('GETAI triangle ->', getBankData(op.b, op.a))
     return {}
 }
-const GETAXY = async (entityName, op) => {
-    console.log('GETAXY', entityName, op)
+const GETAXY = async (entityId, op) => {
+    console.log('GETAXY', entityId, op)
     const position = fieldMovement.getEntityPositionXY(op.e)
     setBankData(op.bx, op.x, position.x)
     setBankData(op.by, op.y, position.y)
     // console.log('GETAXY -> (x,y)', getBankData(op.bx, op.x), getBankData(op.by, op.y))
     return {}
 }
-const AXYZI = async (entityName, op) => {
-    console.log('AXYZI', entityName, op)
+const AXYZI = async (entityId, op) => {
+    console.log('AXYZI', entityId, op)
     const position = fieldMovement.getEntityPositionXYZTriangle(op.a)
     setBankData(op.b1, op.x, position.x)
     setBankData(op.b2, op.y, position.y)
@@ -314,8 +314,8 @@ const AXYZI = async (entityName, op) => {
     // console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
     return {}
 }
-const PXYZI = async (entityName, op) => {
-    console.log('PXYZI', entityName, op)
+const PXYZI = async (entityId, op) => {
+    console.log('PXYZI', entityId, op)
     const position = fieldMovement.getPartyMemberPositionXYZTriangle(op.p)
     setBankData(op.b1, op.x, position.x)
     setBankData(op.b2, op.y, position.y)
@@ -324,32 +324,32 @@ const PXYZI = async (entityName, op) => {
     console.log('PXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
     return {}
 }
-const IDLCK = async (entityName, op) => {
-    console.log('IDLCK', entityName, op)
+const IDLCK = async (entityId, op) => {
+    console.log('IDLCK', entityId, op)
     fieldMovement.setTriangleBoundaryMovementAllowed(op.i, op.s === 0)
     return {}
 }
 
 // Lines
-const LINE = async (entityName, op) => {
-    console.log('LINE', entityName, op)
-    fieldModels.registerLine(entityName, { x: op.x1, y: op.y1, z: op.z1 }, { x: op.x2, y: op.y2, z: op.z2 })
+const LINE = async (entityId, op) => {
+    console.log('LINE', entityId, op)
+    fieldModels.registerLine(entityId, { x: op.x1, y: op.y1, z: op.z1 }, { x: op.x2, y: op.y2, z: op.z2 })
     return {}
 }
-const LINON = async (entityName, op) => {
-    console.log('LINON', entityName, op)
+const LINON = async (entityId, op) => {
+    console.log('LINON', entityId, op)
     fieldModels.enableLines(op.s === 1)
     return {}
 }
-const SLINE = async (entityName, op) => {
-    console.log('SLINE', entityName, op)
+const SLINE = async (entityId, op) => {
+    console.log('SLINE', entityId, op)
     const x1 = op.bx1 == 0 ? op.x1 : getBankData(op.bx1, op.x1)
     const y1 = op.by1 == 0 ? op.y1 : getBankData(op.by1, op.y1)
     const z1 = op.bz1 == 0 ? op.z1 : getBankData(op.bz1, op.z1)
     const x2 = op.bx2 == 0 ? op.x2 : getBankData(op.bx2, op.x2)
     const y2 = op.by2 == 0 ? op.y2 : getBankData(op.by2, op.y2)
     const z2 = op.bz2 == 0 ? op.z2 : getBankData(op.bz2, op.z2)
-    fieldModels.setLinePosition(entityName, { x: x1, y: y1, z: z1 }, { x: x2, y: y2, z: z2 })
+    fieldModels.setLinePosition(entityId, { x: x1, y: y1, z: z1 }, { x: x2, y: y2, z: z2 })
     return {}
 }
 setTimeout(async () => {

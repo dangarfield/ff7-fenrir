@@ -12,26 +12,26 @@ import { positionPlayableCharacterFromTransition } from './field-models.js'
 
 let STOP_ALL_LOOPS = false
 
-const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
-    console.log('   - executeOp: START', entityName, scriptType, op)
+const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
+    console.log('   - executeOp: START', entityId, scriptType, op)
     if (STOP_ALL_LOOPS) {
         console.log('Loop stopping')
-        sendOpFlowEvent(entityName, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
         return { exit: true }
     }
-    sendOpFlowEvent(entityName, scriptType, op.op, currentOpIndex + 1)
+    sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1)
     let result = {}
     switch (op.op) {
         // Script Flow and Control
         case 'RET': result = await flow.RET(); break
 
-        case 'REQ': result = await flow.REQ(entityName, scriptType, op); break
-        case 'REQSW': result = await flow.REQSW(entityName, scriptType, op); break
-        case 'REQEW': result = await flow.REQEW(entityName, scriptType, op); break
-        case 'PREQ': result = await flow.PREQ(entityName, scriptType, op); break
-        case 'PRQSW': result = await flow.PRQSW(entityName, scriptType, op); break
-        case 'PRQEW': result = await flow.PRQEW(entityName, scriptType, op); break
-        case 'RETTO': result = await flow.RETTO(entityName, scriptType, op); break
+        case 'REQ': result = await flow.REQ(entityId, scriptType, op); break
+        case 'REQSW': result = await flow.REQSW(entityId, scriptType, op); break
+        case 'REQEW': result = await flow.REQEW(entityId, scriptType, op); break
+        case 'PREQ': result = await flow.PREQ(entityId, scriptType, op); break
+        case 'PRQSW': result = await flow.PRQSW(entityId, scriptType, op); break
+        case 'PRQEW': result = await flow.PRQEW(entityId, scriptType, op); break
+        case 'RETTO': result = await flow.RETTO(entityId, scriptType, op); break
 
         case 'JMPF': result = await flow.JMPF(ops, op); break
         case 'JMPFL': result = await flow.JMPFL(ops, op); break
@@ -173,73 +173,73 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
 
         // Field Models and Animation
 
-        case 'PMOVA': result = await models.PMOVA(entityName, op); break
-        case 'UC': result = await models.UC(entityName, op); break
-        case 'PDIRA': result = await models.PDIRA(entityName, op); break
-        case 'PTURA': result = await models.PTURA(entityName, op); break
-        case 'IDLCK': result = await models.IDLCK(entityName, op); break
-        case 'PGTDR': result = await models.PGTDR(entityName, op); break
+        case 'PMOVA': result = await models.PMOVA(entityId, op); break
+        case 'UC': result = await models.UC(entityId, op); break
+        case 'PDIRA': result = await models.PDIRA(entityId, op); break
+        case 'PTURA': result = await models.PTURA(entityId, op); break
+        case 'IDLCK': result = await models.IDLCK(entityId, op); break
+        case 'PGTDR': result = await models.PGTDR(entityId, op); break
 
-        case 'PXYZI': result = await models.PXYZI(entityName, op); break
-        case 'TLKON': result = await models.TLKON(entityName, op); break
-        case 'PC': result = await models.PC(entityName, op); break
-        case 'CHAR': result = await models.CHAR(entityName, op); break
+        case 'PXYZI': result = await models.PXYZI(entityId, op); break
+        case 'TLKON': result = await models.TLKON(entityId, op); break
+        case 'PC': result = await models.PC(entityId, op); break
+        case 'CHAR': result = await models.CHAR(entityId, op); break
 
-        case 'DFANM': result = await models.DFANM(entityName, op); break
-        case 'ANIME1': result = await models.ANIME1(entityName, op); break
+        case 'DFANM': result = await models.DFANM(entityId, op); break
+        case 'ANIME1': result = await models.ANIME1(entityId, op); break
 
-        case 'VISI': result = await models.VISI(entityName, op); break
-        case 'XYZI': result = await models.XYZI(entityName, op); break
-        case 'XYI': result = await models.XYI(entityName, op); break
-        case 'XYZ': result = await models.XYZ(entityName, op); break
+        case 'VISI': result = await models.VISI(entityId, op); break
+        case 'XYZI': result = await models.XYZI(entityId, op); break
+        case 'XYI': result = await models.XYI(entityId, op); break
+        case 'XYZ': result = await models.XYZ(entityId, op); break
 
-        case 'MOVE': result = await models.MOVE(entityName, op); break
-        case 'CMOVE': result = await models.CMOVE(entityName, op); break
-        case 'MOVA': result = await models.MOVA(entityName, op); break
-        case 'TURA': result = await models.TURA(entityName, op); break
+        case 'MOVE': result = await models.MOVE(entityId, op); break
+        case 'CMOVE': result = await models.CMOVE(entityId, op); break
+        case 'MOVA': result = await models.MOVA(entityId, op); break
+        case 'TURA': result = await models.TURA(entityId, op); break
 
-        case 'ANIMW': result = await models.ANIMW(entityName, op); break
-        case 'FMOVE': result = await models.FMOVE(entityName, op); break
-        case 'ANIME2': result = await models.ANIME2(entityName, op); break
-        case 'ANIM!1': result = await models.ANIM_1(entityName, op); break
-        case 'CANIM1': result = await models.CANIM1(entityName, op); break
-        case 'CANM!1': result = await models.CANM_1(entityName, op); break
+        case 'ANIMW': result = await models.ANIMW(entityId, op); break
+        case 'FMOVE': result = await models.FMOVE(entityId, op); break
+        case 'ANIME2': result = await models.ANIME2(entityId, op); break
+        case 'ANIM!1': result = await models.ANIM_1(entityId, op); break
+        case 'CANIM1': result = await models.CANIM1(entityId, op); break
+        case 'CANM!1': result = await models.CANM_1(entityId, op); break
 
-        case 'MSPED': result = await models.MSPED(entityName, op); break
-        case 'DIR': result = await models.DIR(entityName, op); break
-        case 'TURNGEN': result = await models.TURNGEN(entityName, op); break
-        case 'TURN': result = await models.TURN(entityName, op); break
-        case 'DIRA': result = await models.DIRA(entityName, op); break
-        case 'GETDIR': result = await models.GETDIR(entityName, op); break
+        case 'MSPED': result = await models.MSPED(entityId, op); break
+        case 'DIR': result = await models.DIR(entityId, op); break
+        case 'TURNGEN': result = await models.TURNGEN(entityId, op); break
+        case 'TURN': result = await models.TURN(entityId, op); break
+        case 'DIRA': result = await models.DIRA(entityId, op); break
+        case 'GETDIR': result = await models.GETDIR(entityId, op); break
 
-        case 'GETAXY': result = await models.GETAXY(entityName, op); break
-        case 'GETAI': result = await models.GETAI(entityName, op); break
-        case 'ANIM!2': result = await models.ANIM_2(entityName, op); break
-        case 'CANIM2': result = await models.CANIM2(entityName, op); break
-        case 'CANM!2': result = await models.CANM_2(entityName, op); break
+        case 'GETAXY': result = await models.GETAXY(entityId, op); break
+        case 'GETAI': result = await models.GETAI(entityId, op); break
+        case 'ANIM!2': result = await models.ANIM_2(entityId, op); break
+        case 'CANIM2': result = await models.CANIM2(entityId, op); break
+        case 'CANM!2': result = await models.CANM_2(entityId, op); break
 
-        case 'ASPED': result = await models.ASPED(entityName, op); break
-        case 'CC': result = await models.CC(entityName, op); break
-        case 'AXYZI': result = await models.AXYZI(entityName, op); break
+        case 'ASPED': result = await models.ASPED(entityId, op); break
+        case 'CC': result = await models.CC(entityId, op); break
+        case 'AXYZI': result = await models.AXYZI(entityId, op); break
 
-        case 'OFST': result = await models.OFST(entityName, op); break
-        case 'OFSTW': result = await models.OFSTW(entityName, op); break
+        case 'OFST': result = await models.OFST(entityId, op); break
+        case 'OFSTW': result = await models.OFSTW(entityId, op); break
 
-        case 'TALKR': result = await models.TALKR(entityName, op); break
-        case 'SLIDR': result = await models.SLIDR(entityName, op); break
-        case 'SOLID': result = await models.SOLID(entityName, op); break
+        case 'TALKR': result = await models.TALKR(entityId, op); break
+        case 'SLIDR': result = await models.SLIDR(entityId, op); break
+        case 'SOLID': result = await models.SOLID(entityId, op); break
 
-        case 'LINE': result = await models.LINE(entityName, op); break
-        case 'LINON': result = await models.LINON(entityName, op); break
-        case 'SLINE': result = await models.SLINE(entityName, op); break
+        case 'LINE': result = await models.LINE(entityId, op); break
+        case 'LINON': result = await models.LINON(entityId, op); break
+        case 'SLINE': result = await models.SLINE(entityId, op); break
 
-        case 'TLKR2': result = await models.TLKR2(entityName, op); break
-        case 'SLDR2': result = await models.SLDR2(entityName, op); break
+        case 'TLKR2': result = await models.TLKR2(entityId, op); break
+        case 'SLDR2': result = await models.SLDR2(entityId, op); break
 
-        case 'FCFIX': result = await models.FCFIX(entityName, op); break
-        case 'CCANM': result = await models.CCANM(entityName, op); break
-        case 'ANIMB': result = await models.ANIMB(entityName, op); break
-        case 'TURNW': result = await models.TURNW(entityName, op); break
+        case 'FCFIX': result = await models.FCFIX(entityId, op); break
+        case 'CCANM': result = await models.CCANM(entityId, op); break
+        case 'ANIMB': result = await models.ANIMB(entityId, op); break
+        case 'TURNW': result = await models.TURNW(entityId, op); break
 
 
         // Background and Palette
@@ -297,7 +297,7 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
             break;
     }
 
-    console.log('   - executeOp: END', entityName, scriptType, op, result)
+    console.log('   - executeOp: END', entityId, scriptType, op, result)
     return result
 }
 const stopAllLoops = async () => {
@@ -305,8 +305,8 @@ const stopAllLoops = async () => {
     // await sleep(2000)
 }
 
-const executeScriptLoop = async (entityName, loop) => {
-    console.log(' - executeScriptLoop: START', entityName, loop)
+const executeScriptLoop = async (entityId, loop) => {
+    console.log(' - executeScriptLoop: START', entityId, loop)
     if (loop.isRunning) {
         console.log(' - executeScriptLoop: IS RUNNING')
         return
@@ -320,15 +320,15 @@ const executeScriptLoop = async (entityName, loop) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP')
-            // sendOpFlowEvent(entityName, loop.scriptType, '...', currentOpIndex + 1)
+            // sendOpFlowEvent(entityId, loop.scriptType, '...', currentOpIndex + 1)
             break
         }
 
         let op = ops[currentOpIndex]
-        const result = await executeOp(entityName, loop.scriptType, ops, op, currentOpIndex)
-        console.log(' - executeScriptLoop: RESULT', entityName, result, currentOpIndex, flowActionCount)
+        const result = await executeOp(entityId, loop.scriptType, ops, op, currentOpIndex)
+        console.log(' - executeScriptLoop: RESULT', entityId, result, currentOpIndex, flowActionCount)
         if (result.exit) {
-            console.log(' - executeScriptLoop: EXIT', entityName, loop)
+            console.log(' - executeScriptLoop: EXIT', entityId, loop)
         }
         if (result.flow) {
             flowActionCount++
@@ -346,39 +346,39 @@ const executeScriptLoop = async (entityName, loop) => {
     }
     loop.isRunning = false
     if (flowActionCount >= 10) {
-        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.FLOWSTOP, currentOpIndex)
+        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.FLOWSTOP, currentOpIndex)
     } else {
-        sendOpFlowEvent(entityName, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
+        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
     }
 
-    console.log(' - executeScriptLoop: END', entityName, loop)
+    console.log(' - executeScriptLoop: END', entityId, loop)
 }
 const initEntity = async (entity) => {
-    console.log('initEntity: START', entity.entityName, entity)
+    console.log('initEntity: START', entity.entityId, entity.entityName, entity)
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
-    await executeScriptLoop(entity.entityName, initLoop)
+    await executeScriptLoop(entity.entityId, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    await executeScriptLoop(entity.entityName, mainLoop)
+    await executeScriptLoop(entity.entityId, mainLoop)
     // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
     //     console.log('script3', script3)
-    //     await executeScriptLoop(entity.entityName, script3)
+    //     await executeScriptLoop(entity.entityId, script3)
     // }
 
-    console.log('initEntity: END', entity.entityName)
+    console.log('initEntity: END', entity.entityId, entity.entityName)
 }
-const triggerEntityTalkLoop = async (entityName) => {
-    const entity = window.currentField.data.script.entities.filter(e => e.entityName === entityName)[0]
-    console.log('triggerEntityTalkLoop', entityName, entity)
+const triggerEntityTalkLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityTalkLoop', entityId, entity)
     const filteredTalkLoops = entity.scripts.filter(s => s.scriptType === 'Talk')
     if (filteredTalkLoops.length > 0) {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(entity.entityName, talkLoop)
+            await executeScriptLoop(entity.entityId, talkLoop)
         }
     }
 }
@@ -387,7 +387,7 @@ const triggerEntityCollisionLoop = async (entityId) => {
     console.log('triggerEntityTalkLoop', entityId, entity)
     const contactLoop = entity.scripts.filter(s => s.scriptType === 'Contact')[0]
     console.log('contactLoop', contactLoop)
-    await executeScriptLoop(entity.entityName, contactLoop)
+    await executeScriptLoop(entity.entityId, contactLoop)
 }
 const triggerEntityMoveLoops = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
@@ -395,7 +395,7 @@ const triggerEntityMoveLoops = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Move')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityName, loop) // async
+        executeScriptLoop(entity.entityId, loop) // async
     }
 }
 const triggerEntityGoLoop = async (entityId) => {
@@ -404,7 +404,7 @@ const triggerEntityGoLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityGo1xLoop = async (entityId) => {
@@ -413,7 +413,7 @@ const triggerEntityGo1xLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityGoAwayLoop = async (entityId) => {
@@ -422,7 +422,7 @@ const triggerEntityGoAwayLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityOKLoop = async (entityId) => {
@@ -431,7 +431,7 @@ const triggerEntityOKLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
     }
 }
 

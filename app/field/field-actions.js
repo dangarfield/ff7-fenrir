@@ -102,7 +102,7 @@ const initiateTalk = async (i, fieldModel) => {
     console.log('initiateTalk', i, fieldModel)
     setPlayableCharacterIsInteracting(true)
     window.currentField.playableCharacter.mixer.stopAllAction()
-    triggerEntityTalkLoop(fieldModel.userData.entityName)
+    triggerEntityTalkLoop(fieldModel.userData.entityId)
     setPlayableCharacterIsInteracting(false)
     clearActionInProgress()
 }

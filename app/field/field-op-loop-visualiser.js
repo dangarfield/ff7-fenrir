@@ -26,8 +26,8 @@ const renderInitialState = (data) => {
             html += `
             <div class="btn-group d-flex" role="group">
                 <button type="button" class="btn btn-secondary btn-tiny w-100">${script.script}</button>
-                <button type="button" class="btn btn-dark btn-tiny w-100" id="op-${entity.name}-${script.script}-current"> </button>
-                <button type="button" class="btn btn-dark btn-tiny w-100"><span id="op-${entity.name}-${script.script}-index">0</span> / ${script.count}</button>
+                <button type="button" class="btn btn-dark btn-tiny w-100" id="op-${entity.id}-${script.script}-current"> </button>
+                <button type="button" class="btn btn-dark btn-tiny w-100"><span id="op-${entity.id}-${script.script}-index">0</span> / ${script.count}</button>
             </div>`
         }
         if (cumulativeTotal <= colHeight) {
@@ -68,6 +68,7 @@ const initOpLoopVisualiser = () => {
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         const entityData = {
+            id: entity.entityId,
             name: entity.entityName,
             scripts: []
         }
@@ -91,7 +92,7 @@ const initOpLoopVisualiser = () => {
     })
 }
 const visualiseOpFlowEvent = (data) => {
-    const id = `op-${data.entityName}-${data.scriptType}`
+    const id = `op-${data.entityId}-${data.scriptType}`
     // console.log('visualiseOpFlowEvent', data, id)
     const opEle = document.getElementById(`${id}-current`)
     opEle.innerHTML = data.opCode
@@ -105,9 +106,9 @@ const visualiseOpFlowEvent = (data) => {
     }
     document.getElementById(`${id}-index`).innerHTML = data.currentOpIndex
 }
-const sendOpFlowEvent = (entityName, scriptType, opCode, currentOpIndex) => {
+const sendOpFlowEvent = (entityId, scriptType, opCode, currentOpIndex) => {
     if (emitter !== undefined) {
-        emitter.emit('op-flow', { entityName, scriptType, opCode, currentOpIndex })
+        emitter.emit('op-flow', { entityId, scriptType, opCode, currentOpIndex })
     }
 }
 

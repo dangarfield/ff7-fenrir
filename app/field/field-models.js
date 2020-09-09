@@ -2,7 +2,6 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-codes-party-helper.js'
-import { calculateViewClippingPointFromVector3, adjustViewClipping } from './field-scene.js'
 import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync } from './field-animations.js'
 
@@ -40,12 +39,8 @@ const getModelScaleDownValue = () => {
     return scaleDownValue
 }
 
-const getModelByEntityName = (entityName) => {
-    return window.currentField.models.filter(m => m.userData.entityName === entityName)[0]
-}
 const getModelByEntityId = (entityId) => {
-    const entityName = window.currentField.data.script.entities[entityId].entityName
-    return getModelByEntityName(entityName)
+    return window.currentField.models.filter(m => m.userData.entityId === entityId)[0]
 }
 const getModelByCharacterName = (characterName) => {
     return window.currentField.models.filter(m => m.userData.characterName === characterName)[0]
@@ -58,21 +53,16 @@ const getModelByPartyMemberId = (partyMemberId) => {
     console.log('getModelByPartyMemberId', partyMemberId, characterName)
     return getModelByCharacterName(characterName)
 }
-const getEntityIdFromEntityName = (entityName) => {
-    for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
-        const entity = window.currentField.data.script.entities[i]
-        if (entity.entityName === entityName) {
-            return i
-        }
-    }
-    return -1
+const getEntityNameFromEntityId = (entityId) => {
+    return window.currentField.data.script.entities[entityId].entityName
 }
 
 // This method also initialises defaults for model.userData and adds model to the field
-const setModelAsEntity = (entityName, modelId) => {
+const setModelAsEntity = (entityId, modelId) => {
     // console.log('setModelAsEntity', entityName, modelId)
     const model = window.currentField.models[modelId]
-    model.userData.entityName = entityName
+    model.userData.entityId = entityId
+    model.userData.entityName = getEntityNameFromEntityId(entityId)
     const scaleDownValue = getModelScaleDownValue()
     model.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
     model.scene.rotation.x = THREE.Math.degToRad(90)
@@ -88,17 +78,17 @@ const setModelAsEntity = (entityName, modelId) => {
     model.userData.collisionEnabled = true
     model.userData.collisionRadius = 24 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
-    console.log('setModelAsEntity: END', entityName, modelId, model)
+    console.log('setModelAsEntity: END', entityId, modelId, model)
     window.currentField.fieldScene.add(model.scene)
 }
-const setModelAsPlayableCharacter = (entityName, characterName) => {
-    const model = getModelByEntityName(entityName)
+const setModelAsPlayableCharacter = (entityId, characterName) => {
+    const model = getModelByEntityId(entityId)
     model.userData.isPlayableCharacter = true
     model.userData.isLeader = isCharacterTheLeader(characterName)
     model.userData.characterName = characterName
-    console.log('setModelAsPlayableCharacter', entityName, model)
+    console.log('setModelAsPlayableCharacter', entityId, model)
 }
-const getFieldModelIdAndEntityNameForPlayableCharacter = (characterId) => {
+const getFieldModelIdAndEntityIdForPlayableCharacter = (characterId) => {
     const entities = window.currentField.data.script.entities
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
@@ -115,7 +105,7 @@ const getFieldModelIdAndEntityNameForPlayableCharacter = (characterId) => {
                     console.log('PC', op)
                     return {
                         entityName: entity.entityName,
-                        entityId: i,
+                        entityId: entity.entityId,
                         modelId
                     }
                 }
@@ -134,14 +124,14 @@ const positionPlayableCharacterFromTransition = async () => {
         console.log('init player from field transition', initData)
 
         // Need to ensure that this runs after all other entity inits...
-        const { entityName, entityId, modelId } = getFieldModelIdAndEntityNameForPlayableCharacter(getPlayableCharacterId(initData.characterName))
-        console.log('getFieldModelIdAndEntityNameForPlayableCharacter', entityName, modelId)
-        setModelAsEntity(entityName, modelId)
-        setModelAsPlayableCharacter(entityName, initData.characterName)
+        const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(getPlayableCharacterId(initData.characterName))
+        console.log('getFieldModelIdAndEntityNameForPlayableCharacter', entityId, entityName, modelId)
+        setModelAsEntity(entityId, modelId)
+        setModelAsPlayableCharacter(entityId, initData.characterName)
         // const model = getModelByCharacterName(initData.characterName)
-        placeModel(entityName, initData.position.x, initData.position.y, undefined, initData.triangleId)
-        setModelDirection(entityName, initData.direction)
-        setModelVisibility(entityName, true)
+        placeModel(entityId, initData.position.x, initData.position.y, undefined, initData.triangleId)
+        setModelDirection(entityId, initData.direction)
+        setModelVisibility(entityId, true)
 
         await setModelAsLeader(entityId, true)
         // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
@@ -154,9 +144,9 @@ const positionPlayableCharacterFromTransition = async () => {
         // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     }
 }
-const placeModel = (entityName, x, y, z, triangleId) => {
-    console.log('placeModel: START', entityName, x, y, z, triangleId)
-    const model = getModelByEntityName(entityName)
+const placeModel = (entityId, x, y, z, triangleId) => {
+    console.log('placeModel: START', entityId, x, y, z, triangleId)
+    const model = getModelByEntityId(entityId)
 
     if (model === undefined) {
         // TODO There are some instances where XYZI is called without a CHAR being called first
@@ -191,6 +181,7 @@ const placeModel = (entityName, x, y, z, triangleId) => {
     if (triangleId !== undefined) {
         model.scene.userData.triangleId = triangleId
     }
+    // TODO - Investigate this, md1stin, barret should not be show, but the guards should. Not sure yet
     model.scene.visible = true
 }
 const placeModelsDebug = async () => {
@@ -213,24 +204,24 @@ const placeModelsDebug = async () => {
 
         const charOps = allOps.filter(o => o.op === 'CHAR')
         if (charOps.length > 0) {
-            await modelFieldOpCodes.CHAR(entity.entityName, charOps[0])
-            const model = getModelByEntityName(entity.entityName)
+            await modelFieldOpCodes.CHAR(entity.entityId, charOps[0])
+            const model = getModelByEntityId(entity.entityId)
             if (model.animations.length > 0) {
-                playAnimationLoopedAsync(entity.entityName, model.animations.length - 1, 1)
+                playAnimationLoopedAsync(entity.entityId, model.animations.length - 1, 1)
             }
         }
         const xyziOps = allOps.filter(o => o.op === 'XYZI')
         if (xyziOps.length > 0) {
-            console.log('entity.entityName, xyziOps[0]', entity.entityName, xyziOps[0])
-            await modelFieldOpCodes.XYZI(entity.entityName, xyziOps[0])
+            console.log('entity.entityName, xyziOps[0]', entity.entityId, entity.entityName, xyziOps[0])
+            await modelFieldOpCodes.XYZI(entity.entityId, xyziOps[0])
         }
         const dirOps = allOps.filter(o => o.op === 'DIR')
         if (dirOps.length > 0) {
-            await modelFieldOpCodes.DIR(entity.entityName, dirOps[0])
+            await modelFieldOpCodes.DIR(entity.entityId, dirOps[0])
         }
         const pcOps = allOps.filter(o => o.op === 'PC')
         if (pcOps.length > 0) {
-            await modelFieldOpCodes.PC(entity.entityName, pcOps[0])
+            await modelFieldOpCodes.PC(entity.entityId, pcOps[0])
         }
         const entityCcOps = allOps.filter(o => o.op === 'CC')
         if (entityCcOps.length > 0) {
@@ -255,36 +246,36 @@ const placeModelsDebug = async () => {
         const entities = window.currentField.data.script.entities
         for (let i = 0; i < entities.length; i++) {
             const entity = entities[i]
-            if (entity.entityName === model.userData.entityName) {
+            if (entity.entityId === model.userData.entityId) {
                 const triangleId = Math.round(window.currentField.data.walkmeshSection.triangles.length / 2)
-                placeModel(model.userData.entityName, undefined, undefined, undefined, triangleId)
-                setModelVisibility(model.userData.entityName, true)
-                setModelAsLeader(i)
+                placeModel(model.userData.entityId, undefined, undefined, undefined, triangleId)
+                setModelVisibility(model.userData.entityId, true)
+                setModelAsLeader(model.userData.entityId)
             }
         }
     }
 
     console.log('placeModelsDebug: END', window.currentField.models)
 }
-const setModelVisibility = (entityName, isVisible) => {
-    console.log('setModelVisibility', entityName, isVisible)
-    const model = getModelByEntityName(entityName)
+const setModelVisibility = (entityId, isVisible) => {
+    console.log('setModelVisibility', entityId, isVisible)
+    const model = getModelByEntityId(entityId)
     model.scene.visible = isVisible
 }
-const setModelRotationEnabled = (entityName, enabled) => {
-    console.log('setModelRotationEnabled', entityName, enabled)
-    const model = getModelByEntityName(entityName)
+const setModelRotationEnabled = (entityId, enabled) => {
+    console.log('setModelRotationEnabled', entityId, enabled)
+    const model = getModelByEntityId(entityId)
     model.userData.rotationEnabled = enabled
 }
-const setModelDirectionToFaceEntity = (entityName, targetEntityId) => {
-    console.log('setModelDirectionToFaceEntity', entityName, targetEntityId)
-    const model = getModelByEntityName(entityName)
+const setModelDirectionToFaceEntity = (entityId, targetEntityId) => {
+    console.log('setModelDirectionToFaceEntity', entityId, targetEntityId)
+    const model = getModelByEntityId(entityId)
     const targetModel = getModelByEntityId(targetEntityId)
     faceModelInstantly(model, targetModel)
 }
-const setModelDirectionToFaceCharacterOrPartyLeader = (entityName, characterId) => {
-    console.log('setModelDirectionToFaceCharacterOrPartyLeader', entityName, characterId)
-    const model = getModelByEntityName(entityName)
+const setModelDirectionToFaceCharacterOrPartyLeader = (entityId, characterId) => {
+    console.log('setModelDirectionToFaceCharacterOrPartyLeader', entityId, characterId)
+    const model = getModelByEntityId(entityId)
     const characterName = getPlayableCharacterName(characterId)
     const characterNameFilter = window.currentField.models.filter(m => m.userData.characterName === characterName)
     let targetModel
@@ -317,40 +308,40 @@ const getPartyMemberDirection = (partyMemberId) => {
     return direction
 
 }
-const setModelDirection = (entityName, direction) => {
-    console.log('setModelVisibility', entityName, direction)
+const setModelDirection = (entityId, direction) => {
+    console.log('setModelVisibility', entityId, direction)
     const deg = directionToDegrees(direction)
-    const model = getModelByEntityName(entityName)
+    const model = getModelByEntityId(entityId)
     model.scene.rotation.y = THREE.Math.degToRad(deg)
 }
-const setModelMovementSpeed = (entityName, speed) => {
-    console.log('setModelMovementSpeed', entityName, speed)
-    const model = getModelByEntityName(entityName)
+const setModelMovementSpeed = (entityId, speed) => {
+    console.log('setModelMovementSpeed', entityId, speed)
+    const model = getModelByEntityId(entityId)
     model.userData.movementSpeed = speed
 }
-const setModelAnimationSpeed = (entityName, speed) => {
-    console.log('setModelAnimationSpeed', entityName, speed)
-    const model = getModelByEntityName(entityName)
+const setModelAnimationSpeed = (entityId, speed) => {
+    console.log('setModelAnimationSpeed', entityId, speed)
+    const model = getModelByEntityId(entityId)
     model.userData.animationSpeed = speed
 }
-const setModelTalkEnabled = (entityName, isEnabled) => {
-    console.log('setModelTalkEnabled', entityName, isEnabled)
-    const model = getModelByEntityName(entityName)
+const setModelTalkEnabled = (entityId, isEnabled) => {
+    console.log('setModelTalkEnabled', entityId, isEnabled)
+    const model = getModelByEntityId(entityId)
     model.userData.talkEnabled = isEnabled
 }
-const setModelTalkRadius = (entityName, radius) => {
-    console.log('setModelTalkRadius', entityName, radius)
-    const model = getModelByEntityName(entityName)
+const setModelTalkRadius = (entityId, radius) => {
+    console.log('setModelTalkRadius', entityId, radius)
+    const model = getModelByEntityId(entityId)
     model.userData.talkRadius = radius
 }
-const setModelCollisionEnabled = (entityName, isEnabled) => {
-    console.log('setModelCollisionEnabled', entityName, isEnabled)
-    const model = getModelByEntityName(entityName)
+const setModelCollisionEnabled = (entityId, isEnabled) => {
+    console.log('setModelCollisionEnabled', entityId, isEnabled)
+    const model = getModelByEntityId(entityId)
     model.userData.collisionEnabled = isEnabled
 }
-const setModelCollisionRadius = (entityName, radius) => {
-    console.log('setModelCollisionRadius', entityName, radius)
-    const model = getModelByEntityName(entityName)
+const setModelCollisionRadius = (entityId, radius) => {
+    console.log('setModelCollisionRadius', entityId, radius)
+    const model = getModelByEntityId(entityId)
     model.userData.collisionRadius = radius
 }
 const setModelAsLeader = async (entityId, instant) => {
@@ -358,9 +349,9 @@ const setModelAsLeader = async (entityId, instant) => {
     window.currentField.models.map(m => {
         m.userData.isLeader = false
     })
-    const entityName = window.currentField.data.script.entities[entityId].entityName
-    const model = getModelByEntityName(entityName)
-    console.log('setModelAsLeader 2', entityName, model)
+    // const entityName = window.currentField.data.script.entities[entityId].entityName
+    const model = getModelByEntityId(entityId)
+    // console.log('setModelAsLeader 2', entityId, entityName, model)
     model.userData.isLeader = true
     // Leader should be persisted between map jumps by gateways and MAPJUMP
     // Leader should also be more accessible as it's in the movement section of render loop, eg
@@ -389,30 +380,30 @@ const setPlayableCharacterCanMove = (canMove) => {
 const getDegreesFromTwoPoints = (point1, point2) => {
     return Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI
 }
-const turnModelToFaceEntity = async (entityName, entityIdToFace, whichWayId, steps) => {
-    const model = getModelByEntityName(entityName)
+const turnModelToFaceEntity = async (entityId, entityIdToFace, whichWayId, steps) => {
+    const model = getModelByEntityId(entityId)
     const modelToFace = getModelByEntityId(entityIdToFace)
     const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
     // TODO - This doesn't work in the same way that the DIRA operations don't
     // Do something with ? window.currentField.data.triggers.header.controlDirectionDegrees
-    await turnModel(entityName, degrees, whichWayId, steps, 2)
+    await turnModel(entityId, degrees, whichWayId, steps, 2)
 }
-const turnModelToFacePartyMember = async (entityName, partyMemberId, whichWayId, steps) => {
-    const model = getModelByEntityName(entityName)
+const turnModelToFacePartyMember = async (entityId, partyMemberId, whichWayId, steps) => {
+    const model = getModelByEntityId(entityId)
     const modelToFace = getModelByPartyMemberId(partyMemberId)
     const degrees = getDegreesFromTwoPoints(model.scene.position, modelToFace.scene.position)
     // TODO - This doesn't work in the same way that the DIRA operations don't
     // Do something with ? window.currentField.data.triggers.header.controlDirectionDegrees
-    await turnModel(entityName, degrees, whichWayId, steps, 2)
+    await turnModel(entityId, degrees, whichWayId, steps, 2)
 }
-const turnModelToFaceDirection = async (entityName, direction, whichWayId, steps, stepType) => {
+const turnModelToFaceDirection = async (entityId, direction, whichWayId, steps, stepType) => {
     let degrees = directionToDegrees(direction)
-    await turnModel(entityName, degrees, whichWayId, steps, stepType)
+    await turnModel(entityId, degrees, whichWayId, steps, stepType)
 }
-const turnModel = async (entityName, degrees, whichWayId, steps, stepType) => {
+const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
     return new Promise((resolve) => {
-        console.log('turnModel', entityName, degrees, whichWayId, steps, stepType)
-        const model = getModelByEntityName(entityName)
+        console.log('turnModel', entityId, degrees, whichWayId, steps, stepType)
+        const model = getModelByEntityId(entityId)
         if (!model.userData.rotationEnabled) {
             resolve()
             return
@@ -466,8 +457,8 @@ const turnModel = async (entityName, degrees, whichWayId, steps, stepType) => {
     })
 }
 
-const registerLine = (entityName, lv0, lv1) => {
-    console.log('registerLine', entityName, lv0, lv1)
+const registerLine = (entityId, lv0, lv1) => {
+    console.log('registerLine', entityId, lv0, lv1)
     let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     let material1 = new THREE.LineBasicMaterial({ color: 0xff00ff })
@@ -477,8 +468,8 @@ const registerLine = (entityName, lv0, lv1) => {
     let line = new THREE.Line(geometry1, material1)
     line.userData.triggered = false
     line.userData.triggeredAway = false
-    line.userData.entityName = entityName
-    line.userData.entityId = getEntityIdFromEntityName(entityName)
+    line.userData.entityId = entityId
+    line.userData.entityName = getEntityNameFromEntityId(entityId)
     window.currentField.lineLines.add(line)
     console.log('registerLine line', line)
 }
@@ -486,9 +477,8 @@ const enableLines = (enabled) => {
     console.log('enableLines', enabled)
     window.currentField.lineTriggersEnabled = enabled
 }
-const setLinePosition = (entityName, lv0, lv1) => {
-    console.log('setLinePosition', entityName, lv0, lv1)
-    const entityId = getEntityIdFromEntityName(entityName)
+const setLinePosition = (entityId, lv0, lv1) => {
+    console.log('setLinePosition', entityId, lv0, lv1)
     const lines = window.currentField.lineLines.children.filter(l => l.userData.entityId === entityId)
     console.log('lines', lines)
     if (lines.length > 0) {
@@ -525,7 +515,6 @@ export {
     setModelCollisionRadius,
     setModelAsLeader,
     setPlayableCharacterCanMove,
-    getModelByEntityName,
     getModelByEntityId,
     getModelByPartyMemberId,
     turnModelToFaceEntity,

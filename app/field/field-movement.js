@@ -1,35 +1,35 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { getModelByEntityName, getModelByEntityId, getModelByPartyMemberId, getDegreesFromTwoPoints } from './field-models.js'
+import { getModelByEntityId, getModelByPartyMemberId, getDegreesFromTwoPoints } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 
-const moveEntityWithoutAnimationOrRotation = async (entityName, x, y) => {
-    await moveEntity(entityName, x / 4096, y / 4096, false, false)
+const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
+    await moveEntity(entityId, x / 4096, y / 4096, false, false)
 }
-const moveEntityWithAnimationAndRotation = async (entityName, x, y) => {
-    await moveEntity(entityName, x / 4096, y / 4096, true, true)
+const moveEntityWithAnimationAndRotation = async (entityId, x, y) => {
+    await moveEntity(entityId, x / 4096, y / 4096, true, true)
 }
-const moveEntityWithoutAnimationButWithRotation = async (entityName, x, y) => {
-    await moveEntity(entityName, x / 4096, y / 4096, true, false)
+const moveEntityWithoutAnimationButWithRotation = async (entityId, x, y) => {
+    await moveEntity(entityId, x / 4096, y / 4096, true, false)
 }
-const moveEntityToEntityWithAnimationAndRotation = async (entityName, targetEntityId) => {
-    // const model = getModelByEntityName(entityName)
+const moveEntityToEntityWithAnimationAndRotation = async (entityId, targetEntityId) => {
+    // const model = getModelByEntityId(entityId)
     const targetModel = getModelByEntityId(targetEntityId)
     console.log('moveEntityToEntityWithAnimationAndRotation', targetModel)
     if (targetModel.scene.visible) {
-        await moveEntity(entityName, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
+        await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
     }
 }
-const moveEntityToPartyMemberWithAnimationAndRotation = async (entityName, targetPartyMemberId) => {
+const moveEntityToPartyMemberWithAnimationAndRotation = async (entityId, targetPartyMemberId) => {
     const targetModel = getModelByPartyMemberId(targetPartyMemberId)
     console.log('moveEntityToPartyMemberWithAnimationAndRotation', targetModel)
     if (targetModel.scene.visible) {
-        await moveEntity(entityName, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
+        await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
     }
 }
-const moveEntity = async (entityName, x, y, rotate, animate) => {
-    const model = getModelByEntityName(entityName)
-    console.log('moveEntity', entityName, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
+const moveEntity = async (entityId, x, y, rotate, animate) => {
+    const model = getModelByEntityId(entityId)
+    console.log('moveEntity', entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
     console.log('current position', model.scene.position.x, model.scene.position.y)
     const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: x, y: y })
@@ -135,7 +135,7 @@ const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {
     mesh.userData.movementAllowed = allowed
     console.log('mesh: END', mesh.userData)
 }
-const offsetEntity = async (entityName, x, y, z, frames, type) => {
+const offsetEntity = async (entityId, x, y, z, frames, type) => {
     // TODO - Need to check this later as in the doc it says: (which I haven't done yet)
     // Offsets the field object, belonging to the entity whose script this opcode resides in,
     // by a certain amount. After being offset, the character continues to be constrained in
@@ -143,9 +143,9 @@ const offsetEntity = async (entityName, x, y, z, frames, type) => {
     // normal walkmesh position. Other field objects are unaffected, and their position or
     // movements are maintained on the walkmesh's original position
 
-    const model = getModelByEntityName(entityName)
+    const model = getModelByEntityId(entityId)
     model.userData.offsetInProgress = true
-    console.log('offsetEntity', entityName, x, y, z, frames, type, model)
+    console.log('offsetEntity', entityId, x, y, z, frames, type, model)
     const from = {
         x: model.scene.position.x,
         y: model.scene.position.y,
@@ -180,13 +180,13 @@ const offsetEntity = async (entityName, x, y, z, frames, type) => {
             .start()
     })
 }
-const waitForOffset = async (entityName) => {
-    console.log('waitForOffset ', entityName)
-    const model = getModelByEntityName(entityName)
+const waitForOffset = async (entityId) => {
+    console.log('waitForOffset ', entityId)
+    const model = getModelByEntityId(entityId)
     while (model.userData.offsetInProgress) {
         // Should really replace this with promises...
         await sleep(1000 / 30 * 2)
-        console.log('waitForOffset ', entityName, 'waiting...')
+        console.log('waitForOffset ', entityId, 'waiting...')
     }
 }
 export {
