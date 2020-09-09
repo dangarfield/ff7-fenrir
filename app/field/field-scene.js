@@ -273,6 +273,7 @@ const initFieldDebug = async (loadFieldCB) => {
         window.currentField.walkmeshLines.visible = window.config.debug.showWalkmeshLines
         window.currentField.gatewayLines.visible = window.config.debug.showWalkmeshLines
         window.currentField.triggerLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.lineLines.visible = window.config.debug.showWalkmeshLines
     })
     debugGUI.add(window.config.debug, 'showBackgroundLayers').onChange(function () {
         window.currentField.backgroundLayers.visible = window.config.debug.showBackgroundLayers

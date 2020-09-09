@@ -1,8 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    setPlayableCharacterIsInteracting, initiateTalk, isActionInProgress, setActionInProgress,
-    clearActionInProgress, fadeOutAndLoadMenu, unfreezeField
+    initiateTalk, isActionInProgress, fadeOutAndLoadMenu, lineOKTriggered
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -19,10 +18,21 @@ const initFieldKeypressActions = () => {
         if (areFieldControlsActive() && firstPress) {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
+            // Probably need to look at a more intelligent way to define which actions are performed
             for (let i = 0; i < window.currentField.models.length; i++) {
                 if (window.currentField.models[i].scene.userData.closeToTalk === true) {
                     // setActionInProgress('talk')
                     initiateTalk(i, window.currentField.models[i])
+                }
+            }
+            if (window.currentField.lineTriggersEnabled) {
+                for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+                    const line = window.currentField.lineLines.children[i]
+                    if (line.userData.triggered) {
+                        // TODO - This can be called whilst dialogs are shown etc
+                        // maybe only trigger this if player is allowed to move
+                        lineOKTriggered(line.userData.entityId)
+                    }
                 }
             }
         }

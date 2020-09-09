@@ -8,7 +8,7 @@ import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
 import { setupOrthoBgCamera } from './field-ortho-bg-scene.js'
-import { initialiseOpLoops } from './field-op-loop.js'
+import { initialiseOpLoops, debugLogOpCodeCompletionForField } from './field-op-loop.js'
 import { resetTempBank } from '../data/savemap.js'
 import { updateSavemapLocationField } from '../data/savemap-alias.js'
 import { preLoadFieldMediaData } from '../media/media-module.js'
@@ -122,10 +122,17 @@ const drawWalkmesh = () => {
         }
     }
     window.currentField.fieldScene.add(window.currentField.triggerLines)
+
+
+    // Placeholder for OP CODE based lineLines
+    window.currentField.lineLines = new THREE.Group()
+    window.currentField.fieldScene.add(window.currentField.lineLines)
+
     if (!window.config.debug.showWalkmeshLines) {
         window.currentField.walkmeshLines.visible = window.config.debug.showWalkmeshLines
         window.currentField.gatewayLines.visible = window.config.debug.showWalkmeshLines
         window.currentField.triggerLines.visible = window.config.debug.showWalkmeshLines
+        window.currentField.lineLines.visible = window.config.debug.showWalkmeshLines
     }
 }
 
@@ -285,6 +292,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         media: undefined,
         menuEnabled: true,
         gatewayTriggersEnabled: true,
+        lineTriggersEnabled: true,
         playerAnimations: {
             stand: 0, walk: 1, run: 2
         }
@@ -317,6 +325,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
 
     if (window.config.debug.active) {
         await initFieldDebug(loadField)
+        debugLogOpCodeCompletionForField()
     }
     initFieldKeypressActions()
     if (!window.config.debug.debugModeNoOpLoops) {

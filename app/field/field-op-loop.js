@@ -228,6 +228,11 @@ const executeOp = async (entityName, scriptType, ops, op, currentOpIndex) => {
         case 'TALKR': result = await models.TALKR(entityName, op); break
         case 'SLIDR': result = await models.SLIDR(entityName, op); break
         case 'SOLID': result = await models.SOLID(entityName, op); break
+
+        case 'LINE': result = await models.LINE(entityName, op); break
+        case 'LINON': result = await models.LINON(entityName, op); break
+        case 'SLINE': result = await models.SLINE(entityName, op); break
+
         case 'TLKR2': result = await models.TLKR2(entityName, op); break
         case 'SLDR2': result = await models.SLDR2(entityName, op); break
 
@@ -302,6 +307,11 @@ const stopAllLoops = async () => {
 
 const executeScriptLoop = async (entityName, loop) => {
     console.log(' - executeScriptLoop: START', entityName, loop)
+    if (loop.isRunning) {
+        console.log(' - executeScriptLoop: IS RUNNING')
+        return
+    }
+
     loop.isRunning = true
     const ops = loop.ops
     let currentOpIndex = 0
@@ -371,8 +381,6 @@ const triggerEntityTalkLoop = async (entityName) => {
             await executeScriptLoop(entity.entityName, talkLoop)
         }
     }
-
-
 }
 const triggerEntityCollisionLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
@@ -381,6 +389,52 @@ const triggerEntityCollisionLoop = async (entityId) => {
     console.log('contactLoop', contactLoop)
     await executeScriptLoop(entity.entityName, contactLoop)
 }
+const triggerEntityMoveLoops = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityMoveLoops', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Move')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        executeScriptLoop(entity.entityName, loop) // async
+    }
+}
+const triggerEntityGoLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityGoLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Go')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+    }
+}
+const triggerEntityGo1xLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityGo1xLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+    }
+}
+const triggerEntityGoAwayLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityGoAwayLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+    }
+}
+const triggerEntityOKLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    console.log('triggerEntityOKLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        executeScriptLoop(entity.entityName, loop) // Will only ever be 1 max
+    }
+}
+
 
 const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
@@ -392,10 +446,8 @@ const initialiseOpLoops = async () => {
         initEntity(entity) // All running async
     }
     console.log('initialiseOpLoops: END')
-    debugLogOpCodeCompletionForField()
 }
 const debugLogOpCodeCompletionForField = async () => {
-
     const completedCodesRes = await fetch(`/workings-out/op-codes-completed.json`)
     const completedCodes = await completedCodesRes.json()
 
@@ -428,5 +480,11 @@ export {
     stopAllLoops,
     executeScriptLoop,
     triggerEntityTalkLoop,
-    triggerEntityCollisionLoop
+    triggerEntityCollisionLoop,
+    triggerEntityMoveLoops,
+    triggerEntityGoLoop,
+    triggerEntityGo1xLoop,
+    triggerEntityGoAwayLoop,
+    triggerEntityOKLoop,
+    debugLogOpCodeCompletionForField
 }

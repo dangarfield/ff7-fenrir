@@ -189,7 +189,6 @@ const waitForOffset = async (entityName) => {
         console.log('waitForOffset ', entityName, 'waiting...')
     }
 }
-
 export {
     moveEntityWithAnimationAndRotation,
     moveEntityWithoutAnimationOrRotation,

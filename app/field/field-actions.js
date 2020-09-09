@@ -5,7 +5,10 @@ import { loadMenuWithWait } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
-import { stopAllLoops, triggerEntityTalkLoop } from './field-op-loop.js'
+import {
+    stopAllLoops, triggerEntityTalkLoop, triggerEntityMoveLoops, triggerEntityGoLoop,
+    triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop
+} from './field-op-loop.js'
 
 let actionInProgress = false
 
@@ -74,6 +77,22 @@ const triggerTriggered = (i, isOn) => {
     // soundId: 2 -> door -> 122.ogg
     // soundId: 3 -> swish
 }
+const lineMoveTriggered = (entityId) => {
+    triggerEntityMoveLoops(entityId)
+}
+const lineGoTriggered = (entityId, line) => {
+    triggerEntityGoLoop(entityId)
+    if (line.userData.go1xTriggered === undefined) {
+        triggerEntityGo1xLoop(entityId)
+    }
+    line.userData.go1xTriggered = true
+}
+const lineAwayTriggered = (entityId) => {
+    triggerEntityGoAwayLoop(entityId)
+}
+const lineOKTriggered = (entityId) => {
+    triggerEntityOKLoop(entityId)
+}
 
 const modelCollisionTriggered = (i) => {
     console.log('modelCollisionTriggered', i)
@@ -83,22 +102,6 @@ const initiateTalk = async (i, fieldModel) => {
     console.log('initiateTalk', i, fieldModel)
     setPlayableCharacterIsInteracting(true)
     window.currentField.playableCharacter.mixer.stopAllAction()
-
-    // Hardcoded placeholders -> Move these to op code section init
-    // await createDialogBox(0, 10, 10, 266, 57, 1)
-    // await createDialogBox(0, 10, 121, 265, 89, 1)
-    // const currentChoice = await showWindowWithDialog(0, 'Jessie<br/>“Push <fe>{YELLOW}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{GREEN}<br/>\tto climb up and down.”')
-
-    // await createDialogBox(1, 10, 10, 239, 217, 1)
-    // const currentChoice = await showWindowWithDialog(1, 'Do <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>Re <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Mi <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Fa <fe>{PURPLE}[OK]<fe>{WHITE}<br/>So <fe>{PURPLE}[END]<fe>{WHITE}/<fe>{PURPLE}[HOME]<fe>{WHITE} + <fe>{PURPLE}[CANCEL]<fe>{WHITE}<br/>La <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[SWITCH]<fe>{WHITE}<br/>Ti <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[MENU]<fe>{WHITE}<br/>Do <fe>{PURPLE}[PAGEUP]<fe>{WHITE}/<fe>{PURPLE}[PAGEDOWN]<fe>{WHITE} + <fe>{PURPLE}[OK]<fe>{WHITE}<br/>Do Mi So (C)\tDirectional key Down<br/>Do Fa La (F)\tDirectional key Left<br/>Re So Ti (G)\tDirectional key Up<br/>Mi So Do (C)\tDirectional key Right<br/>End\t\t<fe>{PURPLE}[START]<fe>{WHITE} and select[SELECT]')
-
-    // await createDialogBox(2, 60, 145, 209, 73, 1)
-    // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
-    // const currentChoice = await showWindowWithDialog(2, 'Flower girl<br/>“What happened?”<br/>{CHOICE}You\'d better get out of here<br/>{CHOICE}Nothing…hey…')
-    // 'Biggs<br/>“He WAS in SOLDIER, Jessie.”{PAUSE}“But he quit and is with us now.”'
-    // 'Jessie<br/>“Push <fe>{PURPLE}[OK]<fe>{WHITE} in front of a ladder<br/>\tto grab on to it.<br/>\tThen use the <fe>{PURPLE}[Directional button]<fe>{WHITE}<br/>\tto climb up and down.”'
-    // 'Biggs<br/>“Think how many of our people risked their<br/>\tlives, just for this code…”'
-    // console.log('talk progressed', currentChoice)
     triggerEntityTalkLoop(fieldModel.userData.entityName)
     setPlayableCharacterIsInteracting(false)
     clearActionInProgress()
@@ -174,6 +177,10 @@ const triggerBattleWithSwirl = (battleId) => {
 export {
     gatewayTriggered,
     triggerTriggered,
+    lineMoveTriggered,
+    lineGoTriggered,
+    lineAwayTriggered,
+    lineOKTriggered,
     modelCollisionTriggered,
     initiateTalk,
     setPlayableCharacterIsInteracting,

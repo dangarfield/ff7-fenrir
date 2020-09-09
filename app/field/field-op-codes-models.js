@@ -330,9 +330,40 @@ const IDLCK = async (entityName, op) => {
     return {}
 }
 
-
+// Lines
+const LINE = async (entityName, op) => {
+    console.log('LINE', entityName, op)
+    fieldModels.registerLine(entityName, { x: op.x1, y: op.y1, z: op.z1 }, { x: op.x2, y: op.y2, z: op.z2 })
+    return {}
+}
+const LINON = async (entityName, op) => {
+    console.log('LINON', entityName, op)
+    fieldModels.enableLines(op.s === 1)
+    return {}
+}
+const SLINE = async (entityName, op) => {
+    console.log('SLINE', entityName, op)
+    const x1 = op.bx1 == 0 ? op.x1 : getBankData(op.bx1, op.x1)
+    const y1 = op.by1 == 0 ? op.y1 : getBankData(op.by1, op.y1)
+    const z1 = op.bz1 == 0 ? op.z1 : getBankData(op.bz1, op.z1)
+    const x2 = op.bx2 == 0 ? op.x2 : getBankData(op.bx2, op.x2)
+    const y2 = op.by2 == 0 ? op.y2 : getBankData(op.by2, op.y2)
+    const z2 = op.bz2 == 0 ? op.z2 : getBankData(op.bz2, op.z2)
+    fieldModels.setLinePosition(entityName, { x: x1, y: y1, z: z1 }, { x: x2, y: y2, z: z2 })
+    return {}
+}
 setTimeout(async () => {
     console.log('ANIM: STARTED')
+
+    // await LINE('evb', { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
+    // await LINE('drE', { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
+    // await LINON('evb', { s: 1 })
+    // await sleep(2000)
+    // await SLINE('evb', {
+    //     x1: -910, y1: 1166, z1: -274, x2: -512, y2: 2166, z2: -274,
+    //     bx1: 0, by1: 0, bz1: 0, bx2: 0, by2: 0, bz2: 0
+    // })
+    // await LINE('KDLINE', { x1: 186, y1: -117, z1: -624, x2: 118, y2: -174, z2: -624 })
 
     // await MOVE('ba', { b1: 0, b2: 0, x: 3607, y: 27712 })
     // await MOVE('ba', { b1: 0, b2: 0, x: 3836, y: 29295 })
@@ -452,6 +483,9 @@ export {
     TALKR,
     SLIDR,
     SOLID,
+    LINE,
+    LINON,
+    SLINE,
     TLKR2,
     SLDR2,
     FCFIX,

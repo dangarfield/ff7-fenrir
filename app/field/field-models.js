@@ -61,7 +61,7 @@ const getModelByPartyMemberId = (partyMemberId) => {
 const getEntityIdFromEntityName = (entityName) => {
     for (let i = 0; i < window.currentField.data.script.entities.length; i++) {
         const entity = window.currentField.data.script.entities[i]
-        if (entity.userData.entityName === entityName) {
+        if (entity.entityName === entityName) {
             return i
         }
     }
@@ -158,8 +158,11 @@ const placeModel = (entityName, x, y, z, triangleId) => {
     console.log('placeModel: START', entityName, x, y, z, triangleId)
     const model = getModelByEntityName(entityName)
 
-    if (x && y && z) {
-        console.log('placeModel: x, y, z')
+    if (model === undefined) {
+        // TODO There are some instances where XYZI is called without a CHAR being called first
+        return
+    } else if (x && y && z) {
+        console.log('placeModel: x, y, z', model)
         model.scene.position.set(
             x / 4096,
             y / 4096,
@@ -218,6 +221,7 @@ const placeModelsDebug = async () => {
         }
         const xyziOps = allOps.filter(o => o.op === 'XYZI')
         if (xyziOps.length > 0) {
+            console.log('entity.entityName, xyziOps[0]', entity.entityName, xyziOps[0])
             await modelFieldOpCodes.XYZI(entity.entityName, xyziOps[0])
         }
         const dirOps = allOps.filter(o => o.op === 'DIR')
@@ -461,6 +465,46 @@ const turnModel = async (entityName, degrees, whichWayId, steps, stepType) => {
             .start()
     })
 }
+
+const registerLine = (entityName, lv0, lv1) => {
+    console.log('registerLine', entityName, lv0, lv1)
+    let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+    let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
+    let material1 = new THREE.LineBasicMaterial({ color: 0xff00ff })
+    let geometry1 = new THREE.Geometry()
+    geometry1.vertices.push(v0)
+    geometry1.vertices.push(v1)
+    let line = new THREE.Line(geometry1, material1)
+    line.userData.triggered = false
+    line.userData.triggeredAway = false
+    line.userData.entityName = entityName
+    line.userData.entityId = getEntityIdFromEntityName(entityName)
+    window.currentField.lineLines.add(line)
+    console.log('registerLine line', line)
+}
+const enableLines = (enabled) => {
+    console.log('enableLines', enabled)
+    window.currentField.lineTriggersEnabled = enabled
+}
+const setLinePosition = (entityName, lv0, lv1) => {
+    console.log('setLinePosition', entityName, lv0, lv1)
+    const entityId = getEntityIdFromEntityName(entityName)
+    const lines = window.currentField.lineLines.children.filter(l => l.userData.entityId === entityId)
+    console.log('lines', lines)
+    if (lines.length > 0) {
+        // Wiki - If two or more lines are defined in one entity, SLINE only updates the first LINE definition.
+        const line = lines[0]
+        console.log('line', line, line.geometry.vertices[0], line.geometry.vertices[1])
+        line.geometry.verticesNeedUpdate = true
+        line.geometry.vertices[0].x = lv0.x / 4096
+        line.geometry.vertices[0].y = lv0.y / 4096
+        line.geometry.vertices[0].z = lv0.z / 4096
+        line.geometry.vertices[1].x = lv1.x / 4096
+        line.geometry.vertices[1].y = lv1.y / 4096
+        line.geometry.vertices[1].z = lv1.z / 4096
+        console.log('line', line, line.geometry.vertices[0], line.geometry.vertices[1])
+    }
+}
 export {
     directionToDegrees,
     degreesToDirection,
@@ -490,5 +534,8 @@ export {
     getDegreesFromTwoPoints,
     getEntityDirection,
     getPartyMemberDirection,
-    setModelRotationEnabled
+    setModelRotationEnabled,
+    registerLine,
+    enableLines,
+    setLinePosition
 }
