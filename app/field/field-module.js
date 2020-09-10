@@ -30,7 +30,7 @@ const drawWalkmesh = () => {
 
     window.currentField.walkmeshLines = new THREE.Group()
     window.currentField.walkmeshMesh = new THREE.Group()
-    const walkmeshMaterial = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
+
     for (let i = 0; i < numTriangles; i++) {
         let triangle = window.currentField.data.walkmeshSection.triangles[i];
         let accessor = window.currentField.data.walkmeshSection.accessors[i];
@@ -57,6 +57,7 @@ const drawWalkmesh = () => {
         walkmeshPositions.push(triangle.vertices[2].x / 4096, triangle.vertices[2].y / 4096, triangle.vertices[2].z / 4096)
         let walkmeshGeo = new THREE.BufferGeometry();
         walkmeshGeo.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
+        const walkmeshMaterial = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
         const walkmeshMeshTriangle = new THREE.Mesh(walkmeshGeo, walkmeshMaterial)
         walkmeshMeshTriangle.userData.triangleId = i
         walkmeshMeshTriangle.userData.movementAllowed = true

@@ -34,11 +34,11 @@ const printCompare = (a, operator, b) => {
 const getOpIndexForByteIndex = (ops, goto) => {
     for (let i = 0; i < ops.length; i++) {
         if (ops[i].byteIndex === goto) {
-            return { flow: true, goto: i, gotoByteIndex: goto }
+            return { goto: i, gotoByteIndex: goto }
         }
     }
     // window.alert('No matching byteIndex for goto', goto)
-    return { flow: true, exit: true }
+    return { exit: true }
 }
 
 const compareFromBankData = (ops, op) => {
@@ -50,7 +50,7 @@ const compareFromBankData = (ops, op) => {
 
     // await sleep(2000)
     if (result) { // Continue inside if statement
-        return { flow: true }
+        return {}
     } else { // Bypass if statement
         return getOpIndexForByteIndex(ops, op.goto)
     }

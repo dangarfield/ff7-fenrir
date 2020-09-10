@@ -82,11 +82,17 @@ const RETTO = async (entityId, scriptType, op) => {
 
 const JMPF = async (ops, op) => {
     console.log('JMPF', ops, op)
-    return getOpIndexForByteIndex(ops, op.goto)
+    await sleep(1000 / 30)
+    const result = getOpIndexForByteIndex(ops, op.goto)
+    result.flow = true
+    return result
 }
 const JMPFL = async (ops, op) => {
     console.log('JMPFL', ops, op)
-    return getOpIndexForByteIndex(ops, op.goto)
+    await sleep(1000 / 30)
+    const result = getOpIndexForByteIndex(ops, op.goto)
+    result.flow = true
+    return result
 }
 const JMPB = async (ops, op) => {
     console.log('JMPB', ops, op)
@@ -95,7 +101,9 @@ const JMPB = async (ops, op) => {
     // whilst waiting for a var to be set
     // await sleep(200)
     await sleep(1000 / 30)
-    return getOpIndexForByteIndex(ops, op.goto)
+    const result = getOpIndexForByteIndex(ops, op.goto)
+    result.flow = true
+    return result
 }
 const JMPBL = async (ops, op) => {
     console.log('JMPBL', ops, op)
@@ -103,7 +111,9 @@ const JMPBL = async (ops, op) => {
     // but it's just a safeguard as to protect fast processing loops
     // whilst waiting for a var to be set
     await sleep(1000 / 30)
-    return getOpIndexForByteIndex(ops, op.goto)
+    const result = getOpIndexForByteIndex(ops, op.goto)
+    result.flow = true
+    return result
 }
 const IFUB = async (ops, op) => {
     console.log('IFUB', ops, op)

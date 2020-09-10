@@ -147,6 +147,11 @@ const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {
     const mesh = window.currentField.walkmeshMesh.children.filter(m => m.userData.triangleId === triangleId)[0]
     console.log('mesh: START', mesh, mesh.userData)
     mesh.userData.movementAllowed = allowed
+    if (allowed) {
+        mesh.material.color.setHex(0x2194CE)
+    } else {
+        mesh.material.color.setHex(0xCE2194)
+    }
     console.log('mesh: END', mesh.userData)
 }
 const offsetEntity = async (entityId, x, y, z, frames, type) => {

@@ -363,8 +363,8 @@ const JOIN = async (entityId, op) => {
 setTimeout(async () => {
     console.log('ANIM: STARTED')
 
-    await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
-    await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
+    // await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
+    // await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
     // window.data.savemap.party.members = ['Cloud', 'Barret', 'None']
     // await JOIN(12, { s: 30 })
 
