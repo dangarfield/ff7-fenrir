@@ -106,8 +106,12 @@ const setPlayerMovementAnimationId = (animationId, movementType) => {
 }
 const splitClip = (clip, startFrame, endFrame) => {
     console.log('splitClip', clip.duration, clip.duration * 30, clip.tracks)
-    const split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
-    console.log('splitClip', clip.duration, '-', startFrame, endFrame, '->', split.duration)
+    const split = THREE.AnimationUtils.subclip(clip, 'split', 28, endFrame, 30) // Think 30 is ok
+    if (startFrame > 0 && startFrame === endFrame) {
+        startFrame--
+        console.log('splitClip adjust', startFrame, endFrame)
+    }
+    console.log('splitClip', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
     return split
 }
 export {
