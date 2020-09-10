@@ -331,6 +331,7 @@ const executeScriptLoop = async (entityId, loop) => {
         console.log(' - executeScriptLoop: RESULT', entityId, result, currentOpIndex, flowActionCount)
         if (result.exit) {
             console.log(' - executeScriptLoop: EXIT', entityId, loop)
+            break
         }
         if (result.flow) {
             flowActionCount++
@@ -362,7 +363,10 @@ const initEntity = async (entity) => {
     await executeScriptLoop(entity.entityId, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
+    // if (entity.entityName !== 'dir') { // Debug
     await executeScriptLoop(entity.entityId, mainLoop)
+    // }
+
     // For debug
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
@@ -441,8 +445,9 @@ const triggerEntityOKLoop = async (entityId) => {
 const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
     STOP_ALL_LOOPS = false
-    const entities = window.currentField.data.script.entities
+    let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
+    // entities = entities.filter(e => e.entityName !== 'light') // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async

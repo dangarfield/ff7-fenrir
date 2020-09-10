@@ -15,7 +15,7 @@ const initFieldKeypressActions = () => {
             nextPageOrCloseActiveDialogs()
         }
 
-        if (areFieldControlsActive() && firstPress) {
+        if (areFieldControlsActive() && firstPress && window.currentField.playableCharacter && window.currentField.playableCharacterCanMove) {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             // Probably need to look at a more intelligent way to define which actions are performed

@@ -69,7 +69,7 @@ const initOpLoopVisualiser = () => {
         const entity = entities[i]
         const entityData = {
             id: entity.entityId,
-            name: entity.entityName,
+            name: entity.entityName === '' ? 'Untitled' : entity.entityName,
             scripts: []
         }
         for (let j = 0; j < entity.scripts.length; j++) {
