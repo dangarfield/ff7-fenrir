@@ -50,7 +50,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism
 - :white_check_mark: Add visual script progress debug mechanism
+- :black_square_button: Fix movement speed and direction
 - :black_square_button: Add animation root translation the kujata models and apply in game
+- :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
 - :black_square_button: Adjust ray casting for 'slip' player positioning and also make it not the centre point
 - :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the the background images to cull the entity objects

@@ -363,9 +363,9 @@ const initEntity = async (entity) => {
     await executeScriptLoop(entity.entityId, initLoop)
     const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
     console.log('mainLoop', mainLoop)
-    if (entity.entityName !== 'dir') { // Debug
-        await executeScriptLoop(entity.entityId, mainLoop)
-    }
+    // if (entity.entityName !== 'dir') { // Debug
+    await executeScriptLoop(entity.entityId, mainLoop)
+    // }
 
     // For debug
     // if (entity.entityName === 'gu0') {
@@ -381,7 +381,7 @@ const initialiseOpLoops = async () => {
     STOP_ALL_LOOPS = false
     let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
-    entities = entities.filter(e => e.entityName !== 'light' && e.entityName !== 'timeo') // Debug
+    // entities = entities.filter(e => e.entityName !== 'light' && e.entityName !== 'timeo') // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async

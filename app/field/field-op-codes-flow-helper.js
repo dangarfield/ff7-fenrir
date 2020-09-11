@@ -56,20 +56,22 @@ const compareFromBankData = (ops, op) => {
     }
 }
 const KEYS = {
-    select: 0x0001, // Assist
-    start: 0x0008, // Start
-    up: 0x0010, // Up
-    right: 0x0020, // Right
-    down: 0x0040, // Down
-    left: 0x0080, // Left
-    l2: 0x0100, // Camera
-    r2: 0x0200, // Target
-    l1: 0x0400, // PageUp
-    r1: 0x0800, // PageDown
-    triangle: 0x1000, // Menu
-    o: 0x2000, // OK
-    x: 0x4000, // Cancel
-    square: 0x8000 // Switch
+    l2: 1, // Camera
+    r2: 2, // Target
+    l1: 4, // PageUp
+    r1: 8, // PageDown
+    triangle: 16, // Menu
+    o: 32, // OK
+    x: 64, // Cancel
+    square: 128, // Switch
+    select: 256, // Assist
+    unknown1: 512,
+    unknown2: 1024,
+    start: 2048, // Start
+    up: 4096, // Up
+    right: 8192, // Right
+    down: 16384, // Down
+    left: 32768, // Left
 }
 const getKeysFromBytes = (val) => {
     let enums = []

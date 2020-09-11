@@ -174,7 +174,7 @@ const IFKEYON = async (ops, op) => {
     let result = false
     for (let i = 0; i < history.length; i++) {
         const historyKey = history[i]
-        if (keys.includes(historyKey)) {
+        if (keys.includes(historyKey.key)) {
             if (historyKey.keyDown === true) {
                 result = true
             } else {
@@ -198,7 +198,7 @@ const IFKEYOFF = async (ops, op) => {
     let result = false
     for (let i = 0; i < history.length; i++) {
         const historyKey = history[i]
-        if (keys.includes(historyKey)) {
+        if (keys.includes(historyKey.key)) {
             if (historyKey.keyDown === false) {
                 result = true
             } else {

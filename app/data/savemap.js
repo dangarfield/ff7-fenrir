@@ -4,6 +4,7 @@ import { addToast } from '../helpers/toasts.js'
 const DEFAULT_SAVE_ID = 1
 
 let TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
+window.data.TEMP_FIELD_BANK = TEMP_FIELD_BANK
 
 const initNewSaveMap = () => {
     // console.log('initNewSaveMap: START')
