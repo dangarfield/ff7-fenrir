@@ -95,16 +95,19 @@ const visualiseOpFlowEvent = (data) => {
     const id = `op-${data.entityId}-${data.scriptType}`
     // console.log('visualiseOpFlowEvent', data, id)
     const opEle = document.getElementById(`${id}-current`)
-    opEle.innerHTML = data.opCode
-    if (opEle.classList.contains('btn-dark')) {
-        opEle.classList.remove('btn-dark')
-        opEle.classList.add('btn-primary')
+    if (opEle) {
+        opEle.innerHTML = data.opCode
+        if (opEle.classList.contains('btn-dark')) {
+            opEle.classList.remove('btn-dark')
+            opEle.classList.add('btn-primary')
+        }
+        if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL) {
+            opEle.classList.remove('btn-primary')
+            opEle.classList.add('btn-dark')
+        }
+        document.getElementById(`${id}-index`).innerHTML = data.currentOpIndex
     }
-    if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL) {
-        opEle.classList.remove('btn-primary')
-        opEle.classList.add('btn-dark')
-    }
-    document.getElementById(`${id}-index`).innerHTML = data.currentOpIndex
+
 }
 const sendOpFlowEvent = (entityId, scriptType, opCode, currentOpIndex) => {
     if (emitter !== undefined) {

@@ -33,7 +33,7 @@ const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
 const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
     return new Promise(async (resolve) => {
         try {
-            console.log('playAnimation', entityId, animationId, speed)
+            console.log('playAnimation', entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame)
             const model = getModelByEntityId(entityId)
             // play once, sync, reset back to animation 0
             let animation = model.animations[animationId]

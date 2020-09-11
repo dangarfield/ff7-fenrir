@@ -40,6 +40,7 @@ const initManager = async () => {
         loadField(playableCharacterInitData.fieldName, playableCharacterInitData)
     } else {
         loadField('md1stin')
+        // loadField('blackbg3')
     }
     // Load field - Replace with menu
 

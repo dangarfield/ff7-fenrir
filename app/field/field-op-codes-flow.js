@@ -143,7 +143,7 @@ const IFUWL = async (ops, op) => {
 const WAIT = async (op) => {
     console.log('WAIT', op)
     // Should really compare clock deltas in rendering loop, but this is easiest for a start
-    const waitMs = Math.round(1000 * (op.a / 30)) //30 fps
+    const waitMs = Math.round(1000 / 30 * op.a) //30 fps
     await sleep(waitMs)
     return {}
 }

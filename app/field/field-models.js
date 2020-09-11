@@ -114,6 +114,27 @@ const getFieldModelIdAndEntityIdForPlayableCharacter = (characterId) => {
             }
         }
     }
+    // Required in debug room where there are no PC
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i]
+        if (entity.entityName === 'cl' || entity.entityName === 'cloud') {
+            for (let j = 0; j < entity.scripts.length; j++) {
+                const script = entity.scripts[j]
+                for (let k = 0; k < script.ops.length; k++) {
+                    const op = script.ops[k]
+                    if (op.op === 'CHAR') {
+                        const modelId = op.n
+                        return {
+                            entityName: entity.entityName,
+                            entityId: entity.entityId,
+                            modelId
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 const positionPlayableCharacterFromTransition = async () => {
     // This is messy and involves placing the character before the loop starts
@@ -125,7 +146,7 @@ const positionPlayableCharacterFromTransition = async () => {
 
         // Need to ensure that this runs after all other entity inits...
         const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(getPlayableCharacterId(initData.characterName))
-        console.log('getFieldModelIdAndEntityNameForPlayableCharacter', entityId, entityName, modelId)
+        console.log('positionPlayableCharacterFromTransition', entityId, entityName, modelId)
         setModelAsEntity(entityId, modelId)
         setModelAsPlayableCharacter(entityId, initData.characterName)
         // const model = getModelByCharacterName(initData.characterName)
@@ -142,6 +163,14 @@ const positionPlayableCharacterFromTransition = async () => {
         // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
         // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
         // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    } else {
+        const leaderName = window.data.savemap.party.members[0]
+        const leaderId = getPlayableCharacterId(leaderName)
+        const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(leaderId)
+        console.log('positionPlayableCharacterFromTransition NO init data', entityId, entityName, modelId)
+        setModelAsEntity(entityId, modelId)
+        setModelAsPlayableCharacter(entityId, leaderName)
+        await setModelAsLeader(entityId, true)
     }
 }
 const placeModel = (entityId, x, y, z, triangleId) => {

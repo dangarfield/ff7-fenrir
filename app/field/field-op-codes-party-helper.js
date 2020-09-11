@@ -38,8 +38,18 @@ const setCharacterNameFromSpecialText = (c, textId) => {
     window.data.savemap.characters[characterName].name = getSpecialTextName(textId)
     console.log('setCharacterNameFromSpecialText', characterName, window.data.savemap.characters[characterName])
 }
+const getCharacterSaveMap = (characterName) => {
+    if (characterName === 'Sephiroth') {
+        return window.data.savemap.characters.Vincent
+    } else if (characterName === 'YoungCloud') {
+        return window.data.savemap.characters.CaitSith
+    } else {
+        return window.data.savemap.characters[characterName]
+    }
+}
 export {
     getPlayableCharacterName,
     getPlayableCharacterId,
-    setCharacterNameFromSpecialText
+    setCharacterNameFromSpecialText,
+    getCharacterSaveMap
 }

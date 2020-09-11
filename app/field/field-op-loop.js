@@ -9,12 +9,10 @@ import * as cameraMedia from './field-op-codes-camera-media.js'
 import * as misc from './field-op-codes-misc.js'
 import { sendOpFlowEvent, LoopVisualiserIcons } from './field-op-loop-visualiser.js'
 import { positionPlayableCharacterFromTransition } from './field-models.js'
+import { sleep } from '../helpers/helpers.js'
 
 let STOP_ALL_LOOPS = false
 
-const LOG = () => {
-
-}
 const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
     console.log('   - executeOp: START', entityId, scriptType, op)
     if (STOP_ALL_LOOPS) {
@@ -349,7 +347,9 @@ const executeScriptLoop = async (entityId, loop) => {
             console.log('nextOpIndex not null', result.goto)
             currentOpIndex = result.goto
         }
-
+        // TODO - Potentially move this all to the update clock to stop too many repeated loops running too fast
+        // For now, just add a 1 frame delay
+        await sleep(1000 / 30)
     }
     loop.isRunning = false
     if (flowActionCount >= 10) {

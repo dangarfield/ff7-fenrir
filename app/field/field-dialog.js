@@ -79,13 +79,13 @@ const resetWindow = (id) => {
     dialogs[id].playerCanClose = true
     dialogs[id].numbers = {}
     textParams[id] = []
-    adjustWindowPosition(dialogs[id], x, y, w, h)
+    adjustWindowPosition(dialogs[id], dialogs[id].x, dialogs[id].y, dialogs[id].w, dialogs[id].h)
     console.log('resetWindow', id, dialogs[id])
 }
 const moveWindow = (id, x, y) => {
     dialogs[id].x = x
     dialogs[id].y = y
-    adjustWindowPosition(dialogs[id], x, y, w, h)
+    adjustWindowPosition(dialogs[id], x, y, dialogs[id].w, dialogs[id].h)
     console.log('moveWindow', id, dialogs[id])
 }
 const resizeWindow = (id, x, y, w, h) => {

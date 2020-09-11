@@ -146,7 +146,7 @@ const ANIM_2 = async (entityId, op) => {
 }
 const CANM_2 = async (entityId, op) => {
     console.log('CANM!2', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const DFANM = async (entityId, op) => {

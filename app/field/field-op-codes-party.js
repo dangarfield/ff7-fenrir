@@ -1,4 +1,4 @@
-import { getPlayableCharacterName, getPlayableCharacterId } from "./field-op-codes-party-helper.js"
+import { getPlayableCharacterName, getPlayableCharacterId, getCharacterSaveMap } from "./field-op-codes-party-helper.js"
 import { setBankData, getBankData, saveSaveMap } from '../data/savemap.js'
 
 const SPTYE = async (op) => {
@@ -62,17 +62,18 @@ const HMPMAX3 = async (op) => {
     const members = window.data.savemap.party.members
     for (let i = 0; i < members.length; i++) {
         const member = members[i]
-        window.data.savemap.characters[member].stats.hp.current = window.data.savemap.characters[member].stats.hp.base
-        window.data.savemap.characters[member].stats.mp.current = window.data.savemap.characters[member].stats.mp.base
+        const characterSavemap = getCharacterSaveMap(member)
+        characterSavemap.stats.hp.current = characterSavemap.stats.hp.base
+        characterSavemap.stats.mp.current = characterSavemap.stats.mp.base
     }
-    console.log('HMPMAX3', window.data.savemap.gil, highByte, lowByte)
+    console.log('HMPMAX3', window.data.savemap.characters)
     return {}
 }
 const MPUP = async (op) => {
     console.log('MPUP', op)
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
-    const member = window.data.savemap.characters[memberName]
+    const member = getCharacterSaveMap(memberName)
     member.stats.mp.current = Math.min(member.stats.mp.current + change, member.stats.mp.base)
     console.log('MPUP', member)
     return {}
@@ -81,7 +82,7 @@ const MPDWN = async (op) => {
     console.log('MPDWN', op)
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
-    const member = window.data.savemap.characters[memberName]
+    const member = getCharacterSaveMap(memberName)
     member.stats.mp.current = Math.max(member.stats.mp.current - change, 0)
     console.log('MPDWN', member)
     return {}
@@ -90,7 +91,7 @@ const HPUP = async (op) => {
     console.log('HPUP', op)
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
-    const member = window.data.savemap.characters[memberName]
+    const member = getCharacterSaveMap(memberName)
     member.stats.hp.current = Math.min(member.stats.hp.current + change, member.stats.hp.base)
     console.log('HPUP', member)
     return {}
@@ -99,7 +100,7 @@ const HPDWN = async (op) => {
     console.log('HPDWN', op)
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
-    const member = window.data.savemap.characters[memberName]
+    const member = getCharacterSaveMap(memberName)
     member.stats.hp.current = Math.max(member.stats.hp.current - change, 0)
     console.log('HPDWN', member)
     return {}

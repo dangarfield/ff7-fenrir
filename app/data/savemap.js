@@ -1,5 +1,6 @@
 import { getCurrentGameTime } from './savemap-alias.js'
 import { addToast } from '../helpers/toasts.js'
+import { getCharacterSaveMap } from '../field/field-op-codes-party-helper.js'
 
 const DEFAULT_SAVE_ID = 1
 
@@ -27,7 +28,7 @@ const loadSaveMap = (index) => {
 }
 const generateSavePreview = () => {
     const savemap = window.data.savemap
-    const leadCharacter = savemap.characters[savemap.party.members[0]] // Assumed, not sure yet how reordering affects this
+    const leadCharacter = getCharacterSaveMap(savemap.party.members[0]) // Assumed, not sure yet how reordering affects this
     savemap.savePreview.level = leadCharacter.level.current
     savemap.savePreview.portrait1 = savemap.party.members[0]
     savemap.savePreview.portrait2 = savemap.party.members[1]
