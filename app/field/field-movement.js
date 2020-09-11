@@ -2,8 +2,8 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import {
     getModelByEntityId, getModelByPartyMemberId, getModelByCurrentPlayableCharacter,
-    getModelByCharacterName, getDegreesFromTwoPoints, turnModelToFaceEntity,
-    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility
+    getModelByCharacterName, getDegreesFromTwoPoints, turnModelToFaceEntity, turnModelToFaceDirection,
+    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 
@@ -219,7 +219,7 @@ const joinLeader = async (speed) => {
         joinerNames.map(async (joinerName) => {
             const model = getModelByCharacterName(joinerName)
             console.log('model', model)
-            await turnModelToFaceEntity(model.userData.entityId, leaderModel.userData.entityId, 2, 15) //TODO not sure about speed here
+            await turnModelToFaceEntity(model.userData.entityId, leaderModel.userData.entityId, 2, 15) // TODO not sure about speed here
             await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed)
             setModelCollisionEnabled(model.userData.entityId, false)
             setModelTalkEnabled(model.userData.entityId, false)
@@ -228,8 +228,37 @@ const joinLeader = async (speed) => {
         })
     )
     console.log('result', result)
+}
+const splitPartyFromLeader = async (char1, char2, speed) => {
+    console.log('splitPartyFromLeader', char1, char2, speed)
 
-
+    const leaderModel = getModelByCurrentPlayableCharacter()
+    const targetX = leaderModel.scene.position.x
+    const targetY = leaderModel.scene.position.y
+    const targetZ = leaderModel.scene.position.z
+    const leavers = window.data.savemap.party.members.filter(m => m !== 'None' && m !== leaderModel.userData.characterName)
+    if (leavers.length > 0) {
+        leavers[0] = { name: leavers[0], x: char1.x / 4096, y: char1.y / 4096, z: targetZ, direction: char1.direction }
+    }
+    if (leavers.length > 1) {
+        leavers[1] = { name: leavers[1], x: char2.x / 4096, y: char2.y / 4096, z: targetZ, direction: char2.direction }
+    }
+    console.log('joinLeader', leaderModel, leavers)
+    const result = await Promise.all(
+        leavers.map(async (leaver) => {
+            const model = getModelByCharacterName(leaver.name)
+            console.log('model', model)
+            placeModel(model.userData.entityId, targetX, targetY, targetZ)
+            setModelVisibility(model.userData.entityId, true)
+            await turnModelToFaceDirection(model.userData.entityId, 255 - leaver.direction, 2, 15, 2) // TODO not sure about speed here
+            await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed)
+            await turnModelToFaceDirection(model.userData.entityId, leaver.direction, 2, 15, 2) // TODO not sure about speed here
+            setModelCollisionEnabled(model.userData.entityId, true)
+            setModelTalkEnabled(model.userData.entityId, true)
+            return model
+        })
+    )
+    console.log('result', result)
 }
 export {
     moveEntityWithAnimationAndRotation,
@@ -244,5 +273,6 @@ export {
     setTriangleBoundaryMovementAllowed,
     offsetEntity,
     waitForOffset,
-    joinLeader
+    joinLeader,
+    splitPartyFromLeader
 }

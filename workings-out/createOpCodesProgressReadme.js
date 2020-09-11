@@ -107,7 +107,7 @@ const renderReadme = async (data) => {
         r = r + `|:---:|:---:|:---:|:---:|:---:|:---:|\n`
         for (let j = 0; j < opChunks.length; j++) {
             const opChunk = opChunks[j]
-            console.log('opChunk', opChunk)
+            // console.log('opChunk', opChunk)
             r = r + `| ${createReadmeCell(opChunk[0])} | ${createReadmeCell(opChunk[1])} | ${createReadmeCell(opChunk[2])} | ${createReadmeCell(opChunk[3])} | ${createReadmeCell(opChunk[4])} | ${createReadmeCell(opChunk[5])} |\n`
         }
     }

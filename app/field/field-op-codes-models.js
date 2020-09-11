@@ -359,6 +359,17 @@ const JOIN = async (entityId, op) => {
     await fieldMovement.joinLeader(op.s)
     return {}
 }
+const SPLIT = async (entityId, op) => {
+    console.log('SPLIT', entityId, op)
+    const x1 = op.bx1 == 0 ? op.x1 : getBankData(op.bx1, op.x1)
+    const y1 = op.by1 == 0 ? op.y1 : getBankData(op.by1, op.y1)
+    const d1 = op.bd1 == 0 ? op.d1 : getBankData(op.bd1, op.d1)
+    const x2 = op.bx2 == 0 ? op.x2 : getBankData(op.bx2, op.x2)
+    const y2 = op.by2 == 0 ? op.y2 : getBankData(op.by2, op.y2)
+    const d2 = op.bd2 == 0 ? op.d2 : getBankData(op.bd2, op.d2)
+    await fieldMovement.splitPartyFromLeader({ x: x1, y: y1, direction: d1 }, { x: x2, y: y2, direction: d2 }, op.s)
+    return {}
+}
 
 setTimeout(async () => {
     console.log('ANIM: STARTED')
@@ -450,6 +461,7 @@ setTimeout(async () => {
 
 export {
     JOIN,
+    SPLIT,
     PMOVA,
     UC,
     PDIRA,

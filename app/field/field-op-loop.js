@@ -12,6 +12,9 @@ import { positionPlayableCharacterFromTransition } from './field-models.js'
 
 let STOP_ALL_LOOPS = false
 
+const LOG = () => {
+
+}
 const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
     console.log('   - executeOp: START', entityId, scriptType, op)
     if (STOP_ALL_LOOPS) {
@@ -174,6 +177,7 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
         // Field Models and Animation
 
         case 'JOIN': result = await models.JOIN(entityId, op); break
+        case 'SPLIT': result = await models.SPLIT(entityId, op); break
 
         case 'PMOVA': result = await models.PMOVA(entityId, op); break
         case 'UC': result = await models.UC(entityId, op); break
