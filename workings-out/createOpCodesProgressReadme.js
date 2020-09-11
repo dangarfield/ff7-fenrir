@@ -87,7 +87,7 @@ const createReadmeCell = (op) => {
             color = 'red'
             status = 'INCOMPLETE'
         }
-        return `[![Generic badge](https://img.shields.io/badge/${op.name}-${status}-${color}.svg)](https://picklejar76.github.io/kujata-webapp/field-op-code-details/${op.code})<br>${op.description}<br>Usage - ${op.usage}`
+        return `[![Generic badge](https://img.shields.io/badge/${op.name}-${status}-${color}.svg)](https://picklejar76.github.io/kujata-webapp/field-op-code-details/${op.code})<br>${op.description}<br>Usage - ${op.usage}<br>[${op.name} docs](http://wiki.ffrtt.ru/index.php?title=FF7/Field/Script/Opcodes/${op.code.toUpperCase()}_${op.name.toUpperCase()})`
     }
 }
 const renderReadme = async (data) => {
@@ -107,6 +107,7 @@ const renderReadme = async (data) => {
         r = r + `|:---:|:---:|:---:|:---:|:---:|:---:|\n`
         for (let j = 0; j < opChunks.length; j++) {
             const opChunk = opChunks[j]
+            console.log('opChunk', opChunk)
             r = r + `| ${createReadmeCell(opChunk[0])} | ${createReadmeCell(opChunk[1])} | ${createReadmeCell(opChunk[2])} | ${createReadmeCell(opChunk[3])} | ${createReadmeCell(opChunk[4])} | ${createReadmeCell(opChunk[5])} |\n`
         }
     }

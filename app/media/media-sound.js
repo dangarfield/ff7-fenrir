@@ -61,35 +61,40 @@ const loadSound = (id) => {
 }
 
 const playSound = (id, pan, channelData) => {
-    if (id === 0) {
-        stopSounds()
-        return
-    }
-    if (channelData === undefined) {
-        channelData = getConfig().channel1
-    }
+    try {
 
-    const mediaItems = sounds.filter(s => s.id === id)
-    if (mediaItems.length === 0) {
-        window.alert('No sound with id', id)
-        return
-    }
-    const mediaItem = mediaItems[0]
 
-    console.log('playSound', mediaItem, mediaItem.loop, pan, channelData)
-    mediaItem.sound.stereo(pan) // channel.pan override?!
-    mediaItem.sound.volume(channelData.volume)
-    mediaItem.sound.rate(channelData.tempo)
-    if (mediaItem.loop) {
-        mediaItem.sound.loop(true)
-        console.log('play loop')
-        mediaItem.sound.play(`${id}Loop`)
-    } else {
-        console.log('play normal')
-        mediaItem.sound.play()
+        if (id === 0) {
+            stopSounds()
+            return
+        }
+        if (channelData === undefined) {
+            channelData = getConfig().channel1
+        }
+
+        const mediaItems = sounds.filter(s => s.id === id)
+        if (mediaItems.length === 0) {
+            window.alert('No sound with id', id)
+            return
+        }
+        const mediaItem = mediaItems[0]
+        console.log('playSound', mediaItem, mediaItem.loop, pan, channelData)
+        mediaItem.sound.stereo(pan) // channel.pan override?!
+        mediaItem.sound.volume(channelData.volume)
+        if (mediaItem.loop) {
+            mediaItem.sound.loop(true)
+            console.log('play loop')
+            mediaItem.sound.play(`${id}Loop`)
+        } else {
+            console.log('play normal')
+            mediaItem.sound.rate(channelData.tempo) // TODO - This doesn't work with looped sounds, need to investigate
+            mediaItem.sound.play()
+        }
+        // watch out for multiple invocations
+        mediaItem.channel = channelData.name
+    } catch (error) {
+        console.log('error', error)
     }
-    // watch out for multiple invocations
-    mediaItem.channel = channelData.name
 }
 
 const pauseSounds = () => {
