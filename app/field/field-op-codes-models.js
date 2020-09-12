@@ -286,6 +286,15 @@ const OFSTW = async (entityId, op) => {
     await fieldMovement.waitForOffset(entityId)
     return {}
 }
+const JUMP = async (entityId, op) => {
+    console.log('JUMP', entityId, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    const triangleId = op.b3 == 0 ? op.i : getBankData(op.b3, op.i)
+    const height = op.b4 == 0 ? op.h : getBankData(op.b4, op.h)
+    await fieldMovement.moveEntityJump(entityId, x, y, triangleId, height)
+    return {}
+}
 
 
 // Position
@@ -501,6 +510,7 @@ export {
     CANM_2,
     ASPED,
     CC,
+    JUMP,
     AXYZI,
     OFST,
     OFSTW,

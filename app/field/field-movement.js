@@ -31,6 +31,70 @@ const moveEntityToPartyMemberWithAnimationAndRotation = async (entityId, targetP
         await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
     }
 }
+const moveEntityJump = async (entityId, x, y, triangleId, height) => {
+    const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
+    const targetX = x / 4096
+    const targetY = y / 4096
+    const targetZ = ((triangle[0].z + triangle[1].z + triangle[2].z) / 3) / 4096
+    console.log('moveEntityJump', entityId, triangleId, targetX, targetY, targetZ)
+
+    const model = getModelByEntityId(entityId)
+    const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
+    model.scene.rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
+
+    const heightAdjustment = 0.04 // TODO - Do this properly from 'height'
+    const time = 600 // TODO - Do this properly from 'height'
+
+    const fromXY = { x: model.scene.position.x, y: model.scene.position.y }
+    const toXY = { x: targetX, y: targetY }
+
+    const fromZ1 = { z: model.scene.position.z }
+    const toZ1 = { z: targetZ + heightAdjustment }
+    const fromZ2 = { z: targetZ + heightAdjustment }
+    const toZ2 = { z: targetZ }
+
+    return new Promise(async (resolve) => {
+        // A little messy, but I couldn't get different interpolations of different values working
+        // This will do for the time being
+        new TWEEN.Tween(fromXY)
+            .to(toXY, time)
+            .onUpdate(function () {
+                console.log('moveEntityJump XY: UPDATE', fromXY)
+                model.scene.position.x = fromXY.x
+                model.scene.position.y = fromXY.y
+            })
+            .onComplete(function () {
+                console.log('moveEntityJump XY: END', fromXY)
+                resolve()
+            })
+            .start()
+
+
+        new TWEEN.Tween(fromZ1)
+            .to(toZ1, time / 2)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function () {
+                console.log('moveEntityJump Z1: UPDATE', fromZ1)
+                model.scene.position.z = fromZ1.z
+            })
+            .onComplete(function () {
+                console.log('moveEntityJump Z1: END', fromZ1)
+                new TWEEN.Tween(fromZ2)
+                    .to(toZ2, time / 2)
+                    .easing(TWEEN.Easing.Quadratic.In)
+                    .onUpdate(function () {
+                        console.log('moveEntityJump Z2: UPDATE', fromZ2)
+                        model.scene.position.z = fromZ2.z
+                    })
+                    .onComplete(function () {
+                        console.log('moveEntityJump Z2: END', fromZ2)
+                    })
+                    .start()
+            })
+            .start()
+    })
+    // TODO - Disable the reverse 'move' on land
+}
 const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntity', entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
@@ -266,6 +330,7 @@ export {
     moveEntityWithoutAnimationButWithRotation,
     moveEntityToEntityWithAnimationAndRotation,
     moveEntityToPartyMemberWithAnimationAndRotation,
+    moveEntityJump,
     getEntityPositionTriangle,
     getEntityPositionXY,
     getEntityPositionXYZTriangle,

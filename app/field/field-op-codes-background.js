@@ -1,6 +1,6 @@
 import { changeBackgroundParamState, clearBackgroundParam } from './field-backgrounds.js'
 import { sleep } from '../helpers/helpers.js'
-
+import { getBankData } from '../data/savemap.js'
 const BGON = async (op) => {
     console.log('BGON', op)
     const param = op.b1 == 0 ? op.a : getBankData(op.b1, op.a)

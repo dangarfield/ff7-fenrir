@@ -52,8 +52,8 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
         case 'IFKEYOFF': result = await flow.IFKEYOFF(ops, op); break
 
         case 'NOP': result = await flow.NOP(); break
-        case 'IFPRTYQ': restul = await flow.IFPRTYQ(ops, op); break
-        case 'IFMEMBQ': restul = await flow.IFMEMBQ(ops, op); break
+        case 'IFPRTYQ': result = await flow.IFPRTYQ(ops, op); break
+        case 'IFMEMBQ': result = await flow.IFMEMBQ(ops, op); break
 
         // System and Module Control
         case 'DSKCG': result = await control.DSKCG(op); break
@@ -224,6 +224,7 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
 
         case 'ASPED': result = await models.ASPED(entityId, op); break
         case 'CC': result = await models.CC(entityId, op); break
+        case 'JUMP': result = await models.JUMP(entityId, op); break
         case 'AXYZI': result = await models.AXYZI(entityId, op); break
 
         case 'OFST': result = await models.OFST(entityId, op); break
