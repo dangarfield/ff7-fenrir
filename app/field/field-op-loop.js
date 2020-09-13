@@ -227,6 +227,7 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
         case 'JUMP': result = await models.JUMP(entityId, op); break
         case 'AXYZI': result = await models.AXYZI(entityId, op); break
 
+        case 'LADER': result = await models.LADER(entityId, op); break
         case 'OFST': result = await models.OFST(entityId, op); break
         case 'OFSTW': result = await models.OFSTW(entityId, op); break
 

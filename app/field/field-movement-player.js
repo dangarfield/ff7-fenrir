@@ -24,6 +24,9 @@ const updateFieldMovement = (delta) => {
     let speed = (window.currentField.data.model.header.modelScale / 5120) * delta// run - Need to set these from the placed character model. Maybe these can be defaults?
     let animNo = 2 // run
 
+    if (window.currentField.playableCharacter.userData.ladder) {
+        return ladderMovement(speed)
+    }
     if (window.config.debug.runByDefault === getActiveInputs().x) { // Adjust to walk
         speed = speed * 0.20
         animNo = 1
@@ -252,6 +255,67 @@ const updateFieldMovement = (delta) => {
     //     camDistance * 1000)
 
     updateCursorPositionHelpers()
+}
+
+const ladderMovement = (speed) => {
+    const model = window.currentField.playableCharacter
+    const ladder = model.userData.ladder
+
+    const movementForwards = getActiveInputs()[ladder.keysForwards]
+    const movementBackwards = getActiveInputs()[ladder.keysBackwards]
+
+    model.mixer.clipAction(model.animations[ladder.animationId]).play()
+
+    if (!movementForwards && !movementBackwards) {
+        model.mixer.clipAction(model.animations[ladder.animationId]).paused = true
+        return
+    }
+
+    const forwardsVector = new THREE.Vector3(ladder.to.x, ladder.to.y, ladder.to.z)
+    const backwardsVector = new THREE.Vector3(ladder.from.x, ladder.from.y, ladder.from.z)
+    let targetVector
+    let timeScale
+    if (movementForwards) {
+        targetVector = forwardsVector
+        timeScale = ladder.speed
+    } else if (movementBackwards) {
+        targetVector = backwardsVector
+        timeScale = -ladder.speed
+    }
+
+    // Control animation
+    model.mixer.clipAction(model.animations[ladder.animationId]).paused = false
+    model.mixer.clipAction(model.animations[ladder.animationId]).timeScale = timeScale
+
+    // Get next position
+    const directionVector = new THREE.Vector3()
+    directionVector.subVectors(targetVector, model.scene.position)
+    directionVector.normalize()
+    const nextPosition = model.scene.position.clone().addScaledVector(directionVector, speed * 0.5)
+
+    // Set next position
+    model.scene.position.x = nextPosition.x
+    model.scene.position.y = nextPosition.y
+    model.scene.position.z = nextPosition.z
+
+    // Update camera position
+    const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
+    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+
+    // Check for arrival
+    const distanceToTarget = model.scene.position.distanceTo(targetVector)
+    const distanceToOrigin = model.scene.position.distanceTo(backwardsVector)
+    if (ladder.atStart) {
+        if (distanceToOrigin > 0.005) {
+            delete ladder.atStart
+        }
+    }
+    // console.log('ladderMovement', movementForwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart)
+    if (distanceToTarget <= 0.005 && movementBackwards !== ladder.atStart) {
+        model.mixer.stopAllAction()
+        ladder.resolve()
+    }
+
 }
 
 export {

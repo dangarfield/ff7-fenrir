@@ -3,7 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import {
     getModelByEntityId, getModelByPartyMemberId, getModelByCurrentPlayableCharacter,
     getModelByCharacterName, getDegreesFromTwoPoints, turnModelToFaceEntity, turnModelToFaceDirection,
-    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel
+    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel, setModelDirection
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
@@ -194,7 +194,79 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
             .start()
     })
 }
+const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed) => {
+    const model = getModelByEntityId(entityId)
+    if (model.userData.isPlayableCharacter) {
+        await moveEntityLadderPlayableCharacter(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
+    } else {
+        await moveEntityLadderNPC(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
+    }
+}
+const moveEntityLadderPlayableCharacter = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed, model) => {
+    console.log('moveEntityLadderPlayableCharacter', entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
+    return new Promise(async (resolve) => {
+        setModelDirection(entityId, direction)
+        let keysForwards
+        let keysBackwards
+        switch (keys) {
+            case 0: keysForwards = 'down'; keysBackwards = 'up'; break
+            case 1: keysForwards = 'up'; keysBackwards = 'down'; break
+            case 2: keysForwards = 'right'; keysBackwards = 'left'; break
+            case 3: keysForwards = 'left'; keysBackwards = 'right'; break
+        }
+        model.userData.ladder = {
+            from: { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z },
+            to: { x: x / 4096, y: y / 4096, z: z / 4096 },
+            animationId,
+            direction,
+            speed,
+            keysForwards,
+            keysBackwards,
+            atStart: true,
+            resolve: function () {
+                resolve()
+                console.log('moveEntityLadderPlayableCharacter: END')
+                delete model.userData.ladder
+                console.log('moveEntityLadderPlayableCharacter: CLEAN', model.userData)
+            }
+        }
+        console.log('moveEntityLadderPlayableCharacter: READY', model.userData.ladder)
+        // model.userData.ladder.resolve()
+    })
+}
+const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animationId, direction, animationSpeed, model) => {
+    console.log('moveEntityLadderNPC', entityId, x, y, z, triangleId, '-', keys, animationId, direction, animationSpeed, model)
+    model.mixer.stopAllAction()
+    setModelDirection(entityId, direction)
+    model.mixer.clipAction(model.animations[animationId]).play()
+    // model.mixer.clipAction(model.animations[animationId]).timeScale = -1 // TODO Animation speed & direction?!
 
+    // TODO - Facing direction for diagonal (eg non pure vertical) ladders
+    const from = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
+    const to = { x: x / 4096, y: y / 4096, z: z / 4096 }
+
+    const distance = new THREE.Vector3(from.x, from.y, from.z).distanceTo(new THREE.Vector3(to.x, to.y, to.z))
+    const speed = model.userData.movementSpeed * (1 / window.currentField.data.model.header.modelScale) * 1024 * 2 // TODO - Look at this properly, not sure of the scale here
+    let time = distance * speed
+
+    return new Promise(async (resolve) => {
+        new TWEEN.Tween(from)
+            .to(to, time)
+            .onUpdate(function () {
+                // Update the model position
+                model.scene.position.x = from.x
+                model.scene.position.y = from.y
+                model.scene.position.z = from.z
+            })
+            .onComplete(function () {
+                console.log('moveEntityLadderNPC: END', entityId)
+                model.mixer.stopAllAction()
+                resolve()
+            })
+            .start()
+    })
+
+}
 const getEntityPositionTriangle = (entityId) => {
     const model = getModelByEntityId(entityId)
     console.log('getEntityPositionTriangle', entityId, model)
@@ -356,6 +428,7 @@ export {
     moveEntityToEntityWithAnimationAndRotation,
     moveEntityToPartyMemberWithAnimationAndRotation,
     moveEntityJump,
+    moveEntityLadder,
     getEntityPositionTriangle,
     getEntityPositionXY,
     getEntityPositionXYZTriangle,

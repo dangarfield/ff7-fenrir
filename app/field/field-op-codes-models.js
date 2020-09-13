@@ -295,6 +295,19 @@ const JUMP = async (entityId, op) => {
     await fieldMovement.moveEntityJump(entityId, x, y, triangleId, height)
     return {}
 }
+const LADER = async (entityId, op) => {
+    console.log('LADER', entityId, op)
+    const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
+    const y = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
+    const z = op.b3 == 0 ? op.z : getBankData(op.b3, op.z)
+    const triangleId = op.b4 == 0 ? op.i : getBankData(op.b4, op.i)
+    const keys = op.k
+    const animationId = op.a
+    const direction = op.d
+    const speed = op.s
+    await fieldMovement.moveEntityLadder(entityId, x, y, z, triangleId, keys, animationId, direction, speed)
+    return {}
+}
 
 
 // Position
@@ -512,6 +525,7 @@ export {
     CC,
     JUMP,
     AXYZI,
+    LADER,
     OFST,
     OFSTW,
     TALKR,
