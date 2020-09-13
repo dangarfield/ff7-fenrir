@@ -6,6 +6,7 @@ import {
     setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
+import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, false, false)
@@ -36,14 +37,14 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     const targetX = x / 4096
     const targetY = y / 4096
     const targetZ = ((triangle[0].z + triangle[1].z + triangle[2].z) / 3) / 4096
-    console.log('moveEntityJump', entityId, triangleId, targetX, targetY, targetZ)
 
     const model = getModelByEntityId(entityId)
+    console.log('moveEntityJump', entityId, triangleId, targetX, targetY, targetZ, model)
     const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
     model.scene.rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
 
-    const heightAdjustment = 0.04 // TODO - Do this properly from 'height'
-    const time = 600 // TODO - Do this properly from 'height'
+    const heightAdjustment = 0.00235 * height // 0.04 <-> 17 // TODO - Need to test with other JUMP heights
+    const time = 35 * height // 600 <-> 17 // TODO - Need to test with other JUMP heights
 
     const fromXY = { x: model.scene.position.x, y: model.scene.position.y }
     const toXY = { x: targetX, y: targetY }
@@ -62,9 +63,33 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                 console.log('moveEntityJump XY: UPDATE', fromXY)
                 model.scene.position.x = fromXY.x
                 model.scene.position.y = fromXY.y
+                // TODO - Update camera position
+                if (model.userData.isPlayableCharacter) {
+                    let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+                    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+                }
             })
             .onComplete(function () {
                 console.log('moveEntityJump XY: END', fromXY)
+                // Disable the reverse 'move' on land
+                if (model.userData.isPlayableCharacter) {
+                    console.log('moveEntityJump: land')
+                    const targetVector = new THREE.Vector3(targetX, targetY, targetZ)
+                    if (window.currentField.lineTriggersEnabled) {
+                        for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+                            const line = window.currentField.lineLines.children[i]
+                            const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(targetVector, true, new THREE.Vector3())
+                            const distance = targetVector.distanceTo(closestPointOnLine)
+                            const entityId = line.userData.entityId
+                            if (distance < 0.01) {
+                                if (line.userData.triggered === false) {
+                                    line.userData.triggered = true
+                                    // lineMoveTriggered(entityId, line)
+                                }
+                            }
+                        }
+                    }
+                }
                 resolve()
             })
             .start()
@@ -93,7 +118,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
             })
             .start()
     })
-    // TODO - Disable the reverse 'move' on land
+
 }
 const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     const model = getModelByEntityId(entityId)
