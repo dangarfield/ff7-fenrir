@@ -1,4 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import TWEEN from '../../assets/tween.esm.js'
+
 import { getDialogTextures, getDialogLetter, getPointRight, getFieldDialogNumber } from './field-fetch-data.js'
 import { getConfigFieldMessageSpeed, getConfigWindowColours } from '../data/savemap-config.js'
 import { sleep } from '../helpers/helpers.js'
@@ -119,7 +121,7 @@ const createDialogBox = async (dialog) => {
     const y = dialog.y
     const w = dialog.w
     const h = dialog.h
-    const z = 1
+    const z = 100 - id
     const isTransparent = dialog.mode === WINDOW_MODE.TransparentBackground
     const isNoBackgroundBorder = dialog.mode === WINDOW_MODE.NoBackgroundBorder
     console.log('createDialogBox', dialog, isTransparent, isNoBackgroundBorder)
@@ -378,6 +380,45 @@ const updateSpecialNumber = async (dialog) => {
         }
     }
 }
+const scrollOverflow = async (dialogBox) => {
+    return new Promise(async (resolve) => {
+        // console.log('msg scrollOverflow', dialogBox)
+        const from = { y: 0 }
+        const to = { y: 16 }
+        const time = 200
+        for (let i = 0; i < dialogBox.children.length; i++) {
+            const letter = dialogBox.children[i]
+            if (letter.userData.isText) {
+                letter.userData.overflowInitPosition = letter.position.y
+            }
+        }
+        new TWEEN.Tween(from)
+            .to(to, time)
+            .onUpdate(function () {
+                // console.log('msg scrollOverflow: UPDATE', from)
+                for (let i = 0; i < dialogBox.children.length; i++) {
+                    const letter = dialogBox.children[i]
+                    if (letter.userData.isText) {
+                        letter.position.y = letter.userData.overflowInitPosition + from.y
+                    }
+                }
+            })
+            .onComplete(function () {
+                // console.log('msg scrollOverflow: END', from)
+                dialogBox.userData.overflowCurrent++
+                if (dialogBox.userData.overflow && dialogBox.userData.overflowCurrent == dialogBox.userData.overflowTotal) {
+                    dialogBox.userData.state = 'done'
+                }
+                resolve()
+            })
+            .start()
+
+        // TODO - This isn't perfect, really the text lines should be appear letter by letter again
+        // You can also see some artifacts from below line letters, which shouldn't be rendered
+        // I really need to refactor this all, as there is a lot more going on than first worked
+
+    })
+}
 const showDialogPageText = async (dialogBox, showChoicePointers) => {
     dialogBox.userData.state = 'writing-text'
 
@@ -436,9 +477,14 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
         dialogBox.userData.currentPage++
         dialogBox.userData.state = 'page'
         // console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
+    } else if (dialogBox.userData.overflow && dialogBox.userData.overflowCurrent < dialogBox.userData.overflowTotal) {
+        dialogBox.userData.overflowCurrent++
+        dialogBox.userData.state = 'overflow'
+        console.log('msg overflow rendered', dialogBox.userData)
+        // console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
     } else {
         dialogBox.userData.state = 'done'
-        // console.log('This is the last / only page')
+        console.log('msg This is the last / only page', dialogBox.userData)
     }
 }
 
@@ -477,7 +523,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
     // Done - Text Variables, eg <fe>{MEM1}
 
     // console.log('Configured text', text)
-    let pagesText = text.split('{PAUSE}')
+    let pagesText = text.split('{PAGE}')
 
     const pages = []
     for (let i = 0; i < pagesText.length; i++) {
@@ -489,11 +535,19 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
         let offsetY = 0
 
         let textLines = pageText.split('<br/>')
-
+        const dialogSpaceLines = Math.floor((dialog.h - 9) / 16)
+        const overflow = dialogSpaceLines < textLines.length
+        if (overflow) {
+            dialogBox.userData.overflow = true
+            dialogBox.userData.overflowTotal = Math.ceil(textLines.length / dialogSpaceLines)
+            dialogBox.userData.overflowCurrent = 0 // Will be incremented on render
+        }
+        // console.log('msg', textLines, dialog, dialogSpaceLines, overflow)
         for (let i = 0; i < textLines.length; i++) {
             let textLine = textLines[i]
 
-            if (textLine.includes('{CHOICE}')) { choiceLines.push(i) }
+            // console.log('msg textLine', textLine, showChoicePointers && textLine.includes('{CHOICE}'))
+            if (showChoicePointers && textLine.includes('{CHOICE}')) { choiceLines.push(i) }
             textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
             let identifyCommand = false
@@ -665,6 +719,8 @@ const nextPageOrCloseActiveDialog = async (dialog) => {
     } else if (dialogBox.userData.state === 'choice') {
         console.log('CLOSE CHOICE', dialogBox.userData.currentChoice)
         await closeDialog(dialog, dialogBox.userData.currentChoice)
+    } else if (dialogBox.userData.state === 'overflow') {
+        await scrollOverflow(dialogBox)
     }
 
 }

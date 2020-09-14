@@ -13,8 +13,8 @@ const drawFader = async () => {
     let fieldFader = new THREE.Mesh(geometry, material)
 
     fieldFader.doubleSided = true
-    fieldFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 1000)
-
+    fieldFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 0)
+    // By default the position is placed behind the text (eg) at back of ortho scene
     window.currentField.fieldFader = fieldFader
     orthoFrontScene.add(fieldFader)
 }
@@ -50,19 +50,23 @@ const tweenOpacity = (from, to, frames) => {
 }
 const fadeOut = async (fast) => {
     // console.log('fadeOut')
+    window.currentField.fieldFader.position.z = 1000
     setFadeInProgress(true)
     window.currentField.fieldFader.material.blending = THREE.NormalBlending
     window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
     await tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, fast ? 30 * 0.4 : 30 * 0.8)
     setFadeInProgress(false)
+    window.currentField.fieldFader.position.z = 0
 }
 const fadeIn = async () => {
+    window.currentField.fieldFader.position.z = 1000
     console.log('fadeIn', window.currentField.fieldFader)
     setFadeInProgress(true)
     window.currentField.fieldFader.material.blending = THREE.NormalBlending
     window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
     await tweenOpacity(window.currentField.fieldFader.material, { opacity: 0 }, 30 * 0.4)
     setFadeInProgress(false)
+    window.currentField.fieldFader.position.z = 0
 }
 const getColorInverse3 = (c) => {
     return 3 * (255 - c)
@@ -97,7 +101,7 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             window.currentField.fieldFader.material.opacity = 1
             m = { r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b) }
             tweenOpacity(m, {
-                o: 0, r: 0, g: 0, b: 0
+                r: 0, g: 0, b: 0
             }, frames)
             break
         case 2: // Screen to colour fadeIn (alpha 0 -> 1) with subtractive blending - async // DONE

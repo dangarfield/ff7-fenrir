@@ -43,8 +43,7 @@ const loadSound = (id) => {
     mediaItem.sound.once('load', function () {
         console.log(' - sound loaded', mediaItem)
         if (mediaItem.sound._sprite && mediaItem.sound._sprite[`${id}Loop`]) {
-
-            mediaItem.sound._sprite[`${id}Loop`] = [ // Ideally this would be set by our metadata values
+            mediaItem.sound._sprite[`${id}Loop`] = [ // TODO - Extract the correct loop positions from metadata values
                 100,
                 (mediaItem.sound._duration * 1000) - 300
             ]
@@ -62,8 +61,6 @@ const loadSound = (id) => {
 
 const playSound = (id, pan, channelData) => {
     try {
-
-
         if (id === 0) {
             stopSounds()
             return
@@ -81,7 +78,10 @@ const playSound = (id, pan, channelData) => {
         console.log('playSound', mediaItem, mediaItem.loop, pan, channelData)
         mediaItem.sound.stereo(pan) // channel.pan override?!
         mediaItem.sound.volume(channelData.volume)
-        if (mediaItem.loop) {
+
+        if (mediaItem.sound.playing()) {
+            console.log('playSound ALREADY PLAYING')
+        } else if (mediaItem.loop) {
             mediaItem.sound.loop(true)
             console.log('play loop')
             mediaItem.sound.play(`${id}Loop`)
@@ -91,6 +91,7 @@ const playSound = (id, pan, channelData) => {
             mediaItem.sound.play()
         }
         // watch out for multiple invocations
+
         mediaItem.channel = channelData.name
     } catch (error) {
         console.log('error', error)
