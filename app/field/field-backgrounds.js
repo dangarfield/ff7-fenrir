@@ -15,7 +15,6 @@ const changeBackgroundParamState = (param, state, isActive) => {
             l.visible = isActive
         }
     }
-    console.log('bgbgbgbg changeBackgroundParamState', param, state, isActive)
 }
 const clearBackgroundParam = (param) => {
     // console.log('clearBackgroundParam', param)

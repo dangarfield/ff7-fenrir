@@ -193,102 +193,102 @@ const FADEW = async (op) => {
     return {}
 }
 
-// setTimeout(async () => {
-//     // initial tin_1
-//     // await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 0, b: 0, s: 32, a: 0, t: 6 })
-//     // await FADEW({})
-//     // await sleep(1000 / 60 * 30)
-// while (true) {
-//         // initial
+setTimeout(async () => {
+    //     // initial tin_1
+    // await FADE({ b1: 0, b2: 0, b3: 0, r: 250, g: 200, b: 200, s: 32, a: 0, t: 2 })
+    //     // await FADEW({})
+    //     // await sleep(1000 / 60 * 30)
+    // while (true) {
+    //         // initial
 
-//         // initial tin_1 main
-//         console.log('sleep', 1000 / 30 * 16)
-//         await sleep(1000 / 30 * 16)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-//         console.log('sleep', 1000 / 30 * 1)
-//         await sleep(1000 / 30 * 1)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
+    //         // initial tin_1 main
+    //         console.log('sleep', 1000 / 30 * 16)
+    //         await sleep(1000 / 30 * 16)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
+    //         console.log('sleep', 1000 / 30 * 1)
+    //         await sleep(1000 / 30 * 1)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
 
-//         console.log('sleep', 1000 / 30 * 16)
-//         await sleep(1000 / 30 * 16)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-//         console.log('sleep', 1000 / 30 * 1)
-//         await sleep(1000 / 30 * 1)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
+    //         console.log('sleep', 1000 / 30 * 16)
+    //         await sleep(1000 / 30 * 16)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
+    //         console.log('sleep', 1000 / 30 * 1)
+    //         await sleep(1000 / 30 * 1)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
 
-//         console.log('sleep', 1000 / 30 * 16)
-//         await sleep(1000 / 30 * 16)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-//         console.log('sleep', 1000 / 30 * 1)
-//         await sleep(1000 / 30 * 1)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
+    //         console.log('sleep', 1000 / 30 * 16)
+    //         await sleep(1000 / 30 * 16)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
+    //         console.log('sleep', 1000 / 30 * 1)
+    //         await sleep(1000 / 30 * 1)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
 
-//         console.log('sleep', 1000 / 30 * 16)
-//         await sleep(1000 / 30 * 16)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-//         console.log('sleep', 1000 / 30 * 1)
-//         await sleep(1000 / 30 * 1)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
+    //         console.log('sleep', 1000 / 30 * 16)
+    //         await sleep(1000 / 30 * 16)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
+    //         console.log('sleep', 1000 / 30 * 1)
+    //         await sleep(1000 / 30 * 1)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
 
-//         // gold saucer date ride
-//         // await FADEW({})
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 1, a: 0, t: 4 })
-//         // await sleep(1000 / 60 * 30)
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 255, a: 0, t: 1 })
-//         // await FADEW({})
-//         // await sleep(1000 / 60 * 30)
+    //         // gold saucer date ride
+    //         // await FADEW({})
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 1, a: 0, t: 4 })
+    //         // await sleep(1000 / 60 * 30)
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 255, a: 0, t: 1 })
+    //         // await FADEW({})
+    //         // await sleep(1000 / 60 * 30)
 
-//         // niv_t1 room fade
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 2 })
-//         // await FADEW({})
-//         // await sleep(1000 / 60 * 60)
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 1 })
-//         // await FADEW({})
-//         // await sleep(1000 / 60 * 30)
+    //         // niv_t1 room fade
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 2 })
+    //         // await FADEW({})
+    //         // await sleep(1000 / 60 * 60)
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 1 })
+    //         // await FADEW({})
+    //         // await sleep(1000 / 60 * 30)
 
-//         // kuro_4 clock init
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
-//         // await FADEW({})
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
-//         // await FADEW({})
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 230, g: 230, b: 230, s: 255, a: 0, t: 8 })
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
-//         // await FADEW({})
-//         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
-//         // await FADEW({})
-//         // await sleep(1000 / 60 * 60)
+    //         // kuro_4 clock init
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
+    //         // await FADEW({})
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
+    //         // await FADEW({})
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 230, g: 230, b: 230, s: 255, a: 0, t: 8 })
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
+    //         // await FADEW({})
+    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
+    //         // await FADEW({})
+    //         // await sleep(1000 / 60 * 60)
 
-//         // lost2 general fade
-//         await sleep(1000 / 30 * 16)
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 200, g: 200, b: 200, s: 32, a: 0, t: 10 }) // sync or async
-//         await FADEW({})
-//         await sleep(1000 / 30 * 10)
+    //         // lost2 general fade
+    //         await sleep(1000 / 30 * 16)
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 200, g: 200, b: 200, s: 32, a: 0, t: 10 }) // sync or async
+    //         await FADEW({})
+    //         await sleep(1000 / 30 * 10)
 
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
-//         await FADEW({})
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
-//         await FADEW({})
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
-//         await FADEW({})
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
-//         await FADEW({})
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
+    //         await FADEW({})
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
+    //         await FADEW({})
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
+    //         await FADEW({})
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
+    //         await FADEW({})
 
-//         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 0, t: 5 }) // sync or async
+    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 0, t: 5 }) // sync or async
 
-//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 30, t: 12 })
-//         await FADEW({})
-//         await sleep(1000 / 60 * 30 * 5)
+    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 30, t: 12 })
+    //         await FADEW({})
+    //         await sleep(1000 / 60 * 30 * 5)
 
-//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 12 })
-//         await FADEW({})
-//         await sleep(1000 / 60 * 30 * 5)
+    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 12 })
+    //         await FADEW({})
+    //         await sleep(1000 / 60 * 30 * 5)
 
-//         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 0 })
+    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 0 })
 
-//         await sleep(1000 / 60 * 30 * 5)
-//         console.log('looped')
-//     }
-// }, 9000)
+    //         await sleep(1000 / 60 * 30 * 5)
+    //         console.log('looped')
+    //     }
+}, 11000)
 
 const SCRLP = async (op) => {
     console.log('SCRLP', op)

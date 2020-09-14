@@ -85,7 +85,7 @@ const lineGoTriggered = (entityId, line) => {
     if (line.userData.go1xTriggered === undefined) {
         triggerEntityGo1xLoop(entityId)
     }
-    line.userData.go1xTriggered = true
+    // line.userData.go1xTriggered = true
 }
 const lineAwayTriggered = (entityId) => {
     triggerEntityGoAwayLoop(entityId)
@@ -127,7 +127,7 @@ const unfreezeField = async () => {
 }
 const gatewayTriggered = async (i) => {
     const gateway = window.currentField.data.triggers.gateways[i]
-    console.log('gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
+    console.log('positionPlayableCharacterFromTransition gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
     window.anim.clock.stop()
     window.currentField.playableCharacterCanMove = false
@@ -136,7 +136,7 @@ const gatewayTriggered = async (i) => {
     await fadeOut()
     const playableCharacterInitData = {
         triangleId: gateway.destinationVertex.triangleId,
-        position: { x: gateway.destinationVertex.x, x: gateway.destinationVertex.y },
+        position: { x: gateway.destinationVertex.x, y: gateway.destinationVertex.y },
         direction: gateway.destinationVertex.direction,
         characterName: window.currentField.playableCharacter.userData.characterName
     }

@@ -54,6 +54,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Add animation root translation the kujata models and apply in game
 - :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
 - :black_square_button: Adjust ray casting for 'slip' player positioning and also make it not the centre point
+- :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
+- :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
 - :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the the background images to cull the entity objects

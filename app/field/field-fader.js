@@ -22,22 +22,25 @@ const drawFader = async () => {
 const tweenOpacity = (from, to, frames) => {
     return new Promise(async (resolve) => {
         let time = Math.floor(frames * 1000 / 30)
+        console.log('FADE TWEEN: START', from, to, frames, time)
         new TWEEN.Tween(from)
             .to(to, time)
             // .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
                 // window.currentField.fieldFader.material.opacity = from.opacity
                 // console.log('tweenOpacity', from.opacity, from.test, from, to, from.userData)
-                if (from.r) {
+                if (from.hasOwnProperty('r')) {
                     // Has to be like this for non THREE.NormalBlending modes
                     window.currentField.fieldFader.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)
+                    console.log('FADE TWEEN UPDATE: Color', window.currentField.fieldFader.material.color)
                 }
-                if (from.o) {
+                if (from.hasOwnProperty('o')) {
                     window.currentField.fieldFader.material.opacity = from.o
+                    console.log('FADE TWEEN UPDATE: Opacity', window.currentField.fieldFader.material.opacity)
                 }
             })
             .onComplete(function () {
-                console.log('tweenOpacity complete', from.opacity)
+                console.log('FADE TWEEN: END', from, to, frames, time)
                 setFadeInProgress(false)
                 resolve()
             })
@@ -83,6 +86,7 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
     */
 
     // TODO: Some issues here with the blending modes not taking the screen value instead starting from black
+    // TODO: Also, these operations should be underneath the dialogs
     let m
     setFadeInProgress(true)
     switch (type) {
@@ -90,8 +94,8 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             console.log('fadeOperation', type, color, speed, frames, fadeIn)
             window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
             window.currentField.fieldFader.material.color = new THREE.Color(colorInverse3)
-            window.currentField.fieldFader.material.opacity = 0
-            m = { o: 0, r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b) }
+            window.currentField.fieldFader.material.opacity = 1
+            m = { r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b) }
             tweenOpacity(m, {
                 o: 0, r: 0, g: 0, b: 0
             }, frames)
@@ -100,11 +104,11 @@ const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
             console.log('fadeOperation', type, color, speed, frames, fadeIn)
             window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
             window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-            window.currentField.fieldFader.material.opacity = 0
-            m = { o: 0, r: 0, g: 0, b: 0 }
-            console.log('opacity 1', window.currentField.fieldFader.material.opacity)
+            window.currentField.fieldFader.material.opacity = 1
+            m = { r: 0, g: 0, b: 0 }
+            console.log('fadeOperation 2', window.currentField.fieldFader)
             tweenOpacity(m, {
-                o: 1, r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b)
+                r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b)
             }, frames)
             break
         case 3: // THERE ARE NONE OF THESE IN THE ACTUAL GAME...

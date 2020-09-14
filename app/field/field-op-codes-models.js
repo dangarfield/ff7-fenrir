@@ -136,7 +136,7 @@ const ANIM_1 = async (entityId, op) => {
 }
 const CANM_1 = async (entityId, op) => {
     console.log('CANM!1', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const ANIM_2 = async (entityId, op) => {
@@ -396,6 +396,21 @@ const SPLIT = async (entityId, op) => {
 setTimeout(async () => {
     console.log('ANIM: STARTED')
 
+    // await SPLIT(3, {
+    //     "bx1": 0,
+    //     "by1": 0,
+    //     "bd1": 0,
+    //     "bx2": 0,
+    //     "by2": 0,
+    //     "bd2": 0,
+    //     "x1": -66,
+    //     "y1": -865,
+    //     "d1": 0,
+    //     "x2": -58,
+    //     "y2": -1341,
+    //     "d2": 128,
+    //     "s": 30,
+    // })
     // await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
     // await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
     // window.data.savemap.party.members = ['Cloud', 'Barret', 'None']

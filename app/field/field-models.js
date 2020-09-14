@@ -146,7 +146,7 @@ const positionPlayableCharacterFromTransition = async () => {
 
         // Need to ensure that this runs after all other entity inits...
         const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(getPlayableCharacterId(initData.characterName))
-        console.log('positionPlayableCharacterFromTransition', entityId, entityName, modelId)
+        console.log('positionPlayableCharacterFromTransition', entityId, entityName, modelId, initData)
         setModelAsEntity(entityId, modelId)
         setModelAsPlayableCharacter(entityId, initData.characterName)
         // const model = getModelByCharacterName(initData.characterName)

@@ -1,5 +1,5 @@
 import { getBankData, setBankData } from '../data/savemap.js'
-import { setBitOn, toggleBit } from './field-op-codes-assign-helper.js'
+import { setBitOn, setBitOff, toggleBit } from './field-op-codes-assign-helper.js'
 
 /*
 Note: I haven't checked that many of these and assume the Long (!)

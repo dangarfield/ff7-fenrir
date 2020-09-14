@@ -405,12 +405,13 @@ const splitPartyFromLeader = async (char1, char2, speed) => {
     if (leavers.length > 1) {
         leavers[1] = { name: leavers[1], x: char2.x / 4096, y: char2.y / 4096, z: targetZ, direction: char2.direction }
     }
-    console.log('joinLeader', leaderModel, leavers)
+    console.log('splitPartyFromLeader joinLeader', leaderModel, leavers)
     const result = await Promise.all(
         leavers.map(async (leaver) => {
             const model = getModelByCharacterName(leaver.name)
             console.log('model', model)
-            placeModel(model.userData.entityId, targetX, targetY, targetZ)
+            placeModel(model.userData.entityId, targetX * 4096, targetY * 4096, targetZ * 4096)
+
             setModelVisibility(model.userData.entityId, true)
             await turnModelToFaceDirection(model.userData.entityId, 255 - leaver.direction, 2, 15, 2) // TODO not sure about speed here
             await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed)
@@ -420,7 +421,7 @@ const splitPartyFromLeader = async (char1, char2, speed) => {
             return model
         })
     )
-    console.log('result', result)
+    console.log('splitPartyFromLeader', result)
 }
 export {
     moveEntityWithAnimationAndRotation,

@@ -294,7 +294,7 @@ const ladderMovement = (speed) => {
 
     // TODO - Deal with axis based rotation for non-vertical ladders
 
-    const nextPosition = model.scene.position.clone().addScaledVector(directionVector, speed * 0.5)
+    const nextPosition = model.scene.position.clone().addScaledVector(directionVector, speed * 0.3)
 
     // Set next position
     model.scene.position.x = nextPosition.x
@@ -313,15 +313,35 @@ const ladderMovement = (speed) => {
             delete ladder.atStart
         }
     }
-    // console.log('ladderMovement', movementForwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart)
+    console.log('ladderMovement', movementForwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart, model.scene.userData.triangleId)
     if (distanceToTarget <= 0.005 && movementBackwards !== ladder.atStart) {
         model.mixer.stopAllAction()
 
         model.scene.rotation.x = THREE.Math.degToRad(90)
         model.scene.rotation.z = THREE.Math.degToRad(0)
         model.scene.up.set(0, 0, 1)
-
+        updateCurrentTriangleId(model, nextPosition)
+        console.log('ladderMovement: currentTriangle', model.scene.userData.triangleId)
         ladder.resolve()
+    }
+}
+
+const updateCurrentTriangleId = (model, nextPosition) => {
+    let playerMovementRay = new THREE.Raycaster()
+    // const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
+    const rayD = new THREE.Vector3(0, 0, -1).normalize()
+    playerMovementRay.set(nextPosition, rayD)
+    playerMovementRay.far = 0.02
+    let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+    // console.log('ray intersects', nextPosition, nextPosition, rayD, intersects)
+    if (window.config.debug.showMovementHelpers) {
+        window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
+    }
+    if (intersects.length === 0) {
+        return -1
+    } else {
+        const point = intersects[0].point
+        model.scene.userData.triangleId = intersects[0].object.userData.triangleId
     }
 
 }

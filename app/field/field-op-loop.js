@@ -388,7 +388,7 @@ const initialiseOpLoops = async () => {
     STOP_ALL_LOOPS = false
     let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
-    // entities = entities.filter(e => e.entityName !== 'timeo' && e.entityName !== 'smoke1s' && e.entityName !== 'smoke2') // Debug
+    entities = entities.filter(e => e.entityName !== 'timeo' && e.entityName !== 'smoke1' && e.entityName !== 'smoke2') // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async

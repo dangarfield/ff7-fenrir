@@ -55,7 +55,6 @@ const renderLoop = function () {
             model.mixer.update(delta) // Render character window.animations
         }
     }
-    console.log('bgbgbgbg render')
     TWEEN.update()
     updateFieldMovement(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()

@@ -7,8 +7,13 @@ import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './
 import { isMenuEnabled } from './field-module.js'
 import { MENU_TYPE } from '../menu/menu-module.js'
 
+let INIT_COMPLETE = false
+
 const areFieldControlsActive = () => { return window.anim.activeScene === 'field' }
 const initFieldKeypressActions = () => {
+    if (INIT_COMPLETE) {
+        return
+    }
     getKeyPressEmitter().on('o', (firstPress) => {
 
         if (areFieldControlsActive() && firstPress) {
@@ -95,7 +100,7 @@ const initFieldKeypressActions = () => {
         }
     })
 
-
+    INIT_COMPLETE = true
 }
 
 export {

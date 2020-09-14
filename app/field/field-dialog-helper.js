@@ -403,7 +403,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
             speedUpHoldLetter = i
         }
         let speed = Math.floor((Math.abs(getConfigFieldMessageSpeed() - 255) / (255 / 52)) + 3)
-        console.log('field message speed', speed)
+        // console.log('field message speed', speed)
         if (speedUpHoldLetter !== -1 && (speedUpHoldLetter + 7) < i) {
             speed = Math.floor(speed / 3)
         }
@@ -617,6 +617,7 @@ const navigateChoice = (navigateDown) => {
     }
 }
 const closeDialog = async (dialog, choiceResult) => {
+    console.log('closeDialog', dialog)
     const dialogBox = dialog.group
     for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
 

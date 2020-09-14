@@ -62,9 +62,11 @@ const HMPMAX3 = async (op) => {
     const members = window.data.savemap.party.members
     for (let i = 0; i < members.length; i++) {
         const member = members[i]
-        const characterSavemap = getCharacterSaveMap(member)
-        characterSavemap.stats.hp.current = characterSavemap.stats.hp.base
-        characterSavemap.stats.mp.current = characterSavemap.stats.mp.base
+        if (member !== 'None') {
+            const characterSavemap = getCharacterSaveMap(member)
+            characterSavemap.stats.hp.current = characterSavemap.stats.hp.base
+            characterSavemap.stats.mp.current = characterSavemap.stats.mp.base
+        }
     }
     console.log('HMPMAX3', window.data.savemap.characters)
     return {}
@@ -121,14 +123,16 @@ const STITM = async (op) => {
             break
         }
     }
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i]
-        if (item.id === 0x7F) {
-            item.id = itemId
-            item.quantity = Math.min(amount, 99)
-            item.name = window.data.kernel.itemData[itemId].name
-            item.description = window.data.kernel.itemData[itemId].description
-            break
+    if (!updated) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i]
+            if (item.id === 0x7F) {
+                item.id = itemId
+                item.quantity = Math.min(amount, 99)
+                item.name = window.data.kernel.itemData[itemId].name
+                item.description = window.data.kernel.itemData[itemId].description
+                break
+            }
         }
     }
     console.log('STITM', items)
@@ -172,10 +176,11 @@ const SMTRA = async (op) => {
     for (let i = 0; i < materias.length; i++) {
         const materia = materias[i]
         if (materia.id === 0xFF) {
-            materia.id = itemId
+            materia.id = materiaId
             materia.ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
             materia.name = window.data.kernel.materiaData[materiaId].name
             materia.description = window.data.kernel.materiaData[materiaId].description
+            break
         }
     }
     console.log('SMTRA results', materias)
