@@ -351,7 +351,8 @@ const executeScriptLoop = async (entityId, loop) => {
         }
         // TODO - Potentially move this all to the update clock to stop too many repeated loops running too fast
         // For now, just add a 1 frame delay
-        await sleep(1000 / 30)
+        // Changed my mind, this is a bad idea as it causes stutter in background on/off effects
+        // await sleep(1000 / 30)
     }
     loop.isRunning = false
     if (flowActionCount >= 10) {
@@ -387,7 +388,7 @@ const initialiseOpLoops = async () => {
     STOP_ALL_LOOPS = false
     let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
-    // entities = entities.filter(e => e.entityName !== 'light' && e.entityName !== 'timeo') // Debug
+    // entities = entities.filter(e => e.entityName !== 'timeo' && e.entityName !== 'smoke1s' && e.entityName !== 'smoke2') // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(entity) // All running async

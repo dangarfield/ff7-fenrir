@@ -4,8 +4,18 @@ import { sleep } from '../helpers/helpers.js'
 
 const changeBackgroundParamState = (param, state, isActive) => {
     // console.log('changeBackgroundParamState', param, state, isActive)
-    const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param && l.userData.state === state)
-    bgLayers.map(l => l.visible = isActive)
+    // const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param && l.userData.state === state)
+    // bgLayers.map(l => l.visible = isActive)
+
+
+    const allBgLayers = window.currentField.backgroundLayers.children
+    for (let i = 0; i < allBgLayers.length; i++) {
+        const l = allBgLayers[i]
+        if (l.userData.param === param && l.userData.state === state) {
+            l.visible = isActive
+        }
+    }
+    console.log('bgbgbgbg changeBackgroundParamState', param, state, isActive)
 }
 const clearBackgroundParam = (param) => {
     // console.log('clearBackgroundParam', param)
@@ -14,7 +24,29 @@ const clearBackgroundParam = (param) => {
 }
 
 setTimeout(async () => {
-    // console.log('start')
+    console.log('start')
+    while (false) {
+        await sleep(1000 / 30 * 4)
+        changeBackgroundParamState(1, 0, false)
+        changeBackgroundParamState(1, 1, true)
+        await sleep(1000 / 30 * 5)
+        changeBackgroundParamState(1, 1, false)
+        changeBackgroundParamState(1, 2, true)
+        await sleep(1000 / 30 * 5)
+        changeBackgroundParamState(1, 2, false)
+        changeBackgroundParamState(1, 3, true)
+
+        await sleep(1000 / 30 * 5)
+        changeBackgroundParamState(1, 3, false)
+        changeBackgroundParamState(1, 4, true)
+        await sleep(1000 / 30 * 5)
+        changeBackgroundParamState(1, 4, false)
+        changeBackgroundParamState(1, 5, true)
+
+        await sleep(1000 / 30 * 5)
+        changeBackgroundParamState(1, 5, false)
+        changeBackgroundParamState(1, 0, true)
+    }
     // assign.SETBYTE({ bd: 5, a: 24, bs: 0, v: 0 })
     // assign.SETBYTE({ bd: 5, a: 27, bs: 0, v: 255 })
     // console.log('5-27', getBankData(5, 27))
