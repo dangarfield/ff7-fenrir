@@ -205,6 +205,7 @@ const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId
 const moveEntityLadderPlayableCharacter = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed, model) => {
     console.log('moveEntityLadderPlayableCharacter', entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
     return new Promise(async (resolve) => {
+        model.mixer.stopAllAction()
         setModelDirection(entityId, direction)
         let keysForwards
         let keysBackwards

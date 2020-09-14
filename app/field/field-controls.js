@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    initiateTalk, isActionInProgress, fadeOutAndLoadMenu, lineOKTriggered
+    initiateTalk, isActionInProgress, fadeOutAndLoadMenu, lineOKTriggered, lineGoTriggered
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -33,6 +33,7 @@ const initFieldKeypressActions = () => {
                         // TODO - This can be called whilst dialogs are shown etc
                         // maybe only trigger this if player is allowed to move
                         lineOKTriggered(line.userData.entityId)
+                        lineGoTriggered(line.userData.entityId, line) // Workaround for ladders
                     }
                 }
             }

@@ -291,6 +291,9 @@ const ladderMovement = (speed) => {
     const directionVector = new THREE.Vector3()
     directionVector.subVectors(targetVector, model.scene.position)
     directionVector.normalize()
+
+    // TODO - Deal with axis based rotation for non-vertical ladders
+
     const nextPosition = model.scene.position.clone().addScaledVector(directionVector, speed * 0.5)
 
     // Set next position
@@ -313,6 +316,11 @@ const ladderMovement = (speed) => {
     // console.log('ladderMovement', movementForwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart)
     if (distanceToTarget <= 0.005 && movementBackwards !== ladder.atStart) {
         model.mixer.stopAllAction()
+
+        model.scene.rotation.x = THREE.Math.degToRad(90)
+        model.scene.rotation.z = THREE.Math.degToRad(0)
+        model.scene.up.set(0, 0, 1)
+
         ladder.resolve()
     }
 

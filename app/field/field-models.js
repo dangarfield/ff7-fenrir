@@ -215,9 +215,6 @@ const placeModel = (entityId, x, y, z, triangleId) => {
 }
 const placeModelsDebug = async () => {
     console.log('placeModelsDebug: START')
-    window.anim.axesHelper = new THREE.AxesHelper(0.1);
-    window.anim.axesHelper.visible = false
-    window.currentField.fieldScene.add(window.anim.axesHelper);
 
     const ccOps = []
     for (let i = 0; i < window.currentField.data.script.entities.length; i++) {

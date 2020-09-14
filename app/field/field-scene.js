@@ -210,6 +210,10 @@ const setupDebugControls = () => {
     window.currentField.debugCameraControls.enablePan = window.config.debug.showDebugCamera
     // }
     activateDebugCamera()
+
+    window.anim.axesHelper = new THREE.AxesHelper(0.1)
+    window.anim.axesHelper.visible = false
+    window.currentField.fieldScene.add(window.anim.axesHelper)
 }
 
 const initFieldDebug = async (loadFieldCB) => {
