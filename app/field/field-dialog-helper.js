@@ -8,7 +8,7 @@ import { scene } from './field-ortho-scene.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-dialog.js'
 import { getCurrentCountdownClockTime } from '../data/savemap-alias.js'
-
+import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 // Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
 /* TODO:
@@ -666,7 +666,9 @@ const navigateChoice = (navigateDown) => {
                         pointerMesh.position.set(pointerPositions[nextChoice].x, pointerPositions[nextChoice].y, pointerPositions[nextChoice].z)
                     }
                 }
+                playCommonSound(COMMON_SOUNDS.OPTION)
             }
+
         }
     }
 }
@@ -693,6 +695,7 @@ const closeDialog = async (dialog, choiceResult) => {
     scene.remove(dialogBox)
     if (choiceResult !== undefined) {
         isChoiceActive = false
+        playCommonSound(COMMON_SOUNDS.OPTION)
         dialog.resolveCallback(choiceResult)
     } else {
         dialog.resolveCallback()

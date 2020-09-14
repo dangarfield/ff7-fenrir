@@ -69,10 +69,10 @@ const updateFieldMovement = (delta) => {
     // Adjust for climbing slopes and walking off walkmesh
     // Create a ray at next position (higher z, but pointing down) to find correct z position
     let playerMovementRay = new THREE.Raycaster()
-    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
     playerMovementRay.set(rayO, rayD)
-    playerMovementRay.far = 0.02
+    playerMovementRay.far = 0.1
     let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
     // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
     if (window.config.debug.showMovementHelpers) {

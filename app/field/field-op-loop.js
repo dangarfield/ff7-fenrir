@@ -368,11 +368,15 @@ const initEntity = async (entity) => {
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
     await executeScriptLoop(entity.entityId, initLoop)
-    const mainLoop = entity.scripts.filter(s => s.index === 0 && s.isMain)[0]
-    console.log('mainLoop', mainLoop)
-    // if (entity.entityName !== 'dir') { // Debug
-    await executeScriptLoop(entity.entityId, mainLoop)
-    // }
+    const mainLoops = entity.scripts.filter(s => s.index === 0 && s.isMain)
+    if (mainLoops.length > 0) {
+        const mainLoop = mainLoops[0]
+        console.log('mainLoop', mainLoop)
+        // if (entity.entityName !== 'dir') { // Debug
+        await executeScriptLoop(entity.entityId, mainLoop)
+        // }
+    }
+
 
     // For debug
     // if (entity.entityName === 'gu0') {

@@ -6,15 +6,22 @@ const Howl = window.libraries.howler.Howl
 let soundMetadata
 let sounds = []
 
+let COMMON_SOUNDS = {
+    OPTION: 1,
+    SELECT: 2,
+    ERROR: 3,
+    BACK: 4,
+    TURN: 21,
+    BATTLE_SWIRL: 43
+}
 const preloadCommonSounds = () => {
     // TODO - Things like menu sounds, door sounds, save collision sound, anything not as a op code
-    loadSound(1)
-    loadSound(2)
-    loadSound(3)
-    loadSound(4)
-    loadSound(5)
-    loadSound(6)
-    loadSound(43)
+    loadSound(COMMON_SOUNDS.OPTION)
+    loadSound(COMMON_SOUNDS.SELECT)
+    loadSound(COMMON_SOUNDS.ERROR)
+    loadSound(COMMON_SOUNDS.BACK)
+    loadSound(COMMON_SOUNDS.TURN)
+    loadSound(COMMON_SOUNDS.BATTLE_SWIRL)
 }
 const getSoundUrl = (id) => {
     return `${KUJATA_BASE}/media/sounds/${id}.ogg`
@@ -58,7 +65,9 @@ const loadSound = (id) => {
     })
     sounds.push(mediaItem)
 }
-
+const playCommonSound = (sound) => {
+    playSound(sound, 0, getConfig().channel1)
+}
 const playSound = (id, pan, channelData) => {
     try {
         if (id === 0) {
@@ -205,6 +214,7 @@ export {
     preloadCommonSounds,
     loadSound,
     playSound,
+    playCommonSound,
     resumeSounds,
     pauseSounds,
     setSoundVolume,
@@ -213,5 +223,6 @@ export {
     setSoundPanTransition,
     setSoundTempo,
     setSoundTempoTransition,
-    stopSounds
+    stopSounds,
+    COMMON_SOUNDS
 }
