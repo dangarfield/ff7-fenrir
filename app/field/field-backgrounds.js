@@ -1,3 +1,4 @@
+import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { setBankData, getBankData } from '../data/savemap.js'
 import * as assign from './field-op-codes-assign.js'
 import { sleep } from '../helpers/helpers.js'
@@ -21,7 +22,29 @@ const clearBackgroundParam = (param) => {
     const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param)
     bgLayers.map(l => l.visible = false)
 }
+const clearBackgroundDepth = (layerID, z) => {
+    console.log('clearBackgroundDepth', layerID, z)
+    const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerID === layerID)
+    console.log('clearBackgroundDepth bgLayers', bgLayers)
+    for (let i = 0; i < bgLayers.length; i++) {
+        const layer = bgLayers[i]
+        layer.userData.z = z
 
+        // Calculate distance
+        const distance = layer.userData.z / window.currentField.metaData.bgZDistance
+        let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, distance)
+
+        // Apply sizing adjustment
+        let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
+        let vW = vH * window.currentField.fieldCamera.aspect
+        let geometry = new THREE.PlaneGeometry(vW, vH, 0)
+        layer.geometry.dispose()
+        layer.geometry = geometry // Requires any 'needUpdate' param?
+
+        // Adjust position
+        layer.position.set(bgVector.x, bgVector.y, bgVector.z)
+    }
+}
 setTimeout(async () => {
     console.log('start')
     while (false) {
@@ -82,5 +105,6 @@ setTimeout(async () => {
 }, 10000)
 export {
     changeBackgroundParamState,
-    clearBackgroundParam
+    clearBackgroundParam,
+    clearBackgroundDepth
 }

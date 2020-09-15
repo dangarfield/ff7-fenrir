@@ -250,6 +250,7 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
 
 
         // Background and Palette
+        case 'BGPDH': result = await background.BGPDH(op); break
         case 'BGON': result = await background.BGON(op); break
         case 'BGOFF': result = await background.BGOFF(op); break
         case 'BGCLR': result = await background.BGCLR(op); break

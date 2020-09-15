@@ -232,36 +232,39 @@ const placeBG = async (fieldName) => {
     window.currentField.backgroundLayers = new THREE.Group()
     for (let i = 0; i < window.currentField.backgroundData.length; i++) {
         const layer = window.currentField.backgroundData[i]
-        if (layer.depth === 0) {
-            layer.depth = 1
-        }
-
-        if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
-            layer.z = layer.z + 10
-        }
-        // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
-        if (layer.param > 0) {
-            layer.z = layer.z - 1
-        }
-        let visible = layer.param === 0 // By default hide all non zero params, field op codes will how them
-
-        // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-        const bgDistance = layer.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
-        // console.log('Layer', layer, bgDistance)
-
-        const userData = {
-            z: layer.z,
-            param: layer.param,
-            state: layer.state,
-            typeTrans: layer.typeTrans
-        }
-        let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
-        let url = getFieldBGLayerUrl(fieldName, layer.fileName)
-        drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
+        processBG(layer, fieldName)
     }
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 }
 
+const processBG = (layer, fieldName) => {
+    if (layer.depth === 0) {
+        layer.depth = 1
+    }
+    if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
+        layer.z = layer.z + 10
+    }
+    // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
+    if (layer.param > 0) {
+        layer.z = layer.z - 1
+    }
+    let visible = layer.param === 0 // By default hide all non zero params, field op codes will how them
+
+    // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
+    const bgDistance = layer.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+    // console.log('Layer', layer, bgDistance)
+
+    const userData = {
+        z: layer.z,
+        param: layer.param,
+        state: layer.state,
+        typeTrans: layer.typeTrans,
+        layerID: layer.layerID
+    }
+    let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
+    let url = getFieldBGLayerUrl(fieldName, layer.fileName)
+    drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
+}
 
 const setMenuEnabled = (enabled) => { window.currentField.menuEnabled = enabled }
 const isMenuEnabled = () => { return window.currentField.menuEnabled }

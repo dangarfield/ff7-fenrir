@@ -11,6 +11,7 @@ import { scene as orthoBackScene, camera as orthoBackCamera } from './field-orth
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
 import { decrementCountdownClockAndUpdateDisplay } from './field-dialog.js'
 import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
+import { stopAllLoops } from './field-op-loop.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -226,8 +227,9 @@ const initFieldDebug = async (loadFieldCB) => {
     let fieldGUI = window.anim.gui.addFolder('Field Data')
     // if (window.currentField === undefined) { window.currentField = { name: 'cosin4' } } // Just set this like this, it will be overridden on init
     let fields = await getFieldList()
-    fieldGUI.add(window.currentField, 'name', fields).onChange((val) => {
+    fieldGUI.add(window.currentField, 'name', fields).onChange(async (val) => {
         console.log('window.currentField.name ->', val)
+        await stopAllLoops()
         loadFieldCB(val)
     }).listen()
 

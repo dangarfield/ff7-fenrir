@@ -1,4 +1,4 @@
-import { changeBackgroundParamState, clearBackgroundParam } from './field-backgrounds.js'
+import { changeBackgroundParamState, clearBackgroundParam, clearBackgroundDepth } from './field-backgrounds.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData } from '../data/savemap.js'
 const BGON = async (op) => {
@@ -19,6 +19,12 @@ const BGCLR = async (op) => {
     console.log('BGCLR', op)
     const param = op.b == 0 ? op.a : getBankData(op.b, op.a)
     clearBackgroundParam(param)
+    return {}
+}
+const BGPDH = async (op) => {
+    console.log('BGCLR', op)
+    const z = op.b1 == 0 ? op.z : getBankData(op.b1, op.z)
+    clearBackgroundDepth(op.l, z)
     return {}
 }
 // setTimeout(async () => {
@@ -45,6 +51,7 @@ const BGCLR = async (op) => {
 // }, 10000)
 
 export {
+    BGPDH,
     BGON,
     BGOFF,
     BGCLR
