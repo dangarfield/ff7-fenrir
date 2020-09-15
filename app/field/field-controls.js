@@ -24,11 +24,13 @@ const initFieldKeypressActions = () => {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             // Probably need to look at a more intelligent way to define which actions are performed
+            // TODO - Need to really sort these by distance before loops
             for (let i = 0; i < window.currentField.models.length; i++) {
                 if (window.currentField.models[i].scene.userData.closeToTalk === true &&
                     window.currentField.models[i].userData.talkEnabled === true) {
                     // setActionInProgress('talk')
                     initiateTalk(i, window.currentField.models[i])
+                    break
                 }
             }
             if (window.currentField.lineTriggersEnabled) {

@@ -72,9 +72,9 @@ const setModelAsEntity = (entityId, modelId) => {
         model.scene.visible = true
     }
     model.userData.movementSpeed = 2048 // TODO - Absolute guess for default
-    model.userData.animationSpeed = 1 // TODO - Absolute guess for default
+    model.userData.animationSpeed = 1 // Looks ok
     model.userData.talkEnabled = true
-    model.userData.talkRadius = 48 // TODO - Absolute guess for default
+    model.userData.talkRadius = 60 // Looks ok
     model.userData.collisionEnabled = true
     model.userData.collisionRadius = 24 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
