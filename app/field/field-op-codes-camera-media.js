@@ -7,7 +7,7 @@ import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.j
 import { executeAkaoOperation } from '../media/media-module.js'
 import { playSound } from '../media/media-sound.js'
 import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
-import { setNextMovie, playNextMovie, getCurrentMovieFrame } from '../media/media-movies.js'
+import { setNextMovie, playNextMovie, getCurrentMovieFrame, stopCurrentMovie } from '../media/media-movies.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -464,6 +464,11 @@ const MOVIE = async (op) => {
     await playNextMovie() // Temp disabled for testing md1stin
     return {}
 }
+const BGMOVIE = async (op) => {
+    console.log('BGMOVIE', op)
+    await stopCurrentMovie() // Temp disabled for testing md1stin
+    return {}
+}
 
 const MVIEF = async (op) => {
     console.log('MVIEF', op)
@@ -513,5 +518,7 @@ export {
     MVIEF,
     FMUSC,
     CMUSC,
-    CHMST
+    CHMST,
+
+    BGMOVIE
 }

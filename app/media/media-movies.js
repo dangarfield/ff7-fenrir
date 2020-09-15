@@ -144,10 +144,15 @@ const playNextMovie = async () => {
     })
 }
 
+const stopCurrentMovie = async () => {
+    nextMovie.video.stop() // onend should trigger once again
+    nextMovie.frame = 0
+}
 export {
     loadMovieMetadata,
     setNextMovie,
     playNextMovie,
+    stopCurrentMovie,
     loadMovie,
     getCurrentMovieFrame,
     isMovieLockEnabled,
