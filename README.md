@@ -1,5 +1,5 @@
 # FF7 - Fenrir
-> Web based game engine for FF7 - Work-in-proress
+> Web based game engine for FF7 - Work-in-progress
 
 ![FF7 Fenrir](https://i.ibb.co/LR51c6f/title.png)
 

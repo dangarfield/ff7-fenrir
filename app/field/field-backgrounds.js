@@ -51,19 +51,8 @@ const setScrollMeta = (layer, xSpeed, ySpeed) => {
     layer.userData.scrollSpeedY = ySpeed
     layer.userData.scrollInitialX = layer.position.x
     layer.userData.scrollInitialY = layer.position.y
+    layer.userData.scrollInitialZ = layer.position.z
 }
-const setScrollPosition = (layer, layerPos, xAdjust, yAdjust) => {
-    // Need to get the relative offset from let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
-    layer.position.x = layer.position.x + xAdjust
-    layer.position.z = layer.position.z + yAdjust
-}
-const cloneScrollBG = (layer, layerPos, xAdjust, yAdjust, xSpeed, ySpeed) => {
-    const layerClone = layer.clone()
-    setScrollPosition(layerClone, layerPos, xAdjust, yAdjust)
-    setScrollMeta(layerClone, xSpeed, ySpeed)
-    window.currentField.backgroundLayers.add(layerClone)
-}
-// TODO - This approach isn't effective, change in the future
 const scrollBackground = (layerId, xSpeed, ySpeed) => {
     const layers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerId === layerId)
 
@@ -73,30 +62,17 @@ const scrollBackground = (layerId, xSpeed, ySpeed) => {
         const layer = layers[i]
         if (layer.userData.scroll === undefined) {
             // Duplicate in all directions
-            const layerPos = layer.getWorldPosition(new THREE.Vector3())
-            console.log('scrollBackground layer', layer, layerPos)
-            const xL = -layer.geometry.parameters.width
-            const xM = 0
-            const xR = layer.geometry.parameters.width
-            const yT = -layer.geometry.parameters.width
-            const yM = 0
-            const yB = layer.geometry.parameters.width
-
-            cloneScrollBG(layer, xL, yT, xSpeed, ySpeed)
-            cloneScrollBG(layer, layerPos, xM, yT, xSpeed, ySpeed)
-            cloneScrollBG(layer, xR, yT, xSpeed, ySpeed)
-            cloneScrollBG(layer, xL, yM, xSpeed, ySpeed)
-            // cloneScrollBG(layer, xM, yM, xSpeed, ySpeed) // Already exists
-            cloneScrollBG(layer, xR, yM, xSpeed, ySpeed)
-            cloneScrollBG(layer, xL, yB, xSpeed, ySpeed)
-            cloneScrollBG(layer, layerPos, xM, yB, xSpeed, ySpeed)
-            cloneScrollBG(layer, xR, yB, xSpeed, ySpeed)
-
+            console.log('scrollBackground layer', layer)
+            layer.scale.x = 3
+            layer.scale.y = 3
+            layer.material.map.wrapS = THREE.RepeatWrapping
+            layer.material.map.wrapT = THREE.RepeatWrapping
+            layer.material.map.repeat.x = 3
+            layer.material.map.repeat.y = 3
+            layer.material.map.needsUpdate = true
         }
         setScrollMeta(layer, xSpeed, ySpeed)
     }
-    // console.log('scrollBackground backgroundScrollingLayers', window.currentField.backgroundScrollingLayers)
-
     // Field render loop will move the scene objects and reset x/y position if hit boundary
 }
 const updateBackgroundScolling = (delta) => {
@@ -104,18 +80,37 @@ const updateBackgroundScolling = (delta) => {
     const layers = window.currentField.backgroundLayers.children
     for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
+        if (i === 10) {
+            // console.log('scrollBackground pos', i,
+            //     'w', layer.geometry.parameters.width,
+            //     'h', layer.geometry.parameters.height,
+            //     'x', layer.position.x, layer.userData.scrollInitialX, Math.abs(layer.position.x - layer.userData.scrollInitialX) <= layer.geometry.parameters.width,
+            //     'y', layer.position.y, layer.userData.scrollInitialY, Math.abs(layer.position.y - layer.userData.scrollInitialY) <= layer.geometry.parameters.height,
+            //     'z', layer.position.z)
+        }
+
+        // This is still not right, need to calculate some vectors
         if (layer.userData.scrollSpeedX) {
-            layer.position.x = layer.position.x + (layer.userData.scrollSpeedX * delta * 0.001)
+            if (Math.abs(layer.position.x - layer.userData.scrollInitialX) <= layer.geometry.parameters.width) {
+                layer.position.x = layer.position.x + (layer.userData.scrollSpeedX * delta * 0.001)
+            } else {
+                layer.position.x = layer.userData.scrollInitialX
+            }
         }
         if (layer.userData.scrollSpeedY) {
-            layer.position.y = layer.position.y + (layer.userData.scrollSpeedY * delta * 0.001)
+            console.log('scrollBackground y')
+            if (Math.abs(layer.position.z - layer.userData.scrollInitialY) <= layer.geometry.parameters.height) {
+                layer.position.z = layer.position.z + (layer.userData.scrollSpeedY * delta * 0.001)
+            } else {
+                layer.position.z = layer.userData.scrollInitialY
+            }
         }
     }
 }
 setTimeout(async () => {
     console.log('start')
 
-    // scrollBackground(3, -10, 0)
+    scrollBackground(3, 0, -30)
 
     while (false) {
         await sleep(1000 / 30 * 4)
