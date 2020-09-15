@@ -12,6 +12,7 @@ import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-or
 import { decrementCountdownClockAndUpdateDisplay } from './field-dialog.js'
 import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
 import { stopAllLoops } from './field-op-loop.js'
+import { updateBackgroundScolling } from './field-backgrounds.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -58,6 +59,7 @@ const renderLoop = function () {
     }
     TWEEN.update()
     updateFieldMovement(delta) // Ideally this should go in a separate loop
+    updateBackgroundScolling(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
     updateOnceASecond(delta)
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {

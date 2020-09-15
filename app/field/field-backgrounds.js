@@ -22,9 +22,9 @@ const clearBackgroundParam = (param) => {
     const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param)
     bgLayers.map(l => l.visible = false)
 }
-const clearBackgroundDepth = (layerID, z) => {
-    console.log('clearBackgroundDepth', layerID, z)
-    const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerID === layerID)
+const clearBackgroundDepth = (layerId, z) => {
+    console.log('clearBackgroundDepth', layerId, z)
+    const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerId === layerId)
     console.log('clearBackgroundDepth bgLayers', bgLayers)
     for (let i = 0; i < bgLayers.length; i++) {
         const layer = bgLayers[i]
@@ -45,8 +45,78 @@ const clearBackgroundDepth = (layerID, z) => {
         layer.position.set(bgVector.x, bgVector.y, bgVector.z)
     }
 }
+const setScrollMeta = (layer, xSpeed, ySpeed) => {
+    layer.userData.scroll = true
+    layer.userData.scrollSpeedX = xSpeed
+    layer.userData.scrollSpeedY = ySpeed
+    layer.userData.scrollInitialX = layer.position.x
+    layer.userData.scrollInitialY = layer.position.y
+}
+const setScrollPosition = (layer, layerPos, xAdjust, yAdjust) => {
+    // Need to get the relative offset from let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
+    layer.position.x = layer.position.x + xAdjust
+    layer.position.z = layer.position.z + yAdjust
+}
+const cloneScrollBG = (layer, layerPos, xAdjust, yAdjust, xSpeed, ySpeed) => {
+    const layerClone = layer.clone()
+    setScrollPosition(layerClone, layerPos, xAdjust, yAdjust)
+    setScrollMeta(layerClone, xSpeed, ySpeed)
+    window.currentField.backgroundLayers.add(layerClone)
+}
+// TODO - This approach isn't effective, change in the future
+const scrollBackground = (layerId, xSpeed, ySpeed) => {
+    const layers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerId === layerId)
+
+    // Identify the layers, duplicate and add meta info
+    console.log('scrollBackground', layerId, xSpeed, ySpeed, layers)
+    for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+        if (layer.userData.scroll === undefined) {
+            // Duplicate in all directions
+            const layerPos = layer.getWorldPosition(new THREE.Vector3())
+            console.log('scrollBackground layer', layer, layerPos)
+            const xL = -layer.geometry.parameters.width
+            const xM = 0
+            const xR = layer.geometry.parameters.width
+            const yT = -layer.geometry.parameters.width
+            const yM = 0
+            const yB = layer.geometry.parameters.width
+
+            cloneScrollBG(layer, xL, yT, xSpeed, ySpeed)
+            cloneScrollBG(layer, layerPos, xM, yT, xSpeed, ySpeed)
+            cloneScrollBG(layer, xR, yT, xSpeed, ySpeed)
+            cloneScrollBG(layer, xL, yM, xSpeed, ySpeed)
+            // cloneScrollBG(layer, xM, yM, xSpeed, ySpeed) // Already exists
+            cloneScrollBG(layer, xR, yM, xSpeed, ySpeed)
+            cloneScrollBG(layer, xL, yB, xSpeed, ySpeed)
+            cloneScrollBG(layer, layerPos, xM, yB, xSpeed, ySpeed)
+            cloneScrollBG(layer, xR, yB, xSpeed, ySpeed)
+
+        }
+        setScrollMeta(layer, xSpeed, ySpeed)
+    }
+    // console.log('scrollBackground backgroundScrollingLayers', window.currentField.backgroundScrollingLayers)
+
+    // Field render loop will move the scene objects and reset x/y position if hit boundary
+}
+const updateBackgroundScolling = (delta) => {
+    // console.log('scrollBackground updateBackgroundScolling', delta)
+    const layers = window.currentField.backgroundLayers.children
+    for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+        if (layer.userData.scrollSpeedX) {
+            layer.position.x = layer.position.x + (layer.userData.scrollSpeedX * delta * 0.001)
+        }
+        if (layer.userData.scrollSpeedY) {
+            layer.position.y = layer.position.y + (layer.userData.scrollSpeedY * delta * 0.001)
+        }
+    }
+}
 setTimeout(async () => {
     console.log('start')
+
+    // scrollBackground(3, -10, 0)
+
     while (false) {
         await sleep(1000 / 30 * 4)
         changeBackgroundParamState(1, 0, false)
@@ -102,9 +172,11 @@ setTimeout(async () => {
     //     changeBackgroundParamState(1, 3, false)
     // }
 
-}, 10000)
+}, 12000)
 export {
     changeBackgroundParamState,
     clearBackgroundParam,
-    clearBackgroundDepth
+    clearBackgroundDepth,
+    scrollBackground,
+    updateBackgroundScolling
 }

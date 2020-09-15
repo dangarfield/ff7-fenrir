@@ -159,37 +159,6 @@ const getModelScaleDownValue = () => {
 
 
 
-const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
-    let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
-    let vW = vH * window.currentField.fieldCamera.aspect
-    // console.log('drawBG', distance, '->', vH, vW)
-    let geometry = new THREE.PlaneGeometry(vW, vH, 0)
-
-    let texture = new THREE.TextureLoader().load(bgImgUrl)
-    texture.magFilter = THREE.NearestFilter
-    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    let plane = new THREE.Mesh(geometry, material);
-    plane.position.set(x, y, z)
-    plane.lookAt(window.currentField.fieldCamera.position)
-    plane.setRotationFromEuler(window.currentField.fieldCamera.rotation)
-    plane.visible = visible
-    plane.userData = userData
-
-    if (userData.typeTrans === 1) {
-        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
-        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
-        // plane.visible = false
-    } else if (userData.typeTrans === 2) {
-        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
-        plane.material.blending = THREE.SubtractiveBlending // Not right at all. // jtempl, trnad_1, bugin1a
-        // plane.visible = false
-    } else if (userData.typeTrans === 3) {
-        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
-        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
-    }
-    group.add(plane)
-}
 
 const placeBG = async (fieldName) => {
 
@@ -259,13 +228,44 @@ const processBG = (layer, fieldName) => {
         param: layer.param,
         state: layer.state,
         typeTrans: layer.typeTrans,
-        layerID: layer.layerID
+        layerId: layer.layerID
     }
     let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
     let url = getFieldBGLayerUrl(fieldName, layer.fileName)
     drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
 }
 
+const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
+    let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
+    let vW = vH * window.currentField.fieldCamera.aspect
+    // console.log('drawBG', distance, '->', vH, vW)
+    let geometry = new THREE.PlaneGeometry(vW, vH, 0)
+
+    let texture = new THREE.TextureLoader().load(bgImgUrl)
+    texture.magFilter = THREE.NearestFilter
+    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+    let plane = new THREE.Mesh(geometry, material);
+    plane.position.set(x, y, z)
+    plane.lookAt(window.currentField.fieldCamera.position)
+    plane.setRotationFromEuler(window.currentField.fieldCamera.rotation)
+    plane.visible = visible
+    plane.userData = userData
+
+    if (userData.typeTrans === 1) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
+        // plane.visible = false
+    } else if (userData.typeTrans === 2) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.SubtractiveBlending // Not right at all. // jtempl, trnad_1, bugin1a
+        // plane.visible = false
+    } else if (userData.typeTrans === 3) {
+        // console.log('typeTrans', userData.typeTrans, bgImgUrl)
+        plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
+    }
+    group.add(plane)
+}
 const setMenuEnabled = (enabled) => { window.currentField.menuEnabled = enabled }
 const isMenuEnabled = () => { return window.currentField.menuEnabled }
 
