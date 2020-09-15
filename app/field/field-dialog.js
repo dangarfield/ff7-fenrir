@@ -37,15 +37,15 @@ const clearAllDialogs = () => {
     console.log('clearAllDialogs', dialogs, textParams)
 }
 
-const createWindow = (id, x, y, w, h) => {
-    let updateMethod = 'NEW'
+const getDialog = (id) => {
+    console.log('getDialog: NEW', id)
     if (dialogs[id] === undefined) {
         const dialog = {
             id: id,
-            x: x,
-            y: y,
-            w: w,
-            h: h,
+            x: 5, // Default values ?!
+            y: 5, // Default values ?!
+            w: 304, // Default values ?!
+            h: 73, // Default values ?!
             mode: WINDOW_MODE.Normal, // Not sure, but  
             special: SPECIAL_MODE.None,
             // specialData: {}, // Example attribute, will be set by additional op codes
@@ -55,61 +55,59 @@ const createWindow = (id, x, y, w, h) => {
             // group: new THREE.Group() // Example attribute, 
             // resolveCallback: {} // Example attribute, will be set by MESSAGE and ASK commands for interaction
         }
-        // console.log('createWindow NEW', dialog)
         dialogs[id] = dialog
+        return dialog
     } else {
-        updateMethod = 'UPDATE'
-        dialogs[id].x = x
-        dialogs[id].y = y
-        dialogs[id].w = w
-        dialogs[id].h = h
+        console.log('getDialog: EXISTS', id)
+        return dialogs[id]
     }
-    adjustWindowPosition(dialogs[id], x, y, w, h)
-    console.log('createWindow', updateMethod, dialogs[id])
+}
+const createWindow = (id, x, y, w, h) => {
+    let updateMethod = 'NEW'
+    const dialog = getDialog(id)
+    dialog.x = x
+    dialog.y = y
+    dialog.w = w
+    dialog.h = h
+    adjustWindowPosition(dialog, x, y, w, h)
+    console.log('createWindow', updateMethod, dialog)
 }
 
 const resetWindow = (id) => {
-    dialogs[id].x = 5
-    dialogs[id].y = 5
-    dialogs[id].w = 304
-    dialogs[id].h = 69
-    dialogs[id].mode = WINDOW_MODE.Normal
-    dialogs[id].special = SPECIAL_MODE.None
-    delete dialogs[id].specialData
-    dialogs[id].playerCanClose = true
-    dialogs[id].numbers = {}
+    dialogs[id] = undefined
+    const dialog = getDialog(id)
     textParams[id] = []
-    adjustWindowPosition(dialogs[id], dialogs[id].x, dialogs[id].y, dialogs[id].w, dialogs[id].h)
-    console.log('resetWindow', id, dialogs[id])
+    adjustWindowPosition(dialog, dialog.x, dialog.y, dialog.w, dialog.h)
+    console.log('resetWindow', id, dialog)
 }
 const moveWindow = (id, x, y) => {
-    dialogs[id].x = x
-    dialogs[id].y = y
-    adjustWindowPosition(dialogs[id], x, y, dialogs[id].w, dialogs[id].h)
-    console.log('moveWindow', id, dialogs[id])
+    const dialog = getDialog(id)
+    dialog.x = x
+    dialog.y = y
+    adjustWindowPosition(dialog, x, y, dialog.w, dialog.h)
+    console.log('moveWindow', id, dialog)
 }
 const resizeWindow = (id, x, y, w, h) => {
-    dialogs[id].x = x
-    dialogs[id].y = y
-    dialogs[id].w = w
-    dialogs[id].h = h
-    adjustWindowPosition(dialogs[id], x, y, w, h)
-    console.log('resizeWindow', id, dialogs[id])
+    const dialog = getDialog(id)
+    dialog.x = x
+    dialog.y = y
+    dialog.w = w
+    dialog.h = h
+    adjustWindowPosition(dialog, x, y, w, h)
+    console.log('resizeWindow', id, dialog)
 }
 const setWindowMode = (id, modeId, closabilityId) => {
-    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
-        createWindow(id, 10, 10, 10, 10)
-    }
+    const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
     switch (modeId) {
-        case 0: dialogs[id].mode = WINDOW_MODE.Normal; break
-        case 1: dialogs[id].mode = WINDOW_MODE.NoBackgroundBorder; break
-        case 2: dialogs[id].mode = WINDOW_MODE.TransparentBackground; break
+        case 0: dialog.mode = WINDOW_MODE.Normal; break
+        case 1: dialog.mode = WINDOW_MODE.NoBackgroundBorder; break
+        case 2: dialog.mode = WINDOW_MODE.TransparentBackground; break
     }
     switch (closabilityId) {
-        case 0: dialogs[id].playerCanClose = true; break
-        case 1: dialogs[id].playerCanClose = false; break
+        case 0: dialog.playerCanClose = true; break
+        case 1: dialog.playerCanClose = false; break
     }
-    console.log('setWindowMode', id, modeId, closabilityId, dialogs[id])
+    console.log('setWindowMode', id, modeId, closabilityId, dialog)
 }
 
 const setWindowTextParam = (windowId, varId, value) => {
@@ -122,16 +120,14 @@ const setWindowTextParam = (windowId, varId, value) => {
 }
 
 const setSpecialMode = (id, specialId, x, y) => {
-    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
-        createWindow(id, 10, 10, 10, 10)
-    }
+    const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
     switch (specialId) {
-        case 0: dialogs[id].special = SPECIAL_MODE.None; break
-        case 1: dialogs[id].special = SPECIAL_MODE.Clock; break
-        case 2: dialogs[id].special = SPECIAL_MODE.Numeric; break
+        case 0: dialog.special = SPECIAL_MODE.None; break
+        case 1: dialog.special = SPECIAL_MODE.Clock; break
+        case 2: dialog.special = SPECIAL_MODE.Numeric; break
     }
-    dialogs[id].specialData = { x: x, y: y } // Value updated with STTIM & WNUMB
-    console.log('setSpecialMode', id, specialId, dialogs[id])
+    dialog.specialData = { x: x, y: y } // Value updated with STTIM & WNUMB
+    console.log('setSpecialMode', id, specialId, dialog)
 }
 const setSpecialClock = (h, m, s) => {
     setCurrentCountdownClockTime(h, m, s)
@@ -147,19 +143,19 @@ const decrementCountdownClockAndUpdateDisplay = () => {
     }
 }
 const setSpecialNumber = (id, number, noDigitsToDisplay) => {
-    if (dialogs[id] === undefined) { // Sometimes this can be called before the WINDOW op code
-        createWindow(id, 10, 10, 10, 10)
-    }
-    dialogs[id].specialData.number = number
-    dialogs[id].specialData.noDigitsToDisplay = noDigitsToDisplay
+    const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
+
+    dialog.specialData.number = number
+    dialog.specialData.noDigitsToDisplay = noDigitsToDisplay
     // The interactivity happens by calling WNUMB op code after window is displayed and the bank value has been updated
-    updateSpecialNumber(dialogs[id])
-    console.log('setSpecialNumber', id, dialogs[id])
+    updateSpecialNumber(dialog)
+    console.log('setSpecialNumber', id, dialog)
 }
 const showMessageWaitForInteraction = async (id, dialogString, showChoicePointers) => {
 
     return new Promise(async (resolve) => {
-        const dialog = dialogs[id]
+        const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
+        // console.log('showMessageWaitForInteraction', dialog, )
         dialog.resolveCallback = resolve
 
         dialog.text = dialogString
@@ -183,7 +179,8 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 
 }
 const closeWindow = async (id) => {
-    await closeDialog(dialogs[id])
+    const dialog = getDialog(id)
+    await closeDialog(dialog)
 }
 const setDialogColor = (cornerId, r, g, b) => {
     switch (cornerId) {

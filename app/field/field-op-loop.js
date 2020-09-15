@@ -10,13 +10,14 @@ import * as misc from './field-op-codes-misc.js'
 import { sendOpFlowEvent, LoopVisualiserIcons } from './field-op-loop-visualiser.js'
 import { positionPlayableCharacterFromTransition } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
+import TWEEN from '../../assets/tween.esm.js'
 
-let STOP_ALL_LOOPS = false
+let CURRENT_FIELD = 'None'
 
-const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
-    console.log('   - executeOp: START', entityId, scriptType, op)
-    if (STOP_ALL_LOOPS) {
-        console.log('Loop stopping')
+const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpIndex) => {
+    console.log('   - executeOp: START', fieldName, entityId, scriptType, op)
+    if (CURRENT_FIELD !== fieldName) {
+        console.log('Loop stopping', CURRENT_FIELD, '!==', fieldName)
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
         return { exit: true }
     }
@@ -26,13 +27,13 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
         // Script Flow and Control
         case 'RET': result = await flow.RET(); break
 
-        case 'REQ': result = await flow.REQ(entityId, scriptType, op); break
-        case 'REQSW': result = await flow.REQSW(entityId, scriptType, op); break
-        case 'REQEW': result = await flow.REQEW(entityId, scriptType, op); break
-        case 'PREQ': result = await flow.PREQ(entityId, scriptType, op); break
-        case 'PRQSW': result = await flow.PRQSW(entityId, scriptType, op); break
-        case 'PRQEW': result = await flow.PRQEW(entityId, scriptType, op); break
-        case 'RETTO': result = await flow.RETTO(entityId, scriptType, op); break
+        case 'REQ': result = await flow.REQ(fieldName, entityId, scriptType, op); break
+        case 'REQSW': result = await flow.REQSW(fieldName, entityId, scriptType, op); break
+        case 'REQEW': result = await flow.REQEW(fieldName, entityId, scriptType, op); break
+        case 'PREQ': result = await flow.PREQ(fieldName, entityId, scriptType, op); break
+        case 'PRQSW': result = await flow.PRQSW(fieldName, entityId, scriptType, op); break
+        case 'PRQEW': result = await flow.PRQEW(fieldName, entityId, scriptType, op); break
+        case 'RETTO': result = await flow.RETTO(fieldName, entityId, scriptType, op); break
 
         case 'JMPF': result = await flow.JMPF(ops, op); break
         case 'JMPFL': result = await flow.JMPFL(ops, op); break
@@ -303,16 +304,17 @@ const executeOp = async (entityId, scriptType, ops, op, currentOpIndex) => {
             break;
     }
 
-    console.log('   - executeOp: END', entityId, scriptType, op, result)
+    console.log('   - executeOp: END', fieldName, entityId, scriptType, op, result)
     return result
 }
 const stopAllLoops = async () => {
-    STOP_ALL_LOOPS = true
-    // await sleep(2000)
+    CURRENT_FIELD = 'None'
+    TWEEN.removeAll()
+    // await sleep(100)
 }
 
-const executeScriptLoop = async (entityId, loop) => {
-    console.log(' - executeScriptLoop: START', entityId, loop)
+const executeScriptLoop = async (fieldName, entityId, loop) => {
+    console.log(' - executeScriptLoop: START', fieldName, entityId, loop)
     if (loop.isRunning) {
         console.log(' - executeScriptLoop: IS RUNNING')
         return
@@ -325,16 +327,16 @@ const executeScriptLoop = async (entityId, loop) => {
     while (currentOpIndex < ops.length) {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
-            console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP', entityId, loop)
+            console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP', fieldName, entityId, loop)
             // sendOpFlowEvent(entityId, loop.scriptType, '...', currentOpIndex + 1)
             break
         }
 
         let op = ops[currentOpIndex]
-        const result = await executeOp(entityId, loop.scriptType, ops, op, currentOpIndex)
-        console.log(' - executeScriptLoop: RESULT', entityId, result, currentOpIndex, flowActionCount)
+        const result = await executeOp(fieldName, entityId, loop.scriptType, ops, op, currentOpIndex)
+        console.log(' - executeScriptLoop: RESULT', fieldName, entityId, result, currentOpIndex, flowActionCount)
         if (result.exit) {
-            console.log(' - executeScriptLoop: EXIT', entityId, loop)
+            console.log(' - executeScriptLoop: EXIT', fieldName, entityId, loop)
             break
         }
         if (result.flow) {
@@ -361,19 +363,19 @@ const executeScriptLoop = async (entityId, loop) => {
         sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
     }
 
-    console.log(' - executeScriptLoop: END', entityId, loop)
+    console.log(' - executeScriptLoop: END', fieldName, entityId, loop)
 }
-const initEntity = async (entity) => {
-    console.log('initEntity: START', entity.entityId, entity.entityName, entity)
+const initEntity = async (fieldName, entity) => {
+    console.log('initEntity: START', fieldName, entity.entityId, entity.entityName, entity)
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
-    await executeScriptLoop(entity.entityId, initLoop)
+    await executeScriptLoop(fieldName, entity.entityId, initLoop)
     const mainLoops = entity.scripts.filter(s => s.index === 0 && s.isMain)
     if (mainLoops.length > 0) {
         const mainLoop = mainLoops[0]
         console.log('mainLoop', mainLoop)
         // if (entity.entityName !== 'dir') { // Debug
-        await executeScriptLoop(entity.entityId, mainLoop)
+        await executeScriptLoop(fieldName, entity.entityId, mainLoop)
         // }
     }
 
@@ -382,20 +384,20 @@ const initEntity = async (entity) => {
     // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
     //     console.log('script3', script3)
-    //     await executeScriptLoop(entity.entityId, script3)
+    //     await executeScriptLoop(fieldName, entity.entityId, script3)
     // }
 
     console.log('initEntity: END', entity.entityId, entity.entityName)
 }
 const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
-    STOP_ALL_LOOPS = false
+    CURRENT_FIELD = window.currentField.name
     let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
     // entities = entities.filter(e => e.entityName !== 'timeo' && e.entityName !== 'smoke1' && e.entityName !== 'smoke2') // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
-        initEntity(entity) // All running async
+        initEntity(window.currentField.name, entity) // All running async
     }
     console.log('initialiseOpLoops: END')
 }
@@ -407,7 +409,7 @@ const triggerEntityTalkLoop = async (entityId) => {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(entity.entityId, talkLoop)
+            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop)
         }
     }
 }
@@ -416,7 +418,7 @@ const triggerEntityCollisionLoop = async (entityId) => {
     console.log('triggerEntityTalkLoop', entityId, entity)
     const contactLoop = entity.scripts.filter(s => s.scriptType === 'Contact')[0]
     console.log('contactLoop', contactLoop)
-    await executeScriptLoop(entity.entityId, contactLoop)
+    await executeScriptLoop(window.currentField.name, entity.entityId, contactLoop)
 }
 const triggerEntityMoveLoops = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
@@ -424,7 +426,7 @@ const triggerEntityMoveLoops = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Move')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityId, loop) // async
+        executeScriptLoop(window.currentField.name, entity.entityId, loop) // async
     }
 }
 const triggerEntityGoLoop = async (entityId) => {
@@ -433,7 +435,7 @@ const triggerEntityGoLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
+        executeScriptLoop(window.currentField.name, entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityGo1xLoop = async (entityId) => {
@@ -442,7 +444,7 @@ const triggerEntityGo1xLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
+        executeScriptLoop(window.currentField.name, entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityGoAwayLoop = async (entityId) => {
@@ -451,7 +453,7 @@ const triggerEntityGoAwayLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
+        executeScriptLoop(window.currentField.name, entity.entityId, loop) // Will only ever be 1 max
     }
 }
 const triggerEntityOKLoop = async (entityId) => {
@@ -460,7 +462,7 @@ const triggerEntityOKLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(entity.entityId, loop) // Will only ever be 1 max
+        executeScriptLoop(window.currentField.name, entity.entityId, loop) // Will only ever be 1 max
     }
 }
 

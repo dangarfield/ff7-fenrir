@@ -12,8 +12,8 @@ const RET = async () => {
     return { exit: true }
 }
 
-const REQ = async (entityId, scriptType, op) => {
-    console.log('REQ', entityId, scriptType, op)
+const REQ = async (fieldName, entityId, scriptType, op) => {
+    console.log('REQ', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
@@ -24,49 +24,49 @@ const REQ = async (entityId, scriptType, op) => {
         console.log('REQ no running script as it is already running', entity, script, script.isRunning)
         return {}
     }
-    executeScriptLoop(entity.entityId, script) // Async
+    executeScriptLoop(fieldName, entity.entityId, script) // Async
     return {}
 }
-const REQSW = async (entityId, scriptType, op) => {
-    console.log('REQSW', entityId, scriptType, op)
+const REQSW = async (fieldName, entityId, scriptType, op) => {
+    console.log('REQSW', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
     // No need to check it is running
-    executeScriptLoop(entity.entityId, script) // Async
+    executeScriptLoop(fieldName, entity.entityId, script) // Async
     return {}
 }
-const REQEW = async (entityId, scriptType, op) => {
-    console.log('REQEW', entityId, scriptType, op)
+const REQEW = async (fieldName, entityId, scriptType, op) => {
+    console.log('REQEW', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
     // console.log('script', entity, script, script.isRunning)
     // No need to check it is running
-    await executeScriptLoop(entity.entityId, script) // Sync
+    await executeScriptLoop(fieldName, entity.entityId, script) // Sync
     return {}
 }
-const PREQ = async (entityId, scriptType, op) => {
-    console.log('PREQ', entityId, scriptType, op)
+const PREQ = async (fieldName, entityId, scriptType, op) => {
+    console.log('PREQ', fieldName, entityId, scriptType, op)
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    executeScriptLoop(entity.entityId, script) // Async
+    executeScriptLoop(fieldName, entity.entityId, script) // Async
     return {}
 }
-const PRQSW = async (entityId, scriptType, op) => {
-    console.log('PRQSW', entityId, scriptType, op)
+const PRQSW = async (fieldName, entityId, scriptType, op) => {
+    console.log('PRQSW', fieldName, entityId, scriptType, op)
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    executeScriptLoop(entity.entityId, script) // Async
+    executeScriptLoop(fieldName, entity.entityId, script) // Async
     return {}
 }
-const PRQEW = async (entityId, scriptType, op) => {
-    console.log('PRQEW', entityId, scriptType, op)
+const PRQEW = async (fieldName, entityId, scriptType, op) => {
+    console.log('PRQEW', fieldName, entityId, scriptType, op)
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    await executeScriptLoop(entity.entityId, script) // Sync
+    await executeScriptLoop(fieldName, entity.entityId, script) // Sync
     return {}
 }
 
