@@ -150,7 +150,7 @@ const positionPlayableCharacterFromTransition = async () => {
         setModelAsEntity(entityId, modelId)
         setModelAsPlayableCharacter(entityId, initData.characterName)
         // const model = getModelByCharacterName(initData.characterName)
-        placeModel(entityId, initData.position.x, initData.position.y, undefined, initData.triangleId)
+        placeModel(entityId, initData.position.x, initData.position.y, initData.position.z, initData.triangleId)
         setModelDirection(entityId, initData.direction)
         setModelVisibility(entityId, true)
 

@@ -1,4 +1,4 @@
-import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu, jumpToMap } from './field-actions.js'
+import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu, jumpToMap, jumpToMiniGame } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 import { setConfigFieldMessageSpeed, debugResetGame } from '../data/savemap-config.js'
@@ -142,8 +142,15 @@ const MAPJUMP = async (op) => {
     await jumpToMap(op.f, op.x, op.y, op.i, op.d)
     return {}
 }
+const MINIGAME = async (op) => {
+    console.log('MINIGAME', op)
+    // m: m, x: x, y: y, z: z, g: g, t: t,
+    jumpToMiniGame(op.t, op.g, { map: op.m, x: op.x, y: op.y, z: op.z })
+    return {}
+}
 setTimeout(async () => {
     console.log('DEBUG: START')
+    // await MINIGAME({ m: 406, x: -101, y: -156, z: 8, g: 0, t: 4 })
     // await SPECIAL({ subOpName: 'ARROW', params: [1] })
     // await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
     // await SPECIAL({ subOpName: 'BTLCK', params: [1] })
@@ -167,6 +174,7 @@ setTimeout(async () => {
 export {
     DSKCG,
     SPECIAL,
+    MINIGAME,
     BTMD2,
     BTRLD,
     BTLTB,

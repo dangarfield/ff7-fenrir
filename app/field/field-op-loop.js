@@ -59,6 +59,7 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         // System and Module Control
         case 'DSKCG': result = await control.DSKCG(op); break
         case 'SPECIAL': result = await control.SPECIAL(op); break
+        case 'MINIGAME': result = await control.MINIGAME(op); break
         case 'BTMD2': result = await control.BTMD2(op); break
         case 'BTRLD': result = await control.BTRLD(op); break
         case 'BTLTB': result = await control.BTLTB(op); break

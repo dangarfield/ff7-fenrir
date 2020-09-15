@@ -515,15 +515,16 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
     text = replaceButtonImages(text)
     text = replaceVariables(text, dialog.id)
     // Done - Basic Colours, eg <fe>{PURPLE}
+    // TODO - Unknown: <fe><dd>4 - field: hill - Looks like a delay
     // TODO - Colour animations, eg <fe>{FLASH}, <fe>{RAINBOW}
     // Done - Buttons, eg [CANCEL], no direction button image?!
     // Done - Choices, eg {CHOICE}
-    // TODO - Pauses, eg {PAUSE} - Not sure, but these might be pages?!
+    // TODO - Pauses, eg {PAUSE} - Need to look into behaviour and how that differs to page
     // Done - Pages, eg {PAGE}
     // Done - Text Variables, eg <fe>{MEM1}
 
     // console.log('Configured text', text)
-    let pagesText = text.split('{PAGE}')
+    let pagesText = text.split(/\{PAGE\}|\{PAUSE\}/g)
 
     const pages = []
     for (let i = 0; i < pagesText.length; i++) {

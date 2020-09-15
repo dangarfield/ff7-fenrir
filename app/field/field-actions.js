@@ -3,6 +3,7 @@ import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
 import { loadMenuWithWait } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
+import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
 import {
@@ -159,6 +160,26 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     }
     loadField(fieldName, playableCharacterInitData)
 }
+const jumpToMapFromMiniGame = async (fieldId, x, y, z) => {
+    const fieldName = await getFieldNameForId(fieldId)
+    console.log('jumpToMapFromMinigame', fieldId, fieldName, x, y, z)
+
+    const playableCharacterInitData = {
+        position: { x: x, y: y, z: z },
+        direction: 0,
+        characterName: window.currentField.playableCharacter.userData.characterName
+    }
+    loadField(fieldName, playableCharacterInitData)
+}
+const jumpToMiniGame = async (gameId, options, returnInstructions) => {
+    setActionInProgress('gateway')
+    window.anim.clock.stop()
+    window.currentField.playableCharacterCanMove = false
+    setPlayableCharacterIsInteracting(true)
+    await stopAllLoops()
+    await fadeOut()
+    loadMiniGame(gameId, options, returnInstructions)
+}
 const setGatewayTriggerEnabled = (enabled) => {
     window.currentField.gatewayTriggersEnabled = enabled
     console.log('setGatewayTriggerEnabled', window.currentField.gatewayTriggersEnabled)
@@ -191,5 +212,7 @@ export {
     unfreezeField,
     triggerBattleWithSwirl,
     setGatewayTriggerEnabled,
-    jumpToMap
+    jumpToMap,
+    jumpToMapFromMiniGame,
+    jumpToMiniGame
 }
