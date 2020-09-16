@@ -1,4 +1,7 @@
-import { changeBackgroundParamState, clearBackgroundParam, clearBackgroundDepth, scrollBackground } from './field-backgrounds.js'
+import {
+    changeBackgroundParamState, clearBackgroundParam,
+    clearBackgroundDepth, scrollBackground, rollBackgroundParamState
+} from './field-backgrounds.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData } from '../data/savemap.js'
 const BGON = async (op) => {
@@ -19,6 +22,18 @@ const BGCLR = async (op) => {
     console.log('BGCLR', op)
     const param = op.b == 0 ? op.a : getBankData(op.b, op.a)
     clearBackgroundParam(param)
+    return {}
+}
+const BGROL = async (op) => {
+    console.log('BGROL', op)
+    const param = op.b == 0 ? op.a : getBankData(op.b, op.a)
+    rollBackgroundParamState(param, true)
+    return {}
+}
+const BGROL2 = async (op) => {
+    console.log('BGRO2', op)
+    const param = op.b == 0 ? op.a : getBankData(op.b, op.a)
+    rollBackgroundParamState(param, false)
     return {}
 }
 const BGPDH = async (op) => {
@@ -62,5 +77,7 @@ export {
     BGSCR,
     BGON,
     BGOFF,
+    BGROL,
+    BGROL2,
     BGCLR
 }

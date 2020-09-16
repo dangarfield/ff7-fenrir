@@ -17,6 +17,35 @@ const changeBackgroundParamState = (param, state, isActive) => {
         }
     }
 }
+const rollBackgroundParamState = (param, forward) => {
+    // Get current active state
+    let currentState = undefined
+    const allBgLayers = window.currentField.backgroundLayers.children
+    for (let i = 0; i < allBgLayers.length; i++) {
+        const l = allBgLayers[i]
+        if (l.userData.param === param && l.visible) {
+            currentState = l.userData.state
+            break
+        }
+    }
+
+
+    // Loop round and diactivation currentState, activate currentSate+-1
+    if (currentState !== undefined) {
+        let desiredState = forward ? currentState + 1 : currentState - 1
+        console.log('rollBackgroundParamState', param, forward ? 'forward' : 'backwards', currentState, '->', desiredState)
+        for (let i = 0; i < allBgLayers.length; i++) {
+            const l = allBgLayers[i]
+            if (l.userData.param === param) {
+                if (l.userData.state === desiredState) {
+                    l.visible = true
+                } else {
+                    l.visible = false
+                }
+            }
+        }
+    }
+}
 const clearBackgroundParam = (param) => {
     // console.log('clearBackgroundParam', param)
     const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param)
@@ -153,6 +182,7 @@ setTimeout(async () => {
 }, 12000)
 export {
     changeBackgroundParamState,
+    rollBackgroundParamState,
     clearBackgroundParam,
     clearBackgroundDepth,
     scrollBackground,

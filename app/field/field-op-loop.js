@@ -256,6 +256,8 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         case 'BGSCR': result = await background.BGSCR(op); break
         case 'BGON': result = await background.BGON(op); break
         case 'BGOFF': result = await background.BGOFF(op); break
+        case 'BGROL': result = await background.BGROL(op); break
+        case 'BGROL2': result = await background.BGROL2(op); break
         case 'BGCLR': result = await background.BGCLR(op); break
 
         // Camera, Audio and Video
