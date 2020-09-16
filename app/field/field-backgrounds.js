@@ -45,72 +45,55 @@ const clearBackgroundDepth = (layerId, z) => {
         layer.position.set(bgVector.x, bgVector.y, bgVector.z)
     }
 }
-const setScrollMeta = (layer, xSpeed, ySpeed) => {
-    layer.userData.scroll = true
-    layer.userData.scrollSpeedX = xSpeed
-    layer.userData.scrollSpeedY = ySpeed
-    layer.userData.scrollInitialX = layer.position.x
-    layer.userData.scrollInitialY = layer.position.y
-    layer.userData.scrollInitialZ = layer.position.z
-}
 const scrollBackground = (layerId, xSpeed, ySpeed) => {
     const layers = window.currentField.backgroundLayers.children.filter(l => l.userData.layerId === layerId)
-
     // Identify the layers, duplicate and add meta info
     console.log('scrollBackground', layerId, xSpeed, ySpeed, layers)
     for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
         if (layer.userData.scroll === undefined) {
             // Duplicate in all directions
-            console.log('scrollBackground layer', layer)
+            // console.log('scrollBackground layer', layer)
             layer.scale.x = 3
             layer.scale.y = 3
             layer.material.map.wrapS = THREE.RepeatWrapping
             layer.material.map.wrapT = THREE.RepeatWrapping
             layer.material.map.repeat.x = 3
             layer.material.map.repeat.y = 3
+            layer.material.map.center.x = 0.5
+            layer.material.map.center.y = 0.5
+            layer.material.map.matrixAutoUpdate = true
             layer.material.map.needsUpdate = true
         }
-        setScrollMeta(layer, xSpeed, ySpeed)
+        layer.userData.scroll = true
+        layer.userData.scrollSpeedX = xSpeed
+        layer.userData.scrollSpeedY = ySpeed
+        layer.userData.scrollInitialX = layer.position.x
+        layer.userData.scrollInitialY = layer.position.y
+        layer.userData.scrollInitialZ = layer.position.z
     }
     // Field render loop will move the scene objects and reset x/y position if hit boundary
 }
+const BG_SCROLL_FACTOR = 0.00266  // seems to match fairly well on ztruck
 const updateBackgroundScolling = (delta) => {
     // console.log('scrollBackground updateBackgroundScolling', delta)
     const layers = window.currentField.backgroundLayers.children
     for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
-        if (i === 10) {
-            // console.log('scrollBackground pos', i,
-            //     'w', layer.geometry.parameters.width,
-            //     'h', layer.geometry.parameters.height,
-            //     'x', layer.position.x, layer.userData.scrollInitialX, Math.abs(layer.position.x - layer.userData.scrollInitialX) <= layer.geometry.parameters.width,
-            //     'y', layer.position.y, layer.userData.scrollInitialY, Math.abs(layer.position.y - layer.userData.scrollInitialY) <= layer.geometry.parameters.height,
-            //     'z', layer.position.z)
-        }
-
-        // This is still not right, need to calculate some vectors
         if (layer.userData.scrollSpeedX) {
-            if (Math.abs(layer.position.x - layer.userData.scrollInitialX) <= layer.geometry.parameters.width) {
-                layer.position.x = layer.position.x + (layer.userData.scrollSpeedX * delta * 0.001)
-            } else {
-                layer.position.x = layer.userData.scrollInitialX
-            }
+            // console.log('scrollBackground x', layer.material.map.center.x, layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
+            layer.material.map.center.x = layer.material.map.center.x - (layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
         }
         if (layer.userData.scrollSpeedY) {
-            console.log('scrollBackground y')
-            if (Math.abs(layer.position.z - layer.userData.scrollInitialY) <= layer.geometry.parameters.height) {
-                layer.position.z = layer.position.z + (layer.userData.scrollSpeedY * delta * 0.001)
-            } else {
-                layer.position.z = layer.userData.scrollInitialY
-            }
+            // console.log('scrollBackground y', layer.material.map.center.y, layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
+            layer.material.map.center.y = layer.material.map.center.y - (layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
         }
     }
 }
 setTimeout(async () => {
     console.log('start')
 
-    scrollBackground(3, 0, -30)
+    // scrollBackground(3, -5, -10)
 
     while (false) {
         await sleep(1000 / 30 * 4)

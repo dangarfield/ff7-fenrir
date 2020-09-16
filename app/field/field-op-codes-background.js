@@ -1,4 +1,4 @@
-import { changeBackgroundParamState, clearBackgroundParam, clearBackgroundDepth } from './field-backgrounds.js'
+import { changeBackgroundParamState, clearBackgroundParam, clearBackgroundDepth, scrollBackground } from './field-backgrounds.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData } from '../data/savemap.js'
 const BGON = async (op) => {
@@ -27,6 +27,13 @@ const BGPDH = async (op) => {
     clearBackgroundDepth(op.l, z)
     return {}
 }
+const BGSCR = async (op) => {
+    console.log('BGSCR', op)
+    const x = op.bx == 0 ? op.x : getBankData(op.bx, op.x)
+    const y = op.by == 0 ? op.y : getBankData(op.by, op.y)
+    scrollBackground(op.l, x, y)
+    return {}
+}
 // setTimeout(async () => {
 //     console.log('BG OP CODES: START')
 
@@ -52,6 +59,7 @@ const BGPDH = async (op) => {
 
 export {
     BGPDH,
+    BGSCR,
     BGON,
     BGOFF,
     BGCLR
