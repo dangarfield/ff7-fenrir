@@ -56,49 +56,68 @@ const updateFieldMovement = (delta) => {
         window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[0]).play() // stand window.anim
         return
     }
-    // Set player in direction 
-    let directionRadians = THREE.Math.degToRad(direction)
-    let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
-    // console.log('directionVector', directionVector, window.currentField.data.triggers.header.controlDirection)
-    let nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed) // Show probably factor in window.anim.clock delta so its smoother
-    window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, directionVector)) // Doesn't work perfectly
-    // window.currentField.fieldScene.add(new THREE.ArrowHelper(directionVector, window.currentField.playableCharacter.scene.position, 0.1, 0xff00ff))
 
-    // window.currentField.playableCharacter.boxHelper.update()
+    // Deal with 'slippability' - 
+    const directions = [direction, direction - 45, direction + 45]
+    let nextPosition
+    let walkmeshFound = false
 
-    // Adjust for climbing slopes and walking off walkmesh
-    // Create a ray at next position (higher z, but pointing down) to find correct z position
-    let playerMovementRay = new THREE.Raycaster()
-    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
-    const rayD = new THREE.Vector3(0, 0, -1).normalize()
-    playerMovementRay.set(rayO, rayD)
-    playerMovementRay.far = 0.1
-    let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
-    // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
-    if (window.config.debug.showMovementHelpers) {
-        window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
+    for (let i = 0; i < directions.length; i++) {
+        const potentialDirection = directions[i]
+        // Set player in direction - Deal with 'slippability'
+        let directionRadians = THREE.Math.degToRad(potentialDirection)
+        let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
+        nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
+        window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, directionVector))
+
+        // Adjust for climbing slopes and walking off walkmesh
+        // Create a ray at next position (higher z, but pointing down) to find correct z position
+        let playerMovementRay = new THREE.Raycaster()
+        const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
+        const rayD = new THREE.Vector3(0, 0, -1).normalize()
+        playerMovementRay.set(rayO, rayD)
+        playerMovementRay.far = 0.1
+        let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+        // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+        if (window.config.debug.showMovementHelpers) {
+            window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
+        }
+        if (intersects.length === 0) {
+            // Player is off walkmap
+            // window.currentField.playableCharacter.mixer.stopAllAction()
+            // return
+            continue
+        } else if (!intersects[0].object.userData.movementAllowed) {
+            // Triangle locked through IDLCK
+            // window.currentField.playableCharacter.mixer.stopAllAction()
+            // return
+            continue
+        } else {
+            walkmeshFound = true
+            const point = intersects[0].point
+            // Adjust nextPosition height to to adjust for any slopes
+            nextPosition.z = point.z
+            window.currentField.playableCharacter.scene.userData.triangleId = intersects[0].object.userData.triangleId
+            updateSavemapLocationFieldPosition(
+                Math.round(nextPosition.x * 4096),
+                Math.round(nextPosition.y * 4096),
+                window.currentField.playableCharacter.scene.userData.triangleId,
+                direction - window.currentField.data.triggers.header.controlDirectionDegrees)
+            updateSavemapLocationFieldLeader(window.currentField.playableCharacter.userData.characterName)
+            // console.log('player movement', nextPosition.z, intersects[0].object.userData.triangleId)
+            break
+        }
     }
-    if (intersects.length === 0) {
-        // Player is off walkmap
+
+    if (!walkmeshFound) {
         window.currentField.playableCharacter.mixer.stopAllAction()
         return
-    } else if (!intersects[0].object.userData.movementAllowed) {
-        // Triangle locked through IDLCK
-        window.currentField.playableCharacter.mixer.stopAllAction()
-        return
-    } else {
-        const point = intersects[0].point
-        // Adjust nextPosition height to to adjust for any slopes
-        nextPosition.z = point.z
-        window.currentField.playableCharacter.scene.userData.triangleId = intersects[0].object.userData.triangleId
-        updateSavemapLocationFieldPosition(
-            Math.round(nextPosition.x * 4096),
-            Math.round(nextPosition.y * 4096),
-            window.currentField.playableCharacter.scene.userData.triangleId,
-            direction - window.currentField.data.triggers.header.controlDirectionDegrees)
-        updateSavemapLocationFieldLeader(window.currentField.playableCharacter.userData.characterName)
-        // console.log('player movement', nextPosition.z, intersects[0].object.userData.triangleId)
     }
+
+
+
+
+
 
 
 

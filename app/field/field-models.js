@@ -189,13 +189,13 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     } else if (x && y && triangleId) {
         // Get the central point on the triangleId
         console.log('placeModel: x, y, triangleZ')
-        // const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
-        // const triangleZ = (triangle[0].z + triangle[1].z + triangle[2].z) / 3
-        // model.scene.position.set(
-        //     x / 4096,
-        //     y / 4096,
-        //     triangleZ / 4096)
-        // console.log('placeModel: triangleId', triangleId, triangle, '->', x, y, z)
+        const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
+        const triangleZ = (triangle[0].z + triangle[1].z + triangle[2].z) / 3
+        model.scene.position.set(
+            x / 4096,
+            y / 4096,
+            triangleZ / 4096)
+        console.log('placeModel: triangleId', triangleId, triangle, '->', x, y, z)
     } else {
         console.log('placeModel: triangleX, triangleY, triangleZ')
         const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
