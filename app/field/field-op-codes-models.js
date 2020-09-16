@@ -272,6 +272,11 @@ const PMOVA = async (entityId, op) => {
     await fieldMovement.moveEntityToPartyMemberWithAnimationAndRotation(entityId, op.p)
     return {}
 }
+const SLIP = async (entityId, op) => {
+    console.log('SLIP', entityId, op)
+    fieldModels.setLineSlippability(entityId, op.s === 0)
+    return {}
+}
 const OFST = async (entityId, op) => {
     console.log('OFST', entityId, op)
     const x = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
@@ -500,6 +505,7 @@ export {
     JOIN,
     SPLIT,
     PMOVA,
+    SLIP,
     UC,
     PDIRA,
     PTURA,

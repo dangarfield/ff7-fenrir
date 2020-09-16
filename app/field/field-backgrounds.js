@@ -1,6 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { sleep } from '../helpers/helpers.js'
 import { getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
+import { drawArrowPositionHelper } from './field-position-helpers.js'
 
 const changeBackgroundParamState = (param, state, isActive) => {
     // console.log('changeBackgroundParamState', param, state, isActive)

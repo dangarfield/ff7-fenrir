@@ -496,8 +496,16 @@ const registerLine = (entityId, lv0, lv1) => {
     line.userData.triggeredAway = false
     line.userData.entityId = entityId
     line.userData.entityName = getEntityNameFromEntityId(entityId)
+    line.userData.slippabilityEnabled = true
     window.currentField.lineLines.add(line)
     console.log('registerLine line', line)
+}
+const setLineSlippability = (entityId, enabled) => {
+    console.log('setLineSlippability', entityId, enabled)
+    const lines = window.currentField.lineLines.children.filter(l => l.userData.entityId === entityId)
+    if (lines.length > 0) {
+        lines[0].userData.slippabilityEnabled = enabled
+    }
 }
 const enableLines = (enabled) => {
     console.log('enableLines', enabled)
@@ -553,6 +561,7 @@ export {
     getPartyMemberDirection,
     setModelRotationEnabled,
     registerLine,
+    setLineSlippability,
     enableLines,
     setLinePosition
 }

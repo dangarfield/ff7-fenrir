@@ -180,6 +180,7 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         case 'SPLIT': result = await models.SPLIT(entityId, op); break
 
         case 'PMOVA': result = await models.PMOVA(entityId, op); break
+        case 'SLIP': result = await models.SLIP(entityId, op); break
         case 'UC': result = await models.UC(entityId, op); break
         case 'PDIRA': result = await models.PDIRA(entityId, op); break
         case 'PTURA': result = await models.PTURA(entityId, op); break

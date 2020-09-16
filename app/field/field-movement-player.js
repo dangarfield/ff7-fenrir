@@ -57,21 +57,28 @@ const updateFieldMovement = (delta) => {
         return
     }
 
-    // Deal with 'slippability' - 
-    const directions = [direction, direction - 45, direction + 45]
+    // Deal with 'slippability'
+    const SLIP_ANGLE = 45
+    const directions = [direction, direction - SLIP_ANGLE, direction + SLIP_ANGLE]
     let nextPosition
     let walkmeshFound = false
+    let isSlipDirection = false
+    let originalDirectionVector
 
     for (let i = 0; i < directions.length; i++) {
         const potentialDirection = directions[i]
-        // Set player in direction - Deal with 'slippability'
+        // Set player in direction
         let directionRadians = THREE.Math.degToRad(potentialDirection)
         let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
+        if (i === 0) {
+            originalDirectionVector = directionVector
+        }
         nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
         window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, directionVector))
 
         // Adjust for climbing slopes and walking off walkmesh
         // Create a ray at next position (higher z, but pointing down) to find correct z position
+        // TODO - Need to deal with transitioning from a non-adjacent triangle, eg, just to different areas
         let playerMovementRay = new THREE.Raycaster()
         const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
         const rayD = new THREE.Vector3(0, 0, -1).normalize()
@@ -84,16 +91,15 @@ const updateFieldMovement = (delta) => {
         }
         if (intersects.length === 0) {
             // Player is off walkmap
-            // window.currentField.playableCharacter.mixer.stopAllAction()
-            // return
             continue
         } else if (!intersects[0].object.userData.movementAllowed) {
             // Triangle locked through IDLCK
-            // window.currentField.playableCharacter.mixer.stopAllAction()
-            // return
             continue
         } else {
             walkmeshFound = true
+            if (i >= 1) {
+                isSlipDirection = true
+            }
             const point = intersects[0].point
             // Adjust nextPosition height to to adjust for any slopes
             nextPosition.z = point.z
@@ -167,6 +173,11 @@ const updateFieldMovement = (delta) => {
                 if (line.userData.triggered === false) {
                     line.userData.triggered = true
                     lineMoveTriggered(entityId, line)
+                }
+                if (isSlipDirection && !line.userData.slippabilityEnabled) {
+                    window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, originalDirectionVector))
+                    window.currentField.playableCharacter.mixer.stopAllAction()
+                    return
                 }
             } else {
                 if (line.userData.triggered === true) {
