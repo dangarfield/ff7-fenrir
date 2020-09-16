@@ -312,9 +312,24 @@ const TWO_BYTE = (op) => {
     setBankData(op.b1, op.d, bit16)
     return {}
 }
-
-// SIN & COS, have a lot of parameters, will look another time
-//I believe its only on temple of ancients clock
+const SIN = (op) => {
+    console.log('SIN', op)
+    const m = op.b2 == 0 ? op.m : getBankData(op.b2, op.m)
+    const a = op.b3 == 0 ? op.a : getBankData(op.b3, op.a)
+    const s = op.b4 == 0 ? op.s : getBankData(op.b4, op.s)
+    const value = ((Math.sin(s) * m) + a) >> 12 // Var[B1][D] = ( ( Math.sin(Var[B4][S]) * M) + A) >> 12
+    setBankData(op.b1, op.d, value)
+    return {}
+}
+const COS = (op) => {
+    console.log('COS', op)
+    const m = op.b2 == 0 ? op.m : getBankData(op.b2, op.m)
+    const a = op.b3 == 0 ? op.a : getBankData(op.b3, op.a)
+    const s = op.b4 == 0 ? op.s : getBankData(op.b4, op.s)
+    const value = ((Math.cos(s) * m) + a) >> 12 // Var[B1][D] = ( ( Math.cos(Var[B4][S]) * M) + A) >> 12
+    setBankData(op.b1, op.d, value)
+    return {}
+}
 
 export {
     PLUS_,
@@ -360,5 +375,7 @@ export {
     RANDOM,
     LBYTE,
     HBYTE,
-    TWO_BYTE
+    TWO_BYTE,
+    SIN,
+    COS
 }

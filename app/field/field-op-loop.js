@@ -115,7 +115,9 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         case 'RANDOM': result = assign.RANDOM(op); break
         case 'LBYTE': result = assign.LBYTE(op); break
         case 'HBYTE': result = assign.HBYTE(op); break
-        case '2BYTE': result = assign.TWO_(op); break
+        case '2BYTE': result = assign.TWO_BYTE(op); break
+        case 'SIN': result = assign.SIN(op); break
+        case 'COS': result = assign.COS(op); break
 
         // Windowing and Menu
 
