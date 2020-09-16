@@ -45,12 +45,12 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add keyboard instruction image
 - :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
-- :point_right: Begin properly implementing field op codes
+- :white_check_mark: Begin properly implementing field op codes - 92% complete. Just paletting, graphics ops and a few unknowns
 - :black_square_button: Update savemap with all non op-code data, movements, directions, game time, steps etc
 - :black_square_button: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism
 - :white_check_mark: Add visual script progress debug mechanism
-- :black_square_button: Fix npc movement speed and direction and z raycasting
+- :point_right: Fix player and npc movement speed, direction and z raycasting
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
 - :black_square_button: Add animation root translation the kujata models and apply in game
 - :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
