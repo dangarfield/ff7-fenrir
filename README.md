@@ -45,16 +45,20 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add keyboard instruction image
 - :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
-- :white_check_mark: Begin properly implementing field op codes - 92% complete. Just paletting, graphics ops and a few unknowns
+- :white_check_mark: Begin properly implementing field op codes - 92% complete. 4 -> I can do later. 3 - Character graphics ops, undocumented / graphics model changes. 12 - Paletting, eg different approach required
 - :black_square_button: Update savemap with all non op-code data, movements, directions, game time, steps etc
 - :black_square_button: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism
+- :black_square_button: Ensure all dg textures are loaded before fadeIn of fields
 - :white_check_mark: Add visual script progress debug mechanism
 - :point_right: Fix player and npc movement speed, direction and z raycasting
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
 - :black_square_button: Add animation root translation the kujata models and apply in game
 - :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
-- :black_square_button: Adjust ray casting for 'slip' player positioning and also make it not the centre point
+- :black_square_button: Sound loops metadata needs to be extracted properly
+- :black_square_button: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
+- :black_square_button: Slippability sometimes looks very jagged
+- :black_square_button: Save model doesn't rotate
 - :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
 - :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
@@ -73,5 +77,6 @@ See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/mas
 
 ### Thanks
 - Picklejar76 and his work with `https://github.com/picklejar76/kujata` and `https://github.com/picklejar76/kujata-data` for game assets and services
+- Myst6re and his work with `https://github.com/myst6re/makoureactor` for understanding a huge amount of the field logic and field op code behaviours
 - All of the Tsunamods Discord and Qhimm community for their extensive work so far
 - Many others as I begin to work through further

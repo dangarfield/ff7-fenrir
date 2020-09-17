@@ -429,9 +429,12 @@ setTimeout(async () => {
     // })
     // await LINE('KDLINE', { x1: 186, y1: -117, z1: -624, x2: 118, y2: -174, z2: -624 })
 
-    // await MOVE('ba', { b1: 0, b2: 0, x: 3607, y: 27712 })
-    // await MOVE('ba', { b1: 0, b2: 0, x: 3836, y: 29295 })
-    // await MOVE('ba', { b1: 0, b2: 0, x: 3578, y: 29360 })
+
+    // await DIR(1, { b: 0, d: 255 / 4 * 3 })
+
+    // await MOVE(2, { b1: 0, b2: 0, x: 3607, y: 27712 })
+    // await MOVE(2, { b1: 0, b2: 0, x: 3836, y: 29295 })
+    // await MOVE(2, { b1: 0, b2: 0, x: 3578, y: 29360 })
 
     // await MSPED('ba', { b: 0, s: 2560 })
     // await MOVE('ba', { b1: 0, b2: 0, x: 1526, y: 1302 })

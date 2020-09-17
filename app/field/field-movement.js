@@ -3,7 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import {
     getModelByEntityId, getModelByPartyMemberId, getModelByCurrentPlayableCharacter,
     getModelByCharacterName, getDegreesFromTwoPoints, turnModelToFaceEntity, turnModelToFaceDirection,
-    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel, setModelDirection
+    setModelCollisionEnabled, setModelTalkEnabled, setModelVisibility, placeModel, setModelDirection, directionToDegrees
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
@@ -126,16 +126,19 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
 
     console.log('current position', model.scene.position.x, model.scene.position.y)
     const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: x, y: y })
-    console.log('directionDegrees', directionDegrees)
+
+    // console.log('directionDegrees', directionDegrees, window.currentField.data.triggers.header.controlDirectionDegrees,
+    //     // 180 + (directionDegrees * -1)
+    // )
 
     const from = { x: model.scene.position.x, y: model.scene.position.y }
     const to = { x: x, y: y }
-    const distance = Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
-    const speed = model.userData.movementSpeed * (1 / window.currentField.data.model.header.modelScale) * 1024 * 2// TODO - Look at this properly, not sure of the scale here
-    let time = distance * speed
+    const distance = 4096 * Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
+    const speed = (model.userData.movementSpeed / 8.6428) * (window.currentField.data.model.header.modelScale / 512) // This 'seems' ok, at least for modelScale 512 fields
+    let time = (distance / speed) * 1000
     console.log('distance', distance)
     console.log('speed', speed)
-    console.log('workings out', model.userData.movementSpeed, window.currentField.data.model.header.modelScale)
+    console.log('workings out', entityId, model.userData.entityName, '-', model.userData.movementSpeed, window.currentField.data.model.header.modelScale, 'dst', distance, speed, time)
     console.log('time', time)
     // at 512 & 2048 - speed = 8192
 

@@ -6,7 +6,9 @@ import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync } from './field-animations.js'
 
 const directionToDegrees = (dir) => {
-    return Math.round(dir * (360 / 255))
+    const deg = Math.round(dir * (360 / 255))
+    console.log('directionDegrees directionToDegrees', dir, deg, window.currentField.data.triggers.header.controlDirectionDegrees)
+    return deg
 }
 const degreesToDirection = (deg) => {
     // TODO - Not 100% sure about this, might have to take into consideration the relative positioning of the field
@@ -404,7 +406,7 @@ const setPlayableCharacterCanMove = (canMove) => {
     }
 }
 const getDegreesFromTwoPoints = (point1, point2) => {
-    return Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI
+    return 180 + -1 * (Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI)
 }
 const turnModelToFaceEntity = async (entityId, entityIdToFace, whichWayId, steps) => {
     const model = getModelByEntityId(entityId)

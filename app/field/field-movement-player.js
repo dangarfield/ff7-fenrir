@@ -21,7 +21,7 @@ const updateFieldMovement = (delta) => {
         return
     }
 
-    let speed = (window.currentField.data.model.header.modelScale / 5120) * delta// run - Need to set these from the placed character model. Maybe these can be defaults?
+    let speed = (window.currentField.data.model.header.modelScale / 4400) * delta // run - Need to set these from the placed character model. Maybe these can be defaults?
     let animNo = 2 // run
 
     if (window.currentField.playableCharacter.userData.ladder) {
