@@ -291,14 +291,30 @@ const placeBG = async (fieldName) => {
     // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
     let intendedDistance = 1
     window.currentField.backgroundLayers = new THREE.Group()
-    for (let i = 0; i < window.currentField.backgroundData.length; i++) {
-        const layer = window.currentField.backgroundData[i]
-        processBG(layer, fieldName)
-    }
     window.currentField.fieldScene.add(window.currentField.backgroundLayers)
+
+    return new Promise(async (resolve, reject) => {
+        const manager = new THREE.LoadingManager()
+        for (let i = 0; i < window.currentField.backgroundData.length; i++) {
+            const layer = window.currentField.backgroundData[i]
+            processBG(layer, fieldName, manager)
+        }
+        manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+            const progress = itemsLoaded / itemsTotal
+            // console.log('processBG progress', progress)
+            // setLoadingProgress(progress)
+            // TODO - Should really refactor and include this in the loading progress along with the models etc
+        }
+        manager.onLoad = function () {
+            console.log('processBG Loading complete')
+            resolve()
+        }
+    })
+
+
 }
 
-const processBG = (layer, fieldName) => {
+const processBG = (layer, fieldName, manager) => {
     if (layer.depth === 0) {
         layer.depth = 1
     }
@@ -324,16 +340,16 @@ const processBG = (layer, fieldName) => {
     }
     let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
     let url = getFieldBGLayerUrl(fieldName, layer.fileName)
-    drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData)
+    drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData, manager)
 }
 
-const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData) => {
+const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData, manager) => {
     let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * window.currentField.fieldCamera.aspect
     // console.log('drawBG', distance, '->', vH, vW)
     let geometry = new THREE.PlaneGeometry(vW, vH, 0)
 
-    let texture = new THREE.TextureLoader().load(bgImgUrl)
+    let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
     texture.magFilter = THREE.NearestFilter
     // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
     let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
