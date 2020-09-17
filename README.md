@@ -51,7 +51,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Add visual savemap debug mechanism
 - :black_square_button: Ensure all dg textures are loaded before fadeIn of fields
 - :white_check_mark: Add visual script progress debug mechanism
-- :point_right: Fix player and npc movement speed, direction and z raycasting
+- :white_check_mark: Fix npc movement speed, direction and z raycasting
+- :point_right: Fix player direction direction (seems to change based on keys pressed)
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
 - :black_square_button: Add animation root translation the kujata models and apply in game
 - :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes

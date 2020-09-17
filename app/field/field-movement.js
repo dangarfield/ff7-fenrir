@@ -165,10 +165,10 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 const rayD = new THREE.Vector3(0, 0, -1).normalize()
                 movementRay.set(rayO, rayD)
                 movementRay.far = 0.02
-                let intersects = movementRay.intersectObjects([window.currentField.walkmeshMesh])
+                let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
                 // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
                 if (window.config.debug.showMovementHelpers) {
-                    window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0xff00ff)) // For debugging walkmesh raycaster    
+                    window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster    
                 }
 
                 if (intersects.length === 0) {
