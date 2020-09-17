@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
 let camera
@@ -32,6 +33,7 @@ const renderLoop = function () {
         return
     }
     requestAnimationFrame(renderLoop)
+    updateOnceASecond()
 
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, camera)

@@ -1,3 +1,5 @@
+import { incrementBattlesFought, incrementBattlesEscaped } from '../data/savemap-alias.js'
+
 let randomEncountersEnabled = true
 let battleLockEnabled = false
 let encouterTableIndex = 0
@@ -18,6 +20,10 @@ const getLastBattleResult = () => { return lastBattleResult }
 const setLastBattleResult = (escaped, defeated) => {
     lastBattleResult.escaped = escaped
     lastBattleResult.defeated = defeated
+    incrementBattlesFought()
+    if (escaped) {
+        incrementBattlesEscaped()
+    }
     console.log('setLastBattleResult', getLastBattleResult())
 }
 const setBattleEncounterTableIndex = (index) => {

@@ -19,6 +19,8 @@ const setCurrentCountdownClockTime = (h, m, s) => {
     setBankData(1, 20, h)
     setBankData(1, 21, m)
     setBankData(1, 22, s)
+    window.data.savemap.time.countdownSeconds = (h * 3600 * 60) + (m * 60) + s
+    window.data.savemap.time.countdownSecondsFractions = 0
 }
 const getCurrentGameTime = () => {
     return {
@@ -28,12 +30,27 @@ const getCurrentGameTime = () => {
     }
 }
 const setCurrentGameTime = (h, m, s) => {
+    // console.log('gametime setCurrentGameTime', h, m, s)
     setBankData(1, 16, h)
     setBankData(1, 17, m)
     setBankData(1, 18, s)
+    window.data.savemap.time.secondsPlayed = (h * 3600 * 60) + (m * 60) + s
+    window.data.savemap.time.secondsPlayedFractions = 0
 }
 const incrementGameTime = () => {
-    // TODO later
+    let { h, m, s } = getCurrentGameTime()
+    // console.log('gametime current', h, m, s)
+    s++
+    if (s >= 60) {
+        s = 0
+        m++
+    }
+    if (m >= 60) {
+        m = 0
+        h++
+    }
+    setCurrentGameTime(h, m, s)
+    console.log('gametime updated', h, m, s, '->', window.data.savemap.time.secondsPlayed)
 }
 const decrementCountdownClock = () => {
     let { h, m, s } = getCurrentCountdownClockTime()
@@ -103,6 +120,17 @@ const getPlayableCharacterInitData = () => {
     }
     return playableCharacterInitData
 }
+const incrementBattlesFought = () => {
+    let count = getBankData(2, 12) // eg 24 / 2
+    count++
+    setBankData(2, 12, count)
+    console.log('incrementBattlesFought', getBankData(2, 12))
+}
+const incrementBattlesEscaped = () => {
+    let count = getBankData(2, 13)
+    count++
+    setBankData(2, 13, count)
+}
 export {
     areFieldPointersActive,
     setFieldPointersActive,
@@ -117,5 +145,7 @@ export {
     updateSavemapLocationField,
     updateSavemapLocationFieldPosition,
     updateSavemapLocationFieldLeader,
-    getPlayableCharacterInitData
+    getPlayableCharacterInitData,
+    incrementBattlesFought,
+    incrementBattlesEscaped
 }

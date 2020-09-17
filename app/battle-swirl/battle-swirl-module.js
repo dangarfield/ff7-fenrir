@@ -2,7 +2,7 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { loadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
-
+import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
 let camera
@@ -13,6 +13,7 @@ const renderLoop = function () {
         return
     }
     requestAnimationFrame(renderLoop)
+    updateOnceASecond()
     TWEEN.update()
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, camera)

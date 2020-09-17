@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
 let camera
@@ -61,6 +62,7 @@ const renderLoop = function () {
         return
     }
     requestAnimationFrame(renderLoop)
+    updateOnceASecond()
 
     const opacity = text.material.opacity // Fade in and out quickly
     if (progress < 0.9) {

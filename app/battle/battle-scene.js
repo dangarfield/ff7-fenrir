@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
 let orthoScene
@@ -12,8 +13,9 @@ const renderLoop = () => {
         console.log('Stopping battle renderLoop')
         return
     }
+
     requestAnimationFrame(renderLoop)
-    // let delta = window.anim.clock.getDelta()
+    updateOnceASecond()
     if (window.anim.renderer) {
         // console.log('render')
         let activeCamera = fixedCamera

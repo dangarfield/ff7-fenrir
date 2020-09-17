@@ -12,6 +12,8 @@ const showStats = () => {
 
 const initRenderer = () => {
     THREE.Cache.enabled = true
+    window.anim.gametimeClock = new THREE.Clock()
+    window.anim.clock = new THREE.Clock()
     // console.log('cache', THREE.Cache.enabled)
     window.anim.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     window.anim.renderer.setSize(config.sizing.width * config.sizing.factor, config.sizing.height * config.sizing.factor)

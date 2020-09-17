@@ -40,7 +40,6 @@ const generateSavePreview = () => {
     savemap.savePreview.maximumMP = leadCharacter.stats.mp.max
     savemap.savePreview.gil = savemap.gil
     const gameTime = getCurrentGameTime()
-    console.log('gameTime', gameTime)
     savemap.savePreview.time = `${gameTime.h.toString().padStart(2, '0')}:${gameTime.m.toString().padStart(2, '0')}`
     savemap.savePreview.location = savemap.location.currentLocation // This is the menu description not the fieldName
 }

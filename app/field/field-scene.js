@@ -9,45 +9,25 @@ import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
-import { decrementCountdownClockAndUpdateDisplay } from './field-dialog.js'
 import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
 import { stopAllLoops } from './field-op-loop.js'
 import { updateBackgroundScolling } from './field-backgrounds.js'
+import { updateOnceASecond } from '../helpers/gametime.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
 // let config = window.config
 
-let deltaTotal = 0
-let deltaSecond = 0
-const executeOnceASecond = () => {
-    decrementCountdownClockAndUpdateDisplay() // Should this be here, as it has to span battle field also?
-    // incrementGameTimeClock() // Should this be here
-}
-const updateOnceASecond = (delta) => {
-    deltaTotal += delta
-    const deltaSecondTemp = parseInt(deltaTotal)
-    // console.log('updateOnceASecond', delta, deltaTotal, deltaSecond, deltaSecondTemp)
-    if (deltaSecond !== deltaSecondTemp) {
-        deltaSecond = deltaSecondTemp
-        // console.log('updateOnceASecond SECOND', deltaSecond)
-        executeOnceASecond()
-    }
-    if (deltaSecond > 10000000) {
-        deltaTotal = 0
-        deltaSecond = 0
-        // console.log('updateOnceASecond RESET TO ZERO', delta, deltaTotal, deltaSecond)
-    }
-}
+
 const renderLoop = function () {
     // console.log('renderLoop frame')
     if (window.anim.activeScene !== 'field') {
         console.log('Stopping field renderLoop')
         return
     }
-    requestAnimationFrame(renderLoop);
-    let delta = window.anim.clock.getDelta();
+    requestAnimationFrame(renderLoop)
+    let delta = window.anim.clock.getDelta()
     if (window.currentField.debugCameraControls) {
         window.currentField.debugCameraControls.update(delta);
     }
@@ -61,7 +41,7 @@ const renderLoop = function () {
     updateFieldMovement(delta) // Ideally this should go in a separate loop
     updateBackgroundScolling(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
-    updateOnceASecond(delta)
+    updateOnceASecond()
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
         // console.log('render')
         let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera
@@ -134,7 +114,6 @@ const setupFieldCamera = () => {
     window.currentField.fieldScene = new THREE.Scene()
     // window.currentField.fieldScene.background = new THREE.Color(0x000000)
     window.currentField.fieldCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000) // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
-    window.anim.clock = new THREE.Clock();
 
     let camAxisXx = ffCamera.xAxis.x / 4096.0
     let camAxisXy = ffCamera.xAxis.y / 4096.0
