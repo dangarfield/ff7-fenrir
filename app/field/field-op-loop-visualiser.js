@@ -43,13 +43,18 @@ const renderInitialState = (data) => {
     html += `</div>`
 
     const existingVisualisers = document.getElementsByClassName('field-op-loop-visualiser')
+    let isHidden = false
     while (existingVisualisers.length > 0) {
+        isHidden = existingVisualisers[0].classList.contains('hide')
         existingVisualisers[0].parentNode.removeChild(existingVisualisers[0])
     }
 
 
     const container = document.createElement('div')
     container.className = 'field-op-loop-visualiser'
+    if (isHidden) {
+        container.classList.add('hide')
+    }
     container.innerHTML = html
     container.onclick = function () {
         if (container.classList.contains('hide')) {
