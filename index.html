@@ -18,16 +18,40 @@
 <body>
 
 	<div class="holder">
-		<div class="inside" id="container"></div>
+		<div id="container"></div>
 	</div>
 	<div class="stats">
 	</div>
 
+	<div class="display-controls">
+		<div class="btn-group btn-group-sm">
+			<button type="button" class="btn btn-dark controls">Controls</button>
+			<button type="button" class="btn btn-dark stats">Stats</button>
+			<button type="button" class="btn btn-dark debug">Debug</button>
+			<button type="button" class="btn btn-dark loop">Loop</button>
+		</div>
+	</div>
 	<div class="keyboard-instructions">
+
 		<div class="modal">
-			<div class="modal-content">
-				<span class="close-button">&times;</span>
-				<img class="responsive" src="./assets/fenrir/keyboard-layout.png">
+			<div class="modal-dialog modal-xl">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Controls</h5>
+						<button type="button" class="close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<img class="img-fluid" src="./assets/fenrir/keyboard-layout.png">
+						<p>You can access 5 different save slots</p>
+						<p>Quicksave -> Press <code>1</code>, <code>2</code>, <code>3</code>, <code>4</code>,
+							<code>5</code></p>
+						<p>Quickload -> Press <code>Shift + 1</code>, <code>Shift + 2</code>, <code>Shift + 3</code>,
+							<code>Shift + 4</code>, <code>Shift + 5</code></p>
+						<p>Download saves to desktop -> Press <code>Ctrl + Shift + 1</code></p>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

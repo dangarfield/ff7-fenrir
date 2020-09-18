@@ -1,5 +1,5 @@
 import { getPlayableCharacterName, getPlayableCharacterId, getCharacterSaveMap } from "./field-op-codes-party-helper.js"
-import { setBankData, getBankData, saveSaveMap } from '../data/savemap.js'
+import { setBankData, getBankData } from '../data/savemap.js'
 
 const SPTYE = async (op) => {
     console.log('SPTYE', op)

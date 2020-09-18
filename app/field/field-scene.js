@@ -280,21 +280,6 @@ const initFieldDebug = async (loadFieldCB) => {
     debugGUI.open()
 
     let inputsGUI = window.anim.gui.addFolder('Inputs')
-    inputsGUI.add(window.config.debug, 'showInstructions').listen().onChange((val) => {
-        console.log('showInstructions', val)
-        // A lot of tiding required here but we'll do this properly another day, just for quick debug for now
-        document.querySelector('.keyboard-instructions .modal .close-button').addEventListener('click', () => {
-            console.log('keyboard-instructions close', window.config.debug.showInstructions)
-            window.config.debug.showInstructions = false
-            document.querySelector('.keyboard-instructions .modal').classList.remove('show-modal')
-        })
-        if (val) {
-            document.querySelector('.keyboard-instructions .modal').classList.add('show-modal')
-        } else {
-            document.querySelector('.keyboard-instructions .modal').classList.remove('show-modal')
-        }
-        // console.log('modal', modal)
-    })
     inputsGUI.add(getActiveInputs(), 'up').listen()
     inputsGUI.add(getActiveInputs(), 'right').listen()
     inputsGUI.add(getActiveInputs(), 'down').listen()

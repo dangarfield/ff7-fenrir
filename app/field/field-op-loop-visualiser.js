@@ -13,7 +13,7 @@ const renderInitialState = (data) => {
     let colHeight = 34
     let cumulativeTotal = 0
 
-    let html = `<div class="toggle">Toggle Op Loop Visualiser</div><div class="entities">`
+    let html = `<div class="entities">`
     let entitiesCol1 = '<div class="entities-1">'
     let entitiesCol2 = '<div class="entities-2">'
 

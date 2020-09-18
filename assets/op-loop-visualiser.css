@@ -1,19 +1,17 @@
 .field-op-loop-visualiser {
-	width: 260px;
+	width: 265px;
 	height: 700px;
 	position: absolute;
-	bottom: 0;
+	top: 0;
 	right: 0;
-	z-index: 100000;
+	z-index: 100;
 	background-color: black;
 	font-size: 12px;
 	cursor: pointer;
-}
-.field-op-loop-visualiser.hide .entities{
-	display: none;
+	color: white;
 }
 .field-op-loop-visualiser.hide{
-	height: 24px;
+	display: none;
 }
 .field-op-loop-visualiser .entities {
 	position: relative;

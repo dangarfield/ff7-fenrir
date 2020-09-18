@@ -36,14 +36,17 @@ window.config = {
         showModelHelpers: false,
         showAxes: false,
         showMovementHelpers: false,
-        runByDefault: true,
-        showInstructions: false
+        runByDefault: true
     },
     raycast: {
         active: false,
         raycaster: undefined,
         mouse: undefined,
         raycasterHelper: undefined
+    },
+    save: {
+        cardId: 1,
+        slotId: 1
     }
 }
 

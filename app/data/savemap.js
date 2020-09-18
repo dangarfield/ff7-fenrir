@@ -1,8 +1,8 @@
-import { getCurrentGameTime } from './savemap-alias.js'
+import { getCurrentGameTime, getPlayableCharacterInitData } from './savemap-alias.js'
 import { addToast } from '../helpers/toasts.js'
 import { getCharacterSaveMap } from '../field/field-op-codes-party-helper.js'
-
-const DEFAULT_SAVE_ID = 1
+import { loadField } from '../field/field-module.js'
+import { stopAllLoops } from '../field/field-op-loop.js'
 
 let TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
 window.data.TEMP_FIELD_BANK = TEMP_FIELD_BANK
@@ -14,13 +14,13 @@ const initNewSaveMap = () => {
     // console.log('initNewSaveMap: END')
 }
 
-const loadSaveMap = (index) => {
-    const savemap = window.localStorage.getItem(`save-${index}`)
-    console.log('loadSaveMap', index, window.data.savemap)
+const loadSaveMap = (cardId, slotId) => {
+    const savemap = window.localStorage.getItem(`save-${cardId}-${slotId}`)
+    console.log('loadSaveMap', cardId, slotId, window.data.savemap)
     if (savemap === null) {
         console.log('no save, creating a new one')
         window.data.savemap = Object.assign({}, window.data.kernel.initData.data)
-        saveSaveMap(index)
+        saveSaveMap(cardId, slotId)
     } else {
         window.data.savemap = JSON.parse(savemap)
     }
@@ -43,13 +43,23 @@ const generateSavePreview = () => {
     savemap.savePreview.time = `${gameTime.h.toString().padStart(2, '0')}:${gameTime.m.toString().padStart(2, '0')}`
     savemap.savePreview.location = savemap.location.currentLocation // This is the menu description not the fieldName
 }
-const saveSaveMap = (index) => {
-    console.log('saveSaveMap', index)
+const saveSaveMap = (cardId, slotId) => {
+    console.log('saveSaveMap', cardId, slotId)
     generateSavePreview()
-    window.localStorage.setItem(`save-${index}`, JSON.stringify(window.data.savemap))
-    addToast(`Quicksave - ${index}`)
+    window.localStorage.setItem(`save-${cardId}-${slotId}`, JSON.stringify(window.data.savemap))
+    addToast(`Quicksave - ${cardId} - ${slotId}`)
 }
+const downloadSaveMaps = () => {
+    console.log('downloadSaveMaps')
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(window.localStorage))}`
+    const downloadAnchorNode = document.createElement('a')
+    downloadAnchorNode.setAttribute('href', dataStr)
+    downloadAnchorNode.setAttribute('download', `ff7-fenrir-saves-${new Date().getTime()}.json`)
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click()
+    downloadAnchorNode.remove()
 
+}
 const resetTempBank = () => {
     TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
 }
@@ -112,11 +122,28 @@ const setBankData = (bankRef, index, value) => {
     const bankData = identifyBank(bankRef)
     setValueToBank(bankData.bank, bankData.bytes, index, value)
 }
+const loadGame = async (cardId, slotId) => {
+    // Initialise new savemap
+    // initNewSaveMap()
+    await stopAllLoops()
+    loadSaveMap(cardId, slotId)
+    const playableCharacterInitData = getPlayableCharacterInitData()
+    console.log('playableCharacterInitData LOAD', playableCharacterInitData)
+    if (playableCharacterInitData.fieldName) {
+        loadField(playableCharacterInitData.fieldName, playableCharacterInitData)
+    } else {
+        loadField('md1stin')
+        // loadField('startmap')
+    }
+    // Load field - Replace with menu
+}
 export {
     initNewSaveMap,
     loadSaveMap,
     saveSaveMap,
     getBankData,
     setBankData,
-    resetTempBank
+    resetTempBank,
+    loadGame,
+    downloadSaveMaps
 }
