@@ -47,15 +47,14 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Do something about lazing loading windowTextures...
 - :white_check_mark: Begin properly implementing field op codes - 92% complete. 4 -> I can do later. 3 - Character graphics ops, undocumented / graphics model changes. 12 - Paletting, eg different approach required
 - :white_check_mark: Update savemap with all non op-code data, movements, directions, game time, steps etc
-- :point_right: Implement proper save, import, export mechanism
-- :black_square_button: Implement proper save, import, export mechanism
+- :white_check_mark: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism
 - :white_check_mark: Ensure all bg textures are loaded before fadeIn of fields
 - :white_check_mark: Add visual script progress debug mechanism
 - :white_check_mark: Fix npc movement speed, direction and z raycasting
 - :black_square_button: Fix player direction direction (seems to change based on keys pressed)
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
-- :black_square_button: Add animation root translation the kujata models and apply in game
+- :point_right: Add animation root translation the kujata models and apply in game
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
 - :black_square_button: Certain modes don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
 - :black_square_button: Sound loops metadata needs to be extracted properly
