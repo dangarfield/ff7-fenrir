@@ -40,6 +40,7 @@ const loadMovie = (i) => {
         const name = getMovieName(i)
         console.log('loadMovie', i, name)
         const video = document.createElement('video')
+        video.setAttribute('crossorigin', 'anonymous')
         video.src = getMusicUrl(getMovieName(i))
         video.load()
         video.oncanplay = () => {
