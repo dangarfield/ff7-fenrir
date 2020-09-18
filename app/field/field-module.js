@@ -99,6 +99,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     if (!window.config.debug.debugModeNoOpLoops) {
         await initialiseOpLoops()
     }
+    window.anim.clock.start()
     await fadeIn()
 }
 

@@ -13,6 +13,7 @@ const updateFieldMovement = (delta) => {
         return
     }
 
+    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
     // Can player move?
     if (!window.currentField.playableCharacterCanMove) {
         return
@@ -110,12 +111,14 @@ const updateFieldMovement = (delta) => {
                 window.currentField.playableCharacter.scene.userData.triangleId,
                 direction - window.currentField.data.triggers.header.controlDirectionDegrees)
             updateSavemapLocationFieldLeader(window.currentField.playableCharacter.userData.characterName)
-            // console.log('player movement', nextPosition.z, intersects[0].object.userData.triangleId)
+            // console.log('asd player movement', window.currentField.playableCharacter.scene.position, nextPosition, intersects[0].object.userData.triangleId, directionVector, speed)
+
             break
         }
     }
 
     if (!walkmeshFound) {
+        // console.log('asd no walkmesh found')
         window.currentField.playableCharacter.mixer.stopAllAction()
         return
     }
