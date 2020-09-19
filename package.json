@@ -4,8 +4,9 @@
   "description": "> Web based game engine for FF7 - Work-in-proress",
   "main": "index.js",
   "scripts": {
-    "unlgp-fields": "cd .\\workings-out\\output\\unlgp-flevel.lgp & D:\\code\\ff7\\kujata\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\flevel.lgp",
-    "dev": "http-server -p 3000 -s"
+    "unlgp-fields": "cd .\\workings-out\\unlgp\\unlgp-flevel.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\flevel.lgp",
+    "unlgp-char": "cd .\\workings-out\\unlgp\\unlgp-char.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\char.lgp",
+    "dev": "http-server -p 3000 -s --cors"
   },
   "repository": {
     "type": "git",
