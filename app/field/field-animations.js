@@ -33,24 +33,33 @@ const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
 const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
     return new Promise(async (resolve) => {
         try {
-            console.log('playAnimation', entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame)
             const model = getModelByEntityId(entityId)
+            console.log('playAnimation', entityId, model.userData.entityName, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
+
             // play once, sync, reset back to animation 0
             let animation = model.animations[animationId]
             if (startFrame !== undefined && endFrame !== undefined) {
                 animation = splitClip(animation, startFrame, endFrame)
+                console.log('playAnimation clipped', animation)
             }
             const action = model.mixer.clipAction(animation)
             action.loop = loopType
             if (holdLastFrame) {
                 action.clampWhenFinished = true
             } else {
-                action.clampWhenFinished = false
+                action.clampWhenFinished = true
             }
             // TODO - speed
             // console.log('action', action, animation, model.mixer)
             model.mixer.addEventListener('finished', function (e) {
                 // console.log('finished', e)
+                console.log('playAnimation finished', entityId, animationId, e)
+                if (!holdLastFrame) {
+                    const standAnimation = model.animations[0]
+                    const standAction = model.mixer.clipAction(standAnimation)
+                    standAction.play()
+                }
+
                 resolve()
             })
             model.mixer.stopAllAction()
