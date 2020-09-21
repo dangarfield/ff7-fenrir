@@ -121,32 +121,32 @@ const ANIME2 = async (entityId, op) => {
 }
 const ANIM_1 = async (entityId, op) => {
     console.log('ANIM!1', entityId, op)
-    await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityId, op.a, op.s)
+    await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityId, op.a, op.s)
     return {}
 }
 const ANIM_2 = async (entityId, op) => {
     console.log('ANIM!2', entityId, op)
-    await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityId, op.a, op.s)
+    await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityId, op.a, op.s)
     return {}
 }
 const CANIM1 = async (entityId, op) => {
     console.log('CANIM1', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceSyncReset(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceAsyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const CANIM2 = async (entityId, op) => {
     console.log('CANIM2', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceAsyncReset(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceSyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const CANM_1 = async (entityId, op) => {
     console.log('CANM!1', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const CANM_2 = async (entityId, op) => {
     console.log('CANM!2', entityId, op)
-    await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
+    await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
 const DFANM = async (entityId, op) => {

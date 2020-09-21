@@ -50,7 +50,7 @@ const incrementGameTime = () => {
         h++
     }
     setCurrentGameTime(h, m, s)
-    console.log('gametime updated', h, m, s, '->', window.data.savemap.time.secondsPlayed)
+    // console.log('gametime updated', h, m, s, '->', window.data.savemap.time.secondsPlayed)
 }
 const decrementCountdownClock = () => {
     let { h, m, s } = getCurrentCountdownClockTime()

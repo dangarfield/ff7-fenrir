@@ -390,9 +390,9 @@ const initEntity = async (fieldName, entity) => {
 
 
     // For debug
-    // if (entity.entityName === 'gu0') {
+    // if (entity.entityName === 'gu1') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
-    //     console.log('script3', script3)
+    //     console.log('------------------------', script3)
     //     await executeScriptLoop(fieldName, entity.entityId, script3)
     // }
 

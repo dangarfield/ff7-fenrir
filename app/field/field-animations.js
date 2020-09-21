@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
+import { sleep } from '../helpers/helpers.js'
 import { getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
 
 const playAnimationOnceSyncReset = async (entityId, animationId, speed) => {
@@ -31,36 +32,45 @@ const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
     playAnimation(entityId, animationId, speed, false, THREE.LoopRepeat)
 }
 const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame) => {
+
     return new Promise(async (resolve) => {
         try {
             const model = getModelByEntityId(entityId)
             console.log('playAnimation', entityId, model.userData.entityName, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
 
+            // await sleep(2000)
             // play once, sync, reset back to animation 0
             let animation = model.animations[animationId]
             if (startFrame !== undefined && endFrame !== undefined) {
-                animation = splitClip(animation, startFrame, endFrame)
-                console.log('playAnimation clipped', animation)
+                const newAnimation = splitClip(animation, startFrame, endFrame)
+                console.log('playAnimation clipped', animation, newAnimation)
+                animation = newAnimation
             }
             const action = model.mixer.clipAction(animation)
+            // action.reset()
+
+            const standAnimation = model.animations[0]
+            const standAction = model.mixer.clipAction(standAnimation)
+
             action.loop = loopType
             if (holdLastFrame) {
                 action.clampWhenFinished = true
             } else {
-                action.clampWhenFinished = true
+                action.clampWhenFinished = false
             }
             // TODO - speed
             // console.log('action', action, animation, model.mixer)
-            model.mixer.addEventListener('finished', function (e) {
-                // console.log('finished', e)
-                console.log('playAnimation finished', entityId, animationId, e)
-                if (!holdLastFrame) {
-                    const standAnimation = model.animations[0]
-                    const standAction = model.mixer.clipAction(standAnimation)
-                    standAction.play()
+            model.mixer.addEventListener('finished', async (e) => { // Should really use one single eventListener than adding a new one each time
+                // console.log('playAnimation finished', entityId, animationId, e, animation.uuid, e.action._clip.uuid, model.mixer._root.uuid, e.target._root.uuid)
+                if (animation.uuid === e.action._clip.uuid && model.mixer._root.uuid === e.target._root.uuid) {
+                    console.log('playAnimation finished', entityId, animationId, e, holdLastFrame)
+                    // await sleep(1000)
+                    if (!holdLastFrame) {
+                        // TODO - Seems to be a slight delay here, need to fix
+                        standAction.play()
+                    }
+                    resolve()
                 }
-
-                resolve()
             })
             model.mixer.stopAllAction()
             action.play()
@@ -115,7 +125,7 @@ const setPlayerMovementAnimationId = (animationId, movementType) => {
 }
 const splitClip = (clip, startFrame, endFrame) => {
     console.log('splitClip', clip.duration, clip.duration * 30, clip.tracks)
-    const split = THREE.AnimationUtils.subclip(clip, 'split', 28, endFrame, 30) // Think 30 is ok
+    const split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
     if (startFrame > 0 && startFrame === endFrame) {
         startFrame--
         console.log('splitClip adjust', startFrame, endFrame)
