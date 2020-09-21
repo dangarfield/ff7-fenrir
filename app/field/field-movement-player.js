@@ -358,6 +358,7 @@ const ladderMovement = (speed) => {
         console.log('ladderMovement: currentTriangle', model.scene.userData.triangleId)
         ladder.resolve()
     }
+    updateCursorPositionHelpers()
 }
 
 const updateCurrentTriangleId = (model, nextPosition) => {

@@ -7,6 +7,7 @@ import {
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
+import { updateCursorPositionHelpers } from './field-position-helpers.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, false, false)
@@ -68,6 +69,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
                 }
+                updateCursorPositionHelpers()
             })
             .onComplete(function () {
                 console.log('moveEntityJump XY: END', fromXY)
@@ -143,7 +145,8 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     // at 512 & 2048 - speed = 8192
 
     let animationType = window.currentField.playerAnimations.run
-    if (desiredSpeed && desiredSpeed >= 30) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
+    // if ((desiredSpeed && desiredSpeed >= 30)) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
+    if ((desiredSpeed && desiredSpeed >= 30) || model.userData.movementSpeed < 1600) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
         // time = 1000 / 30 * desiredSpeed
         animationType = window.currentField.playerAnimations.walk
     }

@@ -30,7 +30,8 @@ const renderInitialState = (data) => {
                 <button type="button" class="btn btn-dark btn-tiny w-100"><span id="op-${entity.id}-${script.script}-index">0</span> / ${script.count}</button>
             </div>`
         }
-        if (cumulativeTotal <= colHeight) {
+        // if (cumulativeTotal <= colHeight) {
+        if (i < data.length / 2) {
             entitiesCol1 += html
         } else {
             entitiesCol2 += html

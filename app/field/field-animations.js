@@ -1,5 +1,4 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import TWEEN from '../../assets/tween.esm.js'
 import { sleep } from '../helpers/helpers.js'
 import { getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
 
@@ -11,9 +10,11 @@ const playAnimationPartialOnceSyncReset = async (entityId, animationId, speed, s
 }
 const playAnimationOnceAsyncReset = async (entityId, animationId, speed) => {
     playAnimation(entityId, animationId, speed, false, THREE.LoopOnce)
+    return
 }
 const playAnimationPartialOnceAsyncReset = async (entityId, animationId, speed, startFrame, endFrame) => {
     playAnimation(entityId, animationId, speed, false, THREE.LoopOnce, startFrame, endFrame)
+    return
 }
 const playAnimationOnceSyncHoldLastFrame = async (entityId, animationId, speed) => {
     await playAnimation(entityId, animationId, speed, true, THREE.LoopOnce)
@@ -23,9 +24,11 @@ const playAnimationPartialOnceSyncHoldLastFrame = async (entityId, animationId, 
 }
 const playAnimationOnceAsyncHoldLastFrame = async (entityId, animationId, speed) => {
     playAnimation(entityId, animationId, speed, true, THREE.LoopOnce)
+    return
 }
 const playAnimationPartialOnceAsyncHoldLastFrame = async (entityId, animationId, speed, startFrame, endFrame) => {
     playAnimation(entityId, animationId, speed, true, THREE.LoopOnce, startFrame, endFrame)
+    return
 }
 
 const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
@@ -89,7 +92,7 @@ const waitForAnimationToFinish = async (entityId) => {
             const animation = model.animations[i]
             const isRunning = model.mixer.clipAction(animation).isRunning()
             console.log('waitForAnimationToFinish', entityId, 'animationId', i, isRunning)
-            if (isRunning) {
+            if (isRunning && i !== 0) { // Standing is the default animation
                 anyAnimationsRunning = true
             }
         }
@@ -133,6 +136,22 @@ const splitClip = (clip, startFrame, endFrame) => {
     console.log('splitClip', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
     return split
 }
+const playStandAnimation = (model) => {
+    console.log('playStandAnimation', model)
+    // for (let i = 0; i < model.animations.length; i++) {
+    //     const animation = model.animations[i]
+    //     const clip = model.mixer.clipAction(animation)
+    //     console.log('playStandAnimation', 'animationId', i, clip.isRunning())
+    //     if (clip.isRunning()) { // Standing is the default animation
+    //         console.log('playStandAnimation', 'animationId', i, 'stopping')
+    //         clip.stop()
+    //     }
+    // }
+    model.mixer.stopAllAction()
+    const standAnimation = model.animations[0]
+    const standAction = model.mixer.clipAction(standAnimation)
+    standAction.play()
+}
 export {
     playAnimationOnceSyncReset,
     playAnimationPartialOnceSyncReset,
@@ -145,5 +164,6 @@ export {
     playAnimationLoopedAsync,
     waitForAnimationToFinish,
     stopAnimationHoldLastFrame,
-    setPlayerMovementAnimationId
+    setPlayerMovementAnimationId,
+    playStandAnimation
 }

@@ -53,6 +53,7 @@ const updateCursorPositionHelpers = () => {
                 helper.position.set(helperOntopPoint.x, helperOntopPoint.y, helperOntopPoint.z)
                 helper.scale.set(scale, scale, scale)
 
+                // TODO - The scale of these is not right either
                 break
             }
         }

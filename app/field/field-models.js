@@ -3,7 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-codes-party-helper.js'
 import * as modelFieldOpCodes from './field-op-codes-models.js'
-import { playAnimationLoopedAsync } from './field-animations.js'
+import { playAnimationLoopedAsync, playStandAnimation } from './field-animations.js'
 
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
@@ -214,6 +214,7 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     }
     // TODO - Investigate this, md1stin, barret should not be show, but the guards should. Not sure yet
     model.scene.visible = true
+    playStandAnimation(model)
 }
 const placeModelsDebug = async () => {
     console.log('placeModelsDebug: START')
@@ -402,6 +403,7 @@ const setPlayableCharacterCanMove = (canMove) => {
     // Also hides / shows cursor arrows if enabled
     window.currentField.positionHelpersEnabled = canMove
     if (!canMove && window.currentField.playableCharacter) {
+        // playStandAnimation(window.currentField.playableCharacter)
         window.currentField.playableCharacter.mixer.stopAllAction()
     }
 }
@@ -430,7 +432,7 @@ const turnModelToFaceDirection = async (entityId, direction, whichWayId, steps, 
 }
 const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
     return new Promise((resolve) => {
-        console.log('turnModel', entityId, degrees, whichWayId, steps, stepType)
+        console.log('turnModel: START', entityId, degrees, whichWayId, steps, stepType)
         const model = getModelByEntityId(entityId)
         if (!model.userData.rotationEnabled) {
             resolve()
@@ -439,21 +441,25 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
         // Get start and end angles in radians
         let desiredYDeg = degrees
         let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
+        console.log('turnModel currentYDeg 1', currentYDeg)
         currentYDeg < 0 ? currentYDeg = 360 + currentYDeg : currentYDeg
         currentYDeg - 180 > desiredYDeg ? currentYDeg = currentYDeg - 360 : currentYDeg
 
+        console.log('turnModel currentYDeg 2', currentYDeg)
+
         if (whichWayId === 0 && currentYDeg < desiredYDeg) {
-            console.log('force clockwise')
+            console.log('turnModel force clockwise')
             currentYDeg = currentYDeg + 360
         }
         if (whichWayId === 1 && currentYDeg > desiredYDeg) {
-            console.log('force anti-clockwise')
+            console.log('turnModel force anti-clockwise')
             currentYDeg = currentYDeg - 360
         }
+        console.log('turnModel currentYDeg 3', currentYDeg)
         const currentYRad = THREE.Math.degToRad(currentYDeg)
         const desiredYRad = THREE.Math.degToRad(desiredYDeg)
-        console.log('turn deg', currentYDeg, '->', desiredYDeg)
-        console.log('turn rad', currentYRad, '->', desiredYRad)
+        console.log('turnModel deg', currentYDeg, '->', desiredYDeg)
+        console.log('turnModel rad', currentYRad, '->', desiredYRad)
 
         // Tween from currentYRad to desiredYRad
         model.scene.rotation.y = currentYRad
