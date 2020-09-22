@@ -3,6 +3,7 @@ import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js'
 import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 import { KUJATA_BASE, getWindowTextures } from '../data/kernel-fetch-data.js'
 import { setLoadingText, setLoadingProgress } from '../loading/loading-module.js'
+import { bindAnimationCompletion } from '../field/field-animations.js'
 
 const BUTTON_IMAGES = [
     { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -96,6 +97,18 @@ const loadModels = async (modelLoaders) => {
         // Do we still need to do clone because multiples of the same model are loaded?
         gltf.scene = SkeletonUtils.clone(gltf.scene)
         gltf.mixer = new THREE.AnimationMixer(gltf.scene)
+        bindAnimationCompletion(gltf)
+        // gltf.mixer.addEventListener('finished', function (e) {
+        //     console.log('playAnimation finished mixer', e, e.target, e.target.promise)
+        //     if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
+        //         console.log('playAnimation finished mixer match', e.target.promise)
+        //         if (!e.target.promise.holdLastFrame) {
+        //             console.log('playAnimation finished stand')
+        //             e.target.promise.standAction.play()
+        //         }
+        //         e.target.promise.resolve()
+        //     }
+        // })
         gltf.scene.userData.closeToTalk = false
         gltf.scene.userData.closeToCollide = false
         // console.log('Loaded GLTF', gltf, modelLoader)

@@ -173,13 +173,10 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 if (window.config.debug.showMovementHelpers) {
                     window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster    
                 }
-
                 if (intersects.length === 0) {
                     // console.log('no intersects')
                 } else {
                     const point = intersects[0].point
-                    // console.log('intersects', point) // TODO - Bug, this doesn't seem to hit anything, need to fix
-                    // Adjust nextPosition height to adjust for any slopes
                     lastZ = point.z
                     model.scene.userData.triangleId = intersects[0].object.userData.triangleId
                 }

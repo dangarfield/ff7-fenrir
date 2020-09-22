@@ -21,6 +21,11 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
         return { exit: true }
     }
+    // if (entityId === 10 && scriptType === 'Script 4') { // Debug
+    //     console.log('Loop stopping', entityId, scriptType)
+    //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+    //     return { exit: true }
+    // }
     sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1)
     let result = {}
     switch (op.op) {
@@ -390,7 +395,7 @@ const initEntity = async (fieldName, entity) => {
 
 
     // For debug
-    // if (entity.entityName === 'gu1') {
+    // if (entity.entityName === 'gu0') {
     //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
     //     console.log('------------------------', script3)
     //     await executeScriptLoop(fieldName, entity.entityId, script3)

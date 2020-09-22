@@ -212,9 +212,9 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (triangleId !== undefined) {
         model.scene.userData.triangleId = triangleId
     }
-    // TODO - Investigate this, md1stin, barret should not be show, but the guards should. Not sure yet
+    // TODO - Investigate this, md1stin, barret should not be shown, but the guards should. Not sure yet
     model.scene.visible = true
-    playStandAnimation(model)
+    // playStandAnimation(model)
 }
 const placeModelsDebug = async () => {
     console.log('placeModelsDebug: START')

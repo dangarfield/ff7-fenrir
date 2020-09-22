@@ -461,7 +461,12 @@ const PMVIE = async (op) => {
 }
 const MOVIE = async (op) => {
     console.log('MOVIE', op)
-    await playNextMovie() // Temp disabled for testing md1stin
+    if (window.location.href.includes('localhost') && window.currentField.name === 'md1stin') {
+        // Disable initial movie for testing purposes
+    } else {
+        await playNextMovie()
+    }
+
     return {}
 }
 const BGMOVIE = async (op) => {
@@ -473,8 +478,11 @@ const BGMOVIE = async (op) => {
 const MVIEF = async (op) => {
     console.log('MVIEF', op)
     const frame = getCurrentMovieFrame()
-    setBankData(op.b, op.a, frame)
-    // setBankData(op.b, op.a, 700) // Temp disabled for testing 
+    if (window.location.href.includes('localhost') && window.currentField.name === 'md1stin') {
+        setBankData(op.b, op.a, 700) // Disable initial movie for testing purposes
+    } else {
+        setBankData(op.b, op.a, frame) // Execute properly
+    }
     console.log('MVIEF frame -', frame, 'set to', op.b, op.a)
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
     return {}

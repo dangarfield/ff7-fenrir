@@ -62,25 +62,36 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
                 action.clampWhenFinished = false
             }
             // TODO - speed
-            // console.log('action', action, animation, model.mixer)
-            model.mixer.addEventListener('finished', async (e) => { // Should really use one single eventListener than adding a new one each time
-                // console.log('playAnimation finished', entityId, animationId, e, animation.uuid, e.action._clip.uuid, model.mixer._root.uuid, e.target._root.uuid)
-                if (animation.uuid === e.action._clip.uuid && model.mixer._root.uuid === e.target._root.uuid) {
-                    console.log('playAnimation finished', entityId, animationId, e, holdLastFrame)
-                    // await sleep(1000)
-                    if (!holdLastFrame) {
-                        // TODO - Seems to be a slight delay here, need to fix
-                        standAction.play()
-                    }
-                    resolve()
-                }
-            })
+            model.mixer.promise = {
+                resolve: resolve,
+                animationUuid: animation.uuid,
+                mixerUuid: model.mixer._root.uuid,
+                holdLastFrame,
+                standAction,
+                entityId,
+                animationId
+            }
             model.mixer.stopAllAction()
             action.play()
+            // Animation complete and resulting resolve CB bound in bindAnimationCompletion()
         } catch (error) {
             console.log('error', error)
         }
 
+    })
+}
+const bindAnimationCompletion = (model) => {
+    model.mixer.addEventListener('finished', async (e) => {
+        console.log('playAnimation finished mixer', e, e.target, e.target.promise)
+        if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
+            console.log('playAnimation finished mixer match', e.target.promise)
+            if (!e.target.promise.holdLastFrame) {
+                console.log('playAnimation finished mixer match stand')
+                // e.target.promise.standAction.play()
+            }
+            // await sleep(1000)
+            e.target.promise.resolve()
+        }
     })
 }
 const waitForAnimationToFinish = async (entityId) => {
@@ -165,5 +176,6 @@ export {
     waitForAnimationToFinish,
     stopAnimationHoldLastFrame,
     setPlayerMovementAnimationId,
-    playStandAnimation
+    playStandAnimation,
+    bindAnimationCompletion
 }

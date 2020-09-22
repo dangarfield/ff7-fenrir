@@ -481,7 +481,7 @@ setTimeout(async () => {
     // await TURA('av_m', { g: 2, d: 2, s: 2 })
 
 
-    // await ANIME2('av_m', { a: 3, s: 1 })
+    // await ANIM_2(9, { a: 5, s: 1 })
     // await ANIMW('av_m')
     // await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
     // await sleep(1000)
