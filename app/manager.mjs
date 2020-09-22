@@ -9,6 +9,7 @@ import { initBattleModule } from './battle/battle-module.js'
 import { initBattleSwirlModule } from './battle-swirl/battle-swirl-module.js'
 import { initMiniGameModule } from './minigame/minigame-module.js'
 import { bindDisplayControls } from './helpers/display-controls.js'
+import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
 
 const initManager = async () => {
 
@@ -29,6 +30,7 @@ const initManager = async () => {
     await loadWindowTextures()
     setDefaultMediaConfig()
     bindDisplayControls()
+    await waitUntilMediaCanPlay()
     // Default
     loadGame(window.config.save.cardId, window.config.save.slotId)
 }
