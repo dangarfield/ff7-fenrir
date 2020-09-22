@@ -3,6 +3,8 @@ import { sleep } from '../helpers/helpers.js'
 import { getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 
+// window.THREE = THREE // For debug
+
 const changeBackgroundParamState = (param, state, isActive) => {
     // console.log('changeBackgroundParamState', param, state, isActive)
     // const bgLayers = window.currentField.backgroundLayers.children.filter(l => l.userData.param === param && l.userData.state === state)

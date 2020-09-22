@@ -26,6 +26,9 @@ const preloadCommonSounds = () => {
 const getSoundUrl = (id) => {
     return `${KUJATA_BASE}/media/sounds/${id}.ogg`
 }
+const getTestSoundUrl = () => {
+    return getSoundUrl(COMMON_SOUNDS.OPTION)
+}
 const loadSoundMetadata = async () => {
     if (soundMetadata === undefined) {
         soundMetadata = await getSoundMetadata()
@@ -224,5 +227,6 @@ export {
     setSoundTempo,
     setSoundTempoTransition,
     stopSounds,
-    COMMON_SOUNDS
+    COMMON_SOUNDS,
+    getTestSoundUrl
 }

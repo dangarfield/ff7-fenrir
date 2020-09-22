@@ -54,9 +54,10 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Fix npc movement speed, direction and z raycasting
 - :black_square_button: Fix player direction direction (seems to change based on keys pressed)
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
-- :point_right: Add animation root translation the kujata models and apply in game
+- :white_check_mark: Add animation root translation the kujata models and apply in game
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
-- :black_square_button: Certain models don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
+- :point_right: Certain models don't have correct textures / look right - bybf (door w/ lights), bydd (gold chest). Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes
+- :black_square_button: Add directional lighting to each model as per flevel, rather than general downlight
 - :black_square_button: Sound loops metadata needs to be extracted properly
 - :black_square_button: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
 - :black_square_button: Slippability sometimes looks very jagged

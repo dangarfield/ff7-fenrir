@@ -1,4 +1,4 @@
-import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
+import { getTestSoundUrl } from '../media/media-sound.js'
 
 const Howler = window.libraries.howler.Howler
 const Howl = window.libraries.howler.Howl
@@ -13,7 +13,7 @@ const waitUntilMediaCanPlay = async () => {
             window.alert('Please click on the screen to enable audio and video')
         }
         var sound = new Howl({
-            src: [`${KUJATA_BASE}/media/sounds/${1}.ogg`],
+            src: [getTestSoundUrl()],
             volume: 0.1,
             onplayerror: function () {
                 console.log('waitUntilMediaCanPlay onplayerror')
