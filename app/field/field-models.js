@@ -442,20 +442,24 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
         let desiredYDeg = degrees
         let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
         console.log('turnModel currentYDeg 1', currentYDeg)
-        currentYDeg < 0 ? currentYDeg = 360 + currentYDeg : currentYDeg
-        currentYDeg - 180 > desiredYDeg ? currentYDeg = currentYDeg - 360 : currentYDeg
+        currentYDeg = (3600 + currentYDeg) % 360 // Ensure currentYDeg is between 0 - 360
+        // console.log('turnModel currentYDeg 2', currentYDeg)
 
-        console.log('turnModel currentYDeg 2', currentYDeg)
+        const clockwiseDiff = desiredYDeg > currentYDeg ? 360 + currentYDeg - desiredYDeg : currentYDeg - desiredYDeg
+        const antiClockwiseDiff = currentYDeg > desiredYDeg ? 360 + desiredYDeg - currentYDeg : desiredYDeg - currentYDeg
+        // console.log('turnModel clockwiseDiff', currentYDeg, desiredYDeg, '->', clockwiseDiff)
+        // console.log('turnModel antiClockwiseDiff', currentYDeg, desiredYDeg, '->', antiClockwiseDiff)
 
-        if (whichWayId === 0 && currentYDeg < desiredYDeg) {
-            console.log('turnModel force clockwise')
-            currentYDeg = currentYDeg + 360
+        if (whichWayId === 0 || antiClockwiseDiff > clockwiseDiff) {
+            // console.log('turnModel clockwise')
+            desiredYDeg = currentYDeg - clockwiseDiff
         }
-        if (whichWayId === 1 && currentYDeg > desiredYDeg) {
-            console.log('turnModel force anti-clockwise')
-            currentYDeg = currentYDeg - 360
+        if (whichWayId === 1 || clockwiseDiff > antiClockwiseDiff) {
+            // console.log('turnModel anti-clockwise')
+            desiredYDeg = currentYDeg + antiClockwiseDiff
         }
-        console.log('turnModel currentYDeg 3', currentYDeg)
+
+        // console.log('turnModel currentYDeg 3', currentYDeg, desiredYDeg)
         const currentYRad = THREE.Math.degToRad(currentYDeg)
         const desiredYRad = THREE.Math.degToRad(desiredYDeg)
         console.log('turnModel deg', currentYDeg, '->', desiredYDeg)
