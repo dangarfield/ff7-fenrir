@@ -64,7 +64,7 @@ const updateFieldMovement = (delta) => {
     let nextPosition
     let walkmeshFound = false
     let isSlipDirection = false
-    let originalDirectionVector
+    let originalDirection
 
     for (let i = 0; i < directions.length; i++) {
         const potentialDirection = directions[i]
@@ -72,10 +72,10 @@ const updateFieldMovement = (delta) => {
         let directionRadians = THREE.Math.degToRad(potentialDirection)
         let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
         if (i === 0) {
-            originalDirectionVector = directionVector
+            originalDirection = direction
         }
         nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
-        window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, directionVector))
+        window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - potentialDirection)
 
         // Adjust for climbing slopes and walking off walkmesh
         // Create a ray at next position (higher z, but pointing down) to find correct z position
@@ -119,6 +119,7 @@ const updateFieldMovement = (delta) => {
 
     if (!walkmeshFound) {
         // console.log('asd no walkmesh found')
+        window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
         window.currentField.playableCharacter.mixer.stopAllAction()
         return
     }
@@ -178,7 +179,7 @@ const updateFieldMovement = (delta) => {
                     lineMoveTriggered(entityId, line)
                 }
                 if (isSlipDirection && !line.userData.slippabilityEnabled) {
-                    window.currentField.playableCharacter.scene.lookAt(new THREE.Vector3().addVectors(window.currentField.playableCharacter.scene.position, originalDirectionVector))
+                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
                     window.currentField.playableCharacter.mixer.stopAllAction()
                     return
                 }

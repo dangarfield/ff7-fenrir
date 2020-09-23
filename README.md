@@ -52,7 +52,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Ensure all bg textures are loaded before fadeIn of fields
 - :white_check_mark: Add visual script progress debug mechanism
 - :white_check_mark: Fix npc movement speed, direction and z raycasting
-- :black_square_button: Fix player direction direction (seems to change based on keys pressed)
+- :white_check_mark: Fix player direction direction (seems to change based on keys pressed)
 - :black_square_button: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
 - :white_check_mark: Add animation root translation the kujata models and apply in game
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()

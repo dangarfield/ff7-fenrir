@@ -338,7 +338,7 @@ const getPartyMemberDirection = (partyMemberId) => {
 
 }
 const setModelDirection = (entityId, direction) => {
-    console.log('setModelVisibility', entityId, direction)
+    console.log('setModelDirection', entityId, direction)
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)
     model.scene.rotation.y = THREE.Math.degToRad(deg)
