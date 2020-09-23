@@ -63,7 +63,6 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :black_square_button: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
 - :black_square_button: Slippability sometimes looks very jagged
-
 - :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
 - :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
