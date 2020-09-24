@@ -53,7 +53,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add visual script progress debug mechanism
 - :white_check_mark: Fix npc movement speed, direction and z raycasting
 - :white_check_mark: Fix player direction direction (seems to change based on keys pressed)
-- :point_right: Switch event loop to use render loop rather than individual async methods (performance - tin_1)
+- :white_check_mark: Switch event loop to use render loop rather than individual async methods (performance - tin_1). I did this, but the performance was worse and there was more of a stutter in the background on / off. Replacing console.log solves all performance issues
 - :white_check_mark: Add animation root translation the kujata models and apply in game
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
 - :white_check_mark: Doors models don't have correct textures / look right - bybf (door w/ lights)
@@ -62,11 +62,11 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Add directional lighting to each model as per flevel, rather than general downlight
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
-- :black_square_button: Slippability sometimes looks very jagged
+- :white_check_mark: Slippability sometimes looks very jagged
 - :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
 - :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
-- :black_square_button: Decontruct Moviecamera.lgp, interpret camera movements and implement
+- :point_right: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
