@@ -7,7 +7,7 @@ import { updateSavemapLocationFieldPosition, updateSavemapLocationFieldLeader } 
 
 
 const updateFieldMovement = (delta) => {
-
+    // console.log('movementDirection', delta)
     // Get active player
     if (!window.currentField.playableCharacter) {
         return
@@ -64,24 +64,26 @@ const updateFieldMovement = (delta) => {
     let nextPosition
     let walkmeshFound = false
     let isSlipDirection = false
-    let originalDirection
+    const originalDirection = direction
+    const originalDirectionRadians = THREE.Math.degToRad(originalDirection)
+    const originalDirectionVector = new THREE.Vector3(Math.sin(originalDirectionRadians), Math.cos(originalDirectionRadians), 0)
+    const playerPositionOffset = window.currentField.playableCharacter.scene.position.clone().addScaledVector(originalDirectionVector, 0.01)
 
+    // console.log('movementDirection', originalDirection, originalDirectionRadians, originalDirectionVector, playerPositionOffset)
     for (let i = 0; i < directions.length; i++) {
         const potentialDirection = directions[i]
         // Set player in direction
         let directionRadians = THREE.Math.degToRad(potentialDirection)
         let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
-        if (i === 0) {
-            originalDirection = direction
-        }
         nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
+        const nextPositionForRaycast = playerPositionOffset.clone().addScaledVector(directionVector, speed)
         window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - potentialDirection)
 
         // Adjust for climbing slopes and walking off walkmesh
         // Create a ray at next position (higher z, but pointing down) to find correct z position
         // TODO - Need to deal with transitioning from a non-adjacent triangle, eg, just to different areas
         let playerMovementRay = new THREE.Raycaster()
-        const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
+        const rayO = new THREE.Vector3(nextPositionForRaycast.x, nextPositionForRaycast.y, nextPositionForRaycast.z + 0.05)
         const rayD = new THREE.Vector3(0, 0, -1).normalize()
         playerMovementRay.set(rayO, rayD)
         playerMovementRay.far = 0.1
@@ -101,10 +103,12 @@ const updateFieldMovement = (delta) => {
             if (i >= 1) {
                 isSlipDirection = true
             }
-            const point = intersects[0].point
-            // Adjust nextPosition height to to adjust for any slopes
-            nextPosition.z = point.z
-            window.currentField.playableCharacter.scene.userData.triangleId = intersects[0].object.userData.triangleId
+            const intersect = getNextPositionRaycast(nextPosition)
+            if (!intersect) {
+                continue
+            }
+            nextPosition.z = intersect.point.z
+            window.currentField.playableCharacter.scene.userData.triangleId = intersect.object.userData.triangleId
             updateSavemapLocationFieldPosition(
                 Math.round(nextPosition.x * 4096),
                 Math.round(nextPosition.y * 4096),
@@ -291,6 +295,21 @@ const updateFieldMovement = (delta) => {
 
     updateCursorPositionHelpers()
 }
+const getNextPositionRaycast = (nextPosition) => {
+    let playerMovementRay = new THREE.Raycaster()
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
+    const rayD = new THREE.Vector3(0, 0, -1).normalize()
+    playerMovementRay.set(rayO, rayD)
+    playerMovementRay.far = 0.1
+    let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+    if (intersects.length === 0) {
+        return null
+    } else if (!intersects[0].object.userData.movementAllowed) {
+        return null
+    } else {
+        return intersects[0]
+    }
+}
 
 const ladderMovement = (speed) => {
     const model = window.currentField.playableCharacter
@@ -344,12 +363,12 @@ const ladderMovement = (speed) => {
     const distanceToTarget = model.scene.position.distanceTo(targetVector)
     const distanceToOrigin = model.scene.position.distanceTo(backwardsVector)
     if (ladder.atStart) {
-        if (distanceToOrigin > 0.005) {
+        if (distanceToOrigin > 0.001) {
             delete ladder.atStart
         }
     }
-    console.log('ladderMovement', movementForwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart, model.scene.userData.triangleId)
-    if (distanceToTarget <= 0.005 && movementBackwards !== ladder.atStart) {
+    // console.log('ladderMovement', movementForwards, movementBackwards, distanceToTarget, ladder.atStart, distanceToOrigin, movementBackwards !== ladder.atStart, model.scene.userData.triangleId)
+    if (distanceToTarget <= 0.005 || (movementBackwards && ladder.atStart)) {
         model.mixer.stopAllAction()
 
         model.scene.rotation.x = THREE.Math.degToRad(90)
