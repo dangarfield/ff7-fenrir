@@ -73,7 +73,7 @@ const setModelAsEntity = (entityId, modelId) => {
     if (model.userData.isPlayableCharacter) {
         model.scene.visible = true
     }
-    model.userData.movementSpeed = 2048 // TODO - Absolute guess for default
+    model.userData.movementSpeed = 1024 // Looks to be walk by default - md8_2
     model.userData.animationSpeed = 1 // Looks ok
     model.userData.talkEnabled = true
     model.userData.talkRadius = 60 // Looks ok
@@ -453,11 +453,11 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
         // console.log('turnModel clockwiseDiff', currentYDeg, desiredYDeg, '->', clockwiseDiff)
         // console.log('turnModel antiClockwiseDiff', currentYDeg, desiredYDeg, '->', antiClockwiseDiff)
 
-        if (whichWayId === 0 || antiClockwiseDiff > clockwiseDiff) {
+        if (whichWayId === 1 || antiClockwiseDiff > clockwiseDiff) {
             // console.log('turnModel clockwise')
             desiredYDeg = currentYDeg - clockwiseDiff
         }
-        if (whichWayId === 1 || clockwiseDiff > antiClockwiseDiff) {
+        if (whichWayId === 0 || clockwiseDiff > antiClockwiseDiff) {
             // console.log('turnModel anti-clockwise')
             desiredYDeg = currentYDeg + antiClockwiseDiff
         }
@@ -477,7 +477,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
             easingType = (TWEEN.Easing.Quadratic.InOut)
         }
         // console.log('easingType', easingType)
-        let time = 200 // Not sure about the speed yet
+        let time = 350 // Not sure about the speed yet, md8_2, cloud turns with anim AQBF which is 15 frames, but timing videos, it seems like 350-400ms 
         new TWEEN.Tween(from)
             .to(to, time)
             .easing(easingType)

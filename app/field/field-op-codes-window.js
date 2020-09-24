@@ -120,7 +120,7 @@ const MESSAGE = async (op) => {
 }
 const ASK = async (op) => {
     console.log('ASK', op)
-    const answer = await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d], true)
+    const answer = op.f + (await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d], true))
     setBankData(op.ba, op.a, answer)
     console.log('ASK answer:', answer, '->', op.ba, op.a)
     return {}

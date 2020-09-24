@@ -173,7 +173,7 @@ const SCR2DL = async (op) => { // Scroll to position with linear tween
     }
     // await sleep(2000)
     console.log('SCR2DL linear', op, getCurrentCameraPosition(), to)
-    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Linear, speed)
+    tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Linear, speed)
     return {}
 }
 const FADE = async (op) => { // TODO: Lots of improvements

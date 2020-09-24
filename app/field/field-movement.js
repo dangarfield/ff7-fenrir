@@ -150,6 +150,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
         // time = 1000 / 30 * desiredSpeed
         animationType = window.currentField.playerAnimations.walk
     }
+    // console.log('moveEntity animationType', animationType, model.userData.movementSpeed, desiredSpeed)
     if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
     }

@@ -108,7 +108,11 @@ const updateFieldMovement = (delta) => {
                 continue
             }
             nextPosition.z = intersect.point.z
-            window.currentField.playableCharacter.scene.userData.triangleId = intersect.object.userData.triangleId
+            const currentTriangleId = window.currentField.playableCharacter.scene.userData.triangleId
+            const nextTriangleId = intersect.object.userData.triangleId
+            const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
+            console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+            window.currentField.playableCharacter.scene.userData.triangleId = nextTriangleId
             updateSavemapLocationFieldPosition(
                 Math.round(nextPosition.x * 4096),
                 Math.round(nextPosition.y * 4096),
