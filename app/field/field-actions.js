@@ -110,6 +110,7 @@ const initiateTalk = async (i, fieldModel) => {
 
 const setPlayableCharacterIsInteracting = (isInteracting) => {
     window.currentField.playableCharacterIsInteracting = isInteracting
+    window.currentField.playableCharacterCanMove = !isInteracting
 }
 const fadeOutAndLoadMenu = async (menuType, menuParam) => {
     setActionInProgress('menu')

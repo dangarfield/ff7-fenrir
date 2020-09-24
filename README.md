@@ -57,7 +57,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add animation root translation the kujata models and apply in game
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
 - :white_check_mark: Doors models don't have correct textures / look right - bybf (door w/ lights)
-- :black_square_button: Save model doesn't rotate
+- :white_check_mark: Save model doesn't rotate
 - :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata. Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes 
 - :black_square_button: Add directional lighting to each model as per flevel, rather than general downlight
 - :white_check_mark: Sound loops metadata needs to be extracted properly

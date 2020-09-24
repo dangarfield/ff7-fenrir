@@ -214,7 +214,10 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     }
     // TODO - Investigate this, md1stin, barret should not be shown, but the guards should. Not sure yet
     model.scene.visible = true
-    // playStandAnimation(model)
+    if (!model.userData.hasBeenInitiallyPlaced) {
+        playStandAnimation(model) // Play animation should not be executed each time this is envoked
+        model.userData.hasBeenInitiallyPlaced = true
+    }
 }
 const placeModelsDebug = async () => {
     console.log('placeModelsDebug: START')
