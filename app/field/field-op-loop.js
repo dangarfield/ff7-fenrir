@@ -408,7 +408,7 @@ const initialiseOpLoops = async () => {
     CURRENT_FIELD = window.currentField.name
     let entities = window.currentField.data.script.entities
     await positionPlayableCharacterFromTransition()
-    // entities = entities.filter(e => e.entityName !== 'timeo' && e.entityName !== 'light' && e.entityName !== 'smoke2') // Debug
+    // entities = entities.filter(e => !(e.entityName.includes('ELEC') || e.entityName.includes('TURI') || e.entityName.includes('LIGHT'))) // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         initEntity(window.currentField.name, entity) // All running async

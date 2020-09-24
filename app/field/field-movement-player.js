@@ -99,19 +99,26 @@ const updateFieldMovement = (delta) => {
             // Triangle locked through IDLCK
             continue
         } else {
-            walkmeshFound = true
-            if (i >= 1) {
-                isSlipDirection = true
-            }
+
             const intersect = getNextPositionRaycast(nextPosition)
             if (!intersect) {
                 continue
             }
-            nextPosition.z = intersect.point.z
             const currentTriangleId = window.currentField.playableCharacter.scene.userData.triangleId
             const nextTriangleId = intersect.object.userData.triangleId
             const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
-            console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+            // console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+            if (!nextTriangleMovementAllowed) {
+                // console.log('playerMovement nextTriangle STOP')
+                continue
+            }
+
+            walkmeshFound = true
+            if (i >= 1) {
+                isSlipDirection = true
+            }
+            console.log('playerMovement nextTriangle CONTINUE')
+            nextPosition.z = intersect.point.z
             window.currentField.playableCharacter.scene.userData.triangleId = nextTriangleId
             updateSavemapLocationFieldPosition(
                 Math.round(nextPosition.x * 4096),
