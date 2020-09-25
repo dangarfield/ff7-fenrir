@@ -130,32 +130,38 @@ const playNextMovie = async () => {
         window.currentField.positionHelpersEnabled = false
         updatePositionHelperVisility()
 
-        // Hide all backgrounds
-        window.currentField.backgroundLayers.visible = false
+
 
         // Create videotexture and place on scene
         createVideoBackground(nextMovie.video)
-        window.currentField.backgroundVideo.visible = true
-        console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
 
-        // Swap to videoCamera if applicable
-        if (nextMovie.cameraData !== undefined) {
-            window.currentField.showVideoCamera = true // Override with op code
-        }
 
-        // Play video
-        nextMovie.video.play()
 
-        // Begin capturing frame
-        const frameCaptureInterval = setInterval(() => {
-            if (window.currentField.showVideoCamera && nextMovie.cameraData !== undefined) {
-                const positionData = nextMovie.cameraData[nextMovie.frame]
-                if (positionData) {
-                    updateVideoCameraPosition(positionData)
-                }
+
+        // Register onplay and onend callbacks 
+        let frameCaptureInterval
+        nextMovie.video.onplay = () => {
+            // Hide all backgrounds
+            window.currentField.backgroundLayers.visible = false
+            window.currentField.backgroundVideo.visible = true
+            console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
+            // Swap to videoCamera if applicable
+            if (nextMovie.cameraData !== undefined) {
+                window.currentField.showVideoCamera = true // Override with op code
             }
-            nextMovie.frame++
-        }, 1000 / 15) // Looks like 15 frames per second
+
+            // Begin capturing frame
+            const fovAdjustment = window.currentField.metaData.assetDimensions.height / window.config.sizing.height
+            frameCaptureInterval = setInterval(() => {
+                if (window.currentField.showVideoCamera && nextMovie.cameraData !== undefined) {
+                    const positionData = nextMovie.cameraData[nextMovie.frame]
+                    if (positionData) {
+                        updateVideoCameraPosition(positionData, fovAdjustment)
+                    }
+                }
+                nextMovie.frame++
+            }, 1000 / 15) // Looks like 15 frames per second
+        }
 
         // frame 664 roughly equal to 117 seconds
         // Once video has finished
@@ -178,6 +184,9 @@ const playNextMovie = async () => {
             // - Resolve the promise to proceed to the next script
             resolve()
         }
+
+        // Play video
+        nextMovie.video.play()
     })
 }
 

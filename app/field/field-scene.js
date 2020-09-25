@@ -116,31 +116,31 @@ const raycasterFieldRendering = (camera) => {
 }
 const setupFieldCamera = () => {
     // console.log('field-scene -> window.currentField', window.currentField, window.currentField)
-    let ffCamera = window.currentField.data.cameraSection.cameras[0] // TODO: Support multiple cameras
-    let baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951
+    const ffCamera = window.currentField.data.cameraSection.cameras[0] // TODO: Support multiple cameras
+    const baseFOV = (2 * Math.atan(240.0 / (2.0 * ffCamera.zoom))) * 57.29577951
     window.currentField.fieldScene = new THREE.Scene()
     // window.currentField.fieldScene.background = new THREE.Color(0x000000)
     window.currentField.fieldCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000) // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
 
-    let camAxisXx = ffCamera.xAxis.x / 4096.0
-    let camAxisXy = ffCamera.xAxis.y / 4096.0
-    let camAxisXz = ffCamera.xAxis.z / 4096.0
+    const camAxisXx = ffCamera.xAxis.x / 4096.0
+    const camAxisXy = ffCamera.xAxis.y / 4096.0
+    const camAxisXz = ffCamera.xAxis.z / 4096.0
 
-    let camAxisYx = -ffCamera.yAxis.x / 4096.0
-    let camAxisYy = -ffCamera.yAxis.y / 4096.0
-    let camAxisYz = -ffCamera.yAxis.z / 4096.0
+    const camAxisYx = -ffCamera.yAxis.x / 4096.0
+    const camAxisYy = -ffCamera.yAxis.y / 4096.0
+    const camAxisYz = -ffCamera.yAxis.z / 4096.0
 
-    let camAxisZx = ffCamera.zAxis.x / 4096.0
-    let camAxisZy = ffCamera.zAxis.y / 4096.0
-    let camAxisZz = ffCamera.zAxis.z / 4096.0
+    const camAxisZx = ffCamera.zAxis.x / 4096.0
+    const camAxisZy = ffCamera.zAxis.y / 4096.0
+    const camAxisZz = ffCamera.zAxis.z / 4096.0
 
-    let camPosX = ffCamera.position.x / 4096.0
-    let camPosY = -ffCamera.position.y / 4096.0
-    let camPosZ = ffCamera.position.z / 4096.0
+    const camPosX = ffCamera.position.x / 4096.0
+    const camPosY = -ffCamera.position.y / 4096.0
+    const camPosZ = ffCamera.position.z / 4096.0
 
-    let tx = -(camPosX * camAxisXx + camPosY * camAxisYx + camPosZ * camAxisZx)
-    let ty = -(camPosX * camAxisXy + camPosY * camAxisYy + camPosZ * camAxisZy)
-    let tz = -(camPosX * camAxisXz + camPosY * camAxisYz + camPosZ * camAxisZz)
+    const tx = -(camPosX * camAxisXx + camPosY * camAxisYx + camPosZ * camAxisZx)
+    const ty = -(camPosX * camAxisXy + camPosY * camAxisYy + camPosZ * camAxisZy)
+    const tz = -(camPosX * camAxisXz + camPosY * camAxisYz + camPosZ * camAxisZz)
 
     window.currentField.fieldCamera.position.x = tx
     window.currentField.fieldCamera.position.y = ty
@@ -151,13 +151,13 @@ const setupFieldCamera = () => {
 
     window.currentField.fieldCamera.updateProjectionMatrix()
     window.currentField.fieldScene.add(window.currentField.fieldCamera)
-    let light = new THREE.DirectionalLight(0xffffff)
+    const light = new THREE.DirectionalLight(0xffffff)
     light.position.set(0, 0, 50).normalize()
     window.currentField.fieldScene.add(light)
-    let ambientLight = new THREE.AmbientLight(0x404040) // 0x404040 = soft white light
+    const ambientLight = new THREE.AmbientLight(0x404040) // 0x404040 = soft white light
     window.currentField.fieldScene.add(ambientLight)
 
-    let cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
+    const cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
 
     window.currentField.fieldCamera.userData.followUser = true
 
@@ -189,33 +189,32 @@ const setupFieldDebugCamera = () => {
 const setupFieldVideoCamera = () => {
     window.currentField.videoCamera = window.currentField.fieldCamera.clone()
 }
-const updateVideoCameraPosition = (positionData) => {
+const updateVideoCameraPosition = (positionData, fovAdjustment) => {
     console.log('moviecam updateVideoCameraPosition', positionData)
 
-    let baseFOV = (2 * Math.atan(240.0 / (2.0 * positionData.zoom))) * 57.29577951
+    const baseFOV = (2 * Math.atan(240.0 / (2.0 * positionData.zoom))) * 57.29577951
+    const adjustedFOV = baseFOV * fovAdjustment
+    window.currentField.videoCamera.fov = adjustedFOV
 
-    // window.currentField.videoCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000) // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
-    window.currentField.videoCamera.fov = baseFOV
+    const camAxisXx = positionData.xAxis.x / 4096.0
+    const camAxisXy = positionData.xAxis.y / 4096.0
+    const camAxisXz = positionData.xAxis.z / 4096.0
 
-    let camAxisXx = positionData.xAxis.x / 4096.0
-    let camAxisXy = positionData.xAxis.y / 4096.0
-    let camAxisXz = positionData.xAxis.z / 4096.0
+    const camAxisYx = -positionData.yAxis.x / 4096.0
+    const camAxisYy = -positionData.yAxis.y / 4096.0
+    const camAxisYz = -positionData.yAxis.z / 4096.0
 
-    let camAxisYx = -positionData.yAxis.x / 4096.0
-    let camAxisYy = -positionData.yAxis.y / 4096.0
-    let camAxisYz = -positionData.yAxis.z / 4096.0
+    const camAxisZx = positionData.zAxis.x / 4096.0
+    const camAxisZy = positionData.zAxis.y / 4096.0
+    const camAxisZz = positionData.zAxis.z / 4096.0
 
-    let camAxisZx = positionData.zAxis.x / 4096.0
-    let camAxisZy = positionData.zAxis.y / 4096.0
-    let camAxisZz = positionData.zAxis.z / 4096.0
+    const camPosX = positionData.position.x / 4096.0
+    const camPosY = -positionData.position.y / 4096.0
+    const camPosZ = positionData.position.z / 4096.0
 
-    let camPosX = positionData.position.x / 4096.0
-    let camPosY = -positionData.position.y / 4096.0
-    let camPosZ = positionData.position.z / 4096.0
-
-    let tx = -(camPosX * camAxisXx + camPosY * camAxisYx + camPosZ * camAxisZx)
-    let ty = -(camPosX * camAxisXy + camPosY * camAxisYy + camPosZ * camAxisZy)
-    let tz = -(camPosX * camAxisXz + camPosY * camAxisYz + camPosZ * camAxisZz)
+    const tx = -(camPosX * camAxisXx + camPosY * camAxisYx + camPosZ * camAxisZx)
+    const ty = -(camPosX * camAxisXy + camPosY * camAxisYy + camPosZ * camAxisZy)
+    const tz = -(camPosX * camAxisXz + camPosY * camAxisYz + camPosZ * camAxisZz)
 
     window.currentField.videoCamera.position.x = tx
     window.currentField.videoCamera.position.y = ty
