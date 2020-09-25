@@ -59,14 +59,14 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Doors models don't have correct textures / look right - bybf (door w/ lights)
 - :white_check_mark: Save model doesn't rotate
 - :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata. Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes 
-- :black_square_button: Add directional lighting to each model as per flevel, rather than general downlight
+- :point_right: Add directional lighting to each model as per flevel, rather than general downlight
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
 - :white_check_mark: Slippability sometimes looks very jagged
 - :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
 - :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
-- :point_right: Decontruct Moviecamera.lgp, interpret camera movements and implement
+- :white_check_mark: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
@@ -74,6 +74,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: Implement remaining difficult op codes
+- :black_square_button: Add blinking eyes
 
 ### OP Code Completion Status
 See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_README.md) for updates
