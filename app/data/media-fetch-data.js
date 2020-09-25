@@ -15,9 +15,21 @@ const getMovieMetadata = async () => {
     const movieMeta = await movieMetaRes.json()
     return movieMeta
 }
+const getMoviecamMetadata = async () => {
+    const moviecamMetaRes = await fetch(`${KUJATA_BASE}/media/movies/moviecam-metadata.json`)
+    const moviecamMeta = await moviecamMetaRes.json()
+    return moviecamMeta
+}
+const getMoviecamData = async (name) => {
+    const moviecamRes = await fetch(`${KUJATA_BASE}/media/movies/${name}.cam.json`)
+    const moviecam = await moviecamRes.json()
+    return moviecam
+}
 
 export {
     getSoundMetadata,
     getMusicMetadata,
-    getMovieMetadata
+    getMovieMetadata,
+    getMoviecamMetadata,
+    getMoviecamData
 }

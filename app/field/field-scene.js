@@ -44,7 +44,14 @@ const renderLoop = function () {
     updateOnceASecond()
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
         // console.log('render')
-        let activeCamera = window.config.debug.showDebugCamera === true ? window.currentField.debugCamera : window.currentField.fieldCamera
+        let activeCamera = window.currentField.fieldCamera
+        if (window.currentField.showVideoCamera) {
+            activeCamera = window.currentField.videoCamera
+        }
+        if (window.config.debug.showDebugCamera) {
+            activeCamera = window.currentField.debugCamera
+        }
+
         if (window.config.raycast.active) {
             raycasterFieldRendering(activeCamera)
         }
@@ -155,6 +162,7 @@ const setupFieldCamera = () => {
     window.currentField.fieldCamera.userData.followUser = true
 
     setupFieldDebugCamera()
+    setupFieldVideoCamera()
     window.currentField.fieldCameraHelper = new THREE.CameraHelper(window.currentField.fieldCamera)
     window.currentField.fieldCameraHelper.visible = true
     window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
@@ -177,6 +185,48 @@ const activateDebugCamera = () => {
 
 const setupFieldDebugCamera = () => {
     window.currentField.debugCamera = window.currentField.fieldCamera.clone()
+}
+const setupFieldVideoCamera = () => {
+    window.currentField.videoCamera = window.currentField.fieldCamera.clone()
+}
+const updateVideoCameraPosition = (positionData) => {
+    console.log('moviecam updateVideoCameraPosition', positionData)
+
+    let baseFOV = (2 * Math.atan(240.0 / (2.0 * positionData.zoom))) * 57.29577951
+
+    // window.currentField.videoCamera = new THREE.PerspectiveCamera(baseFOV, window.config.sizing.width / window.config.sizing.height, 0.001, 1000) // near and far is 0.001 / 4096, 100000 / 4096 in makou reactor
+    window.currentField.videoCamera.fov = baseFOV
+
+    let camAxisXx = positionData.xAxis.x / 4096.0
+    let camAxisXy = positionData.xAxis.y / 4096.0
+    let camAxisXz = positionData.xAxis.z / 4096.0
+
+    let camAxisYx = -positionData.yAxis.x / 4096.0
+    let camAxisYy = -positionData.yAxis.y / 4096.0
+    let camAxisYz = -positionData.yAxis.z / 4096.0
+
+    let camAxisZx = positionData.zAxis.x / 4096.0
+    let camAxisZy = positionData.zAxis.y / 4096.0
+    let camAxisZz = positionData.zAxis.z / 4096.0
+
+    let camPosX = positionData.position.x / 4096.0
+    let camPosY = -positionData.position.y / 4096.0
+    let camPosZ = positionData.position.z / 4096.0
+
+    let tx = -(camPosX * camAxisXx + camPosY * camAxisYx + camPosZ * camAxisZx)
+    let ty = -(camPosX * camAxisXy + camPosY * camAxisYy + camPosZ * camAxisZy)
+    let tz = -(camPosX * camAxisXz + camPosY * camAxisYz + camPosZ * camAxisZz)
+
+    window.currentField.videoCamera.position.x = tx
+    window.currentField.videoCamera.position.y = ty
+    window.currentField.videoCamera.position.z = tz
+    window.currentField.videoCamera.up.set(camAxisYx, camAxisYy, camAxisYz)
+    // console.log('up', camAxisYx, camAxisYy, camAxisYz)
+    window.currentField.videoCamera.lookAt(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
+
+    window.currentField.videoCamera.updateProjectionMatrix()
+
+    // TODO - This isn't perfect, something is not quite right
 }
 const setupDebugControls = () => {
     window.currentField.debugCameraControls = new OrbitControls(window.currentField.debugCamera, window.anim.renderer.domElement);
@@ -365,5 +415,6 @@ export {
     initFieldDebug,
     setupViewClipping,
     calculateViewClippingPointFromVector3,
-    adjustViewClipping
+    adjustViewClipping,
+    updateVideoCameraPosition
 }

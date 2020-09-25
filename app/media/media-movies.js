@@ -1,14 +1,17 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
-import { getMovieMetadata } from '../data/media-fetch-data.js'
+import { getMovieMetadata, getMoviecamMetadata, getMoviecamData } from '../data/media-fetch-data.js'
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
 import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
+import { updateVideoCameraPosition } from '../field/field-scene.js'
 
 let movieMetadata
+let moviecamMetadata
 let movies = []
+let moviecams = []
 let nextMovie = {
     name: '',
-    cameraData: {},
+    cameraData: undefined,
     frame: 0,
     video: undefined
 }
@@ -27,18 +30,31 @@ const loadMovieMetadata = async () => {
         movieMetadata = await getMovieMetadata()
         console.log('movieMetadata', movieMetadata)
     }
+    if (moviecamMetadata === undefined) {
+        moviecamMetadata = await getMoviecamMetadata()
+        console.log('moviecamMetadata', moviecamMetadata)
+    }
 }
 const getMovieName = (i) => {
     const disc = getCurrentDisc()
     console.log('getMovieName', `disc${disc}`, i, movieMetadata, movieMetadata[`disc${disc}`], movieMetadata[`disc${disc}`][i])
     return movieMetadata[`disc${disc}`][i]
 }
+const loadMoviecam = async (name) => {
+    if (moviecamMetadata.includes(name)) {
+
+        const camData = await getMoviecamData(name)
+        moviecams.push({ name, camData })
+        console.log('loadMoviecam moviecam', name, camData, moviecams)
+    }
+}
 const loadMovie = (i) => {
     // Should really add a download progress loader
     // Although, this is only enough buffered to begin playback
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         const name = getMovieName(i)
         console.log('loadMovie', i, name)
+        await loadMoviecam(name)
         const video = document.createElement('video')
         video.setAttribute('crossorigin', 'anonymous')
         video.src = getMusicUrl(getMovieName(i))
@@ -51,7 +67,13 @@ const loadMovie = (i) => {
         }
     })
 }
-const setNextMovie = async (i) => {
+// setTimeout(async () => {
+//     console.log('moviecam TEST: START')
+//     setNextMovie(20)
+//     playNextMovie()
+// }, 10000)
+
+const setNextMovie = (i) => {
     // Need to find out which 'disc' the user is on to play the right video
     // Disc one - game moment <= 669 ??? - I think this is a bad idea as there will 
     // Ideally this will also work when changing fields
@@ -62,16 +84,16 @@ const setNextMovie = async (i) => {
 
     nextMovie.name = getMovieName(i)
     console.log('setNextMovie', movieMetadata, i, nextMovie.name)
-    nextMovie.cameraData = await getCameraData(nextMovie.name)
+    const potentialMoviecamList = moviecams.filter(c => c.name === nextMovie.name)
+    if (potentialMoviecamList.length > 0) {
+        nextMovie.cameraData = potentialMoviecamList[0].camData
+    }
     nextMovie.frame = 0
     nextMovie.video = movies.filter(v => v.name === nextMovie.name)[0].video
     console.log('nextMovie', nextMovie)
-
-    // TODO: Setup videoCamera in position and get tweens ready
-}
-const getCameraData = async () => {
-    // TBC
-    return {}
+    console.log('moviecam setNextMovie', nextMovie)
+    window.currentField.videoCamera = window.currentField.fieldCamera.clone()
+    console.log('moviecam camera clone', window.currentField.videoCamera, window.currentField.fieldCamera)
 }
 const getCurrentMovieFrame = () => {
     return nextMovie.frame
@@ -85,7 +107,6 @@ const playNextMovie = async () => {
     // The movie cam is turned on and off with MVCAM, I'm not sure whether it is on by default if moviecam exists
 
     // TODO - Position of movie is not 100%, but I'm also not sure if the field position is ok either as it is a static camera in md1stin
-    // TODO - Extract Video Camera data, create videoCamera and add to renderer and get videoBackground to follow camera
     // TODO - Something strange about AKAO2 music pan being set before and after VIDEO
 
     // Problem:
@@ -117,21 +138,35 @@ const playNextMovie = async () => {
         window.currentField.backgroundVideo.visible = true
         console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
 
-        // TODO - Swap to videoCamera (if relevant and start videoCamera position tweens)
+        // Swap to videoCamera if applicable
+        if (nextMovie.cameraData !== undefined) {
+            window.currentField.showVideoCamera = true // Override with op code
+        }
 
         // Play video
         nextMovie.video.play()
 
         // Begin capturing frame
-        const frameCaptureInterval = setInterval(() => { nextMovie.frame++ }, 1000 / 15) // Looks like 15 frames per second
+        const frameCaptureInterval = setInterval(() => {
+            if (window.currentField.showVideoCamera && nextMovie.cameraData !== undefined) {
+                const positionData = nextMovie.cameraData[nextMovie.frame]
+                if (positionData) {
+                    updateVideoCameraPosition(positionData)
+                }
+            }
+            nextMovie.frame++
+        }, 1000 / 15) // Looks like 15 frames per second
+
         // frame 664 roughly equal to 117 seconds
         // Once video has finished
         nextMovie.video.onended = () => {
             console.log('video.onended', nextMovie.name)
             // - clear capture frame interval
             clearInterval(frameCaptureInterval)
-            // - TODO - switch back to field camera
-
+            // - switch back to field camera
+            if (nextMovie.cameraData !== undefined) {
+                window.currentField.showVideoCamera = false
+            }
             // - destroy the objects in the backgroundVideo group
             console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
             window.currentField.backgroundVideo.remove(...window.currentField.backgroundVideo.children)
@@ -139,6 +174,7 @@ const playNextMovie = async () => {
 
             // - make the background layers visible again
             window.currentField.backgroundLayers.visible = true
+
             // - Resolve the promise to proceed to the next script
             resolve()
         }

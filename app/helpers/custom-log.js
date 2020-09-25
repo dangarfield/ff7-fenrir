@@ -5,15 +5,21 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'IFUB'
+            'loadMovie',
+            'moviecam'
         ],
         log: function () {
             if (limit) {
                 for (let i = 0; i < arguments.length; i++) {
                     const argument = arguments[i]
-                    if (typeof (argument) === 'string' && window.console.terms.includes(argument)) {
-                        origConsole.log.apply(origConsole, arguments)
-                        break
+                    if (typeof (argument) === 'string') {
+                        for (let j = 0; j < this.terms.length; j++) {
+                            const term = this.terms[j]
+                            if (argument.includes(term)) {
+                                origConsole.log.apply(origConsole, arguments)
+                                break
+                            }
+                        }
                     }
                 }
             } else {

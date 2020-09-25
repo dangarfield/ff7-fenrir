@@ -6,6 +6,7 @@
   "scripts": {
     "unlgp-fields": "cd .\\workings-out\\unlgp\\unlgp-flevel.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\flevel.lgp",
     "unlgp-char": "cd .\\workings-out\\unlgp\\unlgp-char.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\char.lgp",
+    "unlgp-movies": "cd .\\workings-out\\unlgp\\unlgp-moviecam.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe 'D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\movies\\moviecam.lgp'",
     "dev": "http-server -p 3000 -s --cors"
   },
   "repository": {
