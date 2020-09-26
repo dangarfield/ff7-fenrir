@@ -5,8 +5,7 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'loadMovie',
-            'moviecam'
+            'lightData'
         ],
         log: function () {
             if (limit) {

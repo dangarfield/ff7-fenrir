@@ -151,11 +151,6 @@ const setupFieldCamera = () => {
 
     window.currentField.fieldCamera.updateProjectionMatrix()
     window.currentField.fieldScene.add(window.currentField.fieldCamera)
-    const light = new THREE.DirectionalLight(0xFFFFFF)
-    light.position.set(0, 0, 50).normalize()
-    window.currentField.fieldScene.add(light)
-    const ambientLight = new THREE.AmbientLight(0x404040) // 0x404040 = soft white light
-    window.currentField.fieldScene.add(ambientLight)
 
     const cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
 
@@ -168,7 +163,39 @@ const setupFieldCamera = () => {
     window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
     window.currentField.fieldScene.add(window.currentField.fieldCamera)
 
+    setupFieldLights()
     return cameraTarget
+}
+const getLightData = () => {
+    const models = window.currentField.data.model.modelLoaders
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i]
+        if (model.globalLight !== undefined && model.light1 !== undefined && model.light2 !== undefined && model.light3 !== undefined) {
+            return model
+        }
+    }
+    return false
+}
+const setupFieldLights = () => {
+    const lightData = getLightData()
+    if (lightData) {
+        console.log('lightData', lightData)
+
+        const globalLightIntensity = 1 // TODO - Adjust intensities
+        const pointLightIntensity = 1
+
+        const globalLight = new THREE.AmbientLight(new THREE.Color(`rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`), globalLightIntensity)
+        window.currentField.fieldScene.add(globalLight)
+
+        for (let i = 1; i <= 3; i++) {
+
+            const light = lightData[`light${i}`]
+            const pointLight = new THREE.PointLight(new THREE.Color(`rgb(${light.r},${light.g},${light.b})`), pointLightIntensity, 100)
+            pointLight.position.set(light.x / 4096, -light.z / 4096, -light.y / 4096).normalize()
+            window.currentField.fieldScene.add(pointLight)
+            // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 1))
+        }
+    }
 }
 
 
