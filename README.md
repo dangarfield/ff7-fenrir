@@ -45,7 +45,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Add keyboard instruction image
 - :white_check_mark: Begin kernel initial and save data information
 - :black_square_button: Do something about lazing loading windowTextures...
-- :white_check_mark: Begin properly implementing field op codes - 92% complete. 4 -> I can do later. 3 - Character graphics ops, undocumented / graphics model changes. 12 - Paletting, eg different approach required
+- :white_check_mark: Begin properly implementing field op codes - 93% complete. 1 -> I can do later. 3 -> Character graphics ops, undocumented / graphics model changes. 2 -> Undocumented / unknown. 12 -> Paletting, eg different approach required, eg custom shader
 - :white_check_mark: Update savemap with all non op-code data, movements, directions, game time, steps etc
 - :white_check_mark: Implement proper save, import, export mechanism
 - :black_square_button: Add visual savemap debug mechanism

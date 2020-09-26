@@ -7,7 +7,7 @@ import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.j
 import { executeAkaoOperation } from '../media/media-module.js'
 import { playSound } from '../media/media-sound.js'
 import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
-import { setNextMovie, playNextMovie, getCurrentMovieFrame, stopCurrentMovie } from '../media/media-movies.js'
+import { setNextMovie, playNextMovie, getCurrentMovieFrame, stopCurrentMovie, activateMovieCam } from '../media/media-movies.js'
 
 const NFADE = async (op) => { // TODO: Lots of improvements
     console.log('NFADE', op)
@@ -456,7 +456,7 @@ const CMUSC = async (op) => {
 
 const PMVIE = async (op) => {
     console.log('PMVIE', op)
-    await setNextMovie(op.m)
+    setNextMovie(op.m)
     return {}
 }
 const MOVIE = async (op) => {
@@ -485,6 +485,11 @@ const MVIEF = async (op) => {
     }
     console.log('MVIEF frame -', frame, 'set to', op.b, op.a)
     await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
+    return {}
+}
+const MVCAM = async (op) => {
+    console.log('MVCAM', op)
+    await activateMovieCam(op.s === 0)
     return {}
 }
 // setTimeout(async () => {
@@ -524,6 +529,7 @@ export {
     PMVIE,
     MOVIE,
     MVIEF,
+    MVCAM,
     FMUSC,
     CMUSC,
     CHMST,

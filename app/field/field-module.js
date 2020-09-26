@@ -46,6 +46,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         fieldCameraHelper: undefined,
         videoCamera: undefined,
         showVideoCamera: false,
+        allowVideoCamera: true,
         debugCamera: undefined,
         walkmeshMesh: undefined,
         walkmeshLines: undefined,

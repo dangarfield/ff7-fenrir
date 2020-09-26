@@ -146,17 +146,24 @@ const playNextMovie = async () => {
             window.currentField.backgroundVideo.visible = true
             console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
             // Swap to videoCamera if applicable
-            if (nextMovie.cameraData !== undefined) {
+            if (nextMovie.cameraData !== undefined && window.currentField.allowVideoCamera) {
                 window.currentField.showVideoCamera = true // Override with op code
             }
 
             // Begin capturing frame
             const fovAdjustment = window.currentField.metaData.assetDimensions.height / window.config.sizing.height
             frameCaptureInterval = setInterval(() => {
-                if (window.currentField.showVideoCamera && nextMovie.cameraData !== undefined) {
-                    const positionData = nextMovie.cameraData[nextMovie.frame]
-                    if (positionData) {
-                        updateVideoCameraPosition(positionData, fovAdjustment)
+                if (nextMovie.cameraData !== undefined) {
+                    if (window.currentField.allowVideoCamera) {
+                        window.currentField.showVideoCamera = true
+                    } else {
+                        window.currentField.showVideoCamera = false
+                    }
+                    if (window.currentField.showVideoCamera) {
+                        const positionData = nextMovie.cameraData[nextMovie.frame]
+                        if (positionData) {
+                            updateVideoCameraPosition(positionData, fovAdjustment)
+                        }
                     }
                 }
                 nextMovie.frame++
@@ -194,6 +201,9 @@ const stopCurrentMovie = async () => {
     nextMovie.video.stop() // onend should trigger once again
     nextMovie.frame = 0
 }
+const activateMovieCam = async (isActive) => {
+    window.currentField.allowVideoCamera = isActive
+}
 export {
     loadMovieMetadata,
     setNextMovie,
@@ -202,5 +212,6 @@ export {
     loadMovie,
     getCurrentMovieFrame,
     isMovieLockEnabled,
-    setMovieLockEnabled
+    setMovieLockEnabled,
+    activateMovieCam
 }

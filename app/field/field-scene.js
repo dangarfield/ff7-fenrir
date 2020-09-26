@@ -151,7 +151,7 @@ const setupFieldCamera = () => {
 
     window.currentField.fieldCamera.updateProjectionMatrix()
     window.currentField.fieldScene.add(window.currentField.fieldCamera)
-    const light = new THREE.DirectionalLight(0xffffff)
+    const light = new THREE.DirectionalLight(0xFFFFFF)
     light.position.set(0, 0, 50).normalize()
     window.currentField.fieldScene.add(light)
     const ambientLight = new THREE.AmbientLight(0x404040) // 0x404040 = soft white light

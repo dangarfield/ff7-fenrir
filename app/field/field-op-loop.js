@@ -301,6 +301,7 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
 
         case 'MOVIE': result = await cameraMedia.MOVIE(op); break
         case 'MVIEF': result = await cameraMedia.MVIEF(op); break
+        case 'MVCAM': result = await cameraMedia.MVCAM(op); break
 
         case 'FMUSC': result = await cameraMedia.FMUSC(op); break
         case 'CMUSC': result = await cameraMedia.CMUSC(op); break
