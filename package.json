@@ -22,5 +22,8 @@
   "dependencies": {
     "fs-extra": "^9.0.1",
     "lodash": "^4.17.19"
+  },
+  "nodemonConfig": {
+    "ignore": ["*.json"]
   }
 }

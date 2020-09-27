@@ -107,9 +107,9 @@ const updateFieldMovement = (delta) => {
             const currentTriangleId = window.currentField.playableCharacter.scene.userData.triangleId
             const nextTriangleId = intersect.object.userData.triangleId
             const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
-            // console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
-            if (!nextTriangleMovementAllowed) {
-                // console.log('playerMovement nextTriangle STOP')
+            console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+            if (!nextTriangleMovementAllowed && currentTriangleId !== undefined) {
+                console.log('playerMovement nextTriangle STOP')
                 continue
             }
 

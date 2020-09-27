@@ -176,24 +176,65 @@ const getLightData = () => {
     }
     return false
 }
+const getAverageOfArray = (array) => array.reduce((a, b) => a + b) / array.length
+const getSceneCentrePoint = () => {
+    const xList = []
+    const yList = []
+    const zList = []
+    const triangles = window.currentField.data.walkmeshSection.triangles
+    for (let i = 0; i < triangles.length; i++) {
+        const triangle = triangles[i]
+        xList.push(triangle.vertices[0].x)
+        xList.push(triangle.vertices[1].x)
+        xList.push(triangle.vertices[2].x)
+        yList.push(triangle.vertices[0].y)
+        yList.push(triangle.vertices[1].y)
+        yList.push(triangle.vertices[2].y)
+        zList.push(triangle.vertices[0].z)
+        zList.push(triangle.vertices[1].z)
+        zList.push(triangle.vertices[2].z)
+    }
+    const average = {
+        x: getAverageOfArray(xList),
+        y: getAverageOfArray(yList),
+        z: getAverageOfArray(zList)
+    }
+    return average
+}
 const setupFieldLights = () => {
+    // There are 137 fields where the lighting is not uniform across all characters
+    // Most of the time, this is the save crystal, treasure box or a background object, eg train graveyard
+    // See ./workings-out/fieldModelSelectiveLightingIdentify.js ->
+    //     ./workings-out/output/field-model-lighting.json
+
+    // Threejs does not currenty allow selective lighting:
+    //  - https://github.com/mrdoob/three.js/issues/5180 
+    //  - https://github.com/mrdoob/three.js/pull/15223
+    //  - https://github.com/mrdoob/three.js/pull/17396
+
+    // TODO: I'll will temporary implement this as global directional lighting and reimplement more
+    // effectively at a later date for each individual model. For now, get the centre point of the scene
+    // and draw the light from there
+
+
     const lightData = getLightData()
     if (lightData) {
-        console.log('lightData', lightData)
-
+        // console.log('lightData', lightData)
+        const centre = getSceneCentrePoint()
+        // console.log('lightData getSceneCentrePoint', centre)
         const globalLightIntensity = 1 // TODO - Adjust intensities
         const pointLightIntensity = 1
 
         const globalLight = new THREE.AmbientLight(new THREE.Color(`rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`), globalLightIntensity)
         window.currentField.fieldScene.add(globalLight)
+        // console.log('lightData globalLight', globalLight, lightData)
 
         for (let i = 1; i <= 3; i++) {
-
             const light = lightData[`light${i}`]
             const pointLight = new THREE.PointLight(new THREE.Color(`rgb(${light.r},${light.g},${light.b})`), pointLightIntensity, 100)
-            pointLight.position.set(light.x / 4096, -light.z / 4096, -light.y / 4096).normalize()
+            pointLight.position.set((centre.x + light.x) / 4096, (centre.y + light.y) / 4096, (centre.z + light.z) / 4096)
             window.currentField.fieldScene.add(pointLight)
-            // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 1))
+            // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 0.5))
         }
     }
 }
