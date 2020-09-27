@@ -406,12 +406,13 @@ const updateCurrentTriangleId = (model, nextPosition) => {
     if (intersects.length === 0) {
         return -1
     } else {
-        const point = intersects[0].point
+        // const point = intersects[0].point
         model.scene.userData.triangleId = intersects[0].object.userData.triangleId
     }
 
 }
 
 export {
-    updateFieldMovement
+    updateFieldMovement,
+    updateCurrentTriangleId
 }

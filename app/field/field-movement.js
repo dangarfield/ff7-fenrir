@@ -8,6 +8,7 @@ import {
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
+import { updateCurrentTriangleId } from './field-movement-player.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, false, false)
@@ -91,6 +92,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                             }
                         }
                     }
+                    updateCurrentTriangleId(model, model.scene.position)
                 }
                 resolve()
             })

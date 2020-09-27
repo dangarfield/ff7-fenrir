@@ -5,7 +5,8 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'lightData'
+            'lightData',
+            'playerMovement'
         ],
         log: function () {
             if (limit) {
