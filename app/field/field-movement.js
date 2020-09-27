@@ -194,6 +194,9 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 if (animate) {
                     model.mixer.stopAllAction()
                 }
+                if (model.userData.isPlayableCharacter) {
+                    updateCurrentTriangleId(model, model.scene.position)
+                }
                 // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
                 resolve()
             })

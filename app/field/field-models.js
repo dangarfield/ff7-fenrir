@@ -4,6 +4,7 @@ import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-codes-party-helper.js'
 import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync, playStandAnimation } from './field-animations.js'
+import { updateCurrentTriangleId } from './field-movement-player.js'
 
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
@@ -174,6 +175,8 @@ const positionPlayableCharacterFromTransition = async () => {
         setModelAsPlayableCharacter(entityId, leaderName)
         await setModelAsLeader(entityId, true)
     }
+
+    updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
 }
 const placeModel = (entityId, x, y, z, triangleId) => {
     console.log('placeModel: START', entityId, x, y, z, triangleId)

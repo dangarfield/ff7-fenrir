@@ -408,6 +408,12 @@ const updateCurrentTriangleId = (model, nextPosition) => {
     } else {
         // const point = intersects[0].point
         model.scene.userData.triangleId = intersects[0].object.userData.triangleId
+
+        updateSavemapLocationFieldPosition(
+            Math.round(nextPosition.x * 4096),
+            Math.round(nextPosition.y * 4096),
+            window.currentField.playableCharacter.scene.userData.triangleId,
+            0) // Direction is inaccurate
     }
 
 }
