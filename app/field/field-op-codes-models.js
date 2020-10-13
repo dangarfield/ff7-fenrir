@@ -104,6 +104,7 @@ const CC = async (entityId, op) => {
 const UC = async (entityId, op) => {
     console.log('UC', entityId, op)
     const canMove = op.s === 0
+    await sleep(1000 / 30) // Requires slight delaye because this occurs before the player movement has finished
     fieldModels.setPlayableCharacterCanMove(canMove)
     return {}
 }
@@ -127,6 +128,7 @@ const ANIM_1 = async (entityId, op) => {
 const ANIM_2 = async (entityId, op) => {
     console.log('ANIM!2', entityId, op)
     await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityId, op.a, op.s)
+    await sleep(1000 / 30 * 4)
     return {}
 }
 const CANIM1 = async (entityId, op) => {
@@ -147,6 +149,7 @@ const CANM_1 = async (entityId, op) => {
 const CANM_2 = async (entityId, op) => {
     console.log('CANM!2', entityId, op)
     await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
+    await sleep(1000 / 30 * 4)
     return {}
 }
 const DFANM = async (entityId, op) => {

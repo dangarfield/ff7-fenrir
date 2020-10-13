@@ -5,8 +5,11 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'lightData',
-            'playerMovement'
+            'executeScriptLoop',
+            'waitForLoopToHavePriority',
+            'runNextQueuedLoopForEntityIfNotActive',
+            'pollLoopQueueAndExecuteLoops',
+            'initEntity'
         ],
         log: function () {
             if (limit) {

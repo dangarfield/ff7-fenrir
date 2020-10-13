@@ -405,13 +405,12 @@ const setModelAsLeader = async (entityId, instant) => {
 }
 const setPlayableCharacterCanMove = (canMove) => {
     console.log('setPlayableCharacterCanMove', canMove)
+    if (!canMove && window.currentField.playableCharacter) {
+        playStandAnimation(window.currentField.playableCharacter)
+    }
     window.currentField.playableCharacterCanMove = canMove
     // Also hides / shows cursor arrows if enabled
     window.currentField.positionHelpersEnabled = canMove
-    if (!canMove && window.currentField.playableCharacter) {
-        // playStandAnimation(window.currentField.playableCharacter)
-        window.currentField.playableCharacter.mixer.stopAllAction()
-    }
 }
 const getDegreesFromTwoPoints = (point1, point2) => {
     return 180 + -1 * (Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI)

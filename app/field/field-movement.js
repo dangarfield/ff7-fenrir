@@ -189,7 +189,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 model.scene.position.y = from.y
                 model.scene.position.z = lastZ
             })
-            .onComplete(function () {
+            .onComplete(async () => {
                 console.log('move: END', from)
                 if (animate) {
                     model.mixer.stopAllAction()
@@ -197,6 +197,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 if (model.userData.isPlayableCharacter) {
                     updateCurrentTriangleId(model, model.scene.position)
                 }
+                await sleep(1000 / 30)
                 // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
                 resolve()
             })

@@ -62,15 +62,38 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
                 action.clampWhenFinished = false
             }
             // TODO - speed
-            model.mixer.promise = {
-                resolve: resolve,
-                animationUuid: animation.uuid,
-                mixerUuid: model.mixer._root.uuid,
-                holdLastFrame,
-                standAction,
-                entityId,
-                animationId
-            }
+            // if (model.mixer.promise) {
+            //     // window.alert(`Promise still exists - ${entityId} - ${animationId}`)
+            //     console.log('playAnimation promise exists', entityId, animationId, model.mixer)
+            //     // await sleep(1000 / 30 * 5)
+            //     await waitForAnimationPromiseToBeResolved(model, entityId, animationId)
+            //     // model.mixer.promise.resolve()
+
+            // }
+            // model.mixer.promise = {
+            //     resolve: resolve,
+            //     animationUuid: animation.uuid,
+            //     mixerUuid: model.mixer._root.uuid,
+            //     holdLastFrame,
+            //     standAction,
+            //     entityId,
+            //     animationId
+            // }
+            model.mixer.addEventListener('finished', async (e) => {
+                // console.log('playAnimation finished mixer', e, e.target, e.target.promise)
+                // if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
+                //     console.log('playAnimation finished mixer match', e.target.promise)
+                //     if (!e.target.promise.holdLastFrame) {
+                //         console.log('playAnimation finished mixer match stand')
+                //         // e.target.promise.standAction.play()
+                //     }
+                //     const resolve = e.target.promise.resolve
+                //     delete e.target.promise
+                //     resolve()
+                // }
+                resolve()
+            })
+
             model.mixer.stopAllAction()
             action.play()
             // Animation complete and resulting resolve CB bound in bindAnimationCompletion()
@@ -80,19 +103,31 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
 
     })
 }
-const bindAnimationCompletion = (model) => {
-    model.mixer.addEventListener('finished', async (e) => {
-        console.log('playAnimation finished mixer', e, e.target, e.target.promise)
-        if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
-            console.log('playAnimation finished mixer match', e.target.promise)
-            if (!e.target.promise.holdLastFrame) {
-                console.log('playAnimation finished mixer match stand')
-                // e.target.promise.standAction.play()
-            }
-            // await sleep(1000)
-            e.target.promise.resolve()
+const waitForAnimationPromiseToBeResolved = async (model, entityId, animationId) => {
+    while (true) {
+        await sleep(1000 / 30 * 2)
+        console.log('playAnimation promise waitForAnimationPromiseToBeResolved', entityId, animationId, model.mixer.promise)
+        if (model.mixer.promise === undefined) {
+            console.log('playAnimation promise waitForAnimationPromiseToBeResolved RESOLVED', entityId, animationId, model.mixer.promise)
+            return
         }
-    })
+    }
+
+}
+const bindAnimationCompletion = (model) => {
+    // model.mixer.addEventListener('finished', async (e) => {
+    //     console.log('playAnimation finished mixer', e, e.target, e.target.promise)
+    //     if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
+    //         console.log('playAnimation finished mixer match', e.target.promise)
+    //         if (!e.target.promise.holdLastFrame) {
+    //             console.log('playAnimation finished mixer match stand')
+    //             // e.target.promise.standAction.play()
+    //         }
+    //         const resolve = e.target.promise.resolve
+    //         delete e.target.promise
+    //         resolve()
+    //     }
+    // })
 }
 const waitForAnimationToFinish = async (entityId) => {
     return new Promise(async (resolve) => {
