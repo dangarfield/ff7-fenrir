@@ -5,10 +5,8 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'showWindowWithDialog',
-            'nextPageOrCloseActiveDialog',
-            'enableLines',
-            'LINON'
+            // 'playerMovement',
+            'CLOSE DIRECTION'
         ],
         log: function () {
             if (limit) {

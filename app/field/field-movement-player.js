@@ -240,6 +240,9 @@ const updateFieldMovement = (delta) => {
         // Need to check distances aren't set from op codes, and solidMode is enabled etc
         // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
         // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, distance)
+
+
+
         if (distance < (fieldModel.userData.talkRadius / 4096)) { //60 is roughly 0.015
             if (fieldModel.scene.userData.closeToTalk === false) {
                 fieldModel.scene.userData.closeToTalk = true
@@ -259,7 +262,22 @@ const updateFieldMovement = (delta) => {
             }
             // Stop movement
             window.currentField.playableCharacter.mixer.stopAllAction()
-            return
+            console.log('playerMovement TOO CLOSE TO ENTITY', distance, fieldModel.scene.userData)
+
+            // Add a directional check so that a player can move away from the entity if placed next / on an entity
+            const nextDir = new THREE.Vector3().subVectors(window.currentField.playableCharacter.scene.position, nextPosition).normalize()
+            const entityDir = new THREE.Vector3().subVectors(window.currentField.playableCharacter.scene.position, fieldModel.scene.position).normalize()
+            const directionDiff = nextDir.distanceTo(entityDir)
+            // This can probably be done in a better mathematical way
+            // console.log('playerMovement CLOSE DIRECTION player', window.currentField.playableCharacter.scene.position)
+            // console.log('playerMovement CLOSE DIRECTION next', nextPosition)
+            // console.log('playerMovement CLOSE DIRECTION entity', fieldModel.userData, fieldModel.scene.userData, distance, fieldModel.scene.position)
+            // console.log('playerMovement CLOSE DIRECTION next dir', nextDir)
+            // console.log('playerMovement CLOSE DIRECTION entity dir', entityDir)
+            // console.log('playerMovement CLOSE DIRECTION next to entity dir diff', directionDiff)
+            if (directionDiff < 1) {
+                return
+            }
         } else {
             if (fieldModel.scene.userData.closeToCollide === true) { // Is this needed to keep collision state??
                 fieldModel.scene.userData.closeToCollide = false
