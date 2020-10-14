@@ -62,7 +62,6 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         media: undefined,
         menuEnabled: true,
         gatewayTriggersEnabled: true,
-        lineTriggersEnabled: true,
         movementHelpers: undefined,
         playerAnimations: {
             stand: 0, walk: 1, run: 2

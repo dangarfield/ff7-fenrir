@@ -460,6 +460,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
         for (let i = 0; i < choiceLines.length; i++) {
             const choiceLine = choiceLines[i]
             pointerPositions.push({ id: i, x: dialogBox.userData.x + 17, y: window.config.sizing.height - dialogBox.userData.y - 14 - (LINE_HEIGHT * choiceLine), z: dialogBox.userData.z })
+            // BUG - Can't see pointer hands when on the scrolled down page (eg PAUSE)
         }
         // TODO - Pointer shadow has no opacity
         dialogBox.userData.currentChoice = 0
@@ -473,6 +474,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
         pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
         dialogBox.userData.state = 'choice'
         dialogBox.add(pointerMesh)
+        console.log('showWindowWithDialog PAGE pointers', choiceLines)
     } else if (dialogBox.userData.pages.length > currentPage + 1) {
         dialogBox.userData.currentPage++
         dialogBox.userData.state = 'page'
@@ -480,12 +482,13 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
     } else if (dialogBox.userData.overflow && dialogBox.userData.overflowCurrent < dialogBox.userData.overflowTotal) {
         dialogBox.userData.overflowCurrent++
         dialogBox.userData.state = 'overflow'
-        console.log('msg overflow rendered', dialogBox.userData)
+        console.log('showWindowWithDialog PAGE overflow rendered', dialogBox.userData)
         // console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
     } else {
         dialogBox.userData.state = 'done'
-        console.log('msg This is the last / only page', dialogBox.userData)
+        console.log('showWindowWithDialog PAGE This is the last / only page', dialogBox.userData)
     }
+    console.log('showWindowWithDialog PAGE RENDERED', dialogBox, showChoicePointers, pages[currentPage])
 }
 
 const showWindowWithDialog = async (dialog, showChoicePointers) => {
@@ -624,6 +627,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
     dialogBox.userData.currentPage = 0
     // console.log('showWindowWithDialog', pages, dialogBox.userData, pages.length > 0)
 
+    console.log('showWindowWithDialog DATA', dialog, pages, isChoiceActive)
     await updateCountdownDisplay(dialog)
     await updateSpecialNumber(dialog)
 
@@ -707,23 +711,24 @@ const closeDialog = async (dialog, choiceResult) => {
 }
 const nextPageOrCloseActiveDialog = async (dialog) => {
     const dialogBox = dialog.group
-    console.log('closeActiveDialog', dialog, dialogBox, dialogBox.userData.state)
+    console.log('nextPageOrCloseActiveDialog', dialog, dialogBox, dialogBox.userData.state)
 
     // Ignore if dialog is not closeable
     if (!dialog.playerCanClose) {
         return
     }
 
-
     if (dialogBox.userData.state === 'page') {
-        console.log('Trigger next page', dialogBox.userData)
+        console.log('nextPageOrCloseActiveDialog NEXT PAGE', dialogBox.userData)
         await showDialogPageText(dialogBox)
     } else if (dialogBox.userData.state === 'done') {
+        console.log('nextPageOrCloseActiveDialog DONE', dialogBox.userData)
         await closeDialog(dialog)
     } else if (dialogBox.userData.state === 'choice') {
-        console.log('CLOSE CHOICE', dialogBox.userData.currentChoice)
+        console.log('nextPageOrCloseActiveDialog CHOICE', dialogBox.userData)
         await closeDialog(dialog, dialogBox.userData.currentChoice)
     } else if (dialogBox.userData.state === 'overflow') {
+        console.log('nextPageOrCloseActiveDialog OVERFLOW', dialogBox.userData)
         await scrollOverflow(dialogBox)
     }
 

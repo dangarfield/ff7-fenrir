@@ -78,9 +78,9 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                 if (model.userData.isPlayableCharacter) {
                     console.log('moveEntityJump: land')
                     const targetVector = new THREE.Vector3(targetX, targetY, targetZ)
-                    if (window.currentField.lineTriggersEnabled) {
-                        for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-                            const line = window.currentField.lineLines.children[i]
+                    for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+                        const line = window.currentField.lineLines.children[i]
+                        if (line.userData.enabled) {
                             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(targetVector, true, new THREE.Vector3())
                             const distance = targetVector.distanceTo(closestPointOnLine)
                             const entityId = line.userData.entityId

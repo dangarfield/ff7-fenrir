@@ -514,6 +514,7 @@ const registerLine = (entityId, lv0, lv1) => {
     line.userData.entityId = entityId
     line.userData.entityName = getEntityNameFromEntityId(entityId)
     line.userData.slippabilityEnabled = true
+    line.userData.enabled = true
     window.currentField.lineLines.add(line)
     console.log('registerLine line', line)
 }
@@ -524,9 +525,15 @@ const setLineSlippability = (entityId, enabled) => {
         lines[0].userData.slippabilityEnabled = enabled
     }
 }
-const enableLines = (enabled) => {
+const enableLines = (entityId, enabled) => {
     console.log('enableLines', enabled)
-    window.currentField.lineTriggersEnabled = enabled
+    const lines = window.currentField.lineLines.children.filter(l => l.userData.entityId === entityId)
+    console.log('lines', lines)
+    if (lines.length > 0) {
+        const line = lines[0]
+        line.userData.enabled = enabled
+        console.log('line', line, line.userData)
+    }
 }
 const setLinePosition = (entityId, lv0, lv1) => {
     console.log('setLinePosition', entityId, lv0, lv1)

@@ -182,9 +182,9 @@ const updateFieldMovement = (delta) => {
             }
         }
     }
-    if (window.currentField.lineTriggersEnabled) {
-        for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-            const line = window.currentField.lineLines.children[i]
+    for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+        const line = window.currentField.lineLines.children[i]
+        if (line.userData.enabled) {
             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
             const distance = nextPosition.distanceTo(closestPointOnLine)
             const entityId = line.userData.entityId

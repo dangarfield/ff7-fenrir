@@ -33,9 +33,9 @@ const initFieldKeypressActions = () => {
                     break
                 }
             }
-            if (window.currentField.lineTriggersEnabled) {
-                for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-                    const line = window.currentField.lineLines.children[i]
+            for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+                const line = window.currentField.lineLines.children[i]
+                if (line.userData.enabeled) {
                     if (line.userData.triggered) {
                         // TODO - This can be called whilst dialogs are shown etc
                         // maybe only trigger this if player is allowed to move
@@ -44,8 +44,10 @@ const initFieldKeypressActions = () => {
                     }
                 }
             }
+
         }
     })
+
     getKeyPressEmitter().on('r1', (firstPress) => {
         if (areFieldControlsActive && firstPress && isActionInProgress() === 'talk') {
             // console.log('r1', isActionInProgress())

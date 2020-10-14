@@ -5,12 +5,10 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'executeScriptLoop',
-            'waitForLoopToHavePriority',
-            'runNextQueuedLoopForEntityIfNotActive',
-            'pollLoopQueueAndExecuteLoops',
-            'initEntity',
-            'priorityQueue'
+            'showWindowWithDialog',
+            'nextPageOrCloseActiveDialog',
+            'enableLines',
+            'LINON'
         ],
         log: function () {
             if (limit) {

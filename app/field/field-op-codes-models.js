@@ -368,7 +368,7 @@ const LINE = async (entityId, op) => {
 }
 const LINON = async (entityId, op) => {
     console.log('LINON', entityId, op)
-    fieldModels.enableLines(op.s === 1)
+    fieldModels.enableLines(entityId, op.s === 1)
     return {}
 }
 const SLINE = async (entityId, op) => {
