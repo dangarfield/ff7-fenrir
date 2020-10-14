@@ -24,6 +24,8 @@
     "lodash": "^4.17.19"
   },
   "nodemonConfig": {
-    "ignore": ["*.json"]
+    "ignore": [
+      "*.json"
+    ]
   }
 }

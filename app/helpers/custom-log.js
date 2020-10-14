@@ -9,7 +9,8 @@ window.console = (function (origConsole) {
             'waitForLoopToHavePriority',
             'runNextQueuedLoopForEntityIfNotActive',
             'pollLoopQueueAndExecuteLoops',
-            'initEntity'
+            'initEntity',
+            'priorityQueue'
         ],
         log: function () {
             if (limit) {

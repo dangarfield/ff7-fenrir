@@ -4,7 +4,8 @@ window.libraries = {
     howler: {
         Howl: Howl,
         Howler: Howler
-    }
+    },
+    async: async
 }
 console.log('window.libraries', Howler)
 
