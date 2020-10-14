@@ -5,8 +5,10 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            // 'playerMovement',
-            'CLOSE DIRECTION'
+            'triggerEntityTalkLoop',
+            'talkLoop',
+            'LOOP DEBUG',
+            // 'printedCompare'
         ],
         log: function () {
             if (limit) {

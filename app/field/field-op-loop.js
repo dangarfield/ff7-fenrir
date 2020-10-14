@@ -23,11 +23,11 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
         return { exit: true }
     }
-    // if (entityId === 10 && scriptType === 'Script 4') { // Debug
-    //     console.log('Loop stopping', entityId, scriptType)
-    //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
-    //     return { exit: true }
-    // }
+    if (entityId === 29 && scriptType === 'Talk') { // Debug
+        console.log('LOOP DEBUG', entityId, scriptType, ops, op, currentOpIndex)
+        // sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+        // return { exit: true }
+    }
     sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1)
     let result = {}
     switch (op.op) {
@@ -402,13 +402,13 @@ const initEntity = async (fieldName, entity) => {
     console.log('initEntity: START', fieldName, entity.entityId, entity.entityName, entity)
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
-    await executeScriptLoop(fieldName, entity.entityId, initLoop, 0)
+    await executeScriptLoopInsidePromise(fieldName, entity.entityId, initLoop, 0)
     const mainLoops = entity.scripts.filter(s => s.index === 0 && s.isMain)
     if (mainLoops.length > 0) {
         const mainLoop = mainLoops[0]
         console.log('mainLoop', mainLoop)
         // if (entity.entityName !== 'dir') { // Debug
-        await executeScriptLoop(fieldName, entity.entityId, mainLoop, 1)
+        await executeScriptLoopInsidePromise(fieldName, entity.entityId, mainLoop, 1)
         // }
     }
 
@@ -443,7 +443,7 @@ const triggerEntityTalkLoop = async (entityId) => {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 1)
+            await executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, talkLoop, 1)
         }
     }
 }
@@ -452,7 +452,7 @@ const triggerEntityCollisionLoop = async (entityId) => {
     console.log('triggerEntityTalkLoop', entityId, entity)
     const contactLoop = entity.scripts.filter(s => s.scriptType === 'Contact')[0]
     console.log('contactLoop', contactLoop)
-    await executeScriptLoop(window.currentField.name, entity.entityId, contactLoop, 1)
+    await executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, contactLoop, 1)
 }
 const triggerEntityMoveLoops = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
@@ -460,7 +460,7 @@ const triggerEntityMoveLoops = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Move')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // async
+        executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, loop, 1) // async
     }
 }
 const triggerEntityGoLoop = async (entityId) => {
@@ -469,7 +469,7 @@ const triggerEntityGoLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+        executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
     }
 }
 const triggerEntityGo1xLoop = async (entityId) => {
@@ -478,7 +478,7 @@ const triggerEntityGo1xLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+        executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
     }
 }
 const triggerEntityGoAwayLoop = async (entityId) => {
@@ -487,7 +487,7 @@ const triggerEntityGoAwayLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+        executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
     }
 }
 const triggerEntityOKLoop = async (entityId) => {
@@ -496,7 +496,7 @@ const triggerEntityOKLoop = async (entityId) => {
     const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+        executeScriptLoopInsidePromise(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
     }
 }
 

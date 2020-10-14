@@ -216,7 +216,12 @@ const placeModel = (entityId, x, y, z, triangleId) => {
         model.scene.userData.triangleId = triangleId
     }
     // TODO - Investigate this, md1stin, barret should not be shown, but the guards should. Not sure yet
-    model.scene.visible = true
+    if (model.userData.setModelVisibility === false) {
+        // model.scene.visible = falseda
+    } else {
+        model.scene.visible = true
+    }
+
     if (!model.userData.hasBeenInitiallyPlaced) {
         playStandAnimation(model) // Play animation should not be executed each time this is envoked
         model.userData.hasBeenInitiallyPlaced = true
@@ -296,6 +301,7 @@ const setModelVisibility = (entityId, isVisible) => {
     console.log('setModelVisibility', entityId, isVisible)
     const model = getModelByEntityId(entityId)
     model.scene.visible = isVisible
+    model.userData.setModelVisibility = isVisible
 }
 const setModelRotationEnabled = (entityId, enabled) => {
     console.log('setModelRotationEnabled', entityId, enabled)

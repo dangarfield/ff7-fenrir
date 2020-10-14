@@ -32,12 +32,19 @@ const printCompare = (a, operator, b) => {
     return false
 }
 const getOpIndexForByteIndex = (ops, goto) => {
+    // let closest
     for (let i = 0; i < ops.length; i++) {
         if (ops[i].byteIndex === goto) {
             return { goto: i, gotoByteIndex: goto }
         }
+        // if (ops[i].byteIndex < goto) {
+        //     closest = { goto: i, gotoByteIndex: goto }
+        // }
     }
-    // window.alert('No matching byteIndex for goto', goto)
+    // This should not really happen, bugs found: 
+    // window.alert(`No matching byteIndex for goto - ${goto} - ${JSON.stringify(closest)}`)
+    console.log(`No matching byteIndex for goto - ${goto} - ${JSON.stringify(closest)}`)
+    // return closest
     return { exit: true }
 }
 
@@ -45,8 +52,8 @@ const compareFromBankData = (ops, op) => {
     const leftCompare = op.b1 == 0 ? op.a : getBankData(op.b1, op.a)
     const rightCompare = op.b2 == 0 ? op.v : getBankData(op.b2, op.v)
     const result = executeCompare(leftCompare, op.c, rightCompare)
-    // const printedCompare = printCompare(leftCompare, op.c, rightCompare)
-    // console.log('result', printedCompare, '->', result)
+    const printedCompare = printCompare(leftCompare, op.c, rightCompare)
+    console.log('printedCompare', `Var[${op.b1}][${op.a}]`, `Var[${op.b2}][${op.v}]`, printedCompare, '->', result, '->', getOpIndexForByteIndex(ops, op.goto))
 
     // await sleep(2000)
     if (result) { // Continue inside if statement
