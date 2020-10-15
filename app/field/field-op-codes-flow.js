@@ -21,7 +21,7 @@ const REQ = async (fieldName, entityId, scriptType, op) => {
     // Need to validate where 'unless busy' means this entities scripts (non-init, non-main) are running
     // or just this script. For now, assume it is just this script
     if (script.isRunning) {
-        console.log('REQ no running script as it is already running', entity, script, script.isRunning)
+        console.log('REQ not running script as it is already running', entity, script, script.isRunning)
         return {}
     }
     executeScriptLoop(fieldName, entity.entityId, script, op.p) // Async

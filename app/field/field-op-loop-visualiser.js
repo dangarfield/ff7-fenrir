@@ -3,8 +3,9 @@ let emitter
 
 const LoopVisualiserIcons = {
     STOPPED: '■',
-    FLOWSTOP: '◔',
-    KILL: '◈'
+    FLOWSTOP: '◪',
+    KILL: '◈',
+    QUEUED: '◔'
 }
 
 const renderInitialState = (data) => {
@@ -108,7 +109,7 @@ const visualiseOpFlowEvent = (data) => {
             opEle.classList.remove('btn-dark')
             opEle.classList.add('btn-primary')
         }
-        if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL) {
+        if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL || data.opCode === LoopVisualiserIcons.QUEUED) {
             opEle.classList.remove('btn-primary')
             opEle.classList.add('btn-dark')
         }

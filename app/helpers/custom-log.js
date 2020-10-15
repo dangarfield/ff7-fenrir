@@ -8,8 +8,7 @@ window.console = (function (origConsole) {
             'triggerEntityTalkLoop',
             'talkLoop',
             'LOOP DEBUG',
-            // 'printedCompare'
-            'visualiser'
+            'priorityQueue'
         ],
         log: function () {
             if (limit) {

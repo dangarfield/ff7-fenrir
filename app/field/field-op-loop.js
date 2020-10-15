@@ -28,6 +28,11 @@ const executeOp = async (fieldName, entityId, scriptType, ops, op, currentOpInde
         // sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
         // return { exit: true }
     }
+    const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current && entity.current.kill) {
+        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+        return { exit: true }
+    }
     sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1)
     let result = {}
     switch (op.op) {
@@ -330,20 +335,20 @@ const stopAllLoops = async () => {
     // await sleep(100)
 }
 
-const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
-    return new Promise(async (resolve) => {
-        const entity = window.currentField.data.script.entities[entityId]
-        entity.queue.push({ fieldName, entityId, loop, priority }, priority, function () {
-            resolve()
-        })
-    })
-}
 const executeScriptLoopInsidePromise = async (fieldName, entityId, loop, priority) => {
     console.log(' - executeScriptLoop: START', fieldName, entityId, loop, priority)
+    // Set current loop and priority
+    const entity = window.currentField.data.script.entities[entityId]
+    entity.current = {
+        scriptType: loop.scriptType,
+        priority: priority
+    }
     if (loop.isRunning) {
         console.log(' - executeScriptLoop: IS RUNNING')
+        delete entity.current
         return
     }
+
 
     loop.isRunning = true
     const ops = loop.ops
@@ -387,14 +392,41 @@ const executeScriptLoopInsidePromise = async (fieldName, entityId, loop, priorit
     } else {
         sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
     }
-
+    delete entity.current
     console.log(' - executeScriptLoop: END', fieldName, entityId, loop)
+}
+const executeScriptLoop = async (fieldName, entityId, loop, priority, returnAtBeginning) => {
+    return new Promise(async (resolve) => {
+        const entity = window.currentField.data.script.entities[entityId]
+        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.QUEUED, 0)
+
+        if (returnAtBeginning) {
+            entity.queue.push({ fieldName, entityId, loop, priority, resolve }, priority, function () {
+            })
+        } else {
+            entity.queue.push({ fieldName, entityId, loop, priority }, priority, function () {
+                resolve()
+            })
+        }
+        if (entity.current && priority < entity.current.priority) {
+            entity.current.kill = true
+        }
+    })
 }
 const initEntityPriorityQueue = (entity) => {
     entity.queue = async.priorityQueue(async function (task, callback) {
-        console.log('priorityQueue', task)
+        if (task.entityId === 20 || task.entityId === 25) {
+            console.log('priorityQueue', task, task.loop.scriptType)
+        }
+        if (task.resolve) {
+            callback()
+        }
+        // await sleep(2000)
         await executeScriptLoopInsidePromise(task.fieldName, task.entityId, task.loop, task.priority)
-        callback()
+        // callback()
+        if (!task.resolve) {
+            callback()
+        }
     }, 1)
     console.log('initEntityPriorityQueue', entity)
 }
