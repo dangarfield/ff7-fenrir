@@ -9,6 +9,7 @@ window.console = (function (origConsole) {
             'talkLoop',
             'LOOP DEBUG',
             // 'printedCompare'
+            'visualiser'
         ],
         log: function () {
             if (limit) {

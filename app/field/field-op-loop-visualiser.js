@@ -10,8 +10,9 @@ const LoopVisualiserIcons = {
 const renderInitialState = (data) => {
     console.log('renderInitialState', data)
 
-    let colHeight = 34
     let cumulativeTotal = 0
+    let totalLines = data.map(d => d.scripts.length).reduce((acc, s) => acc + s + 1, 0)
+    // console.log('visualiser', data, data.length, totalLines)
 
     let html = `<div class="entities">`
     let entitiesCol1 = '<div class="entities-1">'
@@ -20,7 +21,7 @@ const renderInitialState = (data) => {
     for (let i = 0; i < data.length; i++) {
         const entity = data[i]
         cumulativeTotal = cumulativeTotal + 1 + entity.scripts.length
-        let html = `<div class="clearfix"></div><button type="button" class="btn btn-link btn-tiny">${entity.name}</button>`
+        let html = `<div class="clearfix"></div><button type="button" class="btn btn-link btn-tiny">${i} - ${entity.name}</button>`
         for (let j = 0; j < entity.scripts.length; j++) {
             const script = entity.scripts[j]
             html += `
@@ -30,8 +31,8 @@ const renderInitialState = (data) => {
                 <button type="button" class="btn btn-dark btn-tiny w-100"><span id="op-${entity.id}-${script.script}-index">0</span> / ${script.count}</button>
             </div>`
         }
-        // if (cumulativeTotal <= colHeight) {
-        if (i < data.length / 2) {
+        // console.log('visualiser cumulative', totalLines, cumulativeTotal)
+        if (cumulativeTotal <= (totalLines / 2)) {
             entitiesCol1 += html
         } else {
             entitiesCol2 += html

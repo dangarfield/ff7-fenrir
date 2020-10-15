@@ -1,6 +1,6 @@
 .field-op-loop-visualiser {
 	width: 265px;
-	height: 700px;
+	height: 100%;
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -9,6 +9,7 @@
 	font-size: 12px;
 	cursor: pointer;
 	color: white;
+	overflow-y: auto;
 }
 .field-op-loop-visualiser.hide{
 	display: none;

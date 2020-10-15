@@ -32,14 +32,14 @@ const printCompare = (a, operator, b) => {
     return false
 }
 const getOpIndexForByteIndex = (ops, goto) => {
-    // let closest
+    let closest
     for (let i = 0; i < ops.length; i++) {
         if (ops[i].byteIndex === goto) {
             return { goto: i, gotoByteIndex: goto }
         }
-        // if (ops[i].byteIndex < goto) {
-        //     closest = { goto: i, gotoByteIndex: goto }
-        // }
+        if (ops[i].byteIndex < goto) {
+            closest = { goto: i, gotoByteIndex: goto }
+        }
     }
     // This should not really happen, bugs found: 
     // window.alert(`No matching byteIndex for goto - ${goto} - ${JSON.stringify(closest)}`)
