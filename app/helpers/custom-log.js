@@ -5,10 +5,8 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'triggerEntityTalkLoop',
-            'talkLoop',
-            'LOOP DEBUG',
-            'priorityQueue'
+            'ACTIVE SCRIPT',
+            'processAllScriptOperations'
         ],
         log: function () {
             if (limit) {

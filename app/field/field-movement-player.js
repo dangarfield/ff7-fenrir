@@ -412,12 +412,12 @@ const ladderMovement = (speed) => {
 
 const updateCurrentTriangleId = (model, nextPosition) => {
     let playerMovementRay = new THREE.Raycaster()
-    // const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.01)
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
-    playerMovementRay.set(nextPosition, rayD)
+    playerMovementRay.set(rayO, rayD)
     playerMovementRay.far = 0.02
     let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
-    // console.log('ray intersects', nextPosition, nextPosition, rayD, intersects)
+    // console.log('updateCurrentTriangleId', nextPosition, nextPosition, rayD, intersects)
     if (window.config.debug.showMovementHelpers) {
         window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
     }
