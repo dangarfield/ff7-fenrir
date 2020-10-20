@@ -185,24 +185,24 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (model === undefined) {
         // TODO There are some instances where XYZI is called without a CHAR being called first
         return
-    } else if (x && y && z) {
-        console.log('placeModel: x, y, z', model)
+    } else if (x !== undefined && y !== undefined && z !== undefined) {
+        console.log('placeModel: x, y, z', entityId, model)
         model.scene.position.set(
             x / 4096,
             y / 4096,
             z / 4096)
-    } else if (x && y && triangleId) {
+    } else if (x !== undefined && y !== undefined && triangleId) {
         // Get the central point on the triangleId
-        console.log('placeModel: x, y, triangleZ')
+        console.log('placeModel: x, y, triangleZ', entityId)
         const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
         const triangleZ = (triangle[0].z + triangle[1].z + triangle[2].z) / 3
         model.scene.position.set(
             x / 4096,
             y / 4096,
             triangleZ / 4096)
-        console.log('placeModel: triangleId', triangleId, triangle, '->', x, y, z)
+        console.log('placeModel: triangleId', entityId, triangleId, triangle, '->', x, y, z)
     } else {
-        console.log('placeModel: triangleX, triangleY, triangleZ')
+        console.log('placeModel: triangleX, triangleY, triangleZ', entityId)
         const triangle = window.currentField.data.walkmeshSection.triangles[triangleId].vertices
         const triangleX = (triangle[0].x + triangle[1].x + triangle[2].x) / 3
         const triangleY = (triangle[0].y + triangle[1].y + triangle[2].y) / 3

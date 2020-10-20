@@ -156,11 +156,12 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
     }
-    if (animate) {
+    if (animate && model.animations[animationType]) {
         model.mixer.stopAllAction()
         model.mixer.clipAction(model.animations[animationType]).play()
     }
     let lastZ = model.scene.position.z
+    console.log('move READY', entityId, from, to, lastZ, distance, time)
     return new Promise(async (resolve) => {
         new TWEEN.Tween(from)
             .to(to, time)
@@ -171,7 +172,9 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 const rayD = new THREE.Vector3(0, 0, -1).normalize()
                 movementRay.set(rayO, rayD)
                 movementRay.far = 0.02
+
                 let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+                // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
                 // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
                 if (window.config.debug.showMovementHelpers) {
                     window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster    
@@ -190,7 +193,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 model.scene.position.z = lastZ
             })
             .onComplete(async () => {
-                console.log('move: END', from)
+                console.log('move: END', entityId, from, to, lastZ)
                 if (animate) {
                     model.mixer.stopAllAction()
                 }
@@ -373,7 +376,7 @@ const offsetEntity = async (entityId, x, y, z, frames, type) => {
                 model.scene.position.z = from.z
             })
             .onComplete(function () {
-                console.log('move: END', from)
+                console.log('offset: END', from)
                 delete model.userData.offsetInProgress
                 resolve()
             })

@@ -5,17 +5,18 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'ACTIVE SCRIPT',
-            'processAllScriptOperations',
-            'LOOP QUEUED ERROR',
-            'PMJMP',
-            'WCLSE',
-            'IFUBL',
             'FLOW ERROR',
-            'playerMovement',
-            'updateCurrentTriangleId',
-            'ladderMovement',
-            'moveEntityLadderNPC'
+            // 'XYZI',
+            'placeModel',
+            'playAnimation',
+            'tweenCameraPosition',
+            'instant',
+            'smooth',
+            'setModelAsLeader',
+            'CC',
+            'move',
+            'AXYZI',
+            'XYI'
         ],
         log: function () {
             if (limit) {

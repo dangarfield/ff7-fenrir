@@ -110,49 +110,49 @@ const UC = async (entityId, op) => {
 }
 
 // Animations
-const ANIME1 = async (entityId, op) => {
+const ANIME1 = async (entityId, op) => { // Play animation #%1 of the field model and reset to previous state (speed=%2)
     console.log('ANIME1', entityId, op)
     await fieldAnimations.playAnimationOnceSyncReset(entityId, op.a, op.s)
     return {}
 }
-const ANIME2 = async (entityId, op) => {
+const ANIME2 = async (entityId, op) => { // Play animation #%1 of the field model and reset to previous state (speed=%2)"
     console.log('ANIME2', entityId, op)
     await fieldAnimations.playAnimationOnceAsyncReset(entityId, op.a, op.s)
     return {}
 }
-const ANIM_1 = async (entityId, op) => {
+const ANIM_1 = async (entityId, op) => { // Play animation #%1 of the field model (speed=%2, type=1)
     console.log('ANIM!1', entityId, op)
     await fieldAnimations.playAnimationOnceAsyncHoldLastFrame(entityId, op.a, op.s)
     return {}
 }
-const ANIM_2 = async (entityId, op) => {
+const ANIM_2 = async (entityId, op) => { // Play animation #%1 of the field model (speed=%2, type=2)
     console.log('ANIM!2', entityId, op)
     await fieldAnimations.playAnimationOnceSyncHoldLastFrame(entityId, op.a, op.s)
     await sleep(1000 / 30 * 4)
     return {}
 }
-const CANIM1 = async (entityId, op) => {
+const CANIM1 = async (entityId, op) => { // Play partially the animation #%1 of the field model and reset to initial state (first frame=%2, last frame=%3, speed=%4)
     console.log('CANIM1', entityId, op)
     await fieldAnimations.playAnimationPartialOnceAsyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const CANIM2 = async (entityId, op) => {
+const CANIM2 = async (entityId, op) => { // Play partially the animation #%1 of the field model and reset to initial state (first frame=%2, last frame=%3, speed=%4)
     console.log('CANIM2', entityId, op)
     await fieldAnimations.playAnimationPartialOnceSyncReset(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const CANM_1 = async (entityId, op) => {
+const CANM_1 = async (entityId, op) => { // Play partially the animation #%1 of the field model (first frame=%2, last frame=%3, speed=%4)
     console.log('CANM!1', entityId, op)
     await fieldAnimations.playAnimationPartialOnceAsyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     return {}
 }
-const CANM_2 = async (entityId, op) => {
+const CANM_2 = async (entityId, op) => { // Play partially the animation #%1 of the field model (first frame=%2, last frame=%3, speed=%4)
     console.log('CANM!2', entityId, op)
     await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
     await sleep(1000 / 30 * 4)
     return {}
 }
-const DFANM = async (entityId, op) => {
+const DFANM = async (entityId, op) => { // Play loop animation #%1 of the field model (speed=%2)
     console.log('DFANM', entityId, op)
     await fieldAnimations.playAnimationLoopedAsync(entityId, op.a, op.s)
     return {}
@@ -341,7 +341,7 @@ const AXYZI = async (entityId, op) => {
     setBankData(op.b2, op.y, position.y)
     setBankData(op.b3, op.z, position.z)
     setBankData(op.b4, op.i, position.triangleId)
-    // console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i))
+    console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i), position, window.data.TEMP_FIELD_BANK)
     return {}
 }
 const PXYZI = async (entityId, op) => {

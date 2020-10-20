@@ -90,13 +90,23 @@ const identifyBank = (bankRef) => {
     }
     return { bank, bytes }
 }
+
+const UInt8 = function (value) {
+    return (value & 0xFF)
+}
+const Int8 = function (value) {
+    var ref = UInt8(value)
+    return (ref > 0x7F) ? ref - 0x100 : ref
+}
+
 const getValueFromBank = (bank, type, index) => {
     if (type === 1) {
         return bank[index]
     } else {
         const bit1 = bank[(index * 2) + 1]
         const bit2 = bank[(index * 2) + 0]
-        const bit16 = (((bit2 & 0xff) << 8) | (bit1 & 0xff))
+        // const bit16 = Int8(((bit2 & 0xff) << 8) | (bit1 & 0xff))
+        const bit16 = Int8(UInt8(bit2) << 8 | UInt8(bit1))
         // console.log('bit1', bit1, 'bit2', bit2, 'bit16', bit16)
         return bit16
     }
@@ -105,11 +115,11 @@ const setValueToBank = (bank, type, index, newValue) => {
     if (type === 1) {
         bank[index] = newValue
     } else {
-        var bit1 = ((newValue >> 8) & 0xff)
-        var bit2 = newValue & 0xff
-        bank[(index * 2) + 1] = bit2
-        bank[(index * 2) + 0] = bit1
-        // console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
+        var bit2 = UInt8(newValue >> 8) //((newValue >> 8) & 0xff)
+        var bit1 = UInt8(newValue) //newValue & 0xff
+        bank[(index * 2) + 1] = bit1
+        bank[(index * 2) + 0] = bit2
+        console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
     }
 }
 const getBankData = (bankRef, index) => {

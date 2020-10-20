@@ -41,6 +41,10 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             const model = getModelByEntityId(entityId)
             console.log('playAnimation', entityId, model.userData.entityName, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
 
+            // Store current playing animation for !holdLastFrame
+            const previousAnimationId = model.userData.lastAnimationId
+            model.userData.lastAnimationId = animationId
+
             // await sleep(2000)
             // play once, sync, reset back to animation 0
             let animation = model.animations[animationId]
@@ -52,8 +56,6 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             const action = model.mixer.clipAction(animation)
             // action.reset()
 
-            const standAnimation = model.animations[0]
-            const standAction = model.mixer.clipAction(standAnimation)
 
             action.loop = loopType
             if (holdLastFrame) {
@@ -79,6 +81,7 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             //     entityId,
             //     animationId
             // }
+            // const uid = uuid()
             model.mixer.addEventListener('finished', async (e) => {
                 // console.log('playAnimation finished mixer', e, e.target, e.target.promise)
                 // if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
@@ -91,6 +94,22 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
                 //     delete e.target.promise
                 //     resolve()
                 // }
+
+                // Replay previous playing animation for !holdLastFrame
+                // TODO - Assuming that we'll play the whole last animation in its entirity, probably not right
+                // console.log('playAnimation finished', entityId, model.userData.entityName, animationId, previousAnimationId, holdLastFrame, startFrame)
+                // if (previousAnimationId && !holdLastFrame) {
+                //     if (startFrame === undefined && endFrame === undefined) {
+                //         const previousAnimation = model.animations[previousAnimationId]
+                //         const previousAnimationAtion = model.mixer.clipAction(previousAnimation)
+                //         previousAnimationAtion.play()
+                //     } else {
+                //         const standAnimation = model.animations[0]
+                //         const standAction = model.mixer.clipAction(standAnimation)
+                //         standAction.play()
+                //     }
+                // }
+
                 resolve()
             })
 
