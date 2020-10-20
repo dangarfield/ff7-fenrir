@@ -107,7 +107,7 @@ const updateFieldMovement = (delta) => {
             const currentTriangleId = window.currentField.playableCharacter.scene.userData.triangleId
             const nextTriangleId = intersect.object.userData.triangleId
             const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
-            console.log('playerMovement nextTriangle', currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+            console.log('playerMovement nextTriangle', intersects, currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
             if (!nextTriangleMovementAllowed && currentTriangleId !== undefined) {
                 console.log('playerMovement nextTriangle STOP')
                 continue
@@ -417,7 +417,7 @@ const updateCurrentTriangleId = (model, nextPosition) => {
     playerMovementRay.set(rayO, rayD)
     playerMovementRay.far = 0.02
     let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
-    // console.log('updateCurrentTriangleId', nextPosition, nextPosition, rayD, intersects)
+    console.log('updateCurrentTriangleId', nextPosition, nextPosition, rayD, intersects)
     if (window.config.debug.showMovementHelpers) {
         window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
     }
@@ -427,11 +427,14 @@ const updateCurrentTriangleId = (model, nextPosition) => {
         // const point = intersects[0].point
         model.scene.userData.triangleId = intersects[0].object.userData.triangleId
 
-        updateSavemapLocationFieldPosition(
-            Math.round(nextPosition.x * 4096),
-            Math.round(nextPosition.y * 4096),
-            window.currentField.playableCharacter.scene.userData.triangleId,
-            0) // Direction is inaccurate
+        if (model.userData.name === window.currentField.playableCharacter.userData.name) { // This should be the active character
+            updateSavemapLocationFieldPosition(
+                Math.round(nextPosition.x * 4096),
+                Math.round(nextPosition.y * 4096),
+                window.currentField.playableCharacter.scene.userData.triangleId,
+                0) // Direction is inaccurate
+        }
+
     }
 
 }

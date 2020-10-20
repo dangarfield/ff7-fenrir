@@ -6,7 +6,16 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'ACTIVE SCRIPT',
-            'processAllScriptOperations'
+            'processAllScriptOperations',
+            'LOOP QUEUED ERROR',
+            'PMJMP',
+            'WCLSE',
+            'IFUBL',
+            'FLOW ERROR',
+            'playerMovement',
+            'updateCurrentTriangleId',
+            'ladderMovement',
+            'moveEntityLadderNPC'
         ],
         log: function () {
             if (limit) {

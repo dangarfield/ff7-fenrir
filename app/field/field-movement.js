@@ -206,7 +206,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
 }
 const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed) => {
     const model = getModelByEntityId(entityId)
-    if (model.userData.isPlayableCharacter) {
+    if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.playableCharacterCanMove) { // This should be the active character
         await moveEntityLadderPlayableCharacter(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
     } else {
         await moveEntityLadderNPC(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
@@ -252,14 +252,15 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
     model.mixer.clipAction(model.animations[animationId]).play()
     // model.mixer.clipAction(model.animations[animationId]).timeScale = -1 // TODO Animation speed & direction?!
 
-    // TODO - Facing direction for diagonal (eg non pure vertical) ladders
+    // Facing direction for diagonal (eg non pure vertical) ladders is taken care of in the animation
     const from = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
     const to = { x: x / 4096, y: y / 4096, z: z / 4096 }
 
     const distance = new THREE.Vector3(from.x, from.y, from.z).distanceTo(new THREE.Vector3(to.x, to.y, to.z))
     const speed = model.userData.movementSpeed * (1 / window.currentField.data.model.header.modelScale) * 1024 * 2 // TODO - Look at this properly, not sure of the scale here
     let time = distance * speed
-
+    // TODO - The speed is very wrong
+    console.log('moveEntityLadderNPC ready', entityId, from, to, distance, speed, time)
     return new Promise(async (resolve) => {
         new TWEEN.Tween(from)
             .to(to, time)
@@ -268,10 +269,18 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
                 model.scene.position.x = from.x
                 model.scene.position.y = from.y
                 model.scene.position.z = from.z
+                console.log('moveEntityLadderNPC update', entityId, from)
+
+                if (model.userData.name === window.currentField.playableCharacter.userData.name) {
+                    // Update camera position if this is the main character
+                    const relativeToCamera = calculateViewClippingPointFromVector3(from)
+                    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+                }
             })
             .onComplete(function () {
                 console.log('moveEntityLadderNPC: END', entityId)
                 model.mixer.stopAllAction()
+                updateCurrentTriangleId(model, from)
                 resolve()
             })
             .start()
