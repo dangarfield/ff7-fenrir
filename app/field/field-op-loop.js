@@ -22,12 +22,12 @@ import TWEEN from '../../assets/tween.esm.js'
 
 let CURRENT_FIELD = 'None'
 
-const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, currentOpIndex) => {
+const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, currentOpIndex, priority) => {
     console.log('   - executeOp: START', fieldName, entityId, scriptType, scriptId, op)
 
     if (CURRENT_FIELD !== fieldName) {
         console.log('Loop stopping', CURRENT_FIELD, '!==', fieldName)
-        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
         return { exit: true }
     }
 
@@ -36,7 +36,7 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
     while (entity.current[0].scriptId !== scriptId) {
-        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1)
+        sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1, priority)
         console.log('Loop queued', entityId, scriptType)
         await sleep(1000 / 60)
         if (CURRENT_FIELD !== fieldName) {
@@ -48,10 +48,10 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
 
     // if (entityId === 10 && scriptType === 'Script 4') { // Debug
     //     console.log('Loop stopping', entityId, scriptType)
-    //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1)
+    //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
     //     return { exit: true }
     // }
-    sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1)
+    sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1, priority)
     let result = {}
     switch (op.op) {
         // Script Flow and Control
@@ -374,12 +374,12 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
             console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP', fieldName, entityId, loop)
-            // sendOpFlowEvent(entityId, loop.scriptType, '...', currentOpIndex + 1)
+            // sendOpFlowEvent(entityId, loop.scriptType, '...', currentOpIndex + 1, priority)
             break
         }
 
         let op = ops[currentOpIndex]
-        const result = await executeOp(fieldName, entityId, loop.scriptType, loop.index, ops, op, currentOpIndex)
+        const result = await executeOp(fieldName, entityId, loop.scriptType, loop.index, ops, op, currentOpIndex, priority)
         console.log(' - executeScriptLoop: RESULT', fieldName, entityId, result, currentOpIndex, flowActionCount)
         if (result.exit) {
             console.log(' - executeScriptLoop: EXIT', fieldName, entityId, loop)
@@ -404,9 +404,9 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
     }
     loop.isRunning = false
     if (flowActionCount >= 10) {
-        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.FLOWSTOP, currentOpIndex)
+        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.FLOWSTOP, currentOpIndex + 1, priority)
     } else {
-        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex)
+        sendOpFlowEvent(entityId, loop.scriptType, LoopVisualiserIcons.STOPPED, currentOpIndex + 1, priority)
     }
 
     // Remove loop from entities current loop pool
@@ -426,7 +426,7 @@ const initEntity = async (fieldName, entity) => {
         const mainLoop = mainLoops[0]
         console.log('mainLoop', mainLoop)
         // if (entity.entityName !== 'dir') { // Debug
-        await executeScriptLoop(fieldName, entity.entityId, mainLoop, 10)
+        await executeScriptLoop(fieldName, entity.entityId, mainLoop, 7)
         // }
     }
 

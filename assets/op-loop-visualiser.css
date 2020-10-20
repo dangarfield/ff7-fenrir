@@ -55,3 +55,40 @@
 	display: block;
 	/* border-radius: 1px; */
 } 
+
+.field-op-loop-visualiser .btn-priority-0 {
+	background-color: #0868ac;
+	border-color: #0868ac;
+}
+.field-op-loop-visualiser .btn-priority-1 {
+	background-color: #2b8cbe;
+	border-color: #2b8cbe;
+}
+.field-op-loop-visualiser .btn-priority-2 {
+	background-color: #4eb3d3;
+	border-color: #4eb3d3;
+}
+.field-op-loop-visualiser .btn-priority-3 {
+	background-color: #7bccc4;
+	border-color: #7bccc4;
+}
+.field-op-loop-visualiser .btn-priority-4 {
+	background-color: #a8ddb5;
+	border-color: #a8ddb5;
+	color: #111111;
+}
+.field-op-loop-visualiser .btn-priority-5 {
+	background-color: #ccebc5;
+	border-color: #ccebc5;
+	color: #111111;
+}
+.field-op-loop-visualiser .btn-priority-6 {
+	background-color: #e0f3db;
+	border-color: #e0f3db;
+	color: #111111;
+}
+.field-op-loop-visualiser .btn-priority-7 {
+	background-color: #f7fcf0;
+	border-color: #f7fcf0;
+	color: #111111;
+}

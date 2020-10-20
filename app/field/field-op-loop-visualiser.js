@@ -109,17 +109,30 @@ const visualiseOpFlowEvent = (data) => {
             opEle.classList.remove('btn-dark')
             opEle.classList.add('btn-primary')
         }
+        // for (let i = 0; i < opEle.classList.length; i++) {
+        //     const className = opEle.classList[i]
+        //     if (className.includes('btn-priority')) {
+        //         opEle.classList.remove(className)
+        //     }
+        // }
+        // if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL) {
+        //     opEle.classList.add('btn-dark')
+        // } else {
+        //     opEle.classList.add(`btn-priority-${data.priority}`)
+        // }
         if (data.opCode === LoopVisualiserIcons.STOPPED || data.opCode === LoopVisualiserIcons.FLOWSTOP || data.opCode === LoopVisualiserIcons.KILL || data.opCode === LoopVisualiserIcons.QUEUED) {
             opEle.classList.remove('btn-primary')
             opEle.classList.add('btn-dark')
         }
+
         document.getElementById(`${id}-index`).innerHTML = data.currentOpIndex
+        // document.getElementById(`${id}-priority`).innerHTML = data.priority
     }
 
 }
-const sendOpFlowEvent = (entityId, scriptType, opCode, currentOpIndex) => {
+const sendOpFlowEvent = (entityId, scriptType, opCode, currentOpIndex, priority) => {
     if (emitter !== undefined) {
-        emitter.emit('op-flow', { entityId, scriptType, opCode, currentOpIndex })
+        emitter.emit('op-flow', { entityId, scriptType, opCode, currentOpIndex, priority })
     }
 }
 
