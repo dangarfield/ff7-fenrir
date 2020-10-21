@@ -1,5 +1,6 @@
 import { getPlayableCharacterName, getPlayableCharacterId, getCharacterSaveMap } from "./field-op-codes-party-helper.js"
 import { setBankData, getBankData } from '../data/savemap.js'
+import { addMateriaToInventory, deleteMateriaFromInventory } from '../materia/materia-module.js'
 
 const SPTYE = async (op) => {
     console.log('SPTYE', op)
@@ -172,35 +173,17 @@ const SMTRA = async (op) => {
     console.log('SMTRA', op)
     // Actual calculation is fairly lengthy for ap calculation, but it is one of 2 values as outputted in kujata-data
     let materiaId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
-    const materias = window.data.savemap.materias
-    for (let i = 0; i < materias.length; i++) {
-        const materia = materias[i]
-        if (materia.id === 0xFF) {
-            materia.id = materiaId
-            materia.ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
-            materia.name = window.data.kernel.materiaData[materiaId].name
-            materia.description = window.data.kernel.materiaData[materiaId].description
-            break
-        }
-    }
-    console.log('SMTRA results', materias)
+    let ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
+    addMateriaToInventory(materiaId, ap)
+    console.log('SMTRA results', window.data.savemap.materias)
     return {}
 }
 const DMTRA = async (op) => {
     console.log('DMTRA', op)
     // Only used in blackbg4, I'm just going to delete all instances regardless of ap...
     let materiaId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
-    const materias = window.data.savemap.materias
-    for (let i = 0; i < materias.length; i++) {
-        const materia = materias[i]
-        if (materia.id === materiaId) {
-            materia.id = 0xFF
-            materia.ap = 0xFFFFFF
-            materia.name = ''
-            materia.description = ''
-        }
-    }
-    console.log('DMTRA results', materias)
+    deleteMateriaFromInventory(materiaId)
+    console.log('DMTRA results', window.data.savemap.materias)
     return {}
 }
 const CMTRA = async (op) => {

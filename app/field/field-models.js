@@ -43,7 +43,19 @@ const getModelScaleDownValue = () => {
 }
 
 const getModelByEntityId = (entityId) => {
-    return window.currentField.models.filter(m => m.userData.entityId === entityId)[0]
+    const modelsByEntityId = window.currentField.models.filter(m => m.userData.entityId === entityId)
+    if (modelsByEntityId.length > 0) {
+        return modelsByEntityId[0]
+    }
+    // Note: in mds7pb_2 there is a line called 'pinball' that uses SOLID that applies to a field model called 'pinball'
+    const entityName = getEntityNameFromEntityId(entityId)
+    const modelsByEntityNameAndFieldModel = window.currentField.models.filter(m => m.userData.entityName === entityName)
+    if (modelsByEntityNameAndFieldModel.length > 0) {
+        console.log('getModelByEntityId modelsByEntityNameAndFieldModel', modelsByEntityNameAndFieldModel)
+        return modelsByEntityNameAndFieldModel[0]
+    }
+    return undefined
+
 }
 const getModelByCharacterName = (characterName) => {
     return window.currentField.models.filter(m => m.userData.characterName === characterName)[0]

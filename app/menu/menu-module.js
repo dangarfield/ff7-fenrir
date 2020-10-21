@@ -10,7 +10,10 @@ import { loadSaveMenu } from './menu-save.js'
 import { loadTitleMenu } from './menu-title.js'
 import { loadGameOverMenu } from './menu-game-over.js'
 import { loadChangeDiscMenu } from './menu-change-disc.js'
-
+import {
+    yuffieStealMateriaAll, yuffieRestoreMateriaAll, unequipMateriaCharX,
+    temporarilyHideMateriaCloud, reinstateMateriaCloud
+} from '../materia/materia-module.js'
 
 const MENU_TYPE = {
     Credits: 5,
@@ -22,14 +25,16 @@ const MENU_TYPE = {
 
     // Need to investigate as there is incomplete documentation
     // http://wiki.ffrtt.ru/index.php?title=FF7/Field/Script/Opcodes/49_MENU
-    YuffieSteal: 15,
-    Unknown16: 16,
-    Unknown17: 17, // with params
-    Unknown18: 18,
-    Unknown19: 19,
-    Unknown20: 20,
-    Unknown21: 21,
-    Unknown22: 22,
+    // https://github.com/myst6re/makoureactor/blob/4645b4b0595626b04163d3d0fa2d4b7569d6b440/core/field/Opcode.cpp#L3482
+
+    YuffieStealMateriaAll: 15, // Eg Yuffie
+    YuffieRestoreMateriaAll: 16, // Eg Yuffie
+    UnequipMateriaCharX: 17, // with params
+    TemporarilyHideMateriaCloud: 18, // Makou reactor = Clear Cloud's Materias
+    ReinstateMateriaCloud: 19, // Makou reactor = Restore Cloud's Materias
+    Unknown20: 20, // Unknown with params
+    HPto1: 21, // with params
+    CheckAndStoreResult: 22, // Makou reactor = Check if %1 and store the result in var[15][111]
     Unknown23: 23,
     Unknown24: 24,
     Unknown25: 25,
@@ -37,6 +42,20 @@ const MENU_TYPE = {
     ChangeDisc: 97, // Not on documentation, but it will be there somewhere, should have params too or even 3 separate codes
     GameOver: 98, // Not on documentation, but it will be there somewhere
     Title: 99 // Not on documentation, but it will be there somewhere
+}
+const MENUS_WITH_FADE = [
+    MENU_TYPE.Credits,
+    MENU_TYPE.CharacterNameEntry,
+    MENU_TYPE.PartySelect,
+    MENU_TYPE.Shop,
+    MENU_TYPE.MainMenu,
+    MENU_TYPE.SaveScreen,
+    MENU_TYPE.ChangeDisc,
+    MENU_TYPE.GameOver,
+    MENU_TYPE.Title
+]
+const doesMenuRequireFadeOut = (menuCode) => {
+    return MENUS_WITH_FADE.includes(menuCode)
 }
 const getMenuTypeStringFromCode = (menuCode) => {
     const menuTypes = Object.keys(MENU_TYPE)
@@ -74,7 +93,25 @@ const loadMenuWithWait = (menuCode, param) => {
         }
     })
 }
+const loadMenuWithoutWait = (menuCode, param) => {
+    console.log('loadMenuWithoutWait', menuCode, getMenuTypeStringFromCode(menuCode), param)
+    switch (menuCode) {
+        case MENU_TYPE.YuffieStealMateriaAll: yuffieStealMateriaAll(); break
+        case MENU_TYPE.YuffieRestoreMateriaAll: yuffieRestoreMateriaAll(); break
 
+        case MENU_TYPE.UnequipMateriaCharX: unequipMateriaCharX(param); break
+
+        case MENU_TYPE.TemporarilyHideMateriaCloud: temporarilyHideMateriaCloud(); break
+        case MENU_TYPE.ReinstateMateriaCloud: reinstateMateriaCloud(); break
+
+        // case MENU_TYPE.Unknown20: console.log('TODO: Unknown20'); break
+        // case MENU_TYPE.HPto1: hpTo1(param); break
+        // case MENU_TYPE.CheckAndStoreResult: checkAndStoreResult(); break
+        // case MENU_TYPE.Unknown23: console.log('TODO: Unknown23'); break
+        // case MENU_TYPE.Unknown24: console.log('TODO: Unknown24'); break
+        // case MENU_TYPE.Unknown25: console.log('TODO: Unknown25'); break
+    }
+}
 const resolveMenuPromise = () => {
     MENU_PROMISE()
 }
@@ -86,6 +123,8 @@ const initMenuModule = () => {
 export {
     initMenuModule,
     loadMenuWithWait,
+    loadMenuWithoutWait,
+    doesMenuRequireFadeOut,
     resolveMenuPromise,
     MENU_TYPE
 }

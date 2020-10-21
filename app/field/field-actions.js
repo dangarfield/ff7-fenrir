@@ -1,7 +1,7 @@
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
-import { loadMenuWithWait } from '../menu/menu-module.js'
+import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireFadeOut } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
@@ -113,12 +113,18 @@ const setPlayableCharacterIsInteracting = (isInteracting) => {
     // window.currentField.playableCharacterCanMove = !isInteracting
 }
 const fadeOutAndLoadMenu = async (menuType, menuParam) => {
-    setActionInProgress('menu')
-    window.anim.clock.stop()
-    setPlayableCharacterIsInteracting(true)
-    await fadeOut(true)
-    await loadMenuWithWait(menuType, menuParam)
-    await unfreezeField()
+
+    if (doesMenuRequireFadeOut(menuType)) {
+        setActionInProgress('menu')
+        window.anim.clock.stop()
+        setPlayableCharacterIsInteracting(true)
+        await fadeOut(true)
+        await loadMenuWithWait(menuType, menuParam)
+        await unfreezeField()
+    } else {
+        loadMenuWithoutWait(menuType, menuParam)
+    }
+
 }
 const unfreezeField = async () => {
     startFieldRenderLoop()

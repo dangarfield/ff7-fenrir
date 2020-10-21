@@ -155,8 +155,13 @@ const waitForAnimationToFinish = async (entityId) => {
         let anyAnimationsRunning = false
         for (let i = 0; i < model.animations.length; i++) {
             const animation = model.animations[i]
-            const isRunning = model.mixer.clipAction(animation).isRunning()
-            console.log('waitForAnimationToFinish', entityId, 'animationId', i, isRunning)
+            const animationAction = model.mixer.clipAction(animation)
+            const isRunning = animationAction.isRunning()
+            console.log('waitForAnimationToFinish', entityId, 'animationId', i, isRunning, animationAction, animationAction.loop)
+            // If this animation is a looping animation, stop it from looping to it plays its last loop
+            if (animationAction.loop === THREE.LoopRepeat) {
+                animationAction.setLoop(THREE.LoopOnce, 1)
+            }
             if (isRunning && i !== 0) { // Standing is the default animation
                 anyAnimationsRunning = true
             }

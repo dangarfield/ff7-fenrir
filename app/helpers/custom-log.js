@@ -14,10 +14,14 @@ window.console = (function (origConsole) {
             'smooth',
             'setModelAsLeader',
             'CC',
-            'move',
-            'AXYZI',
+            // 'move',
+            // 'AXYZI',
             'XYI',
-            'MOVA'
+            'MOVA',
+            'getModelByEntityId',
+            'loadMenuWithoutWait',
+            'temporarilyHideMateriaCloud',
+            'reinstateMateriaCloud'
         ],
         log: function () {
             if (limit) {
