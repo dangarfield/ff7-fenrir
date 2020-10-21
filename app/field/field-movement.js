@@ -20,18 +20,28 @@ const moveEntityWithoutAnimationButWithRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, true, false)
 }
 const moveEntityToEntityWithAnimationAndRotation = async (entityId, targetEntityId) => {
-    // const model = getModelByEntityId(entityId)
     const targetModel = getModelByEntityId(targetEntityId)
     console.log('moveEntityToEntityWithAnimationAndRotation', targetModel)
-    if (targetModel.scene.visible) {
-        await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
-    }
+    await moveEntityToEntity(entityId, targetModel)
 }
 const moveEntityToPartyMemberWithAnimationAndRotation = async (entityId, targetPartyMemberId) => {
     const targetModel = getModelByPartyMemberId(targetPartyMemberId)
     console.log('moveEntityToPartyMemberWithAnimationAndRotation', targetModel)
+    await moveEntityToEntity(entityId, targetModel)
+}
+const moveEntityToEntity = async (entityId, targetModel) => {
+    console.log('moveEntityToEntity', targetModel)
     if (targetModel.scene.visible) {
-        await moveEntity(entityId, targetModel.scene.position.x, targetModel.scene.position.y, true, true)
+        // Move until they are within collision distance
+        const sourceModel = getModelByEntityId(entityId)
+        console.log('moveEntityToEntity source', sourceModel, sourceModel.userData.collisionRadius, sourceModel.scene.position)
+        console.log('moveEntityToEntity target', targetModel, targetModel.userData.collisionRadius, targetModel.scene.position)
+        const totalDistance = sourceModel.scene.position.distanceTo(targetModel.scene.position)
+        const collisionDistance = 0.01 * 2 // TODO replace with userData collisionRadius (sourceModel.userData.collisionRadius + targetModel.userData.collisionRadius) / 4096
+        const interpolationFactor = 1 - (collisionDistance / totalDistance)
+        const collisionEdgeVector = new THREE.Vector3().lerpVectors(sourceModel.scene.position, targetModel.scene.position, interpolationFactor)
+        console.log('moveEntityToEntity distance', totalDistance, collisionDistance, interpolationFactor, collisionEdgeVector)
+        await moveEntity(entityId, collisionEdgeVector.x, collisionEdgeVector.y, true, true)
     }
 }
 const moveEntityJump = async (entityId, x, y, triangleId, height) => {

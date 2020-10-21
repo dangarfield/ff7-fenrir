@@ -8,7 +8,7 @@ window.console = (function (origConsole) {
             'FLOW ERROR',
             // 'XYZI',
             'placeModel',
-            'playAnimation',
+            // 'playAnimation',
             'tweenCameraPosition',
             'instant',
             'smooth',
@@ -16,7 +16,8 @@ window.console = (function (origConsole) {
             'CC',
             'move',
             'AXYZI',
-            'XYI'
+            'XYI',
+            'MOVA'
         ],
         log: function () {
             if (limit) {
