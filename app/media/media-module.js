@@ -58,7 +58,7 @@ const preLoadFieldMediaData = async () => {
     const musicIds = window.currentField.data.script.akao
 
     for (let i = 0; i < musicIds.length; i++) {
-        loadMusic(i, musicIds[i].name)
+        await loadMusic(i, musicIds[i].name)
     }
     preloadCommonSounds()
     setBattleMusic(1) // Is this always position 1 unless overridden by ? 

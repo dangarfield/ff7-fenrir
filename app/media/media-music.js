@@ -1,6 +1,7 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
 import { getMusicMetadata } from '../data/media-fetch-data.js'
 import { getConfig } from './media-module.js'
+
 const Howl = window.libraries.howler.Howl
 
 let musics = []
@@ -21,31 +22,35 @@ const loadMusicMetadata = async () => {
     }
 }
 const loadMusic = (i, name) => {
-    if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
-        return
-    }
-    const mediaItem = {
-        url: getMusicUrl(name),
-        name: name,
-        metadata: musicMetadata.metadata.filter(m => m.name === name)[0],
-        firstPlay: true
-    }
-    mediaItem.sound = new Howl({ src: [mediaItem.url] })
-    mediaItem.sound.loop(true)
-
-    mediaItem.sound.once('load', function () {
-        console.log(' - music loaded', mediaItem)
-    })
-    mediaItem.sound.on('play', function () {
-        console.log(' - music play', mediaItem)
-        if (!mediaItem.firstPlay && mediaItem.metadata.startMs) {
-            console.log('Jump to loop beginning', mediaItem)
-            mediaItem.sound.seek(mediaItem.metadata.startMs / 1000)
+    return new Promise(async (resolve) => {
+        musicMetadata.currentFieldList[i] = name
+        if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
+            resolve()
+            return
         }
-        mediaItem.firstPlay = false
+        const mediaItem = {
+            url: getMusicUrl(name),
+            name: name,
+            metadata: musicMetadata.metadata.filter(m => m.name === name)[0],
+            firstPlay: true
+        }
+        mediaItem.sound = new Howl({ src: [mediaItem.url] })
+        mediaItem.sound.loop(true)
+
+        mediaItem.sound.once('load', function () {
+            console.log(' - music loaded', mediaItem)
+            musics.push(mediaItem)
+            resolve()
+        })
+        mediaItem.sound.on('play', function () {
+            console.log(' - music play', mediaItem)
+            if (!mediaItem.firstPlay && mediaItem.metadata.startMs) {
+                console.log('Jump to loop beginning', mediaItem)
+                mediaItem.sound.seek(mediaItem.metadata.startMs / 1000)
+            }
+            mediaItem.firstPlay = false
+        })
     })
-    musics.push(mediaItem)
-    musicMetadata.currentFieldList[i] = name
 }
 
 const getMusicUrl = (name) => {
@@ -159,25 +164,33 @@ const setMusicVolume = (vol) => {
     }
 }
 const setMusicVolumeTransition = (fromVol, vol, time) => {
-    if (fromVol === null) {
+    if (fromVol !== null) {
         fromVol = Math.min(fromVol, 1)
         fromVol = Math.max(fromVol, 0)
     }
     vol = Math.min(vol, 1)
     vol = Math.max(vol, 0)
-    console.log('setMusicVolumeTransition', getConfig().music, fromVol, vol, time)
+    console.log('setMusicVolumeTransition: START', getConfig().music, fromVol, vol, time)
     if (musicMetadata.isMusicLocked) { console.log('NOT CHANGING music is locked'); return }
     getConfig().music.volume = vol
+
+    let playingMusic
     for (let i = 0; i < musics.length; i++) {
         const music = musics[i]
         if (music.sound.playing()) {
-            if (fromVol === null) {
-                fromVol = music.sound.volume()
-            }
-            console.log('setMusicVolumeTransition ->', music, getConfig().music, fromVol, music.sound.volume(), vol, time)
-            music.sound.fade(fromVol, vol, time)
+            playingMusic = music
+            break
         }
     }
+    if (playingMusic === undefined) {
+        return
+    }
+
+    if (fromVol === null) {
+        fromVol = playingMusic.sound.volume()
+    }
+
+    playingMusic.sound.fade(fromVol, vol, time)
 }
 const setMusicPan = (pan) => {
     console.log('setMusicPan', pan)

@@ -24,7 +24,8 @@ window.console = (function (origConsole) {
             'getModelByEntityId',
             'getValueFromBank',
             'setValueToBank',
-            'offsetEntity'
+            'offsetEntity',
+            // 'triggerEntity',
         ],
         log: function () {
             if (limit) {

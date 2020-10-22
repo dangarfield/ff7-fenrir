@@ -99,7 +99,7 @@ const processLineTriggersForFrame = () => {
             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(position, true, new THREE.Vector3())
             const distance = position.distanceTo(closestPointOnLine)
             const entityId = line.userData.entityId
-            if (distance < 0.01) {
+            if (distance < 0.007) {
                 // if (line.userData.triggered === false) {
                 //     line.userData.triggered = true
                 if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
