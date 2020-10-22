@@ -72,6 +72,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Investigation of parallax (eg, whirlwind maze)
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
+- :black_square_button: Document and draw out the event loop logic
+- :black_square_button: Reimplement the field loop in a official way, looping through 8 ops per script
+- :black_square_button: Investigate animation reset states, document and implement
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: Implement remaining difficult op codes
 - :black_square_button: Add blinking eyes
