@@ -3,7 +3,7 @@ import { getMovieMetadata, getMoviecamMetadata, getMoviecamData } from '../data/
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
 import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
-import { updateVideoCameraPosition } from '../field/field-scene.js'
+import { updateVideoCameraPosition, setVideoCameraHideModels, setVideoCameraUnhideModels } from '../field/field-scene.js'
 
 let movieMetadata
 let moviecamMetadata
@@ -87,6 +87,8 @@ const setNextMovie = (i) => {
     const potentialMoviecamList = moviecams.filter(c => c.name === nextMovie.name)
     if (potentialMoviecamList.length > 0) {
         nextMovie.cameraData = potentialMoviecamList[0].camData
+        // Some camera data files are full of [0,0,0] coords. This appears to be the flag to not show the field models
+        nextMovie.doNotUseModels = nextMovie.cameraData.length === nextMovie.cameraData.filter(f => f.xAxis.x === 0 && f.zoom === 0).length
     }
     nextMovie.frame = 0
     nextMovie.video = movies.filter(v => v.name === nextMovie.name)[0].video
@@ -130,13 +132,10 @@ const playNextMovie = async () => {
         window.currentField.positionHelpersEnabled = false
         updatePositionHelperVisility()
 
-
-
         // Create videotexture and place on scene
         createVideoBackground(nextMovie.video)
 
-
-
+        console.log('nextMovie', nextMovie)
 
         // Register onplay and onend callbacks 
         let frameCaptureInterval
@@ -148,6 +147,9 @@ const playNextMovie = async () => {
             // Swap to videoCamera if applicable
             if (nextMovie.cameraData !== undefined && window.currentField.allowVideoCamera) {
                 window.currentField.showVideoCamera = true // Override with op code
+                if (nextMovie.doNotUseModels) {
+                    setVideoCameraHideModels()
+                }
             }
 
             // Begin capturing frame
@@ -179,6 +181,9 @@ const playNextMovie = async () => {
             // - switch back to field camera
             if (nextMovie.cameraData !== undefined) {
                 window.currentField.showVideoCamera = false
+                if (nextMovie.doNotUseModels) {
+                    setVideoCameraUnhideModels()
+                }
             }
             // - destroy the objects in the backgroundVideo group
             console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)

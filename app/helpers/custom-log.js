@@ -23,7 +23,8 @@ window.console = (function (origConsole) {
             'MOVA',
             'getModelByEntityId',
             'getValueFromBank',
-            'setValueToBank'
+            'setValueToBank',
+            'nextMovie'
         ],
         log: function () {
             if (limit) {

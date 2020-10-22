@@ -58,7 +58,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
 - :white_check_mark: Doors models don't have correct textures / look right - bybf (door w/ lights)
 - :white_check_mark: Save model doesn't rotate
-- :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata. Also, gold chest seems to have a shine (?) animation permanently, but not in the op codes 
+- :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata.
+- :black_square_button: rootmap models aren't correct
+- :black_square_button: Gold chest seems to have a shine (?) animation permanently, but not in the op codes 
 - :white_check_mark: Add directional lighting to each model as per flevel, rather than general downlight. Implemented roughly, but there is a bug for per model lighting based on threejs limitations
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
@@ -74,7 +76,11 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Basic sounds, including collisions, triggers, talk with objects (eg, anything not from op codes)
 - :black_square_button: Document and draw out the event loop logic
 - :black_square_button: Reimplement the field loop in a official way, looping through 8 ops per script
+- :black_square_button: Movement tweens should 'pause' when the op is not called
 - :black_square_button: Investigate animation reset states, document and implement
+- :black_square_button: NPC walk (moveEntity) speed is wrong
+- :black_square_button: Add rather than hardcode collision and talk distances
+- :black_square_button: Fades aren't perfect
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: Implement remaining difficult op codes
 - :black_square_button: Add blinking eyes
