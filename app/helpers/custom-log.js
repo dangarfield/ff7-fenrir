@@ -15,7 +15,7 @@ window.console = (function (origConsole) {
             'setModelAsLeader',
             'CC',
             // 'move',
-            'AXYZI',
+            // 'AXYZI',
             // 'IFSW',
             // 'printedCompare',
             'bit16',
@@ -23,7 +23,8 @@ window.console = (function (origConsole) {
             'MOVA',
             'getModelByEntityId',
             'getValueFromBank',
-            'setValueToBank'
+            'setValueToBank',
+            'offsetEntity'
         ],
         log: function () {
             if (limit) {

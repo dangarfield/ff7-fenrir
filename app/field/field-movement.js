@@ -356,18 +356,28 @@ const offsetEntity = async (entityId, x, y, z, frames, type) => {
     // normal walkmesh position. Other field objects are unaffected, and their position or
     // movements are maintained on the walkmesh's original position
 
+
+
+
     const model = getModelByEntityId(entityId)
     model.userData.offsetInProgress = true
-    console.log('offsetEntity', entityId, x, y, z, frames, type, model)
+    console.log('offsetEntity: START', entityId, x, y, z, frames, type, model)
+
+    // Note: If multiple offsets are chained, then they are relative to the 'pre-offset' position
+    // : nivl_3 -> cloud -> Script 7
+    if (model.scene.userData.currentOffset === undefined) {
+        model.scene.userData.currentOffset = { x: 0, y: 0, z: 0 }
+    }
+
     const from = {
         x: model.scene.position.x,
         y: model.scene.position.y,
         z: model.scene.position.z
     }
     const to = {
-        x: model.scene.position.x + (x / 4096),
-        y: model.scene.position.y + (y / 4096),
-        z: model.scene.position.z + (z / 4096)
+        x: model.scene.position.x + ((x - model.scene.userData.currentOffset.x) / 4096),
+        y: model.scene.position.y + ((y - model.scene.userData.currentOffset.y) / 4096),
+        z: model.scene.position.z + ((z - model.scene.userData.currentOffset.z) / 4096)
     }
     // 0 - instant
     const time = type === 0 ? 1 : 1000 / 30 * frames
@@ -384,9 +394,12 @@ const offsetEntity = async (entityId, x, y, z, frames, type) => {
                 model.scene.position.x = from.x
                 model.scene.position.y = from.y
                 model.scene.position.z = from.z
+
+                console.log('offsetEntity: UPDATE', entityId, x, y, z, frames, type, model)
             })
             .onComplete(function () {
-                console.log('offset: END', from)
+                console.log('offsetEntity: END', entityId, from)
+                model.scene.userData.currentOffset = { x, y, z }
                 delete model.userData.offsetInProgress
                 resolve()
             })

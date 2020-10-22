@@ -237,7 +237,7 @@ const PRTYE = async (op) => {
 const MMBud = async (op) => {
     console.log('MMBud', op)
     const opCharacterName = getPlayableCharacterName(op.c)
-    window.data.savemap.party.characterAvailability[op.c] = op.s
+    window.data.savemap.party.characterAvailability[opCharacterName] = op.s
     console.log('MMBud', window.data.savemap.party.characterAvailability)
     return {}
 }
