@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
-import { gatewayTriggered, triggerTriggered, lineMoveTriggered, lineGoTriggered, lineAwayTriggered, modelCollisionTriggered } from './field-actions.js'
+import { gatewayTriggered, triggerTriggered, modelCollisionTriggered } from './field-actions.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
 import { updateSavemapLocationFieldPosition, updateSavemapLocationFieldLeader } from '../data/savemap-alias.js'
 
@@ -182,40 +182,42 @@ const updateFieldMovement = (delta) => {
             }
         }
     }
-    for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-        const line = window.currentField.lineLines.children[i]
-        if (line.userData.enabled) {
-            const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
-            const distance = nextPosition.distanceTo(closestPointOnLine)
-            const entityId = line.userData.entityId
-            if (distance < 0.01) {
-                if (line.userData.triggered === false) {
-                    line.userData.triggered = true
-                    lineMoveTriggered(entityId, line)
-                }
-                if (isSlipDirection && !line.userData.slippabilityEnabled) {
-                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
-                    window.currentField.playableCharacter.mixer.stopAllAction()
-                    return
-                }
-            } else {
-                if (line.userData.triggered === true) {
-                    line.userData.triggered = false
-                    lineGoTriggered(entityId, line)
-                }
-            }
-            if (distance < 0.05) { // TODO - Guess
-                if (line.userData.triggeredAway === false) {
-                    line.userData.triggeredAway = true
-                }
-            } else {
-                if (line.userData.triggeredAway === true) {
-                    line.userData.triggeredAway = false
-                    lineAwayTriggered(entityId)
-                }
-            }
-        }
-    }
+    // Move line triggers to render loop
+    window.currentField.playableCharacter.scene.userData.isSlipDirection = isSlipDirection
+    // for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+    //     const line = window.currentField.lineLines.children[i]
+    //     if (line.userData.enabled) {
+    //         const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+    //         const distance = nextPosition.distanceTo(closestPointOnLine)
+    //         const entityId = line.userData.entityId
+    //         if (distance < 0.01) {
+    //             if (line.userData.triggered === false) {
+    //                 line.userData.triggered = true
+    //                 lineMoveTriggered(entityId, line)
+    //             }
+    //             if (isSlipDirection && !line.userData.slippabilityEnabled) {
+    //                 window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+    //                 window.currentField.playableCharacter.mixer.stopAllAction()
+    //                 return
+    //             }
+    //         } else {
+    //             if (line.userData.triggered === true) {
+    //                 line.userData.triggered = false
+    //                 lineGoTriggered(entityId, line)
+    //             }
+    //         }
+    //         if (distance < 0.05) { // TODO - Guess
+    //             if (line.userData.triggeredAway === false) {
+    //                 line.userData.triggeredAway = true
+    //             }
+    //         } else {
+    //             if (line.userData.triggeredAway === true) {
+    //                 line.userData.triggeredAway = false
+    //                 lineAwayTriggered(entityId)
+    //             }
+    //         }
+    //     }
+    // }
     // Detect model collisions
     // Can probably filter out models that haven't been placed onto the scene
     for (let i = 0; i < window.currentField.models.length; i++) {

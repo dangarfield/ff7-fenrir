@@ -476,49 +476,66 @@ const triggerEntityCollisionLoop = async (entityId) => {
     console.log('contactLoop', contactLoop)
     await executeScriptLoop(window.currentField.name, entity.entityId, contactLoop, 0)
 }
-const triggerEntityMoveLoops = async (entityId) => {
-    const entity = window.currentField.data.script.entities[entityId]
-    console.log('triggerEntityMoveLoops', entityId, entity)
-    const loops = entity.scripts.filter(s => s.scriptType === 'Move')
-    for (let i = 0; i < loops.length; i++) {
-        const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // async
-    }
-}
-const triggerEntityGoLoop = async (entityId) => {
-    const entity = window.currentField.data.script.entities[entityId]
-    console.log('triggerEntityGoLoop', entityId, entity)
-    const loops = entity.scripts.filter(s => s.scriptType === 'Go')
-    for (let i = 0; i < loops.length; i++) {
-        const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
-    }
-}
+
 const triggerEntityGo1xLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current.length > 0) { return }
     console.log('triggerEntityGo1xLoop', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // Really, these should be queued in blocks of 8 but needs refactoring
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        }
+
     }
 }
-const triggerEntityGoAwayLoop = async (entityId) => {
+const triggerEntityGoLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    console.log('triggerEntityGoAwayLoop', entityId, entity)
-    const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
+    if (entity.current.length > 0) { return }
+    console.log('triggerEntityGoLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Go')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        }
+    }
+}
+const triggerEntityMoveLoops = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current.length > 0) { return }
+    console.log('triggerEntityMoveLoops', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Move')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // This won't work with fields with both Moves as active scripts
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // async
+        }
     }
 }
 const triggerEntityOKLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current.length > 0) { return }
     console.log('triggerEntityOKLoop', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
-        executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        }
+    }
+}
+const triggerEntityGoAwayLoop = async (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current.length > 0) { return }
+    console.log('triggerEntityGoAwayLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        }
     }
 }
 

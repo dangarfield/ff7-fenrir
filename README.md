@@ -63,8 +63,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
 - :white_check_mark: Slippability sometimes looks very jagged
-- :black_square_button: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
-- :black_square_button: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
+- :white_check_mark: Adjust all lines / gateways to 'cross' the in the required direction to trigger, instead of simple proximity check
+- :white_check_mark: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
 - :white_check_mark: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :black_square_button: Try and use the background images to cull the entity objects

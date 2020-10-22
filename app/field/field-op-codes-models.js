@@ -341,7 +341,7 @@ const AXYZI = async (entityId, op) => {
     setBankData(op.b2, op.y, position.y)
     setBankData(op.b3, op.z, position.z)
     setBankData(op.b4, op.i, position.triangleId)
-    console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i), position, window.data.TEMP_FIELD_BANK)
+    console.log('AXYZI -> (x,y,z,triangleId)', getBankData(op.b1, op.x), getBankData(op.b2, op.y), getBankData(op.b3, op.z), getBankData(op.b4, op.i), position)
     return {}
 }
 const PXYZI = async (entityId, op) => {

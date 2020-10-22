@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             // 'XYZI',
-            'placeModel',
+            // 'placeModel',
             // 'playAnimation',
             'tweenCameraPosition',
             'instant',
@@ -15,13 +15,15 @@ window.console = (function (origConsole) {
             'setModelAsLeader',
             'CC',
             // 'move',
-            // 'AXYZI',
+            'AXYZI',
+            // 'IFSW',
+            // 'printedCompare',
+            'bit16',
             'XYI',
             'MOVA',
             'getModelByEntityId',
-            'loadMenuWithoutWait',
-            'temporarilyHideMateriaCloud',
-            'reinstateMateriaCloud'
+            'getValueFromBank',
+            'setValueToBank'
         ],
         log: function () {
             if (limit) {

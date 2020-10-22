@@ -13,6 +13,7 @@ import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
 import { stopAllLoops } from './field-op-loop.js'
 import { updateBackgroundScolling } from './field-backgrounds.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
+import { processLineTriggersForFrame } from './field-actions.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -42,6 +43,7 @@ const renderLoop = function () {
     updateBackgroundScolling(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
     updateOnceASecond()
+    processLineTriggersForFrame()
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
         // console.log('render')
         let activeCamera = window.currentField.fieldCamera

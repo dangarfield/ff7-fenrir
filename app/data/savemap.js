@@ -4,7 +4,7 @@ import { getCharacterSaveMap } from '../field/field-op-codes-party-helper.js'
 import { loadField } from '../field/field-module.js'
 import { stopAllLoops } from '../field/field-op-loop.js'
 
-let TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
+let TEMP_FIELD_BANK = new Int16Array(256).fill(0)
 window.data.TEMP_FIELD_BANK = TEMP_FIELD_BANK
 
 const initNewSaveMap = () => {
@@ -61,7 +61,7 @@ const downloadSaveMaps = () => {
 
 }
 const resetTempBank = () => {
-    TEMP_FIELD_BANK = new Uint8Array(256).fill(0)
+    TEMP_FIELD_BANK = new Int16Array(256).fill(0)
 }
 const identifyBank = (bankRef) => {
     let bank = 1
@@ -99,27 +99,41 @@ const Int8 = function (value) {
     return (ref > 0x7F) ? ref - 0x100 : ref
 }
 
+
 const getValueFromBank = (bank, type, index) => {
+    if (index === 11) {
+        console.log('getValueFromBank', bank, type, index, '->', bank[index], bank[index * 2])
+    }
+
     if (type === 1) {
         return bank[index]
     } else {
-        const bit1 = bank[(index * 2) + 1]
-        const bit2 = bank[(index * 2) + 0]
-        // const bit16 = Int8(((bit2 & 0xff) << 8) | (bit1 & 0xff))
-        const bit16 = Int8(UInt8(bit2) << 8 | UInt8(bit1))
-        // console.log('bit1', bit1, 'bit2', bit2, 'bit16', bit16)
-        return bit16
+        // TODO - Not sure when to using signed or unsigned... so for now, just set a two byte value into the index (eg int16)
+        return bank[index * 2]
+        // const bit1 = bank[(index * 2) + 1]
+        // const bit2 = bank[(index * 2) + 0]
+
+        // // const bit16 = Int8(UInt8(bit2) << 8 | UInt8(bit1))
+        // const bit16 = UInt8(bit2) << 8 | UInt8(bit1)
+
+        // console.log('bit1', bit1, 'bit2', bit2, 'bit16', bit16, Int8(UInt8(bit2) << 8 | UInt8(bit1)))
+        // return bit16
     }
 }
 const setValueToBank = (bank, type, index, newValue) => {
+    if (index === 11) {
+        console.log('setValueToBank', bank, type, index, '->', newValue)
+    }
     if (type === 1) {
         bank[index] = newValue
     } else {
-        var bit2 = UInt8(newValue >> 8) //((newValue >> 8) & 0xff)
-        var bit1 = UInt8(newValue) //newValue & 0xff
-        bank[(index * 2) + 1] = bit1
-        bank[(index * 2) + 0] = bit2
-        console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
+        // TODO - Not sure when to using signed or unsigned... so for now, just set a two byte value into the index
+        bank[index * 2] = newValue
+        // var bit2 = UInt8(newValue >> 8) //((newValue >> 8) & 0xff)
+        // var bit1 = UInt8(newValue) //newValue & 0xff
+        // bank[(index * 2) + 1] = bit1
+        // bank[(index * 2) + 0] = bit2
+        // console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
     }
 }
 const getBankData = (bankRef, index) => {

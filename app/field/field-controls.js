@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    initiateTalk, isActionInProgress, fadeOutAndLoadMenu, lineOKTriggered, lineGoTriggered
+    initiateTalk, isActionInProgress, fadeOutAndLoadMenu
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -33,17 +33,17 @@ const initFieldKeypressActions = () => {
                     break
                 }
             }
-            for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-                const line = window.currentField.lineLines.children[i]
-                if (line.userData.enabeled) {
-                    if (line.userData.triggered) {
-                        // TODO - This can be called whilst dialogs are shown etc
-                        // maybe only trigger this if player is allowed to move
-                        lineOKTriggered(line.userData.entityId)
-                        lineGoTriggered(line.userData.entityId, line) // Workaround for ladders
-                    }
-                }
-            }
+            // for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+            //     const line = window.currentField.lineLines.children[i]
+            //     if (line.userData.enabeled) {
+            //         if (line.userData.triggered) {
+            //             // TODO - This can be called whilst dialogs are shown etc
+            //             // maybe only trigger this if player is allowed to move
+            //             lineOKTriggered(line.userData.entityId)
+            //             lineGoTriggered(line.userData.entityId, line) // Workaround for ladders
+            //         }
+            //     }
+            // }
 
         }
     })

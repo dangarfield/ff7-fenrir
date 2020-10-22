@@ -1,3 +1,5 @@
+import * as THREE from '../../assets/threejs-r118/three.module.js'
+import { getActiveInputs } from '../interaction/inputs.js'
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
@@ -6,6 +8,7 @@ import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
+import { getDegreesFromTwoPoints } from './field-models.js'
 import {
     stopAllLoops, triggerEntityTalkLoop, triggerEntityMoveLoops, triggerEntityGoLoop,
     triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop
@@ -78,21 +81,103 @@ const triggerTriggered = (i, isOn) => {
     // soundId: 2 -> door -> 122.ogg
     // soundId: 3 -> swish
 }
-const lineMoveTriggered = (entityId) => {
-    triggerEntityMoveLoops(entityId)
-}
-const lineGoTriggered = (entityId, line) => {
-    triggerEntityGoLoop(entityId)
-    if (line.userData.go1xTriggered === undefined) {
-        triggerEntityGo1xLoop(entityId)
+const processLineTriggersForFrame = () => {
+    if (!window.currentField.playableCharacter) {
+        return
     }
-    // line.userData.go1xTriggered = true
-}
-const lineAwayTriggered = (entityId) => {
-    triggerEntityGoAwayLoop(entityId)
-}
-const lineOKTriggered = (entityId) => {
-    triggerEntityOKLoop(entityId)
+
+    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
+    // Can player move?
+    if (window.currentField.setPlayableCharacterIsInteracting) {
+        return
+    }
+    const position = window.currentField.playableCharacter.scene.position
+
+    for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+        const line = window.currentField.lineLines.children[i]
+        if (line.userData.enabled) {
+            const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(position, true, new THREE.Vector3())
+            const distance = position.distanceTo(closestPointOnLine)
+            const entityId = line.userData.entityId
+            if (distance < 0.01) {
+                // if (line.userData.triggered === false) {
+                //     line.userData.triggered = true
+                if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
+                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+                    window.currentField.playableCharacter.mixer.stopAllAction()
+                    return
+                }
+                if (line.userData.triggeredOnce === false) {
+                    triggerEntityGo1xLoop(entityId)
+                    line.userData.triggeredOnce = true
+                    return
+                }
+                line.userData.triggered = true
+                triggerEntityGoLoop(entityId)
+
+                let playerDirection = window.currentField.data.triggers.header.controlDirectionDegrees
+                // console.log('Direction', window.currentField.data.triggers.header.controlDirection, window.currentField.data.triggers.header.controlDirectionDegrees, direction)
+
+                let isMoving = true
+                if (getActiveInputs().up && getActiveInputs().right) { playerDirection += 45 }
+                else if (getActiveInputs().right && getActiveInputs().down) { playerDirection += 135 }
+                else if (getActiveInputs().down && getActiveInputs().left) { playerDirection += 225 }
+                else if (getActiveInputs().left && getActiveInputs().up) { playerDirection += 315 }
+                else if (getActiveInputs().up) { playerDirection += 0 }
+                else if (getActiveInputs().right) { playerDirection += 90 }
+                else if (getActiveInputs().down) { playerDirection += 180 }
+                else if (getActiveInputs().left) { playerDirection += 270 }
+                else { isMoving = false }
+
+                const lineDirection = getDegreesFromTwoPoints(position, closestPointOnLine)
+                const directionAlignment = Math.abs(playerDirection - lineDirection)
+                const movingInDirectionOfLine = isMoving && (directionAlignment <= 90)
+
+                // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
+                if (movingInDirectionOfLine) {
+                    triggerEntityMoveLoops(entityId)
+                    return
+                }
+                if (getActiveInputs().o) {
+                    triggerEntityOKLoop(entityId)
+                    return
+                }
+
+                // }
+                // if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
+                //     window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+                //     window.currentField.playableCharacter.mixer.stopAllAction()
+                //     return
+                // }
+                // } else {
+                //     if (line.userData.triggered === true) {
+                //         line.userData.triggered = false
+                //         lineGoTriggered(entityId, line)
+                //     }
+            } else {
+                // console.log('triggerEntity FAR', line.userData.entityName, distance)
+                // console.log('triggerEntity ELSE', line.userData.triggered)
+                if (line.userData.triggered) {
+                    triggerEntityGoAwayLoop(entityId)
+                    line.userData.triggered = false
+                    line.userData.triggeredOnce = false
+                    return
+                }
+                // line.userData.triggered = false
+                // line.userData.triggeredOnce = false
+            }
+            // if (distance < 0.05 && distance < 0.05) { // TODO - Guess
+            //     if (line.userData.triggeredAway === false) {
+            //         line.userData.triggeredAway = true
+            //     }
+            // } else {
+            //     if (line.userData.triggeredAway === true) {
+            //         line.userData.triggeredAway = false
+            //         triggerEntityGoAwayLoop(entityId)
+            //     }
+            // }
+        }
+    }
 }
 
 const modelCollisionTriggered = (i) => {
@@ -205,10 +290,6 @@ const triggerBattleWithSwirl = (battleId) => {
 export {
     gatewayTriggered,
     triggerTriggered,
-    lineMoveTriggered,
-    lineGoTriggered,
-    lineAwayTriggered,
-    lineOKTriggered,
     modelCollisionTriggered,
     initiateTalk,
     setPlayableCharacterIsInteracting,
@@ -221,5 +302,6 @@ export {
     setGatewayTriggerEnabled,
     jumpToMap,
     jumpToMapFromMiniGame,
-    jumpToMiniGame
+    jumpToMiniGame,
+    processLineTriggersForFrame
 }
