@@ -80,6 +80,11 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Investigate animation reset states, document and implement
 - :black_square_button: NPC walk (moveEntity) speed is wrong
 - :black_square_button: Add rather than hardcode collision and talk distances
+- :black_square_button: Camera movement op codes are not 100% perfect
+- :black_square_button: Borderless texts show line below characters
+- :black_square_button: Multi line text writes all, rather that just what is visible
+- :black_square_button: Multi page choices doesn't show the cursor
+- :black_square_button: Animation reset states aren't 100% correct
 - :black_square_button: Fades aren't perfect
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: Implement remaining difficult op codes

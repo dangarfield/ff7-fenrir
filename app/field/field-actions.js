@@ -107,7 +107,7 @@ const processLineTriggersForFrame = () => {
                     window.currentField.playableCharacter.mixer.stopAllAction()
                     return
                 }
-                if (line.userData.triggeredOnce === false) {
+                if (line.userData.triggeredOnce === undefined || line.userData.triggeredOnce === false) {
                     triggerEntityGo1xLoop(entityId)
                     line.userData.triggeredOnce = true
                     return
@@ -131,7 +131,7 @@ const processLineTriggersForFrame = () => {
 
                 const lineDirection = getDegreesFromTwoPoints(position, closestPointOnLine)
                 const directionAlignment = Math.abs(playerDirection - lineDirection)
-                const movingInDirectionOfLine = isMoving && (directionAlignment <= 90)
+                const movingInDirectionOfLine = isMoving && (directionAlignment <= 110)
 
                 // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
                 if (movingInDirectionOfLine) {
