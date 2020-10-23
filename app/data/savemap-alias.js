@@ -1,11 +1,17 @@
 import { getBankData, setBankData } from './savemap.js'
 import { degreesToDirection } from '../field/field-models.js'
+import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
 
-const setFieldPointersActive = (active) => {
+const processSavemapAlias = (bankRef, index, value) => {
+    if (bankRef === 13 && index === 30) { // field pointers
+        updatePositionHelperVisility()
+    }
+}
+const persistFieldPointersActiveForPlayer = (active) => {
     setBankData(13, 30, active ? 0x02 : 0x00)
 }
 const areFieldPointersActive = () => {
-    return getBankData(13, 30)
+    return getBankData(13, 30) > 0
 }
 
 const getCurrentCountdownClockTime = () => {
@@ -131,9 +137,11 @@ const incrementBattlesEscaped = () => {
     count++
     setBankData(2, 13, count)
 }
+
 export {
+    processSavemapAlias,
     areFieldPointersActive,
-    setFieldPointersActive,
+    persistFieldPointersActiveForPlayer,
     getCurrentCountdownClockTime,
     setCurrentCountdownClockTime,
     decrementCountdownClock,

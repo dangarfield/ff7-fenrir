@@ -5,6 +5,7 @@ import { getPlayableCharacterName, getPlayableCharacterId } from './field-op-cod
 import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync, playStandAnimation } from './field-animations.js'
 import { updateCurrentTriangleId } from './field-movement-player.js'
+import { setFieldPointersEnabled, drawArrowPositionHelpers } from './field-position-helpers.js'
 
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
@@ -170,6 +171,7 @@ const positionPlayableCharacterFromTransition = async () => {
         setModelVisibility(entityId, true)
 
         await setModelAsLeader(entityId, true)
+
         // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
         // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
         // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
@@ -189,6 +191,7 @@ const positionPlayableCharacterFromTransition = async () => {
     }
 
     updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
+    drawArrowPositionHelpers()
 }
 const placeModel = (entityId, x, y, z, triangleId) => {
     console.log('placeModel: START', entityId, x, y, z, triangleId)
@@ -417,7 +420,7 @@ const setModelAsLeader = async (entityId, instant) => {
     //  which isnt right in all fields where the camera has been previously set
     await moveCameraToLeader(instant)
     // Assist cursor hand displays if visible
-    window.currentField.positionHelpersEnabled = true
+    setFieldPointersEnabled(true)
     // TODO - set positionHelpers position on playable character straight away
     console.log('setModelAsLeader: END', model)
 }
@@ -428,7 +431,7 @@ const setPlayableCharacterCanMove = (canMove) => {
     }
     window.currentField.playableCharacterCanMove = canMove
     // Also hides / shows cursor arrows if enabled
-    window.currentField.positionHelpersEnabled = canMove
+    setFieldPointersEnabled(canMove)
 }
 const getDegreesFromTwoPoints = (point1, point2) => {
     return 180 + -1 * (Math.atan2(point2.x - point1.x, point2.y - point1.y) * 180 / Math.PI)

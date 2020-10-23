@@ -1,7 +1,7 @@
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
 import { getMovieMetadata, getMoviecamMetadata, getMoviecamData } from '../data/media-fetch-data.js'
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
-import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
+import { setFieldPointersEnabled } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
 import { updateVideoCameraPosition, setVideoCameraHideModels, setVideoCameraUnhideModels } from '../field/field-scene.js'
 
@@ -129,8 +129,7 @@ const playNextMovie = async () => {
         }
 
         // Disable hand pointer
-        window.currentField.positionHelpersEnabled = false
-        updatePositionHelperVisility()
+        setFieldPointersEnabled(false)
 
         // Create videotexture and place on scene
         createVideoBackground(nextMovie.video)

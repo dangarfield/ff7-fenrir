@@ -1,4 +1,4 @@
-import { getCurrentGameTime, getPlayableCharacterInitData } from './savemap-alias.js'
+import { processSavemapAlias, getCurrentGameTime, getPlayableCharacterInitData } from './savemap-alias.js'
 import { addToast } from '../helpers/toasts.js'
 import { getCharacterSaveMap } from '../field/field-op-codes-party-helper.js'
 import { loadField } from '../field/field-module.js'
@@ -145,6 +145,7 @@ const setBankData = (bankRef, index, value) => {
     // console.log('setBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
     setValueToBank(bankData.bank, bankData.bytes, index, value)
+    processSavemapAlias(bankRef, index, value)
 }
 const loadGame = async (cardId, slotId) => {
     // Initialise new savemap

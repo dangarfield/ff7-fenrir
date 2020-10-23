@@ -1,6 +1,8 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { getAnimatedArrowPositionHelperTextures, getCursorPositionHelperTexture } from './field-fetch-data.js'
-import { areFieldPointersActive, setFieldPointersActive } from '../data/savemap-alias.js'
+import { areFieldPointersActive, persistFieldPointersActiveForPlayer } from '../data/savemap-alias.js'
+
+let fieldPointersEnabled = true
 
 const updateArrowPositionHelpers = () => {
     // console.log('updatePositionHelpers', window.currentField.positionHelpers.children.length)
@@ -74,7 +76,6 @@ const drawArrowPositionHelpers = () => {
     drawCursorPositionHelper()
     updatePositionHelperVisility()
     window.currentField.fieldScene.add(window.currentField.positionHelpers)
-    // Not sure when is best to initilise the cursor pointer, on placement of the main character of at once
     updateCursorPositionHelpers()
 }
 const drawArrowPositionHelper = (helperPosition, type) => {
@@ -121,20 +122,34 @@ const drawCursorPositionHelper = () => {
 const updatePositionHelperVisility = () => {
     // TODO - This sets both the pointer and the green / red arrows. But I believe this should be separately controlled
     let fieldPointersActive = areFieldPointersActive()
+    console.log('updatePositionHelperVisility', fieldPointersActive, window.currentField.positionHelpers, fieldPointersEnabled)
     if (window.currentField.positionHelpers) {
-        if (window.currentField.positionHelpersEnabled && fieldPointersActive) {
+        // if (fieldPointersEnabled && fieldPointersActive) { // TODO: Reinstate check for are pointers allowed
+        if (fieldPointersActive) {
             window.currentField.positionHelpers.visible = true
         } else {
             window.currentField.positionHelpers.visible = false
         }
     }
 }
+
+const setFieldPointersActiveForPlayer = (active) => {
+    persistFieldPointersActiveForPlayer(active)
+}
+const setFieldPointersEnabled = (active) => {
+    fieldPointersEnabled = active
+    if (!fieldPointersEnabled) {
+        setFieldPointersActiveForPlayer(false)
+    }
+    updatePositionHelperVisility()
+}
+
 const togglePositionHelperVisility = () => {
     let fieldPointersActive = areFieldPointersActive()
     console.log('setFieldPointersActive', !fieldPointersActive)
-    setFieldPointersActive(!fieldPointersActive)
+    setFieldPointersActiveForPlayer(!fieldPointersActive)
 
-    updatePositionHelperVisility()
+    // updatePositionHelperVisility() // Gets triggered from savemap alias
     // 0x0BA4 = 2980
     // 0x0CA4 = 3236
     // 0x0DA4 = 3492
@@ -144,16 +159,11 @@ const togglePositionHelperVisility = () => {
     // 0x00: Inactive
     // 0x02: Active
 }
-const setFieldPointersEnabled = (enabled) => {
-    window.currentField.positionHelpersEnabled = enabled
-    updatePositionHelperVisility()
-}
 export {
     updateArrowPositionHelpers,
     updateCursorPositionHelpers,
     drawArrowPositionHelper,
     drawArrowPositionHelpers,
-    drawCursorPositionHelper,
     togglePositionHelperVisility,
     updatePositionHelperVisility,
     setFieldPointersEnabled

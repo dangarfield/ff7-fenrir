@@ -25,6 +25,9 @@ window.console = (function (origConsole) {
             'getValueFromBank',
             'setValueToBank',
             'offsetEntity',
+            'ASK',
+            'executeOp DEBUG',
+            'updatePositionHelperVisility'
             // 'triggerEntity',
         ],
         log: function () {

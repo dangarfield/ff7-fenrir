@@ -1,8 +1,5 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
-
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping } from './field-scene.js'
 import { loadFieldData, loadFieldBackground, loadModels } from './field-fetch-data.js'
-import { drawArrowPositionHelpers } from './field-position-helpers.js'
 import { initFieldKeypressActions } from './field-controls.js'
 import { fadeIn, drawFader } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
@@ -55,7 +52,6 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         backgroundLayers: undefined,
         backgroundVideo: undefined,
         positionHelpers: undefined,
-        positionHelpersEnabled: true,
         cameraTarget: undefined,
         fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData,
@@ -88,7 +84,6 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     startFieldRenderLoop()
     await setupViewClipping()
     drawWalkmesh()
-    drawArrowPositionHelpers()
     if (window.config.debug.debugModeNoOpLoops) {
         placeModelsDebug()
     }
