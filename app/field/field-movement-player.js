@@ -257,10 +257,10 @@ const updateFieldMovement = (delta) => {
             }
         }
         if (distance < 0.01) { // Set based on collisionRadius
-            if (fieldModel.scene.userData.closeToCollide === false) {
+            if (fieldModel.scene.userData.closeToCollide === false && fieldModel.userData.collisionEnabled) {
                 fieldModel.scene.userData.closeToCollide = true
-                console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel)
-                modelCollisionTriggered(i)
+                console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel.userData)
+                modelCollisionTriggered(i, fieldModel)
             }
             // Stop movement
             window.currentField.playableCharacter.mixer.stopAllAction()

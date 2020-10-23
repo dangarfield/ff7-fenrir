@@ -1,7 +1,7 @@
 # FF7 - Fenrir
 > Web based game engine for FF7 - Work-in-progress
 
-![FF7 Fenrir](https://i.ibb.co/LR51c6f/title.png)
+![FF7 Fenrir](https://i.ibb.co/bdNzhtR/good.png)
 
 We all love FF7, there are lots of Mods and an amazing community. As part of my personal foray into 3D graphics, I wanted to work to better understand the assets, data and logic, ideally with result of creating a new Game Engine that runs using FF7 data.
 
@@ -80,6 +80,9 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Investigate animation reset states, document and implement
 - :black_square_button: NPC walk (moveEntity) speed is wrong
 - :black_square_button: Add rather than hardcode collision and talk distances
+- :black_square_button: Line, gateway and entity collisions should really be in the main rendering loop rather than player movement
+- :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
+- :black_square_button: Need to check that JUMP animations are not broken
 - :black_square_button: Camera movement op codes are not 100% perfect
 - :black_square_button: Borderless texts show line below characters
 - :black_square_button: Multi line text writes all, rather that just what is visible

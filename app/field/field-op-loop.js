@@ -35,9 +35,9 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Check if any 'wait for' actions such as move are waiting.
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
-    // if (entity.entityName === 'avaf') {
-    //     console.log('executeOp DEBUG', entity.entityName, entityId, scriptType, scriptId, op, priority, currentOpIndex, op.op)
-    // }
+    if (entity.entityName === 'cloud' || entity.entityName === 'mess') {
+        console.log('executeOpDEBUG', entity.entityName, entityId, scriptType, scriptId, currentOpIndex, op, priority)
+    }
     // console.log('LOOP QUEUED ERROR', entity.current)
     while (entity.current[0].scriptId !== scriptId) {
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1, priority)
@@ -474,10 +474,14 @@ const triggerEntityTalkLoop = async (entityId) => {
 }
 const triggerEntityCollisionLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    console.log('triggerEntityTalkLoop', entityId, entity)
-    const contactLoop = entity.scripts.filter(s => s.scriptType === 'Contact')[0]
-    console.log('contactLoop', contactLoop)
-    await executeScriptLoop(window.currentField.name, entity.entityId, contactLoop, 0)
+    console.log('triggerEntityCollisionLoop', entityId, entity)
+    const loops = entity.scripts.filter(s => s.scriptType === 'Contact')
+    for (let i = 0; i < loops.length; i++) {
+        const loop = loops[i]
+        if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // Really, these should be queued in blocks of 8 but needs refactoring
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+        }
+    }
 }
 
 const triggerEntityGo1xLoop = async (entityId) => {

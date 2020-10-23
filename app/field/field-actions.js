@@ -11,7 +11,7 @@ import { getFieldNameForId } from './field-metadata.js'
 import { getDegreesFromTwoPoints } from './field-models.js'
 import {
     stopAllLoops, triggerEntityTalkLoop, triggerEntityMoveLoops, triggerEntityGoLoop,
-    triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop
+    triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop, triggerEntityCollisionLoop
 } from './field-op-loop.js'
 
 let actionInProgress = false
@@ -80,6 +80,17 @@ const triggerTriggered = (i, isOn) => {
     // Sounds, not 100% yet, by the looks of it:
     // soundId: 2 -> door -> 122.ogg
     // soundId: 3 -> swish
+}
+const processTalkContactTriggersForFrame = () => {
+    if (!window.currentField.playableCharacter) {
+        return
+    }
+
+    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
+    // Can player move?
+    if (window.currentField.setPlayableCharacterIsInteracting) {
+        return
+    }
 }
 const processLineTriggersForFrame = () => {
     if (!window.currentField.playableCharacter) {
@@ -180,8 +191,9 @@ const processLineTriggersForFrame = () => {
     }
 }
 
-const modelCollisionTriggered = (i) => {
+const modelCollisionTriggered = (i, fieldModel) => {
     console.log('modelCollisionTriggered', i)
+    triggerEntityCollisionLoop(fieldModel.userData.entityId)
 }
 
 const initiateTalk = async (i, fieldModel) => {

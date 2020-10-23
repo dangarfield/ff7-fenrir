@@ -6,6 +6,9 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
+            // 'playAnimation',
+            // 'executeOpDEBUG',
+            // 'printedCompare'
             // 'getModelScaleDownValue',
             // 'playAnimation',
             // 'moveEntity',

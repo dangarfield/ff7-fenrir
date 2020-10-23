@@ -24,7 +24,7 @@ const initFieldKeypressActions = () => {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             // Probably need to look at a more intelligent way to define which actions are performed
-            // TODO - Need to really sort these by distance before loops
+            // Should really be done in the rendering loop for collision
             for (let i = 0; i < window.currentField.models.length; i++) {
                 if (window.currentField.models[i].scene.userData.closeToTalk === true &&
                     window.currentField.models[i].userData.talkEnabled === true) {
