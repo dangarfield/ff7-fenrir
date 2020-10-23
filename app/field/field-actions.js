@@ -3,7 +3,7 @@ import { getActiveInputs } from '../interaction/inputs.js'
 import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
-import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireFadeOut } from '../menu/menu-module.js'
+import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireFadeOut, loadTutorial } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
@@ -198,7 +198,6 @@ const setPlayableCharacterIsInteracting = (isInteracting) => {
     // window.currentField.playableCharacterCanMove = !isInteracting
 }
 const fadeOutAndLoadMenu = async (menuType, menuParam) => {
-
     if (doesMenuRequireFadeOut(menuType)) {
         setActionInProgress('menu')
         window.anim.clock.stop()
@@ -209,7 +208,14 @@ const fadeOutAndLoadMenu = async (menuType, menuParam) => {
     } else {
         loadMenuWithoutWait(menuType, menuParam)
     }
-
+}
+const fadeOutAndLoadTutorial = async (tutorialId) => {
+    setActionInProgress('menu')
+    window.anim.clock.stop()
+    setPlayableCharacterIsInteracting(true)
+    await fadeOut(true)
+    await loadTutorial(tutorialId)
+    await unfreezeField()
 }
 const unfreezeField = async () => {
     startFieldRenderLoop()
@@ -297,6 +303,7 @@ export {
     setActionInProgress,
     clearActionInProgress,
     fadeOutAndLoadMenu,
+    fadeOutAndLoadTutorial,
     unfreezeField,
     triggerBattleWithSwirl,
     setGatewayTriggerEnabled,

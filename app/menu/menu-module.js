@@ -10,6 +10,7 @@ import { loadSaveMenu } from './menu-save.js'
 import { loadTitleMenu } from './menu-title.js'
 import { loadGameOverMenu } from './menu-game-over.js'
 import { loadChangeDiscMenu } from './menu-change-disc.js'
+import { loadMainMenuWithTutorial } from './menu-tutorial.js'
 import {
     yuffieStealMateriaAll, yuffieRestoreMateriaAll, unequipMateriaCharX,
     temporarilyHideMateriaCloud, reinstateMateriaCloud
@@ -66,13 +67,13 @@ const getMenuTypeStringFromCode = (menuCode) => {
     }
     return 'Unknown'
 }
-const cleanScene = () => { while (scene.children.length) { scene.remove(scene.children[0]) } }
+const clearScene = () => { while (scene.children.length) { scene.remove(scene.children[0]) } }
 
 let MENU_PROMISE
 
 const loadMenuWithWait = (menuCode, param) => {
     console.log('loadMenuWithWait', menuCode, getMenuTypeStringFromCode(menuCode), param)
-    cleanScene()
+    clearScene()
     initMenuRenderLoop()
     return new Promise(async (resolve) => {
         MENU_PROMISE = resolve
@@ -112,6 +113,15 @@ const loadMenuWithoutWait = (menuCode, param) => {
         // case MENU_TYPE.Unknown25: console.log('TODO: Unknown25'); break
     }
 }
+const loadTutorial = (tutorialId) => {
+    console.log('loadMenuTutorial', tutorialId)
+    clearScene()
+    initMenuRenderLoop()
+    return new Promise(async (resolve) => {
+        MENU_PROMISE = resolve
+        loadMainMenuWithTutorial(tutorialId)
+    })
+}
 const resolveMenuPromise = () => {
     MENU_PROMISE()
 }
@@ -124,6 +134,7 @@ export {
     initMenuModule,
     loadMenuWithWait,
     loadMenuWithoutWait,
+    loadTutorial,
     doesMenuRequireFadeOut,
     resolveMenuPromise,
     MENU_TYPE

@@ -158,6 +158,7 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
 
         // Windowing and Menu
 
+        case 'TUTOR': result = await windowMenu.TUTOR(op); break
         case 'WCLS': result = await windowMenu.WCLS(op); break
         case 'WSIZW': result = await windowMenu.WSIZW(op); break
         case 'WSPCL': result = await windowMenu.WSPCL(op); break

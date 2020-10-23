@@ -3,7 +3,7 @@ import {
     setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow,
     setDialogColor
 } from './field-dialog.js'
-import { fadeOutAndLoadMenu } from './field-actions.js'
+import { fadeOutAndLoadMenu, fadeOutAndLoadTutorial } from './field-actions.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
@@ -147,6 +147,11 @@ const MENU2 = async (op) => {
     // console.log('window.currentField.menuEnabled', window.currentField.menuEnabled)
     return {}
 }
+const TUTOR = async (op) => {
+    console.log('TUTOR', op)
+    await fadeOutAndLoadTutorial(op.t)
+    return {}
+}
 
 setTimeout(async () => {
     await SOUND({ i: 1, d: 64 })
@@ -226,6 +231,7 @@ setTimeout(async () => {
 }, 10000)
 
 export {
+    TUTOR,
     WCLS,
     WSIZW,
     WSPCL,
