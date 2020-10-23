@@ -405,8 +405,28 @@ const ladderMovement = (speed) => {
         model.scene.rotation.x = THREE.Math.degToRad(90)
         model.scene.rotation.z = THREE.Math.degToRad(0)
         model.scene.up.set(0, 0, 1)
+
+        for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
+            const gatewayLine = window.currentField.gatewayLines.children[i]
+            const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+            const distance = nextPosition.distanceTo(closestPointOnLine)
+            if (distance < 0.005) {
+                console.log('gateway hit')
+                if (animNo === 2) { // Run
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
+                } else if (animNo === 1) { // Walk
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
+                }
+                // Should probably also pause ALL animations including screen background loops like in the game
+                gatewayTriggered(i)
+                return
+            }
+        }
+
+        console.log('ladderMovement: currentTriangle BEFORE', model.scene.userData.triangleId)
         updateCurrentTriangleId(model, nextPosition)
-        console.log('ladderMovement: currentTriangle', model.scene.userData.triangleId)
+        console.log('ladderMovement: currentTriangle AFTER', model.scene.userData.triangleId)
+
         ladder.resolve()
     }
     updateCursorPositionHelpers()
@@ -424,23 +444,44 @@ const updateCurrentTriangleId = (model, nextPosition) => {
         window.currentField.movementHelpers.add(new THREE.ArrowHelper(playerMovementRay.ray.direction, playerMovementRay.ray.origin, playerMovementRay.far, 0xfff00ff)) // For debugging walkmesh raycaster
     }
     if (intersects.length === 0) {
-        return -1
+        const closestTriangle = getClosestTriangleId(model, nextPosition)
+        console.log('ladderMovement: updateCurrentTriangleId NO INTERSECT', intersects, closestTriangle)
+        model.scene.userData.triangleId = closestTriangle
     } else {
         // const point = intersects[0].point
         model.scene.userData.triangleId = intersects[0].object.userData.triangleId
-
-        if (model.userData.name === window.currentField.playableCharacter.userData.name) { // This should be the active character
-            updateSavemapLocationFieldPosition(
-                Math.round(nextPosition.x * 4096),
-                Math.round(nextPosition.y * 4096),
-                window.currentField.playableCharacter.scene.userData.triangleId,
-                0) // Direction is inaccurate
-        }
-
+    }
+    if (model.userData.name === window.currentField.playableCharacter.userData.name) { // This should be the active character
+        updateSavemapLocationFieldPosition(
+            Math.round(nextPosition.x * 4096),
+            Math.round(nextPosition.y * 4096),
+            window.currentField.playableCharacter.scene.userData.triangleId,
+            0) // Direction is inaccurate
     }
 
-}
 
+
+}
+const getClosestTriangleId = (model, position) => {
+    const triangles = window.currentField.data.walkmeshSection.triangles
+    const closest = {
+        distance: 100000,
+        triangleId: -1
+    }
+    for (let i = 0; i < triangles.length; i++) {
+        const triangle = triangles[i]
+        for (let j = 0; j < triangle.vertices.length; j++) {
+            const vertice = triangle.vertices[j]
+            const vec = new THREE.Vector3(vertice.x / 4096, vertice.y / 4096, vertice.z / 4096)
+            const distance = vec.distanceTo(model.scene.position)
+            if (distance < closest.distance) {
+                closest.distance = distance
+                closest.triangleId = i
+            }
+        }
+    }
+    return closest.triangleId
+}
 export {
     updateFieldMovement,
     updateCurrentTriangleId

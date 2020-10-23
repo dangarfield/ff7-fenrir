@@ -210,6 +210,13 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 model.scene.position.x = from.x
                 model.scene.position.y = from.y
                 model.scene.position.z = lastZ
+
+                // Camera follow
+                if (model.userData.name === window.currentField.playableCharacter.userData.name) {
+                    // Update camera position if this is the main character
+                    const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
+                    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+                }
             })
             .onComplete(async () => {
                 console.log('moveEntity: END', entityId, from, to, lastZ)

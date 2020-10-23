@@ -6,6 +6,7 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
+            // 'ladderMovement'
             // 'playAnimation',
             // 'executeOpDEBUG',
             // 'printedCompare'

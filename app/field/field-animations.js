@@ -147,7 +147,7 @@ const waitForAnimationPromiseToBeResolved = async (model, entityId, animationId)
 }
 const bindAnimationCompletion = (model) => {
     model.mixer.addEventListener('finished', async (e) => {
-        console.log('playAnimation finished mixer', e.action.userData.entityName, e.action.userData, e, e.target, e.target.promise)
+        console.log('playAnimation finished mixer', e.action.userData, e, e.target, e.target.promise)
         if (e.action.promises && e.action.promises.length > 0) {
             // while (e.action.promises.length) {
             console.log('playAnimation finished mixer promise', e.action.userData.entityName, e)
