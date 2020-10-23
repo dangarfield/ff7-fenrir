@@ -88,6 +88,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Fades aren't perfect
 - :black_square_button: Field pointer sizes are wrong
 - :black_square_button: Many gateway pointers are missing
+- :black_square_button: Implement KAWAI graphic effects
+- :black_square_button: Offsets are not 100% - mds7_w2 -> save
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: Implement remaining difficult op codes
 - :black_square_button: Add blinking eyes

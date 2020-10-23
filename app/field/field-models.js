@@ -36,10 +36,10 @@ const getModelScaleDownValue = () => {
     if (window.currentField.data.model.header.modelScale >= 1024) {
         factor = (Math.pow(2, (Math.log2(window.currentField.data.model.header.modelScale) * -1) + 19))
     }
+    factor = factor * 1.1
 
     const scaleDownValue = 1 / factor
-    // console.log('getModelScaleDownValue', factor, scaleDownValue,
-    //   window.currentField.data.model.header.modelScale)
+    console.log('getModelScaleDownValue', factor, scaleDownValue, window.currentField.data.model.header.modelScale)
     return scaleDownValue
 }
 

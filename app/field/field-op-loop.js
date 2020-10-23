@@ -35,9 +35,9 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Check if any 'wait for' actions such as move are waiting.
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.entityName === 'man1') {
-        console.log('executeOp DEBUG', fieldName, entityId, scriptType, scriptId, op, priority, currentOpIndex, op.op)
-    }
+    // if (entity.entityName === 'avaf') {
+    //     console.log('executeOp DEBUG', entity.entityName, entityId, scriptType, scriptId, op, priority, currentOpIndex, op.op)
+    // }
     // console.log('LOOP QUEUED ERROR', entity.current)
     while (entity.current[0].scriptId !== scriptId) {
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1, priority)

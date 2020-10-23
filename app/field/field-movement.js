@@ -136,7 +136,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
 }
 const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     const model = getModelByEntityId(entityId)
-    console.log('moveEntity', entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
+    console.log('moveEntity: START', model.userData.entityName, entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
     console.log('current position', model.scene.position.x, model.scene.position.y)
     const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: x, y: y })
@@ -156,19 +156,28 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     console.log('time', time)
     // at 512 & 2048 - speed = 8192
 
-    let animationType = window.currentField.playerAnimations.run
+    let animationId = window.currentField.playerAnimations.run
     // if ((desiredSpeed && desiredSpeed >= 30)) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
     if ((desiredSpeed && desiredSpeed >= 30) || model.userData.movementSpeed < 1600) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
         // time = 1000 / 30 * desiredSpeed
-        animationType = window.currentField.playerAnimations.walk
+        animationId = window.currentField.playerAnimations.walk
     }
-    // console.log('moveEntity animationType', animationType, model.userData.movementSpeed, desiredSpeed)
+    // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
     if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
     }
-    if (animate && model.animations[animationType]) {
+    if (animate && model.animations[animationId]) {
+        // console.log('stopAllAction C', model.userData.entityName)
         model.mixer.stopAllAction()
-        model.mixer.clipAction(model.animations[animationType]).play()
+        const action = model.mixer.clipAction(model.animations[animationId])
+        action.setLoop(THREE.LoopRepeat)
+        action.userData = {
+            entityName: model.userData.entityName,
+            entityId,
+            animationId,
+            type: 'movement'
+        }
+        action.play()
     }
     let lastZ = model.scene.position.z
     console.log('move READY', entityId, from, to, lastZ, distance, time)
@@ -203,8 +212,9 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
                 model.scene.position.z = lastZ
             })
             .onComplete(async () => {
-                console.log('move: END', entityId, from, to, lastZ)
+                console.log('moveEntity: END', entityId, from, to, lastZ)
                 if (animate) {
+                    // console.log('stopAllAction D', model.userData.entityName)
                     model.mixer.stopAllAction()
                 }
                 if (model.userData.isPlayableCharacter) {
@@ -228,6 +238,7 @@ const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId
 const moveEntityLadderPlayableCharacter = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed, model) => {
     console.log('moveEntityLadderPlayableCharacter', entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
     return new Promise(async (resolve) => {
+        // console.log('stopAllAction E', model.userData.entityName)
         model.mixer.stopAllAction()
         setModelDirection(entityId, direction)
         let keysForwards
@@ -260,6 +271,7 @@ const moveEntityLadderPlayableCharacter = async (entityId, x, y, z, triangleId, 
 }
 const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animationId, direction, animationSpeed, model) => {
     console.log('moveEntityLadderNPC', entityId, x, y, z, triangleId, '-', keys, animationId, direction, animationSpeed, model)
+    // console.log('stopAllAction F', model.userData.entityName)
     model.mixer.stopAllAction()
     setModelDirection(entityId, direction)
     model.mixer.clipAction(model.animations[animationId]).play()
@@ -292,6 +304,7 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
             })
             .onComplete(function () {
                 console.log('moveEntityLadderNPC: END', entityId)
+                // console.log('stopAllAction G', model.userData.entityName)
                 model.mixer.stopAllAction()
                 updateCurrentTriangleId(model, from)
                 resolve()

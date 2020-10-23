@@ -39,7 +39,7 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
     return new Promise(async (resolve) => {
         try {
             const model = getModelByEntityId(entityId)
-            console.log('playAnimation', entityId, model.userData.entityName, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
+            console.log('playAnimation: START', model.userData.entityName, entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
 
             // Store current playing animation for !holdLastFrame
             const previousAnimationId = model.userData.lastAnimationId
@@ -55,6 +55,16 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             }
             const action = model.mixer.clipAction(animation)
             // action.reset()
+            if (action.promises === undefined) {
+                action.promises = []
+            }
+            action.promises.push(resolve)
+            action.userData = {
+                entityName: model.userData.entityName,
+                entityId,
+                animationId,
+                type: 'animation'
+            }
 
 
             action.loop = loopType
@@ -82,37 +92,39 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             //     animationId
             // }
             // const uid = uuid()
-            model.mixer.addEventListener('finished', async (e) => {
-                // console.log('playAnimation finished mixer', e, e.target, e.target.promise)
-                // if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
-                //     console.log('playAnimation finished mixer match', e.target.promise)
-                //     if (!e.target.promise.holdLastFrame) {
-                //         console.log('playAnimation finished mixer match stand')
-                //         // e.target.promise.standAction.play()
-                //     }
-                //     const resolve = e.target.promise.resolve
-                //     delete e.target.promise
-                //     resolve()
-                // }
+            // model.mixer.addEventListener('finished', async (e) => {
+            // console.log('playAnimation finished mixer', e, e.target, e.target.promise)
+            // if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
+            //     console.log('playAnimation finished mixer match', e.target.promise)
+            //     if (!e.target.promise.holdLastFrame) {
+            //         console.log('playAnimation finished mixer match stand')
+            //         // e.target.promise.standAction.play()
+            //     }
+            //     const resolve = e.target.promise.resolve
+            //     delete e.target.promise
+            //     resolve()
+            // }
 
-                // Replay previous playing animation for !holdLastFrame
-                // TODO - Assuming that we'll play the whole last animation in its entirity, probably not right
-                // console.log('playAnimation finished', entityId, model.userData.entityName, animationId, previousAnimationId, holdLastFrame, startFrame)
-                // if (previousAnimationId && !holdLastFrame) {
-                //     if (startFrame === undefined && endFrame === undefined) {
-                //         const previousAnimation = model.animations[previousAnimationId]
-                //         const previousAnimationAtion = model.mixer.clipAction(previousAnimation)
-                //         previousAnimationAtion.play()
-                //     } else {
-                //         const standAnimation = model.animations[0]
-                //         const standAction = model.mixer.clipAction(standAnimation)
-                //         standAction.play()
-                //     }
-                // }
+            // Replay previous playing animation for !holdLastFrame
+            // TODO - Assuming that we'll play the whole last animation in its entirity, probably not right
+            // console.log('playAnimation finished', entityId, model.userData.entityName, animationId, previousAnimationId, holdLastFrame, startFrame)
+            // if (previousAnimationId && !holdLastFrame) {
+            //     if (startFrame === undefined && endFrame === undefined) {
+            //         const previousAnimation = model.animations[previousAnimationId]
+            //         const previousAnimationAtion = model.mixer.clipAction(previousAnimation)
+            //         previousAnimationAtion.play()
+            //     } else {
+            //         const standAnimation = model.animations[0]
+            //         const standAction = model.mixer.clipAction(standAnimation)
+            //         standAction.play()
+            //     }
+            // }
+            // console.log('playAnimation: END', model.userData.entityName, entityId, animationId)
 
-                resolve()
-            })
+            // resolve()
+            // })
 
+            // console.log('stopAllAction A', model.userData.entityName)
             model.mixer.stopAllAction()
             action.play()
             // Animation complete and resulting resolve CB bound in bindAnimationCompletion()
@@ -134,19 +146,16 @@ const waitForAnimationPromiseToBeResolved = async (model, entityId, animationId)
 
 }
 const bindAnimationCompletion = (model) => {
-    // model.mixer.addEventListener('finished', async (e) => {
-    //     console.log('playAnimation finished mixer', e, e.target, e.target.promise)
-    //     if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
-    //         console.log('playAnimation finished mixer match', e.target.promise)
-    //         if (!e.target.promise.holdLastFrame) {
-    //             console.log('playAnimation finished mixer match stand')
-    //             // e.target.promise.standAction.play()
-    //         }
-    //         const resolve = e.target.promise.resolve
-    //         delete e.target.promise
-    //         resolve()
-    //     }
-    // })
+    model.mixer.addEventListener('finished', async (e) => {
+        console.log('playAnimation finished mixer', e.action.userData.entityName, e.action.userData, e, e.target, e.target.promise)
+        if (e.action.promises) {
+            while (e.action.promises.length) {
+                console.log('playAnimation finished mixer promise', e.action.userData.entityName, e)
+                e.action.promises[0]()
+                e.action.promises.pop()
+            }
+        }
+    })
 }
 const waitForAnimationToFinish = async (entityId) => {
     return new Promise(async (resolve) => {
@@ -207,7 +216,7 @@ const splitClip = (clip, startFrame, endFrame) => {
     return split
 }
 const playStandAnimation = (model) => {
-    console.log('playStandAnimation', model)
+    console.log('playStandAnimation', model.userData.entityName, model)
     // for (let i = 0; i < model.animations.length; i++) {
     //     const animation = model.animations[i]
     //     const clip = model.mixer.clipAction(animation)
@@ -217,6 +226,7 @@ const playStandAnimation = (model) => {
     //         clip.stop()
     //     }
     // }
+    // console.log('stopAllAction B', model.userData.entityName)
     model.mixer.stopAllAction()
     const standAnimation = model.animations[0]
     const standAction = model.mixer.clipAction(standAnimation)

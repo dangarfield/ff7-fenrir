@@ -55,7 +55,7 @@ const BUTTON_IMAGES = [
     { text: 'PAGEUP', char: '┌' }, // r1
     { text: 'HOME', char: '╔' }, // r2
 
-    { text: 'SELECT', char: '▅' }, // ???
+    { text: 'ASSIST', char: '▅' }, // select
     { text: 'START', char: '▶' },
 ]
 

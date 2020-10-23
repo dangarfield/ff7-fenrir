@@ -6,29 +6,13 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'XYZI',
-            // 'placeModel',
+            // 'getModelScaleDownValue',
             // 'playAnimation',
-            'tweenCameraPosition',
-            'instant',
-            'smooth',
-            'setModelAsLeader',
-            'CC',
-            // 'move',
-            // 'AXYZI',
-            // 'IFSW',
-            // 'printedCompare',
-            'bit16',
-            'XYI',
-            'MOVA',
-            'getModelByEntityId',
-            'getValueFromBank',
-            'setValueToBank',
-            'offsetEntity',
-            'ASK',
-            'executeOp DEBUG',
-            'updatePositionHelperVisility'
-            // 'triggerEntity',
+            // 'moveEntity',
+            // 'playStandAnimation',
+            // 'DEBUG',
+            // 'waitForAnimationToFinish',
+            // 'stopAllAction'
         ],
         log: function () {
             if (limit) {
