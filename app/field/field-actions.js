@@ -147,6 +147,7 @@ const processLineTriggersForFrame = () => {
                 // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
                 if (movingInDirectionOfLine) {
                     triggerEntityMoveLoops(entityId)
+                    triggerEntityOKLoop(entityId)
                     return
                 }
                 if (getActiveInputs().o) {

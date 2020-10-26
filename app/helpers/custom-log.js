@@ -6,7 +6,7 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'TEMP_FIELD_BANK',
+            'showWindowWithDialog',
             // 'getValueFromBank',
             // 'setValueToBank'
             // 'getModelScaleDownValue',
