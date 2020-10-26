@@ -101,8 +101,8 @@ const Int8 = function (value) {
 
 
 const getValueFromBank = (bank, type, index) => {
-    if (index === 11) {
-        console.log('getValueFromBank', bank, type, index, '->', bank[index], bank[index * 2])
+    if (index === 11 || index === 12 || index === 13) {
+        console.log('getValueFromBank', type, index, '->', bank[index], bank[index * 2])
     }
 
     if (type === 1) {
@@ -121,8 +121,8 @@ const getValueFromBank = (bank, type, index) => {
     }
 }
 const setValueToBank = (bank, type, index, newValue) => {
-    if (index === 11) {
-        console.log('setValueToBank', bank, type, index, '->', newValue)
+    if (index === 11 || index === 12 || index === 13) {
+        console.log('setValueToBank', type, index, '->', newValue)
     }
     if (type === 1) {
         bank[index] = newValue

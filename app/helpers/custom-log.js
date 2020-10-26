@@ -6,10 +6,9 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'splitClip',
-            'playAnimation',
-            // 'executeOpDEBUG',
-            // 'printedCompare'
+            // 'TEMP_FIELD_BANK',
+            // 'getValueFromBank',
+            // 'setValueToBank'
             // 'getModelScaleDownValue',
             // 'playAnimation',
             // 'moveEntity',

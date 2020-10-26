@@ -134,7 +134,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     })
 
 }
-const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
+const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desiredFrames) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntity: START', model.userData.entityName, entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
@@ -150,7 +150,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
     const distance = 4096 * Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
     const speed = (model.userData.movementSpeed / 8.6428) * (window.currentField.data.model.header.modelScale / 512) // This 'seems' ok, at least for modelScale 512 fields
     let time = (distance / speed) * 1000
-    console.log('distance', distance)
+    console.log('moveEntity distance', distance)
     console.log('speed', speed)
     console.log('workings out', entityId, model.userData.entityName, '-', model.userData.movementSpeed, window.currentField.data.model.header.modelScale, 'dst', distance, speed, time)
     console.log('time', time)
@@ -162,6 +162,18 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
         // time = 1000 / 30 * desiredSpeed
         animationId = window.currentField.playerAnimations.walk
     }
+
+    if (desiredFrames !== undefined) { // Desired frames sets the absolute time of the movement
+        const distancePerFrame = distance / desiredFrames
+        console.log('moveEntity desired frames', desiredFrames, distance, '->', distancePerFrame)
+        if (distancePerFrame >= 10) {
+            animationId = window.currentField.playerAnimations.run
+        } else {
+            animationId = window.currentField.playerAnimations.walk
+        }
+        time = (desiredFrames / 30 * 1000)
+    }
+
     // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
     if (rotate && model.userData.rotationEnabled) {
         model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
@@ -180,7 +192,8 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed) => {
         action.play()
     }
     let lastZ = model.scene.position.z
-    console.log('move READY', entityId, from, to, lastZ, distance, time)
+
+    console.log('moveEntity READY', entityId, from, to, lastZ, distance, time)
     return new Promise(async (resolve) => {
         new TWEEN.Tween(from)
             .to(to, time)
@@ -441,13 +454,13 @@ const joinLeader = async (speed) => {
     const targetX = leaderModel.scene.position.x
     const targetY = leaderModel.scene.position.y
     const joinerNames = window.data.savemap.party.members.filter(m => m !== 'None' && m !== leaderModel.userData.characterName)
-    console.log('joinLeader', leaderModel, joinerNames)
+    console.log('joinLeader', leaderModel, joinerNames, speed)
     const result = await Promise.all(
         joinerNames.map(async (joinerName) => {
             const model = getModelByCharacterName(joinerName)
             console.log('model', model)
             await turnModelToFaceEntity(model.userData.entityId, leaderModel.userData.entityId, 2, 15) // TODO not sure about speed here
-            await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed)
+            await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed, speed)
             setModelCollisionEnabled(model.userData.entityId, false)
             setModelTalkEnabled(model.userData.entityId, false)
             setModelVisibility(model.userData.entityId, false)
@@ -479,7 +492,7 @@ const splitPartyFromLeader = async (char1, char2, speed) => {
 
             setModelVisibility(model.userData.entityId, true)
             await turnModelToFaceDirection(model.userData.entityId, 255 - leaver.direction, 2, 15, 2) // TODO not sure about speed here
-            await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed)
+            await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed, speed)
             await turnModelToFaceDirection(model.userData.entityId, leaver.direction, 2, 15, 2) // TODO not sure about speed here
             setModelCollisionEnabled(model.userData.entityId, true)
             setModelTalkEnabled(model.userData.entityId, true)

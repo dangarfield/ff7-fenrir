@@ -385,7 +385,7 @@ const SLINE = async (entityId, op) => {
 
 // Party
 const JOIN = async (entityId, op) => {
-    console.log('SLINE', entityId, op)
+    console.log('JOIN', entityId, op)
     await fieldMovement.joinLeader(op.s)
     return {}
 }

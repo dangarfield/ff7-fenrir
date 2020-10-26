@@ -240,6 +240,14 @@ const IFMEMBQ = async (ops, op) => {
         return getOpIndexForByteIndex(ops, op.goto)
     }
 }
+// setTimeout(async () => {
+//     setInterval(() => {
+//         console.log('TEMP_FIELD_BANK Var[5][11]',
+//             window.data.TEMP_FIELD_BANK[11],
+//             window.data.TEMP_FIELD_BANK[12],
+//             window.data.TEMP_FIELD_BANK[13])
+//     }, 100)
+// }, 11000)
 export {
     RET,
     REQ,
