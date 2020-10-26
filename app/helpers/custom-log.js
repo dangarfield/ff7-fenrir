@@ -6,8 +6,8 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'ladderMovement'
-            // 'playAnimation',
+            'splitClip',
+            'playAnimation',
             // 'executeOpDEBUG',
             // 'printedCompare'
             // 'getModelScaleDownValue',

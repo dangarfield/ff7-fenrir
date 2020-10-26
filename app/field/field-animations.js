@@ -50,7 +50,7 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             let animation = model.animations[animationId]
             if (startFrame !== undefined && endFrame !== undefined) {
                 const newAnimation = splitClip(animation, startFrame, endFrame)
-                console.log('playAnimation clipped', animation, newAnimation)
+                console.log('playAnimation clipped', model.userData.entityName, entityId, animation, newAnimation)
                 animation = newAnimation
             }
             const action = model.mixer.clipAction(animation)
@@ -206,13 +206,23 @@ const setPlayerMovementAnimationId = (animationId, movementType) => {
     }
 }
 const splitClip = (clip, startFrame, endFrame) => {
-    console.log('splitClip', clip.duration, clip.duration * 30, clip.tracks)
-    const split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+    let split
+    console.log('splitClip START:', clip.duration, clip.duration * 30, clip.tracks)
     if (startFrame > 0 && startFrame === endFrame) {
         startFrame--
-        console.log('splitClip adjust', startFrame, endFrame)
+        console.log('splitClip ADJUST:', startFrame, endFrame)
+        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+        while (split.duration === 0) {
+            startFrame--
+            console.log('splitClip ADJUST:', startFrame, endFrame)
+            split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+        }
+    } else {
+        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
     }
-    console.log('splitClip', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
+
+
+    console.log('splitClip END:', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
     return split
 }
 const playStandAnimation = (model) => {
