@@ -248,6 +248,7 @@ const MINUS2 = (op) => {
     let val = (dDesc - sDesc) % 256
     if (val < 0) { val = 256 - Math.abs(val) }
     setBankData(op.bd, op.d, val)
+    return {}
 }
 const INC = (op) => {
     console.log('INC', op)
