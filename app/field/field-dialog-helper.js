@@ -547,6 +547,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
             dialogBox.userData.overflowCurrent = 0 // Will be incremented on render
         }
         // console.log('msg', textLines, dialog, dialogSpaceLines, overflow)
+        let color = 'white'
         for (let i = 0; i < textLines.length; i++) {
             let textLine = textLines[i]
 
@@ -556,7 +557,6 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
 
             let identifyCommand = false
             let identifyCommandParam = false
-            let color = 'white'
             let command = ''
             let commandParam = ''
 
