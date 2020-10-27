@@ -4,6 +4,7 @@ import { executeScriptLoop } from './field-op-loop.js'
 import { getActiveInputs, getInputHistory } from '../interaction/inputs.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { getModelByPartyMemberId } from './field-models.js'
+import { getBankData } from '../data/savemap.js'
 
 // Note: Not sure about priority as of yet. Which may warrant a rewrite
 
@@ -240,14 +241,18 @@ const IFMEMBQ = async (ops, op) => {
         return getOpIndexForByteIndex(ops, op.goto)
     }
 }
-// setTimeout(async () => {
-//     setInterval(() => {
-//         console.log('TEMP_FIELD_BANK Var[5][11]',
-//             window.data.TEMP_FIELD_BANK[11],
-//             window.data.TEMP_FIELD_BANK[12],
-//             window.data.TEMP_FIELD_BANK[13])
-//     }, 100)
-// }, 11000)
+setTimeout(async () => {
+    setInterval(() => {
+        console.log('TEMP_FIELD_BANK Var[5][13-14-15]',
+            getBankData(5, 13),
+            getBankData(5, 14),
+            getBankData(5, 15),
+            '-',
+            getBankData(6, 4),
+            getBankData(6, 6),
+            getBankData(6, 8))
+    }, 100)
+}, 11000)
 export {
     RET,
     REQ,

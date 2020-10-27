@@ -6,14 +6,11 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'showWindowWithDialog',
-            'moveEntity',
-            // 'setValueToBank'
-            // 'getModelScaleDownValue',
-            // 'playAnimation',
+            'drawBG',
+            'initLayer2Parallax',
             // 'moveEntity',
-            // 'playStandAnimation',
-            // 'DEBUG',
+            // 'updateCurrentTriangleId',
+            // 'GETAXY',
             // 'waitForAnimationToFinish',
             // 'stopAllAction'
         ],

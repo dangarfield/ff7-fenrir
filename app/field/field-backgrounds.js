@@ -119,6 +119,19 @@ const updateBackgroundScolling = (delta) => {
         }
     }
 }
+const initLayer2Parallax = (mesh) => {
+    console.log('initLayer2Parallax', mesh)
+    // mesh.scale.x = 3
+    // mesh.scale.y = 3
+    // mesh.material.map.wrapS = THREE.RepeatWrapping
+    // mesh.material.map.wrapT = THREE.RepeatWrapping
+    // mesh.material.map.repeat.x = 3
+    // mesh.material.map.repeat.y = 3
+    // mesh.material.map.center.x = 1
+    // mesh.material.map.center.y = 0.5
+    // mesh.material.map.matrixAutoUpdate = true
+    // mesh.material.map.needsUpdate = true
+}
 
 const drawWalkmesh = () => {
 
@@ -323,6 +336,15 @@ const processBG = (layer, fieldName, manager) => {
     if (layer.z <= 10) { // z = doesn't show, just set it slightly higher for now
         layer.z = layer.z + 10
     }
+    if (layer.layerID === 3) { // Always in front
+        layer.z = 9
+    }
+    if (layer.layerID === 2) { // Always behind
+        layer.z = 5000
+    }
+    if (layer.layerID === 0) { // Seems to be beore layerID 1 (variable z's)
+        layer.z = 10
+    }
     // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
     if (layer.param > 0) {
         layer.z = layer.z - 1
@@ -348,7 +370,7 @@ const processBG = (layer, fieldName, manager) => {
 const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData, manager) => {
     let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * window.currentField.fieldCamera.aspect
-    // console.log('drawBG', distance, '->', vH, vW)
+    console.log('drawBG', distance, '->', vH, vW, userData, bgImgUrl)
     let geometry = new THREE.PlaneGeometry(vW, vH, 0)
 
     let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
@@ -375,6 +397,9 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData, man
         plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
     }
     group.add(plane)
+    if (userData.layerId === 2) {
+        initLayer2Parallax(plane)
+    }
 }
 
 export {

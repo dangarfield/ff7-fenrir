@@ -331,7 +331,7 @@ const GETAXY = async (entityId, op) => {
     const position = fieldMovement.getEntityPositionXY(op.e)
     setBankData(op.bx, op.x, position.x)
     setBankData(op.by, op.y, position.y)
-    // console.log('GETAXY -> (x,y)', getBankData(op.bx, op.x), getBankData(op.by, op.y))
+    console.log('GETAXY -> (x,y)', getBankData(op.bx, op.x), getBankData(op.by, op.y))
     return {}
 }
 const AXYZI = async (entityId, op) => {

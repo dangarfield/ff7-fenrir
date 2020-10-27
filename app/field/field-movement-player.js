@@ -451,6 +451,8 @@ const updateCurrentTriangleId = (model, nextPosition) => {
         // const point = intersects[0].point
         model.scene.userData.triangleId = intersects[0].object.userData.triangleId
     }
+    console.log('updateCurrentTriangleId is playablechar', model.userData.name, window.currentField.playableCharacter.userData.name,
+        model.userData.name === window.currentField.playableCharacter.userData.name)
     if (model.userData.name === window.currentField.playableCharacter.userData.name) { // This should be the active character
         updateSavemapLocationFieldPosition(
             Math.round(nextPosition.x * 4096),
