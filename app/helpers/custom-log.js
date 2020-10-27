@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'showWindowWithDialog',
-            // 'getValueFromBank',
+            'moveEntity',
             // 'setValueToBank'
             // 'getModelScaleDownValue',
             // 'playAnimation',

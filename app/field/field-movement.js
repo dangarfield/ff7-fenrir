@@ -33,6 +33,7 @@ const moveEntityToEntity = async (entityId, targetModel) => {
     console.log('moveEntityToEntity', targetModel)
     if (targetModel.scene.visible) {
         // Move until they are within collision distance
+        // TODO - Whilst moveEntity now takes into account the walkmesh, this really should have 'slippability'
         const sourceModel = getModelByEntityId(entityId)
         console.log('moveEntityToEntity source', sourceModel, sourceModel.userData.collisionRadius, sourceModel.scene.position)
         console.log('moveEntityToEntity target', targetModel, targetModel.userData.collisionRadius, targetModel.scene.position)
@@ -195,29 +196,31 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desired
 
     console.log('moveEntity READY', entityId, from, to, lastZ, distance, time)
     return new Promise(async (resolve) => {
-        new TWEEN.Tween(from)
+        const moveTween = new TWEEN.Tween(from)
             .to(to, time)
-            .onUpdate(function () {
-                // Find the z position
-                let movementRay = new THREE.Raycaster()
-                const rayO = new THREE.Vector3(from.x, from.y, lastZ + 0.01)
-                const rayD = new THREE.Vector3(0, 0, -1).normalize()
-                movementRay.set(rayO, rayD)
-                movementRay.far = 0.02
+        moveTween.onUpdate(function () {
+            // Find the z position
+            let movementRay = new THREE.Raycaster()
+            const rayO = new THREE.Vector3(from.x, from.y, lastZ + 0.01)
+            const rayD = new THREE.Vector3(0, 0, -1).normalize()
+            movementRay.set(rayO, rayD)
+            movementRay.far = 0.02
 
-                let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
-                // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
-                // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
-                if (window.config.debug.showMovementHelpers) {
-                    window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster    
-                }
-                if (intersects.length === 0) {
-                    // console.log('no intersects')
-                } else {
-                    const point = intersects[0].point
-                    lastZ = point.z
-                    model.scene.userData.triangleId = intersects[0].object.userData.triangleId
-                }
+            let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+            // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
+            // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+            if (window.config.debug.showMovementHelpers) {
+                window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster    
+            }
+            if (intersects.length === 0) {
+                console.log('moveEntity: no intersects')
+                // TWEEN.remove(moveTween)
+                moveTween.stop()
+            } else {
+                console.log('moveEntity: intersects')
+                const point = intersects[0].point
+                lastZ = point.z
+                model.scene.userData.triangleId = intersects[0].object.userData.triangleId
 
                 // Update the model position
                 model.scene.position.x = from.x
@@ -230,21 +233,36 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desired
                     const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
                 }
-            })
-            .onComplete(async () => {
-                console.log('moveEntity: END', entityId, from, to, lastZ)
-                if (animate) {
-                    // console.log('stopAllAction D', model.userData.entityName)
-                    model.mixer.stopAllAction()
-                }
-                if (model.userData.isPlayableCharacter) {
-                    updateCurrentTriangleId(model, model.scene.position)
-                }
-                await sleep(1000 / 30)
-                // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
-                resolve()
-            })
-            .start()
+            }
+
+        })
+        moveTween.onStop(async () => {
+            console.log('moveEntity: END (COMPLETE)', entityId, from, to, lastZ)
+            if (animate) {
+                // console.log('stopAllAction D', model.userData.entityName)
+                model.mixer.stopAllAction()
+            }
+            if (model.userData.isPlayableCharacter) {
+                updateCurrentTriangleId(model, model.scene.position)
+            }
+            await sleep(1000 / 30)
+            // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
+            resolve()
+        })
+        moveTween.onComplete(async () => {
+            console.log('moveEntity: END (STOP)', entityId, from, to, lastZ)
+            if (animate) {
+                // console.log('stopAllAction D', model.userData.entityName)
+                model.mixer.stopAllAction()
+            }
+            if (model.userData.isPlayableCharacter) {
+                updateCurrentTriangleId(model, model.scene.position)
+            }
+            await sleep(1000 / 30)
+            // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
+            resolve()
+        })
+        moveTween.start()
     })
 }
 const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed) => {
