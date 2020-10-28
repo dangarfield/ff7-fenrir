@@ -65,6 +65,7 @@ const updateFieldMovement = (delta) => {
     let walkmeshFound = false
     let isSlipDirection = false
     const originalDirection = direction
+    window.currentField.playableCharacter.scene.userData.originalDirection = originalDirection
     const originalDirectionRadians = THREE.Math.degToRad(originalDirection)
     const originalDirectionVector = new THREE.Vector3(Math.sin(originalDirectionRadians), Math.cos(originalDirectionRadians), 0)
     const playerPositionOffset = window.currentField.playableCharacter.scene.position.clone().addScaledVector(originalDirectionVector, 0.01)

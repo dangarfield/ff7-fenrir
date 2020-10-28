@@ -114,7 +114,7 @@ const processLineTriggersForFrame = () => {
                 // if (line.userData.triggered === false) {
                 //     line.userData.triggered = true
                 if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
-                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
                     window.currentField.playableCharacter.mixer.stopAllAction()
                     return
                 }
@@ -157,7 +157,7 @@ const processLineTriggersForFrame = () => {
 
                 // }
                 // if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
-                //     window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+                //     window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
                 //     window.currentField.playableCharacter.mixer.stopAllAction()
                 //     return
                 // }

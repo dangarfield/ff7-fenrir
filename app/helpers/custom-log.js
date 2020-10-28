@@ -6,11 +6,12 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'getEntityPositionTriangle',
-            // 'GETAI',
-            // 'IFSW',
-            // 'waitForAnimationToFinish',
-            // 'stopAllAction'
+            // 'executeOpDEBUG',
+            // 'GETAXY',
+            // 'moveEntity',
+            // 'XYZI',
+            // 'placeModel',
+            // 'printedCompare'
         ],
         log: function () {
             if (limit) {
