@@ -353,8 +353,8 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
 }
 const getEntityPositionTriangle = (entityId) => {
     const model = getModelByEntityId(entityId)
-    console.log('getEntityPositionTriangle', entityId, model)
-    return model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+    console.log('getEntityPositionTriangle', entityId, model.scene.userData.triangleId, model.scene.userData.triangleId === undefined, model)
+    return model.scene.userData.triangleId !== undefined ? model.scene.userData.triangleId : -1
 }
 const getEntityPositionXY = (entityId) => {
     const model = getModelByEntityId(entityId)
@@ -371,7 +371,7 @@ const getEntityPositionXYZTriangle = (entityId) => {
         x: Math.floor(model.scene.position.x * 4096),
         y: Math.floor(model.scene.position.y * 4096),
         z: Math.floor(model.scene.position.z * 4096),
-        triangleId: model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+        triangleId: model.scene.userData.triangleId !== undefined ? model.scene.userData.triangleId : -1
     }
 }
 const getPartyMemberPositionXYZTriangle = (partyMemberId) => {
@@ -381,7 +381,7 @@ const getPartyMemberPositionXYZTriangle = (partyMemberId) => {
         x: Math.floor(model.scene.position.x * 4096),
         y: Math.floor(model.scene.position.y * 4096),
         z: Math.floor(model.scene.position.z * 4096),
-        triangleId: model.scene.userData.triangleId ? model.scene.userData.triangleId : -1
+        triangleId: model.scene.userData.triangleId !== undefined ? model.scene.userData.triangleId : -1
     }
 }
 const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {

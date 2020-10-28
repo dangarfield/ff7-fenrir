@@ -323,7 +323,7 @@ const GETAI = async (entityId, op) => {
     console.log('GETAI', entityId, op)
     const triangleId = fieldMovement.getEntityPositionTriangle(op.e)
     setBankData(op.b, op.a, triangleId)
-    // console.log('GETAI triangle ->', getBankData(op.b, op.a))
+    console.log('GETAI triangle ->', triangleId, getBankData(op.b, op.a))
     return {}
 }
 const GETAXY = async (entityId, op) => {

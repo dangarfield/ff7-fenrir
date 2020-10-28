@@ -6,13 +6,9 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'drawBG',
-            'initLayer2Parallax',
-            'updateLayer2Parallax',
-            'calculateViewClippingPointFromVector3',
-            'adjustViewClipping',
-            // 'updateCurrentTriangleId',
-            // 'GETAXY',
+            // 'getEntityPositionTriangle',
+            // 'GETAI',
+            // 'IFSW',
             // 'waitForAnimationToFinish',
             // 'stopAllAction'
         ],
