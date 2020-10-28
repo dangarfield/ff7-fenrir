@@ -11,7 +11,7 @@ import { scene as orthoBackScene, camera as orthoBackCamera } from './field-orth
 import { scene as orthoFrontScene, camera as orthoFrontCamera } from './field-ortho-scene.js'
 import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
 import { stopAllLoops } from './field-op-loop.js'
-import { updateBackgroundScolling } from './field-backgrounds.js'
+import { updateBackgroundScolling, updateLayer2Parallax } from './field-backgrounds.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { processLineTriggersForFrame } from './field-actions.js'
 
@@ -460,11 +460,17 @@ const calculateViewClippingPointFromVector3 = (v) => {
     } else if (adjustedY > maxAdjustedY) {
         relativeToCamera.y = maxAdjustedY + (window.config.sizing.height / 2)
     }
-    // console.log('maxAdjustedX', maxAdjustedX)
-    // console.log('maxAdjustedY', maxAdjustedY)
-    // console.log('adjustedX', adjustedX, relativeToCamera)
-    // console.log('adjustedY', adjustedY, relativeToCamera)
-
+    // console.log('calculateViewClippingPointFromVector3', v,
+    //     'maxAdjustedX', maxAdjustedX,
+    //     'maxAdjustedY', maxAdjustedY,
+    //     'adjustedX', adjustedX, relativeToCamera,
+    //     'adjustedY', adjustedY, relativeToCamera)
+    console.log('calculateViewClippingPointFromVector3', v,
+        'maxAdjustedX', maxAdjustedX,
+        'maxAdjustedY', maxAdjustedY,
+        'adjustedX', adjustedX, relativeToCamera,
+        'adjustedY', adjustedY, relativeToCamera)
+    // updateLayer2Parallax(maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
 
     return relativeToCamera
 }
@@ -484,6 +490,14 @@ const adjustViewClipping = async (x, y) => {
         window.config.sizing.width * window.config.sizing.factor,
         window.config.sizing.height * window.config.sizing.factor,
     )
+    let maxAdjustedX = 2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2))
+    let maxAdjustedY = 2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2))
+
+    console.log('adjustViewClipping',
+        'adjustedX', adjustedX, x, window.config.sizing.width,
+        'adjustedY', adjustedY, y, window.config.sizing.height)
+    // updateLayer2Parallax(window.config.sizing.width + 160, adjustedX, window.config.sizing.height, adjustedY)
+    updateLayer2Parallax(maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
 }
 export {
     startFieldRenderLoop,

@@ -119,20 +119,48 @@ const updateBackgroundScolling = (delta) => {
         }
     }
 }
-const initLayer2Parallax = (mesh) => {
-    console.log('initLayer2Parallax', mesh)
-    // mesh.scale.x = 3
-    // mesh.scale.y = 3
-    // mesh.material.map.wrapS = THREE.RepeatWrapping
-    // mesh.material.map.wrapT = THREE.RepeatWrapping
-    // mesh.material.map.repeat.x = 3
-    // mesh.material.map.repeat.y = 3
-    // mesh.material.map.center.x = 1
-    // mesh.material.map.center.y = 0.5
-    // mesh.material.map.matrixAutoUpdate = true
-    // mesh.material.map.needsUpdate = true
+const initLayer2Parallax = (layer) => {
+    console.log('initLayer2Parallax', layer)
+    layer.scale.x = 3
+    layer.scale.y = 3
+    layer.material.map.wrapS = THREE.RepeatWrapping
+    layer.material.map.wrapT = THREE.RepeatWrapping
+    layer.material.map.repeat.x = 3
+    layer.material.map.repeat.y = 3
+    layer.material.map.center.x = 0.5// + (0.6 / 3.59)
+    layer.material.map.center.y = 0.5
+    layer.material.map.matrixAutoUpdate = true
+    layer.material.map.needsUpdate = true
+    layer.userData.parallaxRange = {
+        low: 0.5 - (1 * layer.userData.parallaxRatio / 3.59),
+        high: 0.5 + (1 * layer.userData.parallaxRatio / 3.59)
+    }
 }
+const updateLayer2Parallax = (maxAdjustedX, adjustedX, maxAdjustedY, adjustedY) => {
+    console.log('updateLayer2Parallax: START', maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
+    const layers = window.currentField.backgroundLayers.children
+    for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+        if (layer.userData.parallaxDirection === 'horizontal') {
+            adjustedX = Math.min(adjustedX, maxAdjustedX)
+            adjustedX = Math.max(adjustedX, 0)
+            const percent = adjustedX / maxAdjustedX
+            // TODO: for some fields (midgal), you actually go outside of the 'edge' eg y=120 is the highest you'd normally display
+            const center = layer.userData.parallaxRange.low + (percent * (layer.userData.parallaxRange.high - layer.userData.parallaxRange.low))
+            console.log('updateLayer2Parallax: HORIZONTAL', percent, center)
 
+            layer.material.map.center.x = center
+        }
+        if (layer.userData.parallaxDirection === 'vertical') {
+            adjustedY = Math.min(adjustedY, maxAdjustedY)
+            adjustedY = Math.max(adjustedY, 0)
+            const percent = adjustedY / maxAdjustedY
+            const center = layer.userData.parallaxRange.high - (percent * (layer.userData.parallaxRange.high - layer.userData.parallaxRange.low))
+            console.log('updateLayer2Parallax: VERTICAL', percent, center)
+            layer.material.map.center.y = center
+        }
+    }
+}
 const drawWalkmesh = () => {
 
     // Draw triangles for walkmesh
@@ -342,8 +370,8 @@ const processBG = (layer, fieldName, manager) => {
     if (layer.layerID === 2) { // Always behind
         layer.z = 5000
     }
-    if (layer.layerID === 0) { // Seems to be beore layerID 1 (variable z's)
-        layer.z = 10
+    if (layer.layerID === 0) { // Seems to be before layerID 1 (variable z's)
+        // layer.z = 10
     }
     // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
     if (layer.param > 0) {
@@ -362,6 +390,10 @@ const processBG = (layer, fieldName, manager) => {
         typeTrans: layer.typeTrans,
         layerId: layer.layerID
     }
+    if (layer.parallaxDirection !== undefined) {
+        userData.parallaxDirection = layer.parallaxDirection
+        userData.parallaxRatio = layer.parallaxRatio
+    }
     let bgVector = new THREE.Vector3().lerpVectors(window.currentField.fieldCamera.position, window.currentField.cameraTarget, bgDistance)
     let url = getFieldBGLayerUrl(fieldName, layer.fileName)
     drawBG(bgVector.x, bgVector.y, bgVector.z, bgDistance, url, window.currentField.backgroundLayers, visible, userData, manager)
@@ -370,6 +402,13 @@ const processBG = (layer, fieldName, manager) => {
 const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData, manager) => {
     let vH = Math.tan(THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)) * distance * 2
     let vW = vH * window.currentField.fieldCamera.aspect
+
+    if (userData.parallaxDirection === 'horizontal') {
+        vW = vW * userData.parallaxRatio
+    }
+    if (userData.parallaxDirection === 'vertical') {
+        vH = vH * userData.parallaxRatio
+    }
     console.log('drawBG', distance, '->', vH, vW, userData, bgImgUrl)
     let geometry = new THREE.PlaneGeometry(vW, vH, 0)
 
@@ -396,6 +435,7 @@ const drawBG = async (x, y, z, distance, bgImgUrl, group, visible, userData, man
         // console.log('typeTrans', userData.typeTrans, bgImgUrl)
         plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
     }
+
     group.add(plane)
     if (userData.layerId === 2) {
         initLayer2Parallax(plane)
@@ -410,5 +450,6 @@ export {
     scrollBackground,
     updateBackgroundScolling,
     drawWalkmesh,
-    placeBG
+    placeBG,
+    updateLayer2Parallax
 }
