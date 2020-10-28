@@ -28,7 +28,7 @@ const updateFieldMovement = (delta) => {
     if (window.currentField.playableCharacter.userData.ladder) {
         return ladderMovement(speed)
     }
-    if (window.config.debug.runByDefault === getActiveInputs().x) { // Adjust to walk
+    if (!getActiveInputs().x) { // Adjust to walk
         speed = speed * 0.20
         animNo = 1
     }

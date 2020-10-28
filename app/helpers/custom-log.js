@@ -6,8 +6,8 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'executeOpDEBUG',
-            // 'GETAXY',
+            'executeOpDEBUG',
+            // 'FADE',
             // 'moveEntity',
             // 'XYZI',
             // 'placeModel',

@@ -65,7 +65,11 @@ const sendSteppedThrottleEvent = (keyData, keyDown) => {
     keyData.count++
 }
 const getActiveInputs = () => {
-    return keys
+    const activeKeys = JSON.parse(JSON.stringify(keys))
+    if (window.config.debug.runByDefault) {
+        activeKeys.x = !activeKeys.x
+    }
+    return activeKeys
 }
 const getInputHistory = () => {
     return history
