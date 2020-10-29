@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
             // 'playAnimation',
             // 'calculateViewClippingPointFromVector3',
             // 'adjustViewClipping',
-            // 'placeModel',
+            // 'getNextPositionRaycast',
             // 'printedCompare'
         ],
         log: function () {

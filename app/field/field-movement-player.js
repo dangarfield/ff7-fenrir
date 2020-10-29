@@ -328,12 +328,22 @@ const updateFieldMovement = (delta) => {
     updateCursorPositionHelpers()
 }
 const getNextPositionRaycast = (nextPosition) => {
+    const rayOffset = 0.05
     let playerMovementRay = new THREE.Raycaster()
-    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + 0.05)
+    const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + rayOffset)
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
     playerMovementRay.set(rayO, rayD)
-    playerMovementRay.far = 0.1
+    playerMovementRay.far = rayOffset * 2
     let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+
+    // Sort by closest Z to nextPosition.z
+    for (let i = 0; i < intersects.length; i++) {
+        const intersect = intersects[i]
+        intersect.distanceZ = Math.abs(intersect.distance - rayOffset)
+    }
+    intersects.sort((a, b) => a.distanceZ - b.distanceZ)
+    // console.log('getNextPositionRaycast', nextPosition.z, intersects)
+
     if (intersects.length === 0) {
         return null
     } else if (!intersects[0].object.userData.movementAllowed) {
