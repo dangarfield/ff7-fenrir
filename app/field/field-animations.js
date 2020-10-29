@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { sleep } from '../helpers/helpers.js'
+import { sleep, uuid } from '../helpers/helpers.js'
 import { getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
 
 const playAnimationOnceSyncReset = async (entityId, animationId, speed) => {
@@ -58,7 +58,8 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             if (action.promises === undefined) {
                 action.promises = []
             }
-            action.promises.push(resolve)
+            const promise = { id: uuid(), resolve: resolve }
+            action.promises.push(promise)
             action.userData = {
                 entityName: model.userData.entityName,
                 entityId,
@@ -125,11 +126,19 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             // })
 
             // console.log('stopAllAction A', model.userData.entityName)
+            // model.mixer.addEventListener('finished', async (e) => {
+            //     console.log('playAnimation finished mixer NEW', e.action.userData, e, e.target, e.target.promise)
+            // })
+            // model.mixer.addEventListener('loop', async (e) => {
+            //     console.log('playAnimation finished mixer LOOP NEW', e.action.userData, e, e.target, e.target.promise)
+            // })
             model.mixer.stopAllAction()
+            console.log('playAnimation play', model.userData.entityName, entityId, animationId, promise.id, action)
             action.play()
+
             // Animation complete and resulting resolve CB bound in bindAnimationCompletion()
         } catch (error) {
-            console.log('error', error)
+            console.log('playAnimation error', model.userData.entityName, entityId, animationId, error)
         }
 
     })
@@ -150,9 +159,9 @@ const bindAnimationCompletion = (model) => {
         console.log('playAnimation finished mixer', e.action.userData, e, e.target, e.target.promise)
         if (e.action.promises && e.action.promises.length > 0) {
             // while (e.action.promises.length) {
-            console.log('playAnimation finished mixer promise', e.action.userData.entityName, e)
-            const resolve = e.action.promises.pop()
-            resolve()
+            const promise = e.action.promises.pop()
+            console.log('playAnimation finished mixer promise', e.action.userData.entityName, promise.id, e)
+            promise.resolve()
             // }
         }
     })
@@ -207,22 +216,29 @@ const setPlayerMovementAnimationId = (animationId, movementType) => {
 }
 const splitClip = (clip, startFrame, endFrame) => {
     let split
-    console.log('splitClip START:', clip.duration, clip.duration * 30, clip.tracks)
+    console.log('playAnimation splitClip START:', clip.duration, clip.duration * 30, clip.tracks)
     if (startFrame > 0 && startFrame === endFrame) {
         startFrame--
-        console.log('splitClip ADJUST:', startFrame, endFrame)
+        console.log('playAnimation splitClip ADJUST START:', startFrame, endFrame)
         split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
         while (split.duration === 0) {
             startFrame--
-            console.log('splitClip ADJUST:', startFrame, endFrame)
+            console.log('playAnimation splitClip ADJUST START:', startFrame, endFrame)
+            split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+        }
+    } else if (startFrame === 0 && startFrame === endFrame) {
+        endFrame++
+        console.log('playAnimation splitClip ADJUST END:', startFrame, endFrame)
+        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+        while (split.duration === 0) {
+            endFrame++
+            console.log('playAnimation splitClip ADJUST END:', startFrame, endFrame)
             split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
         }
     } else {
         split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
     }
-
-
-    console.log('splitClip END:', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
+    console.log('playAnimation splitClip END:', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
     return split
 }
 const playStandAnimation = (model) => {

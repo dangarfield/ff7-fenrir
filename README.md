@@ -69,6 +69,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Relook at go, go 1x, go away. Save crystal in nmkin_4 triggers muliple go 1x
 - :black_square_button: Deal with a few misaligned fields (nmkin_2,3,4)
 - :white_check_mark: Decontruct Moviecamera.lgp, interpret camera movements and implement
+- :white_check_mark: Implement / restrict camera movement by implementing the camera range (mds5_3, move_f)
 - :black_square_button: Try and use the background images to cull the entity objects
 - :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
 - :white_check_mark: Investigation of parallax (eg, mds5_4). Not 100% perfect yet midgal)

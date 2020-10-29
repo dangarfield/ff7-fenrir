@@ -444,25 +444,36 @@ const calculateViewClippingPointFromVector3 = (v) => {
     relativeToCamera.z = 0
     // console.log('calculateViewClippingPointFromVector3', v, relativeToCamera)
 
+    const cameraRange = window.currentField.data.triggers.header.cameraRange
+
     // If the character is near the edge of the screen, calculate the correct x, y for the viewport
     let adjustedX = relativeToCamera.x - (window.config.sizing.width / 2)
     let adjustedY = relativeToCamera.y - (window.config.sizing.height / 2)
-    let maxAdjustedX = 2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2))
-    let maxAdjustedY = 2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2))
+    let maxAdjustedX = (2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2))) - ((window.currentField.metaData.assetDimensions.width / 2) - cameraRange.right) //8
+    let maxAdjustedY = (2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2))) - ((window.currentField.metaData.assetDimensions.height / 2) - -cameraRange.bottom) //8
+    let minAdjustedX = (window.currentField.metaData.assetDimensions.width / 2) - -cameraRange.left //8
+    let minAdjustedY = (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.top //8
+    // TODO - Apply camera range to maxAdjustedX
+    // adjustedY = Math.max(adjustedY, (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.top)
+    // adjustedY = Math.min(adjustedY, (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.bottom + window.config.sizing.height)
+    // adjustedX = Math.max(adjustedX, (window.currentField.metaData.assetDimensions.width / 2) - cameraRange.left)
+    // adjustedX = Math.min(adjustedX, (window.currentField.metaData.assetDimensions.width / 2) - cameraRange.right + window.config.sizing.width)
 
-    if (adjustedX < 0) {
-        relativeToCamera.x = 0 + (window.config.sizing.width / 2)
+
+    if (adjustedX < minAdjustedX) {
+        relativeToCamera.x = minAdjustedX + (window.config.sizing.width / 2)
     } else if (adjustedX > maxAdjustedX) {
         relativeToCamera.x = maxAdjustedX + (window.config.sizing.width / 2)
     }
-    if (adjustedY < 0) {
-        relativeToCamera.y = 0 + (window.config.sizing.height / 2)
+    if (adjustedY < minAdjustedY) {
+        relativeToCamera.y = minAdjustedY + (window.config.sizing.height / 2)
     } else if (adjustedY > maxAdjustedY) {
         relativeToCamera.y = maxAdjustedY + (window.config.sizing.height / 2)
     }
+
     // console.log('calculateViewClippingPointFromVector3', v,
     //     'maxAdjustedX', maxAdjustedX,
-    //     'maxAdjustedY', maxAdjustedY,
+    //     'maxAdjustedY', maxAdjustedY,ds
     //     'adjustedX', adjustedX, relativeToCamera,
     //     'adjustedY', adjustedY, relativeToCamera)
     console.log('calculateViewClippingPointFromVector3', v,
@@ -476,12 +487,16 @@ const calculateViewClippingPointFromVector3 = (v) => {
 }
 const adjustViewClipping = async (x, y) => {
     // console.log('x', x, '->', adjustedX, 'y', y, '->', adjustedY)
+
+
     window.currentField.metaData.fieldCoordinates.x = x
     window.currentField.metaData.fieldCoordinates.y = y
     let adjustedX = x - (window.config.sizing.width / 2)
     let adjustedY = y - (window.config.sizing.height / 2)
+
     // Note: Logic to get the edge of scene screen offsets have been moved to calculateViewClippingPointFromVector3(...)
     // console.log('adjustViewClipping', 'x', x, '->', adjustedX, 'y', y, '->', adjustedY)
+
     window.currentField.fieldCamera.setViewOffset(
         window.currentField.metaData.assetDimensions.width * window.config.sizing.factor,
         window.currentField.metaData.assetDimensions.height * window.config.sizing.factor,
@@ -493,9 +508,10 @@ const adjustViewClipping = async (x, y) => {
     let maxAdjustedX = 2 * (window.currentField.metaData.assetDimensions.width / 2 - (window.config.sizing.width / 2))
     let maxAdjustedY = 2 * (window.currentField.metaData.assetDimensions.height / 2 - (window.config.sizing.height / 2))
 
+
     console.log('adjustViewClipping',
-        'adjustedX', adjustedX, x, window.config.sizing.width,
-        'adjustedY', adjustedY, y, window.config.sizing.height)
+        'adjustedX', adjustedX, x, window.config.sizing.width, window.currentField.metaData.assetDimensions.width,
+        'adjustedY', adjustedY, y, window.config.sizing.height, window.currentField.metaData.assetDimensions.height)
     // updateLayer2Parallax(window.config.sizing.width + 160, adjustedX, window.config.sizing.height, adjustedY)
     updateLayer2Parallax(maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
 }

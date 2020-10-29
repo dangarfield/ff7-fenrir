@@ -6,10 +6,10 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'executeOpDEBUG',
-            // 'FADE',
-            // 'moveEntity',
-            // 'XYZI',
+            // 'executeOpDEBUG',
+            // 'playAnimation',
+            // 'calculateViewClippingPointFromVector3',
+            // 'adjustViewClipping',
             // 'placeModel',
             // 'printedCompare'
         ],
