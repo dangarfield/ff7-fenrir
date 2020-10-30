@@ -55,7 +55,7 @@ const MENUS_WITH_FADE = [
     MENU_TYPE.GameOver,
     MENU_TYPE.Title
 ]
-const doesMenuRequireFadeOut = (menuCode) => {
+const doesMenuRequireTransitionOut = (menuCode) => {
     return MENUS_WITH_FADE.includes(menuCode)
 }
 const getMenuTypeStringFromCode = (menuCode) => {
@@ -135,7 +135,7 @@ export {
     loadMenuWithWait,
     loadMenuWithoutWait,
     loadTutorial,
-    doesMenuRequireFadeOut,
+    doesMenuRequireTransitionOut,
     resolveMenuPromise,
     MENU_TYPE
 }

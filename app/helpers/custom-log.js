@@ -6,12 +6,14 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'executeOpDEBUG',
-            // 'playAnimation',
-            // 'calculateViewClippingPointFromVector3',
-            // 'adjustViewClipping',
-            // 'getNextPositionRaycast',
-            // 'printedCompare'
+            'transition',
+            'fadeTransition',
+            'drawFaders',
+            'FADE TWEEN',
+            'stopInProgressFades',
+            'fadeOperation',
+            'nfadeOperation',
+            'NFADE'
         ],
         log: function () {
             if (limit) {

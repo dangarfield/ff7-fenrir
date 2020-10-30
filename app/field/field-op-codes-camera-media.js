@@ -2,14 +2,14 @@ import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
-import { fadeOperation, nfadeOperation, isFadeInProgress } from './field-fader.js'
+import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
 import { playSound } from '../media/media-sound.js'
 import { playMusic, pauseMusic, stopMusic, lockMusic, setBattleMusic, setCurrentFieldMusicFromId, isMusicPlaying } from '../media/media-music.js'
 import { setNextMovie, playNextMovie, getCurrentMovieFrame, stopCurrentMovie, activateMovieCam } from '../media/media-movies.js'
 
-const NFADE = async (op) => { // TODO: Lots of improvements
+const NFADE = async (op) => {
     console.log('NFADE', op)
     const r = op.b1 == 0 ? op.r : getBankData(op.b1, op.r)
     const g = op.b2 == 0 ? op.g : getBankData(op.b2, op.g)
@@ -176,119 +176,21 @@ const SCR2DL = async (op) => { // Scroll to position with linear tween
     tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Linear, speed)
     return {}
 }
-const FADE = async (op) => { // TODO: Lots of improvements
+const FADE = async (op) => {
     console.log('FADE', op)
     const r = op.b1 == 0 ? op.r : getBankData(op.b1, op.r)
     const g = op.b2 == 0 ? op.g : getBankData(op.b2, op.g)
     const b = op.b3 == 0 ? op.b : getBankData(op.b3, op.b)
-    await fadeOperation(op.t, r, g, b, op.s, op.a === 255)
+    // Generally can ignore op.a, as this consistently attribute within a
+    // certain search type and implemented below
+    await fadeOperation(op.t, r, g, b, op.s)
     return {}
 }
 const FADEW = async (op) => {
     console.log('FADEW', op)
-    while (isFadeInProgress()) {
-        // console.log('FADEW waiting')
-        await sleep(1000 / 30 * 1) // Sleep for 3 frames
-    }
+    await waitForFade()
     return {}
 }
-
-setTimeout(async () => {
-    //     // initial tin_1
-    // await FADE({ b1: 0, b2: 0, b3: 0, r: 250, g: 200, b: 200, s: 32, a: 0, t: 2 })
-    //     // await FADEW({})
-    //     // await sleep(1000 / 60 * 30)
-    // while (true) {
-    //         // initial
-
-    //         // initial tin_1 main
-    //         console.log('sleep', 1000 / 30 * 16)
-    //         await sleep(1000 / 30 * 16)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-    //         console.log('sleep', 1000 / 30 * 1)
-    //         await sleep(1000 / 30 * 1)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
-
-    //         console.log('sleep', 1000 / 30 * 16)
-    //         await sleep(1000 / 30 * 16)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-    //         console.log('sleep', 1000 / 30 * 1)
-    //         await sleep(1000 / 30 * 1)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
-
-    //         console.log('sleep', 1000 / 30 * 16)
-    //         await sleep(1000 / 30 * 16)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-    //         console.log('sleep', 1000 / 30 * 1)
-    //         await sleep(1000 / 30 * 1)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
-
-    //         console.log('sleep', 1000 / 30 * 16)
-    //         await sleep(1000 / 30 * 16)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 0, b: 0, s: 64, a: 255, t: 9 })
-    //         console.log('sleep', 1000 / 30 * 1)
-    //         await sleep(1000 / 30 * 1)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 210, g: 170, b: 170, s: 64, a: 0, t: 2 })
-
-    //         // gold saucer date ride
-    //         // await FADEW({})
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 1, a: 0, t: 4 })
-    //         // await sleep(1000 / 60 * 30)
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 255, a: 0, t: 1 })
-    //         // await FADEW({})
-    //         // await sleep(1000 / 60 * 30)
-
-    //         // niv_t1 room fade
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 2 })
-    //         // await FADEW({})
-    //         // await sleep(1000 / 60 * 60)
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 32, a: 0, t: 1 })
-    //         // await FADEW({})
-    //         // await sleep(1000 / 60 * 30)
-
-    //         // kuro_4 clock init
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
-    //         // await FADEW({})
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
-    //         // await FADEW({})
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 230, g: 230, b: 230, s: 255, a: 0, t: 8 })
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 6 })
-    //         // await FADEW({})
-    //         // await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 160, b: 40, s: 64, a: 0, t: 5 })
-    //         // await FADEW({})
-    //         // await sleep(1000 / 60 * 60)
-
-    //         // lost2 general fade
-    //         await sleep(1000 / 30 * 16)
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 200, g: 200, b: 200, s: 32, a: 0, t: 10 }) // sync or async
-    //         await FADEW({})
-    //         await sleep(1000 / 30 * 10)
-
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
-    //         await FADEW({})
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
-    //         await FADEW({})
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 160, g: 160, b: 160, s: 128, a: 0, t: 2 })
-    //         await FADEW({})
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 128, a: 0, t: 1 })
-    //         await FADEW({})
-
-    //         await FADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 8, a: 0, t: 5 }) // sync or async
-
-    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 255, g: 255, b: 255, s: 30, t: 12 })
-    //         await FADEW({})
-    //         await sleep(1000 / 60 * 30 * 5)
-
-    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 12 })
-    //         await FADEW({})
-    //         await sleep(1000 / 60 * 30 * 5)
-
-    //         await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 16, b: 48, s: 30, t: 0 })
-
-    //         await sleep(1000 / 60 * 30 * 5)
-    //         console.log('looped')
-    //     }
-}, 11000)
 
 const SCRLP = async (op) => {
     console.log('SCRLP', op)
@@ -492,17 +394,6 @@ const MVCAM = async (op) => {
     await activateMovieCam(op.s === 0)
     return {}
 }
-// setTimeout(async () => {
-// await SOUND({ i: 3, d: 64 })
-// await NFADE({ b1: 0, b2: 0, b3: 0, r: 0, g: 0, b: 0, s: 0, t: 0 })
-// await SCR2D({ b1: 0, b2: 0, targetX: 0, targetY: 0 })
-// // await sleep(1000)
-// await PMVIE({ m: 53 })
-// await MOVIE({})
-// setBankData(6, 6, 700)
-// console.log('MOVIE ENDED')
-// }, 10000)
-
 export {
     NFADE,
     SHAKE,

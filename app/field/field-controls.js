@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    initiateTalk, isActionInProgress, fadeOutAndLoadMenu
+    initiateTalk, isActionInProgress, transitionOutAndLoadMenu
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -61,7 +61,7 @@ const initFieldKeypressActions = () => {
         if (areFieldControlsActive && firstPress && isMenuEnabled()) { // Also need to check is menu is disabled
             // Toggle position helper visibility
             console.log('triangle', isActionInProgress())
-            fadeOutAndLoadMenu(MENU_TYPE.MainMenu, 1)
+            transitionOutAndLoadMenu(MENU_TYPE.MainMenu, 1)
         }
     })
     getKeyPressEmitter().on('r2', async (firstPress) => {

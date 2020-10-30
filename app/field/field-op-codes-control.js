@@ -1,4 +1,4 @@
-import { triggerBattleWithSwirl, setGatewayTriggerEnabled, fadeOutAndLoadMenu, jumpToMap, jumpToMiniGame } from './field-actions.js'
+import { triggerBattleWithSwirl, setGatewayTriggerEnabled, transitionOutAndLoadMenu, jumpToMap, jumpToMiniGame } from './field-actions.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 import { setConfigFieldMessageSpeed, debugResetGame } from '../data/savemap-config.js'
@@ -99,7 +99,7 @@ const MPJPO = async (op) => {
 }
 const GAMEOVER = async (op) => {
     console.log('GAMEOVER', op)
-    await fadeOutAndLoadMenu(MENU_TYPE.GameOver)
+    await transitionOutAndLoadMenu(MENU_TYPE.GameOver)
     return {}
 }
 const DSKCG = async (op) => {

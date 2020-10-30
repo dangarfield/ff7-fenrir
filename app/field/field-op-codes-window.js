@@ -3,7 +3,7 @@ import {
     setSpecialMode, setSpecialClock, setSpecialNumber, showMessageWaitForInteraction, closeWindow,
     setDialogColor
 } from './field-dialog.js'
-import { fadeOutAndLoadMenu, fadeOutAndLoadTutorial } from './field-actions.js'
+import { transitionOutAndLoadMenu, transitionOutAndLoadTutorial } from './field-actions.js'
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
@@ -138,7 +138,7 @@ const WCLS = async (op) => {
 const MENU = async (op) => {
     console.log('MENU', op)
     const param = op.b == 0 ? op.p : getBankData(op.b, op.p)
-    await fadeOutAndLoadMenu(op.t, param)
+    await transitionOutAndLoadMenu(op.t, param)
     return {}
 }
 const MENU2 = async (op) => {
@@ -149,7 +149,7 @@ const MENU2 = async (op) => {
 }
 const TUTOR = async (op) => {
     console.log('TUTOR', op)
-    await fadeOutAndLoadTutorial(op.t)
+    await transitionOutAndLoadTutorial(op.t)
     return {}
 }
 

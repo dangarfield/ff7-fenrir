@@ -1,7 +1,7 @@
 import { startFieldRenderLoop, setupFieldCamera, setupDebugControls, initFieldDebug, setupViewClipping } from './field-scene.js'
 import { loadFieldData, loadFieldBackground, loadModels } from './field-fetch-data.js'
 import { initFieldKeypressActions } from './field-controls.js'
-import { fadeIn, drawFader } from './field-fader.js'
+import { transitionIn, drawFaders } from './field-fader.js'
 import { showLoadingScreen } from '../loading/loading-module.js'
 import { setupOrthoCamera } from './field-ortho-scene.js'
 import { setupOrthoBgCamera } from './field-ortho-bg-scene.js'
@@ -53,7 +53,6 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         backgroundVideo: undefined,
         positionHelpers: undefined,
         cameraTarget: undefined,
-        fieldFader: undefined,
         playableCharacterInitData: playableCharacterInitData,
         media: undefined,
         menuEnabled: true,
@@ -73,7 +72,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     window.currentField.cameraTarget = setupFieldCamera()
     await setupOrthoBgCamera()
     await setupOrthoCamera()
-    drawFader()
+    drawFaders()
     clearAllDialogs()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
@@ -97,7 +96,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         await initialiseOpLoops()
     }
     window.anim.clock.start()
-    await fadeIn()
+    await transitionIn()
 }
 
 

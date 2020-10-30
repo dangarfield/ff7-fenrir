@@ -1,9 +1,9 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-import { isFadeInProgress, fadeIn, fadeOut } from './field-fader.js'
+import { isTransitionInProgress, transitionIn, transitionOut } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
-import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireFadeOut, loadTutorial } from '../menu/menu-module.js'
+import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireTransitionOut, loadTutorial } from '../menu/menu-module.js'
 import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
@@ -17,7 +17,7 @@ import {
 let actionInProgress = false
 
 const isActionInProgress = () => {
-    const progress = isFadeInProgress() ? 'transition' : actionInProgress
+    const progress = isTransitionInProgress() ? 'transition' : actionInProgress
     // console.log('isActionInProgress', progress)
     return progress
 }
@@ -210,23 +210,23 @@ const setPlayableCharacterIsInteracting = (isInteracting) => {
     window.currentField.playableCharacterIsInteracting = isInteracting
     // window.currentField.playableCharacterCanMove = !isInteracting
 }
-const fadeOutAndLoadMenu = async (menuType, menuParam) => {
-    if (doesMenuRequireFadeOut(menuType)) {
+const transitionOutAndLoadMenu = async (menuType, menuParam) => {
+    if (doesMenuRequireTransitionOut(menuType)) {
         setActionInProgress('menu')
         window.anim.clock.stop()
         setPlayableCharacterIsInteracting(true)
-        await fadeOut(true)
+        await transitionOut(true)
         await loadMenuWithWait(menuType, menuParam)
         await unfreezeField()
     } else {
         loadMenuWithoutWait(menuType, menuParam)
     }
 }
-const fadeOutAndLoadTutorial = async (tutorialId) => {
+const transitionOutAndLoadTutorial = async (tutorialId) => {
     setActionInProgress('menu')
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
-    await fadeOut(true)
+    await transitionOut(true)
     await loadTutorial(tutorialId)
     await unfreezeField()
 }
@@ -235,7 +235,7 @@ const unfreezeField = async () => {
     clearActionInProgress()
     window.anim.clock.start()
     setPlayableCharacterIsInteracting(false)
-    await fadeIn()
+    await transitionIn()
 }
 const gatewayTriggered = async (i) => {
     const gateway = window.currentField.data.triggers.gateways[i]
@@ -245,7 +245,7 @@ const gatewayTriggered = async (i) => {
     window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
-    await fadeOut()
+    await transitionOut()
     const playableCharacterInitData = {
         triangleId: gateway.destinationVertex.triangleId,
         position: { x: gateway.destinationVertex.x, y: gateway.destinationVertex.y },
@@ -262,7 +262,7 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
-    await fadeOut()
+    await transitionOut()
     const playableCharacterInitData = {
         triangleId: triangleId,
         position: { x: x, y: y },
@@ -288,7 +288,7 @@ const jumpToMiniGame = async (gameId, options, returnInstructions) => {
     window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
-    await fadeOut()
+    await transitionOut()
     loadMiniGame(gameId, options, returnInstructions)
 }
 const setGatewayTriggerEnabled = (enabled) => {
@@ -315,8 +315,8 @@ export {
     isActionInProgress,
     setActionInProgress,
     clearActionInProgress,
-    fadeOutAndLoadMenu,
-    fadeOutAndLoadTutorial,
+    transitionOutAndLoadMenu,
+    transitionOutAndLoadTutorial,
     unfreezeField,
     triggerBattleWithSwirl,
     setGatewayTriggerEnabled,

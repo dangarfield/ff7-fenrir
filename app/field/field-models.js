@@ -505,7 +505,6 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
             .to(to, time)
             .easing(easingType)
             .onUpdate(function () {
-                // window.currentField.fieldFader.material.opacity = from.opacity
                 // console.log('turnModel: TWEEN', from)
                 model.scene.rotation.y = from.y
                 // if (from.r) {

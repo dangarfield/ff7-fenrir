@@ -57,7 +57,6 @@ const tempFadeEffect = () => {
             .to(to, time)
             // .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
-                // window.currentField.fieldFader.material.opacity = from.opacity
                 console.log('tempFadeEffect: TWEEN', from)
                 if (from.r) {
                     // Has to be like this for non THREE.NormalBlending modes

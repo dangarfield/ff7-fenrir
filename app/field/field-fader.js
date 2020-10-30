@@ -3,232 +3,240 @@ import TWEEN from '../../assets/tween.esm.js'
 import { sleep } from '../helpers/helpers.js'
 import { scene as orthoFrontScene } from './field-ortho-scene.js'
 
+let transitionFader
+let transitionInProgress = false
+const isTransitionInProgress = () => { return transitionInProgress }
+const setTransitionInProgress = (progress) => { transitionInProgress = progress }
+
+let fadeFader
 let fadeInProgress = false
 const isFadeInProgress = () => { return fadeInProgress }
 const setFadeInProgress = (progress) => { fadeInProgress = progress }
+let inProgressFades = []
 
-const drawFader = async () => {
-    let geometry = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
-    let material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
-    let fieldFader = new THREE.Mesh(geometry, material)
 
-    fieldFader.doubleSided = true
-    fieldFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 0)
+
+const drawFaders = () => {
+    console.log('drawFaders')
+    let transitionFaderGeo = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
+    let transitionFaderMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
+    transitionFader = new THREE.Mesh(transitionFaderGeo, transitionFaderMat)
+
+    transitionFader.doubleSided = true
+    transitionFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 0)
     // By default the position is placed behind the text (eg) at back of ortho scene
-    window.currentField.fieldFader = fieldFader
-    orthoFrontScene.add(fieldFader)
+    // window.currentField.transitionFader = transitionFader
+    orthoFrontScene.add(transitionFader)
+
+
+    let fadeFaderGeo = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
+    let fadeFaderMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
+    fadeFaderMat.blending = THREE.AdditiveBlending
+    fadeFader = new THREE.Mesh(fadeFaderGeo, fadeFaderMat)
+
+    fadeFader.doubleSided = true
+    fadeFader.position.set(window.config.sizing.width / 2, (window.config.sizing.height / 2), 0)
+    // By default the position is placed behind the text (eg) at back of ortho scene
+    // window.currentField.fadeFader = fadeFader
+    orthoFrontScene.add(fadeFader)
+    console.log('drawFaders', transitionFader)
+
 }
 
-const tweenOpacity = (from, to, frames) => {
+const fadeTransition = (from, to, frames) => {
     return new Promise(async (resolve) => {
         let time = Math.floor(frames * 1000 / 30)
-        console.log('FADE TWEEN: START', from, to, frames, time)
+        console.log('fadeTransition: START', from, to, frames, time)
         new TWEEN.Tween(from)
             .to(to, time)
             // .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
                 // window.currentField.fieldFader.material.opacity = from.opacity
-                // console.log('tweenOpacity', from.opacity, from.test, from, to, from.userData)
+                // console.log('fadeTransition', from.opacity, from.test, from, to, from.userData)
                 if (from.hasOwnProperty('r')) {
                     // Has to be like this for non THREE.NormalBlending modes
-                    window.currentField.fieldFader.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)
-                    console.log('FADE TWEEN UPDATE: Color', window.currentField.fieldFader.material.color)
+                    transitionFader.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)
+                    console.log('fadeTransition UPDATE: Color', window.currentField.fieldFader.material.color)
                 }
                 if (from.hasOwnProperty('o')) {
-                    window.currentField.fieldFader.material.opacity = from.o
-                    console.log('FADE TWEEN UPDATE: Opacity', window.currentField.fieldFader.material.opacity)
+                    transitionFader.material.opacity = from.o
+                    console.log('fadeTransition UPDATE: Opacity', window.currentField.fieldFader.material.opacity)
                 }
             })
             .onComplete(function () {
-                console.log('FADE TWEEN: END', from, to, frames, time)
-                setFadeInProgress(false)
+                console.log('fadeTransition: END', from, to, frames, time)
+                setTransitionInProgress(false)
                 resolve()
             })
             .start()
 
     })
 }
-const fadeOut = async (fast) => {
-    // console.log('fadeOut')
-    window.currentField.fieldFader.position.z = 1000
-    setFadeInProgress(true)
-    window.currentField.fieldFader.material.blending = THREE.NormalBlending
-    window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-    await tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, fast ? 30 * 0.4 : 30 * 0.8)
-    setFadeInProgress(false)
-    window.currentField.fieldFader.position.z = 0
+const transitionOut = async (fast) => {
+    console.log('transitionOut')
+    transitionFader.position.z = 1000
+    setTransitionInProgress(true)
+    transitionFader.material.blending = THREE.NormalBlending
+    transitionFader.material.color = new THREE.Color(0x000000)
+    await fadeTransition(transitionFader.material, { opacity: 1 }, fast ? 30 * 0.4 : 30 * 0.8)
+    setTransitionInProgress(false)
+    transitionFader.position.z = 0
 }
-const fadeIn = async () => {
-    window.currentField.fieldFader.position.z = 1000
-    console.log('fadeIn', window.currentField.fieldFader)
-    setFadeInProgress(true)
-    window.currentField.fieldFader.material.blending = THREE.NormalBlending
-    window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-    await tweenOpacity(window.currentField.fieldFader.material, { opacity: 0 }, 30 * 0.4)
-    setFadeInProgress(false)
-    window.currentField.fieldFader.position.z = 0
+const transitionIn = async () => {
+    transitionFader.position.z = 1000
+    console.log('transitionIn', transitionFader)
+    setTransitionInProgress(true)
+    transitionFader.material.blending = THREE.NormalBlending
+    transitionFader.material.color = new THREE.Color(0x000000)
+    await fadeTransition(transitionFader.material, { opacity: 0 }, 30 * 0.4)
+    setTransitionInProgress(false)
+    transitionFader.position.z = 0
 }
-const getColorInverse3 = (c) => {
-    return 3 * (255 - c)
-}
-const getColorInverse1 = (c) => {
-    return (255 - c)
-}
-const fadeOperation = async (type, r, g, b, speed, fadeIn) => {
 
-    const color = `rgb(${r},${g},${b})`
-    const colorInverse1 = `rgb(${getColorInverse1(r)},${getColorInverse1(g)},${getColorInverse1(b)})` // Should probably be x4 but x3 looks better
-    const colorInverse3 = `rgb(${getColorInverse3(r)},${getColorInverse3(g)},${getColorInverse3(b)})` // Should probably be x4 but x3 looks better
 
-    const frames = Math.max(Math.ceil((fadeIn ? 255 - speed : 255 - speed) / 4) - 2, 1) // ??? This ranges from 1 to 255, with s30 = f8
-    // Note: I've -2 adjusted as some calls are async and when wait is not called
-    // I'm not sure about the speeds, I'll improve this another day
+const getColorInverse = (c, multiplier) => {
+    return Math.floor(multiplier * (255 - c))
+}
+const toColorString = (color) => {
+    return `rgb(${color.r},${color.g},${color.b})`
+}
+const fadeInstant = async (blendingType, colorType) => {
+    console.log('FADE TWEEN: INSTANT', blendingType, colorType)
+    setFadeInProgress(true)
+    fadeFader.material.blending = blendingType
+    fadeFader.material.color = new THREE.Color(`rgb(${Math.floor(colorType.r)},${Math.floor(colorType.g)},${Math.floor(colorType.b)})`)
+    setFadeInProgress(false)
+}
+
+const fade = (blendingType, from, to, end, timeMs) => {
+    const delta = { ...from }
+    return new Promise(async (resolve) => {
+        const inProgressFade = new TWEEN.Tween(delta)
+        console.log('FADE TWEEN: START', blendingType, delta, to, end, timeMs, '-', inProgressFade._id)
+        fadeFader.material.blending = blendingType
+
+        inProgressFade.to(to, timeMs)
+            .onUpdate(function () {
+                console.log('FADE TWEEN: UPDATE', delta, '-', inProgressFade._id)
+                fadeFader.material.color = new THREE.Color(`rgb(${Math.floor(delta.r)},${Math.floor(delta.g)},${Math.floor(delta.b)})`)
+            })
+        inProgressFade.onComplete(function () {
+            console.log('FADE TWEEN: END', delta, to, timeMs, end, '-', inProgressFade._id)
+            fadeFader.material.color = new THREE.Color(`rgb(${Math.floor(end.r)},${Math.floor(end.g)},${Math.floor(end.b)})`)
+            removeInProgressFade(inProgressFade._id)
+            resolve()
+        })
+        inProgressFade.onStop(function () {
+            console.log('FADE TWEEN: STOPPED', delta, to, timeMs, end, '-', inProgressFade._id)
+        })
+        addInProgressFade(inProgressFade)
+        inProgressFade.start()
+    })
+}
+const waitForFade = async () => {
+    while (isFadeInProgress()) {
+        await sleep(1000 / 30)
+    }
+}
+const addInProgressFade = (inProgressFade) => {
+    setFadeInProgress(true)
+    inProgressFades.push(inProgressFade)
+}
+const removeInProgressFade = (_id) => {
+    setFadeInProgress(false)
+    inProgressFades = inProgressFades.filter(function (f) { return f._id !== _id })
+}
+const stopInProgressFades = () => {
+    console.log('stopInProgressFades', inProgressFades)
+    while (inProgressFades.length) {
+        const inProgressFade = inProgressFades.shift()
+        console.log('stopInProgressFades: STOPPING', inProgressFade._id)
+        inProgressFade.stop()
+    }
+}
+const speedToSeconds = (speed) => {
     /*
-    16 - 16 ?! niv_ti2
-    32 - 8
-    64 - 16
+    1  -> 8
+    2  -> 4
+    4  -> 2
+    8  -> 1
+    16 -> 0.5
+    32 -> 0.25
     */
+    let seconds = 8 / Math.pow(2, Math.log2(speed))
+    return Math.max(seconds, 1 / 30) // Ensure at least 1 frame long 
+}
+const fadeOperation = async (type, r, g, b, speed) => {
+    console.log('fadeOperation', type, r, g, b, speed)
+    const colorStandard = { r, g, b }
+    const colorInverse1 = { r: getColorInverse(r, 1), g: getColorInverse(g, 1), b: getColorInverse(b, 1) }
+    const colorInverse4 = { r: getColorInverse(r, 4), g: getColorInverse(g, 4), b: getColorInverse(b, 4) }
+    const colorBlack = { r: 0, g: 0, b: 0 }
 
-    // TODO: Some issues here with the blending modes not taking the screen value instead starting from black
-    // TODO: Also, these operations should be underneath the dialogs
-    let m
-    setFadeInProgress(true)
+    let timeMs = speedToSeconds(speed) * 1000
+
+    stopInProgressFades()
+
     switch (type) {
-        case 1: // Color to screen (alpha 1 -> 0) with reverse subtractive blending - async 
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(colorInverse3)
-            window.currentField.fieldFader.material.opacity = 1
-            m = { r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b) }
-            tweenOpacity(m, {
-                r: 0, g: 0, b: 0
-            }, frames)
+        case 1:  //  1 -> colorInverse4 to field subtractive async, hold field
+            fade(THREE.SubtractiveBlending, colorInverse4, colorBlack, colorBlack, timeMs)
             break
-        case 2: // Screen to colour fadeIn (alpha 0 -> 1) with subtractive blending - async // DONE
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-            window.currentField.fieldFader.material.opacity = 1
-            m = { r: 0, g: 0, b: 0 }
-            console.log('fadeOperation 2', window.currentField.fieldFader)
-            tweenOpacity(m, {
-                r: getColorInverse3(r), g: getColorInverse3(g), b: getColorInverse3(b)
-            }, frames)
+        case 2:  //  2 -> field to colorInverse4 subtractive async, hold color
+            fade(THREE.SubtractiveBlending, colorBlack, colorInverse4, colorInverse4, timeMs)
             break
-        case 3: // THERE ARE NONE OF THESE IN THE ACTUAL GAME...
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
+        case 3:  //  3 -> Not in use
             setFadeInProgress(false)
             break
-        case 4: // Show black (alpha = 1) instant - sync
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-            window.currentField.fieldFader.material.opacity = 1
-            setFadeInProgress(false)
+        case 4:  //  4 -> instant no wait black, hold black
+            fadeInstant(THREE.NormalBlending, colorBlack)
             break
-        case 5: // Colour to screen fadeout (alpha 1 -> 0) with additive blending - async
-            // Always fadeIn: true
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.AdditiveBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(color)
-            window.currentField.fieldFader.material.opacity = 1
-            tweenOpacity(window.currentField.fieldFader.material, { opacity: 0 }, frames)
+        case 5:  //  5 -> colorStandard to field additive, hold field
+            fade(THREE.AdditiveBlending, colorStandard, colorBlack, colorBlack, timeMs)
             break
-        case 6: // Screen to colour fadeIn (alpha 0 -> 1) with additive blending - async
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.AdditiveBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(color)
-            window.currentField.fieldFader.material.opacity = 0
-            tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, frames)
+        case 6:  //  6 -> field to colorStandard additive, hold color
+            fade(THREE.AdditiveBlending, colorBlack, colorStandard, colorStandard, timeMs)
             break
-        case 7: // Can't really seem to find where this is trigger in a video playthrough in trackin, shmei, script 1
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            await sleep(1000 / 30) // Add this so it doesn't completely block the game loop
-            setFadeInProgress(false)
+        case 7:  //  7 -> instant but wait colorInverse1 subtractive, hold field
+            fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorBlack, timeMs)
             break
-        case 8: // Screen to colour fadeIn (alpha 0 -> 1) with multiply blending - async but i'll put sync anyway
-            console.log('fadeOperation', type, color, speed, frames, fadeIn, 'multiply', color)
-            window.currentField.fieldFader.material.blending = THREE.MultiplyBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(color)
-            window.currentField.fieldFader.material.opacity = 1
-            m = { r: 1, g: 1, b: 1 }
-            await tweenOpacity(m, {
-                r: r, g: g, b: b
-            }, frames)
-            setFadeInProgress(false)
+        case 8:  //  8 -> instant but wait colorInverse1 subtractive, hold color
+            fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorInverse1, timeMs)
             break
-        case 9: // Screen to color (alpha = 1) instant with normal blending - async
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.NormalBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(color)
-            window.currentField.fieldFader.material.opacity = 1
-            setFadeInProgress(false)
+        case 9:  //  9 -> instant but wait colorStandard additive, hold field
+            fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorBlack, timeMs)
             break
-        case 10: // Screen to colour fadeIn (alpha 0 -> 1) with additive blending - async
-            // TODO: This might even blend the previous colour or have multiple layers...
-            console.log('fadeOperation', type, color, speed, frames, fadeIn)
-            window.currentField.fieldFader.material.blending = THREE.NormalBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(color)
-            window.currentField.fieldFader.material.opacity = 0
-            tweenOpacity(window.currentField.fieldFader.material, { opacity: 0.5 }, frames)
+        case 10: // 10 -> instant but wait colorStandard additive, hold color
+            fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorStandard, timeMs)
             break
     }
 }
-const nfadeOperation = async (type, r, g, b, speed) => {
+const nfadeOperation = async (type, r, g, b, frames) => {
+    console.log('nfadeOperation', type, r, g, b, frames)
+    const colorStandard = { r, g, b }
+    const colorBlack = { r: 0, g: 0, b: 0 }
 
-    const color = `rgb(${r},${g},${b})`
-    const colorInverse1 = `rgb(${getColorInverse1(r)},${getColorInverse1(g)},${getColorInverse1(b)})` // Should probably be x4 but x3 looks better
-    const colorInverse3 = `rgb(${getColorInverse3(r)},${getColorInverse3(g)},${getColorInverse3(b)})` // Should probably be x4 but x3 looks better
+    let timeMs = frames * (1000 / 30)
 
-    const frames = speed // ??? This ranges from 1 to 255, with s30 = f8
-    // Note: I've -2 adjusted as some calls are async and when wait is not called
-    // I'm not sure about the speeds, I'll improve this another day
-    /*
-    16 - 16 ?! niv_ti2
-    32 - 8
-    64 - 16
-    */
+    stopInProgressFades()
 
-    // TODO: Some issues here with the blending modes not taking the screen value instead starting from black
-    let m
-    setFadeInProgress(true)
     switch (type) {
-        case 0: // Instantly show the screen
-            console.log('nfadeOperation 0', type, color, speed, frames)
-            window.currentField.fieldFader.material.blending = THREE.NormalBlending
-            window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-            window.currentField.fieldFader.material.opacity = 0
-            setFadeInProgress(false)
+        case 0:  //  1 -> instant no wait field, hold field
+            fadeInstant(THREE.SubtractiveBlending, colorBlack)
             break
-        case 11: // Fade color to black
-            console.log('nfadeOperation 11', type, color, speed, frames)
+        case 11: // 11 -> field to colorStandard additive async, hold color
+            fade(THREE.AdditiveBlending, colorBlack, colorStandard, colorStandard, timeMs)
             break
-        case 12: // black to colour with subtractive blending, unless 255,255,255, in which case fade screen to black
-            if (r === 255 && g === 255 && b === 255) {
-                console.log('nfadeOperation 12', type, '255s', color, speed, frames)
-                window.currentField.fieldFader.material.blending = THREE.NormalBlending
-                window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-                window.currentField.fieldFader.material.opacity = 0
-                tweenOpacity(window.currentField.fieldFader.material, { opacity: 1 }, frames)
-            } else {
-                console.log('nfadeOperation 12', type, 'subtractive', color, speed, frames)
-                // TODO: There are probably multiple layers of blending here, and therefore multiple layers to add
-                window.currentField.fieldFader.material.blending = THREE.SubtractiveBlending
-                window.currentField.fieldFader.material.color = new THREE.Color(0x000000)
-                window.currentField.fieldFader.material.opacity = 0
-                m = { o: 0, r: 0, g: 0, b: 0 }
-                console.log('opacity 1', window.currentField.fieldFader.material.opacity)
-                tweenOpacity(m, {
-                    o: 1, r: r, g: g, b: b
-                }, frames)
-            }
+        case 12: // 12 -> field to colorStandard subtractive async, hold color
+            fade(THREE.SubtractiveBlending, colorBlack, colorStandard, colorStandard, timeMs)
             break
     }
 }
 export {
-    drawFader,
-    fadeIn,
-    fadeOut,
+    drawFaders,
+    transitionIn,
+    transitionOut,
     fadeOperation,
     nfadeOperation,
-    isFadeInProgress
+    isTransitionInProgress,
+    waitForFade
 }
