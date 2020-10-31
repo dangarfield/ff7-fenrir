@@ -42,7 +42,7 @@ const moveEntityToEntity = async (entityId, targetModel) => {
         const interpolationFactor = 1 - (collisionDistance / totalDistance)
         const collisionEdgeVector = new THREE.Vector3().lerpVectors(sourceModel.scene.position, targetModel.scene.position, interpolationFactor)
         console.log('moveEntityToEntity distance', totalDistance, collisionDistance, interpolationFactor, collisionEdgeVector)
-        await moveEntity(entityId, collisionEdgeVector.x, collisionEdgeVector.y, true, true)
+        await moveEntity(entityId, collisionEdgeVector.x, collisionEdgeVector.y, true, true, true)
     }
 }
 const moveEntityJump = async (entityId, x, y, triangleId, height) => {
@@ -135,7 +135,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     })
 
 }
-const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desiredFrames) => {
+const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desiredFrames, enforceWalkmesh) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntity: START', model.userData.entityName, entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
@@ -215,7 +215,9 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desired
             if (intersects.length === 0) {
                 console.log('moveEntity: no intersects')
                 // TWEEN.remove(moveTween)
-                moveTween.stop()
+                if (enforceWalkmesh !== undefined && enforceWalkmesh) {
+                    moveTween.stop()
+                }
             } else {
                 console.log('moveEntity: intersects')
                 const point = intersects[0].point

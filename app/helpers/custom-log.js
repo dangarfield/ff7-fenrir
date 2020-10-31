@@ -6,14 +6,8 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'transition',
-            'fadeTransition',
-            'drawFaders',
-            'FADE TWEEN',
-            'stopInProgressFades',
-            'fadeOperation',
-            'nfadeOperation',
-            'NFADE'
+            'setModelAsLeader',
+            'positionPlayableCharacterFromTransition'
         ],
         log: function () {
             if (limit) {

@@ -89,7 +89,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Multi line text writes all, rather that just what is visible
 - :black_square_button: Multi page choices doesn't show the cursor
 - :black_square_button: Animation reset states aren't 100% correct
-- :black_square_button: Fades aren't perfect
+- :white_check_mark: Fades aren't perfect - Should be good now, wiki updated with findingsdd
 - :black_square_button: Field pointer sizes are wrong
 - :black_square_button: Many gateway pointers are missing
 - :black_square_button: Implement KAWAI graphic effects

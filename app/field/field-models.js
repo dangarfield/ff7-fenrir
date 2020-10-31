@@ -181,10 +181,16 @@ const positionPlayableCharacterFromTransition = async () => {
         // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
         // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     } else {
-        const leaderName = window.data.savemap.party.members[0]
+        let leaderName = window.data.savemap.party.members[0]
+
+        // Not sure why, but this initially this says Barret, Tifa and Cloud on a new savemap, when it should just be cloud
+        // Hardcoding in here, just to make it work on a fresh save and retain the correct init game data
+        if (window.currentField.name === 'md1stin') {
+            leaderName = 'Cloud'
+        }
         const leaderId = getPlayableCharacterId(leaderName)
         const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(leaderId)
-        console.log('positionPlayableCharacterFromTransition NO init data', entityId, entityName, modelId)
+        console.log('positionPlayableCharacterFromTransition NO init data', window.data.savemap.party.members, entityId, entityName, modelId)
         setModelAsEntity(entityId, modelId)
         setModelAsPlayableCharacter(entityId, leaderName)
         await setModelAsLeader(entityId, true)
