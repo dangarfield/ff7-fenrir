@@ -77,7 +77,9 @@ const MPUP = async (op) => {
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
     const member = getCharacterSaveMap(memberName)
-    member.stats.mp.current = Math.min(member.stats.mp.current + change, member.stats.mp.base)
+    if (member) {
+        member.stats.mp.current = Math.min(member.stats.mp.current + change, member.stats.mp.base)
+    }
     console.log('MPUP', member)
     return {}
 }
@@ -86,7 +88,9 @@ const MPDWN = async (op) => {
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
     const member = getCharacterSaveMap(memberName)
-    member.stats.mp.current = Math.max(member.stats.mp.current - change, 0)
+    if (member) {
+        member.stats.mp.current = Math.max(member.stats.mp.current - change, 0)
+    }
     console.log('MPDWN', member)
     return {}
 }
@@ -95,7 +99,9 @@ const HPUP = async (op) => {
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
     const member = getCharacterSaveMap(memberName)
-    member.stats.hp.current = Math.min(member.stats.hp.current + change, member.stats.hp.base)
+    if (member) {
+        member.stats.hp.current = Math.min(member.stats.hp.current + change, member.stats.hp.base)
+    }
     console.log('HPUP', member)
     return {}
 }
@@ -104,7 +110,9 @@ const HPDWN = async (op) => {
     const change = op.b == 0 ? op.v : getBankData(op.b, op.v)
     const memberName = window.data.savemap.party.members[op.p]
     const member = getCharacterSaveMap(memberName)
-    member.stats.hp.current = Math.max(member.stats.hp.current - change, 0)
+    if (member) {
+        member.stats.hp.current = Math.max(member.stats.hp.current - change, 0)
+    }
     console.log('HPDWN', member)
     return {}
 }
