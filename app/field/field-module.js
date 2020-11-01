@@ -41,6 +41,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         fieldScene: undefined,
         fieldCamera: undefined,
         fieldCameraHelper: undefined,
+        fieldCameraFollowPlayer: true,
         videoCamera: undefined,
         showVideoCamera: false,
         allowVideoCamera: true,

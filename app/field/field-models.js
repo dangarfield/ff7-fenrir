@@ -170,8 +170,8 @@ const positionPlayableCharacterFromTransition = async () => {
         setModelDirection(entityId, initData.direction)
         setModelVisibility(entityId, true)
 
-        await setModelAsLeader(entityId, true)
-
+        await setModelAsLeader(entityId)
+        await moveCameraToLeader(true)
         // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
         // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
         // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
@@ -193,7 +193,8 @@ const positionPlayableCharacterFromTransition = async () => {
         console.log('positionPlayableCharacterFromTransition NO init data', window.data.savemap.party.members, entityId, entityName, modelId)
         setModelAsEntity(entityId, modelId)
         setModelAsPlayableCharacter(entityId, leaderName)
-        await setModelAsLeader(entityId, true)
+        await setModelAsLeader(entityId)
+        await moveCameraToLeader(true)
     }
 
     updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
@@ -406,7 +407,7 @@ const setModelCollisionRadius = (entityId, radius) => {
     const model = getModelByEntityId(entityId)
     model.userData.collisionRadius = radius
 }
-const setModelAsLeader = async (entityId, instant) => {
+const setModelAsLeader = async (entityId) => {
     console.log('setModelAsLeader', entityId)
     window.currentField.models.map(m => {
         m.userData.isLeader = false
@@ -421,10 +422,11 @@ const setModelAsLeader = async (entityId, instant) => {
     window.currentField.playableCharacter = model
     window.data.savemap.location._fieldLeader = model.userData.characterName
 
-    // Screen moves to centre on character
+    // Screen doesn't necessarily move to centre on character
     // Not sure about this, it takes control of the camera
     //  which isnt right in all fields where the camera has been previously set
-    await moveCameraToLeader(instant)
+    // await moveCameraToLeader(true)
+
     // Assist cursor hand displays if visible
     setFieldPointersEnabled(true)
     // TODO - set positionHelpers position on playable character straight away

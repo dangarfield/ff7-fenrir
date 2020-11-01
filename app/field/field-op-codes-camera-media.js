@@ -43,7 +43,7 @@ const SCRLC = async (op) => { // Scroll to party member?
     // Looks like it has speed, tween type and potentially member party params
     // I'm just assuming that it is going to the playableCharacter position for now
     console.log('SCRLC', op)
-    window.currentField.fieldCamera.userData.followUser = false // ?!
+    window.currentField.fieldCameraFollowPlayer = false
     const speed = op.p1 == 0 ? op.p2 : getBankData(op.p1, op.p2)
     let tweenType = TweenType.Instant
     if (op.p4 === 1) {
@@ -60,7 +60,7 @@ const SCRLC = async (op) => { // Scroll to party member?
 }
 const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData.entityId = entity script array i
     console.log('SCRLA', op)
-    window.currentField.fieldCamera.userData.followUser = false // ?!
+    window.currentField.fieldCameraFollowPlayer = false
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
     let tweenType = TweenType.Instant
     if (op.t === 1) {
@@ -114,7 +114,7 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
 }
 const SCR2D = async (op) => { // Scroll to position instantly
     console.log('SCR2D', op)
-    window.currentField.fieldCamera.userData.followUser = false // ?!
+    window.currentField.fieldCameraFollowPlayer = false
     const targetX = op.b1 == 0 ? op.targetX : getBankData(op.b1, op.targetX)
     const targetY = op.b2 == 0 ? op.targetY : getBankData(op.b2, op.targetY) // In frames
 
@@ -132,12 +132,12 @@ const SCRCC = async (op) => { // Scroll to leader
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('SCRCC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
     await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
-    window.currentField.fieldCamera.userData.followUser = true // ?!
+    window.currentField.fieldCameraFollowPlayer = true
     return {}
 }
 const SCR2DC = async (op) => { // Scroll to position with smooth tween
     console.log('SCR2DC', op)
-    window.currentField.fieldCamera.userData.followUser = false // ?!
+    window.currentField.fieldCameraFollowPlayer = false
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -162,7 +162,7 @@ const SCRLW = async (op) => { // Wait for scrolling
 }
 const SCR2DL = async (op) => { // Scroll to position with linear tween
     console.log('SCR2DL', op)
-    window.currentField.fieldCamera.userData.followUser = false // ?!
+    window.currentField.fieldCameraFollowPlayer = false
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -194,6 +194,7 @@ const FADEW = async (op) => {
 
 const SCRLP = async (op) => {
     console.log('SCRLP', op)
+    window.currentField.fieldCameraFollowPlayer = false
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
     let tweenType = TweenType.Instant
     if (op.t === 1) {
@@ -225,50 +226,6 @@ const SCRLP = async (op) => {
     }
 
 }
-
-// Just for debug
-// setTimeout(async () => {
-//     while (true) {
-//         // SEA
-//         // await SHAKE({ u1: 0, u2: 0, c: 3, u3: 0, u4: 0, a: 15, s: 64 })
-//         // await sleep(1000 / 60 * 60)
-//         // await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
-//         // await sleep(1000 / 60 * 50)
-//         // await SHAKE({ u1: 0, u2: 0, c: 17, u3: 0, u4: 0, a: 17, s: 64 })
-//         // await sleep(1000 / 60 * 60)
-//         // await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
-//         // await sleep(1000 / 60 * 200)
-
-//         // TRAIN
-//         await SHAKE({ u1: 0, u2: 0, c: 2, u3: 0, u4: 0, a: 5, s: 2 })
-//         await sleep(1000 / 60 * 10)
-//         await SHAKE({ u1: 0, u2: 0, c: 0, u3: 0, u4: 0, a: 0, s: 1 })
-//         await sleep(1000 / 60 * 15)
-
-//         console.log('looped')
-//     }
-//     await SCRLC({
-//         p1: 0,
-//         p2: 60,
-//         p3: 0,
-//         p4: 3
-//     })
-//     console.log('SCRLC after')
-//     await SCRLW()
-//     console.log('SCRLW after')
-// }, 9000)
-
-// setTimeout(async () => {
-//     const entity = window.currentField.models.filter(m => m.userData.entityId === 20)[0]
-//     let frameCount = 0
-//     while (frameCount < 200) {
-//         // console.log('entity.scene.position.y', entity.scene.position.y)
-//         entity.scene.position.y = entity.scene.position.y - 0.001
-//         frameCount++
-//         await sleep(1000 / 60)
-
-//     }
-// }, 10000)
 
 const MUSIC = async (op) => {
     playMusic(op.id)

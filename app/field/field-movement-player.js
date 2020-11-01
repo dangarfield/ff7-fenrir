@@ -308,7 +308,7 @@ const updateFieldMovement = (delta) => {
     window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
     // Update camera position if camera is following user
-    if (window.currentField.fieldCamera.userData.followUser) {
+    if (window.currentField.fieldCameraFollowPlayer) {
         // Adjust the camera offset to centre on character
         const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
         // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)

@@ -70,8 +70,7 @@ const moveCameraToLeader = async (instant) => { // Scroll to leader
     } else {
         await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
     }
-
-    window.currentField.fieldCamera.userData.followUser = true
+    window.currentField.fieldCameraFollowPlayer = true
 }
 
 export {

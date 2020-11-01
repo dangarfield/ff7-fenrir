@@ -156,8 +156,6 @@ const setupFieldCamera = () => {
 
     const cameraTarget = new THREE.Vector3(tx + camAxisZx, ty + camAxisZy, tz + camAxisZz)
 
-    window.currentField.fieldCamera.userData.followUser = true
-
     setupFieldDebugCamera()
     setupFieldVideoCamera()
     window.currentField.fieldCameraHelper = new THREE.CameraHelper(window.currentField.fieldCamera)
