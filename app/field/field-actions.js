@@ -11,7 +11,8 @@ import { getFieldNameForId } from './field-metadata.js'
 import { getDegreesFromTwoPoints } from './field-models.js'
 import {
     stopAllLoops, triggerEntityTalkLoop, triggerEntityMoveLoops, triggerEntityGoLoop,
-    triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop, triggerEntityCollisionLoop
+    triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop, triggerEntityCollisionLoop,
+    canOKLoopBeTriggeredOnMovement
 } from './field-op-loop.js'
 
 let actionInProgress = false
@@ -113,11 +114,7 @@ const processLineTriggersForFrame = () => {
             if (distance < 0.007) {
                 // if (line.userData.triggered === false) {
                 //     line.userData.triggered = true
-                if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
-                    window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
-                    window.currentField.playableCharacter.mixer.stopAllAction()
-                    return
-                }
+                line.userData.playerClose = true
                 if (line.userData.triggeredOnce === undefined || line.userData.triggeredOnce === false) {
                     triggerEntityGo1xLoop(entityId)
                     line.userData.triggeredOnce = true
@@ -147,9 +144,13 @@ const processLineTriggersForFrame = () => {
                 // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
                 if (movingInDirectionOfLine) {
                     triggerEntityMoveLoops(entityId)
-                    triggerEntityOKLoop(entityId)
+                    // Strangely, OK loop is triggered repeatedbly on distance if there are NO Move loops. Infinity is no S2 - Move, About 8 times if there are no S3 - Move scripts with empty returns
+                    if (canOKLoopBeTriggeredOnMovement(entityId)) {
+                        triggerEntityOKLoop(entityId)
+                    }
                     return
                 }
+
                 if (getActiveInputs().o) {
                     triggerEntityOKLoop(entityId)
                     return
@@ -167,6 +168,7 @@ const processLineTriggersForFrame = () => {
                 //         lineGoTriggered(entityId, line)
                 //     }
             } else {
+                line.userData.playerClose = false
                 // console.log('triggerEntity FAR', line.userData.entityName, distance)
                 // console.log('triggerEntity ELSE', line.userData.triggered)
                 if (line.userData.triggered) {

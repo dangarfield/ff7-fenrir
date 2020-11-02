@@ -180,7 +180,7 @@ const waitForAnimationToFinish = async (entityId) => {
             if (animationAction.loop === THREE.LoopRepeat) {
                 animationAction.setLoop(THREE.LoopOnce, 1)
             }
-            if (isRunning && i !== 0) { // Standing is the default animation
+            if (isRunning && i >= 2) { // Standing is the default animation, some shop owners walk too
                 anyAnimationsRunning = true
             }
         }

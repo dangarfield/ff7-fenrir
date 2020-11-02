@@ -521,6 +521,18 @@ const triggerEntityMoveLoops = async (entityId) => {
         }
     }
 }
+const canOKLoopBeTriggeredOnMovement = (entityId) => {
+    const entity = window.currentField.data.script.entities[entityId]
+    if (entity.current.length > 0) {
+        return false
+    }
+    const loops = entity.scripts.filter(s => s.scriptType === 'Move')
+    if (loops.length > 0) {
+        return false
+    }
+    console.log('canOKLoopBeTriggeredOnMovement', 'true', loops)
+    return true
+}
 const triggerEntityOKLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
     if (entity.current.length > 0) { return }
@@ -586,5 +598,6 @@ export {
     triggerEntityGo1xLoop,
     triggerEntityGoAwayLoop,
     triggerEntityOKLoop,
+    canOKLoopBeTriggeredOnMovement,
     debugLogOpCodeCompletionForField
 }

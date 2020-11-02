@@ -539,6 +539,7 @@ const registerLine = (entityId, lv0, lv1) => {
     let line = new THREE.Line(geometry1, material1)
     line.userData.triggered = false
     line.userData.triggeredOnce = false
+    line.userData.playerClose = false
     line.userData.entityId = entityId
     line.userData.entityName = getEntityNameFromEntityId(entityId)
     line.userData.slippabilityEnabled = true

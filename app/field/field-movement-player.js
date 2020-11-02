@@ -185,40 +185,47 @@ const updateFieldMovement = (delta) => {
     }
     // Move line triggers to render loop
     window.currentField.playableCharacter.scene.userData.isSlipDirection = isSlipDirection
-    // for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-    //     const line = window.currentField.lineLines.children[i]
-    //     if (line.userData.enabled) {
-    //         const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
-    //         const distance = nextPosition.distanceTo(closestPointOnLine)
-    //         const entityId = line.userData.entityId
-    //         if (distance < 0.01) {
-    //             if (line.userData.triggered === false) {
-    //                 line.userData.triggered = true
-    //                 lineMoveTriggered(entityId, line)
-    //             }
-    //             if (isSlipDirection && !line.userData.slippabilityEnabled) {
-    //                 window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
-    //                 window.currentField.playableCharacter.mixer.stopAllAction()
-    //                 return
-    //             }
-    //         } else {
-    //             if (line.userData.triggered === true) {
-    //                 line.userData.triggered = false
-    //                 lineGoTriggered(entityId, line)
-    //             }
-    //         }
-    //         if (distance < 0.05) { // TODO - Guess
-    //             if (line.userData.triggeredAway === false) {
-    //                 line.userData.triggeredAway = true
-    //             }
-    //         } else {
-    //             if (line.userData.triggeredAway === true) {
-    //                 line.userData.triggeredAway = false
-    //                 lineAwayTriggered(entityId)
-    //             }
-    //         }
-    //     }
-    // }
+    for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
+        const line = window.currentField.lineLines.children[i]
+        if (line.userData.enabled &&
+            line.userData.playerClose &&
+            window.currentField.playableCharacter.scene.userData.isSlipDirection &&
+            !line.userData.slippabilityEnabled) {
+            window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
+            window.currentField.playableCharacter.mixer.stopAllAction()
+            return
+        }
+        //         const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+        //         const distance = nextPosition.distanceTo(closestPointOnLine)
+        //         const entityId = line.userData.entityId
+        //         if (distance < 0.01) {
+        //             if (line.userData.triggered === false) {
+        //                 line.userData.triggered = true
+        //                 lineMoveTriggered(entityId, line)
+        //             }
+        //             if (isSlipDirection && !line.userData.slippabilityEnabled) {
+        //                 window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+        //                 window.currentField.playableCharacter.mixer.stopAllAction()
+        //                 return
+        //             }
+        //         } else {
+        //             if (line.userData.triggered === true) {
+        //                 line.userData.triggered = false
+        //                 lineGoTriggered(entityId, line)
+        //             }
+        //         }
+        //         if (distance < 0.05) { // TODO - Guess
+        //             if (line.userData.triggeredAway === false) {
+        //                 line.userData.triggeredAway = true
+        //             }
+        //         } else {
+        //             if (line.userData.triggeredAway === true) {
+        //                 line.userData.triggeredAway = false
+        //                 lineAwayTriggered(entityId)
+        //             }
+        //         }
+    }
+
     // Detect model collisions
     // Can probably filter out models that haven't been placed onto the scene
     for (let i = 0; i < window.currentField.models.length; i++) {
@@ -242,11 +249,9 @@ const updateFieldMovement = (delta) => {
 
         // Need to check distances aren't set from op codes, and solidMode is enabled etc
         // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
-        // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, distance)
+        // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, fieldModel.userData.talkRadius / 4096 * 1.3, distance)
 
-
-
-        if (distance < (fieldModel.userData.talkRadius / 4096)) { //60 is roughly 0.015
+        if (distance < (fieldModel.userData.talkRadius / 4096 * 1.3)) { //60 is roughly 0.015
             if (fieldModel.scene.userData.closeToTalk === false) {
                 fieldModel.scene.userData.closeToTalk = true
                 console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)

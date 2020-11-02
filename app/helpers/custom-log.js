@@ -6,8 +6,8 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'setModelAsLeader',
-            'positionPlayableCharacterFromTransition'
+            'isSlipDirection',
+            'canOKLoopBeTriggeredOnMovement'
         ],
         log: function () {
             if (limit) {
