@@ -5,7 +5,15 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'FLOW ERROR'
+            'FLOW ERROR',
+            // 'executeOpDEBUG',
+            // 'IFUB',
+            // 'printedCompare',
+            // 'setValueToBank',
+            // 'getValueFromBank',
+            // 'getBankData',
+            // 'resetTempBank'
+            // 'BITMATH'
         ],
         log: function () {
             if (limit) {

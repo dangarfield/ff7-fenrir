@@ -62,6 +62,7 @@ const downloadSaveMaps = () => {
 }
 const resetTempBank = () => {
     TEMP_FIELD_BANK = new Int16Array(256).fill(0)
+    console.log('resetTempBank')
 }
 const identifyBank = (bankRef) => {
     let bank = 1
@@ -101,15 +102,15 @@ const Int8 = function (value) {
 
 
 const getValueFromBank = (bank, type, index) => {
-    if (index === 11 || index === 12 || index === 13) {
-        console.log('getValueFromBank', type, index, '->', bank[index], bank[index * 2])
-    }
+    // if (index === 16) {
+    // console.log('getValueFromBank', type, index, '->', bank[index], bank[index * 2])
+    // }
 
     if (type === 1) {
-        return bank[index]
+        return bank[index].valueOf()
     } else {
         // TODO - Not sure when to using signed or unsigned... so for now, just set a two byte value into the index (eg int16)
-        return bank[index * 2]
+        return bank[index * 2].valueOf()
         // const bit1 = bank[(index * 2) + 1]
         // const bit2 = bank[(index * 2) + 0]
 
@@ -121,9 +122,12 @@ const getValueFromBank = (bank, type, index) => {
     }
 }
 const setValueToBank = (bank, type, index, newValue) => {
-    if (index === 11 || index === 12 || index === 13) {
-        console.log('setValueToBank', type, index, '->', newValue)
-    }
+    // if (newValue === 148) { // Debug
+    //     console.log('setValueToBank GOTCHA', type, index, '->', newValue)
+    // }
+    // if (index === 16) {
+    //     console.log('setValueToBank', type, index, '->', newValue)
+    // }
     if (type === 1) {
         bank[index] = newValue
     } else {
@@ -136,10 +140,14 @@ const setValueToBank = (bank, type, index, newValue) => {
         // console.log('setValueToBank', newValue, 'bit1', bit1, 'bit2', bit2)
     }
 }
-const getBankData = (bankRef, index) => {
+const getBankData = window.getBankData = (bankRef, index) => {
     // console.log('getBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
-    return getValueFromBank(bankData.bank, bankData.bytes, index)
+    const value = getValueFromBank(bankData.bank, bankData.bytes, index)
+    // if (bankRef === 5 && index === 16) { // Debug
+    //     console.log('getBankData', bankRef, index, '->', value)
+    // }
+    return value
 }
 const setBankData = (bankRef, index, value) => {
     // console.log('setBankData', bankRef, index, window.data.savemap)

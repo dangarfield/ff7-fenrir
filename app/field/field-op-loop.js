@@ -18,7 +18,7 @@ import TWEEN from '../../assets/tween.esm.js'
 // future non-priority executions. Biggest impact, in progress operations will not be paused
 // as should be expected in the true-to-life implementation
 // Also: Execution order is not 100% guaranteed without refactoring as it is doesn't cycle 8
-// ops at a time, so there might be a few bugs, eg mds7pb_1 marlene
+// ops at a time, so there might be a few bugs, eg mds7pb_1 marlene, mrkt3 border1 main
 
 let CURRENT_FIELD = 'None'
 
@@ -35,7 +35,7 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Check if any 'wait for' actions such as move are waiting.
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.entityName === 'cloud') {
+    if (entity.entityName === 'init' || entity.entityName === 'oldm3') {
         console.log('executeOpDEBUG', entity.entityName, entityId, scriptType, scriptId, currentOpIndex, op, priority)
     }
     // console.log('LOOP QUEUED ERROR', entity.current)
@@ -423,30 +423,23 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
 
     console.log(' - executeScriptLoop: END', fieldName, entityId, loop)
 }
-const initEntity = async (fieldName, entity) => {
-    console.log('initEntity: START', fieldName, entity.entityId, entity.entityName, entity)
+const initEntityInit = async (fieldName, entity) => {
+    console.log('initEntityInit: START', fieldName, entity.entityId, entity.entityName, entity)
     entity.current = []
     const initLoop = entity.scripts.filter(s => s.index === 0 && s.isMain === undefined)[0]
     console.log('initLoop', initLoop)
     await executeScriptLoop(fieldName, entity.entityId, initLoop, 0)
+    console.log('initEntityInit: END', entity.entityId, entity.entityName)
+}
+const initEntityMain = async (fieldName, entity) => {
+    console.log('initEntityMain: START', fieldName, entity.entityId, entity.entityName, entity)
     const mainLoops = entity.scripts.filter(s => s.index === 0 && s.isMain)
     if (mainLoops.length > 0) {
         const mainLoop = mainLoops[0]
         console.log('mainLoop', mainLoop)
-        // if (entity.entityName !== 'dir') { // Debug
         await executeScriptLoop(fieldName, entity.entityId, mainLoop, 7)
-        // }
     }
-
-
-    // For debug
-    // if (entity.entityName === 'gu0') {
-    //     const script3 = entity.scripts.filter(s => s.scriptType === 'Script 3')[0]
-    //     console.log('------------------------', script3)
-    //     await executeScriptLoop(fieldName, entity.entityId, script3, 10)
-    // }
-
-    console.log('initEntity: END', entity.entityId, entity.entityName)
+    console.log('initEntityMain: END', entity.entityId, entity.entityName)
 }
 const initialiseOpLoops = async () => {
     console.log('initialiseOpLoops: START')
@@ -456,7 +449,11 @@ const initialiseOpLoops = async () => {
     // entities = entities.filter(e => !(e.entityName.includes('ELEC') || e.entityName.includes('TURI') || e.entityName.includes('LIGHT'))) // Debug
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
-        initEntity(window.currentField.name, entity) // All running async
+        await initEntityInit(window.currentField.name, entity) // All complete sync in order
+    }
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i]
+        initEntityMain(window.currentField.name, entity) // All running async
     }
     console.log('initialiseOpLoops: END')
 }

@@ -58,7 +58,7 @@ const compareFromBankData = (ops, op) => {
     const result = executeCompare(leftCompare, op.c, rightCompare)
     const printedCompare = printCompare(leftCompare, op.c, rightCompare)
     if (op.a === 160) {
-        console.log('printedCompare', `Var[${op.b1}][${op.a}]`, `Var[${op.b2}][${op.v}]`, printedCompare, '->', result, '->', getOpIndexForByteIndex(ops, op.goto))
+        console.log('printedCompare', `Var[${op.b1}][${op.a}]`, `Var[${op.b2}][${op.v}]`, '->', printedCompare, '->', result, '->', getOpIndexForByteIndex(ops, op.goto))
     }
 
 

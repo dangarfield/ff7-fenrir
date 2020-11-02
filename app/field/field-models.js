@@ -323,11 +323,11 @@ const setModelVisibility = (entityId, isVisible) => {
     const model = getModelByEntityId(entityId)
     console.log('setModelVisibility', entityId, isVisible, model)
     // Sometimes this is called and the model has model has not be placed (eg, position (0,0,0), in the game, they are not visible - mkt_s3)
+    model.userData.setModelVisibility = isVisible
     if (isVisible && model.scene.position.x === 0 && model.scene.position.y === 0 && model.scene.position.z === 0) {
         return
     }
     model.scene.visible = isVisible
-    model.userData.setModelVisibility = isVisible
 }
 const setModelRotationEnabled = (entityId, enabled) => {
     console.log('setModelRotationEnabled', entityId, enabled)
