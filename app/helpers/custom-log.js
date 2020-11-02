@@ -5,9 +5,7 @@ window.console = (function (origConsole) {
     let limit = true
     return {
         terms: [
-            'FLOW ERROR',
-            'isSlipDirection',
-            'canOKLoopBeTriggeredOnMovement'
+            'FLOW ERROR'
         ],
         log: function () {
             if (limit) {

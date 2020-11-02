@@ -320,8 +320,12 @@ const placeModelsDebug = async () => {
     console.log('placeModelsDebug: END', window.currentField.models)
 }
 const setModelVisibility = (entityId, isVisible) => {
-    console.log('setModelVisibility', entityId, isVisible)
     const model = getModelByEntityId(entityId)
+    console.log('setModelVisibility', entityId, isVisible, model)
+    // Sometimes this is called and the model has model has not be placed (eg, position (0,0,0), in the game, they are not visible - mkt_s3)
+    if (isVisible && model.scene.position.x === 0 && model.scene.position.y === 0 && model.scene.position.z === 0) {
+        return
+    }
     model.scene.visible = isVisible
     model.userData.setModelVisibility = isVisible
 }
