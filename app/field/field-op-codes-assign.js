@@ -73,6 +73,7 @@ const RDMSD = (op) => {
     // http://forums.qhimm.com/index.php?topic=6431
     const val = Math.floor(Math.random() * 255)
     setBankData(op.b, op.s, val)
+    // console.log('RDMSD', val, getBankData(op.b, op.s))
     return {}
 }
 
@@ -285,7 +286,8 @@ const RANDOM = (op) => {
     // Note: I believe FF7 uses tables for RNG, let's just use JS for now
     // http://forums.qhimm.com/index.php?topic=6431
     const val = Math.floor(Math.random() * 255)
-    setBankData(op.b, op.s, val)
+    setBankData(op.b, op.a, val)
+    // console.log('RANDOM', op, val, getBankData(op.b, op.a))
     return {}
 }
 

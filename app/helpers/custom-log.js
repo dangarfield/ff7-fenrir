@@ -7,16 +7,12 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'Loop queued',
-            'createDialogBox',
-            'updateCountdownDisplay'
-            // 'IFUB',
+            // 'Loop queued',
             // 'printedCompare',
-            // 'setValueToBank',
-            // 'getValueFromBank',
+            // 'RDMSD',
+            // 'RANDOM',
             // 'getBankData',
-            // 'resetTempBank'
-            // 'BITMATH'
+            // 'setBankData'
         ],
         log: function () {
             if (limit) {

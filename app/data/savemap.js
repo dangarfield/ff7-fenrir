@@ -144,7 +144,7 @@ const getBankData = window.getBankData = (bankRef, index) => {
     // console.log('getBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
     const value = getValueFromBank(bankData.bank, bankData.bytes, index)
-    // if (bankRef === 5 && index === 16) { // Debug
+    // if (bankRef === 5 && (index === 4 || index === 7 || index === 8 || index === 9)) { // Debug
     //     console.log('getBankData', bankRef, index, '->', value)
     // }
     return value
@@ -154,6 +154,9 @@ const setBankData = (bankRef, index, value) => {
     const bankData = identifyBank(bankRef)
     setValueToBank(bankData.bank, bankData.bytes, index, value)
     processSavemapAlias(bankRef, index, value)
+    // if (bankRef === 5 && (index === 4 || index === 7 || index === 8 || index === 9)) { // Debug
+    //     console.log('setBankData', bankRef, index, '->', value)
+    // }
 }
 const loadGame = async (cardId, slotId) => {
     // Initialise new savemap
