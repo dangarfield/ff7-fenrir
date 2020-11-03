@@ -6,7 +6,10 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            // 'executeOpDEBUG',
+            'executeOpDEBUG',
+            'Loop queued',
+            'createDialogBox',
+            'updateCountdownDisplay'
             // 'IFUB',
             // 'printedCompare',
             // 'setValueToBank',

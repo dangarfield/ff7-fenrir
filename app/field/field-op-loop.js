@@ -35,13 +35,15 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Check if any 'wait for' actions such as move are waiting.
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.entityName === 'init' || entity.entityName === 'oldm3') {
+    if (entity.entityName === 'timecnt') {
         console.log('executeOpDEBUG', entity.entityName, entityId, scriptType, scriptId, currentOpIndex, op, priority)
     }
     // console.log('LOOP QUEUED ERROR', entity.current)
     while (entity.current[0].scriptId !== scriptId) {
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1, priority)
-        console.log('Loop queued', entityId, scriptType)
+        if (entity.entityName === 'event' || entity.entityName === 'okama') {
+            console.log('Loop queued', entity.entityName, entityId, scriptType, scriptId, priority, entity.current)
+        }
         await sleep(1000 / 60)
         if (CURRENT_FIELD !== fieldName) {
             return { exit: true }
@@ -381,9 +383,10 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
     while (currentOpIndex < ops.length) {
         if (flowActionCount >= 10) {
             // Need to test this, as it could be waiting for the presence of a variable to change
-            console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP', fieldName, entityId, loop)
+            // console.log(' - executeScriptLoop: TOO MANY CONSECUIVE GOTO - QUITTING LOOP', fieldName, entityId, loop)
             // sendOpFlowEvent(entityId, loop.scriptType, '...', currentOpIndex + 1, priority)
-            break
+            await sleep(1000 / 30) // Just introduce a light sleep until we FULLY implement sync scripts
+            // break
         }
 
         let op = ops[currentOpIndex]
@@ -437,7 +440,10 @@ const initEntityMain = async (fieldName, entity) => {
     if (mainLoops.length > 0) {
         const mainLoop = mainLoops[0]
         console.log('mainLoop', mainLoop)
-        await executeScriptLoop(fieldName, entity.entityId, mainLoop, 7)
+        await executeScriptLoop(fieldName, entity.entityId, mainLoop, 8)
+        // if (entity.entityName === 'timecnt') { // Debug
+        //     executeScriptLoop(fieldName, entity.entityId, entity.scripts.filter(s => s.scriptType === 'Script 1')[0], 8)
+        // }
     }
     console.log('initEntityMain: END', entity.entityId, entity.entityName)
 }
@@ -465,7 +471,7 @@ const triggerEntityTalkLoop = async (entityId) => {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 0)
+            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 7) // Seems as though it needs to be a lower priority than other scripts
         }
     }
 }

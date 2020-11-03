@@ -28,10 +28,18 @@ const updateFieldMovement = (delta) => {
     if (window.currentField.playableCharacter.userData.ladder) {
         return ladderMovement(speed)
     }
-    if (!getActiveInputs().x) { // Adjust to walk
-        speed = speed * 0.20
-        animNo = 1
+    if (window.config.debug.runByDefault) {
+        if (getActiveInputs().x) { // Adjust to walk
+            speed = speed * 0.20
+            animNo = 1
+        }
+    } else {
+        if (!getActiveInputs().x) { // Adjust to walk
+            speed = speed * 0.20
+            animNo = 1
+        }
     }
+
 
 
     // console.log('speed', speed, delta, animNo, window.currentField.playableCharacter.animations[animNo].name)

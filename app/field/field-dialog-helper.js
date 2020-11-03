@@ -124,7 +124,7 @@ const createDialogBox = async (dialog) => {
     const z = 100 - id
     const isTransparent = dialog.mode === WINDOW_MODE.TransparentBackground
     const isNoBackgroundBorder = dialog.mode === WINDOW_MODE.NoBackgroundBorder
-    console.log('createDialogBox', dialog, isTransparent, isNoBackgroundBorder)
+    console.log('createDialogBox', dialog, isTransparent, isNoBackgroundBorder, z)
 
     const dialogBox = new THREE.Group()
     const dialogTextures = getDialogTextures()
@@ -288,7 +288,7 @@ const updateCountdownDisplays = () => {
 }
 const updateCountdownDisplay = async (dialog) => {
     if (dialog.special === SPECIAL_MODE.Clock && dialog.group !== null && dialog.group !== undefined) {
-        // console.log('updateCountdownDisplay', dialog)
+        console.log('updateCountdownDisplay', dialog)
 
         // Remove existing meshes
         for (let i = 0; i < dialog.group.children.length; i++) {
@@ -308,7 +308,7 @@ const updateCountdownDisplay = async (dialog) => {
 
 
         // Display clock
-        let xCumulative = dialog.x + 11 + dialog.specialData.x
+        let xCumulative = dialog.x + 0 + dialog.specialData.x
         for (let i = 0; i < timeArray.length; i++) {
             let value = timeArray[i]
             if (value === ':') {
@@ -327,13 +327,15 @@ const updateCountdownDisplay = async (dialog) => {
 
             const x = xCumulative + (clockAsset.w / 2)
             xCumulative += clockAsset.w
-            const y = window.config.sizing.height - dialog.y - 14 - dialog.specialData.y
+            const y = window.config.sizing.height - dialog.y - 10.5 - dialog.specialData.y
 
-            clockBgMesh.position.set(x, y, 1)
+            console.log('updateCountdownDisplay pos', x, y)
+
+            clockBgMesh.position.set(x, y, 100 - dialog.id + 0)
             clockBgMesh.userData.special = 'clock'
             dialog.group.add(clockBgMesh)
 
-            clockMesh.position.set(x, y, 1.001)
+            clockMesh.position.set(x, y, 100 - dialog.id + 0.01)
             clockMesh.userData.special = 'clock'
             dialog.group.add(clockMesh)
         }

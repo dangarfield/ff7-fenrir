@@ -149,7 +149,7 @@ const WAIT = async (op) => {
     return {}
 }
 const IFKEY = async (ops, op) => {
-    console.log('IFKEY', ops, op)
+    console.log('IFKEY', op)
     const keys = getKeysFromBytes(op.b)
     const activeInputs = getActiveInputs()
     let result = false
@@ -160,7 +160,7 @@ const IFKEY = async (ops, op) => {
             break
         }
     }
-    console.log('IFKEY result', result)
+    console.log('IFKEY result', result, keys, activeInputs)
     // TODO - If waiting for a keypress, we may need to stop the flow:true, or maybe add a sleep to help FPS
     if (result) { // Continue inside if statement
         return { flow: true }
