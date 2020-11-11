@@ -35,14 +35,28 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
     // TODO - Check if any 'wait for' actions such as move are waiting.
     // TODO - Really, all move tweens should be paused if a higher priority script is executed
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.entityName === 'ldu0' || entity.entityName === 'CLOUD2') {
+    if (entity.entityName === 'line20' || entity.entityName === 'CLOUD2') {
         console.log('executeOpDEBUG', entity.entityName, entityId, scriptType, scriptId, currentOpIndex, op, priority)
     }
     // console.log('LOOP QUEUED ERROR', entity.current)
-    while (entity.current[0].scriptId !== scriptId) {
+
+    // Really, this should only be 1 script at a time as we loop through them, but I haven't refactored that yet,
+    // So for the time being, only allow 1 script at a time to execute
+    // However, mds7st2 etc should let scripts start whilst the current script is doing a wait...
+    // Instead of that, I've bumped the priority of [OK], Move scripts etc to priority 1, need to retest all
+
+    let shallWait = entity.current[0].scriptId !== scriptId
+    // && window.currentField.data.script.entities[entityId].scripts.filter(s => s.index === entity.current[0].scriptId)[0].ops[entity.current[0].currentOpIndex].op !== 'REQEW'
+    while (shallWait) {
         sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.QUEUED, currentOpIndex + 1, priority)
-        if (entity.entityName === 'event' || entity.entityName === 'okama') {
-            console.log('Loop queued', entity.entityName, entityId, scriptType, scriptId, priority, entity.current)
+        if (entity.entityName === 'line20') {
+            console.log('Loop queued', entity.entityName, entityId, scriptType, scriptId, priority, entity.current,
+                entity.current[0],
+                entity.current[0].scriptId !== scriptId,
+                window.currentField.data.script.entities[entityId].scripts.filter(s => s.index === entity.current[0].scriptId)[0].ops[entity.current[0].currentOpIndex].op,
+                window.currentField.data.script.entities[entityId].scripts.filter(s => s.index === entity.current[0].scriptId)[0].ops[entity.current[0].currentOpIndex].op !== 'REQEW'
+
+            )
         }
         await sleep(1000 / 60)
         if (CURRENT_FIELD !== fieldName) {
@@ -51,7 +65,10 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
         if (entity.current.length === 0) {
             break
         }
+        shallWait = entity.current[0].scriptId !== scriptId
+        // && window.currentField.data.script.entities[entityId].scripts.filter(s => s.index === entity.current[0].scriptId)[0].ops[entity.current[0].currentOpIndex].op !== 'REQEW'
     }
+    entity.current[0].currentOpIndex = currentOpIndex
 
 
 
@@ -372,9 +389,13 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
 
     // Add loop into entities current loop pool with priority
     const entity = window.currentField.data.script.entities[entityId]
-    entity.current.push({ scriptType: loop.scriptType, scriptId: loop.index, priority: priority })
+    entity.current.push({ scriptType: loop.scriptType, scriptId: loop.index, priority: priority, currentOpIndex: 0 })
     entity.current.sort((a, b) => a.priority - b.priority)
     console.log('executeScriptLoop CURRENT', fieldName, entityId, entity.current, loop)
+
+    if (entity.entityName === 'line20') {
+        console.log('executeScriptLoopDEBUG', fieldName, entityId, entity.current, loop)
+    }
 
     loop.isRunning = true
     const ops = loop.ops
@@ -487,40 +508,47 @@ const triggerEntityCollisionLoop = async (entityId) => {
     }
 }
 
+const shouldTriggerEntityLineScriptWithOtherInProgressScripts = (entity) => {
+    if (entity.current.filter(c => c.scriptType.includes('Script')).length > 0) {
+        return false
+    } else {
+        return true
+    }
+}
 const triggerEntityGo1xLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.current.length > 0) { return }
+    if (!shouldTriggerEntityLineScriptWithOtherInProgressScripts(entity)) { return }
     console.log('triggerEntityGo1xLoop', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === 'Go 1x')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // Really, these should be queued in blocks of 8 but needs refactoring
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
         }
 
     }
 }
 const triggerEntityGoLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.current.length > 0) { return }
-    console.log('triggerEntityGoLoop', entityId, entity)
+    if (!shouldTriggerEntityLineScriptWithOtherInProgressScripts(entity)) { return }
+    console.log('triggerEntityGoLoop', entityId, entity, entity.current.filter(c => c.scriptType !== 'Main'))
     const loops = entity.scripts.filter(s => s.scriptType === 'Go')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
         }
     }
 }
 const triggerEntityMoveLoops = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.current.length > 0) { return }
+    if (!shouldTriggerEntityLineScriptWithOtherInProgressScripts(entity)) { return }
     console.log('triggerEntityMoveLoops', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === 'Move')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // This won't work with fields with both Moves as active scripts
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // async
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // async
         }
     }
 }
@@ -538,25 +566,25 @@ const canOKLoopBeTriggeredOnMovement = (entityId) => {
 }
 const triggerEntityOKLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.current.length > 0) { return }
+    if (!shouldTriggerEntityLineScriptWithOtherInProgressScripts(entity)) { return }
     console.log('triggerEntityOKLoop', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === '[OK]')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
         }
     }
 }
 const triggerEntityGoAwayLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
-    if (entity.current.length > 0) { return }
+    if (!shouldTriggerEntityLineScriptWithOtherInProgressScripts(entity)) { return }
     console.log('triggerEntityGoAwayLoop', entityId, entity)
     const loops = entity.scripts.filter(s => s.scriptType === 'Go away')
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
         }
     }
 }
