@@ -345,6 +345,7 @@ const placeModelsDebug = async () => {
 const setModelVisibility = (entityId, isVisible) => {
     const model = getModelByEntityId(entityId)
     console.log('setModelVisibility', entityId, isVisible, model)
+    if (model === undefined) { return }
     // Sometimes this is called and the model has model has not be placed (eg, position (0,0,0), in the game, they are not visible - mkt_s3)
     model.userData.setModelVisibility = isVisible
     if (isVisible && model.scene.position.x === 0 && model.scene.position.y === 0 && model.scene.position.z === 0) {
@@ -355,17 +356,20 @@ const setModelVisibility = (entityId, isVisible) => {
 const setModelRotationEnabled = (entityId, enabled) => {
     console.log('setModelRotationEnabled', entityId, enabled)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.rotationEnabled = enabled
 }
 const setModelDirectionToFaceEntity = (entityId, targetEntityId) => {
     console.log('setModelDirectionToFaceEntity', entityId, targetEntityId)
     const model = getModelByEntityId(entityId)
     const targetModel = getModelByEntityId(targetEntityId)
+    if (model === undefined || targetModel === undefined) { return }
     faceModelInstantly(model, targetModel)
 }
 const setModelDirectionToFaceCharacterOrPartyLeader = (entityId, characterId) => {
     console.log('setModelDirectionToFaceCharacterOrPartyLeader', entityId, characterId)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     const characterName = getPlayableCharacterName(characterId)
     const characterNameFilter = window.currentField.models.filter(m => m.userData.characterName === characterName)
     let targetModel
@@ -402,36 +406,43 @@ const setModelDirection = (entityId, direction) => {
     console.log('setModelDirection', entityId, direction)
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.scene.rotation.y = THREE.Math.degToRad(deg)
 }
 const setModelMovementSpeed = (entityId, speed) => {
     console.log('setModelMovementSpeed', entityId, speed)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.movementSpeed = speed
 }
 const setModelAnimationSpeed = (entityId, speed) => {
     console.log('setModelAnimationSpeed', entityId, speed)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.animationSpeed = speed
 }
 const setModelTalkEnabled = (entityId, isEnabled) => {
     console.log('setModelTalkEnabled', entityId, isEnabled)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.talkEnabled = isEnabled
 }
 const setModelTalkRadius = (entityId, radius) => {
     console.log('setModelTalkRadius', entityId, radius)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.talkRadius = radius
 }
 const setModelCollisionEnabled = (entityId, isEnabled) => {
     console.log('setModelCollisionEnabled', entityId, isEnabled)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.collisionEnabled = isEnabled
 }
 const setModelCollisionRadius = (entityId, radius) => {
     console.log('setModelCollisionRadius', entityId, radius)
     const model = getModelByEntityId(entityId)
+    if (model === undefined) { return }
     model.userData.collisionRadius = radius
 }
 const setModelAsLeader = (entityId) => {
@@ -461,7 +472,7 @@ const setModelAsLeader = (entityId) => {
 
         // colne_1 etc doesn't explcitly set the female cloud model as a PC
         // so we need to also set the position, direction & visibility from the current leader if there is one
-        const entityHasPC = window.currentField.data.script.entities[12].scripts[0].ops.map(s => s.op).includes('PC')
+        const entityHasPC = window.currentField.data.script.entities[entityId].scripts[0].ops.map(s => s.op).includes('PC')
         if (previousLeader && !entityHasPC) {
             console.log('setModelAsLeader previous leader', previousLeader.userData, previousLeader.scene)
             model.scene.position.x = previousLeader.scene.position.x

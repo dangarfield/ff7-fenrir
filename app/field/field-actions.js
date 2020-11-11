@@ -112,6 +112,7 @@ const processLineTriggersForFrame = () => {
             const distance = position.distanceTo(closestPointOnLine)
             const entityId = line.userData.entityId
             if (distance < 0.007) {
+                console.log('processLineTriggersForFrame', line.userData, distance)
                 // if (line.userData.triggered === false) {
                 //     line.userData.triggered = true
                 line.userData.playerClose = true

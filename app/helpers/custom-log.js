@@ -7,8 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'setModelVisibility',
-            // 'printedCompare',
+            // 'setModelVisibility',
+            'processLineTriggersForFrame',
             // 'RDMSD',
             // 'RANDOM',
             // 'getBankData',
