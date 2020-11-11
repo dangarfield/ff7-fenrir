@@ -102,13 +102,20 @@ const setModelAsPlayableCharacter = (entityId, characterName) => {
     model.userData.isPlayableCharacter = true
     model.userData.isLeader = isCharacterTheLeader(characterName)
     model.userData.characterName = characterName
-    console.log('setModelAsPlayableCharacter', entityId, model)
+    console.log('setModelAsPlayableCharacter', entityId, model, window.currentField.futureLeader)
+    if (window.currentField.futureLeader !== undefined && entityId === window.currentField.futureLeader) {
+        console.log('setModelAsPlayableCharacter set leader', entityId, model)
+        setModelAsLeader(entityId)
+    }
 }
-const getFieldModelIdAndEntityIdForPlayableCharacter = (characterId) => {
+const getFieldModelsForPlayableCharacter = (characterId) => {
+    const models = []
+    console.log('getFieldModelsForPlayableCharacter', characterId)
+    // Get the models associated with an entity associated with a PC of that character
     const entities = window.currentField.data.script.entities
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
-        if (entity.entityType !== 'Playable Character') { continue }
+        if (entity.entityType !== 'Playable Character') { continue } // colne1 does not have Playable Character...
         for (let j = 0; j < entity.scripts.length; j++) {
             const script = entity.scripts[j]
             let modelId
@@ -119,18 +126,21 @@ const getFieldModelIdAndEntityIdForPlayableCharacter = (characterId) => {
                     console.log('CHAR', op)
                 } else if (op.op === 'PC' && op.c === characterId) {
                     console.log('PC', op)
-                    return {
+                    models.push({
                         entityName: entity.entityName,
                         entityId: entity.entityId,
                         modelId
-                    }
+                    })
                 }
 
 
             }
         }
     }
-    // Required in debug room where there are no PC
+    if (models.length > 0) {
+        return models
+    }
+    // Else just get the first char (debugging only)
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i]
         if (entity.entityName === 'cl' || entity.entityName === 'cloud') {
@@ -140,17 +150,17 @@ const getFieldModelIdAndEntityIdForPlayableCharacter = (characterId) => {
                     const op = script.ops[k]
                     if (op.op === 'CHAR') {
                         const modelId = op.n
-                        return {
+                        models.push({
                             entityName: entity.entityName,
                             entityId: entity.entityId,
                             modelId
-                        }
+                        })
                     }
                 }
             }
         }
     }
-
+    return models
 }
 const positionPlayableCharacterFromTransition = async () => {
     // This is messy and involves placing the character before the loop starts
@@ -158,28 +168,36 @@ const positionPlayableCharacterFromTransition = async () => {
     if (window.currentField.playableCharacterInitData) {
 
         const initData = window.currentField.playableCharacterInitData
-        console.log('init player from field transition', initData)
+        console.log('positionPlayableCharacterFromTransition initData', initData)
 
         // Need to ensure that this runs after all other entity inits...
-        const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(getPlayableCharacterId(initData.characterName))
-        console.log('positionPlayableCharacterFromTransition', entityId, entityName, modelId, initData)
-        setModelAsEntity(entityId, modelId)
-        setModelAsPlayableCharacter(entityId, initData.characterName)
-        // const model = getModelByCharacterName(initData.characterName)
-        placeModel(entityId, initData.position.x, initData.position.y, initData.position.z, initData.triangleId)
-        setModelDirection(entityId, initData.direction)
-        setModelVisibility(entityId, true)
+        const modelDatas = getFieldModelsForPlayableCharacter(getPlayableCharacterId(initData.characterName))
+        // Frustatingly, there can be more than one model here, eg mrkt2 etc. So, we'll just do them ALL for this
+        // character as in this case, there will be explicit PC and CCs called in the field op codes init scripts
+        // based on the game moment
+        console.log('positionPlayableCharacterFromTransition modelDatas', modelDatas)
+        for (let i = 0; i < modelDatas.length; i++) {
+            const modelData = modelDatas[i]
+            const { entityName, entityId, modelId } = modelData
+            console.log('positionPlayableCharacterFromTransition', entityId, entityName, modelId, initData)
+            setModelAsEntity(entityId, modelId)
+            setModelAsPlayableCharacter(entityId, initData.characterName)
+            placeModel(entityId, initData.position.x, initData.position.y, initData.position.z, initData.triangleId)
+            setModelDirection(entityId, initData.direction)
+            setModelVisibility(entityId, true)
 
-        await setModelAsLeader(entityId)
-        await moveCameraToLeader(true)
-        // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
-        // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
-        // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
-        // window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
+            setModelAsLeader(entityId)
+            await moveCameraToLeader(true)
+            // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
+            // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
+            // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
+            // window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
 
-        // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
-        // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
-        // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+            // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+            // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
+            // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+        }
+
     } else {
         let leaderName = window.data.savemap.party.members[0]
 
@@ -189,12 +207,17 @@ const positionPlayableCharacterFromTransition = async () => {
             leaderName = 'Cloud'
         }
         const leaderId = getPlayableCharacterId(leaderName)
-        const { entityName, entityId, modelId } = getFieldModelIdAndEntityIdForPlayableCharacter(leaderId)
-        console.log('positionPlayableCharacterFromTransition NO init data', window.data.savemap.party.members, entityId, entityName, modelId)
-        setModelAsEntity(entityId, modelId)
-        setModelAsPlayableCharacter(entityId, leaderName)
-        await setModelAsLeader(entityId)
-        await moveCameraToLeader(true)
+
+        const modelDatas = getFieldModelsForPlayableCharacter(leaderId)
+        for (let i = 0; i < modelDatas.length; i++) {
+            const modelData = modelDatas[i]
+            const { entityName, entityId, modelId } = modelData
+            console.log('positionPlayableCharacterFromTransition NO init data', window.data.savemap.party.members, entityId, entityName, modelId)
+            setModelAsEntity(entityId, modelId)
+            setModelAsPlayableCharacter(entityId, leaderName)
+            setModelAsLeader(entityId)
+            await moveCameraToLeader(true)
+        }
     }
 
     updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
@@ -411,25 +434,54 @@ const setModelCollisionRadius = (entityId, radius) => {
     const model = getModelByEntityId(entityId)
     model.userData.collisionRadius = radius
 }
-const setModelAsLeader = async (entityId) => {
+const setModelAsLeader = (entityId) => {
     console.log('setModelAsLeader', entityId)
     window.currentField.models.map(m => {
         m.userData.isLeader = false
     })
     // const entityName = window.currentField.data.script.entities[entityId].entityName
     const model = getModelByEntityId(entityId)
-    // console.log('setModelAsLeader 2', entityId, entityName, model)
-    model.userData.isLeader = true
-    // Leader should be persisted between map jumps by gateways and MAPJUMP
-    // Leader should also be more accessible as it's in the movement section of render loop, eg
-    // We probably shouldn't have to run models.filter(m => m.userData.isLeader)[0] every time
-    window.currentField.playableCharacter = model
-    window.data.savemap.location._fieldLeader = model.userData.characterName
+    if (model !== undefined) { // Eg - CHAR codes have already set models to entities
+        // console.log('setModelAsLeader 2', entityId, entityName, model)
+        const previousLeader = window.currentField.playableCharacter
 
-    // Screen doesn't necessarily move to centre on character
-    // Not sure about this, it takes control of the camera
-    //  which isnt right in all fields where the camera has been previously set
-    // await moveCameraToLeader(true)
+        console.log('setModelAsLeader', entityId, 'MODEL SET')
+        model.userData.isLeader = true
+        // Leader should be persisted between map jumps by gateways and MAPJUMP
+        // Leader should also be more accessible as it's in the movement section of render loop, eg
+        // We probably shouldn't have to run models.filter(m => m.userData.isLeader)[0] every time
+        window.currentField.playableCharacter = model
+        window.data.savemap.location._fieldLeader = model.userData.characterName
+
+        // Screen doesn't necessarily move to centre on character
+        // Not sure about this, it takes control of the camera
+        //  which isnt right in all fields where the camera has been previously set
+        // await moveCameraToLeader(true)
+
+
+        // colne_1 etc doesn't explcitly set the female cloud model as a PC
+        // so we need to also set the position, direction & visibility from the current leader if there is one
+        const entityHasPC = window.currentField.data.script.entities[12].scripts[0].ops.map(s => s.op).includes('PC')
+        if (previousLeader && !entityHasPC) {
+            console.log('setModelAsLeader previous leader', previousLeader.userData, previousLeader.scene)
+            model.scene.position.x = previousLeader.scene.position.x
+            model.scene.position.y = previousLeader.scene.position.y
+            model.scene.position.z = previousLeader.scene.position.z
+            model.scene.rotation.y = previousLeader.scene.rotation.y
+            setModelVisibility(entityId, true)
+        }
+
+
+        if (window.currentField.futureLeader !== undefined) {
+            delete window.currentField.futureLeader
+        }
+
+    } else { // CHAR codes have not set the models to entities
+        // Set future leader so that when this is executed later in a PC, we can also set that model as leader
+        console.log('setModelAsLeader', entityId, 'SET FUTURE LEADER')
+        window.currentField.futureLeader = entityId
+    }
+
 
     // Assist cursor hand displays if visible
     setFieldPointersEnabled(true)

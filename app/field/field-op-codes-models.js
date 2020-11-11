@@ -98,7 +98,7 @@ const SLDR2 = async (entityId, op) => {
 }
 const CC = async (entityId, op) => {
     console.log('CC', entityId, op)
-    await fieldModels.setModelAsLeader(op.e)
+    fieldModels.setModelAsLeader(op.e)
     return {}
 }
 const UC = async (entityId, op) => {

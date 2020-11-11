@@ -7,12 +7,16 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'Loop queued',
+            'setModelVisibility',
             // 'printedCompare',
             // 'RDMSD',
             // 'RANDOM',
             // 'getBankData',
-            // 'setBankData'
+            'gatewayTriggered',
+            'positionPlayableCharacterFromTransition',
+            'setModelAsPlayableCharacter',
+            'setModelAsLeader',
+            'getFieldModelsForPlayableCharacter'
         ],
         log: function () {
             if (limit) {
