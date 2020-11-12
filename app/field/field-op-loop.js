@@ -484,6 +484,11 @@ const initialiseOpLoops = async () => {
     }
     console.log('initialiseOpLoops: END')
 }
+
+// Contact = Priority 1.5
+// Talk = Priority 1.6
+// Eg Neither will supersede a running Priority 0 or 1 script, but will Priority 2 and above
+// The Contact script has priority over the Talk script
 const triggerEntityTalkLoop = async (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
     console.log('triggerEntityTalkLoop', entityId, entity)
@@ -492,7 +497,7 @@ const triggerEntityTalkLoop = async (entityId) => {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 0) // Seems as though it needs to be a lower priority than other scripts
+            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 1.6)
         }
     }
 }
@@ -503,7 +508,7 @@ const triggerEntityCollisionLoop = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // Really, these should be queued in blocks of 8 but needs refactoring
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1.5)
         }
     }
 }
