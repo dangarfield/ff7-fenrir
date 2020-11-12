@@ -148,7 +148,7 @@ const SCR2DC = async (op) => { // Scroll to position with smooth tween
     }
     // await sleep(2000)
     console.log('SCR2DC smooth', op, getCurrentCameraPosition(), to)
-    await tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Smooth, speed)
+    tweenCameraPosition(getCurrentCameraPosition(), to, TweenType.Smooth, speed) // Not await mds7plr1 cloud script 5
     return {}
 }
 const SCRLW = async (op) => { // Wait for scrolling

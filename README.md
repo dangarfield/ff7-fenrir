@@ -71,7 +71,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Decontruct Moviecamera.lgp, interpret camera movements and implement
 - :white_check_mark: Implement / restrict camera movement by implementing the camera range (mds5_3, move_f)
 - :black_square_button: Try and use the background images to cull the entity objects
-- :black_square_button: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin
+- :white_check_mark: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin, think this should be done now
+- :black_square_button: Figure out relative priorities of LINE and COLLISION / TALK triggered scripts
 - :white_check_mark: Investigation of parallax (eg, mds5_4). Not 100% perfect yet midgal)
 - :black_square_button: Fix and finalise UInt Int arrays math for 1 and 2 byte savemap banks
 - :black_square_button: Investigation of moveable washmesh (eg elevators, dolphin minigame)

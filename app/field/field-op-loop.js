@@ -492,7 +492,7 @@ const triggerEntityTalkLoop = async (entityId) => {
         const talkLoop = filteredTalkLoops[0]
         console.log('talkLoop', talkLoop)
         if (!talkLoop.isRunning) {
-            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 7) // Seems as though it needs to be a lower priority than other scripts
+            await executeScriptLoop(window.currentField.name, entity.entityId, talkLoop, 0) // Seems as though it needs to be a lower priority than other scripts
         }
     }
 }
@@ -523,7 +523,7 @@ const triggerEntityGo1xLoop = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // Really, these should be queued in blocks of 8 but needs refactoring
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
         }
 
     }
@@ -536,7 +536,7 @@ const triggerEntityGoLoop = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
         }
     }
 }
@@ -548,7 +548,7 @@ const triggerEntityMoveLoops = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') { // This won't work with fields with both Moves as active scripts
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // async
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // async
         }
     }
 }
@@ -572,7 +572,7 @@ const triggerEntityOKLoop = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
         }
     }
 }
@@ -584,7 +584,7 @@ const triggerEntityGoAwayLoop = async (entityId) => {
     for (let i = 0; i < loops.length; i++) {
         const loop = loops[i]
         if (loop.ops.length > 0 && loop.ops[0].op !== 'RET') {
-            executeScriptLoop(window.currentField.name, entity.entityId, loop, 1) // Will only ever be 1 max
+            executeScriptLoop(window.currentField.name, entity.entityId, loop, 0) // Will only ever be 1 max
         }
     }
 }

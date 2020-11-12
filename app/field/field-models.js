@@ -88,7 +88,7 @@ const setModelAsEntity = (entityId, modelId) => {
         model.scene.visible = true
     }
     model.userData.movementSpeed = 1024 // Looks to be walk by default - md8_2
-    model.userData.animationSpeed = 1 // Looks ok
+    model.userData.animationSpeed = 16 // Looks ok
     model.userData.talkEnabled = true
     model.userData.talkRadius = 60 // Looks ok
     model.userData.collisionEnabled = true
