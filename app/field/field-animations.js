@@ -39,11 +39,14 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
     return new Promise(async (resolve) => {
         try {
             const model = getModelByEntityId(entityId)
-            console.log('playAnimation: START', model.userData.entityName, entityId, animationId, speed, holdLastFrame, loopType, startFrame, endFrame, model)
+            const animationTimeScale = (model.userData.animationSpeed / 16) * speed
+            console.log('playAnimation: START', model.userData.entityName, entityId, animationId, speed, animationTimeScale, holdLastFrame, loopType, startFrame, endFrame, model)
 
             // Store current playing animation for !holdLastFrame
             const previousAnimationId = model.userData.lastAnimationId
             model.userData.lastAnimationId = animationId
+
+
 
             // await sleep(2000)
             // play once, sync, reset back to animation 0
@@ -54,6 +57,8 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
                 animation = newAnimation
             }
             const action = model.mixer.clipAction(animation)
+            action.setEffectiveTimeScale(animationTimeScale)
+
             // action.reset()
             if (action.promises === undefined) {
                 action.promises = []

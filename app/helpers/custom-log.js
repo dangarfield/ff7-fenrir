@@ -9,6 +9,7 @@ window.console = (function (origConsole) {
             'executeOpDEBUG',
             'Loop queued',
             'executeScriptLoopDEBUG',
+            'playAnimation: START',
             // 'RANDOM',
             // 'getBankData',
             'gatewayTriggered',
