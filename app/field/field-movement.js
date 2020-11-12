@@ -230,7 +230,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desired
                 model.scene.position.z = lastZ
 
                 // Camera follow
-                if (model.userData.name === window.currentField.playableCharacter.userData.name) {
+                if (model.userData.name === window.currentField.playableCharacter.userData.name && !window.currentField.isScrolling) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
