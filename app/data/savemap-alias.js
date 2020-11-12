@@ -127,15 +127,15 @@ const getPlayableCharacterInitData = () => {
     return playableCharacterInitData
 }
 const incrementBattlesFought = () => {
-    let count = getBankData(2, 12) // eg 24 / 2
+    let count = getBankData(2, 24)
     count++
-    setBankData(2, 12, count)
-    console.log('incrementBattlesFought', getBankData(2, 12))
+    setBankData(2, 24, count)
+    console.log('incrementBattlesFought', getBankData(2, 24))
 }
 const incrementBattlesEscaped = () => {
-    let count = getBankData(2, 13)
+    let count = getBankData(2, 26)
     count++
-    setBankData(2, 13, count)
+    setBankData(2, 26, count)
 }
 
 export {

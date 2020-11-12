@@ -501,6 +501,7 @@ setTimeout(async () => {
     // await IDLCK('cl', { i: 21, s: 1 })
     // console.log('ANIM: ENDED')
     // setInterval(async () => {
+    // console.log('5,18 -> ', window.getBankData(5, 18), '6,9 -> ', window.getBankData(6, 9))
     //     await GETAI('cl', { b: 6, a: 4, e: 1 })
     //     await GETAXY('cl', { bx: 6, x: 1, by: 6, y: 3, e: 1 })
     //     await AXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, a: 1 })

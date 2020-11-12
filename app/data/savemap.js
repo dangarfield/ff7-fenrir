@@ -92,6 +92,27 @@ const identifyBank = (bankRef) => {
     return { bank, bytes }
 }
 
+// http://forums.qhimm.com/index.php?topic=15763.0
+
+// 1/2 are Bank 1
+// 3/4 are Bank 2
+// 5/6 are temporary vars in game and not saved.  They reset to 0 every time you enter new field.
+// 8/9 & 10 cannot be written to. 
+// 11/12 are Bank 3
+// 13/14 are Bank 4
+// 15/7 are Bank 5
+
+// Field vars 1, 3, 5, 15, 11, 13 are for one-byte writes
+// Field vars  2, 4, 6, 12, 14, 7 are for two-byte writes
+
+// (Yeah, for some reason, variable 7 is for two bytes, and variable 15 is for one byte.  Just stop dreaming that FF7 will ever make sense).
+
+// Remember that 1/2, 3/4, 5/6, 11/12, 13/14 and 15/7 share the SAME 256 bytes.
+// So if you write to var [1][10] you are ALSO writing to [2][10] (Bank 1, Byte 10).
+// And if you write to var [2][10] you are ALSO writing to [1][10] and [1][11] (Bank 1, Bytes 10 and 11).
+
+
+
 const UInt8 = function (value) {
     return (value & 0xFF)
 }
@@ -101,16 +122,16 @@ const Int8 = function (value) {
 }
 
 
-const getValueFromBank = (bank, type, index) => {
-    // if (index === 16) {
-    // console.log('getValueFromBank', type, index, '->', bank[index], bank[index * 2])
-    // }
+const getValueFromBank = (bankRef, bank, type, index) => {
+    if ((bankRef === 5 && index === 18) || (bankRef === 6 && index === 9)) {
+        console.log('getValueFromBank', bankRef, type, index, '->', bank[index], bank[index * 2])
+    }
 
     if (type === 1) {
         return bank[index].valueOf()
     } else {
         // TODO - Not sure when to using signed or unsigned... so for now, just set a two byte value into the index (eg int16)
-        return bank[index * 2].valueOf()
+        return bank[index].valueOf()
         // const bit1 = bank[(index * 2) + 1]
         // const bit2 = bank[(index * 2) + 0]
 
@@ -121,18 +142,18 @@ const getValueFromBank = (bank, type, index) => {
         // return bit16
     }
 }
-const setValueToBank = (bank, type, index, newValue) => {
+const setValueToBank = (bankRef, bank, type, index, newValue) => {
     // if (newValue === 148) { // Debug
     //     console.log('setValueToBank GOTCHA', type, index, '->', newValue)
     // }
-    // if (index === 16) {
-    //     console.log('setValueToBank', type, index, '->', newValue)
-    // }
+    if ((bankRef === 5 && index === 18) || (bankRef === 6 && index === 9)) {
+        console.log('setValueToBank', bankRef, type, index, '->', newValue)
+    }
     if (type === 1) {
         bank[index] = newValue
     } else {
         // TODO - Not sure when to using signed or unsigned... so for now, just set a two byte value into the index
-        bank[index * 2] = newValue
+        bank[index] = newValue
         // var bit2 = UInt8(newValue >> 8) //((newValue >> 8) & 0xff)
         // var bit1 = UInt8(newValue) //newValue & 0xff
         // bank[(index * 2) + 1] = bit1
@@ -143,7 +164,7 @@ const setValueToBank = (bank, type, index, newValue) => {
 const getBankData = window.getBankData = (bankRef, index) => {
     // console.log('getBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
-    const value = getValueFromBank(bankData.bank, bankData.bytes, index)
+    const value = getValueFromBank(bankRef, bankData.bank, bankData.bytes, index)
     // if (bankRef === 5 && (index === 4 || index === 7 || index === 8 || index === 9)) { // Debug
     //     console.log('getBankData', bankRef, index, '->', value)
     // }
@@ -152,7 +173,7 @@ const getBankData = window.getBankData = (bankRef, index) => {
 const setBankData = (bankRef, index, value) => {
     // console.log('setBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
-    setValueToBank(bankData.bank, bankData.bytes, index, value)
+    setValueToBank(bankRef, bankData.bank, bankData.bytes, index, value)
     processSavemapAlias(bankRef, index, value)
     // if (bankRef === 5 && (index === 4 || index === 7 || index === 8 || index === 9)) { // Debug
     //     console.log('setBankData', bankRef, index, '->', value)

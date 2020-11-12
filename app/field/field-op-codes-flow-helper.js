@@ -44,10 +44,12 @@ const getOpIndexForByteIndex = (ops, goto) => {
 
     // This should not really happen, bugs found: 
     // window.alert(`No matching byteIndex for goto - ${goto} - ${JSON.stringify(closest)}`)
-    console.log(`FLOW ERROR - No matching byteIndex for goto - ${goto} - ${JSON.stringify(minusOne)}`)
+
     if (minusOne) {
+        console.log(`FLOW ERROR - No matching byteIndex for goto - ${goto} - using minusOne - ${JSON.stringify(minusOne)}`)
         return minusOne
     }
+    console.log(`FLOW ERROR - No matching byteIndex for goto - ${goto} - no minusOne found`)
     // return closest
     return { exit: true }
 }
