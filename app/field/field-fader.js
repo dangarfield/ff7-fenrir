@@ -14,12 +14,23 @@ const isFadeInProgress = () => { return fadeInProgress }
 const setFadeInProgress = (progress) => { fadeInProgress = progress }
 let inProgressFades = []
 
+const setTransitionFaderColor = (newColor) => {
+    transitionFader.material.color = newColor
+    console.log('setTransitionFaderColor', newColor, transitionFader.material.color)
+}
+const getTransitionFaderColor = () => {
+    return transitionFader.material.color
+}
 
+const TRANSITION_COLOR = {
+    WHITE: new THREE.Color(0xFFFFFF),
+    BLACK: new THREE.Color(0x000000)
+}
 
-const drawFaders = () => {
+const drawFaders = (whiteTransition) => {
     console.log('drawFaders')
     let transitionFaderGeo = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
-    let transitionFaderMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
+    let transitionFaderMat = new THREE.MeshBasicMaterial({ color: TRANSITION_COLOR.BLACK, side: THREE.DoubleSide, transparent: true })
     transitionFader = new THREE.Mesh(transitionFaderGeo, transitionFaderMat)
 
     transitionFader.doubleSided = true
@@ -30,7 +41,7 @@ const drawFaders = () => {
 
 
     let fadeFaderGeo = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
-    let fadeFaderMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide, transparent: true })
+    let fadeFaderMat = new THREE.MeshBasicMaterial({ color: TRANSITION_COLOR.BLACK, side: THREE.DoubleSide, transparent: true })
     fadeFaderMat.blending = THREE.AdditiveBlending
     fadeFader = new THREE.Mesh(fadeFaderGeo, fadeFaderMat)
 
@@ -39,6 +50,9 @@ const drawFaders = () => {
     // By default the position is placed behind the text (eg) at back of ortho scene
     // window.currentField.fadeFader = fadeFader
     orthoFrontScene.add(fadeFader)
+    if (whiteTransition) {
+        setTransitionFaderColor(TRANSITION_COLOR.WHITE)
+    }
     console.log('drawFaders', transitionFader)
 
 }
@@ -77,7 +91,6 @@ const transitionOut = async (fast) => {
     transitionFader.position.z = 1000
     setTransitionInProgress(true)
     transitionFader.material.blending = THREE.NormalBlending
-    transitionFader.material.color = new THREE.Color(0x000000)
     await fadeTransition(transitionFader.material, { opacity: 1 }, fast ? 30 * 0.4 : 30 * 0.8)
     setTransitionInProgress(false)
     transitionFader.position.z = 0
@@ -87,7 +100,6 @@ const transitionIn = async () => {
     console.log('transitionIn', transitionFader)
     setTransitionInProgress(true)
     transitionFader.material.blending = THREE.NormalBlending
-    transitionFader.material.color = new THREE.Color(0x000000)
     await fadeTransition(transitionFader.material, { opacity: 0 }, 30 * 0.4)
     setTransitionInProgress(false)
     transitionFader.position.z = 0
@@ -209,6 +221,11 @@ const fadeOperation = async (type, r, g, b, speed) => {
             fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorStandard, timeMs)
             break
     }
+    if (r === 255 && g === 255 && b === 255) {
+        setTransitionFaderColor(TRANSITION_COLOR.WHITE)
+    } else {
+        setTransitionFaderColor(TRANSITION_COLOR.BLACK)
+    }
 }
 const nfadeOperation = async (type, r, g, b, frames) => {
     console.log('nfadeOperation', type, r, g, b, frames)
@@ -238,5 +255,8 @@ export {
     fadeOperation,
     nfadeOperation,
     isTransitionInProgress,
-    waitForFade
+    waitForFade,
+    setTransitionFaderColor,
+    getTransitionFaderColor,
+    TRANSITION_COLOR
 }

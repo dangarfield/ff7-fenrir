@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-import { isTransitionInProgress, transitionIn, transitionOut } from './field-fader.js'
+import { isTransitionInProgress, transitionIn, transitionOut, getTransitionFaderColor, TRANSITION_COLOR } from './field-fader.js'
 import { loadField } from './field-module.js'
 import { startFieldRenderLoop } from './field-scene.js'
 import { loadMenuWithWait, loadMenuWithoutWait, doesMenuRequireTransitionOut, loadTutorial } from '../menu/menu-module.js'
@@ -266,11 +266,18 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
     await transitionOut()
+    let characterName = ''
+    if (window.currentField.playableCharacter) {
+        characterName = window.currentField.playableCharacter.userData.characterName
+    }
     const playableCharacterInitData = {
         triangleId: triangleId,
         position: { x: x, y: y },
         direction: direction,
-        characterName: window.currentField.playableCharacter.userData.characterName
+        characterName
+    }
+    if (getTransitionFaderColor() === TRANSITION_COLOR.WHITE) {
+        playableCharacterInitData.whiteTransition = true
     }
     loadField(fieldName, playableCharacterInitData)
 }

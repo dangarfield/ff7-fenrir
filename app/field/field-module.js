@@ -65,7 +65,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         }
     }
     updateSavemapLocationField(fieldName, fieldName)
-    showLoadingScreen()
+    showLoadingScreen(playableCharacterInitData.whiteTransition)
     resetTempBank()
     window.currentField.data = await loadFieldData(fieldName)
     window.currentField.media = await preLoadFieldMediaData()
@@ -74,7 +74,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     window.currentField.cameraTarget = setupFieldCamera()
     await setupOrthoBgCamera()
     await setupOrthoCamera()
-    drawFaders()
+    drawFaders(playableCharacterInitData.whiteTransition)
     clearAllDialogs()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)

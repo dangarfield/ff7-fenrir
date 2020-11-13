@@ -83,9 +83,18 @@ const renderLoop = function () {
         window.anim.stats.update()
     }
 }
-const showLoadingScreen = () => {
+const showLoadingScreen = (whiteTransition) => {
     if (window.anim.activeScene !== 'loading') {
         window.anim.activeScene = 'loading'
+        if (whiteTransition) {
+            scene.background = new THREE.Color(0xFFFFFF)
+            bar.material.color = new THREE.Color(0x000000)
+            text.material.color = new THREE.Color(0x000000)
+        } else {
+            scene.background = new THREE.Color(0x000000)
+            bar.material.color = new THREE.Color(0xFFFFFF)
+            text.material.color = new THREE.Color(0xFFFFFF)
+        }
         setLoadingProgress(0)
         text.material.opacity = 0
         bar.material.opacity = 0

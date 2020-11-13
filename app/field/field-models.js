@@ -220,7 +220,9 @@ const positionPlayableCharacterFromTransition = async () => {
         }
     }
 
-    updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
+    if (window.currentField.playableCharacter) {
+        updateCurrentTriangleId(window.currentField.playableCharacter, window.currentField.playableCharacter.scene.position)
+    }
     drawArrowPositionHelpers()
 }
 const placeModel = (entityId, x, y, z, triangleId) => {
@@ -415,6 +417,7 @@ const setModelDirection = (entityId, direction) => {
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)
     if (model === undefined) { return }
+    // console.log('setModelDirection', entityId, direction, model, deg)
     model.scene.rotation.y = THREE.Math.degToRad(deg)
 }
 const setModelMovementSpeed = (entityId, speed) => {

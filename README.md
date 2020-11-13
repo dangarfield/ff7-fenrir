@@ -82,6 +82,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Movement tweens should 'pause' when the op is not called
 - :black_square_button: Investigate animation reset states, document and implement
 - :black_square_button: Still need to improve background image rendering - mds6_22
+- :black_square_button: field fades to white then trnsitions - mds6_1, ealin_12
 - :black_square_button: NPC walk (moveEntity) speed is wrong
 - :black_square_button: Add rather than hardcode collision and talk distances
 - :black_square_button: Line, gateway and entity collisions should really be in the main rendering loop rather than player movement
@@ -96,7 +97,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Field pointer sizes are wrong
 - :black_square_button: Many gateway pointers are missing
 - :black_square_button: Implement KAWAI graphic effects
-- :black_square_button: Offsets are not 100% - mds7_w2 -> save
+- :black_square_button: Offsets are not 100% - mds7_w2 -> save, pillar_3
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: ASK pointer shadow is too dark
 - :black_square_button: Implement remaining difficult op codes

@@ -9,14 +9,9 @@ window.console = (function (origConsole) {
             'executeOpDEBUG',
             'Loop queued',
             'executeScriptLoopDEBUG',
-            // 'playAnimation: START',
-            // 'RANDOM',
-            // 'getBankData',
-            'gatewayTriggered',
-            'positionPlayableCharacterFromTransition',
-            'setModelAsPlayableCharacter',
-            'setModelAsLeader',
-            'getFieldModelsForPlayableCharacter'
+            'fadeOperation',
+            'setTransitionFaderColor',
+            'fadeTransition'
         ],
         log: function () {
             if (limit) {
