@@ -1,7 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
-    initiateTalk, isActionInProgress, transitionOutAndLoadMenu
+    isActionInProgress, transitionOutAndLoadMenu, processTalkContactTrigger
 } from './field-actions.js'
 import { nextPageOrCloseActiveDialogs, navigateChoice, isChoiceActive } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
@@ -20,31 +20,12 @@ const initFieldKeypressActions = () => {
             nextPageOrCloseActiveDialogs()
         }
 
-        if (areFieldControlsActive() && firstPress && window.currentField.playableCharacter && window.currentField.playableCharacterCanMove) {
+        if (areFieldControlsActive() && firstPress && window.currentField.playableCharacter) {
             // Check talk request - Initiate talk
             console.log('o', isActionInProgress())
             // Probably need to look at a more intelligent way to define which actions are performed
             // Should really be done in the rendering loop for collision
-            for (let i = 0; i < window.currentField.models.length; i++) {
-                if (window.currentField.models[i].scene.userData.closeToTalk === true &&
-                    window.currentField.models[i].userData.talkEnabled === true) {
-                    // setActionInProgress('talk')
-                    initiateTalk(i, window.currentField.models[i])
-                    break
-                }
-            }
-            // for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
-            //     const line = window.currentField.lineLines.children[i]
-            //     if (line.userData.enabeled) {
-            //         if (line.userData.triggered) {
-            //             // TODO - This can be called whilst dialogs are shown etc
-            //             // maybe only trigger this if player is allowed to move
-            //             lineOKTriggered(line.userData.entityId)
-            //             lineGoTriggered(line.userData.entityId, line) // Workaround for ladders
-            //         }
-            //     }
-            // }
-
+            processTalkContactTrigger()
         }
     })
 

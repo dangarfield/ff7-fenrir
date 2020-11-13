@@ -93,6 +93,58 @@ const processTalkContactTriggersForFrame = () => {
         return
     }
 }
+const processTalkContactTrigger = () => {
+    if (!window.currentField.playableCharacter) {
+        return
+    }
+    // TODO - There should probably be another mechanism of seeing if the player is allowed to talk
+    // It COULD be whether they are allowed to move or not, but this breaks on ealin_2
+    if (window.currentField.setPlayableCharacterIsInteracting) {
+        console.log(`Talk distance PLAYER IS INTERACTING`)
+        return
+    }
+
+    const position = window.currentField.playableCharacter.scene.position
+    const closeModels = []
+    for (let i = 0; i < window.currentField.models.length; i++) {
+        const fieldModel = window.currentField.models[i]
+        if (fieldModel === window.currentField.playableCharacter) {
+            continue
+        }
+        if (fieldModel.scene.position.x === 0 &&
+            fieldModel.scene.position.y === 0 &&
+            fieldModel.scene.position.z === 0) { // Temporary until we place models properly, playable chars are dropped at 0,0,0
+            continue
+        }
+        if (fieldModel.visible === false) {
+            continue
+        }
+        if (!fieldModel.userData.talkEnabled) {
+            continue
+        }
+        const distance = position.distanceTo(fieldModel.scene.position)
+        const cutoff = (fieldModel.userData.talkRadius / 4096 * 1.85) // Seems to be 1.3, but in ealin_2, needs to be higher
+        const closeToTalk = distance < cutoff
+        console.log(`Talk distance ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, i, distance, cutoff, closeToTalk)
+        if (closeToTalk) {
+            closeModels.push({ distance, fieldModel })
+            initiateTalk(fieldModel)
+        }
+    }
+    closeModels.sort((a, b) => a.distance - b.distance)
+
+    if (closeModels.length > 0) {
+        for (let i = 0; i < closeModels.length; i++) {
+            const fieldModel = closeModels[i].fieldModel
+            const distance = closeModels[i].distance
+            console.log(`Talk distance sorted ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, distance)
+        }
+        const fieldModel = closeModels[0].fieldModel
+        const distance = closeModels[0].distance
+        console.log(`Talk distance closest ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, distance)
+
+    }
+}
 const processLineTriggersForFrame = () => {
     if (!window.currentField.playableCharacter) {
         return
@@ -200,8 +252,8 @@ const modelCollisionTriggered = (i, fieldModel) => {
     triggerEntityCollisionLoop(fieldModel.userData.entityId)
 }
 
-const initiateTalk = async (i, fieldModel) => {
-    console.log('initiateTalk', i, fieldModel)
+const initiateTalk = async (fieldModel) => {
+    console.log('initiateTalk', fieldModel)
     setPlayableCharacterIsInteracting(true)
     window.currentField.playableCharacter.mixer.stopAllAction()
     triggerEntityTalkLoop(fieldModel.userData.entityId)
@@ -210,6 +262,7 @@ const initiateTalk = async (i, fieldModel) => {
 }
 
 const setPlayableCharacterIsInteracting = (isInteracting) => {
+    console.log('setPlayableCharacterIsInteracting', isInteracting)
     window.currentField.playableCharacterIsInteracting = isInteracting
     // window.currentField.playableCharacterCanMove = !isInteracting
 }
@@ -320,7 +373,6 @@ export {
     gatewayTriggered,
     triggerTriggered,
     modelCollisionTriggered,
-    initiateTalk,
     setPlayableCharacterIsInteracting,
     isActionInProgress,
     setActionInProgress,
@@ -333,5 +385,6 @@ export {
     jumpToMap,
     jumpToMapFromMiniGame,
     jumpToMiniGame,
-    processLineTriggersForFrame
+    processLineTriggersForFrame,
+    processTalkContactTrigger
 }

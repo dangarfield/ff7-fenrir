@@ -258,18 +258,8 @@ const updateFieldMovement = (delta) => {
         // Need to check distances aren't set from op codes, and solidMode is enabled etc
         // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
         // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, fieldModel.userData.talkRadius / 4096 * 1.3, distance)
-        console.log(`Talk distance ${fieldModel.userData.entityName}`, i, distance, (fieldModel.userData.talkRadius / 4096 * 1.3))
-        if (distance < (fieldModel.userData.talkRadius / 4096 * 1.3)) { //60 is roughly 0.015
-            if (fieldModel.scene.userData.closeToTalk === false) {
-                fieldModel.scene.userData.closeToTalk = true
-                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
-            }
-        } else {
-            if (fieldModel.scene.userData.closeToTalk === true) {
-                fieldModel.scene.userData.closeToTalk = false
-                console.log('Close to talk', i, fieldModel.scene.userData.closeToTalk, fieldModel.userData)
-            }
-        }
+
+        // Note: Talk is now controlled from field-action.js
         if (distance < 0.01) { // Set based on collisionRadius
             if (fieldModel.scene.userData.closeToCollide === false && fieldModel.userData.collisionEnabled) {
                 fieldModel.scene.userData.closeToCollide = true

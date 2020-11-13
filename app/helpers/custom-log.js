@@ -7,11 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'Loop queued',
-            'executeScriptLoopDEBUG',
-            'fadeOperation',
-            'setTransitionFaderColor',
-            'fadeTransition'
+            'Loop queued'
         ],
         log: function () {
             if (limit) {

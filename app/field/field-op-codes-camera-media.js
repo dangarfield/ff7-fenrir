@@ -21,6 +21,7 @@ const SHAKE = async (op) => { // TODO: Lots of improvements
     console.log('SHAKE:', op)
     // There is a lot of guesswork here
     // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
+    window.currentField.fieldCameraFollowPlayer = false
     const position = getCurrentCameraPosition()
     const frames = op.s >= 10 ? op.s : Math.ceil(op.s / 8) // Making this appear of for fast (cargoin) and slow (ship_2)
     const amplitude = Math.max(1, op.a / 4)

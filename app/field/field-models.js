@@ -417,7 +417,6 @@ const setModelDirection = (entityId, direction) => {
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)
     if (model === undefined) { return }
-    // console.log('setModelDirection', entityId, direction, model, deg)
     model.scene.rotation.y = THREE.Math.degToRad(deg)
 }
 const setModelMovementSpeed = (entityId, speed) => {
