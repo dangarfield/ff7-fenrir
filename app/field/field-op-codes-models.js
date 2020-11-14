@@ -149,7 +149,8 @@ const CANM_1 = async (entityId, op) => { // Play partially the animation #%1 of 
 const CANM_2 = async (entityId, op) => { // Play partially the animation #%1 of the field model (first frame=%2, last frame=%3, speed=%4)
     console.log('CANM!2', entityId, op)
     await fieldAnimations.playAnimationPartialOnceSyncHoldLastFrame(entityId, op.a, op.s, op.f, op.l)
-    await sleep(1000 / 30 * 4)
+    // Setting a delay here breaks wcrimb_1 wcm1rp, need to look to see why I added this in the first place
+    // await sleep(1000 / 30 * 1)
     return {}
 }
 const DFANM = async (entityId, op) => { // Play loop animation #%1 of the field model (speed=%2)

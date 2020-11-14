@@ -92,10 +92,12 @@ const updateFieldMovement = (delta) => {
         // Create a ray at next position (higher z, but pointing down) to find correct z position
         // TODO - Need to deal with transitioning from a non-adjacent triangle, eg, just to different areas
         let playerMovementRay = new THREE.Raycaster()
-        const rayO = new THREE.Vector3(nextPositionForRaycast.x, nextPositionForRaycast.y, nextPositionForRaycast.z + 0.05)
+
+        const RAY_HEIGHT = 0.1
+        const rayO = new THREE.Vector3(nextPositionForRaycast.x, nextPositionForRaycast.y, nextPositionForRaycast.z + RAY_HEIGHT)
         const rayD = new THREE.Vector3(0, 0, -1).normalize()
         playerMovementRay.set(rayO, rayD)
-        playerMovementRay.far = 0.1
+        playerMovementRay.far = RAY_HEIGHT * 2
         let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
         // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
         if (window.config.debug.showMovementHelpers) {

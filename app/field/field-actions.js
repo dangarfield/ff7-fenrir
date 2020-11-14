@@ -171,7 +171,7 @@ const processLineTriggersForFrame = () => {
                 if (line.userData.triggeredOnce === undefined || line.userData.triggeredOnce === false) {
                     triggerEntityGo1xLoop(entityId)
                     line.userData.triggeredOnce = true
-                    return
+                    continue
                 }
                 line.userData.triggered = true
                 triggerEntityGoLoop(entityId)
@@ -201,14 +201,14 @@ const processLineTriggersForFrame = () => {
                     if (canOKLoopBeTriggeredOnMovement(entityId)) {
                         triggerEntityOKLoop(entityId)
                     }
-                    return
+                    continue
                 } else if (getActiveInputs().o) {
                     triggerEntityOKLoop(entityId)
-                    return
+                    continue
                 } else {
-                    triggerEntityMoveLoops(entityId) // Adding this back in for any movement as in ealin_1
+                    // triggerEntityMoveLoops(entityId) // Adding this back in for any movement as in ealin_1
                     // TODO - Should be looked at later, potentially checking to see if any gateways have been crossed AFTER the event loop has gone round each time
-                    return
+                    // return
                 }
 
                 // }
@@ -230,7 +230,7 @@ const processLineTriggersForFrame = () => {
                     triggerEntityGoAwayLoop(entityId)
                     line.userData.triggered = false
                     line.userData.triggeredOnce = false
-                    return
+                    continue
                 }
                 // line.userData.triggered = false
                 // line.userData.triggeredOnce = false

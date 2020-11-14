@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'playAnimation'
+            'processLineTriggersForFrame'
         ],
         log: function () {
             if (limit) {

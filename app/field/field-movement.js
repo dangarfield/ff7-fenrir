@@ -97,6 +97,9 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(targetVector, true, new THREE.Vector3())
                             const distance = targetVector.distanceTo(closestPointOnLine)
                             const entityId = line.userData.entityId
+
+
+                            console.log('moveEntityJump: land', line.userData)
                             if (distance < 0.01) {
                                 if (line.userData.triggered === false) {
                                     line.userData.triggered = true
