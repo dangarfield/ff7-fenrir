@@ -6,7 +6,8 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'executeOpDEBUG'
+            'executeOpDEBUG',
+            'playAnimation'
         ],
         log: function () {
             if (limit) {

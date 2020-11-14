@@ -160,9 +160,12 @@ const waitForAnimationPromiseToBeResolved = async (model, entityId, animationId)
 
 }
 const bindAnimationCompletion = (model) => {
+    // Note: Some anims dont finish if others are running?? - mrkt4 cloud Script 6 ANIME1
     model.mixer.addEventListener('finished', async (e) => {
         console.log('playAnimation finished mixer', e.action.userData, e, e.target, e.target.promise)
         if (e.action.promises && e.action.promises.length > 0) {
+            console.log('playAnimation finished mixer promises', e.action.userData.entityName, e.action.promises)
+
             // while (e.action.promises.length) {
             const promise = e.action.promises.pop()
             console.log('playAnimation finished mixer promise', e.action.userData.entityName, promise.id, e)
@@ -222,27 +225,22 @@ const setPlayerMovementAnimationId = (animationId, movementType) => {
 const splitClip = (clip, startFrame, endFrame) => {
     let split
     console.log('playAnimation splitClip START:', clip.duration, clip.duration * 30, clip.tracks)
-    if (startFrame > 0 && startFrame === endFrame) {
-        startFrame--
-        console.log('playAnimation splitClip ADJUST START:', startFrame, endFrame)
-        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
-        while (split.duration === 0) {
+    split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+
+    while (split.duration === 0) {
+        if (startFrame > 0) {
             startFrame--
-            console.log('playAnimation splitClip ADJUST START:', startFrame, endFrame)
-            split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
         }
-    } else if (startFrame === 0 && startFrame === endFrame) {
+        console.log('playAnimation splitClip ADJUST DOWN:', startFrame, endFrame)
+        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30)
+        if (split.duration > 0) {
+            continue
+        }
         endFrame++
-        console.log('playAnimation splitClip ADJUST END:', startFrame, endFrame)
-        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
-        while (split.duration === 0) {
-            endFrame++
-            console.log('playAnimation splitClip ADJUST END:', startFrame, endFrame)
-            split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
-        }
-    } else {
-        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30) // Think 30 is ok
+        console.log('playAnimation splitClip ADJUST UP:', startFrame, endFrame)
+        split = THREE.AnimationUtils.subclip(clip, 'split', startFrame, endFrame, 30)
     }
+
     console.log('playAnimation splitClip END:', clip.duration, '-', startFrame, endFrame, '->', split.duration, clip, split)
     return split
 }
