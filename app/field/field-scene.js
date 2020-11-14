@@ -432,6 +432,7 @@ const setupViewClipping = async () => {
     // Need to set a default, this is centre, should really be triggered from the player character being active on the screen
     const x = window.currentField.metaData.assetDimensions.width / 2
     const y = window.currentField.metaData.assetDimensions.height / 2
+    console.log('adjustViewClipping setupViewClipping')
     adjustViewClipping(x, y) // Set initial view, will be overridden on movement and op codes, probably also when we place the playable character
     // console.log('window.currentField.metaData', window.currentField.metaData)
 }

@@ -13,14 +13,17 @@ const getCurrentCameraPosition = () => {
 }
 const tweenShake = (from, to, frames) => {
     return new Promise(async (resolve) => {
+        window.currentField.isScrolling = true
         let time = Math.floor(frames * 1000 / 30)
         new TWEEN.Tween(from)
             .to(to, time)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
+                console.log('adjustViewClipping tweenShake')
                 adjustViewClipping(from.x, from.y)
             })
             .onComplete(function () {
+                window.currentField.isScrolling = false
                 resolve()
             })
             .start()
@@ -33,6 +36,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
         let time = Math.floor(frames * 1000 / 30)
         console.log('tweenCameraPosition', from, to, frames, time, tweenType)
         if (tweenType === TweenType.Instant) {
+            console.log('adjustViewClipping tweenCameraPosition')
             adjustViewClipping(to.x, to.y)
             window.currentField.isScrolling = false
             resolve()
@@ -42,6 +46,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
                 .to(to, time)
                 .easing(easing)
                 .onUpdate(function () {
+                    console.log('adjustViewClipping tweenCameraPosition')
                     adjustViewClipping(from.x, from.y)
                     if (entityToFollow) {
                         let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entityToFollow.scene.position)
@@ -66,6 +71,7 @@ const moveCameraToLeader = async (instant) => { // Scroll to leader
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('moveCameraToLeader', getCurrentCameraPosition(), relativeToCamera)
     if (instant) {
+        console.log('adjustViewClipping moveCameraToLeader instant')
         adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     } else {
         await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)

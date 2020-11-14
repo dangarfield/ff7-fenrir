@@ -6,10 +6,7 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'executeOpDEBUG',
-            'Loop queued',
-            'processLineTriggersForFrame',
-            'gateway hit'
+            'executeOpDEBUG'
         ],
         log: function () {
             if (limit) {

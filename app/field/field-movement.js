@@ -80,6 +80,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                 // TODO - Update camera position
                 if (model.userData.isPlayableCharacter) {
                     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
+                    console.log('adjustViewClipping moveEntityJump')
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
                 }
                 updateCursorPositionHelpers()
@@ -234,6 +235,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desired
                 if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
+                    console.log('adjustViewClipping moveEntity')
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
                 }
             }
@@ -340,6 +342,7 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
                 if (model.userData.name === window.currentField.playableCharacter.userData.name) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(from)
+                    console.log('adjustViewClipping moveEntityLadderNPC')
                     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
                 }
             })

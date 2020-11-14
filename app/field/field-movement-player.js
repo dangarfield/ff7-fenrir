@@ -282,10 +282,11 @@ const updateFieldMovement = (delta) => {
     window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
     // Update camera position if camera is following user
-    if (window.currentField.fieldCameraFollowPlayer) {
+    if (window.currentField.fieldCameraFollowPlayer && !window.currentField.isScrolling) {
         // Adjust the camera offset to centre on character
         const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
         // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
+        console.log('adjustViewClipping player movement')
         adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     }
 
@@ -373,6 +374,7 @@ const ladderMovement = (speed) => {
 
     // Update camera position
     const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
+    console.log('adjustViewClipping ladder movement')
     adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
 
     // Check for arrival

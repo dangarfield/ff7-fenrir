@@ -98,6 +98,7 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
             //     oldPosition.y !== entity.scene.position.y,
             //     oldPosition.z !== entity.scene.position.z)
             let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entity.scene.position)
+            console.log('adjustViewClipping SCRLA end')
             adjustViewClipping(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
         }
         console.log('SCRLA finished')
