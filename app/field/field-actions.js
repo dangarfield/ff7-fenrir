@@ -202,10 +202,12 @@ const processLineTriggersForFrame = () => {
                         triggerEntityOKLoop(entityId)
                     }
                     return
-                }
-
-                if (getActiveInputs().o) {
+                } else if (getActiveInputs().o) {
                     triggerEntityOKLoop(entityId)
+                    return
+                } else {
+                    triggerEntityMoveLoops(entityId) // Adding this back in for any movement as in ealin_1
+                    // TODO - Should be looked at later, potentially checking to see if any gateways have been crossed AFTER the event loop has gone round each time
                     return
                 }
 

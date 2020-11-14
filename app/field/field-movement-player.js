@@ -155,25 +155,7 @@ const updateFieldMovement = (delta) => {
 
 
 
-    // Detect gateways
-    if (window.currentField.gatewayTriggersEnabled) {
-        for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
-            const gatewayLine = window.currentField.gatewayLines.children[i]
-            const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
-            const distance = nextPosition.distanceTo(closestPointOnLine)
-            if (distance < 0.005) {
-                console.log('gateway hit')
-                if (animNo === 2) { // Run
-                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
-                } else if (animNo === 1) { // Walk
-                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
-                }
-                // Should probably also pause ALL animations including screen background loops like in the game
-                gatewayTriggered(i)
-                return
-            }
-        }
-    }
+
     // Detect triggers
     for (let i = 0; i < window.currentField.triggerLines.children.length; i++) {
         const triggerLine = window.currentField.triggerLines.children[i]
@@ -203,35 +185,6 @@ const updateFieldMovement = (delta) => {
             window.currentField.playableCharacter.mixer.stopAllAction()
             return
         }
-        //         const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
-        //         const distance = nextPosition.distanceTo(closestPointOnLine)
-        //         const entityId = line.userData.entityId
-        //         if (distance < 0.01) {
-        //             if (line.userData.triggered === false) {
-        //                 line.userData.triggered = true
-        //                 lineMoveTriggered(entityId, line)
-        //             }
-        //             if (isSlipDirection && !line.userData.slippabilityEnabled) {
-        //                 window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
-        //                 window.currentField.playableCharacter.mixer.stopAllAction()
-        //                 return
-        //             }
-        //         } else {
-        //             if (line.userData.triggered === true) {
-        //                 line.userData.triggered = false
-        //                 lineGoTriggered(entityId, line)
-        //             }
-        //         }
-        //         if (distance < 0.05) { // TODO - Guess
-        //             if (line.userData.triggeredAway === false) {
-        //                 line.userData.triggeredAway = true
-        //             }
-        //         } else {
-        //             if (line.userData.triggeredAway === true) {
-        //                 line.userData.triggeredAway = false
-        //                 lineAwayTriggered(entityId)
-        //             }
-        //         }
     }
 
     // Detect model collisions
@@ -292,7 +245,25 @@ const updateFieldMovement = (delta) => {
         }
     }
 
-
+    // Detect gateways
+    if (window.currentField.gatewayTriggersEnabled) {
+        for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
+            const gatewayLine = window.currentField.gatewayLines.children[i]
+            const closestPointOnLine = new THREE.Line3(gatewayLine.geometry.vertices[0], gatewayLine.geometry.vertices[1]).closestPointToPoint(nextPosition, true, new THREE.Vector3())
+            const distance = nextPosition.distanceTo(closestPointOnLine)
+            if (distance < 0.005) {
+                console.log('gateway hit')
+                if (animNo === 2) { // Run
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[2]).paused = true
+                } else if (animNo === 1) { // Walk
+                    window.currentField.playableCharacter.mixer.clipAction(window.currentField.playableCharacter.animations[1]).paused = true
+                }
+                // Should probably also pause ALL animations including screen background loops like in the game
+                gatewayTriggered(i)
+                return
+            }
+        }
+    }
 
     // If walk/run is toggled, stop the existing window.animation
     if (animNo === 2) { // Run
