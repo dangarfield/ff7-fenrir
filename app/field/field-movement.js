@@ -53,8 +53,9 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
 
     const model = getModelByEntityId(entityId)
     console.log('moveEntityJump', entityId, triangleId, targetX, targetY, targetZ, model)
-    const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
-    model.scene.rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
+    // const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
+    // model.scene.rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
+    // Don't change direction degree - pillar_3 ba. Need to see if this breaks anything elsewhere
 
     const heightAdjustment = 0.00235 * height // 0.04 <-> 17 // TODO - Need to test with other JUMP heights
     const time = 35 * height // 600 <-> 17 // TODO - Need to test with other JUMP heights
