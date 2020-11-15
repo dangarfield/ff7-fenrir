@@ -8,7 +8,7 @@ const showDebugObject = () => {
     scene.add(cube)
 }
 
-const loadTempBattle3d = () => {
+const loadTempBattle3d = async () => {
     showDebugObject()
 }
 export {

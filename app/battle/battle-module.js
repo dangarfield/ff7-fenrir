@@ -3,6 +3,8 @@ import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { loadTempBattle3d } from './battle-3d.js'
 
+let BATTLE_PROMISE
+
 const initBattleModule = () => {
     setupScenes()
     initBattleKeypressActions()
@@ -19,10 +21,19 @@ const loadBattle = async (battleId, options) => {
     startBattleRenderingLoop()
     // Temp
     await loadTempBattle2d(battleId)
-    loadTempBattle3d()
+    await loadTempBattle3d()
+    return new Promise(async (resolve) => {
+        BATTLE_PROMISE = resolve
+    })
 }
 
+const resolveBattlePromise = () => {
+    if (BATTLE_PROMISE) {
+        BATTLE_PROMISE()
+    }
+}
 export {
     initBattleModule,
-    loadBattle
+    loadBattle,
+    resolveBattlePromise
 }

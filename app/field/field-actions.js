@@ -360,7 +360,7 @@ const setGatewayTriggerEnabled = (enabled) => {
     window.currentField.gatewayTriggersEnabled = enabled
     console.log('setGatewayTriggerEnabled', window.currentField.gatewayTriggersEnabled)
 }
-const triggerBattleWithSwirl = (battleId) => {
+const triggerBattleWithSwirl = async (battleId) => {
     // Maybe pause current field loop ?!
     if (isBattleLockEnabled()) {
         return
@@ -369,7 +369,8 @@ const triggerBattleWithSwirl = (battleId) => {
     window.anim.clock.stop()
     setPlayableCharacterIsInteracting(true)
     const options = { things: 'more-things' } // get options from currentField / somewhere
-    loadBattleWithSwirl(battleId, options)
+    await loadBattleWithSwirl(battleId, options)
+    unfreezeField()
 }
 export {
     gatewayTriggered,

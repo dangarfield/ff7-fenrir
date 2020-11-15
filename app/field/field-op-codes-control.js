@@ -17,7 +17,7 @@ import { getLastFieldId } from './field-metadata.js'
 const BATTLE = async (op) => {
     console.log('BATTLE', op)
     const battleId = op.b == 0 ? op.n : getBankData(op.b, op.n)
-    triggerBattleWithSwirl(battleId)
+    await triggerBattleWithSwirl(battleId)
     return {}
 }
 const BTLON = async (op) => {

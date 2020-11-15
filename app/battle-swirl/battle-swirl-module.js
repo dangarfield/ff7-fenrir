@@ -82,7 +82,7 @@ const loadBattleWithSwirl = async (battleId, options) => {
     playCommonSound(COMMON_SOUNDS.BATTLE_SWIRL)
 
     await doSwirl()
-    loadBattle(battleId, options)
+    await loadBattle(battleId, options)
 }
 export {
     initBattleSwirlModule,
