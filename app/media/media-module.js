@@ -69,14 +69,11 @@ const preLoadFieldMediaData = async () => {
             const script = entity.scripts[j]
             for (let k = 0; k < script.ops.length; k++) {
                 const op = script.ops[k]
-                if (op.op === 'AKAO2') {
-                    // Not sure what to do here yet...
-
-                } else if (op.op === 'SOUND') {
+                if (op.op === 'SOUND') {
                     // Not sure to do about sound 0 as there are lots in the scripts but not the files
                     if (op.i !== 0) { loadSound(op.i) }
 
-                } else if (op.op === 'AKAO') { // Just preload all param2-5 for simplicity
+                } else if (op.op === 'AKAO' || op.op === 'AKAO2') { // Just preload all param2-5 for simplicity
                     if (op.p2 !== 0) { loadSound(op.p2) }
                     if (op.p3 !== 0) { loadSound(op.p3) }
                     if (op.p4 !== 0) { loadSound(op.p4) }

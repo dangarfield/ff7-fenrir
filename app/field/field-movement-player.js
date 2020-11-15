@@ -150,14 +150,6 @@ const updateFieldMovement = (delta) => {
         return
     }
 
-
-
-
-
-
-
-
-
     // Detect triggers
     for (let i = 0; i < window.currentField.triggerLines.children.length; i++) {
         const triggerLine = window.currentField.triggerLines.children[i]
@@ -214,8 +206,11 @@ const updateFieldMovement = (delta) => {
         // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
         // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, fieldModel.userData.talkRadius / 4096 * 1.3, distance)
 
+        const cutoff = (fieldModel.userData.collisionRadius / 4096 * 1.0) // Seems to be 1.3, but in ealin_2, needs to be higher
+        const closeToCollide = distance < cutoff
+        console.log(`Collision distance ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, i, distance, cutoff, closeToCollide)
         // Note: Talk is now controlled from field-action.js
-        if (distance < 0.01) { // Set based on collisionRadius
+        if (closeToCollide) { // Set based on collisionRadius
             if (fieldModel.scene.userData.closeToCollide === false && fieldModel.userData.collisionEnabled) {
                 fieldModel.scene.userData.closeToCollide = true
                 console.log('Close to collide', i, fieldModel.scene.userData.closeToCollide, fieldModel.userData)

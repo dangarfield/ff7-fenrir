@@ -92,7 +92,7 @@ const setModelAsEntity = (entityId, modelId) => {
     model.userData.talkEnabled = true
     model.userData.talkRadius = 60 // Looks ok
     model.userData.collisionEnabled = true
-    model.userData.collisionRadius = 24 // TODO - Absolute guess for default
+    model.userData.collisionRadius = 60 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
     console.log('setModelAsEntity: END', entityId, modelId, model)
     window.currentField.fieldScene.add(model.scene)
