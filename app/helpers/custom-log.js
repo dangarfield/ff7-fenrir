@@ -7,7 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'executeAkaoOperation'
+            'executeAkaoOperation',
+            'playAnimation'
         ],
         log: function () {
             if (limit) {
