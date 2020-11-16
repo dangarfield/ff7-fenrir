@@ -106,16 +106,18 @@ const scrollBackground = (layerId, xSpeed, ySpeed) => {
 const BG_SCROLL_FACTOR = 0.00266  // seems to match fairly well on ztruck
 const updateBackgroundScolling = (delta) => {
     // console.log('scrollBackground updateBackgroundScolling', delta)
-    const layers = window.currentField.backgroundLayers.children
-    for (let i = 0; i < layers.length; i++) {
-        const layer = layers[i]
-        if (layer.userData.scrollSpeedX) {
-            // console.log('scrollBackground x', layer.material.map.center.x, layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
-            layer.material.map.center.x = layer.material.map.center.x - (layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
-        }
-        if (layer.userData.scrollSpeedY) {
-            // console.log('scrollBackground y', layer.material.map.center.y, layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
-            layer.material.map.center.y = layer.material.map.center.y - (layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
+    if (window.currentField.backgroundLayers.children) {
+        const layers = window.currentField.backgroundLayers.children
+        for (let i = 0; i < layers.length; i++) {
+            const layer = layers[i]
+            if (layer.userData.scrollSpeedX) {
+                // console.log('scrollBackground x', layer.material.map.center.x, layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
+                layer.material.map.center.x = layer.material.map.center.x - (layer.userData.scrollSpeedX * delta * BG_SCROLL_FACTOR)
+            }
+            if (layer.userData.scrollSpeedY) {
+                // console.log('scrollBackground y', layer.material.map.center.y, layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
+                layer.material.map.center.y = layer.material.map.center.y - (layer.userData.scrollSpeedY * delta * BG_SCROLL_FACTOR)
+            }
         }
     }
 }

@@ -79,69 +79,18 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             } else {
                 action.clampWhenFinished = false
             }
-            // TODO - speed
-            // if (model.mixer.promise) {
-            //     // window.alert(`Promise still exists - ${entityId} - ${animationId}`)
-            //     console.log('playAnimation promise exists', entityId, animationId, model.mixer)
-            //     // await sleep(1000 / 30 * 5)
-            //     await waitForAnimationPromiseToBeResolved(model, entityId, animationId)
-            //     // model.mixer.promise.resolve()
-
-            // }
-            // model.mixer.promise = {
-            //     resolve: resolve,
-            //     animationUuid: animation.uuid,
-            //     mixerUuid: model.mixer._root.uuid,
-            //     holdLastFrame,
-            //     standAction,
-            //     entityId,
-            //     animationId
-            // }
-            // const uid = uuid()
-            // model.mixer.addEventListener('finished', async (e) => {
-            // console.log('playAnimation finished mixer', e, e.target, e.target.promise)
-            // if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
-            //     console.log('playAnimation finished mixer match', e.target.promise)
-            //     if (!e.target.promise.holdLastFrame) {
-            //         console.log('playAnimation finished mixer match stand')
-            //         // e.target.promise.standAction.play()
-            //     }
-            //     const resolve = e.target.promise.resolve
-            //     delete e.target.promise
-            //     resolve()
-            // }
-
-            // Replay previous playing animation for !holdLastFrame
-            // TODO - Assuming that we'll play the whole last animation in its entirity, probably not right
-            // console.log('playAnimation finished', entityId, model.userData.entityName, animationId, previousAnimationId, holdLastFrame, startFrame)
-            // if (previousAnimationId && !holdLastFrame) {
-            //     if (startFrame === undefined && endFrame === undefined) {
-            //         const previousAnimation = model.animations[previousAnimationId]
-            //         const previousAnimationAtion = model.mixer.clipAction(previousAnimation)
-            //         previousAnimationAtion.play()
-            //     } else {
-            //         const standAnimation = model.animations[0]
-            //         const standAction = model.mixer.clipAction(standAnimation)
-            //         standAction.play()
-            //     }
-            // }
-            // console.log('playAnimation: END', model.userData.entityName, entityId, animationId)
-
-            // resolve()
-            // })
-
-            // console.log('stopAllAction A', model.userData.entityName)
-            // model.mixer.addEventListener('finished', async (e) => {
-            //     console.log('playAnimation finished mixer NEW', e.action.userData, e, e.target, e.target.promise)
-            // })
-            // model.mixer.addEventListener('loop', async (e) => {
-            //     console.log('playAnimation finished mixer LOOP NEW', e.action.userData, e, e.target, e.target.promise)
-            // })
             model.mixer.stopAllAction()
             console.log('playAnimation play', model.userData.entityName, entityId, animationId, promise.id, action)
             action.play()
 
             // Animation complete and resulting resolve CB bound in bindAnimationCompletion()
+            // Note: Some anims dont finish  - mrkt4 cloud Script 6 ANIME1, blinele cloud Script 10 CANIM!
+            if (loopType === THREE.LoopOnce) {
+                setTimeout(() => {
+                    console.log('playAnimation force resolve', model.userData.entityName, entityId, animationId, promise.id, animation.duration * 1000)
+                    resolve()
+                }, animation.duration * 1000)
+            }
         } catch (error) {
             console.log('playAnimation error', model.userData.entityName, entityId, animationId, error)
         }
