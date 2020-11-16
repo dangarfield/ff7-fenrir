@@ -155,7 +155,6 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 
     return new Promise(async (resolve) => {
         const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
-        // console.log('showMessageWaitForInteraction', dialog, )
         dialog.resolveCallback = resolve
 
         dialog.text = dialogString
@@ -168,7 +167,7 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         //     dialog.text = '{BARRET}<br/>“Wedge!!”'
         // }
 
-        console.log('showMessageWaitForInteraction', id, dialogString, dialog)
+        console.log('showMessageWaitForInteraction', id, dialogString, showChoicePointers, dialog)
         await createDialogBox(dialog)
         await showWindowWithDialog(dialog, showChoicePointers)
 

@@ -424,6 +424,8 @@ const scrollOverflow = async (dialogBox) => {
 const showDialogPageText = async (dialogBox, showChoicePointers) => {
     dialogBox.userData.state = 'writing-text'
 
+    console.log('showDialogPageText', dialogBox, showChoicePointers)
+
     // Remove any existing text from previous pages
     for (let i = 0; i < dialogBox.children.length; i++) {
         if (dialogBox.children[i].userData.isText) {
@@ -497,7 +499,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
     const dialogBox = dialog.group
     let text = dialog.text
 
-    if (dialog.text.includes('{CHOICE}')) { isChoiceActive = true }
+    if (dialog.text.includes('{CHOICE}') || showChoicePointers) { isChoiceActive = true }
     console.log('showWindowWithDialog', dialog, isChoiceActive)
 
     // Show dialog
@@ -554,7 +556,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
             let textLine = textLines[i]
 
             // console.log('msg textLine', textLine, showChoicePointers && textLine.includes('{CHOICE}'))
-            if (showChoicePointers && textLine.includes('{CHOICE}')) { choiceLines.push(i) }
+            if (showChoicePointers || textLine.includes('{CHOICE}')) { choiceLines.push(i) }
             textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
             let identifyCommand = false
@@ -680,7 +682,7 @@ const navigateChoice = (navigateDown) => {
     }
 }
 const closeDialog = async (dialog, choiceResult) => {
-    console.log('closeDialog', dialog)
+    console.log('closeDialog', dialog, choiceResult)
     const dialogBox = dialog.group
     if (dialogBox) {
         for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
