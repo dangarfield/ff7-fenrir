@@ -172,9 +172,10 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         await createDialogBox(dialog)
         await showWindowWithDialog(dialog, showChoicePointers)
 
-        if (!dialog.playerCanClose) {
-            dialog.resolveCallback()
-        }
+        // Resolving this early if !playerCanClose breaks blinst_1-3
+        // if (!dialog.playerCanClose) {
+        //     dialog.resolveCallback()
+        // }
     })
 
 }

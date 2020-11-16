@@ -704,8 +704,10 @@ const closeDialog = async (dialog, choiceResult) => {
         if (choiceResult !== undefined) {
             isChoiceActive = false
             playCommonSound(COMMON_SOUNDS.OPTION)
+            console.log('dialog resolveCallback choiceResult', dialog, choiceResult)
             dialog.resolveCallback(choiceResult)
         } else {
+            console.log('dialog resolveCallback', dialog)
             dialog.resolveCallback()
         }
     }
