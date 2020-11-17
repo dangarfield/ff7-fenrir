@@ -472,9 +472,9 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
         pointerMesh.userData.totalChoices = choiceLines.length
         pointerMesh.userData.isPointer = true
         // console.log('pointerPositions', pointerPositions)
-        if (!showChoicePointers) {
-            pointerMesh.visible = false
-        }
+        // if (!showChoicePointers) {
+        //     pointerMesh.visible = false
+        // }
         pointerMesh.position.set(pointerPositions[0].x, pointerPositions[0].y, pointerPositions[0].z)
         dialogBox.userData.state = 'choice'
         dialogBox.add(pointerMesh)
@@ -482,7 +482,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
     } else if (dialogBox.userData.pages.length > currentPage + 1) {
         dialogBox.userData.currentPage++
         dialogBox.userData.state = 'page'
-        // console.log('There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
+        console.log('showWindowWithDialog There are more pages', dialogBox.userData.pages.length, currentPage, dialogBox.userData.pages.length > currentPage + 1)
     } else if (dialogBox.userData.overflow && dialogBox.userData.overflowCurrent < dialogBox.userData.overflowTotal) {
         dialogBox.userData.overflowCurrent++
         dialogBox.userData.state = 'overflow'
@@ -542,6 +542,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
         let offsetX = 0
         let offsetY = 0
 
+        let doesThePageHaveChoiceElements = pageText.includes('{CHOICE}')
         let textLines = pageText.split('<br/>')
         const dialogSpaceLines = Math.floor((dialog.h - 9) / 16)
         const overflow = dialogSpaceLines < textLines.length
@@ -552,11 +553,11 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
         }
         // console.log('msg', textLines, dialog, dialogSpaceLines, overflow)
         let color = 'white'
-        for (let i = 0; i < textLines.length; i++) {
-            let textLine = textLines[i]
+        for (let j = 0; j < textLines.length; j++) {
+            let textLine = textLines[j]
 
-            // console.log('msg textLine', textLine, showChoicePointers && textLine.includes('{CHOICE}'))
-            if (showChoicePointers || textLine.includes('{CHOICE}')) { choiceLines.push(i) }
+            // console.log('msg textLine', i, j, textLine, (i + 1) === pagesText.length, showChoicePointers, doesThePageHaveChoiceElements, textLine.includes('{CHOICE}'))
+            if (((i + 1) === pagesText.length && showChoicePointers && !doesThePageHaveChoiceElements) || textLine.includes('{CHOICE}')) { choiceLines.push(j) }
             textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
             let identifyCommand = false
@@ -564,8 +565,8 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
             let command = ''
             let commandParam = ''
 
-            for (let j = 0; j < textLine.length; j++) {
-                const letter = textLine[j]
+            for (let k = 0; k < textLine.length; k++) {
+                const letter = textLine[k]
 
                 // Prcess commands
                 if (letter === '<') {
@@ -660,7 +661,7 @@ const navigateChoice = (navigateDown) => {
         if (dialog !== null && dialog !== undefined && dialog.group !== null && dialog.group !== undefined) {
             const dialogBox = dialog.group
             if (dialogBox.userData.state === 'choice') {
-                // console.log('navigate choice for dialogBox', dialogBox)
+                console.log('navigate choice for dialogBox', dialogBox)
                 for (let j = 0; j < dialogBox.children.length; j++) {
                     if (dialogBox.children[j].userData.choices) {
                         const pointerMesh = dialogBox.children[j]

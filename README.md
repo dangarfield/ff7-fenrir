@@ -91,7 +91,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Camera movement op codes are not 100% perfect
 - :black_square_button: Borderless texts show line below characters
 - :black_square_button: Multi line text writes all, rather that just what is visible
-- :black_square_button: Multi page choices doesn't show the cursor
+- :white_check_mark: Multi page choices doesn't show the cursor
 - :black_square_button: Animation reset states aren't 100% correct
 - :white_check_mark: Fades aren't perfect - Should be good now, wiki updated with findingsdd
 - :black_square_button: Field pointer sizes are wrong

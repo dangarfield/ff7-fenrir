@@ -128,7 +128,6 @@ const processTalkContactTrigger = () => {
         console.log(`Talk distance ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, i, distance, cutoff, closeToTalk)
         if (closeToTalk) {
             closeModels.push({ distance, fieldModel })
-            initiateTalk(fieldModel)
         }
     }
     closeModels.sort((a, b) => a.distance - b.distance)
@@ -142,7 +141,7 @@ const processTalkContactTrigger = () => {
         const fieldModel = closeModels[0].fieldModel
         const distance = closeModels[0].distance
         console.log(`Talk distance closest ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, distance)
-
+        initiateTalk(fieldModel)
     }
 }
 const processLineTriggersForFrame = () => {
