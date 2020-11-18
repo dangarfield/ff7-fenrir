@@ -121,11 +121,34 @@ const STITM = async (op) => {
     console.log('STITM', op)
     const itemId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
     const amount = op.b2 == 0 ? op.a : getBankData(op.b2, op.a)
-    const items = window.data.savemap.items
+
+    // Index and itemIds are a little messy
+    // itemID is globally unique and used in item list savemap (9bit - 2 bytes)
+    // index is the array position of the item of any given item type (8bit - 1 byte)
+    // For now, use both, but will change in future
+    // Should really move all of this to items-module.js
+
+    let itemsOfType = window.data.savemap.items
+    let index
+    let kernelDataType
+    if (itemId < 128) {
+        index = itemId
+        kernelDataType = 'itemData'
+    } else if (itemId < 255) {
+        index = itemId - 128
+        kernelDataType = 'weaponData'
+    } else if (itemId < 288) {
+        index = itemId - 256
+        kernelDataType = 'armorData'
+    } else {
+        index = itemId - 288
+        kernelDataType = 'accessoryData'
+    }
+
     let updated = false
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i]
-        if (item.id === itemId) {
+    for (let i = 0; i < itemsOfType.length; i++) {
+        const item = itemsOfType[i]
+        if (item.itemId === itemId) {
             // The game technically lets you set more, but we'll just limit it to 99
             item.quantity = Math.min(item.quantity + amount, 99)
             updated = true
@@ -133,18 +156,19 @@ const STITM = async (op) => {
         }
     }
     if (!updated) {
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i]
-            if (item.id === 0x7F) {
-                item.id = itemId
+        for (let i = 0; i < itemsOfType.length; i++) {
+            const item = itemsOfType[i]
+            if (item.index === 0x7F && item.itemId === 0x7F) {
+                item.index = index
+                item.itemId = itemId
                 item.quantity = Math.min(amount, 99)
-                item.name = window.data.kernel.itemData[itemId].name
-                item.description = window.data.kernel.itemData[itemId].description
+                item.name = window.data.kernel[kernelDataType][index].name
+                item.description = window.data.kernel[kernelDataType][index].description
                 break
             }
         }
     }
-    console.log('STITM', items)
+    console.log('STITM', itemsOfType)
     return {}
 }
 
@@ -152,28 +176,29 @@ const DLITM = async (op) => {
     console.log('DLITM', op)
     const itemId = op.b1 == 0 ? op.t : getBankData(op.b1, op.t)
     const amount = op.b2 == 0 ? op.a : getBankData(op.b2, op.a)
-    const items = window.data.savemap.items
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i]
+    const itemsOfType = window.data.savemap.items
+
+    for (let i = 0; i < itemsOfType.length; i++) {
+        const item = itemsOfType[i]
         if (item.id === itemId) {
             item.quantity = Math.max(item.quantity - amount, 0)
             break
         }
     }
-    console.log('DLITM results', items)
+    console.log('DLITM results', itemsOfType)
     return {}
 }
 const CKITM = async (op) => {
     console.log('CKITM', op)
-    const items = window.data.savemap.items
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i]
+    const itemsOfType = window.data.savemap.items
+    for (let i = 0; i < itemsOfType.length; i++) {
+        const item = itemsOfType[i]
         if (item.id === op.i) {
             setBankData(op.b, op.a, item.quantity)
             break
         }
     }
-    console.log('CKITM results', items)
+    console.log('CKITM results', itemsOfType)
     return {}
 }
 

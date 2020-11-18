@@ -2,7 +2,8 @@ const getItemsData = () => { return window.data.kernel.itemData }
 
 const setItemToInventory = (position, id, quantity) => {
     const item = {
-        id: id,
+        index: index,
+        itemId: index,
         quantity: quantity,
         name: getItemsData()[id].name,
         description: getItemsData()[id].description
@@ -14,7 +15,7 @@ const debugFillItems = () => {
     const items = window.data.savemap.items
     for (let i = 0; i < items.length; i++) {
         const item = items[i]
-        if (item.id === 127) { // 0x7F
+        if (item.index === 0x7F && item.itemId === 0x7F) { // 0x7F
             const randomItem = getItemsData()[Math.floor(Math.random() * getItemsData().length)]
             setItemToInventory(i, randomItem.index, 99)
         }
@@ -25,7 +26,8 @@ const debugClearItems = () => {
     const items = window.data.savemap.items
     for (let i = 0; i < items.length; i++) {
         const item = items[i]
-        item.id = 127
+        item.index = 127
+        item.itemId = 127
         item.quantity = 0
         item.name = ''
         item.description = ''
