@@ -156,96 +156,92 @@ const processLineTriggersForFrame = () => {
     }
     const position = window.currentField.playableCharacter.scene.position
 
+    // My gut instinct is that we should only process one line trigger even if there are two in proximity
+    // but in wcrmb_2, it just did't work
+    // TOOD - I'll keep it just 1 for now
+    const closeLines = []
+
     for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
         const line = window.currentField.lineLines.children[i]
         if (line.userData.enabled) {
             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(position, true, new THREE.Vector3())
             const distance = position.distanceTo(closestPointOnLine)
-            const entityId = line.userData.entityId
             if (distance < 0.007) {
-                console.log('processLineTriggersForFrame', line.userData, distance)
-                // if (line.userData.triggered === false) {
-                //     line.userData.triggered = true
-                line.userData.playerClose = true
-                if (line.userData.triggeredOnce === undefined || line.userData.triggeredOnce === false) {
-                    triggerEntityGo1xLoop(entityId)
-                    line.userData.triggeredOnce = true
-                    continue
-                }
-                line.userData.triggered = true
-                triggerEntityGoLoop(entityId)
-
-                let playerDirection = window.currentField.data.triggers.header.controlDirectionDegrees
-                // console.log('Direction', window.currentField.data.triggers.header.controlDirection, window.currentField.data.triggers.header.controlDirectionDegrees, direction)
-
-                let isMoving = true
-                if (getActiveInputs().up && getActiveInputs().right) { playerDirection += 45 }
-                else if (getActiveInputs().right && getActiveInputs().down) { playerDirection += 135 }
-                else if (getActiveInputs().down && getActiveInputs().left) { playerDirection += 225 }
-                else if (getActiveInputs().left && getActiveInputs().up) { playerDirection += 315 }
-                else if (getActiveInputs().up) { playerDirection += 0 }
-                else if (getActiveInputs().right) { playerDirection += 90 }
-                else if (getActiveInputs().down) { playerDirection += 180 }
-                else if (getActiveInputs().left) { playerDirection += 270 }
-                else { isMoving = false }
-
-                const lineDirection = getDegreesFromTwoPoints(position, closestPointOnLine)
-                const directionAlignment = Math.abs(playerDirection - lineDirection)
-                const movingInDirectionOfLine = isMoving && (directionAlignment <= 110)
-
-                // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
-                if (movingInDirectionOfLine) {
-                    triggerEntityMoveLoops(entityId)
-                    // Strangely, OK loop is triggered repeatedbly on distance if there are NO Move loops. Infinity is no S2 - Move, About 8 times if there are no S3 - Move scripts with empty returns
-                    if (canOKLoopBeTriggeredOnMovement(entityId)) {
-                        triggerEntityOKLoop(entityId)
-                    }
-                    continue
-                } else if (getActiveInputs().o) {
-                    triggerEntityOKLoop(entityId)
-                    continue
-                } else {
-                    // triggerEntityMoveLoops(entityId) // Adding this back in for any movement as in ealin_1
-                    // TODO - Should be looked at later, potentially checking to see if any gateways have been crossed AFTER the event loop has gone round each time
-                    // return
-                }
-
-                // }
-                // if (window.currentField.playableCharacter.scene.userData.isSlipDirection && !line.userData.slippabilityEnabled) {
-                //     window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
-                //     window.currentField.playableCharacter.mixer.stopAllAction()
-                //     return
-                // }
-                // } else {
-                //     if (line.userData.triggered === true) {
-                //         line.userData.triggered = false
-                //         lineGoTriggered(entityId, line)
-                //     }
+                closeLines.push({ distance, line, closestPointOnLine })
             } else {
                 line.userData.playerClose = false
                 // console.log('triggerEntity FAR', line.userData.entityName, distance)
                 // console.log('triggerEntity ELSE', line.userData.triggered)
                 if (line.userData.triggered) {
-                    triggerEntityGoAwayLoop(entityId)
+                    triggerEntityGoAwayLoop(line.userData.entityId)
                     line.userData.triggered = false
                     line.userData.triggeredOnce = false
-                    continue
+                    return
                 }
-                // line.userData.triggered = false
-                // line.userData.triggeredOnce = false
             }
-            // if (distance < 0.05 && distance < 0.05) { // TODO - Guess
-            //     if (line.userData.triggeredAway === false) {
-            //         line.userData.triggeredAway = true
-            //     }
-            // } else {
-            //     if (line.userData.triggeredAway === true) {
-            //         line.userData.triggeredAway = false
-            //         triggerEntityGoAwayLoop(entityId)
-            //     }
-            // }
         }
     }
+
+    closeLines.sort((a, b) => a.distance - b.distance)
+    if (closeLines.length > 0) {
+        for (let i = 0; i < closeLines.length; i++) {
+            const line = closeLines[i].line
+            const distance = closeLines[i].distance
+            console.log(`Line distance sorted ${line.userData.entityName}`, line.userData, distance)
+        }
+        const line = closeLines[0].line
+        const distance = closeLines[0].distance
+        const closestPointOnLine = closeLines[0].closestPointOnLine
+        console.log(`Line distance closest ${line.userData.entityName}`, line.userData, distance)
+
+
+        // if (line.userData.triggered === false) {
+        //     line.userData.triggered = true
+        line.userData.playerClose = true
+        if (line.userData.triggeredOnce === undefined || line.userData.triggeredOnce === false) {
+            triggerEntityGo1xLoop(line.userData.entityId)
+            line.userData.triggeredOnce = true
+            return
+        }
+        line.userData.triggered = true
+        triggerEntityGoLoop(line.userData.entityId)
+
+        let playerDirection = window.currentField.data.triggers.header.controlDirectionDegrees
+        // console.log('Direction', window.currentField.data.triggers.header.controlDirection, window.currentField.data.triggers.header.controlDirectionDegrees, direction)
+
+        let isMoving = true
+        if (getActiveInputs().up && getActiveInputs().right) { playerDirection += 45 }
+        else if (getActiveInputs().right && getActiveInputs().down) { playerDirection += 135 }
+        else if (getActiveInputs().down && getActiveInputs().left) { playerDirection += 225 }
+        else if (getActiveInputs().left && getActiveInputs().up) { playerDirection += 315 }
+        else if (getActiveInputs().up) { playerDirection += 0 }
+        else if (getActiveInputs().right) { playerDirection += 90 }
+        else if (getActiveInputs().down) { playerDirection += 180 }
+        else if (getActiveInputs().left) { playerDirection += 270 }
+        else { isMoving = false }
+
+        const lineDirection = getDegreesFromTwoPoints(position, closestPointOnLine)
+        const directionAlignment = Math.abs(playerDirection - lineDirection)
+        const movingInDirectionOfLine = isMoving && (directionAlignment <= 110)
+
+        // console.log('triggerEntity KEYS', line.userData.entityName, isMoving, movingInDirectionOfLine, playerDirection, lineDirection, directionAlignment, '-', distance, getActiveInputs().up, getActiveInputs().right, getActiveInputs().down, getActiveInputs().left, '-', getActiveInputs().o)
+        if (movingInDirectionOfLine) {
+            triggerEntityMoveLoops(line.userData.entityId)
+            // Strangely, OK loop is triggered repeatedbly on distance if there are NO Move loops. Infinity is no S2 - Move, About 8 times if there are no S3 - Move scripts with empty returns
+            if (canOKLoopBeTriggeredOnMovement(line.userData.entityId)) {
+                triggerEntityOKLoop(line.userData.entityId)
+            }
+            return
+        } else if (getActiveInputs().o) {
+            triggerEntityOKLoop(line.userData.entityId)
+            return
+        } else {
+            // triggerEntityMoveLoops(line.userData.entityId) // Adding this back in for any movement as in ealin_1
+            // TODO - Should be looked at later, potentially checking to see if any gateways have been crossed AFTER the event loop has gone round each time
+            // return
+        }
+    }
+
 }
 
 const modelCollisionTriggered = (i, fieldModel) => {
