@@ -89,7 +89,7 @@ const processTalkContactTriggersForFrame = () => {
 
     // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
     // Can player move?
-    if (window.currentField.setPlayableCharacterIsInteracting) {
+    if (window.currentField.playableCharacterIsInteracting) {
         return
     }
 }
@@ -99,8 +99,12 @@ const processTalkContactTrigger = () => {
     }
     // TODO - There should probably be another mechanism of seeing if the player is allowed to talk
     // It COULD be whether they are allowed to move or not, but this breaks on ealin_2
-    if (window.currentField.setPlayableCharacterIsInteracting) {
+    if (window.currentField.playableCharacterIsInteracting) {
         console.log(`Talk distance PLAYER IS INTERACTING`)
+        return
+    }
+    if (!window.currentField.playableCharacterCanMove) {
+        console.log(`Talk distance PLAYER CANNOT MOVE`)
         return
     }
 

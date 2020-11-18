@@ -7,16 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'ASK',
-            // 'dialog',
-            // 'closeDialog',
-            // 'showMessageWaitForInteraction',
-            // 'nextPageOrCloseActiveDialog',
-            // 'showWindowWithDialog',
-            // 'showDialogPageText',
-            // 'navigate choice for dialogBox',
-            // 'Talk distance',
-            // 'msg textLine'
+            // 'nextPageOrCloseActiveDialogs'
         ],
         log: function () {
             if (limit) {
