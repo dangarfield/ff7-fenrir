@@ -495,12 +495,12 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
     console.log('showWindowWithDialog PAGE RENDERED', dialogBox, showChoicePointers, pages[currentPage])
 }
 
-const showWindowWithDialog = async (dialog, showChoicePointers) => {
+const showWindowWithDialog = async (dialog, showChoicePointers, askFirstLine, askLastLine) => {
     const dialogBox = dialog.group
     let text = dialog.text
 
     if (dialog.text.includes('{CHOICE}') || showChoicePointers) { isChoiceActive = true }
-    console.log('showWindowWithDialog', dialog, isChoiceActive)
+    console.log('showWindowWithDialog', dialog, isChoiceActive, askFirstLine, askLastLine)
 
     // Show dialog
     dialogBox.visible = true
@@ -557,7 +557,12 @@ const showWindowWithDialog = async (dialog, showChoicePointers) => {
             let textLine = textLines[j]
 
             // console.log('msg textLine', i, j, textLine, (i + 1) === pagesText.length, showChoicePointers, doesThePageHaveChoiceElements, textLine.includes('{CHOICE}'))
-            if (((i + 1) === pagesText.length && showChoicePointers && !doesThePageHaveChoiceElements) || textLine.includes('{CHOICE}')) { choiceLines.push(j) }
+            if (
+                ((i + 1) === pagesText.length && showChoicePointers && !doesThePageHaveChoiceElements && j >= askFirstLine && j <= askLastLine) ||
+                textLine.includes('{CHOICE}')
+            ) {
+                choiceLines.push(j)
+            }
             textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
             let identifyCommand = false

@@ -151,7 +151,7 @@ const setSpecialNumber = (id, number, noDigitsToDisplay) => {
     updateSpecialNumber(dialog)
     console.log('setSpecialNumber', id, dialog)
 }
-const showMessageWaitForInteraction = async (id, dialogString, showChoicePointers) => {
+const showMessageWaitForInteraction = async (id, dialogString, showChoicePointers, askFirstLine, askLastLine) => {
 
     return new Promise(async (resolve) => {
         const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
@@ -169,7 +169,7 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 
         console.log('showMessageWaitForInteraction', id, dialogString, showChoicePointers, dialog)
         await createDialogBox(dialog)
-        await showWindowWithDialog(dialog, showChoicePointers)
+        await showWindowWithDialog(dialog, showChoicePointers, askFirstLine, askLastLine)
 
         // Resolving this early if !playerCanClose breaks blinst_1-3
         // if (!dialog.playerCanClose) {
