@@ -206,9 +206,12 @@ const updateFieldMovement = (delta) => {
         // Big assumption, radial and uniform distances will work, rather than bounding box based collisions
         // console.log('closeToTalk', fieldModel.scene.userData, fieldModel.userData.talkRadius, fieldModel.userData.talkRadius / 4096 * 1.3, distance)
 
-        const cutoff = (fieldModel.userData.collisionRadius / 4096 * 1.0) // Seems to be 1.3, but in ealin_2, needs to be higher
+        // TODO: I think this is actually implemented using a box around the player as well a a default collisionRadius
+        // For the time being, lets just set a min value that roughly approximates the default model sizes
+        const cutoff = Math.max(0.009765625, (fieldModel.userData.collisionRadius / 4096 * 1.0)) // Seems to be 1.3, but in ealin_2, needs to be higher
         const closeToCollide = distance < cutoff
         console.log(`Collision distance ${fieldModel.userData.entityName}`, fieldModel.userData, fieldModel.scene.userData, i, distance, cutoff, closeToCollide)
+
         // Note: Talk is now controlled from field-action.js
         if (closeToCollide) { // Set based on collisionRadius
             if (fieldModel.scene.userData.closeToCollide === false && fieldModel.userData.collisionEnabled) {

@@ -7,8 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'IFUB',
-            'printedCompare'
+            // 'Collision distance'
         ],
         log: function () {
             if (limit) {
