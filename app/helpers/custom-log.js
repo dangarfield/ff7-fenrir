@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'Collision distance'
+            'unequipMateriaCharX'
         ],
         log: function () {
             if (limit) {

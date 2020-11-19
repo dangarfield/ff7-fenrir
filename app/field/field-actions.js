@@ -8,7 +8,7 @@ import { loadBattleWithSwirl } from '../battle-swirl/battle-swirl-module.js'
 import { loadMiniGame } from '../minigame/minigame-module.js'
 import { isBattleLockEnabled } from './field-battle.js'
 import { getFieldNameForId } from './field-metadata.js'
-import { getDegreesFromTwoPoints } from './field-models.js'
+import { getDegreesFromTwoPoints, setPlayableCharacterCanMove } from './field-models.js'
 import {
     stopAllLoops, triggerEntityTalkLoop, triggerEntityMoveLoops, triggerEntityGoLoop,
     triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop, triggerEntityCollisionLoop,
@@ -316,8 +316,8 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     console.log('jumpToMap', fieldId, fieldName, x, y, triangleId, direction)
     setActionInProgress('gateway')
     window.anim.clock.stop()
-    window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
+    setPlayableCharacterCanMove(false)
     await stopAllLoops()
     await transitionOut()
     let characterName = ''
