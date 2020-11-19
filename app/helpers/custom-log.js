@@ -7,7 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'nextPageOrCloseActiveDialogs'
+            // 'IFUB',
+            'printedCompare'
         ],
         log: function () {
             if (limit) {

@@ -7,6 +7,7 @@ import { transitionOutAndLoadMenu, transitionOutAndLoadTutorial } from './field-
 import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { sleep } from '../helpers/helpers.js'
+import { setPlayableCharacterCanMove } from './field-models.js'
 import { setMenuEnabled } from './field-module.js'
 
 
@@ -120,7 +121,9 @@ const MESSAGE = async (op) => {
 }
 const ASK = async (op) => {
     console.log('ASK', op)
+    setPlayableCharacterCanMove(false)
     const answer = op.f + (await showMessageWaitForInteraction(op.w, window.currentField.data.script.dialogStrings[op.d], true))
+    setPlayableCharacterCanMove(true)
     setBankData(op.ba, op.a, answer)
     console.log('ASK answer:', answer, '->', op.ba, op.a)
     return {}
