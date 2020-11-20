@@ -8,6 +8,7 @@ import { initMenuModule } from './menu/menu-module.js'
 import { initBattleModule } from './battle/battle-module.js'
 import { initBattleSwirlModule } from './battle-swirl/battle-swirl-module.js'
 import { initMiniGameModule } from './minigame/minigame-module.js'
+import { initWorldModule } from './world/world-module.js'
 import { bindDisplayControls } from './helpers/display-controls.js'
 import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
 
@@ -26,6 +27,7 @@ const initManager = async () => {
     initBattleSwirlModule()
     initBattleModule()
     initMiniGameModule()
+    await initWorldModule()
     await loadKernelData()
     await loadWindowTextures()
     setDefaultMediaConfig()

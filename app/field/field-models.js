@@ -413,7 +413,7 @@ const getPartyMemberDirection = (partyMemberId) => {
     return direction
 
 }
-const setModelDirection = (entityId, direction) => {
+const setModelDirection = window.setModelDirection = (entityId, direction) => {
     console.log('setModelDirection', entityId, direction)
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)

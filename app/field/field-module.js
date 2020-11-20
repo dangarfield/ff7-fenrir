@@ -13,6 +13,7 @@ import { clearAllDialogs } from './field-dialog.js'
 import { initBattleSettings } from './field-battle.js'
 import { placeModelsDebug } from './field-models.js'
 import { drawWalkmesh, placeBG } from './field-backgrounds.js'
+import { loadWorldMap } from '../world/world-module.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -27,7 +28,13 @@ const loadField = async (fieldName, playableCharacterInitData) => {
 
     console.log('loadField', fieldName, playableCharacterInitData)
     // Reset field values
+    if (fieldName.startsWith('wm')) {
+        loadWorldMap(fieldName)
+        return
+    }
+
     const lastFieldName = window.currentField && window.currentField.name ? window.currentField.name : ''
+
     window.currentField = {
         name: fieldName,
         lastFieldName: lastFieldName,

@@ -7,9 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'playerMovement'
-            // 'moveEntity TIME',
-            // 'setModelMovementSpeed'
+            'loadWorldMap',
+            // 'PLAYER WALK POSITION'
         ],
         log: function () {
             if (limit) {
