@@ -80,11 +80,12 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Document and draw out the event loop logic
 - :black_square_button: Reimplement the field loop in a official way, looping through 8 ops per script
 - :black_square_button: Movement tweens should 'pause' when the op is not called
-- :black_square_button: MOVE etc op codes should follow walkmesh more closely on a frame by frame basis - blin69_1 - game moment 308
+- :white_check_mark: MOVE etc op codes should follow walkmesh more closely on a frame by frame basis - blin69_1 - game moment 308
 - :black_square_button: Investigate animation reset states, document and implement
 - :black_square_button: Still need to improve background image rendering - mds6_22
 - :black_square_button: field fades to white then trnsitions - mds6_1, ealin_12
-- :black_square_button: NPC walk (moveEntity) speed is wrong
+- :white_check_mark: NPC walk (moveEntity) speed is wrong
+- :black_square_button: NPC walk (moveEntity) JOIN and LEAVE speed needs to re implemented
 - :black_square_button: Add rather than hardcode collision and talk distances
 - :black_square_button: Line, gateway and entity collisions should really be in the main rendering loop rather than player movement
 - :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
