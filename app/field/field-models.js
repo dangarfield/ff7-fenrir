@@ -171,7 +171,8 @@ const positionPlayableCharacterFromTransition = async () => {
         console.log('positionPlayableCharacterFromTransition initData', initData)
 
         // Need to ensure that this runs after all other entity inits...
-        const modelDatas = getFieldModelsForPlayableCharacter(getPlayableCharacterId(initData.characterName))
+        // I thought this used to be the previously playable character, but I it seems to be the party leader members[0] - eleout to blin70_3
+        const modelDatas = getFieldModelsForPlayableCharacter(getPlayableCharacterId(window.data.savemap.party.members[0]))
         // Frustatingly, there can be more than one model here, eg mrkt2 etc. So, we'll just do them ALL for this
         // character as in this case, there will be explicit PC and CCs called in the field op codes init scripts
         // based on the game moment

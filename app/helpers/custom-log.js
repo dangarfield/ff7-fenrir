@@ -7,8 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'playerMovement'
-            // 'moveEntity',
+            // 'playerMovement'
+            // 'moveEntity TIME',
             // 'setModelMovementSpeed'
         ],
         log: function () {
