@@ -67,6 +67,7 @@ const updateFieldMovement = (delta) => {
     }
 
     // Deal with 'slippability'
+    const RAY_HEIGHT = 0.1
     const SLIP_ANGLE = 45
     const directions = [direction, direction - SLIP_ANGLE, direction + SLIP_ANGLE]
     let nextPosition
@@ -93,7 +94,6 @@ const updateFieldMovement = (delta) => {
         // TODO - Need to deal with transitioning from a non-adjacent triangle, eg, just to different areas
         let playerMovementRay = new THREE.Raycaster()
 
-        const RAY_HEIGHT = 0.1
         const rayO = new THREE.Vector3(nextPositionForRaycast.x, nextPositionForRaycast.y, nextPositionForRaycast.z + RAY_HEIGHT)
         const rayD = new THREE.Vector3(0, 0, -1).normalize()
         playerMovementRay.set(rayO, rayD)
@@ -304,12 +304,12 @@ const updateFieldMovement = (delta) => {
 }
 const getNextPositionRaycast = (nextPosition) => {
     const rayOffset = 0.05
-    let playerMovementRay = new THREE.Raycaster()
+    let movementRay = new THREE.Raycaster()
     const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + rayOffset)
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
-    playerMovementRay.set(rayO, rayD)
-    playerMovementRay.far = rayOffset * 2
-    let intersects = playerMovementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+    movementRay.set(rayO, rayD)
+    movementRay.far = rayOffset * 2
+    let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
 
     // Sort by closest Z to nextPosition.z
     for (let i = 0; i < intersects.length; i++) {
@@ -473,5 +473,6 @@ const getClosestTriangleId = (model, position) => {
 }
 export {
     updateFieldMovement,
-    updateCurrentTriangleId
+    updateCurrentTriangleId,
+    getNextPositionRaycast
 }

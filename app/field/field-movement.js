@@ -8,7 +8,7 @@ import {
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
-import { updateCurrentTriangleId } from './field-movement-player.js'
+import { updateCurrentTriangleId, getNextPositionRaycast } from './field-movement-player.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, false, false)
@@ -42,7 +42,7 @@ const moveEntityToEntity = async (entityId, targetModel) => {
         const interpolationFactor = 1 - (collisionDistance / totalDistance)
         const collisionEdgeVector = new THREE.Vector3().lerpVectors(sourceModel.scene.position, targetModel.scene.position, interpolationFactor)
         console.log('moveEntityToEntity distance', totalDistance, collisionDistance, interpolationFactor, collisionEdgeVector)
-        await moveEntity(entityId, collisionEdgeVector.x, collisionEdgeVector.y, true, true, true)
+        await moveEntity(entityId, collisionEdgeVector.x, collisionEdgeVector.y, true, true)
     }
 }
 const moveEntityJump = async (entityId, x, y, triangleId, height) => {
@@ -140,7 +140,160 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     })
 
 }
-const moveEntity = async (entityId, x, y, rotate, animate, desiredSpeed, desiredFrames, enforceWalkmesh) => {
+
+const updateMoveEntityMovement = (delta) => {
+    const RAY_HEIGHT = 0.1
+    for (let i = 0; i < window.currentField.models.length; i++) {
+        const model = window.currentField.models[i]
+        // if (model.userData.moveEntity && model.userData.entityName === 'ba') {
+        if (model.userData.moveEntity) {
+            const direction = getDegreesFromTwoPoints(model.scene.position, { x: model.userData.moveEntity.to.x, y: model.userData.moveEntity.to.y }) + window.currentField.data.triggers.header.controlDirectionDegrees // ???
+            console.log('moveEntity updateMoveEntityMovement: START', model.userData.entityName, model.userData.moveEntity, direction)
+
+            if (model.userData.moveEntity.rotate) {
+                model.scene.rotation.y = THREE.Math.degToRad(direction)
+            }
+
+            const SLIP_ANGLE = 45
+            const directions = [direction, direction - SLIP_ANGLE, direction + SLIP_ANGLE]
+            let nextPosition
+            let walkmeshFound = false
+            console.log('moveEntity updateMoveEntityMovement: speed', model.userData.entityName, delta, model.userData.moveEntity.speed, model.userData.moveEntity.speed * delta)
+            // const speed = 0.0013//(window.currentField.data.model.header.modelScale / 4400) * delta//model.userData.moveEntity.speed * delta
+
+            const speed = model.userData.moveEntity.speed * delta / 37809 // Factor seems ok
+            // delta - 0.01630500005558133
+            // speed - 0.0013 should be about this for barret
+            // movement speed - 3072 barret
+            // movement speed - 1024 default
+
+            // movement speed * delta = 49.152
+            // movememt speed * delta / factor = 
+            // factor = 37809
+
+
+            for (let i = 0; i < directions.length; i++) {
+                const potentialDirection = directions[i]
+                let directionRadians = THREE.Math.degToRad(180 - potentialDirection)
+                let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
+                nextPosition = model.scene.position.clone().addScaledVector(directionVector, speed)
+                // Need to add additional offset for NPC moves like in field-movement-player.js ???
+                console.log('moveEntity direction', model.userData.entityName, i, nextPosition, speed)
+
+                let movementRay = new THREE.Raycaster()
+
+                const rayO = new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z + RAY_HEIGHT)
+                const rayD = new THREE.Vector3(0, 0, -1).normalize()
+                movementRay.set(rayO, rayD)
+                movementRay.far = RAY_HEIGHT * 2
+                let intersects = movementRay.intersectObjects(window.currentField.walkmeshMesh.children)
+                console.log('moveEntity intersects', model.userData.entityName, intersects)
+                if (window.config.debug.showMovementHelpers) {
+                    window.currentField.movementHelpers.add(new THREE.ArrowHelper(movementRay.ray.direction, movementRay.ray.origin, movementRay.far, 0x229922)) // For debugging walkmesh raycaster
+                }
+                if (intersects.length === 0) {
+                    // Player is off walkmap
+                    continue
+                } else if (!intersects[0].object.userData.movementAllowed) {
+                    // Triangle locked through IDLCK
+                    continue
+                } else {
+                    const intersect = getNextPositionRaycast(nextPosition)
+                    if (!intersect) {
+                        continue
+                    }
+                    // If movement starts walking off the edge, uncomment this
+                    // updateCurrentTriangleId(model, model.scene.position)
+                    // const currentTriangleId = window.currentField.playableCharacter.scene.userData.triangleId
+                    // const nextTriangleId = intersect.object.userData.triangleId
+                    // const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
+                    // console.log('playerMovement nextTriangle', intersects, currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
+                    // if (!nextTriangleMovementAllowed && currentTriangleId !== undefined) {
+                    //     console.log('playerMovement nextTriangle STOP')
+                    //     continue
+                    // }
+
+                    nextPosition.z = intersect.point.z
+                    walkmeshFound = true
+
+                    break
+                }
+            }
+            if (!walkmeshFound) {
+                // console.log('no walkmesh found')
+                model.mixer.stopAllAction()
+                return
+            }
+
+            // If walk/run is toggled, stop the existing window.animation
+            if (model.userData.moveEntity.animationId === 2) { // Run
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop() // Probably a more efficient way to change these animations
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk]).stop()
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).play()
+            } else if (model.userData.moveEntity.animationId === 1) { // Walk
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop()
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).stop()
+                model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk]).play()
+            }
+
+            // There is movement, set next position
+            model.scene.position.x = nextPosition.x
+            model.scene.position.y = nextPosition.y
+            model.scene.position.z = nextPosition.z
+
+            // Camera follow
+            if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
+                // Update camera position if this is the main character
+                const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
+                console.log('adjustViewClipping moveEntity')
+                adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+            }
+
+            // Distance and resolve
+            const distance = 4096 * Math.sqrt(Math.pow(model.scene.position.x - model.userData.moveEntity.to.x, 2) + Math.pow(model.scene.position.y - model.userData.moveEntity.to.y, 2))
+            console.log('moveEntity distance', model.userData.entityName, distance)
+            if (distance < 5) {
+                console.log('moveEntity updateMoveEntityMovement: END', model.userData.entityName)
+                model.scene.position.x = model.userData.moveEntity.to.x
+                model.scene.position.y = model.userData.moveEntity.to.y
+                model.scene.position.z = nextPosition.z
+
+                if (model.userData.name === window.currentField.playableCharacter.userData.name) {
+                    updateCurrentTriangleId(model, model.scene.position)
+                }
+
+                model.mixer.stopAllAction()
+                model.userData.moveEntity.resolve()
+                delete model.userData.moveEntity
+            }
+        }
+    }
+}
+const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
+    const model = getModelByEntityId(entityId)
+    console.log('moveEntity: START', model.userData.entityName, entityId, x, y, rotate, animate, 's', model.userData.movementSpeed, speedInFrames, model)
+
+    let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
+    let animationId = window.currentField.playerAnimations.run
+    if (speed < 1600) {
+        animationId = window.currentField.playerAnimations.walk
+    }
+    // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
+
+    return new Promise(async (resolve) => {
+        model.userData.moveEntity = {
+            to: { x: x, y: y },
+            rotate,
+            animate,
+            speed,
+            animationId,
+            resolve
+        }
+        console.log('moveEntity: SET', model.userData.entityName, model.userData.moveEntity)
+    })
+}
+// No longer used, will keep it here temporarily until I fix JOIN and LEAVE speed
+const moveEntityOld = async (entityId, x, y, rotate, animate, desiredSpeed, desiredFrames, enforceWalkmesh) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntity: START', model.userData.entityName, entityId, x, y, rotate, animate, model.userData.movementSpeed, window.currentField.data.model.header.modelScale, model)
 
@@ -487,7 +640,7 @@ const joinLeader = async (speed) => {
             const model = getModelByCharacterName(joinerName)
             console.log('model', model)
             await turnModelToFaceEntity(model.userData.entityId, leaderModel.userData.entityId, 2, 15) // TODO not sure about speed here
-            await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed, speed)
+            await moveEntity(model.userData.entityId, targetX, targetY, true, true, speed)
             setModelCollisionEnabled(model.userData.entityId, false)
             setModelTalkEnabled(model.userData.entityId, false)
             setModelVisibility(model.userData.entityId, false)
@@ -519,7 +672,7 @@ const splitPartyFromLeader = async (char1, char2, speed) => {
 
             setModelVisibility(model.userData.entityId, true)
             await turnModelToFaceDirection(model.userData.entityId, 255 - leaver.direction, 2, 15, 2) // TODO not sure about speed here
-            await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed, speed)
+            await moveEntity(model.userData.entityId, leaver.x, leaver.y, true, true, speed)
             await turnModelToFaceDirection(model.userData.entityId, leaver.direction, 2, 15, 2) // TODO not sure about speed here
             setModelCollisionEnabled(model.userData.entityId, true)
             setModelTalkEnabled(model.userData.entityId, true)
@@ -544,5 +697,6 @@ export {
     offsetEntity,
     waitForOffset,
     joinLeader,
-    splitPartyFromLeader
+    splitPartyFromLeader,
+    updateMoveEntityMovement
 }

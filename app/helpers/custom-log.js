@@ -7,7 +7,8 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'unequipMateriaCharX'
+            'moveEntity',
+            'setModelMovementSpeed'
         ],
         log: function () {
             if (limit) {

@@ -5,6 +5,7 @@ import TWEEN from '../../assets/tween.esm.js'
 
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-movement-player.js'
+import { updateMoveEntityMovement } from './field-movement.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import { scene as orthoBackScene, camera as orthoBackCamera } from './field-ortho-bg-scene.js'
@@ -40,6 +41,7 @@ const renderLoop = function () {
     }
     TWEEN.update()
     updateFieldMovement(delta) // Ideally this should go in a separate loop
+    updateMoveEntityMovement(delta)
     updateBackgroundScolling(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
     updateOnceASecond()
