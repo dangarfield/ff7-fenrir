@@ -560,10 +560,13 @@ const triggerEntityMoveLoops = async (entityId) => {
 const canOKLoopBeTriggeredOnMovement = (entityId) => {
     const entity = window.currentField.data.script.entities[entityId]
     if (entity.current.length > 0) {
+        console.log('canOKLoopBeTriggeredOnMovement', 'false 1')
         return false
     }
-    const loops = entity.scripts.filter(s => s.scriptType === 'Move')
+    // If there are no valid (eg, non-return only) move scripts
+    const loops = entity.scripts.filter(s => s.scriptType === 'Move' && s.ops.length > 1)
     if (loops.length > 0) {
+        console.log('canOKLoopBeTriggeredOnMovement', 'false 2', loops)
         return false
     }
     console.log('canOKLoopBeTriggeredOnMovement', 'true', loops)

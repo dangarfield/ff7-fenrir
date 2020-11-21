@@ -7,8 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'loadWorldMap',
-            // 'PLAYER WALK POSITION'
+            'loadWorldMap'
         ],
         log: function () {
             if (limit) {
