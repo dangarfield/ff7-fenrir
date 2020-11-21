@@ -73,6 +73,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Try and use the background images to cull the entity objects
 - :black_square_button: Need to fix / properly implement animations that reset to previous state
 - :black_square_button: Some animations stop mid-walk
+- :black_square_button: Need to implement SHAKE properly
 - :white_check_mark: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin, think this should be done now
 - :black_square_button: Figure out relative priorities of LINE and COLLISION / TALK triggered scripts
 - :white_check_mark: Investigation of parallax (eg, mds5_4). Not 100% perfect yet midgal)

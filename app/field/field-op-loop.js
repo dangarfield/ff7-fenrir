@@ -323,7 +323,7 @@ const executeOp = async (fieldName, entityId, scriptType, scriptId, ops, op, cur
         // Camera, Audio and Video
 
         case 'NFADE': result = await cameraMedia.NFADE(op); break
-        case 'SHAKE': result = await cameraMedia.SHAKE(op); break
+        case 'SHAKE': result = await cameraMedia.SHAKE(fieldName, op); break
 
         case 'SCRLO': result = await cameraMedia.SCRLO(op); break
         case 'SCRLC': result = await cameraMedia.SCRLC(op); break
@@ -638,5 +638,6 @@ export {
     triggerEntityGoAwayLoop,
     triggerEntityOKLoop,
     canOKLoopBeTriggeredOnMovement,
-    debugLogOpCodeCompletionForField
+    debugLogOpCodeCompletionForField,
+    CURRENT_FIELD
 }

@@ -1,7 +1,7 @@
 import { sleep } from '../helpers/helpers.js'
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition, tweenShake } from './field-op-codes-camera-media-helper.js'
+import { TweenType, tweenCameraPosition, getCurrentCameraPosition, initShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
@@ -17,7 +17,7 @@ const NFADE = async (op) => {
     await nfadeOperation(op.t, r, g, b, op.s)
     return {}
 }
-const SHAKE = async (op) => { // TODO: Lots of improvements
+const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
     console.log('SHAKE:', op)
     // There is a lot of guesswork here
     // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
@@ -25,12 +25,10 @@ const SHAKE = async (op) => { // TODO: Lots of improvements
     const position = getCurrentCameraPosition()
     const frames = op.s >= 10 ? op.s : Math.ceil(op.s / 8) // Making this appear of for fast (cargoin) and slow (ship_2)
     const amplitude = Math.max(1, op.a / 4)
-    for (let count = 0; count <= op.c; count++) {
-        // console.log('SHAKE: COUNT', count, amplitude, frames)
-        await tweenShake(position, { y: `+${amplitude}` }, frames)
-        await tweenShake(position, { y: `-${amplitude * 2}` }, frames)
-        await tweenShake(position, { y: `+${amplitude}` }, frames)
-    }
+    // It appears as though is async - trackin
+    // TODO: It also looks to be in additional to any existing camera movements
+    // eg, an additional global camera offset applied ontop of any other camera movements
+    initShake(fieldName, position, amplitude, frames) // async, not sure if it gets turned off in any scenes or how
     // console.log('SHAKE: END', op)
     return {}
 }

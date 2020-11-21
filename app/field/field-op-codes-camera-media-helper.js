@@ -1,6 +1,6 @@
 import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { sleep } from '../helpers/helpers.js'
+import { CURRENT_FIELD } from './field-op-loop.js'
 
 const TweenType = {
     Instant: 'Instant',
@@ -10,6 +10,16 @@ const TweenType = {
 
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
+}
+const initShake = async (fieldName, position, amplitude, frames) => {
+    while (CURRENT_FIELD === fieldName) {
+        // for (let count = 0; count <= op.c; count++) {
+        // console.log('SHAKE: COUNT', count, amplitude, frames)
+        await tweenShake(position, { y: `+${amplitude}` }, frames)
+        await tweenShake(position, { y: `-${amplitude * 2}` }, frames)
+        await tweenShake(position, { y: `+${amplitude}` }, frames)
+        // }
+    }
 }
 const tweenShake = (from, to, frames) => {
     return new Promise(async (resolve) => {
@@ -83,6 +93,6 @@ export {
     TweenType,
     tweenCameraPosition,
     getCurrentCameraPosition,
-    tweenShake,
+    initShake,
     moveCameraToLeader
 }
