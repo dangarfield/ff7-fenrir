@@ -27,7 +27,10 @@ const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
     const amplitude = Math.max(1, op.a / 4)
     // It appears as though is async - trackin
     // TODO: It also looks to be in additional to any existing camera movements
-    // eg, an additional global camera offset applied ontop of any other camera movements
+    // eg, an additional global camera offset applied ontop of any other camera movement
+    // Looks like setting it to amplitude 0 stops it
+    // Mutiple SHAKES affect the 'global' shake params
+    // Again, need to investigate and implement
     initShake(fieldName, position, amplitude, frames) // async, not sure if it gets turned off in any scenes or how
     // console.log('SHAKE: END', op)
     return {}

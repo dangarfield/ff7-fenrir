@@ -45,7 +45,9 @@ const playAnimation = async (entityId, animationId, speed, holdLastFrame, loopTy
             // Store current playing animation for !holdLastFrame
             const previousAnimationId = model.userData.lastAnimationId
             model.userData.lastAnimationId = animationId
-            // TODO - Implement this properly - Look at trackin -> cefiros -> main 
+            // TODO - Implement this properly - Look at:
+            //   trackin -> cefiros -> main 
+            //   nivl (game moment 350) -> cefiros -> main 
 
 
             // await sleep(2000)

@@ -6,6 +6,7 @@ import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync, playStandAnimation } from './field-animations.js'
 import { updateCurrentTriangleId } from './field-movement-player.js'
 import { setFieldPointersEnabled, drawArrowPositionHelpers } from './field-position-helpers.js'
+import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
 
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
@@ -281,6 +282,12 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (!model.userData.hasBeenInitiallyPlaced) {
         playStandAnimation(model) // Play animation should not be executed each time this is envoked
         model.userData.hasBeenInitiallyPlaced = true
+    }
+    if (window.currentField.playableCharacter && model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
+        // Update camera position if this is the main character
+        const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
+        console.log('adjustViewClipping placeModel')
+        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
     }
 }
 const placeModelsDebug = async () => {

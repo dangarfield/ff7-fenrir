@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'loadWorldMap'
+            'SHAKE'
         ],
         log: function () {
             if (limit) {
