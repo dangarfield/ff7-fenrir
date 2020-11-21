@@ -1,7 +1,7 @@
 import { sleep } from '../helpers/helpers.js'
-import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
+import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition, initShake } from './field-op-codes-camera-media-helper.js'
+import { TweenType, tweenCameraPosition, getCurrentCameraPosition, setShakeConfig } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
@@ -21,8 +21,7 @@ const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
     console.log('SHAKE:', op)
     // There is a lot of guesswork here
     // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
-    window.currentField.fieldCameraFollowPlayer = false
-    const position = getCurrentCameraPosition()
+    // window.currentField.fieldCameraFollowPlayer = false
     const frames = op.s >= 10 ? op.s : Math.ceil(op.s / 8) // Making this appear of for fast (cargoin) and slow (ship_2)
     const amplitude = Math.max(1, op.a / 4)
     // It appears as though is async - trackin
@@ -31,7 +30,7 @@ const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
     // Looks like setting it to amplitude 0 stops it
     // Mutiple SHAKES affect the 'global' shake params
     // Again, need to investigate and implement
-    initShake(fieldName, position, amplitude, frames) // async, not sure if it gets turned off in any scenes or how
+    setShakeConfig(fieldName, amplitude, frames) // async, not sure if it gets turned off in any scenes or how
     // console.log('SHAKE: END', op)
     return {}
 }
@@ -99,8 +98,8 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
             //     oldPosition.y !== entity.scene.position.y,
             //     oldPosition.z !== entity.scene.position.z)
             let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entity.scene.position)
-            console.log('adjustViewClipping SCRLA end')
-            adjustViewClipping(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
+            console.log('setCameraPosition SCRLA end')
+            setCameraPosition(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
         }
         console.log('SCRLA finished')
         return {}

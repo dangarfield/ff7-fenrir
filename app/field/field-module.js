@@ -49,6 +49,14 @@ const loadField = async (fieldName, playableCharacterInitData) => {
         fieldCamera: undefined,
         fieldCameraHelper: undefined,
         fieldCameraFollowPlayer: true,
+        fieldCameraPosition: {
+            current: { x: 0, y: 0 },
+            next: { x: 0, y: 0 },
+            shake: {
+                current: { x: 0, y: 0 },
+                next: { x: 0, y: 0 }
+            }
+        },
         isScrolling: false,
         videoCamera: undefined,
         showVideoCamera: false,

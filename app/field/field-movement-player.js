@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
-import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
+import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { gatewayTriggered, triggerTriggered, modelCollisionTriggered } from './field-actions.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
 import { updateSavemapLocationFieldPosition, updateSavemapLocationFieldLeader } from '../data/savemap-alias.js'
@@ -286,8 +286,8 @@ const updateFieldMovement = (delta) => {
         // Adjust the camera offset to centre on character
         const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
         // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
-        console.log('adjustViewClipping player movement')
-        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+        console.log('setCameraPosition player movement')
+        setCameraPosition(relativeToCamera.x, relativeToCamera.y)
     }
 
 
@@ -374,8 +374,8 @@ const ladderMovement = (speed) => {
 
     // Update camera position
     const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
-    console.log('adjustViewClipping ladder movement')
-    adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+    console.log('setCameraPosition ladder movement')
+    setCameraPosition(relativeToCamera.x, relativeToCamera.y)
 
     // Check for arrival
     const distanceToTarget = model.scene.position.distanceTo(targetVector)

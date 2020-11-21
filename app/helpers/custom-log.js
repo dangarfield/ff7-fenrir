@@ -7,7 +7,11 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'SHAKE'
+            'SHAKE',
+            // 'updateCameraPosition',
+            // 'setCameraPosition',
+            // 'setCameraShakePosition'
+            // 'setCameraShakePosition tweenShake'
         ],
         log: function () {
             if (limit) {

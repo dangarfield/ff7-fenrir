@@ -44,6 +44,7 @@ const renderLoop = function () {
     updateMoveEntityMovement(delta)
     updateBackgroundScolling(delta) // Ideally this should go in a separate loop
     updateArrowPositionHelpers()
+    updateCameraPosition()
     updateOnceASecond()
     processLineTriggersForFrame()
     if (window.anim.renderer && window.currentField.fieldScene && window.currentField.fieldCamera) {
@@ -358,8 +359,8 @@ const initFieldDebug = async (loadFieldCB) => {
     fieldGUI.add(window.currentField.metaData, 'numModels')
     fieldGUI.add(window.currentField.metaData, 'scaleDownValue').step(0.00001)
     fieldGUI.add(window.currentField.metaData, 'layersAvailable')
-    fieldGUI.add(window.currentField.metaData.fieldCoordinates, 'x').min(0).max(window.currentField.metaData.assetDimensions.width).step(1).listen().onChange((val) => adjustViewClipping(val, window.currentField.metaData.fieldCoordinates.y))
-    fieldGUI.add(window.currentField.metaData.fieldCoordinates, 'y').min(0).max(window.currentField.metaData.assetDimensions.height).step(1).listen().onChange((val) => adjustViewClipping(window.currentField.metaData.fieldCoordinates.x, val))
+    fieldGUI.add(window.currentField.metaData.fieldCoordinates, 'x').min(0).max(window.currentField.metaData.assetDimensions.width).step(1).listen().onChange((val) => setCameraPosition(val, window.currentField.metaData.fieldCoordinates.y))
+    fieldGUI.add(window.currentField.metaData.fieldCoordinates, 'y').min(0).max(window.currentField.metaData.assetDimensions.height).step(1).listen().onChange((val) => setCameraPosition(window.currentField.metaData.fieldCoordinates.x, val))
     fieldGUI.open()
 
     let debugGUI = window.anim.gui.addFolder('Debug')
@@ -434,8 +435,8 @@ const setupViewClipping = async () => {
     // Need to set a default, this is centre, should really be triggered from the player character being active on the screen
     const x = window.currentField.metaData.assetDimensions.width / 2
     const y = window.currentField.metaData.assetDimensions.height / 2
-    console.log('adjustViewClipping setupViewClipping')
-    adjustViewClipping(x, y) // Set initial view, will be overridden on movement and op codes, probably also when we place the playable character
+    console.log('setCameraPosition setupViewClipping')
+    setCameraPosition(x, y) // Set initial view, will be overridden on movement and op codes, probably also when we place the playable character
     // console.log('window.currentField.metaData', window.currentField.metaData)
 }
 const calculateViewClippingPointFromVector3 = (v) => {
@@ -486,7 +487,7 @@ const calculateViewClippingPointFromVector3 = (v) => {
 
     return relativeToCamera
 }
-const adjustViewClipping = async (x, y) => {
+const adjustViewClipping = (x, y) => {
     // console.log('x', x, '->', adjustedX, 'y', y, '->', adjustedY)
 
 
@@ -516,6 +517,33 @@ const adjustViewClipping = async (x, y) => {
     // updateLayer2Parallax(window.config.sizing.width + 160, adjustedX, window.config.sizing.height, adjustedY)
     updateLayer2Parallax(maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
 }
+const setCameraPosition = (x, y) => {
+    console.log('setCameraPosition', x, y)
+    window.currentField.fieldCameraPosition.next.x = x
+    window.currentField.fieldCameraPosition.next.y = y
+}
+const setCameraShakePosition = (x, y) => {
+    console.log('setCameraShakePosition', x, y)
+    window.currentField.fieldCameraPosition.shake.next.x = x
+    window.currentField.fieldCameraPosition.shake.next.y = y
+}
+const updateCameraPosition = () => {
+    if (
+        window.currentField.fieldCameraPosition.current.x !== window.currentField.fieldCameraPosition.next.x ||
+        window.currentField.fieldCameraPosition.current.y !== window.currentField.fieldCameraPosition.next.y ||
+        window.currentField.fieldCameraPosition.shake.current.x !== window.currentField.fieldCameraPosition.shake.next.x ||
+        window.currentField.fieldCameraPosition.shake.current.y !== window.currentField.fieldCameraPosition.shake.next.y
+    ) {
+        console.log('updateCameraPosition')
+        window.currentField.fieldCameraPosition.current.x = window.currentField.fieldCameraPosition.next.x
+        window.currentField.fieldCameraPosition.current.y = window.currentField.fieldCameraPosition.next.y
+        window.currentField.fieldCameraPosition.shake.current.x = window.currentField.fieldCameraPosition.shake.next.x
+        window.currentField.fieldCameraPosition.shake.current.y = window.currentField.fieldCameraPosition.shake.next.y
+        adjustViewClipping(
+            window.currentField.fieldCameraPosition.current.x + window.currentField.fieldCameraPosition.shake.current.x,
+            window.currentField.fieldCameraPosition.current.y + window.currentField.fieldCameraPosition.shake.current.y)
+    }
+}
 export {
     startFieldRenderLoop,
     setupFieldCamera,
@@ -523,7 +551,8 @@ export {
     initFieldDebug,
     setupViewClipping,
     calculateViewClippingPointFromVector3,
-    adjustViewClipping,
+    setCameraPosition,
+    setCameraShakePosition,
     updateVideoCameraPosition,
     setVideoCameraHideModels,
     setVideoCameraUnhideModels

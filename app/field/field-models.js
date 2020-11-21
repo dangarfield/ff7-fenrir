@@ -6,7 +6,7 @@ import * as modelFieldOpCodes from './field-op-codes-models.js'
 import { playAnimationLoopedAsync, playStandAnimation } from './field-animations.js'
 import { updateCurrentTriangleId } from './field-movement-player.js'
 import { setFieldPointersEnabled, drawArrowPositionHelpers } from './field-position-helpers.js'
-import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
+import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
@@ -197,7 +197,7 @@ const positionPlayableCharacterFromTransition = async () => {
 
             // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
             // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
-            // adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+            // setCameraPosition(relativeToCamera.x, relativeToCamera.y)
         }
 
     } else {
@@ -286,8 +286,8 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (window.currentField.playableCharacter && model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
         // Update camera position if this is the main character
         const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
-        console.log('adjustViewClipping placeModel')
-        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+        console.log('setCameraPosition placeModel')
+        setCameraPosition(relativeToCamera.x, relativeToCamera.y)
     }
 }
 const placeModelsDebug = async () => {

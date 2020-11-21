@@ -1,4 +1,4 @@
-import { adjustViewClipping, calculateViewClippingPointFromVector3 } from './field-scene.js'
+import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { CURRENT_FIELD } from './field-op-loop.js'
 
@@ -8,32 +8,45 @@ const TweenType = {
     Smooth: 'Smooth'
 }
 
+const shakeConfig = {
+    active: false,
+    amplitude: 0,
+    frames: 0
+}
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
 }
-const initShake = async (fieldName, position, amplitude, frames) => {
-    while (CURRENT_FIELD === fieldName) {
+const setShakeConfig = async (fieldName, amplitude, frames) => {
+    shakeConfig.amplitude = amplitude
+    shakeConfig.frames = frames
+    if (!shakeConfig.active) {
+        shakeConfig.active = true
+        initShake(fieldName)
+    }
+}
+const initShake = async (fieldName) => {
+    while (CURRENT_FIELD === fieldName && shakeConfig.active) {
         // for (let count = 0; count <= op.c; count++) {
         // console.log('SHAKE: COUNT', count, amplitude, frames)
-        await tweenShake(position, { y: `+${amplitude}` }, frames)
-        await tweenShake(position, { y: `-${amplitude * 2}` }, frames)
-        await tweenShake(position, { y: `+${amplitude}` }, frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: -shakeConfig.amplitude * 2 }, shakeConfig.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
         // }
     }
 }
 const tweenShake = (from, to, frames) => {
     return new Promise(async (resolve) => {
-        window.currentField.isScrolling = true
+        // window.currentField.isScrolling = true
         let time = Math.floor(frames * 1000 / 30)
         new TWEEN.Tween(from)
             .to(to, time)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
-                console.log('adjustViewClipping tweenShake')
-                adjustViewClipping(from.x, from.y)
+                console.log('setCameraShakePosition tweenShake', window.currentField.fieldCameraPosition.shake.next, shakeConfig)
+                // setCameraPosition(from.x, from.y)
             })
             .onComplete(function () {
-                window.currentField.isScrolling = false
+                // window.currentField.isScrolling = false
                 resolve()
             })
             .start()
@@ -46,8 +59,8 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
         let time = Math.floor(frames * 1000 / 30)
         console.log('tweenCameraPosition', from, to, frames, time, tweenType)
         if (tweenType === TweenType.Instant) {
-            console.log('adjustViewClipping tweenCameraPosition')
-            adjustViewClipping(to.x, to.y)
+            console.log('setCameraPosition tweenCameraPosition')
+            setCameraPosition(to.x, to.y)
             window.currentField.isScrolling = false
             resolve()
         } else {
@@ -56,8 +69,8 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
                 .to(to, time)
                 .easing(easing)
                 .onUpdate(function () {
-                    console.log('adjustViewClipping tweenCameraPosition')
-                    adjustViewClipping(from.x, from.y)
+                    console.log('setCameraPosition tweenCameraPosition')
+                    setCameraPosition(from.x, from.y)
                     if (entityToFollow) {
                         let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entityToFollow.scene.position)
                         to.x = relativeToCameraUpdate.x
@@ -81,8 +94,8 @@ const moveCameraToLeader = async (instant) => { // Scroll to leader
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('moveCameraToLeader', getCurrentCameraPosition(), relativeToCamera)
     if (instant) {
-        console.log('adjustViewClipping moveCameraToLeader instant')
-        adjustViewClipping(relativeToCamera.x, relativeToCamera.y)
+        console.log('setCameraPosition moveCameraToLeader instant')
+        setCameraPosition(relativeToCamera.x, relativeToCamera.y)
     } else {
         await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
     }
@@ -93,6 +106,6 @@ export {
     TweenType,
     tweenCameraPosition,
     getCurrentCameraPosition,
-    initShake,
+    setShakeConfig,
     moveCameraToLeader
 }
