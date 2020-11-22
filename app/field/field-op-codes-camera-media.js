@@ -30,7 +30,34 @@ const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
     // Looks like setting it to amplitude 0 stops it
     // Mutiple SHAKES affect the 'global' shake params
     // Again, need to investigate and implement
-    setShakeConfig(fieldName, amplitude, frames) // async, not sure if it gets turned off in any scenes or how
+
+    // param 1 - Not used in game seemingly no effect
+    // param 2 - Not used in game seemingly no effect
+    // param 3 - 0-3, probably different 'types'
+    //              0 - Stop the shake
+    //              1 - ?
+    //              2 - Vertical only
+    //              3 - X and Y bounces (3 full swings) - quadratic easing
+    //                  param 4 - Horizontal - Amplitude - how 'far' is the bounce
+    //                  param 5 - Horizontal - Time in frames per part of bounce. middle -> negative -> position -> negative -> position -> middle
+    //                  param 6 - Vertical - Amplitude - how 'far' is the bounce
+    //                  param 7 - Vertical - Time in frames per part of bounce. middle -> negative -> position -> negative -> position -> middle
+
+    if (op.c === 3) { // Type 3
+        // "u1": 0,
+        // "u2": 0,
+        // "c": 3,
+        // "u3": 64,
+        // "u4": 120,
+        // "a": 64,
+        // "s": 120,
+        const config = {
+            x: { amplitude: Math.round(op.u3 / 2), frames: op.u4 },
+            y: { amplitude: Math.round(op.a / 2), frames: op.s }
+        }
+        setShakeConfig(fieldName, op.c, config)
+    }
+
     // console.log('SHAKE: END', op)
     return {}
 }

@@ -11,7 +11,8 @@ window.console = (function (origConsole) {
             // 'updateCameraPosition',
             // 'setCameraPosition',
             // 'setCameraShakePosition'
-            // 'setCameraShakePosition tweenShake'
+            'setCameraShakePosition tweenShake',
+            'initShake'
         ],
         log: function () {
             if (limit) {

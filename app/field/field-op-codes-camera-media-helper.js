@@ -10,43 +10,59 @@ const TweenType = {
 
 const shakeConfig = {
     active: false,
-    amplitude: 0,
-    frames: 0
+    type: 0,
+    config: {}
 }
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
 }
-const setShakeConfig = async (fieldName, amplitude, frames) => {
-    shakeConfig.amplitude = amplitude
-    shakeConfig.frames = frames
+const setShakeConfig = async (fieldName, type, config) => {
+    shakeConfig.type = type
+    shakeConfig.config = config
     if (!shakeConfig.active) {
         shakeConfig.active = true
         initShake(fieldName)
     }
 }
 const initShake = async (fieldName) => {
-    while (CURRENT_FIELD === fieldName && shakeConfig.active) {
-        // for (let count = 0; count <= op.c; count++) {
-        // console.log('SHAKE: COUNT', count, amplitude, frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: -shakeConfig.amplitude * 2 }, shakeConfig.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
-        // }
+    // while (CURRENT_FIELD === fieldName && shakeConfig.active) {
+    // for (let count = 0; count <= op.c; count++) {
+    // console.log('initShake', shakeConfig, window.currentField.fieldCameraPosition.shake.next, shakeConfig.config.x.amplitude, shakeConfig.config.y.amplitude)
+    if (shakeConfig.type === 3) {
+        let toNeg = { x: -shakeConfig.config.x.amplitude, y: -shakeConfig.config.y.amplitude }
+        let toPos = { x: shakeConfig.config.x.amplitude, y: shakeConfig.config.y.amplitude }
+        let toHome = { x: 0, y: 0 }
+        console.log('initShake', shakeConfig, window.currentField.fieldCameraPosition.shake.next, toNeg, toPos, toHome)
+        // Note: x and y have to tween separately
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toNeg, shakeConfig.config.x.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toPos, shakeConfig.config.x.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toNeg, shakeConfig.config.x.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toPos, shakeConfig.config.x.frames)
+        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toHome, shakeConfig.config.x.frames)
     }
+
+    // await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: -shakeConfig.amplitude * 2 }, shakeConfig.frames)
+    // await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
+    // }
+    // }
+    shakeConfig.active = false
 }
 const tweenShake = (from, to, frames) => {
     return new Promise(async (resolve) => {
         // window.currentField.isScrolling = true
         let time = Math.floor(frames * 1000 / 30)
+        console.log('setCameraShakePosition tweenShake TIME', time, frames)
+        // let from2 = { x: 0, y: 0 }
         new TWEEN.Tween(from)
             .to(to, time)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(function () {
-                console.log('setCameraShakePosition tweenShake', window.currentField.fieldCameraPosition.shake.next, shakeConfig)
+                console.log('setCameraShakePosition tweenShake UPDATE', from, window.currentField.fieldCameraPosition.shake.next, to, shakeConfig)
                 // setCameraPosition(from.x, from.y)
             })
             .onComplete(function () {
                 // window.currentField.isScrolling = false
+                console.log('setCameraShakePosition tweenShake END', from, window.currentField.fieldCameraPosition.shake.next, to, shakeConfig)
                 resolve()
             })
             .start()
