@@ -7,9 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            // 'SHAKE',
-            // 'initShake',
-            // 'waitForShake'
+            'RETTO'
         ],
         log: function () {
             if (limit) {

@@ -17,10 +17,13 @@ const REQ = async (fieldName, entityId, scriptType, op) => {
     console.log('REQ', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    // console.log('script', entity, script, script.isRunning)
 
     // Need to validate where 'unless busy' means this entities scripts (non-init, non-main) are running
     // or just this script. For now, assume it is just this script
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     if (script.isRunning) {
         console.log('REQ not running script as it is already running', entity, script, script.isRunning)
         return {}
@@ -32,7 +35,10 @@ const REQSW = async (fieldName, entityId, scriptType, op) => {
     console.log('REQSW', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    // console.log('script', entity, script, script.isRunning)
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     // No need to check it is running
     executeScriptLoop(fieldName, entity.entityId, script, op.p) // Async
     return {}
@@ -41,7 +47,10 @@ const REQEW = async (fieldName, entityId, scriptType, op) => {
     console.log('REQEW', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[op.e]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    // console.log('script', entity, script, script.isRunning)
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     // No need to check it is running
     await executeScriptLoop(fieldName, entity.entityId, script, op.p) // Sync
     return {}
@@ -51,6 +60,10 @@ const PREQ = async (fieldName, entityId, scriptType, op) => {
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     executeScriptLoop(fieldName, entity.entityId, script, op.p) // Async
     return {}
 }
@@ -59,6 +72,10 @@ const PRQSW = async (fieldName, entityId, scriptType, op) => {
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     executeScriptLoop(fieldName, entity.entityId, script, op.p) // Async
     return {}
 }
@@ -67,18 +84,32 @@ const PRQEW = async (fieldName, entityId, scriptType, op) => {
     const model = getModelByPartyMemberId(op.e)
     const entity = window.currentField.data.script.entities[model.userData.entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
     await executeScriptLoop(fieldName, entity.entityId, script, op.p) // Sync
     return {}
 }
 
-const RETTO = async (entityId, scriptType, op) => {
-    console.log('RETTO', entityId, scriptType, op)
+const RETTO = async (fieldName, entityId, scriptType, op) => {
+    console.log('RETTO', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    // console.log('script', entity, script, script.isRunning)
-    // No need to check it is running
-    executeScriptLoop(entity.entityId, script, op.p) // Async
-    return {}
+    
+    // This stops all current running scripts on the current entity then adds a new script
+    for (let i = 0; i < entity.scripts.length; i++) {
+        const loop = entity.scripts[i]
+        if (loop.isRunning && loop.index !== op.f) {
+            loop.forcedExit = op.f
+        }
+    }
+    if (script === undefined) {
+        console.log('There is no script of this index on this entity', entity, 'index -> ', op.f)
+        return {}
+    }
+    executeScriptLoop(fieldName, entity.entityId, script, op.p) // Async
+    return { exit: true }
 }
 
 const JMPF = async (ops, op) => {

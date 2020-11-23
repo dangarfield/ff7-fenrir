@@ -517,7 +517,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers, askFirstLine, as
 
 
     // Configure text
-    text = text.replace(/\t/g, '    ')
+    text = text.replace(/\t/g, '     ')
     text = replaceCharacterNames(text)
     text = replaceButtonImages(text)
     text = replaceVariables(text, dialog.id)
