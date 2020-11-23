@@ -55,7 +55,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Fix player direction direction (seems to change based on keys pressed)
 - :white_check_mark: Switch event loop to use render loop rather than individual async methods (performance - tin_1). I did this, but the performance was worse and there was more of a stutter in the background on / off. Replacing console.log solves all performance issues
 - :white_check_mark: Add animation root translation the kujata models and apply in game
-- :black_square_button: Tweens are not paused on fade / eg window.anim.clock.stop()
+- :white_check_mark: Tweens are not paused on fade / eg window.anim.clock.stop()
 - :white_check_mark: Doors models don't have correct textures / look right - bybf (door w/ lights)
 - :white_check_mark: Save model doesn't rotate
 - :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata.
@@ -73,7 +73,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Try and use the background images to cull the entity objects
 - :black_square_button: Need to fix / properly implement animations that reset to previous state
 - :black_square_button: Some animations stop mid-walk
-- :black_square_button: Need to implement SHAKE properly
+- :white_check_mark: Need to implement SHAKE properly
 - :white_check_mark: Figure out when player movement doesn't move the camera at all. eg, md1stin, cargoin, think this should be done now
 - :black_square_button: Figure out relative priorities of LINE and COLLISION / TALK triggered scripts
 - :white_check_mark: Investigation of parallax (eg, mds5_4). Not 100% perfect yet midgal)

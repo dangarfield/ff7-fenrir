@@ -14,6 +14,8 @@ import {
     triggerEntityGo1xLoop, triggerEntityGoAwayLoop, triggerEntityOKLoop, triggerEntityCollisionLoop,
     canOKLoopBeTriggeredOnMovement
 } from './field-op-loop.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
 
 let actionInProgress = false
 
@@ -270,7 +272,7 @@ const setPlayableCharacterIsInteracting = (isInteracting) => {
 const transitionOutAndLoadMenu = async (menuType, menuParam) => {
     if (doesMenuRequireTransitionOut(menuType)) {
         setActionInProgress('menu')
-        window.anim.clock.stop()
+        stopFieldSceneAnimating()
         setPlayableCharacterIsInteracting(true)
         await transitionOut(true)
         await loadMenuWithWait(menuType, menuParam)
@@ -281,7 +283,7 @@ const transitionOutAndLoadMenu = async (menuType, menuParam) => {
 }
 const transitionOutAndLoadTutorial = async (tutorialId) => {
     setActionInProgress('menu')
-    window.anim.clock.stop()
+    stopFieldSceneAnimating()
     setPlayableCharacterIsInteracting(true)
     await transitionOut(true)
     await loadTutorial(tutorialId)
@@ -298,7 +300,7 @@ const gatewayTriggered = async (i) => {
     const gateway = window.currentField.data.triggers.gateways[i]
     console.log('positionPlayableCharacterFromTransition gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
-    window.anim.clock.stop()
+    stopFieldSceneAnimating()
     window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
@@ -315,7 +317,7 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     const fieldName = await getFieldNameForId(fieldId)
     console.log('jumpToMap', fieldId, fieldName, x, y, triangleId, direction)
     setActionInProgress('gateway')
-    window.anim.clock.stop()
+    stopFieldSceneAnimating()
     setPlayableCharacterIsInteracting(true)
     setPlayableCharacterCanMove(false)
     await stopAllLoops()
@@ -348,7 +350,7 @@ const jumpToMapFromMiniGame = async (fieldId, x, y, z) => {
 }
 const jumpToMiniGame = async (gameId, options, returnInstructions) => {
     setActionInProgress('gateway')
-    window.anim.clock.stop()
+    stopFieldSceneAnimating()
     window.currentField.playableCharacterCanMove = false
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
@@ -365,11 +367,16 @@ const triggerBattleWithSwirl = async (battleId) => {
         return
     }
     setActionInProgress('battle')
-    window.anim.clock.stop()
+    stopFieldSceneAnimating()
     setPlayableCharacterIsInteracting(true)
     const options = { things: 'more-things' } // get options from currentField / somewhere
     await loadBattleWithSwirl(battleId, options)
     unfreezeField()
+}
+const stopFieldSceneAnimating = () => {
+    window.anim.clock.stop()
+    TWEEN.removeAll()
+    SHAKE_TWEEN_GROUP.removeAll()
 }
 export {
     gatewayTriggered,

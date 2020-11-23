@@ -2,7 +2,7 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js'
 import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js'
 import TWEEN from '../../assets/tween.esm.js'
-
+import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldMovement } from './field-movement-player.js'
 import { updateMoveEntityMovement } from './field-movement.js'
@@ -40,6 +40,7 @@ const renderLoop = function () {
         }
     }
     TWEEN.update()
+    SHAKE_TWEEN_GROUP.update()
     updateFieldMovement(delta) // Ideally this should go in a separate loop
     updateMoveEntityMovement(delta)
     updateBackgroundScolling(delta) // Ideally this should go in a separate loop

@@ -1,7 +1,7 @@
 import { sleep } from '../helpers/helpers.js'
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition, setShakeConfig } from './field-op-codes-camera-media-helper.js'
+import { TweenType, tweenCameraPosition, getCurrentCameraPosition, executeShake } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
@@ -17,48 +17,16 @@ const NFADE = async (op) => {
     await nfadeOperation(op.t, r, g, b, op.s)
     return {}
 }
-const SHAKE = async (fieldName, op) => { // TODO: Lots of improvements
+const SHAKE = async (op) => { // TODO: Lots of improvements
     console.log('SHAKE:', op)
-    // There is a lot of guesswork here
-    // TODO - I'm only shaking on the y axis, I assume the u3,u4 params change this?! This is ok for now
-    // window.currentField.fieldCameraFollowPlayer = false
-    const frames = op.s >= 10 ? op.s : Math.ceil(op.s / 8) // Making this appear of for fast (cargoin) and slow (ship_2)
-    const amplitude = Math.max(1, op.a / 4)
-    // It appears as though is async - trackin
-    // TODO: It also looks to be in additional to any existing camera movements
-    // eg, an additional global camera offset applied ontop of any other camera movement
-    // Looks like setting it to amplitude 0 stops it
-    // Mutiple SHAKES affect the 'global' shake params
-    // Again, need to investigate and implement
+    // I've updated lots here: http://wiki.ffrtt.ru/index.php?title=FF7/Field/Script/Opcodes/5E_SHAKE
+    executeShake({
+        type: op.t,
+        x: { amplitude: op.xA, frames: op.xF },
+        y: { amplitude: op.yA, frames: op.yF }
+    })
 
-    // param 1 - Not used in game seemingly no effect
-    // param 2 - Not used in game seemingly no effect
-    // param 3 - 0-3, probably different 'types'
-    //              0 - Stop the shake
-    //              1 - ?
-    //              2 - Vertical only
-    //              3 - X and Y bounces (3 full swings) - quadratic easing
-    //                  param 4 - Horizontal - Amplitude - how 'far' is the bounce
-    //                  param 5 - Horizontal - Time in frames per part of bounce. middle -> negative -> position -> negative -> position -> middle
-    //                  param 6 - Vertical - Amplitude - how 'far' is the bounce
-    //                  param 7 - Vertical - Time in frames per part of bounce. middle -> negative -> position -> negative -> position -> middle
-
-    if (op.c === 3) { // Type 3
-        // "u1": 0,
-        // "u2": 0,
-        // "c": 3,
-        // "u3": 64,
-        // "u4": 120,
-        // "a": 64,
-        // "s": 120,
-        const config = {
-            x: { amplitude: Math.round(op.u3 / 2), frames: op.u4 },
-            y: { amplitude: Math.round(op.a / 2), frames: op.s }
-        }
-        setShakeConfig(fieldName, op.c, config)
-    }
-
-    // console.log('SHAKE: END', op)
+    // Note: Tweens from this tween group need to be removed on scene change. field-actions.js -> stopFieldSceneAnimating()
     return {}
 }
 const SCRLO = async (op) => {

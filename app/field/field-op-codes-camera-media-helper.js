@@ -1,6 +1,7 @@
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { CURRENT_FIELD } from './field-op-loop.js'
+import { sleep } from '../helpers/helpers.js'
 
 const TweenType = {
     Instant: 'Instant',
@@ -8,66 +9,85 @@ const TweenType = {
     Smooth: 'Smooth'
 }
 
-const shakeConfig = {
-    active: false,
-    type: 0,
-    config: {}
-}
+const SHAKE_TWEEN_GROUP = window.SHAKE_TWEEN_GROUP = new TWEEN.Group()
+let shakeConfig = {}
+
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
 }
-const setShakeConfig = async (fieldName, type, config) => {
-    shakeConfig.type = type
-    shakeConfig.config = config
-    if (!shakeConfig.active) {
-        shakeConfig.active = true
-        initShake(fieldName)
+const stopShakeTweenChainAndWaitForCurrentTweenToEnd = async () => {
+    // Break the chain of tweens
+    const tweenKeys = Object.keys(SHAKE_TWEEN_GROUP._tweens)
+    for (let i = 0; i < tweenKeys.length; i++) {
+        const tweenKey = tweenKeys[i]
+        const currentTween = SHAKE_TWEEN_GROUP._tweens[tweenKey]
+        currentTween._chainedTweens = []
     }
+    // Wait for current tween to finish
+    while (Object.keys(SHAKE_TWEEN_GROUP._tweens).length > 0) {
+        console.log('waitForShake wait')
+        await sleep(1000 / 30)
+    }
+    console.log('waitForShake END')
 }
-const initShake = async (fieldName) => {
-    // while (CURRENT_FIELD === fieldName && shakeConfig.active) {
-    // for (let count = 0; count <= op.c; count++) {
-    // console.log('initShake', shakeConfig, window.currentField.fieldCameraPosition.shake.next, shakeConfig.config.x.amplitude, shakeConfig.config.y.amplitude)
+const stopShake = async () => {
+    let frames = 60 // Made up default
     if (shakeConfig.type === 3) {
-        let toNeg = { x: -shakeConfig.config.x.amplitude, y: -shakeConfig.config.y.amplitude }
-        let toPos = { x: shakeConfig.config.x.amplitude, y: shakeConfig.config.y.amplitude }
-        let toHome = { x: 0, y: 0 }
-        console.log('initShake', shakeConfig, window.currentField.fieldCameraPosition.shake.next, toNeg, toPos, toHome)
-        // Note: x and y have to tween separately
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toNeg, shakeConfig.config.x.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toPos, shakeConfig.config.x.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toNeg, shakeConfig.config.x.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toPos, shakeConfig.config.x.frames)
-        await tweenShake(window.currentField.fieldCameraPosition.shake.next, toHome, shakeConfig.config.x.frames)
+        frames = Math.max(shakeConfig.x.frames, shakeConfig.y.frames)
     }
-
-    // await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: -shakeConfig.amplitude * 2 }, shakeConfig.frames)
-    // await tweenShake(window.currentField.fieldCameraPosition.shake.next, { y: shakeConfig.amplitude }, shakeConfig.frames)
-    // }
-    // }
-    shakeConfig.active = false
+    let time = Math.floor(frames * 1000 / 30)
+    let from = window.currentField.fieldCameraPosition.shake.next
+    const resetTween = new TWEEN.Tween(from, SHAKE_TWEEN_GROUP).to({ x: 0, y: 0 }, time).easing(TWEEN.Easing.Quadratic.InOut)
+    resetTween.start()
 }
-const tweenShake = (from, to, frames) => {
-    return new Promise(async (resolve) => {
-        // window.currentField.isScrolling = true
-        let time = Math.floor(frames * 1000 / 30)
-        console.log('setCameraShakePosition tweenShake TIME', time, frames)
-        // let from2 = { x: 0, y: 0 }
-        new TWEEN.Tween(from)
-            .to(to, time)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(function () {
-                console.log('setCameraShakePosition tweenShake UPDATE', from, window.currentField.fieldCameraPosition.shake.next, to, shakeConfig)
-                // setCameraPosition(from.x, from.y)
-            })
-            .onComplete(function () {
-                // window.currentField.isScrolling = false
-                console.log('setCameraShakePosition tweenShake END', from, window.currentField.fieldCameraPosition.shake.next, to, shakeConfig)
-                resolve()
-            })
-            .start()
+const shakeAxis = async (axis, amplitude, frames) => {
+    const time = Math.floor(frames * 1000 / 30)
+    const from = window.currentField.fieldCameraPosition.shake.next
+    const amplitudeFactored = Math.round(amplitude / 2)
+    const tweens = []
+    const steps = [
+        -1, 1.14, -1.34, 0.61, -0.49, 0.64, -0.25, 0.47, -1.20, -0.01,
+        1.14, -0.86, 0.81, -0.58, 0.68, -1.31, 0.44, -0.91, 0.03, -0.97,
+        1.25, -0.76, 0.48, -0.99, 1.34, -0.85, 0.55, -0.65, 0.07, -0.83,
+        -1]
+    // Note: This seems to be random, but appears to be a preconfigured set of points
+    // I've documented the first 30 and then loop, I'm not sure how large the proper set it
+    for (let i = 0; i < steps.length; i++) {
+        tweens.push(new TWEEN.Tween(from, SHAKE_TWEEN_GROUP).to({ [axis]: amplitudeFactored * steps[i] }, time).easing(TWEEN.Easing.Quadratic.InOut).onUpdate(function () {
+            console.log('shakeAxis UPDATE')
+        }))
 
-    })
+    }
+    for (let i = 0; i < tweens.length - 1; i++) {
+        tweens[i].chain(tweens[i + 1])
+    }
+    tweens[tweens.length - 1].chain(tweens[1])
+    tweens[0].start()
+}
+const executeShake = async (config) => {
+    if (JSON.stringify(shakeConfig) === JSON.stringify(config)) {
+        return
+    }
+    await stopShakeTweenChainAndWaitForCurrentTweenToEnd()
+    SHAKE_TWEEN_GROUP.removeAll()
+    shakeConfig = config
+    if (config.type === 0) {
+        console.log('initShake TYPE 0', config)
+        stopShake() // async
+    }
+    if (config.type === 1) {
+        console.log('initShake TYPE 1', config)
+        shakeAxis('x', config.x.amplitude, config.x.frames) // async
+    }
+    if (config.type === 2) {
+        console.log('initShake TYPE 2', config)
+        shakeAxis('y', config.y.amplitude, config.y.frames) // async
+    }
+    if (config.type === 3) {
+        console.log('initShake TYPE 3', config)
+        shakeAxis('x', config.x.amplitude, config.x.frames) // async
+        shakeAxis('y', config.y.amplitude, config.y.frames) // async
+    }
 }
 const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
     return new Promise(async (resolve) => {
@@ -122,6 +142,7 @@ export {
     TweenType,
     tweenCameraPosition,
     getCurrentCameraPosition,
-    setShakeConfig,
-    moveCameraToLeader
+    executeShake,
+    moveCameraToLeader,
+    SHAKE_TWEEN_GROUP
 }
