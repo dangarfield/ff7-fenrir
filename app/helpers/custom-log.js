@@ -6,7 +6,10 @@ window.console = (function (origConsole) {
     return {
         terms: [
             'FLOW ERROR',
-            'executeOpDEBUG'
+            'executeOpDEBUG',
+            // 'SHAKE',
+            // 'initShake',
+            // 'waitForShake'
         ],
         log: function () {
             if (limit) {

@@ -11,12 +11,21 @@ const TweenType = {
 
 const SHAKE_TWEEN_GROUP = window.SHAKE_TWEEN_GROUP = new TWEEN.Group()
 let shakeConfig = {}
+let shakeQueue = []
 
 const getCurrentCameraPosition = () => {
     return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
 }
-const stopShakeTweenChainAndWaitForCurrentTweenToEnd = async () => {
+const stopShakeTweenChainAndWaitForCurrentTweenToEnd = async (config) => {
     // Break the chain of tweens
+    shakeQueue.push(config)
+
+    // Wait for this is the next shake to be executed
+    while (JSON.stringify(shakeQueue[0]) !== JSON.stringify(config)) {
+        console.log('waitForShake wait other op')
+        await sleep(1000 / 30)
+    }
+    // Stop the chained tweens
     const tweenKeys = Object.keys(SHAKE_TWEEN_GROUP._tweens)
     for (let i = 0; i < tweenKeys.length; i++) {
         const tweenKey = tweenKeys[i]
@@ -25,18 +34,16 @@ const stopShakeTweenChainAndWaitForCurrentTweenToEnd = async () => {
     }
     // Wait for current tween to finish
     while (Object.keys(SHAKE_TWEEN_GROUP._tweens).length > 0) {
-        console.log('waitForShake wait')
+        console.log('waitForShake wait tween')
         await sleep(1000 / 30)
     }
+    shakeQueue.shift()
     console.log('waitForShake END')
 }
 const stopShake = async () => {
-    let frames = 60 // Made up default
-    if (shakeConfig.type === 3) {
-        frames = Math.max(shakeConfig.x.frames, shakeConfig.y.frames)
-    }
-    let time = Math.floor(frames * 1000 / 30)
-    let from = window.currentField.fieldCameraPosition.shake.next
+    const frames = Math.max(shakeConfig.x.frames, shakeConfig.y.frames)
+    const time = Math.floor(frames * 1000 / 30)
+    const from = window.currentField.fieldCameraPosition.shake.next
     const resetTween = new TWEEN.Tween(from, SHAKE_TWEEN_GROUP).to({ x: 0, y: 0 }, time).easing(TWEEN.Easing.Quadratic.InOut)
     resetTween.start()
 }
@@ -68,7 +75,7 @@ const executeShake = async (config) => {
     if (JSON.stringify(shakeConfig) === JSON.stringify(config)) {
         return
     }
-    await stopShakeTweenChainAndWaitForCurrentTweenToEnd()
+    await stopShakeTweenChainAndWaitForCurrentTweenToEnd(config)
     SHAKE_TWEEN_GROUP.removeAll()
     shakeConfig = config
     if (config.type === 0) {
