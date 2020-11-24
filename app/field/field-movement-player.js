@@ -13,12 +13,12 @@ const updateFieldMovement = (delta) => {
         return
     }
 
-    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
+    // console.log('updateFieldMovement', delta, winplayableCharacterCanMovedow.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
     // Can player move?
     if (!window.currentField.playableCharacterCanMove) {
         return
     }
-    if (window.currentField.setPlayableCharacterIsInteracting) {
+    if (window.currentField.playableCharacterIsInteracting) {
         return
     }
 

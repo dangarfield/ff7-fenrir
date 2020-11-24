@@ -3,6 +3,7 @@ import {
     updateCountdownDisplays
 } from './field-dialog-helper.js'
 import { setCurrentCountdownClockTime, decrementCountdownClock } from '../data/savemap-alias.js'
+import { setPlayableCharacterCanMove } from './field-models.js'
 
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
@@ -169,8 +170,13 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 
         console.log('showMessageWaitForInteraction', id, dialogString, showChoicePointers, dialog)
         await createDialogBox(dialog)
+        if (dialog.playerCanClose) {
+            setPlayableCharacterCanMove(false)
+        }
         await showWindowWithDialog(dialog, showChoicePointers, askFirstLine, askLastLine)
-
+        // if (dialog.playerCanClose) {
+        //     setPlayableCharacterCanMove(true)
+        // }
         // Resolving this early if !playerCanClose breaks blinst_1-3
         // if (!dialog.playerCanClose) {
         //     dialog.resolveCallback()

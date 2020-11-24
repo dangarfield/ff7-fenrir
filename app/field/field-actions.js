@@ -89,7 +89,7 @@ const processTalkContactTriggersForFrame = () => {
         return
     }
 
-    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
+    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
     // Can player move?
     if (window.currentField.playableCharacterIsInteracting) {
         return
@@ -155,9 +155,9 @@ const processLineTriggersForFrame = () => {
         return
     }
 
-    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.setPlayableCharacterIsInteracting)
+    // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
     // Can player move?
-    if (window.currentField.setPlayableCharacterIsInteracting) {
+    if (window.currentField.playableCharacterIsInteracting) {
         return
     }
     const position = window.currentField.playableCharacter.scene.position
@@ -172,7 +172,8 @@ const processLineTriggersForFrame = () => {
         if (line.userData.enabled) {
             const closestPointOnLine = new THREE.Line3(line.geometry.vertices[0], line.geometry.vertices[1]).closestPointToPoint(position, true, new THREE.Vector3())
             const distance = position.distanceTo(closestPointOnLine)
-            if (distance < 0.007) {
+            console.log('processLineTriggersForFrame', line.userData, distance)
+            if (distance < 0.008) {
                 closeLines.push({ distance, line, closestPointOnLine })
             } else {
                 line.userData.playerClose = false
@@ -301,7 +302,7 @@ const gatewayTriggered = async (i) => {
     console.log('positionPlayableCharacterFromTransition gatewayTriggered', i, gateway, gateway.fieldName, window.currentField.gatewayTriggersEnabled)
     setActionInProgress('gateway')
     stopFieldSceneAnimating()
-    window.currentField.playableCharacterCanMove = false
+    setPlayableCharacterCanMove(false)
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
     await transitionOut()
@@ -351,7 +352,7 @@ const jumpToMapFromMiniGame = async (fieldId, x, y, z) => {
 const jumpToMiniGame = async (gameId, options, returnInstructions) => {
     setActionInProgress('gateway')
     stopFieldSceneAnimating()
-    window.currentField.playableCharacterCanMove = false
+    setPlayableCharacterCanMove(false)
     setPlayableCharacterIsInteracting(true)
     await stopAllLoops()
     await transitionOut()
