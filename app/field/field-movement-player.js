@@ -68,8 +68,9 @@ const updateFieldMovement = (delta) => {
 
     // Deal with 'slippability'
     const RAY_HEIGHT = 0.1
-    const SLIP_ANGLE = 45
-    const directions = [direction, direction - SLIP_ANGLE, direction + SLIP_ANGLE]
+    const SLIP_ANGLE_1 = 45
+    const SLIP_ANGLE_2 = 70
+    const directions = [direction, direction - SLIP_ANGLE_1, direction + SLIP_ANGLE_1, direction - SLIP_ANGLE_2, direction + SLIP_ANGLE_2]
     let nextPosition
     let walkmeshFound = false
     let isSlipDirection = false
@@ -282,11 +283,12 @@ const updateFieldMovement = (delta) => {
     window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
     // Update camera position if camera is following user
+    console.log('setCameraPosition player movement', window.currentField.fieldCameraFollowPlayer, window.currentField.isScrolling)
     if (window.currentField.fieldCameraFollowPlayer && !window.currentField.isScrolling) {
         // Adjust the camera offset to centre on character
         const relativeToCamera = calculateViewClippingPointFromVector3(nextPosition)
         // console.log('window.currentField.playableCharacter relativeToCamera', relativeToCamera)
-        console.log('setCameraPosition player movement')
+        console.log('setCameraPosition player movement', relativeToCamera.x, relativeToCamera.y)
         setCameraPosition(relativeToCamera.x, relativeToCamera.y)
     }
 

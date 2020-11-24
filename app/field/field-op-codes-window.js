@@ -127,7 +127,7 @@ const ASK = async (op) => {
 }
 const WCLSE = async (op) => {
     console.log('WCLSE', op)
-    await closeWindow(op.w)
+    closeWindow(op.w)
     return {}
 }
 const WCLS = async (op) => {

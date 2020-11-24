@@ -6,8 +6,6 @@ import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { getModelByPartyMemberId } from './field-models.js'
 import { getBankData } from '../data/savemap.js'
 
-// Note: Not sure about priority as of yet. Which may warrant a rewrite
-
 const RET = async () => {
     console.log('RET')
     return { exit: true }

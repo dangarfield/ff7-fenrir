@@ -7,7 +7,10 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'RETTO'
+            'nonClosedDialogs',
+            'setCameraPosition player movement',
+            'setupViewClipping',
+            'calculateViewClippingPointFromVector3'
         ],
         log: function () {
             if (limit) {

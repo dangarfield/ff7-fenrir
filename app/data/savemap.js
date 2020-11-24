@@ -170,7 +170,7 @@ const getBankData = window.getBankData = (bankRef, index) => {
     // }
     return value
 }
-const setBankData = (bankRef, index, value) => {
+const setBankData = window.setBankData = (bankRef, index, value) => {
     // console.log('setBankData', bankRef, index, window.data.savemap)
     const bankData = identifyBank(bankRef)
     setValueToBank(bankRef, bankData.bank, bankData.bytes, index, value)

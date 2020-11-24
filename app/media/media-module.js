@@ -74,10 +74,10 @@ const preLoadFieldMediaData = async () => {
                     if (op.i !== 0) { loadSound(op.i) }
 
                 } else if (op.op === 'AKAO' || op.op === 'AKAO2') { // Just preload all param2-5 for simplicity
-                    if (op.p2 !== 0) { loadSound(op.p2) }
-                    if (op.p3 !== 0) { loadSound(op.p3) }
-                    if (op.p4 !== 0) { loadSound(op.p4) }
-                    if (op.p5 !== 0) { loadSound(op.p5) }
+                    if (op.p2 > 0 && op.p2 < 700) { loadSound(op.p2) }
+                    if (op.p3 > 0 && op.p3 < 700) { loadSound(op.p3) }
+                    if (op.p4 > 0 && op.p4 < 700) { loadSound(op.p4) }
+                    if (op.p5 > 0 && op.p5 < 700) { loadSound(op.p5) }
                 } else if (op.op === 'PMVIE') {
                     loadMovie(op.m)
                 }

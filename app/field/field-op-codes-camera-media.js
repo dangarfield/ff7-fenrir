@@ -1,7 +1,7 @@
 import { sleep } from '../helpers/helpers.js'
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition, executeShake } from './field-op-codes-camera-media-helper.js'
+import { TweenType, tweenCameraPosition, getCurrentCameraPosition, executeShake, removeFollowMeFromAllModels } from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
@@ -40,6 +40,7 @@ const SCRLC = async (op) => { // Scroll to party member?
     // I'm just assuming that it is going to the playableCharacter position for now
     console.log('SCRLC', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const speed = op.p1 == 0 ? op.p2 : getBankData(op.p1, op.p2)
     let tweenType = TweenType.Instant
     if (op.p4 === 1) {
@@ -57,6 +58,7 @@ const SCRLC = async (op) => { // Scroll to party member?
 const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData.entityId = entity script array i
     console.log('SCRLA', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
     let tweenType = TweenType.Instant
     if (op.t === 1) {
@@ -67,39 +69,44 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
         tweenType = TweenType.Smooth
     }
 
-    const entities = window.currentField.models.filter(m => m.userData.entityId === op.e)
-    if (entities.length > 0) {
-        const entity = entities[0]
-        // entityId is the array position according to the flevel.script.entities[]
+    const models = window.currentField.models.filter(m => m.userData.entityId === op.e)
+    if (models.length > 0) {
+        const model = models[0]
+        // entityId is the array position according to the flevel.script.models[]
 
-        let relativeToCamera = calculateViewClippingPointFromVector3(entity.scene.position)
+        let relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
         console.log('SCRLA smooth?', op, getCurrentCameraPosition(), relativeToCamera)
 
-        await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed, entity)
+        await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed, model)
 
-        // Follow entity until it stops
-        let oldPosition = { x: entity.scene.position.x, y: entity.scene.position.y, z: entity.scene.position.z }
+        // Follow model until it stops
+        let oldPosition = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
         await sleep(1000 / 60) // Should probably follow the tick...
-        // console.log('entity.scene.position 2', oldPosition, entity.scene.position,
-        //     oldPosition.x !== entity.scene.position.x,
-        //     oldPosition.y !== entity.scene.position.y,
-        //     oldPosition.z !== entity.scene.position.z
+        // console.log('model.scene.position 2', oldPosition, model.scene.position,
+        //     oldPosition.x !== model.scene.position.x,
+        //     oldPosition.y !== model.scene.position.y,
+        //     oldPosition.z !== model.scene.position.z
         // )
-        while (oldPosition.x !== entity.scene.position.x || oldPosition.y !== entity.scene.position.y || oldPosition.z !== entity.scene.position.z) {
-            oldPosition = { x: entity.scene.position.x, y: entity.scene.position.y, z: entity.scene.position.z }
+        while (oldPosition.x !== model.scene.position.x || oldPosition.y !== model.scene.position.y || oldPosition.z !== model.scene.position.z) {
+            oldPosition = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
             await sleep(1000 / 60) // Should probably follow the tick...
-            // console.log('entity.scene.position LOOP', oldPosition, entity.scene.position,
-            //     oldPosition.x !== entity.scene.position.x,
-            //     oldPosition.y !== entity.scene.position.y,
-            //     oldPosition.z !== entity.scene.position.z)
-            let relativeToCameraUpdate = calculateViewClippingPointFromVector3(entity.scene.position)
+            // console.log('model.scene.position LOOP', oldPosition, model.scene.position,
+            //     oldPosition.x !== model.scene.position.x,
+            //     oldPosition.y !== model.scene.position.y,
+            //     oldPosition.z !== model.scene.position.z)
+            let relativeToCameraUpdate = calculateViewClippingPointFromVector3(model.scene.position)
             console.log('setCameraPosition SCRLA end')
             setCameraPosition(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
+        }
+        if(model.userData.name === window.currentField.playableCharacter.userData.name) {
+            window.currentField.fieldCameraFollowPlayer = true
+        } else {
+            model.userData.cameraFollowMe = true
         }
         console.log('SCRLA finished')
         return {}
     } else {
-        console.log('SCRLA no entity, centering on screen')
+        console.log('SCRLA no model, centering on screen')
         const centre = {
             x: window.currentField.metaData.assetDimensions.width / 2,
             y: window.currentField.metaData.assetDimensions.height / 2
@@ -112,6 +119,7 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
 const SCR2D = async (op) => { // Scroll to position instantly
     console.log('SCR2D', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const targetX = op.b1 == 0 ? op.targetX : getBankData(op.b1, op.targetX)
     const targetY = op.b2 == 0 ? op.targetY : getBankData(op.b2, op.targetY) // In frames
 
@@ -126,6 +134,7 @@ const SCR2D = async (op) => { // Scroll to position instantly
 }
 const SCRCC = async (op) => { // Scroll to leader
     console.log('SCRCC', op)
+    removeFollowMeFromAllModels()
     let relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
     console.log('SCRCC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
     await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, TweenType.Smooth, 30)
@@ -135,6 +144,7 @@ const SCRCC = async (op) => { // Scroll to leader
 const SCR2DC = async (op) => { // Scroll to position with smooth tween
     console.log('SCR2DC', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -160,6 +170,7 @@ const SCRLW = async (op) => { // Wait for scrolling
 const SCR2DL = async (op) => { // Scroll to position with linear tween
     console.log('SCR2DL', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const targetX = op.b1 == 0 ? op.x : getBankData(op.b1, op.x)
     const targetY = op.b2 == 0 ? op.y : getBankData(op.b2, op.y)
     const speed = op.b3 == 0 ? op.s : getBankData(op.b3, op.s)
@@ -192,6 +203,7 @@ const FADEW = async (op) => {
 const SCRLP = async (op) => {
     console.log('SCRLP', op)
     window.currentField.fieldCameraFollowPlayer = false
+    removeFollowMeFromAllModels()
     const speed = op.b == 0 ? op.s : getBankData(op.b, op.s)
     let tweenType = TweenType.Instant
     if (op.t === 1) {

@@ -26,7 +26,9 @@ const TRANSITION_COLOR = {
     WHITE: new THREE.Color(0xFFFFFF),
     BLACK: new THREE.Color(0x000000)
 }
-
+const setFaderVisible = (isVisible) => {
+    fadeFader.visible = isVisible
+}
 const drawFaders = (whiteTransition) => {
     console.log('drawFaders')
     let transitionFaderGeo = new THREE.PlaneBufferGeometry(window.config.sizing.width, window.config.sizing.height, 0.1)
@@ -258,5 +260,6 @@ export {
     waitForFade,
     setTransitionFaderColor,
     getTransitionFaderColor,
-    TRANSITION_COLOR
+    TRANSITION_COLOR,
+    setFaderVisible
 }

@@ -155,14 +155,16 @@ const updateMoveEntityMovement = (delta) => {
                     model.scene.rotation.y = THREE.Math.degToRad(direction)
                 }
 
-                const SLIP_ANGLE = 45
-                const directions = [direction, direction - SLIP_ANGLE, direction + SLIP_ANGLE]
+                const SLIP_ANGLE_1 = 45
+                const SLIP_ANGLE_2 = 89
+                const directions = [direction, direction - SLIP_ANGLE_1, direction + SLIP_ANGLE_1, direction - SLIP_ANGLE_2, direction + SLIP_ANGLE_2]
                 let nextPosition
                 let walkmeshFound = false
                 console.log('moveEntity updateMoveEntityMovement: speed', model.userData.entityName, delta, model.userData.moveEntity.speed, model.userData.moveEntity.speed * delta)
                 // const speed = 0.0013//(window.currentField.data.model.header.modelScale / 4400) * delta//model.userData.moveEntity.speed * delta
 
-                const speed = model.userData.moveEntity.speed * delta / 37809 // Factor seems ok
+                const speed = model.userData.moveEntity.speed * delta / 37809 // Factor seems ok // Not right on sininb41 - game moment 370
+                
                 // delta - 0.01630500005558133
                 // speed - 0.0013 should be about this for barret
                 // movement speed - 3072 barret
@@ -253,7 +255,10 @@ const updateMoveEntityMovement = (delta) => {
                 model.scene.position.z = nextPosition.z
 
                 // Camera follow
-                if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
+                if (
+                    (window.currentField.fieldCameraFollowPlayer && model.userData.name === window.currentField.playableCharacter.userData.name) ||
+                    model.userData.cameraFollowMe
+                    ) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
                     console.log('setCameraPosition moveEntity')

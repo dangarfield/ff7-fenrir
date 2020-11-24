@@ -144,6 +144,15 @@ const moveCameraToLeader = async (instant) => { // Scroll to leader
     }
     window.currentField.fieldCameraFollowPlayer = true
 }
+const removeFollowMeFromAllModels = () => {
+    const models = window.currentField.models
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i]
+        if (model.userData.cameraFollowMe) {
+            delete model.userData.cameraFollowMe
+        }
+    }
+}
 
 export {
     TweenType,
@@ -151,5 +160,6 @@ export {
     getCurrentCameraPosition,
     executeShake,
     moveCameraToLeader,
+    removeFollowMeFromAllModels,
     SHAKE_TWEEN_GROUP
 }

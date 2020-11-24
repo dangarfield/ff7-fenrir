@@ -4,6 +4,7 @@ import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
 import { setFieldPointersEnabled } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
 import { updateVideoCameraPosition, setVideoCameraHideModels, setVideoCameraUnhideModels } from '../field/field-scene.js'
+import { setFaderVisible} from '../field/field-fader.js'
 
 let movieMetadata
 let moviecamMetadata
@@ -92,10 +93,9 @@ const setNextMovie = (i) => {
     }
     nextMovie.frame = 0
     nextMovie.video = movies.filter(v => v.name === nextMovie.name)[0].video
-    console.log('nextMovie', nextMovie)
-    console.log('moviecam setNextMovie', nextMovie)
+    console.log('setNextMovie nextMovie', nextMovie)
     window.currentField.videoCamera = window.currentField.fieldCamera.clone()
-    console.log('moviecam camera clone', window.currentField.videoCamera, window.currentField.fieldCamera)
+    console.log('setNextMovie moviecam', window.currentField.videoCamera, window.currentField.fieldCamera)
 }
 const getCurrentMovieFrame = () => {
     return nextMovie.frame
@@ -122,7 +122,7 @@ const playNextMovie = async () => {
 
     return new Promise(async (resolve, reject) => {
         // Is movie lock on?
-        console.log('play video isMovieLockEnabled', isMovieLockEnabled())
+        console.log('playNextMovie isMovieLockEnabled', isMovieLockEnabled())
         if (isMovieLockEnabled()) {
             resolve()
             return
@@ -134,7 +134,7 @@ const playNextMovie = async () => {
         // Create videotexture and place on scene
         createVideoBackground(nextMovie.video)
 
-        console.log('nextMovie', nextMovie)
+        console.log('playNextMovie nextMovie', nextMovie)
 
         // Register onplay and onend callbacks 
         let frameCaptureInterval
@@ -142,7 +142,8 @@ const playNextMovie = async () => {
             // Hide all backgrounds
             window.currentField.backgroundLayers.visible = false
             window.currentField.backgroundVideo.visible = true
-            console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
+            setFaderVisible(false)
+            console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)
             // Swap to videoCamera if applicable
             if (nextMovie.cameraData !== undefined && window.currentField.allowVideoCamera) {
                 window.currentField.showVideoCamera = true // Override with op code
@@ -174,7 +175,7 @@ const playNextMovie = async () => {
         // frame 664 roughly equal to 117 seconds
         // Once video has finished
         nextMovie.video.onended = () => {
-            console.log('video.onended', nextMovie.name)
+            console.log('playNextMovie video.onended', nextMovie.name)
             // - clear capture frame interval
             clearInterval(frameCaptureInterval)
             // - switch back to field camera
@@ -185,12 +186,13 @@ const playNextMovie = async () => {
                 }
             }
             // - destroy the objects in the backgroundVideo group
-            console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
+            console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)
             window.currentField.backgroundVideo.remove(...window.currentField.backgroundVideo.children)
-            console.log('window.currentField.backgroundVideo', window.currentField.backgroundVideo)
+            console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)
 
             // - make the background layers visible again
             window.currentField.backgroundLayers.visible = true
+            setFaderVisible(true)
 
             // - Resolve the promise to proceed to the next script
             resolve()
