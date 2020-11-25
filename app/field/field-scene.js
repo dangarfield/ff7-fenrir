@@ -261,14 +261,6 @@ const setupFieldDebugCamera = () => {
 const setupFieldVideoCamera = () => {
     window.currentField.videoCamera = window.currentField.fieldCamera.clone()
 }
-const setVideoCameraHideModels = () => {
-    window.currentField.videoCamera.near = 0
-    window.currentField.videoCamera.far = 0
-}
-const setVideoCameraUnhideModels = () => {
-    window.currentField.videoCamera.near = 0.001
-    window.currentField.videoCamera.far = 1000
-}
 const updateVideoCameraPosition = (positionData, fovAdjustment) => {
     console.log('moviecam updateVideoCameraPosition', positionData)
 
@@ -554,7 +546,5 @@ export {
     calculateViewClippingPointFromVector3,
     setCameraPosition,
     setCameraShakePosition,
-    updateVideoCameraPosition,
-    setVideoCameraHideModels,
-    setVideoCameraUnhideModels
+    updateVideoCameraPosition
 }

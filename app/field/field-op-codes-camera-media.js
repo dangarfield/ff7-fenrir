@@ -1,7 +1,10 @@
 import { sleep } from '../helpers/helpers.js'
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { TweenType, tweenCameraPosition, getCurrentCameraPosition, executeShake, removeFollowMeFromAllModels } from './field-op-codes-camera-media-helper.js'
+import {
+    TweenType, tweenCameraPosition, getCurrentCameraPosition,
+    executeShake, removeFollowMeFromAllModels, scrollToEntity
+} from './field-op-codes-camera-media-helper.js'
 import { fadeOperation, nfadeOperation, waitForFade } from './field-fader.js'
 
 import { executeAkaoOperation } from '../media/media-module.js'
@@ -69,51 +72,8 @@ const SCRLA = async (op) => { // Scroll to entity // CHAR -> adds model.userData
         tweenType = TweenType.Smooth
     }
 
-    const models = window.currentField.models.filter(m => m.userData.entityId === op.e)
-    if (models.length > 0) {
-        const model = models[0]
-        // entityId is the array position according to the flevel.script.models[]
-
-        let relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
-        console.log('SCRLA smooth?', op, getCurrentCameraPosition(), relativeToCamera)
-
-        await tweenCameraPosition(getCurrentCameraPosition(), relativeToCamera, tweenType, speed, model)
-
-        // Follow model until it stops
-        let oldPosition = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
-        await sleep(1000 / 60) // Should probably follow the tick...
-        // console.log('model.scene.position 2', oldPosition, model.scene.position,
-        //     oldPosition.x !== model.scene.position.x,
-        //     oldPosition.y !== model.scene.position.y,
-        //     oldPosition.z !== model.scene.position.z
-        // )
-        while (oldPosition.x !== model.scene.position.x || oldPosition.y !== model.scene.position.y || oldPosition.z !== model.scene.position.z) {
-            oldPosition = { x: model.scene.position.x, y: model.scene.position.y, z: model.scene.position.z }
-            await sleep(1000 / 60) // Should probably follow the tick...
-            // console.log('model.scene.position LOOP', oldPosition, model.scene.position,
-            //     oldPosition.x !== model.scene.position.x,
-            //     oldPosition.y !== model.scene.position.y,
-            //     oldPosition.z !== model.scene.position.z)
-            let relativeToCameraUpdate = calculateViewClippingPointFromVector3(model.scene.position)
-            console.log('setCameraPosition SCRLA end')
-            setCameraPosition(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
-        }
-        if(model.userData.name === window.currentField.playableCharacter.userData.name) {
-            window.currentField.fieldCameraFollowPlayer = true
-        } else {
-            model.userData.cameraFollowMe = true
-        }
-        console.log('SCRLA finished')
-        return {}
-    } else {
-        console.log('SCRLA no model, centering on screen')
-        const centre = {
-            x: window.currentField.metaData.assetDimensions.width / 2,
-            y: window.currentField.metaData.assetDimensions.height / 2
-        }
-        await tweenCameraPosition(getCurrentCameraPosition(), centre, tweenType, speed)
-        return {}
-    }
+    scrollToEntity(op.e, tweenType, speed) // async
+    return {}
 
 }
 const SCR2D = async (op) => { // Scroll to position instantly

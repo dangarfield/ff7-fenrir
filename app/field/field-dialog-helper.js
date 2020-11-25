@@ -9,7 +9,7 @@ import { getActiveInputs } from '../interaction/inputs.js'
 import { getDialogs, getTextParams, WINDOW_MODE, SPECIAL_MODE } from './field-dialog.js'
 import { getCurrentCountdownClockTime } from '../data/savemap-alias.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
-import { setPlayableCharacterCanMove } from './field-models.js'
+import { setPlayableCharacterIsInteracting } from './field-actions.js'
 // Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
 /* TODO:
@@ -730,7 +730,7 @@ const closeDialog = async (dialog, choiceResult) => {
     const nonClosedDialogs = dialogs.filter(d => d.group.userData.state !== 'closed')
     console.log('dialogs nonClosedDialogs', nonClosedDialogs, nonClosedDialogs.length)
     if(nonClosedDialogs.length === 0) {
-        setPlayableCharacterCanMove(true)
+        setPlayableCharacterIsInteracting(false)
     }
 }
 const nextPageOrCloseActiveDialog = async (dialog) => {

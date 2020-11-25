@@ -8,6 +8,8 @@ import { updateCurrentTriangleId } from './field-movement-player.js'
 import { setFieldPointersEnabled, drawArrowPositionHelpers } from './field-position-helpers.js'
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 
+let modelGroup
+
 const directionToDegrees = (dir) => {
     const deg = Math.round(dir * (360 / 255))
     console.log('directionDegrees directionToDegrees', dir, deg, window.currentField.data.triggers.header.controlDirectionDegrees)
@@ -73,6 +75,15 @@ const getModelByPartyMemberId = (partyMemberId) => {
 const getEntityNameFromEntityId = (entityId) => {
     return window.currentField.data.script.entities[entityId].entityName
 }
+const setupModelSceneGroup = () => {
+    modelGroup = new THREE.Group()
+    setVisibilityForModelGroup(true)
+    window.currentField.fieldScene.add(modelGroup)
+}
+const setVisibilityForModelGroup = (isVisible) => {
+    console.log('setVisibilityForModelGroup', isVisible)
+    modelGroup.visible = isVisible
+}
 
 // This method also initialises defaults for model.userData and adds model to the field
 const setModelAsEntity = (entityId, modelId) => {
@@ -86,6 +97,7 @@ const setModelAsEntity = (entityId, modelId) => {
     model.scene.up.set(0, 0, 1)
     model.scene.visible = false
     if (model.userData.isPlayableCharacter) {
+        // if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.userData.name === window.currentField.playableCharacter.userData.name) {
         model.scene.visible = true
     }
     model.userData.movementSpeed = 1024 // Looks to be walk by default - md8_2
@@ -96,7 +108,16 @@ const setModelAsEntity = (entityId, modelId) => {
     model.userData.collisionRadius = 60 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
     console.log('setModelAsEntity: END', entityId, modelId, model)
-    window.currentField.fieldScene.add(model.scene)
+    // window.currentField.fieldScene.add(model.scene)
+    modelGroup.add(model.scene)
+
+    // "["cl - false","ti - false","cid - false","ycl - true","yti - true"," - true","cefs - true","cef - false","cef2 - false"," - false"]"
+    // "["cl - false","ti - false","cid - false","ycl - true","yti - true"," - true","cefs - true","cef - false","cef2 - false"," - false"]"
+
+    // "["cl - false","ti - false","cid - false","cl - false","ti - false","ti2 - true","cef - true","cef2 - false"]"
+    // "["cl - false","ti - false","cid - false","cl - false","ti - false","ti2 - true","cef - true","cef2 - false"]"
+
+    // "["cl2-true","cef2-true","cef-false","-false","-false","-false"]"
 }
 const setModelAsPlayableCharacter = (entityId, characterName) => {
     const model = getModelByEntityId(entityId)
@@ -276,7 +297,7 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (model.userData.setModelVisibility === false) {
         // model.scene.visible = falseda
     } else {
-        model.scene.visible = true
+        // model.scene.visible = true
     }
 
     if (!model.userData.hasBeenInitiallyPlaced) {
@@ -701,5 +722,7 @@ export {
     registerLine,
     setLineSlippability,
     enableLines,
-    setLinePosition
+    setLinePosition,
+    setupModelSceneGroup,
+    setVisibilityForModelGroup
 }

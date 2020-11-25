@@ -11,7 +11,7 @@ import { updateSavemapLocationField } from '../data/savemap-alias.js'
 import { preLoadFieldMediaData } from '../media/media-module.js'
 import { clearAllDialogs } from './field-dialog.js'
 import { initBattleSettings } from './field-battle.js'
-import { placeModelsDebug } from './field-models.js'
+import { placeModelsDebug, setupModelSceneGroup } from './field-models.js'
 import { drawWalkmesh, placeBG } from './field-backgrounds.js'
 import { loadWorldMap } from '../world/world-module.js'
 
@@ -93,6 +93,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     clearAllDialogs()
     window.currentField.backgroundData = await loadFieldBackground(fieldName)
     window.currentField.models = await loadModels(window.currentField.data.model.modelLoaders)
+    setupModelSceneGroup()
     console.log('window.currentField', window.currentField)
     initBattleSettings()
     await placeBG(fieldName)

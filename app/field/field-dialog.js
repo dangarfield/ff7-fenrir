@@ -3,7 +3,7 @@ import {
     updateCountdownDisplays
 } from './field-dialog-helper.js'
 import { setCurrentCountdownClockTime, decrementCountdownClock } from '../data/savemap-alias.js'
-import { setPlayableCharacterCanMove } from './field-models.js'
+import { setPlayableCharacterIsInteracting } from './field-actions.js'
 
 let dialogs = []
 let textParams = [] // Array of array of strings. textParams[windowId][varId] = 'value'
@@ -172,7 +172,7 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         await createDialogBox(dialog)
         // TODO - Not sure about this, in 'needs' to stopping movement in tifas house, but in nibel basement with sephiroth, it 'needs' to be allowing movement...
         if (dialog.playerCanClose) { 
-            setPlayableCharacterCanMove(false)
+            setPlayableCharacterIsInteracting(false)
         }
         await showWindowWithDialog(dialog, showChoicePointers, askFirstLine, askLastLine)
         // if (dialog.playerCanClose) {

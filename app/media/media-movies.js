@@ -3,8 +3,9 @@ import { getMovieMetadata, getMoviecamMetadata, getMoviecamData } from '../data/
 import { createVideoBackground } from '../field/field-ortho-bg-scene.js'
 import { setFieldPointersEnabled } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
-import { updateVideoCameraPosition, setVideoCameraHideModels, setVideoCameraUnhideModels } from '../field/field-scene.js'
-import { setFaderVisible} from '../field/field-fader.js'
+import { updateVideoCameraPosition } from '../field/field-scene.js'
+import { setFaderVisible } from '../field/field-fader.js'
+import { setVisibilityForModelGroup } from '../field/field-models.js'
 
 let movieMetadata
 let moviecamMetadata
@@ -143,13 +144,15 @@ const playNextMovie = async () => {
             window.currentField.backgroundLayers.visible = false
             window.currentField.backgroundVideo.visible = true
             setFaderVisible(false)
-            console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)
+            console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo, nextMovie.cameraData, window.currentField.allowVideoCamera)
             // Swap to videoCamera if applicable
             if (nextMovie.cameraData !== undefined && window.currentField.allowVideoCamera) {
                 window.currentField.showVideoCamera = true // Override with op code
                 if (nextMovie.doNotUseModels) {
-                    setVideoCameraHideModels()
+                    setVisibilityForModelGroup(false)
                 }
+            } else if (nextMovie.cameraData === undefined) {
+                setVisibilityForModelGroup(false)
             }
 
             // Begin capturing frame
@@ -182,8 +185,10 @@ const playNextMovie = async () => {
             if (nextMovie.cameraData !== undefined) {
                 window.currentField.showVideoCamera = false
                 if (nextMovie.doNotUseModels) {
-                    setVideoCameraUnhideModels()
+                    setVisibilityForModelGroup(true)
                 }
+            } else if (nextMovie.cameraData === undefined) {
+                setVisibilityForModelGroup(true)
             }
             // - destroy the objects in the backgroundVideo group
             console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)
