@@ -7,7 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'temporaryPHSMenuSetParty'
+            'tempLoadDestinationSelector'
         ],
         log: function () {
             if (limit) {

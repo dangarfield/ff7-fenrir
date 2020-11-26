@@ -10,8 +10,14 @@ const getWorldToFieldTransitionData = async () => {
     const data = await dataRes.json()
     return data
 }
+const getSceneGraph = async () => {
+    const dataRes = await fetch(`${KUJATA_BASE}/metadata/scene-graph.json`)
+    const data = await dataRes.json()
+    return data
+}
 
 export {
     getFieldToWorldMapTransitionData,
-    getWorldToFieldTransitionData
+    getWorldToFieldTransitionData,
+    getSceneGraph
 }
