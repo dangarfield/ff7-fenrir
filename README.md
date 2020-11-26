@@ -95,6 +95,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
 - :black_square_button: Should check all if not at least which scroll commands are instant no wait (1 frame exec, command continues to execute in subsequent frames, field command stacks continue), instant with wait (async), sync 
 - :black_square_button: Need to check that JUMP animations are not broken
+- :black_square_button: Ensure PHS menu action at the end of midgar ensures that there are at least 3 people in the group
 - :black_square_button: Camera movement op codes are not 100% perfect
 - :black_square_button: Borderless texts show line below characters
 - :black_square_button: Multi line text writes all, rather that just what is visible

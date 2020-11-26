@@ -47,9 +47,29 @@ const getCharacterSaveMap = (characterName) => {
         return window.data.savemap.characters[characterName]
     }
 }
+
+const temporaryPHSMenuSetParty = () => {
+    const newParty = []
+    const characterNames = Object.keys(window.data.savemap.party.phsLocked)
+    for (let i = 0; i < characterNames.length; i++) {
+        const name = characterNames[i]
+        if (window.data.savemap.party.phsLocked[name] === 1) {
+            newParty.push(name)
+        }
+    }
+    for (let i = 0; i < characterNames.length; i++) {
+        const name = characterNames[i]
+        if (window.data.savemap.party.phsVisibility[name] === 1 && !newParty.includes(name)) {
+            newParty.push(name)
+        }
+    }
+    window.data.savemap.party.members = newParty.slice(0, 3)
+    console.log('temporaryPHSMenuSetParty', newParty, window.data.savemap.party.members)
+}
 export {
     getPlayableCharacterName,
     getPlayableCharacterId,
     setCharacterNameFromSpecialText,
-    getCharacterSaveMap
+    getCharacterSaveMap,
+    temporaryPHSMenuSetParty
 }

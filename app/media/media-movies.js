@@ -5,7 +5,7 @@ import { setFieldPointersEnabled } from '../field/field-position-helpers.js'
 import { getCurrentDisc } from '../data/savemap-alias.js'
 import { updateVideoCameraPosition } from '../field/field-scene.js'
 import { setFaderVisible } from '../field/field-fader.js'
-import { setVisibilityForModelGroup } from '../field/field-models.js'
+import { setVisibilityForAllModels } from '../field/field-models.js'
 
 let movieMetadata
 let moviecamMetadata
@@ -149,10 +149,10 @@ const playNextMovie = async () => {
             if (nextMovie.cameraData !== undefined && window.currentField.allowVideoCamera) {
                 window.currentField.showVideoCamera = true // Override with op code
                 if (nextMovie.doNotUseModels) {
-                    setVisibilityForModelGroup(false)
+                    setVisibilityForAllModels(false)
                 }
             } else if (nextMovie.cameraData === undefined) {
-                setVisibilityForModelGroup(false)
+                setVisibilityForAllModels(false)
             }
 
             // Begin capturing frame
@@ -185,10 +185,10 @@ const playNextMovie = async () => {
             if (nextMovie.cameraData !== undefined) {
                 window.currentField.showVideoCamera = false
                 if (nextMovie.doNotUseModels) {
-                    setVisibilityForModelGroup(true)
+                    setVisibilityForAllModels(true)
                 }
             } else if (nextMovie.cameraData === undefined) {
-                setVisibilityForModelGroup(true)
+                setVisibilityForAllModels(true)
             }
             // - destroy the objects in the backgroundVideo group
             console.log('playNextMovie window.currentField.backgroundVideo', window.currentField.backgroundVideo)

@@ -19,10 +19,9 @@ const getConfigWindowColours = () => {
 const debugResetGame = () => {
     // This needs testing to confirm. Resets game time to 0, unlocks PHS and Save menu, resets party to Cloud | (empty) | (empty).
     setCurrentGameTime(0, 0, 0)
-    const charNames = Object.keys(window.data.savemap.party.characterAvailability)
+    const charNames = Object.keys(window.data.savemap.party.phsVisibility)
     for (let i = 0; i < charNames.length; i++) {
         const charName = charNames[i]
-        window.data.savemap.party.characterAvailability[charName] = 1
         window.data.savemap.party.phsLocked[charName] = 1
         window.data.savemap.party.phsVisibility[charName] = 1
     }

@@ -1,10 +1,10 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
-
-import { scene, showDebugText } from './menu-scene.js'
+import { showDebugText } from './menu-scene.js'
+import { temporaryPHSMenuSetParty } from '../field/field-op-codes-party-helper.js'
 
 const loadPartySelectMenu = async () => {
     console.log('loadPartySelectMenu')
     showDebugText('Party Select')
+    temporaryPHSMenuSetParty()
 }
 
 export {

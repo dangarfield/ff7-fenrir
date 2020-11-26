@@ -270,21 +270,21 @@ const PRTYE = async (op) => {
 const MMBud = async (op) => {
     console.log('MMBud', op)
     const opCharacterName = getPlayableCharacterName(op.c)
-    window.data.savemap.party.characterAvailability[opCharacterName] = op.s
-    console.log('MMBud', window.data.savemap.party.characterAvailability)
+    window.data.savemap.party.phsVisibility[opCharacterName] = op.s
+    console.log('MMBud', window.data.savemap.party.phsVisibility)
     return {}
 }
 const MMBLK = async (op) => {
     console.log('MMBLK', op)
     const opCharacterName = getPlayableCharacterName(op.c)
-    window.data.savemap.party.phsLocked[op.c] = 1
+    window.data.savemap.party.phsLocked[opCharacterName] = 1
     console.log('MMBLK', window.data.savemap.party.phsLocked)
     return {}
 }
 const MMBUK = async (op) => {
     console.log('MMBUK', op)
     const opCharacterName = getPlayableCharacterName(op.c)
-    window.data.savemap.party.phsLocked[op.c] = 0
+    window.data.savemap.party.phsLocked[opCharacterName] = 0
     console.log('MMBUK', window.data.savemap.party.phsLocked)
     return {}
 }

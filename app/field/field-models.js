@@ -77,12 +77,25 @@ const getEntityNameFromEntityId = (entityId) => {
 }
 const setupModelSceneGroup = () => {
     modelGroup = new THREE.Group()
-    setVisibilityForModelGroup(true)
+    setVisibilityForAllModels(true)
     window.currentField.fieldScene.add(modelGroup)
 }
-const setVisibilityForModelGroup = (isVisible) => {
-    console.log('setVisibilityForModelGroup', isVisible)
-    modelGroup.visible = isVisible
+const setVisibilityForAllModels = (shouldBeVisible) => {
+    console.log('setVisibilityForAllModels', shouldBeVisible)
+    modelGroup.visible = shouldBeVisible
+    const sceneObjects = window.currentField.fieldScene.children
+    for (let i = 0; i < sceneObjects.length; i++) {
+        const sceneObject = sceneObjects[i]
+        if (sceneObject.userData.type === 'model') {
+            if (shouldBeVisible && sceneObject.userData.hidden) {
+                delete sceneObject.userData.hidden
+                sceneObject.visible = true
+            } else if (!shouldBeVisible && sceneObject.visible) {
+                sceneObject.userData.hidden = true
+                sceneObject.visible = false
+            }
+        }
+    }
 }
 
 // This method also initialises defaults for model.userData and adds model to the field
@@ -107,17 +120,10 @@ const setModelAsEntity = (entityId, modelId) => {
     model.userData.collisionEnabled = true
     model.userData.collisionRadius = 60 // TODO - Absolute guess for default
     model.userData.rotationEnabled = true
+    model.scene.userData.type = 'model'
     console.log('setModelAsEntity: END', entityId, modelId, model)
-    // window.currentField.fieldScene.add(model.scene)
-    modelGroup.add(model.scene)
-
-    // "["cl - false","ti - false","cid - false","ycl - true","yti - true"," - true","cefs - true","cef - false","cef2 - false"," - false"]"
-    // "["cl - false","ti - false","cid - false","ycl - true","yti - true"," - true","cefs - true","cef - false","cef2 - false"," - false"]"
-
-    // "["cl - false","ti - false","cid - false","cl - false","ti - false","ti2 - true","cef - true","cef2 - false"]"
-    // "["cl - false","ti - false","cid - false","cl - false","ti - false","ti2 - true","cef - true","cef2 - false"]"
-
-    // "["cl2-true","cef2-true","cef-false","-false","-false","-false"]"
+    window.currentField.fieldScene.add(model.scene)
+    // modelGroup.add(model.scene) // Adding these to a group for setVisibilityForAllModels() incorrectly sets model visibiity in general
 }
 const setModelAsPlayableCharacter = (entityId, characterName) => {
     const model = getModelByEntityId(entityId)
@@ -297,14 +303,17 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     if (model.userData.setModelVisibility === false) {
         // model.scene.visible = falseda
     } else {
-        // model.scene.visible = true
+        model.scene.visible = true
     }
 
     if (!model.userData.hasBeenInitiallyPlaced) {
         playStandAnimation(model) // Play animation should not be executed each time this is envoked
         model.userData.hasBeenInitiallyPlaced = true
     }
-    if (window.currentField.playableCharacter && model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
+    if (
+        (window.currentField.playableCharacter && model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) ||
+        window.currentField.models[0] === model // This is a nasty guess, for nvmkin32 game moment 383 -> no PC, CC etc, place the first model
+    ) {
         // Update camera position if this is the main character
         const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
         console.log('setCameraPosition placeModel')
@@ -724,5 +733,5 @@ export {
     enableLines,
     setLinePosition,
     setupModelSceneGroup,
-    setVisibilityForModelGroup
+    setVisibilityForAllModels
 }

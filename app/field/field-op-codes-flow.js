@@ -94,7 +94,7 @@ const RETTO = async (fieldName, entityId, scriptType, op) => {
     console.log('RETTO', fieldName, entityId, scriptType, op)
     const entity = window.currentField.data.script.entities[entityId]
     const script = entity.scripts.filter(s => s.index === op.f)[0]
-    
+
     // This stops all current running scripts on the current entity then adds a new script
     for (let i = 0; i < entity.scripts.length; i++) {
         const loop = entity.scripts[i]
@@ -263,7 +263,7 @@ const IFPRTYQ = async (ops, op) => {
 const IFMEMBQ = async (ops, op) => {
     console.log('IFMEMBQ', ops, op)
     const opPartyMember = getPlayableCharacterName(op.c)
-    const isAvailable = window.data.savemap.party.characterAvailability[opPartyMember]
+    const isAvailable = window.data.savemap.party.phsVisibility[opPartyMember]
     if (isAvailable) {
         return { flow: true }
     } else { // Bypass if statement

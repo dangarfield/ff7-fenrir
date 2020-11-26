@@ -7,8 +7,7 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'setVisibilityForModelGroup',
-            'playNextMovie'
+            'temporaryPHSMenuSetParty'
         ],
         log: function () {
             if (limit) {
