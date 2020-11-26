@@ -2,7 +2,6 @@ import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { orthoScene } from './world-scene.js'
 
 import { loadField } from '../field/field-module.js'
-import { WORLD_TO_FIELD_DATA } from './world-module.js'
 import { getWorldToFieldTransitionData, getSceneGraph } from '../data/world-fetch-data.js'
 
 // NOTE: This is only here to allow easier navigation before implementing the main world map
@@ -13,6 +12,7 @@ let destinationGroup
 let currentNavigation = 0
 const WHITE = new THREE.Color(0xFFFFFF)
 const GREY = new THREE.Color(0x333333)
+let readyForNavigation = false
 
 const loadFont = async () => {
     return new Promise((resolve, reject) => {
@@ -24,6 +24,7 @@ const loadFont = async () => {
 const loadMetadata = async () => {
     const transitionData = await getWorldToFieldTransitionData()
     const sceneGraph = await getSceneGraph()
+
     metadata = []
     const wmIds = Object.keys(transitionData)
     for (let i = 0; i < wmIds.length; i++) {
@@ -31,6 +32,7 @@ const loadMetadata = async () => {
         metadata.push({
             wmId: wmId,
             section: 'sectionA',
+            data: transitionData[wmId].sectionA,
             fieldId: transitionData[wmId].sectionA.fieldId,
             fieldName: sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].fieldName,
             fieldDescription: sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapNames.length > 0 ? sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapNames[0] : sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].fieldName
@@ -39,6 +41,7 @@ const loadMetadata = async () => {
             metadata.push({
                 wmId: wmId,
                 section: 'sectionB',
+                data: transitionData[wmId].sectionB,
                 fieldId: transitionData[wmId].sectionB.fieldId,
                 fieldName: sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].fieldName,
                 fieldDescription: (sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapNames.length > 0 ? sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapNames[0] : sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].fieldName) + ' B'
@@ -101,14 +104,18 @@ const tempLoadDestinationSelector = async (lastWMFieldReference) => {
     console.log('tempLoadDestinationSelector HIGHLIGHTING')
     currentNavigation = getLastFieldIndex(lastWMFieldReference)
     highlightCurrentDestination()
+    readyForNavigation = true
     console.log('tempLoadDestinationSelector DONE')
 }
 const navigateAndHighlight = (change) => {
-    currentNavigation = currentNavigation + change
-    currentNavigation = Math.max(0, currentNavigation)
-    currentNavigation = Math.min(metadata.length, currentNavigation)
-    console.log('tempLoadDestinationSelector navigateAndHighlight', change, currentNavigation)
-    highlightCurrentDestination()
+    if (readyForNavigation) {
+        currentNavigation = currentNavigation + change
+        currentNavigation = Math.max(0, currentNavigation)
+        currentNavigation = Math.min(metadata.length, currentNavigation)
+        console.log('tempLoadDestinationSelector navigateAndHighlight', change, currentNavigation, metadata[currentNavigation])
+        highlightCurrentDestination()
+    }
+
 }
 const navigateUp = () => {
     navigateAndHighlight(-3)
@@ -123,25 +130,23 @@ const navigateRight = () => {
     navigateAndHighlight(+1)
 }
 const navigateSelect = () => {
-    const destination = metadata[currentNavigation]
-    console.log('tempLoadDestinationSelector navigateSelect', currentNavigation, destination)
+    if (readyForNavigation) {
+        const destination = metadata[currentNavigation]
+        console.log('tempLoadDestinationSelector navigateSelect', currentNavigation, destination)
 
-    const { fieldName, playableCharacterInitData } = setupFieldTransitionData(destination.wmId, destination.section, destination.fieldName)
-    console.log('tempLoadDestinationSelector loadField', fieldName, playableCharacterInitData)
-    loadField(fieldName, playableCharacterInitData)
-}
-
-const setupFieldTransitionData = (transitionId, section, fieldName) => {
-    const playableCharacterInitData = {
-        triangleId: WORLD_TO_FIELD_DATA[transitionId][section].triangleId,
-        position: {
-            x: WORLD_TO_FIELD_DATA[transitionId][section].x,
-            y: WORLD_TO_FIELD_DATA[transitionId][section].y
-        },
-        direction: WORLD_TO_FIELD_DATA[transitionId][section].direction,
-        characterName: 'Cloud' // This can be remove though
+        // const { fieldName, playableCharacterInitData } = setupFieldTransitionData(destination.wmId, destination.section, destination.fieldName)
+        const playableCharacterInitData = {
+            triangleId: destination.data.triangleId,
+            position: {
+                x: destination.data.x,
+                y: destination.data.y
+            },
+            direction: destination.data.direction,
+            characterName: 'Cloud' // This can be remove though
+        }
+        console.log('tempLoadDestinationSelector loadField', destination.fieldName, playableCharacterInitData)
+        loadField(destination.fieldName, playableCharacterInitData)
     }
-    return { fieldName, playableCharacterInitData }
 }
 
 export {
