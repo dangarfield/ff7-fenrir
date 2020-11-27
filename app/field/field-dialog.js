@@ -171,7 +171,7 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
         console.log('showMessageWaitForInteraction', id, dialogString, showChoicePointers, dialog)
         await createDialogBox(dialog)
         // TODO - Not sure about this, in 'needs' to stopping movement in tifas house, but in nibel basement with sephiroth, it 'needs' to be allowing movement...
-        if (dialog.playerCanClose) { 
+        if (dialog.playerCanClose) {
             setPlayableCharacterIsInteracting(false)
         }
         await showWindowWithDialog(dialog, showChoicePointers, askFirstLine, askLastLine)

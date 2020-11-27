@@ -727,9 +727,15 @@ const closeDialog = async (dialog, choiceResult) => {
     console.log('dialogs', dialogs)
 
     // TODO - Validate this potential solution to post dialog movement - Allow movement if there are no open dialogs
-    const nonClosedDialogs = dialogs.filter(d => d.group.userData.state !== 'closed')
+    const nonClosedDialogs = []
+    for (let i = 0; i < dialogs.length; i++) {
+        const d = dialogs[i]
+        if (d !== null && d !== undefined && d.group && d.group.userData.state !== 'closed') {
+            nonClosedDialogs.push(dialog)
+        }
+    }
     console.log('dialogs nonClosedDialogs', nonClosedDialogs, nonClosedDialogs.length)
-    if(nonClosedDialogs.length === 0) {
+    if (nonClosedDialogs.length === 0) {
         setPlayableCharacterIsInteracting(false)
     }
 }

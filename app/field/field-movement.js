@@ -243,7 +243,7 @@ const updateMoveEntityMovement = (delta) => {
                     action.play()
                 } else if (model.userData.moveEntity.animationId === 1) { // Walk
                     model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop()
-                    model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).stop()
+                    if (model.animations[window.currentField.playerAnimations.run]) { model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).stop() }
                     const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk])
                     action.loop = THREE.LoopRepeat
                     action.play()
