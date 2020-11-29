@@ -18,7 +18,7 @@ const PLUS2_ = (op) => {
     console.log('PLUS2!', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    const val = Math.min(dDesc + sDesc, 255)
+    const val = Math.min(dDesc + sDesc, 32767)
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -48,7 +48,7 @@ const INC_ = (op) => {
 const INC2_ = (op) => {
     console.log('INC2!', op)
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
-    const val = Math.min(bankVal + 1, 255)
+    const val = Math.min(bankVal + 1, 32767)
     setBankData(op.b, op.a, val)
     return {}
 }
@@ -125,7 +125,7 @@ const MUL2 = (op) => {
     console.log('MUL2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    const val = Math.min(dDesc * sDesc, 255)
+    const val = Math.min(dDesc * sDesc, 32767)
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -229,7 +229,7 @@ const PLUS2 = (op) => {
     console.log('PLUS2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    const val = (dDesc + sDesc) % 256
+    const val = (dDesc + sDesc) % 32768
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -246,8 +246,8 @@ const MINUS2 = (op) => {
     console.log('MINUS2', op)
     const dDesc = op.bd == 0 ? op.d : getBankData(op.bd, op.d)
     const sDesc = op.bs == 0 ? op.s : getBankData(op.bs, op.s)
-    let val = (dDesc - sDesc) % 256
-    if (val < 0) { val = 256 - Math.abs(val) }
+    let val = (dDesc - sDesc) % 32768
+    if (val < 0) { val = 32768 - Math.abs(val) }
     setBankData(op.bd, op.d, val)
     return {}
 }
@@ -261,7 +261,7 @@ const INC = (op) => {
 const INC2 = (op) => {
     console.log('INC2', op)
     let bankVal = op.b == 0 ? op.a : getBankData(op.b, op.a)
-    const val = (bankVal + 1) % 256
+    const val = (bankVal + 1) % 32768
     setBankData(op.b, op.a, val)
     return {}
 }
@@ -275,8 +275,8 @@ const DEC = (op) => {
 }
 const DEC2 = (op) => {
     console.log('DEC2', op)
-    let val = (bankVal - 1) % 256
-    if (val < 0) { val = 256 - Math.abs(val) }
+    let val = (bankVal - 1) % 32768
+    if (val < 0) { val = 32768 - Math.abs(val) }
     setBankData(op.b, op.a, val)
     return {}
 }

@@ -231,23 +231,32 @@ const updateMoveEntityMovement = (delta) => {
                 }
 
                 // If walk/run is toggled, stop the existing window.animation
-                if (model.animations.length === 1) { // Edge case for single animation models - blackbg
-                    const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand])
-                    action.loop = THREE.LoopRepeat
-                    action.play()
-                } else if (model.userData.moveEntity.animationId === 2) { // Run
-                    model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop() // Probably a more efficient way to change these animations
-                    model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk]).stop()
-                    const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run])
-                    action.loop = THREE.LoopRepeat
-                    action.play()
-                } else if (model.userData.moveEntity.animationId === 1) { // Walk
-                    model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop()
-                    if (model.animations[window.currentField.playerAnimations.run]) { model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).stop() }
-                    const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk])
-                    action.loop = THREE.LoopRepeat
-                    action.play()
+                for (let i = 0; i < model.animations.length; i++) {
+                    const animation = model.animations[i]
+                    if (i === model.userData.moveEntity.animationId) {
+                        model.mixer.clipAction(animation).play()
+                    } else {
+                        model.mixer.clipAction(animation).stop()
+                    }
                 }
+
+                // if (model.animations.length === 1) { // Edge case for single animation models - blackbg
+                //     const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand])
+                //     action.loop = THREE.LoopRepeat
+                //     action.play()
+                // } else if (model.userData.moveEntity.animationId === 2 && model.animations[window.currentField.playerAnimations.run]) { // Run
+                //     model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop() // Probably a more efficient way to change these animations
+                //     model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk]).stop()
+                //     const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run])
+                //     action.loop = THREE.LoopRepeat
+                //     action.play()
+                // } else { // Walk
+                //     model.mixer.clipAction(model.animations[window.currentField.playerAnimations.stand]).stop()
+                //     if (model.animations[window.currentField.playerAnimations.run]) { model.mixer.clipAction(model.animations[window.currentField.playerAnimations.run]).stop() }
+                //     const action = model.mixer.clipAction(model.animations[window.currentField.playerAnimations.walk])
+                //     action.loop = THREE.LoopRepeat
+                //     action.play()
+                // }
 
                 // There is movement, set next position
                 model.scene.position.x = nextPosition.x
@@ -302,11 +311,14 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
     const distance = 4096 * Math.sqrt(Math.pow(model.scene.position.x - x, 2) + Math.pow(model.scene.position.y - y, 2))
     let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
     // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
-    let animationId = window.currentField.playerAnimations.run
+    let animationId = 2 //window.currentField.playerAnimations.run, is this applied globally?!
     if (speed < 1600) {
-        animationId = window.currentField.playerAnimations.walk
+        animationId = 1 //window.currentField.playerAnimations.walk
     }
-
+    // Ensure correct animation id is allocated, some models dont have all animation types
+    while (model.animations.length < animationId) {
+        animationId--
+    }
 
     return new Promise(async (resolve) => {
         model.userData.moveEntity = {

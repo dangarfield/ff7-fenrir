@@ -121,7 +121,7 @@ const updateFieldMovement = (delta) => {
             const nextTriangleMovementAllowed = currentTriangleId === nextTriangleId ? true : window.currentField.data.walkmeshSection.accessors[nextTriangleId].includes(currentTriangleId)
             console.log('playerMovement nextTriangle', intersects, currentTriangleId, nextTriangleId, nextTriangleMovementAllowed)
             if (!nextTriangleMovementAllowed && currentTriangleId !== undefined) {
-                console.log('playerMovement nextTriangle STOP')
+                console.log('playerMovement nextTriangle STOP') // Sometimes this isn't right in there are really thin triangles - convil_1
                 continue
             }
 

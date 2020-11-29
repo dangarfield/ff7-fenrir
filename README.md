@@ -85,7 +85,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Movement tweens should 'pause' when the op is not called
 - :white_check_mark: MOVE etc op codes should follow walkmesh more closely on a frame by frame basis - blin69_1 - game moment 308
 - :black_square_button: Investigate animation reset states, document and implement
-- :black_square_button: Still need to improve background image rendering - mds6_22
+- :black_square_button: Still need to improve background image rendering - mds6_22. Need to go through makou reactor line by line to get this all right as its horriby wrong still in some places
 - :black_square_button: field fades to white then trnsitions - mds6_1, ealin_12
 - :white_check_mark: NPC walk (moveEntity) speed is wrong
 - :black_square_button: NPC walk (moveEntity) JOIN and LEAVE speed needs to re implemented
