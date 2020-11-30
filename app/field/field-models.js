@@ -110,7 +110,7 @@ const setModelAsEntity = (entityId, modelId) => {
     model.scene.up.set(0, 0, 1)
     model.scene.visible = false
     if (model.userData.isPlayableCharacter) {
-        // if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.userData.name === window.currentField.playableCharacter.userData.name) {
+        // if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.scene.uuid === window.currentField.playableCharacter.scene.uuid) {
         model.scene.visible = true
     }
     model.userData.movementSpeed = 1024 // Looks to be walk by default - md8_2
@@ -311,7 +311,7 @@ const placeModel = (entityId, x, y, z, triangleId) => {
         model.userData.hasBeenInitiallyPlaced = true
     }
     if (
-        (window.currentField.playableCharacter && model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) ||
+        (window.currentField.playableCharacter && model.scene.uuid === window.currentField.playableCharacter.scene.uuid && window.currentField.fieldCameraFollowPlayer) ||
         window.currentField.models[0] === model // This is a nasty guess, for nvmkin32 game moment 383 -> no PC, CC etc, place the first model
     ) {
         // Update camera position if this is the main character

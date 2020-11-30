@@ -266,7 +266,7 @@ const updateMoveEntityMovement = (delta) => {
 
                 // Camera follow
                 if (
-                    (window.currentField.fieldCameraFollowPlayer && model.userData.name === window.currentField.playableCharacter.userData.name) ||
+                    (window.currentField.fieldCameraFollowPlayer && model.scene.uuid === window.currentField.playableCharacter.scene.uuid) ||
                     model.userData.cameraFollowMe
                 ) {
                     // Update camera position if this is the main character
@@ -285,7 +285,7 @@ const updateMoveEntityMovement = (delta) => {
                     model.scene.position.z = nextPosition.z
 
 
-                    if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.userData.name === window.currentField.playableCharacter.userData.name) {
+                    if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.scene.uuid === window.currentField.playableCharacter.scene.uuid) {
                         updateCurrentTriangleId(model, model.scene.position)
                     }
 
@@ -431,7 +431,7 @@ const moveEntityOld = async (entityId, x, y, rotate, animate, desiredSpeed, desi
                 model.scene.position.z = lastZ
 
                 // Camera follow
-                if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.fieldCameraFollowPlayer) {
+                if (model.scene.uuid === window.currentField.playableCharacter.scene.uuid && window.currentField.fieldCameraFollowPlayer) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(model.scene.position)
                     console.log('setCameraPosition moveEntity')
@@ -471,7 +471,7 @@ const moveEntityOld = async (entityId, x, y, rotate, animate, desiredSpeed, desi
 }
 const moveEntityLadder = async (entityId, x, y, z, triangleId, keys, animationId, direction, speed) => {
     const model = getModelByEntityId(entityId)
-    if (model.userData.name === window.currentField.playableCharacter.userData.name && window.currentField.playableCharacterCanMove) { // This should be the active character
+    if (model.scene.uuid === window.currentField.playableCharacter.scene.uuid && window.currentField.playableCharacterCanMove) { // This should be the active character
         await moveEntityLadderPlayableCharacter(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
     } else {
         await moveEntityLadderNPC(entityId, x, y, z, triangleId, keys, animationId, direction, speed, model)
@@ -538,7 +538,7 @@ const moveEntityLadderNPC = async (entityId, x, y, z, triangleId, keys, animatio
                 model.scene.position.z = from.z
                 console.log('moveEntityLadderNPC update', entityId, from)
 
-                if (model.userData.name === window.currentField.playableCharacter.userData.name) {
+                if (model.scene.uuid === window.currentField.playableCharacter.scene.uuid) {
                     // Update camera position if this is the main character
                     const relativeToCamera = calculateViewClippingPointFromVector3(from)
                     console.log('setCameraPosition moveEntityLadderNPC')

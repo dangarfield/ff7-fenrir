@@ -174,7 +174,7 @@ const scrollToEntity = async (entityId, tweenType, speed) => {
             console.log('setCameraPosition SCRLA end')
             setCameraPosition(relativeToCameraUpdate.x, relativeToCameraUpdate.y)
         }
-        if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.userData.name === window.currentField.playableCharacter.userData.name) {
+        if (window.currentField.playableCharacter && window.currentField.playableCharacter.userData && model.scene.uuid === window.currentField.playableCharacter.scene.uuid) {
             window.currentField.fieldCameraFollowPlayer = true
         } else {
             model.userData.cameraFollowMe = true

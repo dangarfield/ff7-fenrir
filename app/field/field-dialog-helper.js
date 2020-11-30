@@ -500,9 +500,13 @@ const showWindowWithDialog = async (dialog, showChoicePointers, askFirstLine, as
     const dialogBox = dialog.group
     let text = dialog.text
 
-    if (dialog.text.includes('{CHOICE}') || showChoicePointers) { isChoiceActive = true }
+    // if (dialog.text.includes('{CHOICE}') || showChoicePointers) { isChoiceActive = true }
+    if (showChoicePointers) { isChoiceActive = true } //TODO - I previously has this to show arrows if there was a CHOICE
     console.log('showWindowWithDialog', dialog, isChoiceActive, askFirstLine, askLastLine)
 
+    if (dialog.text.includes('{CHOICE}') || showChoicePointers) {
+        setPlayableCharacterIsInteracting(true)
+    }
     // Show dialog
     dialogBox.visible = true
 
@@ -560,7 +564,7 @@ const showWindowWithDialog = async (dialog, showChoicePointers, askFirstLine, as
             // console.log('msg textLine', i, j, textLine, (i + 1) === pagesText.length, showChoicePointers, doesThePageHaveChoiceElements, textLine.includes('{CHOICE}'))
             if (
                 ((i + 1) === pagesText.length && showChoicePointers && !doesThePageHaveChoiceElements && j >= askFirstLine && j <= askLastLine) ||
-                textLine.includes('{CHOICE}')
+                textLine.includes('{CHOICE}') && showChoicePointers // TODO - added showChoicePointers for junin1a
             ) {
                 choiceLines.push(j)
             }
@@ -713,10 +717,10 @@ const closeDialog = async (dialog, choiceResult) => {
         if (choiceResult !== undefined) {
             isChoiceActive = false
             playCommonSound(COMMON_SOUNDS.OPTION)
-            console.log('dialog resolveCallback choiceResult', dialog, choiceResult)
+            console.log('closeDialog resolveCallback choiceResult', dialog, choiceResult)
             dialog.resolveCallback(choiceResult)
         } else {
-            console.log('dialog resolveCallback', dialog)
+            console.log('closeDialog resolveCallback', dialog)
             dialog.resolveCallback()
         }
     }
@@ -734,7 +738,7 @@ const closeDialog = async (dialog, choiceResult) => {
             nonClosedDialogs.push(dialog)
         }
     }
-    console.log('dialogs nonClosedDialogs', nonClosedDialogs, nonClosedDialogs.length)
+    console.log('closeDialog nonClosedDialogs', nonClosedDialogs, nonClosedDialogs.length)
     if (nonClosedDialogs.length === 0) {
         setPlayableCharacterIsInteracting(false)
     }

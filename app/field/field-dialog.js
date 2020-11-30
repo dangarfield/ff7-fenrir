@@ -49,7 +49,7 @@ const getDialog = (id) => {
             h: 73, // Default values ?!
             mode: WINDOW_MODE.Normal, // Not sure, but  
             special: SPECIAL_MODE.None,
-            // specialData: {}, // Example attribute, will be set by additional op codes
+            specialData: {}, // Example attribute, will be set by additional op codes
             playerCanClose: true,
             numbers: {},
             text: ''
@@ -127,7 +127,8 @@ const setSpecialMode = (id, specialId, x, y) => {
         case 1: dialog.special = SPECIAL_MODE.Clock; break
         case 2: dialog.special = SPECIAL_MODE.Numeric; break
     }
-    dialog.specialData = { x: x, y: y } // Value updated with STTIM & WNUMB
+    dialog.specialData.x = x // Values updated with STTIM & WNUMB
+    dialog.specialData.y = y
     console.log('setSpecialMode', id, specialId, dialog)
 }
 const setSpecialClock = (h, m, s) => {
@@ -156,6 +157,13 @@ const showMessageWaitForInteraction = async (id, dialogString, showChoicePointer
 
     return new Promise(async (resolve) => {
         const dialog = getDialog(id) // Sometimes this can be called before the WINDOW op code
+
+        // Close dialogs that are already open
+        if (dialog.group && dialog.group.userData.state !== 'closed') {
+            console.log('showMessageWaitForInteraction ALREADY OPEN', id, dialog)
+            await closeDialog(dialog)
+        }
+
         dialog.resolveCallback = resolve
 
         dialog.text = dialogString
