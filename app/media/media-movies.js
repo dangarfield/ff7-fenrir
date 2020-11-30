@@ -15,10 +15,12 @@ let nextMovie = {
     name: '',
     cameraData: undefined,
     frame: 0,
-    video: undefined
+    video: undefined,
+    isPlaying: false
 }
 let movieLockEnabled = false
 
+const isMoviePlaying = () => { return nextMovie.isPlaying }
 const isMovieLockEnabled = () => { return movieLockEnabled }
 const setMovieLockEnabled = (enabled) => {
     movieLockEnabled = enabled
@@ -128,7 +130,7 @@ const playNextMovie = async () => {
             resolve()
             return
         }
-
+        nextMovie.isPlaying = true
         // Disable hand pointer
         setFieldPointersEnabled(false)
 
@@ -179,6 +181,7 @@ const playNextMovie = async () => {
         // Once video has finished
         nextMovie.video.onended = () => {
             console.log('playNextMovie video.onended', nextMovie.name)
+            nextMovie.isPlaying = false
             // - clear capture frame interval
             clearInterval(frameCaptureInterval)
             // - switch back to field camera
@@ -222,6 +225,7 @@ export {
     stopCurrentMovie,
     loadMovie,
     getCurrentMovieFrame,
+    isMoviePlaying,
     isMovieLockEnabled,
     setMovieLockEnabled,
     activateMovieCam

@@ -280,7 +280,7 @@ const placeModel = (entityId, x, y, z, triangleId) => {
             x / 4096,
             y / 4096,
             triangleZ / 4096)
-        console.log('placeModel: triangleId', entityId, triangleId, triangle, '->', x, y, z)
+        console.log('placeModel: triangleId', entityId, triangleId, triangle, '->', x, y, triangleZ)
     } else {
         console.log('placeModel: triangleX, triangleY, triangleZ', entityId)
         if (window.currentField.data.walkmeshSection.triangles[triangleId] === undefined) {

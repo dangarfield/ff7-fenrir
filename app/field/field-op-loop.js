@@ -413,8 +413,7 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
         let op = ops[currentOpIndex]
         const result = await executeOp(fieldName, entityId, loop.scriptType, loop.index, ops, op, currentOpIndex, priority)
         console.log(' - executeScriptLoop: RESULT', fieldName, entityId, result, currentOpIndex, flowActionCount)
-        
-        if(loop.forcedExit) { // Eg RETTO
+        if (loop.forcedExit) { // Eg RETTO
             console.log(' - executeScriptLoop: EXIT FORCED RETTO', fieldName, entityId, loop)
             delete loop.forcedExit
             break

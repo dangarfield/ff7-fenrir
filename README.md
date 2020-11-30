@@ -92,6 +92,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Add rather than hardcode collision and talk distances
 - :black_square_button: Line, gateway and entity collisions should really be in the main rendering loop rather than player movement
 - :black_square_button: nivl_b1 - Game moment 376 is a real mess with walkmesh, and strangely, camera positioning
+- :black_square_button: Get jump height right - Game moment 400 - ujunon2
 - :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
 - :black_square_button: Should check all if not at least which scroll commands are instant no wait (1 frame exec, command continues to execute in subsequent frames, field command stacks continue), instant with wait (async), sync 
 - :black_square_button: Need to check that JUMP animations are not broken

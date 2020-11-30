@@ -9,6 +9,7 @@ import { sleep } from '../helpers/helpers.js'
 import { setCameraPosition, calculateViewClippingPointFromVector3 } from './field-scene.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
 import { updateCurrentTriangleId, getNextPositionRaycast } from './field-movement-player.js'
+import { isMoviePlaying } from '../media/media-movies.js'
 
 const moveEntityWithoutAnimationOrRotation = async (entityId, x, y) => {
     await moveEntity(entityId, x / 4096, y / 4096, false, false)
@@ -603,7 +604,7 @@ const setTriangleBoundaryMovementAllowed = (triangleId, allowed) => {
     }
     console.log('mesh: END', mesh.userData)
 }
-const offsetEntity = async (entityId, x, y, z, frames, type) => {
+const offsetEntity = window.offsetEntity = async (entityId, x, y, z, frames, type) => {
     // TODO - Need to check this later as in the doc it says: (which I haven't done yet)
     // Offsets the field object, belonging to the entity whose script this opcode resides in,
     // by a certain amount. After being offset, the character continues to be constrained in
@@ -611,8 +612,9 @@ const offsetEntity = async (entityId, x, y, z, frames, type) => {
     // normal walkmesh position. Other field objects are unaffected, and their position or
     // movements are maintained on the walkmesh's original position
 
-
-
+    // UPDATE - I've applied the offset (with -x rotation) to the root container of the gltf, this keeps
+    // everything a lot simpler as offsets in local space to the child element of the model for movement
+    // and collisions etc, also need to think about if camera movement should follow the offset position to
 
     const model = getModelByEntityId(entityId)
     model.userData.offsetInProgress = true
@@ -624,33 +626,41 @@ const offsetEntity = async (entityId, x, y, z, frames, type) => {
         model.scene.userData.currentOffset = { x: 0, y: 0, z: 0 }
     }
 
+    const rotatedVectorForOffset = new THREE.Vector3(x, y, z).applyAxisAngle(new THREE.Vector3(-1, 0, 0), THREE.Math.degToRad(90))
+    console.log('offsetEntity: rotatedVectorForOffset', rotatedVectorForOffset)
+    x = rotatedVectorForOffset.x / 4096 * 1248 // TODO: Not sure why, but a factor (guess 1248) seems to have to be applied in junair
+    y = rotatedVectorForOffset.y / 4096 * 1248
+    z = rotatedVectorForOffset.z / 4096 * 1248
     const from = {
-        x: model.scene.position.x,
-        y: model.scene.position.y,
-        z: model.scene.position.z
+        x: model.scene.children[0].position.x,
+        y: model.scene.children[0].position.y,
+        z: model.scene.children[0].position.z
     }
     const to = {
-        x: model.scene.position.x + ((x - model.scene.userData.currentOffset.x) / 4096),
-        y: model.scene.position.y + ((y - model.scene.userData.currentOffset.y) / 4096),
-        z: model.scene.position.z + ((z - model.scene.userData.currentOffset.z) / 4096)
+        x: model.scene.children[0].position.x + ((x - model.scene.userData.currentOffset.x)),
+        y: model.scene.children[0].position.y + ((y - model.scene.userData.currentOffset.y)),
+        z: model.scene.children[0].position.z + ((z - model.scene.userData.currentOffset.z))
     }
     // 0 - instant
-    const time = type === 0 ? 1 : 1000 / 30 * frames
+    let time = type === 0 ? 1 : 1000 / 30 * frames
     let easingType = TWEEN.Easing.Linear.None // 1 - linear
     if (type === 2) {
         easingType = (TWEEN.Easing.Quadratic.InOut) // 2 - smooth
     }
+    if (type > 0 && isMoviePlaying()) {
+        time = time * 2 // Slows to 15fps with movies
+    }
+    console.log('offsetEntity: Time ', time)
     return new Promise(async (resolve) => {
         new TWEEN.Tween(from)
             .to(to, time)
             .easing(easingType)
             .onUpdate(function () {
                 // Update the model position
-                model.scene.position.x = from.x
-                model.scene.position.y = from.y
-                model.scene.position.z = from.z
-
-                console.log('offsetEntity: UPDATE', entityId, x, y, z, frames, type, model)
+                model.scene.children[0].position.x = from.x
+                model.scene.children[0].position.y = from.y
+                model.scene.children[0].position.z = from.z
+                // console.log('offsetEntity: UPDATE', entityId, x, y, z, frames, type, model)
             })
             .onComplete(function () {
                 console.log('offsetEntity: END', entityId, from)

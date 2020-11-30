@@ -7,7 +7,9 @@ window.console = (function (origConsole) {
         terms: [
             'FLOW ERROR',
             'executeOpDEBUG',
-            'tempLoadDestinationSelector'
+            'tempLoadDestinationSelector',
+            'placeModel',
+            'offsetEntity'
         ],
         log: function () {
             if (limit) {
