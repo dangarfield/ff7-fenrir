@@ -365,12 +365,12 @@ const updateSpecialNumber = async (dialog) => {
         console.log('numbers', numbers)
         for (let i = 0; i < numbers.length; i++) {
             const number = numbers[i]
-            const numberAsset = getFieldDialogNumber(number)
-            console.log('numberAsset', numberAsset)
-            const numberMesh = createTextureMesh(numberAsset.w, numberAsset.h, numberAsset.texture)
+            const clockAsset = getFieldDialogNumber(number)
+            console.log('clockAsset', clockAsset)
+            const numberMesh = createTextureMesh(clockAsset.w, clockAsset.h, clockAsset.texture)
             const numberBgMesh = createClockBackgroundMesh(clockAsset.w, clockAsset.h)
 
-            const x = dialog.x + 11 + dialog.specialData.x + (i * numberAsset.w)
+            const x = dialog.x + 11 + dialog.specialData.x + (i * clockAsset.w)
             const y = window.config.sizing.height - dialog.y - 14 - dialog.specialData.y
 
             numberBgMesh.position.set(x, y, 1)

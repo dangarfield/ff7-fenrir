@@ -55,7 +55,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     const model = getModelByEntityId(entityId)
     console.log('moveEntityJump', entityId, triangleId, targetX, targetY, targetZ, model)
     // const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
-    // model.scene.rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
+    // model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
     // Don't change direction degree - pillar_3 ba. Need to see if this breaks anything elsewhere
 
     const heightAdjustment = 0.00235 * height // 0.04 <-> 17 // TODO - Need to test with other JUMP heights
@@ -153,7 +153,7 @@ const updateMoveEntityMovement = (delta) => {
                 console.log('moveEntity updateMoveEntityMovement: START', model.userData.entityName, model.userData.moveEntity, direction)
 
                 if (model.userData.moveEntity.rotate) {
-                    model.scene.rotation.y = THREE.Math.degToRad(direction)
+                    model.scene.children[0].rotation.y = THREE.Math.degToRad(direction)
                 }
 
                 const SLIP_ANGLE_1 = 45
@@ -378,7 +378,7 @@ const moveEntityOld = async (entityId, x, y, rotate, animate, desiredSpeed, desi
 
     // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
     if (rotate && model.userData.rotationEnabled) {
-        model.scene.rotation.y = THREE.Math.degToRad(directionDegrees)
+        model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees)
     }
     if (animate && model.animations[animationId]) {
         // console.log('stopAllAction C', model.userData.entityName)
@@ -626,11 +626,10 @@ const offsetEntity = window.offsetEntity = async (entityId, x, y, z, frames, typ
         model.scene.userData.currentOffset = { x: 0, y: 0, z: 0 }
     }
 
-    const rotatedVectorForOffset = new THREE.Vector3(x, y, z).applyAxisAngle(new THREE.Vector3(-1, 0, 0), THREE.Math.degToRad(90))
-    console.log('offsetEntity: rotatedVectorForOffset', rotatedVectorForOffset)
-    x = rotatedVectorForOffset.x / 4096 * 1248 // TODO: Not sure why, but a factor (guess 1248) seems to have to be applied in junair
-    y = rotatedVectorForOffset.y / 4096 * 1248
-    z = rotatedVectorForOffset.z / 4096 * 1248
+    const factor = 1248
+    x = x / 4096 * factor // TODO: Not sure why, but a factor (guess) seems to have to be applied in junair & junonr1
+    y = y / 4096 * factor
+    z = z / 4096 * factor
     const from = {
         x: model.scene.children[0].position.x,
         y: model.scene.children[0].position.y,

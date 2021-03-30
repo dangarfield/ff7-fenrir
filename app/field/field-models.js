@@ -106,7 +106,7 @@ const setModelAsEntity = (entityId, modelId) => {
     model.userData.entityName = getEntityNameFromEntityId(entityId)
     const scaleDownValue = getModelScaleDownValue()
     model.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
-    model.scene.rotation.x = THREE.Math.degToRad(90)
+    model.scene.children[0].rotation.x = THREE.Math.degToRad(90)
     model.scene.up.set(0, 0, 1)
     model.scene.visible = false
     if (model.userData.isPlayableCharacter) {
@@ -433,20 +433,20 @@ const setModelDirectionToFaceCharacterOrPartyLeader = (entityId, characterId) =>
 const faceModelInstantly = (model, targetModel) => {
     // TODO: This doesn't work properly. Need to fix
     const deg = getDegreesFromTwoPoints(model.scene.position, targetModel.scene.position)
-    model.scene.rotation.y = THREE.Math.degToRad(deg)
+    model.scene.children[0].rotation.y = THREE.Math.degToRad(deg)
 }
 const getEntityDirection = (entityId) => {
     const model = getModelByEntityId(entityId)
     console.log('getEntityDirection', entityId, model)
-    const direction = radiansToDirection(model.scene.rotation.y)
-    console.log('getEntityDirection', entityId, model, model.scene.rotation.y, direction)
+    const direction = radiansToDirection(model.scene.children[0].rotation.y)
+    console.log('getEntityDirection', entityId, model, model.scene.children[0].rotation.y, direction)
     return direction
 }
 const getPartyMemberDirection = (partyMemberId) => {
     const model = getModelByPartyMemberId(partyMemberId)
     console.log('getPartyMemberDirection', partyMemberId, model)
-    const direction = radiansToDirection(model.scene.rotation.y)
-    console.log('getPartyMemberDirection', partyMemberId, model, model.scene.rotation.y, direction)
+    const direction = radiansToDirection(model.scene.children[0].rotation.y)
+    console.log('getPartyMemberDirection', partyMemberId, model, model.scene.children[0].rotation.y, direction)
     return direction
 
 }
@@ -455,7 +455,7 @@ const setModelDirection = window.setModelDirection = (entityId, direction) => {
     const deg = directionToDegrees(direction)
     const model = getModelByEntityId(entityId)
     if (model === undefined) { return }
-    model.scene.rotation.y = THREE.Math.degToRad(deg)
+    model.scene.children[0].rotation.y = THREE.Math.degToRad(deg)
 }
 const setModelMovementSpeed = (entityId, speed) => {
     console.log('setModelMovementSpeed', entityId, speed)
@@ -526,7 +526,7 @@ const setModelAsLeader = (entityId) => {
             model.scene.position.x = previousLeader.scene.position.x
             model.scene.position.y = previousLeader.scene.position.y
             model.scene.position.z = previousLeader.scene.position.z
-            model.scene.rotation.y = previousLeader.scene.rotation.y
+            model.scene.children[0].rotation.y = previousLeader.scene.children[0].rotation.y
             setModelVisibility(entityId, true)
         }
 
@@ -589,7 +589,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
         }
         // Get start and end angles in radians
         let desiredYDeg = degrees
-        let currentYDeg = THREE.Math.radToDeg(model.scene.rotation.y)
+        let currentYDeg = THREE.Math.radToDeg(model.scene.children[0].rotation.y)
         console.log('turnModel currentYDeg 1', currentYDeg)
         currentYDeg = (3600 + currentYDeg) % 360 // Ensure currentYDeg is between 0 - 360
         // console.log('turnModel currentYDeg 2', currentYDeg)
@@ -615,7 +615,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
         console.log('turnModel rad', currentYRad, '->', desiredYRad)
 
         // Tween from currentYRad to desiredYRad
-        model.scene.rotation.y = currentYRad
+        model.scene.children[0].rotation.y = currentYRad
         const from = { y: currentYRad }
         const to = { y: desiredYRad }
         let easingType = TWEEN.Easing.Linear.None
@@ -629,7 +629,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
             .easing(easingType)
             .onUpdate(function () {
                 // console.log('turnModel: TWEEN', from)
-                model.scene.rotation.y = from.y
+                model.scene.children[0].rotation.y = from.y
                 // if (from.r) {
                 //     // Has to be like this for non THREE.NormalBlending modes
                 //     mesh.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)

@@ -88,7 +88,7 @@ const updateFieldMovement = (delta) => {
         let directionVector = new THREE.Vector3(Math.sin(directionRadians), Math.cos(directionRadians), 0)
         nextPosition = window.currentField.playableCharacter.scene.position.clone().addScaledVector(directionVector, speed)
         const nextPositionForRaycast = playerPositionOffset.clone().addScaledVector(directionVector, speed)
-        window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - potentialDirection)
+        window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(180 - potentialDirection)
 
         // Adjust for climbing slopes and walking off walkmesh
         // Create a ray at next position (higher z, but pointing down) to find correct z position
@@ -146,7 +146,7 @@ const updateFieldMovement = (delta) => {
 
     if (!walkmeshFound) {
         // console.log('asd no walkmesh found')
-        window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - originalDirection)
+        window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(180 - originalDirection)
         window.currentField.playableCharacter.mixer.stopAllAction()
         return
     }
@@ -176,7 +176,7 @@ const updateFieldMovement = (delta) => {
             line.userData.playerClose &&
             window.currentField.playableCharacter.scene.userData.isSlipDirection &&
             !line.userData.slippabilityEnabled) {
-            window.currentField.playableCharacter.scene.rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
+            window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(180 - window.currentField.playableCharacter.scene.userData.originalDirection)
             window.currentField.playableCharacter.mixer.stopAllAction()
             return
         }
@@ -391,8 +391,8 @@ const ladderMovement = (speed) => {
     if (distanceToTarget <= 0.005 || (movementBackwards && ladder.atStart)) {
         model.mixer.stopAllAction()
 
-        model.scene.rotation.x = THREE.Math.degToRad(90)
-        model.scene.rotation.z = THREE.Math.degToRad(0)
+        model.scene.children[0].rotation.x = THREE.Math.degToRad(90)
+        model.scene.children[0].rotation.z = THREE.Math.degToRad(0)
         model.scene.up.set(0, 0, 1)
 
         for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {

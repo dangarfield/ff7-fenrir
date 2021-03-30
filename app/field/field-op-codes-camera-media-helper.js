@@ -14,7 +14,7 @@ let shakeConfig = {}
 let shakeQueue = []
 
 const getCurrentCameraPosition = () => {
-    return { x: window.currentField.metaData.fieldCoordinates.x, y: window.currentField.metaData.fieldCoordinates.y }
+    return { x: window.currentField.fieldCameraPosition.next.x, y: window.currentField.fieldCameraPosition.next.y }
 }
 const stopShakeTweenChainAndWaitForCurrentTweenToEnd = async (config) => {
     // Break the chain of tweens
