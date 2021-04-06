@@ -1,4 +1,7 @@
-import { incrementBattlesFought, incrementBattlesEscaped } from '../data/savemap-alias.js'
+import {
+  incrementBattlesFought,
+  incrementBattlesEscaped
+} from '../data/savemap-alias.js'
 
 let randomEncountersEnabled = true
 let battleLockEnabled = false
@@ -6,50 +9,54 @@ let encouterTableIndex = 0
 let battleOptions = []
 let lastBattleResult = { escaped: false, defeated: false }
 
-const setRandomEncountersEnabled = (enabled) => {
-    randomEncountersEnabled = enabled
-    console.log('randomEncountersEnabled', randomEncountersEnabled)
+const setRandomEncountersEnabled = enabled => {
+  randomEncountersEnabled = enabled
+  console.log('randomEncountersEnabled', randomEncountersEnabled)
 }
-const setBattleOptions = (options) => {
-    battleOptions = options
-    console.log('setBattleOptions', battleOptions)
+const setBattleOptions = options => {
+  battleOptions = options
+  console.log('setBattleOptions', battleOptions)
 }
 
-const getLastBattleResult = () => { return lastBattleResult }
+const getLastBattleResult = () => {
+  return lastBattleResult
+}
 
 const setLastBattleResult = (escaped, defeated) => {
-    lastBattleResult.escaped = escaped
-    lastBattleResult.defeated = defeated
-    incrementBattlesFought()
-    if (escaped) {
-        incrementBattlesEscaped()
-    }
-    console.log('setLastBattleResult', getLastBattleResult())
+  lastBattleResult.escaped = escaped
+  lastBattleResult.defeated = defeated
+  incrementBattlesFought()
+  if (escaped) {
+    incrementBattlesEscaped()
+  }
+  console.log('setLastBattleResult', getLastBattleResult())
 }
-const setBattleEncounterTableIndex = (index) => {
-    encouterTableIndex = index
-    console.log('setBattleEncounterTableIndex', encouterTableIndex)
+const setBattleEncounterTableIndex = index => {
+  encouterTableIndex = index
+  console.log('setBattleEncounterTableIndex', encouterTableIndex)
 }
-const isBattleLockEnabled = () => { return battleLockEnabled }
-const setBattleLockEnabled = (enabled) => {
-    battleLockEnabled = enabled
-    console.log('setBattleLockEnabled', isBattleLockEnabled())
+const isBattleLockEnabled = () => {
+  return battleLockEnabled
+}
+const setBattleLockEnabled = enabled => {
+  battleLockEnabled = enabled
+  console.log('setBattleLockEnabled', isBattleLockEnabled())
 }
 const initBattleSettings = () => {
-    console.log('initBattleSettings')
-    randomEncountersEnabled = true
-    battleLockEnabled = false
-    encouterTableIndex = 0
-    battleOptions = []
-    lastBattleResult = { escaped: false, defeated: false } // Reset this every field change ?!
+  console.log('initBattleSettings')
+  randomEncountersEnabled = true
+  battleLockEnabled = false
+  encouterTableIndex = 0
+  battleOptions = []
+  lastBattleResult = { escaped: false, defeated: false } // Reset this every field change ?!
 }
 export {
-    initBattleSettings,
-    setRandomEncountersEnabled,
-    setBattleOptions,
-    getLastBattleResult,
-    setLastBattleResult,
-    setBattleEncounterTableIndex,
-    isBattleLockEnabled,
-    setBattleLockEnabled
+  initBattleSettings,
+  setRandomEncountersEnabled,
+  setBattleOptions,
+  getLastBattleResult,
+  setLastBattleResult,
+  setBattleEncounterTableIndex,
+  isBattleLockEnabled,
+  setBattleLockEnabled
 }

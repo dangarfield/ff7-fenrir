@@ -1,66 +1,73 @@
 // Global Objects - Improve in a better way another time
 
 window.libraries = {
-    howler: {
-        Howl: Howl,
-        Howler: Howler
-    },
-    async: async
+  howler: {
+    Howl: Howl,
+    Howler: Howler
+  },
+  async: async
 }
 console.log('window.libraries', Howler)
 
 window.currentField // Contains field data
 
 window.anim = {
-    container: undefined,
-    stats: undefined,
-    gui: undefined,
-    clock: undefined,
-    renderer: undefined,
-    axesHelper: undefined,
-    activeScene: undefined
+  container: undefined,
+  stats: undefined,
+  gui: undefined,
+  clock: undefined,
+  renderer: undefined,
+  axesHelper: undefined,
+  activeScene: undefined
 }
 
 window.config = {
-    sizing: {
-        width: 320,
-        height: 240,
-        factor: 0  // Set to 0 to scale to available viewport size
-    },
-    debug: {
-        active: true,
-        debugModeNoOpLoops: window.location.search.includes('debug'),
-        showDebugCamera: false,
-        showWalkmeshMesh: false,
-        showWalkmeshLines: false,
-        showBackgroundLayers: true,
-        showModelHelpers: false,
-        showAxes: false,
-        showMovementHelpers: false,
-        runByDefault: true
-    },
-    raycast: {
-        active: false,
-        raycaster: undefined,
-        mouse: undefined,
-        raycasterHelper: undefined
-    },
-    save: {
-        cardId: 1,
-        slotId: 1
-    }
+  sizing: {
+    width: 320,
+    height: 240,
+    factor: 0 // Set to 0 to scale to available viewport size
+  },
+  debug: {
+    active: true,
+    debugModeNoOpLoops: window.location.search.includes('debug'),
+    showDebugCamera: false,
+    showWalkmeshMesh: false,
+    showWalkmeshLines: false,
+    showBackgroundLayers: true,
+    showModelHelpers: false,
+    showAxes: false,
+    showMovementHelpers: false,
+    runByDefault: true
+  },
+  raycast: {
+    active: false,
+    raycaster: undefined,
+    mouse: undefined,
+    raycasterHelper: undefined
+  },
+  save: {
+    cardId: 1,
+    slotId: 1
+  }
 }
 
 window.data = {
-    kernel: undefined,
-    savemap: undefined
+  kernel: undefined,
+  savemap: undefined
 }
 
 if (window.config.sizing.factor === 0) {
-    const width = window.innerWidth || document.documentElement.clientWidth ||
-        document.body.clientWidth
-    const height = window.innerHeight || document.documentElement.clientHeight ||
-        document.body.clientHeight
-    window.config.sizing.factor = Math.min(width / window.config.sizing.width, height / window.config.sizing.height)
-    // console.log('Set window sizing factor', width, height, window.config.sizing.factor)
+  const width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth
+  const height =
+    window.innerHeight ||
+    document.documentElement.clientHeight ||
+    document.body.clientHeight
+  window.config.sizing.factor = Math.min(
+    width / window.config.sizing.width,
+    height / window.config.sizing.height
+  )
+  // console.log('Set window sizing factor', width, height, window.config.sizing.factor)
 }

@@ -1,4 +1,5 @@
 # FF7 - Fenrir
+
 > Web based game engine for FF7 - Work-in-progress
 
 ![FF7 Fenrir](https://i.ibb.co/bdNzhtR/good.png)
@@ -12,12 +13,14 @@ I've also added a huge amount of functionality to [https://github.com/dangarfiel
 Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 
 ### Installation
+
 - None, [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/) link. If you want to install locally:
 - Clone this repo `git clone https://github.com/dangarfield/ff7-fenrir.git`
 - Clone `git clone https://github.com/dangarfield/kujata-data.git` into a seperate directory and symlink into a previously created `ff7-fenrir` folder, ensuring that it is called `kujata-data-dg`. Alternatively, edit `KUJATA_BASE` variable in `app.mjs` to NOT point to localhost
 - Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser, or `http-server -p 5000 -s`
 
 ### Progress - Field
+
 - :white_check_mark: Extract model assets from kujata
 - :white_check_mark: Extract field data - Added a lot more to kujata
 - :white_check_mark: Render walkmesh and models
@@ -60,7 +63,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Save model doesn't rotate
 - :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata.
 - :black_square_button: rootmap models aren't correct
-- :black_square_button: Gold chest seems to have a shine (?) animation permanently, but not in the op codes 
+- :black_square_button: Gold chest seems to have a shine (?) animation permanently, but not in the op codes
 - :white_check_mark: Add directional lighting to each model as per flevel, rather than general downlight. Implemented roughly, but there is a bug for per model lighting based on threejs limitations
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
@@ -94,7 +97,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: nivl_b1 - Game moment 376 is a real mess with walkmesh, and strangely, camera positioning
 - :black_square_button: Get jump height right - Game moment 400 - ujunon2
 - :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
-- :black_square_button: Should check all if not at least which scroll commands are instant no wait (1 frame exec, command continues to execute in subsequent frames, field command stacks continue), instant with wait (async), sync 
+- :black_square_button: Should check all if not at least which scroll commands are instant no wait (1 frame exec, command continues to execute in subsequent frames, field command stacks continue), instant with wait (async), sync
 - :black_square_button: Need to check that JUMP animations are not broken
 - :black_square_button: Ensure PHS menu action at the end of midgar ensures that there are at least 3 people in the group
 - :black_square_button: Camera movement op codes are not 100% perfect
@@ -114,10 +117,11 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Add blinking eyes
 
 ### OP Code Completion Status
+
 See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_README.md) for updates
 
-
 ### Thanks
+
 - Picklejar76 and his work with `https://github.com/picklejar76/kujata` and `https://github.com/picklejar76/kujata-data` for game assets and services
 - Myst6re and his work with `https://github.com/myst6re/makoureactor` for understanding a huge amount of the field logic and field op code behaviours
 - All of the Tsunamods Discord and Qhimm community for their extensive work so far

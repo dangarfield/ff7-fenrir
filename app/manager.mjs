@@ -1,7 +1,10 @@
 import { setupInputs } from './interaction/inputs.js'
 import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
-import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
+import {
+  initLoadingModule,
+  showLoadingScreen
+} from './loading/loading-module.js'
 import { loadGame } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
 import { initMenuModule } from './menu/menu-module.js'
@@ -13,27 +16,26 @@ import { bindDisplayControls } from './helpers/display-controls.js'
 import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
 
 const initManager = async () => {
-
-    // Generic Game loading
-    anim.container = document.getElementById('container')
-    if (window.config.debug.active) {
-        showStats()
-    }
-    initRenderer()
-    await initLoadingModule()
-    showLoadingScreen()
-    setupInputs()
-    initMenuModule()
-    initBattleSwirlModule()
-    initBattleModule()
-    initMiniGameModule()
-    await initWorldModule()
-    await loadKernelData()
-    await loadWindowTextures()
-    setDefaultMediaConfig()
-    bindDisplayControls()
-    await waitUntilMediaCanPlay()
-    // Default
-    loadGame(window.config.save.cardId, window.config.save.slotId)
+  // Generic Game loading
+  anim.container = document.getElementById('container')
+  if (window.config.debug.active) {
+    showStats()
+  }
+  initRenderer()
+  await initLoadingModule()
+  showLoadingScreen()
+  setupInputs()
+  initMenuModule()
+  initBattleSwirlModule()
+  initBattleModule()
+  initMiniGameModule()
+  await initWorldModule()
+  await loadKernelData()
+  await loadWindowTextures()
+  setDefaultMediaConfig()
+  bindDisplayControls()
+  await waitUntilMediaCanPlay()
+  // Default
+  loadGame(window.config.save.cardId, window.config.save.slotId)
 }
 initManager()

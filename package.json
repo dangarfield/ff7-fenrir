@@ -19,13 +19,15 @@
     "url": "https://github.com/dangarfield/ff7-fenrir/issues"
   },
   "homepage": "https://github.com/dangarfield/ff7-fenrir#readme",
-  "dependencies": {
-    "fs-extra": "^9.0.1",
-    "lodash": "^4.17.19"
-  },
   "nodemonConfig": {
     "ignore": [
       "*.json"
     ]
+  },
+  "devDependencies": {
+    "fs-extra": "^9.1.0",
+    "http-server": "^0.12.3",
+    "lodash": "^4.17.21",
+    "prettier-standard": "^16.4.1"
   }
 }
