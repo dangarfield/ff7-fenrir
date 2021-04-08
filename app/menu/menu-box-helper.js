@@ -360,11 +360,11 @@ const slideFrom = async dialog => {
 }
 const slideTo = async dialog => {
   return new Promise(resolve => {
-    const from = {
+    const from = { x: 0, y: 0 }
+    const to = {
       x: dialog.userData.slideX,
       y: dialog.userData.slideY
     }
-    const to = { x: 0, y: 0 }
     slide(dialog, from, to, resolve)
   })
 }

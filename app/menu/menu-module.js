@@ -58,6 +58,13 @@ const MENUS_WITH_FADE = [
   MENU_TYPE.GameOver,
   MENU_TYPE.Title
 ]
+let menuState = 'loading'
+const setMenuState = newState => {
+  menuState = newState
+}
+const getMenuState = () => {
+  return menuState
+}
 const doesMenuRequireTransitionOut = menuCode => {
   return MENUS_WITH_FADE.includes(menuCode)
 }
@@ -185,5 +192,7 @@ export {
   loadTutorial,
   doesMenuRequireTransitionOut,
   resolveMenuPromise,
-  MENU_TYPE
+  MENU_TYPE,
+  setMenuState,
+  getMenuState
 }

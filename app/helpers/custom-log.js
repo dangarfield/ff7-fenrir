@@ -9,7 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'menu',
       'createDialogBox',
-      'slideFrom'
+      'slideFrom',
+      'press'
     ],
     log: function () {
       if (limit) {

@@ -1,5 +1,7 @@
 import { getKeyPressEmitter } from '../interaction/inputs.js'
-import { resolveMenuPromise } from './menu-module.js'
+import { getMenuState } from './menu-module.js'
+import { keyPress as keyPressMain } from './menu-main.js'
+
 const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
 }
@@ -8,16 +10,15 @@ const areMenuControlsActive = () => {
 
 const initMenuKeypressActions = () => {
   getKeyPressEmitter().on('o', firstPress => {
-    if (areMenuControlsActive() && firstPress) {
-      console.log('press o')
+    if (areMenuControlsActive() && getMenuState() === 'home') {
+      keyPressMain('o', firstPress)
     }
   })
 
-  getKeyPressEmitter().on('x', firstPress => {
-    if (areMenuControlsActive() && firstPress) {
-      console.log('press x')
-      // Temp just for testing
-      resolveMenuPromise()
+  getKeyPressEmitter().on('x', async firstPress => {
+    console.log('press x', areMenuControlsActive(), firstPress, getMenuState())
+    if (areMenuControlsActive() && getMenuState() === 'home') {
+      keyPressMain('x', firstPress)
     }
   })
 }
