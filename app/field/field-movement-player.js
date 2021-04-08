@@ -15,14 +15,14 @@ import {
   updateSavemapLocationFieldLeader
 } from '../data/savemap-alias.js'
 
-const updateFieldMovement = delta => {
+const updateFieldPlayerMovement = delta => {
   // console.log('movementDirection', delta)
   // Get active player
   if (!window.currentField.playableCharacter) {
     return
   }
 
-  // console.log('updateFieldMovement', delta, winplayableCharacterCanMovedow.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
+  // console.log('updateFieldPlayerMovement', delta, winplayableCharacterCanMovedow.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
   // Can player move?
   if (!window.currentField.playableCharacterCanMove) {
     return
@@ -720,4 +720,8 @@ const getClosestTriangleId = (model, position) => {
   }
   return closest.triangleId
 }
-export { updateFieldMovement, updateCurrentTriangleId, getNextPositionRaycast }
+export {
+  updateFieldPlayerMovement,
+  updateCurrentTriangleId,
+  getNextPositionRaycast
+}

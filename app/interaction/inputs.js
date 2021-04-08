@@ -142,7 +142,7 @@ const setupInputs = () => {
   // Hold up, keep up held, press circle, let go of circle, you still have circle held
   // In a game, you would expect up to still be sending events, but in the browser, it doesn't
   // Need to think of a way around this, more like a keypress processing loop like in
-  // updateFieldMovement()
+  // updateFieldPlayerMovement()
   document.addEventListener(
     'keydown',
     e => {

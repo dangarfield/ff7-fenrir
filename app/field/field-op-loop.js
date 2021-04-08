@@ -135,7 +135,6 @@ const executeOp = async (
     case 'RET':
       result = await flow.RET()
       break
-
     case 'REQ':
       result = await flow.REQ(fieldName, entityId, scriptType, op)
       break

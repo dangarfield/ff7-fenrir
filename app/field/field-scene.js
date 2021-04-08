@@ -4,7 +4,7 @@ import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitContr
 import TWEEN from '../../assets/tween.esm.js'
 import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
-import { updateFieldMovement } from './field-movement-player.js'
+import { updateFieldPlayerMovement } from './field-movement-player.js'
 import { updateMoveEntityMovement } from './field-movement.js'
 import { getFieldList } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
@@ -49,7 +49,7 @@ const renderLoop = function () {
   }
   TWEEN.update()
   SHAKE_TWEEN_GROUP.update()
-  updateFieldMovement(delta) // Ideally this should go in a separate loop
+  updateFieldPlayerMovement(delta) // Ideally this should go in a separate loop
   updateMoveEntityMovement(delta)
   updateBackgroundScolling(delta) // Ideally this should go in a separate loop
   updateArrowPositionHelpers()

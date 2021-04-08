@@ -7,9 +7,8 @@ window.console = (function (origConsole) {
     terms: [
       'FLOW ERROR',
       'executeOpDEBUG',
-      'offsetEntity'
-      // 'showMessageWaitForInteraction',
-      // 'closeDialog'
+      'offsetEntity',
+      // 'moveEntity'
     ],
     log: function () {
       if (limit) {

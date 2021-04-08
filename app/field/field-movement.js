@@ -381,7 +381,7 @@ const updateMoveEntityMovement = delta => {
         if (
           (window.currentField.fieldCameraFollowPlayer &&
             model.scene.uuid ===
-              window.currentField.playableCharacter.scene.uuid) ||
+            window.currentField.playableCharacter.scene.uuid) ||
           model.userData.cameraFollowMe
         ) {
           // Update camera position if this is the main character
@@ -400,10 +400,10 @@ const updateMoveEntityMovement = delta => {
               model.scene.position.x - model.userData.moveEntity.to.x,
               2
             ) +
-              Math.pow(
-                model.scene.position.y - model.userData.moveEntity.to.y,
-                2
-              )
+            Math.pow(
+              model.scene.position.y - model.userData.moveEntity.to.y,
+              2
+            )
           )
         console.log('moveEntity distance', model.userData.entityName, distance)
         if (distance < 5) {
@@ -419,7 +419,7 @@ const updateMoveEntityMovement = delta => {
             window.currentField.playableCharacter &&
             window.currentField.playableCharacter.userData &&
             model.scene.uuid ===
-              window.currentField.playableCharacter.scene.uuid
+            window.currentField.playableCharacter.scene.uuid
           ) {
             updateCurrentTriangleId(model, model.scene.position)
           }
@@ -475,7 +475,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
     4096 *
     Math.sqrt(
       Math.pow(model.scene.position.x - x, 2) +
-        Math.pow(model.scene.position.y - y, 2)
+      Math.pow(model.scene.position.y - y, 2)
     )
   let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
   // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
@@ -487,6 +487,8 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
   while (model.animations.length < animationId) {
     animationId--
   }
+  model.mixer.stopAllAction() // Stop all existing actions
+
 
   return new Promise(async resolve => {
     model.userData.moveEntity = {
@@ -665,7 +667,7 @@ const moveEntityOld = async (
         // Camera follow
         if (
           model.scene.uuid ===
-            window.currentField.playableCharacter.scene.uuid &&
+          window.currentField.playableCharacter.scene.uuid &&
           window.currentField.fieldCameraFollowPlayer
         ) {
           // Update camera position if this is the main character
