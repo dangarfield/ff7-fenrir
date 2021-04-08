@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import TWEEN from '../../assets/tween.esm.js'
+import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { sleep } from '../helpers/helpers.js'
 import { scene as orthoFrontScene } from './field-ortho-scene.js'
 
@@ -97,7 +98,7 @@ const fadeTransition = (from, to, frames) => {
   return new Promise(async resolve => {
     let time = Math.floor((frames * 1000) / 30)
     console.log('fadeTransition: START', from, to, frames, time)
-    new TWEEN.Tween(from)
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       // .easing(TWEEN.Easing.Quadratic.InOut)
       .onUpdate(function () {
@@ -175,7 +176,7 @@ const fadeInstant = async (blendingType, colorType) => {
 const fade = (blendingType, from, to, end, timeMs) => {
   const delta = { ...from }
   return new Promise(async resolve => {
-    const inProgressFade = new TWEEN.Tween(delta)
+    const inProgressFade = new TWEEN.Tween(delta, FIELD_TWEEN_GROUP)
     console.log(
       'FADE TWEEN: START',
       blendingType,

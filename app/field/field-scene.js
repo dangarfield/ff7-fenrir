@@ -30,6 +30,8 @@ import { processLineTriggersForFrame } from './field-actions.js'
 // let anim = window.anim
 // let config = window.config
 
+const FIELD_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
+
 const renderLoop = function () {
   // console.log('renderLoop frame')
   if (window.anim.activeScene !== 'field') {
@@ -47,7 +49,7 @@ const renderLoop = function () {
       model.mixer.update(delta) // Render character window.animations
     }
   }
-  TWEEN.update()
+  FIELD_TWEEN_GROUP.update()
   SHAKE_TWEEN_GROUP.update()
   updateFieldPlayerMovement(delta) // Ideally this should go in a separate loop
   updateMoveEntityMovement(delta)
@@ -740,5 +742,6 @@ export {
   calculateViewClippingPointFromVector3,
   setCameraPosition,
   setCameraShakePosition,
-  updateVideoCameraPosition
+  updateVideoCameraPosition,
+  FIELD_TWEEN_GROUP
 }

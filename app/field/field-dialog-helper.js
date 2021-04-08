@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
+import { FIELD_TWEEN_GROUP } from './field-scene.js'
 
 import {
   getDialogTextures,
@@ -590,7 +591,7 @@ const scrollOverflow = async dialogBox => {
         letter.userData.overflowInitPosition = letter.position.y
       }
     }
-    new TWEEN.Tween(from)
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .onUpdate(function () {
         // console.log('msg scrollOverflow: UPDATE', from)

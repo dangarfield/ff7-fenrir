@@ -1,5 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
+import TWEEN from '../../assets/tween.esm.js'
+const MENU_TWEEN_GROUP = (window.MENU_TWEEN_GROUP = new TWEEN.Group())
 
 let scene
 let camera
@@ -40,7 +42,7 @@ const renderLoop = function () {
   }
   requestAnimationFrame(renderLoop)
   updateOnceASecond()
-
+  MENU_TWEEN_GROUP.update()
   window.anim.renderer.clear()
   window.anim.renderer.render(scene, camera)
   window.anim.renderer.clearDepth()
@@ -71,4 +73,11 @@ const setupMenuCamera = () => {
   camera.position.z = 1001
 }
 
-export { setupMenuCamera, scene, camera, showDebugText, initMenuRenderLoop }
+export {
+  setupMenuCamera,
+  scene,
+  camera,
+  showDebugText,
+  initMenuRenderLoop,
+  MENU_TWEEN_GROUP
+}

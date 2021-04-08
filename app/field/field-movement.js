@@ -18,7 +18,8 @@ import {
 import { sleep } from '../helpers/helpers.js'
 import {
   setCameraPosition,
-  calculateViewClippingPointFromVector3
+  calculateViewClippingPointFromVector3,
+  FIELD_TWEEN_GROUP
 } from './field-scene.js'
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
 import {
@@ -131,7 +132,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
   return new Promise(async resolve => {
     // A little messy, but I couldn't get different interpolations of different values working
     // This will do for the time being
-    new TWEEN.Tween(fromXY)
+    new TWEEN.Tween(fromXY, FIELD_TWEEN_GROUP)
       .to(toXY, time)
       .onUpdate(function () {
         console.log('moveEntityJump XY: UPDATE', fromXY)
@@ -182,7 +183,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
       })
       .start()
 
-    new TWEEN.Tween(fromZ1)
+    new TWEEN.Tween(fromZ1, FIELD_TWEEN_GROUP)
       .to(toZ1, time / 2)
       .easing(TWEEN.Easing.Quadratic.Out)
       .onUpdate(function () {
@@ -191,7 +192,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
       })
       .onComplete(function () {
         console.log('moveEntityJump Z1: END', fromZ1)
-        new TWEEN.Tween(fromZ2)
+        new TWEEN.Tween(fromZ2, FIELD_TWEEN_GROUP)
           .to(toZ2, time / 2)
           .easing(TWEEN.Easing.Quadratic.In)
           .onUpdate(function () {
@@ -381,7 +382,7 @@ const updateMoveEntityMovement = delta => {
         if (
           (window.currentField.fieldCameraFollowPlayer &&
             model.scene.uuid ===
-            window.currentField.playableCharacter.scene.uuid) ||
+              window.currentField.playableCharacter.scene.uuid) ||
           model.userData.cameraFollowMe
         ) {
           // Update camera position if this is the main character
@@ -400,10 +401,10 @@ const updateMoveEntityMovement = delta => {
               model.scene.position.x - model.userData.moveEntity.to.x,
               2
             ) +
-            Math.pow(
-              model.scene.position.y - model.userData.moveEntity.to.y,
-              2
-            )
+              Math.pow(
+                model.scene.position.y - model.userData.moveEntity.to.y,
+                2
+              )
           )
         console.log('moveEntity distance', model.userData.entityName, distance)
         if (distance < 5) {
@@ -419,7 +420,7 @@ const updateMoveEntityMovement = delta => {
             window.currentField.playableCharacter &&
             window.currentField.playableCharacter.userData &&
             model.scene.uuid ===
-            window.currentField.playableCharacter.scene.uuid
+              window.currentField.playableCharacter.scene.uuid
           ) {
             updateCurrentTriangleId(model, model.scene.position)
           }
@@ -475,7 +476,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
     4096 *
     Math.sqrt(
       Math.pow(model.scene.position.x - x, 2) +
-      Math.pow(model.scene.position.y - y, 2)
+        Math.pow(model.scene.position.y - y, 2)
     )
   let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
   // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
@@ -488,7 +489,6 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
     animationId--
   }
   model.mixer.stopAllAction() // Stop all existing actions
-
 
   return new Promise(async resolve => {
     model.userData.moveEntity = {
@@ -622,7 +622,7 @@ const moveEntityOld = async (
 
   console.log('moveEntity READY', entityId, from, to, lastZ, distance, time)
   return new Promise(async resolve => {
-    const moveTween = new TWEEN.Tween(from).to(to, time)
+    const moveTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP).to(to, time)
     moveTween.onUpdate(function () {
       // Find the z position
       let movementRay = new THREE.Raycaster()
@@ -667,7 +667,7 @@ const moveEntityOld = async (
         // Camera follow
         if (
           model.scene.uuid ===
-          window.currentField.playableCharacter.scene.uuid &&
+            window.currentField.playableCharacter.scene.uuid &&
           window.currentField.fieldCameraFollowPlayer
         ) {
           // Update camera position if this is the main character
@@ -888,7 +888,7 @@ const moveEntityLadderNPC = async (
     time
   )
   return new Promise(async resolve => {
-    new TWEEN.Tween(from)
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .onUpdate(function () {
         // Update the model position
@@ -1040,7 +1040,7 @@ const offsetEntity = (window.offsetEntity = async (
   }
   console.log('offsetEntity: Time ', time)
   return new Promise(async resolve => {
-    new TWEEN.Tween(from)
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .easing(easingType)
       .onUpdate(function () {

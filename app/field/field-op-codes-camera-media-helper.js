@@ -5,7 +5,7 @@ import {
 import TWEEN from '../../assets/tween.esm.js'
 import { CURRENT_FIELD } from './field-op-loop.js'
 import { sleep } from '../helpers/helpers.js'
-
+import { FIELD_TWEEN_GROUP } from './field-scene.js'
 const TweenType = {
   Instant: 'Instant',
   Linear: 'Linear',
@@ -151,7 +151,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
         tweenType === TweenType.Linear
           ? TWEEN.Easing.Linear.None
           : TWEEN.Easing.Quadratic.InOut
-      new TWEEN.Tween(from)
+      new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
         .to(to, time)
         .easing(easing)
         .onUpdate(function () {

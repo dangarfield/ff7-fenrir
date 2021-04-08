@@ -17,7 +17,8 @@ import {
 } from './field-position-helpers.js'
 import {
   setCameraPosition,
-  calculateViewClippingPointFromVector3
+  calculateViewClippingPointFromVector3,
+  FIELD_TWEEN_GROUP
 } from './field-scene.js'
 
 let modelGroup
@@ -835,7 +836,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
     }
     // console.log('easingType', easingType)
     let time = 350 // Not sure about the speed yet, md8_2, cloud turns with anim AQBF which is 15 frames, but timing videos, it seems like 350-400ms
-    new TWEEN.Tween(from)
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .easing(easingType)
       .onUpdate(function () {

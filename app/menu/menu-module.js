@@ -174,6 +174,9 @@ const resolveMenuPromise = () => {
 const initMenuModule = () => {
   setupMenuCamera()
   initMenuKeypressActions()
+  window.currentMenu = {
+    scene: scene
+  }
 }
 export {
   initMenuModule,
