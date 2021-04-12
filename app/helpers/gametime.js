@@ -1,11 +1,12 @@
 import { decrementCountdownClockAndUpdateDisplay } from '../field/field-dialog.js'
 import { incrementGameTime } from '../data/savemap-alias.js'
-
+import { updateHomeMenuTime } from '../menu/menu-main-home.js'
 let deltaTotal = 0
 let deltaSecond = 0
 const executeOnceASecond = () => {
   decrementCountdownClockAndUpdateDisplay()
   incrementGameTime()
+  updateHomeMenuTime()
 }
 const updateOnceASecond = () => {
   const delta = window.anim.gametimeClock.getDelta()

@@ -218,9 +218,9 @@ const getDialogButton = char => {
   }
   return null
 }
-const getDialogLetter = (letter, color) => {
+const getKernelTextLargeLetter = (letter, color) => {
   const textureLetters = getWindowTextures()['battle-menu-text-large']
-  for (var key in textureLetters) {
+  for (const key in textureLetters) {
     const textureLetter = textureLetters[key]
     if (textureLetter.char === letter && textureLetter.color === color) {
       return textureLetter
@@ -250,7 +250,7 @@ export {
   getAnimatedArrowPositionHelperTextures,
   getCursorPositionHelperTexture,
   getDialogTextures,
-  getDialogLetter,
+  getKernelTextLargeLetter,
   getPointRight,
   getFieldDialogNumber,
   getFieldMapList

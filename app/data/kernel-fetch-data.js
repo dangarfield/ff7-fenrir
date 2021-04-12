@@ -4,10 +4,10 @@ const KUJATA_BASE = window.location.host.includes('localhost')
   ? 'kujata-data'
   : 'https://kujata-data-dg.netlify.app'
 
-let windowTextures = {}
-const getWindowTextures = () => {
+const windowTextures = {}
+const getWindowTextures = (window.getWindowTextures = () => {
   return windowTextures
-}
+})
 const loadWindowTextures = async () => {
   return new Promise(async (resolve, reject) => {
     const manager = new THREE.LoadingManager()
@@ -20,10 +20,10 @@ const loadWindowTextures = async () => {
       resolve()
     }
 
-    let windowBinRes = await fetch(
+    const windowBinRes = await fetch(
       `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
     )
-    let windowBin = await windowBinRes.json()
+    const windowBin = await windowBinRes.json()
     const assetTypes = Object.keys(windowBin)
 
     for (let i = 0; i < assetTypes.length; i++) {

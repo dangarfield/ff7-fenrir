@@ -1,6 +1,7 @@
 import { setupInputs } from './interaction/inputs.js'
 import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
+import { loadMenuTextures } from './data/menu-fetch-data.js'
 import {
   initLoadingModule,
   showLoadingScreen
@@ -32,6 +33,7 @@ const initManager = async () => {
   await initWorldModule()
   await loadKernelData()
   await loadWindowTextures()
+  await loadMenuTextures()
   setDefaultMediaConfig()
   bindDisplayControls()
   await waitUntilMediaCanPlay()

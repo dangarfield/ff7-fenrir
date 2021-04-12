@@ -4,7 +4,7 @@ import { FIELD_TWEEN_GROUP } from './field-scene.js'
 
 import {
   getDialogTextures,
-  getDialogLetter,
+  getKernelTextLargeLetter,
   getPointRight,
   getFieldDialogNumber
 } from './field-fetch-data.js'
@@ -887,7 +887,7 @@ const showWindowWithDialog = async (
         }
         // console.log('command', command, commandParam)
 
-        const textureLetter = getDialogLetter(letter, color)
+        const textureLetter = getKernelTextLargeLetter(letter, color)
         // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
         if (textureLetter !== null) {
           const mesh = createTextureMesh(

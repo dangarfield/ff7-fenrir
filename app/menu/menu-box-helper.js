@@ -1,11 +1,35 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
+import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { getConfigWindowColours } from '../data/savemap-config.js'
-import { getDialogTextures } from '../field/field-fetch-data.js'
+import {
+  getDialogTextures,
+  getKernelTextLargeLetter
+} from '../field/field-fetch-data.js'
+import { getMenuTextures } from '../data/menu-fetch-data.js'
+
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
 
+const LETTER_TYPES = {
+  MenuBaseFont: 'menu-base-font',
+  MenuTextFixed: 'menu-text-fixed',
+  MenuTextStats: 'menu-text-stats',
+  BattleBaseFont: 'battle-base-font',
+  BattleTextFixed: 'battle-text-fixed',
+  BattleTextStats: 'battle-text-stats'
+}
+const LETTER_COLORS = {
+  White: 'white',
+  Gray: 'gray',
+  Blue: 'blue',
+  Red: 'red',
+  Purple: 'purple',
+  Green: 'green',
+  Cyan: 'cyan',
+  Yellow: 'yellow'
+}
 const createDialogBox = async dialog => {
   const id = dialog.id
   const x = dialog.x
@@ -348,6 +372,102 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
   }
   return bgClipPlanes
 }
+
+const getLetterTexture = (letter, letterType, color) => {
+  let textureLetters
+  if (letterType.startsWith('menu') || letterType.startsWith('battle')) {
+    textureLetters = getMenuTextures()[letterType]
+  } else {
+    textureLetters = getMenuTextures()[LETTER_TYPES.MenuTextLargeThin]
+  }
+  for (const key in textureLetters) {
+    const textureLetter = textureLetters[key]
+    if (textureLetter.char === letter && textureLetter.color === color) {
+      console.log('found letter', letter, textureLetter)
+      return textureLetter
+    }
+  }
+  console.log('not found letter', letter)
+  return letter
+}
+const getImageTexture = (type, image) => {
+  let textureImages
+  if (type.startsWith('profiles') || type.startsWith('misc')) {
+    textureImages = getMenuTextures()[type]
+  }
+  for (const key in textureImages) {
+    const textureImage = textureImages[key]
+    if (textureImage.description === image) {
+      console.log('found image', image, textureImage)
+      return textureImage
+    }
+  }
+  console.log('not found image', type, image)
+  return image
+}
+
+const addTextToDialog = async (
+  dialogBox,
+  text,
+  id,
+  letterType,
+  color,
+  x,
+  y,
+  scale
+) => {
+  const letters = text.split('')
+  const textGroup = new THREE.Group()
+  textGroup.userData = {
+    id: id,
+    text: text
+  }
+  let offsetX = 0
+
+  for (let i = 0; i < letters.length; i++) {
+    const letter = letters[i]
+    const textureLetter = getLetterTexture(letter, letterType, color)
+    // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
+    if (textureLetter !== null) {
+      const mesh = createTextureMesh(
+        textureLetter.w * scale,
+        textureLetter.h * scale,
+        textureLetter.texture
+      )
+      const posX = x + 8 + offsetX + (textureLetter.w * scale) / 2
+      const posY = window.config.sizing.height - y
+      if (dialogBox.userData.bg) {
+        mesh.material.clippingPlanes =
+          dialogBox.userData.bg.material.clippingPlanes
+      }
+
+      // console.log('pox', posX, '+', textureLetter.w, '->', posX + textureLetter.w, '.', posY, '-', textureLetter.h, '->', posY - textureLetter.h)
+      // console.log('letter', letter, mesh.material)
+      mesh.userData.isText = true
+      mesh.position.set(posX, posY, dialogBox.userData.z)
+      offsetX = offsetX + textureLetter.w * scale
+      textGroup.add(mesh)
+    } else {
+      console.log('no char found', letter)
+    }
+  }
+  dialogBox.add(textGroup)
+}
+const addImageToDialog = async (dialogBox, type, image, id, x, y, scale) => {
+  const textureLetter = getImageTexture(type, image)
+  const mesh = createTextureMesh(
+    textureLetter.w * scale,
+    textureLetter.h * scale,
+    textureLetter.texture
+  )
+  const posX = x
+  const posY = window.config.sizing.height - y
+  if (dialogBox.userData.bg) {
+    mesh.material.clippingPlanes = dialogBox.userData.bg.material.clippingPlanes
+  }
+  mesh.position.set(posX, posY, dialogBox.userData.z)
+  dialogBox.add(mesh)
+}
 const slideFrom = async dialog => {
   return new Promise(resolve => {
     const from = {
@@ -388,4 +508,139 @@ const slide = async (dialog, from, to, resolve) => {
     })
     .start()
 }
-export { createDialogBox, slideFrom, slideTo }
+
+const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
+  const y = window.config.sizing.height - yDiff
+  const labelOffsetY = 13
+  const labelGapY = 11
+  const statsOffsetX = 15.5
+  await addTextToDialog(
+    dialogBox,
+    'Ex-SOLDIER',
+    'profile-1-hp',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    x + 0,
+    window.config.sizing.height - y - 0,
+    0.5
+  )
+
+  await addTextToDialog(
+    dialogBox,
+    'LV',
+    'profile-1-hp',
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.Cyan,
+    x + 0,
+    window.config.sizing.height - y + labelOffsetY,
+    0.5
+  )
+  await addTextToDialog(
+    dialogBox,
+    'HP',
+    'profile-1-hp',
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.Cyan,
+    x + 0,
+    window.config.sizing.height - y + labelOffsetY + labelGapY,
+    0.5
+  )
+  await addTextToDialog(
+    dialogBox,
+    'MP',
+    'profile-1-hp',
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.Cyan,
+    x + 0,
+    window.config.sizing.height - y + labelOffsetY + labelGapY * 2,
+    0.5
+  )
+
+  await addTextToDialog(
+    dialogBox,
+    '99',
+    'profile-1-hp',
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    x + statsOffsetX,
+    window.config.sizing.height - y + labelOffsetY,
+    0.5
+  )
+  await addTextToDialog(
+    dialogBox,
+    ' 298/9999',
+    'profile-1-hp',
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    x + statsOffsetX,
+    window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
+    0.5
+  )
+  await addTextToDialog(
+    dialogBox,
+    ' 298',
+    'profile-1-hp',
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.Yellow,
+    x + statsOffsetX,
+    window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
+    0.5
+  )
+  await addTextToDialog(
+    dialogBox,
+    '  54/ 999',
+    'profile-1-hp',
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    x + statsOffsetX,
+    window.config.sizing.height - y + labelOffsetY + labelGapY * 2 - 1,
+    0.5
+  )
+}
+
+const addShapeToDialog = dialogBox => {
+  const x = 50
+  const y = 50
+  const w = 100
+  const h = 75
+
+  const bgGeo = new THREE.PlaneBufferGeometry(
+    w - EDGE_SIZE + 3,
+    h - EDGE_SIZE + 3
+  )
+  bgGeo.colorsNeedUpdate = true
+
+  bgGeo.setAttribute(
+    'color',
+    new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
+  )
+  const windowColours = getConfigWindowColours()
+  for (let i = 0; i < windowColours.length; i++) {
+    // This is not a smooth blend, but instead changes the vertices of the two triangles
+    // This is how they do it in the game
+    const color = new THREE.Color(windowColours[i])
+    bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
+  }
+  // console.log('window.config', window.config)
+  const bg = new THREE.Mesh(
+    bgGeo,
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      vertexColors: THREE.VertexColors
+    })
+  )
+  bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
+  dialogBox.add(bg)
+}
+export {
+  LETTER_TYPES,
+  LETTER_COLORS,
+  createDialogBox,
+  slideFrom,
+  slideTo,
+  addTextToDialog,
+  addImageToDialog,
+  addCharacterSummary,
+  getLetterTexture,
+  addShapeToDialog
+}
