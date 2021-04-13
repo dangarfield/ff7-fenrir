@@ -127,24 +127,36 @@ const loadHomeMenu = async () => {
   await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-3', 200.5, char3Y + 39.5, 0.5)
 
   
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1a', 200, char1Y + 19-1, 58, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1b', 200, char1Y + 19+1, 58, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1a', 200, char1Y + 19.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1b', 200, char1Y + 19.5 + 1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2a', 200, char2Y + 19.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2b', 200, char2Y + 19.5 + 1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3a', 200, char3Y + 19.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3b', 200, char3Y + 19.5+1, 56, 2, 1)
 
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2', 200, char2Y + 19, 58, 4, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3', 200, char3Y + 19, 58, 4, 1)
 
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1', 200, char1Y + 39, 57, 4, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2', 200, char2Y + 39, 56, 4, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3', 200, char3Y + 39, 58, 4, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1a', 200, char1Y + 39.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1b', 200, char1Y + 39.5+1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2a', 200, char2Y + 39.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2b', 200, char2Y + 39.5+1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3a', 200, char3Y + 39.5-1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3b', 200, char3Y + 39.5+1, 56, 2, 1)
 
   // 106 - 230 - 124
   // 106 - 144 - 38
   // 106 - 144 - 38
 
+  // 222
+  // 193
+
+  // 193
+  // 189
+
   // 90  - 215 - 125
   // 90  - 205 - 115
   // 90  - 205 - 115
   
+  window.thing = homeMain.children.filter(f => f.userData.id === 'level-bar-1a')[0]
 
   await Promise.all([
     slideFrom(homeNav),

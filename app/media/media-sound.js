@@ -83,7 +83,7 @@ const playSound = (id, pan, channelData) => {
 
     const mediaItems = sounds.filter(s => s.id === id)
     if (mediaItems.length === 0) {
-      window.alert('No sound with id', id)
+      // window.alert('No sound with id', id)
       return
     }
     const mediaItem = mediaItems[0]

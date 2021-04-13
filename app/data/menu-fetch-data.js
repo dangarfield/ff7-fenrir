@@ -36,6 +36,8 @@ const loadMenuTextures = async () => {
         ].texture = new THREE.TextureLoader(manager).load(
           `${KUJATA_BASE}/metadata/menu-assets/${assetType}/${asset.description}.png`
         )
+        menuTextures[assetType][asset.description].texture.magFilter =
+          THREE.NearestFilter
         menuTextures[assetType][
           asset.description
         ].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()

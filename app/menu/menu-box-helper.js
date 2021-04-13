@@ -46,16 +46,16 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(255,255,255)'
   ],
   EXP: [
-    'rgb(126,115,115)',
-    'rgb(126,115,115)',
+    'rgb(126,126,126)',
+    'rgb(126,126,126)',
     'rgb(126,38,38)',
-    'rgb(126,38,38)'
+    'rgb(126,38,38)' //126,38,38
   ],
   LIMIT: [
-    'rgb(234,150,190)',
-    'rgb(234,150,190)',
-    'rgb(234,150,190)',
-    'rgb(234,150,190)'
+    'rgb(126,126,126)',
+    'rgb(126,126,126)',
+    'rgb(38,126,38)',
+    'rgb(38,126,38)'
   ]
 }
 const createDialogBox = async dialog => {
@@ -723,7 +723,7 @@ const addShapeToDialog = async (dialogBox, colors, id, x, y, w, h, perc) => {
     colors === WINDOW_COLORS_SUMMARY.EXP ||
     colors === WINDOW_COLORS_SUMMARY.LIMIT
   ) {
-    // bg.material.blending = THREE.AdditiveBlending
+    bg.material.blending = THREE.AdditiveBlending
   }
 
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
