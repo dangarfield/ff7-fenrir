@@ -2,6 +2,7 @@ import { scene, showDebugText } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
+  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   slideFrom,
   slideTo,
@@ -101,23 +102,49 @@ const loadHomeMenu = async () => {
   const char1Y = 30
   const char2Y = 90.5
   const char3Y = 150
-  await addCharacterSummary(homeMain, 0, 80, char1Y)
-  await addCharacterSummary(homeMain, 1, 80, char2Y)
-  await addCharacterSummary(homeMain, 1, 80, char3Y)
+  await addCharacterSummary(homeMain, 0, 77, char1Y, 'Ex-SOLDIER', 99, 298, 9999, 54, 999)
+  await addCharacterSummary(homeMain, 1, 77, char2Y, 'Barret', 1, 222, 222, 15, 15)
+  await addCharacterSummary(homeMain, 1, 77, char3Y, 'Tifa', 6, 500, 750, 20, 98)
 
-  await addImageToDialog(homeMain, 'profiles', 'Cloud', 'profile-image-1', 38.5, char1Y + 16.5, 0.5) // backrow order = position.x = 64.5
-  await addImageToDialog(homeMain, 'profiles', 'Barret', 'profile-image-2', 38.5, char2Y + 16.5, 0.5)
-  await addImageToDialog(homeMain, 'profiles', 'Tifa', 'profile-image-2', 38.5, char3Y + 16.5, 0.5)
+  await addImageToDialog(homeMain, 'profiles', 'Cloud', 'profile-image-1', 35.5, char1Y + 16.5, 0.5) // backrow order = position.x = 64.5
+  await addImageToDialog(homeMain, 'profiles', 'Barret', 'profile-image-2', 35.5, char2Y + 16.5, 0.5)
+  await addImageToDialog(homeMain, 'profiles', 'Tifa', 'profile-image-3', 35.5, char3Y + 16.5, 0.5)
 
-  await addTextToDialog(homeMain, 'next level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 158.5, char1Y + 10.5, 0.5)
-  await addTextToDialog(homeMain, 'next level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 157.5, char2Y + 10.5, 0.5)
-  await addTextToDialog(homeMain, 'next level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 157.5, char3Y + 10.5, 0.5)
+  await addTextToDialog(homeMain, 'next level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char1Y + 10.5, 0.5)
+  await addTextToDialog(homeMain, 'next level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char2Y + 10.5, 0.5)
+  await addTextToDialog(homeMain, 'next level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char3Y + 10.5, 0.5)
 
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 158, char1Y + 30.5, 0.5)
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 157.5, char2Y + 30.5, 0.5)
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 157.5, char3Y + 30.5, 0.5)
+  await addTextToDialog(homeMain, 'Limit level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char1Y + 30.5, 0.5)
+  await addTextToDialog(homeMain, 'Limit level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char2Y + 30.5, 0.5)
+  await addTextToDialog(homeMain, 'Limit level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char3Y + 30.5, 0.5)
 
-  // await addShapeToDialog(homeMain)
+  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-1', 200.5, char1Y + 19.5, 0.5)
+  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-2', 200.5, char2Y + 19.5, 0.5)
+  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-3', 200.5, char3Y + 19.5, 0.5)
+
+  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-1', 200.5, char1Y + 39.5, 0.5)
+  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-2', 200.5, char2Y + 39.5, 0.5)
+  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-3', 200.5, char3Y + 39.5, 0.5)
+
+  
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1a', 200, char1Y + 19-1, 58, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1b', 200, char1Y + 19+1, 58, 2, 1)
+
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2', 200, char2Y + 19, 58, 4, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3', 200, char3Y + 19, 58, 4, 1)
+
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1', 200, char1Y + 39, 57, 4, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2', 200, char2Y + 39, 56, 4, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3', 200, char3Y + 39, 58, 4, 1)
+
+  // 106 - 230 - 124
+  // 106 - 144 - 38
+  // 106 - 144 - 38
+
+  // 90  - 215 - 125
+  // 90  - 205 - 115
+  // 90  - 205 - 115
+  
 
   await Promise.all([
     slideFrom(homeNav),

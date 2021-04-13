@@ -10,8 +10,7 @@ window.console = (function (origConsole) {
       'menu',
       'createDialogBox',
       'slideFrom',
-      'press',
-      'numberTextures'
+      'window colors'
     ],
     log: function () {
       if (limit) {

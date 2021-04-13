@@ -8,6 +8,7 @@ import {
   getKernelTextLargeLetter
 } from '../field/field-fetch-data.js'
 import { getMenuTextures } from '../data/menu-fetch-data.js'
+import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
@@ -29,6 +30,33 @@ const LETTER_COLORS = {
   Green: 'green',
   Cyan: 'cyan',
   Yellow: 'yellow'
+}
+const WINDOW_COLORS_SUMMARY = {
+  BG: ['rgb(70,0,0)', 'rgb(70,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
+  HP: [
+    'rgb(0,126,255)',
+    'rgb(255,255,255)',
+    'rgb(0,126,255)',
+    'rgb(255,255,255)'
+  ],
+  MP: [
+    'rgb(0,255,126)',
+    'rgb(255,255,255)',
+    'rgb(0,255,126)',
+    'rgb(255,255,255)'
+  ],
+  EXP: [
+    'rgb(126,115,115)',
+    'rgb(126,115,115)',
+    'rgb(126,38,38)',
+    'rgb(126,38,38)'
+  ],
+  LIMIT: [
+    'rgb(234,150,190)',
+    'rgb(234,150,190)',
+    'rgb(234,150,190)',
+    'rgb(234,150,190)'
+  ]
 }
 const createDialogBox = async dialog => {
   const id = dialog.id
@@ -391,10 +419,7 @@ const getLetterTexture = (letter, letterType, color) => {
   return letter
 }
 const getImageTexture = (type, image) => {
-  let textureImages
-  if (type.startsWith('profiles') || type.startsWith('misc')) {
-    textureImages = getMenuTextures()[type]
-  }
+  const textureImages = getMenuTextures()[type]
   for (const key in textureImages) {
     const textureImage = textureImages[key]
     if (textureImage.description === image) {
@@ -509,15 +534,28 @@ const slide = async (dialog, from, to, resolve) => {
     .start()
 }
 
-const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
+const addCharacterSummary = async (
+  dialogBox,
+  charId,
+  x,
+  yDiff,
+  name,
+  level,
+  currentHP,
+  maxHP,
+  currentMP,
+  maxMP
+) => {
+  const hpPerc = currentHP / maxHP
+  const mpPerc = currentMP / maxMP
   const y = window.config.sizing.height - yDiff
   const labelOffsetY = 13
   const labelGapY = 11
   const statsOffsetX = 15.5
   await addTextToDialog(
     dialogBox,
-    'Ex-SOLDIER',
-    'profile-1-hp',
+    name,
+    `summary-name-${charId}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     x + 0,
@@ -528,7 +566,7 @@ const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
   await addTextToDialog(
     dialogBox,
     'LV',
-    'profile-1-hp',
+    `summary-lvl-label-${charId}`,
     LETTER_TYPES.MenuTextFixed,
     LETTER_COLORS.Cyan,
     x + 0,
@@ -538,7 +576,7 @@ const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
   await addTextToDialog(
     dialogBox,
     'HP',
-    'profile-1-hp',
+    `summary-hp-label-${charId}`,
     LETTER_TYPES.MenuTextFixed,
     LETTER_COLORS.Cyan,
     x + 0,
@@ -548,7 +586,7 @@ const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
   await addTextToDialog(
     dialogBox,
     'MP',
-    'profile-1-hp',
+    `summary-mp-label-${charId}`,
     LETTER_TYPES.MenuTextFixed,
     LETTER_COLORS.Cyan,
     x + 0,
@@ -558,8 +596,8 @@ const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
 
   await addTextToDialog(
     dialogBox,
-    '99',
-    'profile-1-hp',
+    ('' + level).padStart(2, ' '),
+    `summary-lvl-${charId}`,
     LETTER_TYPES.BattleTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
@@ -568,57 +606,109 @@ const addCharacterSummary = async (dialogBox, charId, x, yDiff) => {
   )
   await addTextToDialog(
     dialogBox,
-    ' 298/9999',
-    'profile-1-hp',
+    `${('' + currentHP).padStart(4, ' ')}/${('' + maxHP).padStart(4, ' ')}`,
+    `summary-hp-basic-${charId}`,
     LETTER_TYPES.BattleTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
     window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
     0.5
   )
+
+  if (hpPerc < 0.1) {
+    await addTextToDialog(
+      dialogBox,
+      ('' + currentHP).padStart(4, ' '),
+      `summary-hp-low-${charId}`,
+      LETTER_TYPES.BattleTextStats,
+      LETTER_COLORS.Yellow,
+      x + statsOffsetX,
+      window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
+      0.5
+    )
+  }
+
   await addTextToDialog(
     dialogBox,
-    ' 298',
-    'profile-1-hp',
-    LETTER_TYPES.BattleTextStats,
-    LETTER_COLORS.Yellow,
-    x + statsOffsetX,
-    window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
-    0.5
-  )
-  await addTextToDialog(
-    dialogBox,
-    '  54/ 999',
-    'profile-1-hp',
+    `${('' + currentMP).padStart(4, ' ')}/${('' + maxMP).padStart(4, ' ')}`,
+    `summary-mp-basic-${charId}`,
     LETTER_TYPES.BattleTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
     window.config.sizing.height - y + labelOffsetY + labelGapY * 2 - 1,
     0.5
   )
+
+  if (mpPerc < 0.1) {
+    await addTextToDialog(
+      dialogBox,
+      ('' + currentMP).padStart(4, ' '),
+      `summary-mp-low-${charId}`,
+      LETTER_TYPES.BattleTextStats,
+      LETTER_COLORS.Yellow,
+      x + statsOffsetX,
+      window.config.sizing.height - y + labelOffsetY + labelGapY * 2 - 1,
+      0.5
+    )
+  }
+  const max = 52.5
+  const xBarPos = x + statsOffsetX + 34.5
+  await addShapeToDialog(
+    dialogBox,
+    WINDOW_COLORS_SUMMARY.BG,
+    `hp-bg-${charId}`,
+    xBarPos,
+    window.config.sizing.height - y + 28.25,
+    max,
+    2
+  )
+  await addShapeToDialog(
+    dialogBox,
+    WINDOW_COLORS_SUMMARY.HP,
+    `hp-${charId}`,
+    xBarPos,
+    window.config.sizing.height - y + 27.75,
+    max,
+    1,
+    hpPerc
+  )
+  await addShapeToDialog(
+    dialogBox,
+    WINDOW_COLORS_SUMMARY.BG,
+    `mp-bg-${charId}`,
+    xBarPos,
+    window.config.sizing.height - y + 28.25 + 10.5,
+    max,
+    2
+  )
+  await addShapeToDialog(
+    dialogBox,
+    WINDOW_COLORS_SUMMARY.MP,
+    `mp-${charId}`,
+    xBarPos,
+    window.config.sizing.height - y + 27.75 + 10.5,
+    max,
+    1,
+    mpPerc
+  )
 }
 
-const addShapeToDialog = dialogBox => {
-  const x = 50
-  const y = 50
-  const w = 100
-  const h = 75
-
-  const bgGeo = new THREE.PlaneBufferGeometry(
-    w - EDGE_SIZE + 3,
-    h - EDGE_SIZE + 3
-  )
+const addShapeToDialog = async (dialogBox, colors, id, x, y, w, h, perc) => {
+  if (!perc) {
+    perc = 1
+  }
+  x = x - (1 - perc) * w * 0.5
+  w = w * perc
+  const bgGeo = new THREE.PlaneBufferGeometry(w, h)
   bgGeo.colorsNeedUpdate = true
-
+  //323,29
+  //246, 9
   bgGeo.setAttribute(
     'color',
     new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
   )
-  const windowColours = getConfigWindowColours()
-  for (let i = 0; i < windowColours.length; i++) {
-    // This is not a smooth blend, but instead changes the vertices of the two triangles
-    // This is how they do it in the game
-    const color = new THREE.Color(windowColours[i])
+  for (let i = 0; i < colors.length; i++) {
+    const color = new THREE.Color(colors[i])
     bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
   }
   // console.log('window.config', window.config)
@@ -629,12 +719,21 @@ const addShapeToDialog = dialogBox => {
       vertexColors: THREE.VertexColors
     })
   )
+  if (
+    colors === WINDOW_COLORS_SUMMARY.EXP ||
+    colors === WINDOW_COLORS_SUMMARY.LIMIT
+  ) {
+    // bg.material.blending = THREE.AdditiveBlending
+  }
+
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
+  bg.userData = { id: id }
   dialogBox.add(bg)
 }
 export {
   LETTER_TYPES,
   LETTER_COLORS,
+  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   slideFrom,
   slideTo,
