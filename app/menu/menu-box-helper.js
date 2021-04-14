@@ -31,6 +31,18 @@ const LETTER_COLORS = {
   Cyan: 'cyan',
   Yellow: 'yellow'
 }
+const GAUGE_COLORS = {
+  LightRed: 'rgb(128,32,32)',
+  Pink: 'rgb(128,32,76)',
+  Red: 'rgb(233,120,21)',
+  Blue: 'rgb(233,112,21)'
+}
+const generateGaugeBarsColors1 = c => {
+  return ['rgb(0,0,0)', 'rgb(0,0,0)', c, c]
+}
+const generateGaugeBarsColors2 = c => {
+  return ['rgb(128,128,128)', 'rgb(128,128,128)', c, c]
+}
 const WINDOW_COLORS_SUMMARY = {
   BG: ['rgb(70,0,0)', 'rgb(70,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
   HP: [
@@ -45,18 +57,14 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(0,255,126)',
     'rgb(255,255,255)'
   ],
-  EXP: [
-    'rgb(126,126,126)',
-    'rgb(126,126,126)',
-    'rgb(126,38,38)',
-    'rgb(126,38,38)' //126,38,38
-  ],
-  LIMIT: [
-    'rgb(126,126,126)',
-    'rgb(126,126,126)',
-    'rgb(38,126,38)',
-    'rgb(38,126,38)'
-  ]
+  EXP_1: generateGaugeBarsColors1(GAUGE_COLORS.LightRed),
+  EXP_2: generateGaugeBarsColors2(GAUGE_COLORS.LightRed),
+  LIMIT_1: generateGaugeBarsColors1(GAUGE_COLORS.Pink),
+  LIMIT_2: generateGaugeBarsColors2(GAUGE_COLORS.Pink),
+  LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.Red),
+  LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
+  LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
+  LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue)
 }
 const createDialogBox = async dialog => {
   const id = dialog.id
@@ -540,6 +548,7 @@ const addCharacterSummary = async (
   x,
   yDiff,
   name,
+  status,
   level,
   currentHP,
   maxHP,
@@ -593,6 +602,18 @@ const addCharacterSummary = async (
     window.config.sizing.height - y + labelOffsetY + labelGapY * 2,
     0.5
   )
+  if (status) {
+    await addTextToDialog(
+      dialogBox,
+      status,
+      `summary-status-${charId}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Purple,
+      x + statsOffsetX + 15,
+      window.config.sizing.height - y + labelOffsetY,
+      0.5
+    )
+  }
 
   await addTextToDialog(
     dialogBox,
@@ -693,16 +714,26 @@ const addCharacterSummary = async (
   )
 }
 
-const addShapeToDialog = async (dialogBox, colors, id, x, y, w, h, perc) => {
-  if (!perc) {
+const addShapeToDialog = async (
+  dialogBox,
+  colors,
+  id,
+  x,
+  y,
+  w,
+  h,
+  perc,
+  blending
+) => {
+  if (perc === undefined) {
     perc = 1
+  } else if (perc < 0.001) {
+    perc = 0.001 // Setting width to zero creates a mess
   }
   x = x - (1 - perc) * w * 0.5
   w = w * perc
   const bgGeo = new THREE.PlaneBufferGeometry(w, h)
   bgGeo.colorsNeedUpdate = true
-  //323,29
-  //246, 9
   bgGeo.setAttribute(
     'color',
     new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
@@ -719,11 +750,8 @@ const addShapeToDialog = async (dialogBox, colors, id, x, y, w, h, perc) => {
       vertexColors: THREE.VertexColors
     })
   )
-  if (
-    colors === WINDOW_COLORS_SUMMARY.EXP ||
-    colors === WINDOW_COLORS_SUMMARY.LIMIT
-  ) {
-    bg.material.blending = THREE.AdditiveBlending
+  if (blending) {
+    bg.material.blending = blending
   }
 
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)

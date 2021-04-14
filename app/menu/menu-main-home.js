@@ -1,4 +1,5 @@
 import { scene, showDebugText } from './menu-scene.js'
+import * as THREE from '../../assets/threejs-r118/three.module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -102,9 +103,9 @@ const loadHomeMenu = async () => {
   const char1Y = 30
   const char2Y = 90.5
   const char3Y = 150
-  await addCharacterSummary(homeMain, 0, 77, char1Y, 'Ex-SOLDIER', 99, 298, 9999, 54, 999)
-  await addCharacterSummary(homeMain, 1, 77, char2Y, 'Barret', 1, 222, 222, 15, 15)
-  await addCharacterSummary(homeMain, 1, 77, char3Y, 'Tifa', 6, 500, 750, 20, 98)
+  await addCharacterSummary(homeMain, 0, 77, char1Y, 'Ex-SOLDIER', 'Fury', 99, 298, 9999, 54, 999)
+  await addCharacterSummary(homeMain, 1, 77, char2Y, 'Barret', null, 1, 222, 222, 15, 15)
+  await addCharacterSummary(homeMain, 1, 77, char3Y, 'Tifa', 'Sadness', 6, 500, 750, 20, 98)
 
   await addImageToDialog(homeMain, 'profiles', 'Cloud', 'profile-image-1', 35.5, char1Y + 16.5, 0.5) // backrow order = position.x = 64.5
   await addImageToDialog(homeMain, 'profiles', 'Barret', 'profile-image-2', 35.5, char2Y + 16.5, 0.5)
@@ -127,34 +128,20 @@ const loadHomeMenu = async () => {
   await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-3', 200.5, char3Y + 39.5, 0.5)
 
   
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1a', 200, char1Y + 19.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-1b', 200, char1Y + 19.5 + 1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2a', 200, char2Y + 19.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-2b', 200, char2Y + 19.5 + 1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3a', 200, char3Y + 19.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP, 'level-bar-3b', 200, char3Y + 19.5+1, 56, 2, 1)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-1a', 200, char1Y + 19.5-2.5, 58, 3, 1, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-1b', 200, char1Y + 19.5+0.5, 58, 3, 1, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-2a', 200, char2Y + 19.5-2.5, 58, 3, 0.8, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-2b', 200, char2Y + 19.5+0.5, 58, 3, 0.8, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-3a', 200, char3Y + 19.5-2.5, 58, 3, 0, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-3b', 200, char3Y + 19.5+0.5, 58, 3, 0, THREE.AdditiveBlending)
 
 
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1a', 200, char1Y + 39.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-1b', 200, char1Y + 39.5+1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2a', 200, char2Y + 39.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-2b', 200, char2Y + 39.5+1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3a', 200, char3Y + 39.5-1, 56, 2, 1)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT, 'limit-bar-3b', 200, char3Y + 39.5+1, 56, 2, 1)
-
-  // 106 - 230 - 124
-  // 106 - 144 - 38
-  // 106 - 144 - 38
-
-  // 222
-  // 193
-
-  // 193
-  // 189
-
-  // 90  - 215 - 125
-  // 90  - 205 - 115
-  // 90  - 205 - 115
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-1a', 200, char1Y + 39.5-2.5, 58, 3, 0.9, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-1b', 200, char1Y + 39.5+0.5, 58, 3, 0.9, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-2a', 200, char2Y + 39.5-2.5, 58, 3, 0.6, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-2b', 200, char2Y + 39.5+0.5, 58, 3, 0.6, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-3a', 200, char3Y + 39.5-2.5, 58, 3, 0.5, THREE.AdditiveBlending)
+  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-3b', 200, char3Y + 39.5+0.5, 58, 3, 0.5, THREE.AdditiveBlending)
   
   window.thing = homeMain.children.filter(f => f.userData.id === 'level-bar-1a')[0]
 
@@ -165,6 +152,16 @@ const loadHomeMenu = async () => {
     slideFrom(homeMain)
   ])
   setMenuState('home')
+}
+const testColor = (i, j) => { // May be useful to find all the interpolated battle guage colours later on
+  const c = ['rgb(38,38,38)',
+    'rgb(126,38,38)', 'rgb(38,126,38)', 'rgb(38,38,126)',
+    'rgb(126,76,38)', 'rgb(126,38,76)', 'rgb(76,126,38)', 'rgb(76,38,126)']
+  if (j === 1) {
+    return ['rgb(0,0,0)', 'rgb(0,0,0)', c[i], c[i]]
+  } else {
+    return ['rgb(126,126,126)', 'rgb(126,126,126)', c[i], c[i]]
+  }
 }
 const updateHomeMenuTime = async () => {
   if (getMenuState() === 'home') {
