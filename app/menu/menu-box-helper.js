@@ -3,10 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { getConfigWindowColours } from '../data/savemap-config.js'
-import {
-  getDialogTextures,
-  getKernelTextLargeLetter
-} from '../field/field-fetch-data.js'
+import { getKernelTextLargeLetter } from '../field/field-fetch-data.js'
 import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
@@ -438,6 +435,20 @@ const getImageTexture = (type, image) => {
   console.log('not found image', type, image)
   return image
 }
+const getDialogTextures = () => {
+  const textures = getMenuTextures()
+  return {
+    bl: textures.borders['border bl'].texture,
+    br: textures.borders['border br'].texture,
+    tl: textures.borders['border tl'].texture,
+    tr: textures.borders['border tr'].texture,
+
+    t: textures.borders['border t'].texture,
+    b: textures.borders['border b'].texture,
+    l: textures.borders['border l'].texture,
+    r: textures.borders['border r'].texture
+  }
+}
 
 const addTextToDialog = async (
   dialogBox,
@@ -619,7 +630,7 @@ const addCharacterSummary = async (
     dialogBox,
     ('' + level).padStart(2, ' '),
     `summary-lvl-${charId}`,
-    LETTER_TYPES.BattleTextStats,
+    LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
     window.config.sizing.height - y + labelOffsetY,
@@ -629,7 +640,7 @@ const addCharacterSummary = async (
     dialogBox,
     `${('' + currentHP).padStart(4, ' ')}/${('' + maxHP).padStart(4, ' ')}`,
     `summary-hp-basic-${charId}`,
-    LETTER_TYPES.BattleTextStats,
+    LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
     window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
@@ -641,7 +652,7 @@ const addCharacterSummary = async (
       dialogBox,
       ('' + currentHP).padStart(4, ' '),
       `summary-hp-low-${charId}`,
-      LETTER_TYPES.BattleTextStats,
+      LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.Yellow,
       x + statsOffsetX,
       window.config.sizing.height - y + labelOffsetY + labelGapY - 1,
@@ -653,7 +664,7 @@ const addCharacterSummary = async (
     dialogBox,
     `${('' + currentMP).padStart(4, ' ')}/${('' + maxMP).padStart(4, ' ')}`,
     `summary-mp-basic-${charId}`,
-    LETTER_TYPES.BattleTextStats,
+    LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     x + statsOffsetX,
     window.config.sizing.height - y + labelOffsetY + labelGapY * 2 - 1,
@@ -665,7 +676,7 @@ const addCharacterSummary = async (
       dialogBox,
       ('' + currentMP).padStart(4, ' '),
       `summary-mp-low-${charId}`,
-      LETTER_TYPES.BattleTextStats,
+      LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.Yellow,
       x + statsOffsetX,
       window.config.sizing.height - y + labelOffsetY + labelGapY * 2 - 1,
@@ -769,5 +780,6 @@ export {
   addImageToDialog,
   addCharacterSummary,
   getLetterTexture,
-  addShapeToDialog
+  addShapeToDialog,
+  getDialogTextures
 }

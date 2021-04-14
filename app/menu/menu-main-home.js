@@ -67,13 +67,13 @@ const loadHomeMenu = async () => {
   await addTextToDialog(homeTime, 'Gil', 'home-label-gil', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 233, 201, 0.5)
   
   const gameTime = getCurrentGameTime()
-  await addTextToDialog(homeTime, ('' + gameTime.h).padStart(2, '0'), 'home-time-hrs', LETTER_TYPES.BattleTextStats, LETTER_COLORS.White, 264, 186, 0.5)
-  await addTextToDialog(homeTime, ('' + gameTime.m).padStart(2, '0'), 'home-time-mins', LETTER_TYPES.BattleTextStats, LETTER_COLORS.White, 279, 186, 0.5)
-  await addTextToDialog(homeTime, ('' + gameTime.s).padStart(2, '0'), 'home-time-secs', LETTER_TYPES.BattleTextStats, LETTER_COLORS.White, 294, 186, 0.5)
+  await addTextToDialog(homeTime, ('' + gameTime.h).padStart(2, '0'), 'home-time-hrs', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 264, 186, 0.5)
+  await addTextToDialog(homeTime, ('' + gameTime.m).padStart(2, '0'), 'home-time-mins', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 279, 186, 0.5)
+  await addTextToDialog(homeTime, ('' + gameTime.s).padStart(2, '0'), 'home-time-secs', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 294, 186, 0.5)
   await addTextToDialog(homeTime, ':', 'home-time-colon-1', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White, 273.75, 187, 0.5)
   await addTextToDialog(homeTime, ':', 'home-time-colon-2', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White, 288.75, 187, 0.5)
   
-  await addTextToDialog(homeTime, ('' + window.data.savemap.gil).padStart(9, ' '), 'home-gil', LETTER_TYPES.BattleTextStats, LETTER_COLORS.White, 252, 201, 0.5)
+  await addTextToDialog(homeTime, ('' + window.data.savemap.gil).padStart(9, ' '), 'home-gil', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 252, 201, 0.5)
   updateHomeMenuTime()
   homeLocation = await createDialogBox({
     id: 2,
@@ -178,18 +178,18 @@ const updateHomeMenuTime = async () => {
 
     const hrsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-hrs')[0]
     hrsGroup.userData.text = hSplit.join('')
-    hrsGroup.children[0].material.map = getLetterTexture(h1, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
-    hrsGroup.children[1].material.map = getLetterTexture(h2, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
+    hrsGroup.children[0].material.map = getLetterTexture(h1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    hrsGroup.children[1].material.map = getLetterTexture(h2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
 
     const minsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-mins')[0]
     minsGroup.userData.text = mSplit.join('')
-    minsGroup.children[0].material.map = getLetterTexture(m1, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
-    minsGroup.children[1].material.map = getLetterTexture(m2, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
+    minsGroup.children[0].material.map = getLetterTexture(m1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    minsGroup.children[1].material.map = getLetterTexture(m2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
 
     const secsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-secs')[0]
     secsGroup.userData.text = sSplit.join('')
-    secsGroup.children[0].material.map = getLetterTexture(s1, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
-    secsGroup.children[1].material.map = getLetterTexture(s2, LETTER_TYPES.BattleTextStats, LETTER_COLORS.White).texture
+    secsGroup.children[0].material.map = getLetterTexture(s1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    secsGroup.children[1].material.map = getLetterTexture(s2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
 
     const colon1Group = homeTime.children.filter(f => f.userData.id === 'home-time-colon-1')[0]
     colon1Group.children[0].material.map = getLetterTexture(':', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White).texture
