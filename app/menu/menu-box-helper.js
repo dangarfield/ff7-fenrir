@@ -3,13 +3,25 @@ import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { getConfigWindowColours } from '../data/savemap-config.js'
-import { getKernelTextLargeLetter } from '../field/field-fetch-data.js'
 import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
+const BUTTON_IMAGES = [
+  { text: 'CANCEL', char: '✕', key: 'button cross' },
+  { text: 'SWITCH', char: '☐', key: 'button square' },
+  { text: 'MENU', char: '△', key: 'button triangle' },
+  { text: 'OK', char: '〇', key: 'button circle' },
 
+  { text: 'PAGEDOWN', char: '┐', key: 'button l1' }, // l1
+  { text: 'END', char: '╗', key: 'button l2' }, // ??? // l2
+  { text: 'PAGEUP', char: '┌', key: 'button r1' }, // r1
+  { text: 'HOME', char: '╔', key: 'button r2' }, // ??? / r2
+
+  { text: 'SELECT', char: '▅', key: 'button select' }, // ???
+  { text: 'START', char: '▶', key: 'button start' }
+]
 const LETTER_TYPES = {
   MenuBaseFont: 'menu-base-font',
   MenuTextFixed: 'menu-text-fixed',
@@ -34,6 +46,12 @@ const GAUGE_COLORS = {
   Red: 'rgb(233,120,21)',
   Blue: 'rgb(233,112,21)'
 }
+const POINTERS = {
+  pointer1: null,
+  pointer2: null,
+  pointer3: null
+}
+
 const generateGaugeBarsColors1 = c => {
   return ['rgb(0,0,0)', 'rgb(0,0,0)', c, c]
 }
@@ -405,7 +423,15 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
   }
   return bgClipPlanes
 }
-
+const getDialogButton = char => {
+  for (let i = 0; i < BUTTON_IMAGES.length; i++) {
+    const buttonImage = BUTTON_IMAGES[i]
+    if (buttonImage.char === char) {
+      return getWindowTextures()['buttons'][buttonImage.key] // TODO - Update these buttons
+    }
+  }
+  return null
+}
 const getLetterTexture = (letter, letterType, color) => {
   let textureLetters
   if (letterType.startsWith('menu') || letterType.startsWith('battle')) {
@@ -421,7 +447,7 @@ const getLetterTexture = (letter, letterType, color) => {
     }
   }
   console.log('not found letter', letter)
-  return letter
+  return getDialogButton(letter)
 }
 const getImageTexture = (type, image) => {
   const textureImages = getMenuTextures()[type]
@@ -464,7 +490,9 @@ const addTextToDialog = async (
   const textGroup = new THREE.Group()
   textGroup.userData = {
     id: id,
-    text: text
+    text: text,
+    x: x,
+    y: y
   }
   let offsetX = 0
 
@@ -724,7 +752,71 @@ const addCharacterSummary = async (
     mpPerc
   )
 }
+const initPointers = async () => {
+  POINTERS.pointer1 = await createPointer()
+  POINTERS.pointer2 = await createPointer()
+  POINTERS.pointer3 = await createPointer()
+  // pointer2 = await createPointer()
+  console.log('pointer1', POINTERS.pointer1)
+  window.POINTERS = POINTERS
+}
+const createPointer = async () => {
+  const pointer = new THREE.Group()
+  const id = 0
+  const z = 100 - id
 
+  // const dialogBox = new THREE.Group()
+  pointer.userData = { id, z }
+  await addImageToDialog(
+    pointer,
+    'pointers',
+    'hand-right-small-no-shadow',
+    'pointer-1a',
+    0,
+    window.config.sizing.height,
+    0.5
+  )
+  await addImageToDialog(
+    pointer,
+    'pointers',
+    'hand-right-small-shadow-only',
+    'pointer-1a',
+    0,
+    window.config.sizing.height,
+    0.5
+  )
+  pointer.userData = {
+    id: 'pointer-1',
+    z: 0.1
+  }
+
+  pointer.position.x = 0
+  pointer.position.y = 0
+  pointer.position.z = z
+  pointer.children[1].material.opacity = 0.5
+  pointer.visible = false
+  scene.add(pointer)
+  console.log('pointer', pointer)
+  return pointer
+}
+const movePointer = (pointer, x, y, hide, flash) => {
+  pointer.position.x = x
+  pointer.position.y = window.config.sizing.height - y
+  if (flash && pointer.userData.interval === undefined) {
+    pointer.userData.interval = setInterval(() => {
+      pointer.visible = !pointer.visible
+    }, 20)
+  } else {
+    clearInterval(pointer.userData.interval)
+    pointer.userData.interval = undefined
+    pointer.visible = true
+  }
+  if (hide) {
+    pointer.visible = false
+  } else {
+    pointer.visible = true
+  }
+}
 const addShapeToDialog = async (
   dialogBox,
   colors,
@@ -781,5 +873,8 @@ export {
   addCharacterSummary,
   getLetterTexture,
   addShapeToDialog,
-  getDialogTextures
+  getDialogTextures,
+  POINTERS,
+  initPointers,
+  movePointer
 }

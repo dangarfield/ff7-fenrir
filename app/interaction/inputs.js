@@ -1,7 +1,7 @@
 import { createNanoEvents } from '../../assets/nanoevents.js'
 import { initSavemapQuicksaveKeypressActions } from '../data/savemap-controls.js'
 let emitter
-let keys = {
+const keys = {
   up: false,
   right: false,
   down: false,
@@ -17,22 +17,38 @@ let keys = {
   select: false,
   start: false
 }
-let history = []
-let input = {
-  up: { lastCall: 0, count: 0, keyDown: false, key: 'up' },
-  right: { lastCall: 0, count: 0, keyDown: false, key: 'right' },
-  down: { lastCall: 0, count: 0, keyDown: false, key: 'down' },
-  left: { lastCall: 0, count: 0, keyDown: false, key: 'left' },
-  x: { lastCall: 0, count: 0, keyDown: false, key: 'x' },
-  o: { lastCall: 0, count: 0, keyDown: false, key: 'o' },
-  square: { lastCall: 0, count: 0, keyDown: false, key: 'square' },
-  triangle: { lastCall: 0, count: 0, keyDown: false, key: 'triangle' },
-  l1: { lastCall: 0, count: 0, keyDown: false, key: 'l1' },
-  l2: { lastCall: 0, count: 0, keyDown: false, key: 'l2' },
-  r1: { lastCall: 0, count: 0, keyDown: false, key: 'r1' },
-  r2: { lastCall: 0, count: 0, keyDown: false, key: 'r2' },
-  select: { lastCall: 0, count: 0, keyDown: false, key: 'select' },
-  start: { lastCall: 0, count: 0, keyDown: false, key: 'start' }
+const KEY = {
+  UP: 'up',
+  RIGHT: 'right',
+  DOWN: 'down',
+  LEFT: 'left',
+  X: 'x',
+  O: 'o',
+  SQUARE: 'square',
+  TRIANGLE: 'triangle',
+  L1: 'l1',
+  L2: 'l2',
+  R1: 'r1',
+  R2: 'r2',
+  SELECT: 'select',
+  START: 'start'
+}
+const history = []
+const input = {
+  up: { lastCall: 0, count: 0, keyDown: false, key: KEY.UP },
+  right: { lastCall: 0, count: 0, keyDown: false, key: KEY.RIGHT },
+  down: { lastCall: 0, count: 0, keyDown: false, key: KEY.DOWN },
+  left: { lastCall: 0, count: 0, keyDown: false, key: KEY.LEFT },
+  x: { lastCall: 0, count: 0, keyDown: false, key: KEY.X },
+  o: { lastCall: 0, count: 0, keyDown: false, key: KEY.O },
+  square: { lastCall: 0, count: 0, keyDown: false, key: KEY.SQUARE },
+  triangle: { lastCall: 0, count: 0, keyDown: false, key: KEY.TRIANGLE },
+  l1: { lastCall: 0, count: 0, keyDown: false, key: KEY.L1 },
+  l2: { lastCall: 0, count: 0, keyDown: false, key: KEY.L2 },
+  r1: { lastCall: 0, count: 0, keyDown: false, key: KEY.R1 },
+  r2: { lastCall: 0, count: 0, keyDown: false, key: KEY.R2 },
+  select: { lastCall: 0, count: 0, keyDown: false, key: KEY.SELECT },
+  start: { lastCall: 0, count: 0, keyDown: false, key: KEY.START }
 }
 const sendEvent = (key, firstPress) => {
   emitter.emit(key, firstPress)
@@ -46,7 +62,7 @@ const sendSteppedThrottleEvent = (keyData, keyDown) => {
     keyData.count = 0
     return
   }
-  const delay = keyData.count > 1 ? 100 : 500
+  const delay = keyData.count > 1 ? 32 : 60
   const now = new Date().getTime()
   const testTime = now - keyData.lastCall < delay
   // console.log('now', now, delay, testTime)
@@ -163,4 +179,10 @@ const setupInputs = () => {
 const getKeyPressEmitter = () => {
   return emitter
 }
-export { setupInputs, getActiveInputs, getInputHistory, getKeyPressEmitter }
+export {
+  KEY,
+  setupInputs,
+  getActiveInputs,
+  getInputHistory,
+  getKeyPressEmitter
+}

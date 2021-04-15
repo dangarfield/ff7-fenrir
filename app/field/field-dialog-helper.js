@@ -1,12 +1,12 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
-import { getDialogTextures } from '../menu/menu-box-helper.js'
+import { getPointRight, getFieldDialogNumber } from './field-fetch-data.js'
 import {
-  getKernelTextLargeLetter,
-  getPointRight,
-  getFieldDialogNumber
-} from './field-fetch-data.js'
+  getDialogTextures,
+  getLetterTexture,
+  LETTER_TYPES
+} from '../menu/menu-box-helper.js'
 import {
   getConfigFieldMessageSpeed,
   getConfigWindowColours
@@ -886,15 +886,21 @@ const showWindowWithDialog = async (
         }
         // console.log('command', command, commandParam)
 
-        const textureLetter = getKernelTextLargeLetter(letter, color)
+        const textureLetter = getLetterTexture(
+          letter,
+          LETTER_TYPES.BattleBaseFont,
+          color
+        )
+        const scale = 0.5
         // console.log('letter', letter, textureLetter, textureLetter.w, textureLetter.h)
         if (textureLetter !== null) {
           const mesh = createTextureMesh(
-            textureLetter.w,
-            textureLetter.h,
+            textureLetter.w * scale,
+            textureLetter.h * scale,
             textureLetter.texture
           )
-          const posX = dialogBox.userData.x + 8 + offsetX + textureLetter.w / 2
+          const posX =
+            dialogBox.userData.x + 8 + offsetX + (textureLetter.w * scale) / 2
           const posY =
             window.config.sizing.height - dialogBox.userData.y - 12 - offsetY
           mesh.material.clippingPlanes =
@@ -903,7 +909,7 @@ const showWindowWithDialog = async (
           // console.log('letter', letter, mesh.material)
           mesh.userData.isText = true
           mesh.position.set(posX, posY, dialogBox.userData.z)
-          offsetX = offsetX + textureLetter.w
+          offsetX = offsetX + textureLetter.w * scale
           letters.push(mesh)
         } else {
           console.log('no char found', letter)

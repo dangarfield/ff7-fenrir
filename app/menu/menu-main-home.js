@@ -11,7 +11,10 @@ import {
   addImageToDialog,
   addCharacterSummary,
   getLetterTexture,
-  addShapeToDialog
+  addShapeToDialog,
+  POINTERS,
+  initPointers,
+  movePointer
 } from './menu-box-helper.js'
 import {
   getMenuState,
@@ -20,12 +23,19 @@ import {
 } from './menu-module.js'
 import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { sleep } from '../helpers/helpers.js'
+import { KEY } from '../interaction/inputs.js'
 
-let homeNav, homeTime, homeLocation, homeMain
-
+let homeNav, homeTime, homeLocation, homeMain, char1Group, char2Group, char3Group
+const navOptions = [
+  'Item', 'Magic', 'Summon', 'Equip', 'Status', 'Order', 'Limit', 'Config', 'PHS', 'Save', 'Quit'
+]
+const nav = {
+  current: 0,
+  options: []
+}
 const loadHomeMenu = async () => {
   homeNav = await createDialogBox({
-    id: 0,
+    id: 1,
     name: 'homeNav',
     w: 82,
     h: 156,
@@ -40,19 +50,20 @@ const loadHomeMenu = async () => {
   const x = 246
   const y = 12
   const d = 13
-  await addTextToDialog(homeNav, 'Item', 'nav-item', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 0, 0.5)
-  await addTextToDialog(homeNav, 'Magic', 'nav-magic', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 1, 0.5)
-  await addTextToDialog(homeNav, 'Summon', 'nav-summon', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 2, 0.5)
-  await addTextToDialog(homeNav, 'Equip', 'nav-equip', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 3, 0.5)
-  await addTextToDialog(homeNav, 'Status', 'nav-status', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 4, 0.5)
-  await addTextToDialog(homeNav, 'Order', 'nav-order', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 5, 0.5)
-  await addTextToDialog(homeNav, 'Limit', 'nav-limit', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 6, 0.5)
-  await addTextToDialog(homeNav, 'Config', 'nav-config', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 7, 0.5)
-  await addTextToDialog(homeNav, 'PHS', 'nav-unknown', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 8, 0.5)
-  await addTextToDialog(homeNav, 'Save', 'nav-save', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 9, 0.5)
-  await addTextToDialog(homeNav, 'Quit', 'nav-quit', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * 10, 0.5)
+  for (let i = 0; i < navOptions.length; i++) {
+    const navOption = navOptions[i]
+    await addTextToDialog(homeNav, navOption, `nav-${navOption.toLowerCase()}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * i, 0.5)
+    nav.options.push({
+      pointerX: 237,
+      pointerY: 17 + (13 * i),
+      type: navOption
+    })
+  }
+  nav.current = 0
+  window.nav = nav
+
   homeTime = await createDialogBox({
-    id: 1,
+    id: 2,
     name: 'homeTime',
     w: 84,
     h: 36,
@@ -76,7 +87,7 @@ const loadHomeMenu = async () => {
   await addTextToDialog(homeTime, ('' + window.data.savemap.gil).padStart(9, ' '), 'home-gil', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 252, 201, 0.5)
   updateHomeMenuTime()
   homeLocation = await createDialogBox({
-    id: 2,
+    id: 3,
     name: 'homeLocation',
     w: 157,
     h: 29,
@@ -88,8 +99,9 @@ const loadHomeMenu = async () => {
     noClipping: true
   })
   await addTextToDialog(homeLocation, window.data.savemap.location.currentLocation, 'home-loc', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 163, 225, 0.5)
+  
   homeMain = await createDialogBox({
-    id: 3,
+    id: 4,
     name: 'homeMain',
     w: 259,
     h: 211,
@@ -100,50 +112,23 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  const char1Y = 30
-  const char2Y = 90.5
-  const char3Y = 150
-  await addCharacterSummary(homeMain, 0, 77, char1Y, 'Ex-SOLDIER', 'Fury', 99, 298, 9999, 54, 999)
-  await addCharacterSummary(homeMain, 1, 77, char2Y, 'Barret', null, 1, 222, 222, 15, 15)
-  await addCharacterSummary(homeMain, 1, 77, char3Y, 'Tifa', 'Sadness', 6, 500, 750, 20, 98)
-
-  await addImageToDialog(homeMain, 'profiles', 'Cloud', 'profile-image-1', 35.5, char1Y + 16.5, 0.5) // backrow order = position.x = 64.5
-  await addImageToDialog(homeMain, 'profiles', 'Barret', 'profile-image-2', 35.5, char2Y + 16.5, 0.5)
-  await addImageToDialog(homeMain, 'profiles', 'Tifa', 'profile-image-3', 35.5, char3Y + 16.5, 0.5)
-
-  await addTextToDialog(homeMain, 'next level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char1Y + 10.5, 0.5)
-  await addTextToDialog(homeMain, 'next level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char2Y + 10.5, 0.5)
-  await addTextToDialog(homeMain, 'next level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char3Y + 10.5, 0.5)
-
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char1Y + 30.5, 0.5)
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char2Y + 30.5, 0.5)
-  await addTextToDialog(homeMain, 'Limit level', 'next-level-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, char3Y + 30.5, 0.5)
-
-  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-1', 200.5, char1Y + 19.5, 0.5)
-  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-2', 200.5, char2Y + 19.5, 0.5)
-  await addImageToDialog(homeMain, 'bars', 'level', 'level-bar-bg-3', 200.5, char3Y + 19.5, 0.5)
-
-  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-1', 200.5, char1Y + 39.5, 0.5)
-  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-2', 200.5, char2Y + 39.5, 0.5)
-  await addImageToDialog(homeMain, 'bars', 'level', 'limit-bar-bg-3', 200.5, char3Y + 39.5, 0.5)
-
   
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-1a', 200, char1Y + 19.5-2.5, 58, 3, 1, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-1b', 200, char1Y + 19.5+0.5, 58, 3, 1, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-2a', 200, char2Y + 19.5-2.5, 58, 3, 0.8, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-2b', 200, char2Y + 19.5+0.5, 58, 3, 0.8, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_1, 'level-bar-3a', 200, char3Y + 19.5-2.5, 58, 3, 0, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.EXP_2, 'level-bar-3b', 200, char3Y + 19.5+0.5, 58, 3, 0, THREE.AdditiveBlending)
+  char1Group = new THREE.Group()
+  char1Group.userData = { id: 4, z: 100 - 4 }
+  char1Group.position.y = -31
+  homeMain.add(char1Group)
 
+  char2Group = new THREE.Group()
+  char2Group.userData = { id: 4, z: 100 - 4 }
+  char2Group.position.y = -90.5
+  homeMain.add(char2Group)
 
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-1a', 200, char1Y + 39.5-2.5, 58, 3, 0.9, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-1b', 200, char1Y + 39.5+0.5, 58, 3, 0.9, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-2a', 200, char2Y + 39.5-2.5, 58, 3, 0.6, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-2b', 200, char2Y + 39.5+0.5, 58, 3, 0.6, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_1, 'limit-bar-3a', 200, char3Y + 39.5-2.5, 58, 3, 0.5, THREE.AdditiveBlending)
-  await addShapeToDialog(homeMain, WINDOW_COLORS_SUMMARY.LIMIT_2, 'limit-bar-3b', 200, char3Y + 39.5+0.5, 58, 3, 0.5, THREE.AdditiveBlending)
-  
-  window.thing = homeMain.children.filter(f => f.userData.id === 'level-bar-1a')[0]
+  char3Group = new THREE.Group()
+  char3Group.userData = { id: 4, z: 100 - 4 }
+  char3Group.position.y = -150
+  homeMain.add(char3Group)
+  drawHomeMain()
+  window.homeMain = homeMain
 
   await Promise.all([
     slideFrom(homeNav),
@@ -152,7 +137,41 @@ const loadHomeMenu = async () => {
     slideFrom(homeMain)
   ])
   setMenuState('home')
+  await initPointers()
+  movePointer(POINTERS.pointer1, 237, 17)
+  // Nav pointer position, 217, 3, then -13
 }
+const drawHomeMain = () => {
+  const members = window.data.savemap.party.members
+  const charGroups = [char1Group, char2Group, char3Group]
+  for (let i = 0; i < members.length; i++) {
+    const member = members[i]
+    const charGroup = charGroups[i]
+
+    while (charGroup.children.length) {
+      charGroup.remove(charGroup.children[0])
+    }
+    if (member !== 'None') {
+      const char = window.data.savemap.characters[member]
+      const expPerc = char.level.progressBar / 100
+      const limitPerc = char.limit.bar / 255
+
+      addCharacterSummary(charGroup, 0, 77, 0, char.name, char.status.statusFlags === 'None' ? null : char.status.statusFlags, char.level.current, char.stats.hp.current, char.stats.hp.max, char.stats.mp.current, char.stats.mp.max)
+      addImageToDialog(charGroup, 'profiles', member, `profile-image-${i}`, char.status.battleOrder === 'Normal' ? 35.5 : 61.5, 16.5, 0.5)
+      addTextToDialog(charGroup, 'next level', `next-level-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, 10.5, 0.5)
+      addTextToDialog(charGroup, 'Limit level', `next-level-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, 30.5, 0.5)
+      addImageToDialog(charGroup, 'bars', 'level', `level-bar-bg-${i}`, 200.5, 19.5, 0.5)
+      addImageToDialog(charGroup, 'bars', 'level', `limit-bar-bg-${i}`, 200.5, 39.5, 0.5)
+      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.EXP_1, `level-bar-${i}a`, 200, 19.5 - 2.5, 58, 3, expPerc, THREE.AdditiveBlending)
+      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.EXP_2, `level-bar-${i}b`, 200, 19.5 + 0.5, 58, 3, expPerc, THREE.AdditiveBlending)
+      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.LIMIT_1, `limit-bar-${i}a`, 200, 39.5 - 2.5, 58, 3, limitPerc, THREE.AdditiveBlending)
+      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.LIMIT_2, `limit-bar-${i}b`, 200, 39.5 + 0.5, 58, 3, limitPerc, THREE.AdditiveBlending)
+    }
+  }
+  return charGroups
+}
+window.drawHomeMain = drawHomeMain
+
 const testColor = (i, j) => { // May be useful to find all the interpolated battle guage colours later on
   const c = ['rgb(38,38,38)',
     'rgb(126,38,38)', 'rgb(38,126,38)', 'rgb(38,38,126)',
@@ -209,14 +228,154 @@ const slideOutMainMenu = async () => {
     slideTo(homeMain)
   ])
 }
+const navNavigation = (up) => {
+  if (up) {
+    if (nav.current - 1 < 0) {
+      nav.current = nav.options.length - 1
+    } else {
+      nav.current--
+    }
+  } else {
+    if (nav.current + 1 >= nav.options.length) {
+      nav.current = 0
+    } else {
+      nav.current++
+    }
+  }
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY)
+}
+const SELECT_PARTY_MEMBER_POSITIONS = { x: 10, y: [53, 113, 173], from: 0, to: 0, adjust: { x: 3, y: 7 } }
+
+const navSelectOrderFromLoad = () => {
+  console.log('navSelectOrderFromLoad')
+  setMenuState('home-order-from')
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false, true)
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from])
+  movePointer(POINTERS.pointer3, 0, 0, true)
+}
+const navSelectOrderFromNavigation = (up) => {
+  console.log('navSelectOrderFromNavigation')
+  if (up) {
+    if (SELECT_PARTY_MEMBER_POSITIONS.from - 1 < 0) {
+      SELECT_PARTY_MEMBER_POSITIONS.from = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.from--
+    }
+  } else {
+    if (SELECT_PARTY_MEMBER_POSITIONS.from + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+      SELECT_PARTY_MEMBER_POSITIONS.from = 0
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.from++
+    }
+  }
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from])
+}
+const navSelectOrderFromCancel = () => {
+  console.log('navSelectOrderFromCancel')
+  setMenuState('home')
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
+}
+const navSelectOrderFromConfirm = () => {
+  console.log('navSelectOrderFromConfirm')
+  setMenuState('home-order-to')
+  SELECT_PARTY_MEMBER_POSITIONS.to = SELECT_PARTY_MEMBER_POSITIONS.from
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to])
+  movePointer(POINTERS.pointer3, SELECT_PARTY_MEMBER_POSITIONS.x - SELECT_PARTY_MEMBER_POSITIONS.adjust.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from] - SELECT_PARTY_MEMBER_POSITIONS.adjust.y, false, true)
+}
+const navSelectOrderToNavigation = (up) => {
+  console.log('navSelectOrderToNavigation')
+  if (up) {
+    if (SELECT_PARTY_MEMBER_POSITIONS.to - 1 < 0) {
+      SELECT_PARTY_MEMBER_POSITIONS.to = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.to--
+    }
+  } else {
+    if (SELECT_PARTY_MEMBER_POSITIONS.to + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+      SELECT_PARTY_MEMBER_POSITIONS.to = 0
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.to++
+    }
+  }
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to])
+}
+const navSelectOrderToConfirm = () => {
+  console.log('navSelectOrderToConfirm', SELECT_PARTY_MEMBER_POSITIONS)
+  if (SELECT_PARTY_MEMBER_POSITIONS.from !== SELECT_PARTY_MEMBER_POSITIONS.to) {
+    const tempMembers = [...window.data.savemap.party.members]
+    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] = tempMembers[SELECT_PARTY_MEMBER_POSITIONS.to]
+    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.to] = tempMembers[SELECT_PARTY_MEMBER_POSITIONS.from]
+    console.log('navSelectOrderToConfirm', 'swapped pos', tempMembers, window.data.savemap.party.members)
+  } else {
+    if (window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] === 'None') {
+      // Not possile, play sound
+      navSelectOrderFromLoad()
+      return
+    }
+    const char = window.data.savemap.characters[window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]]
+    if (char.status.battleOrder === 'Normal') {
+      char.status.battleOrder = 'BackRow'
+    } else {
+      char.status.battleOrder = 'Normal'
+    }
+    console.log('navSelectOrderToConfirm', 'change row', char)
+  }
+  drawHomeMain()
+  SELECT_PARTY_MEMBER_POSITIONS.from = SELECT_PARTY_MEMBER_POSITIONS.to
+  navSelectOrderFromLoad()
+}
+
+
+const navSelect = () => {
+  const selectedNav = nav.options[nav.current]
+  console.log('Nav Select', selectedNav)
+  if (selectedNav.type === 'Order') {
+    navSelectOrderFromLoad()
+  } else {
+    console.log('Nav Select Slide Down')
+  }
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU HOME', key, firstPress, state)
-  if (key === 'x') {
-    console.log('press MAIN MENU HOME EXIT')
-    await slideOutMainMenu()
-    resolveMenuPromise()
-  } else if (key === 'o') {
-    console.log('press MAIN MENU HOME SELECT')
+  if (state === 'home') {
+    if (key === KEY.X) {
+      console.log('press MAIN MENU HOME EXIT')
+      movePointer(POINTERS.pointer1, 0, 0, true)
+      await slideOutMainMenu()
+      resolveMenuPromise()
+    } else if (key === KEY.O) {
+      console.log('press MAIN MENU HOME SELECT')
+      navSelect()
+    } else if (key === KEY.UP) {
+      console.log('press MAIN MENU HOME UP')
+      navNavigation(true)
+    } else if (key === KEY.DOWN) {
+      console.log('press MAIN MENU HOME DOWN')
+      navNavigation(false)
+    }
+  }
+  if (state === 'home-order-from') {
+    if (key === KEY.X) {
+      navSelectOrderFromCancel()
+    } else if (key === KEY.O) {
+      navSelectOrderFromConfirm()
+    } else if (key === KEY.UP) {
+      navSelectOrderFromNavigation(true)
+    } else if (key === KEY.DOWN) {
+      navSelectOrderFromNavigation(false)
+    }
+  }
+  if (state === 'home-order-to') {
+    if (key === KEY.X) {
+      navSelectOrderFromLoad()
+    } else if (key === KEY.O) {
+      navSelectOrderToConfirm()
+    } else if (key === KEY.UP) {
+      navSelectOrderToNavigation(true)
+    } else if (key === KEY.DOWN) {
+      navSelectOrderToNavigation(false)
+    }
   }
 }
 export { loadHomeMenu, keyPress, updateHomeMenuTime }

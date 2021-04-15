@@ -8,20 +8,6 @@ import {
 } from '../loading/loading-module.js'
 import { bindAnimationCompletion } from '../field/field-animations.js'
 
-const BUTTON_IMAGES = [
-  { text: 'CANCEL', char: '✕', key: 'button cross' },
-  { text: 'SWITCH', char: '☐', key: 'button square' },
-  { text: 'MENU', char: '△', key: 'button triangle' },
-  { text: 'OK', char: '〇', key: 'button circle' },
-
-  { text: 'PAGEDOWN', char: '┐', key: 'button l1' }, // l1
-  { text: 'END', char: '╗', key: 'button l2' }, // ??? // l2
-  { text: 'PAGEUP', char: '┌', key: 'button r1' }, // r1
-  { text: 'HOME', char: '╔', key: 'button r2' }, // ??? / r2
-
-  { text: 'SELECT', char: '▅', key: 'button select' }, // ???
-  { text: 'START', char: '▶', key: 'button start' }
-]
 let chapters
 const getFieldList = async () => {
   if (chapters === undefined) {
@@ -209,25 +195,6 @@ const getDialogTextures = () => {
     r: textures.borders['border r'].texture
   }
 }
-const getDialogButton = char => {
-  for (let i = 0; i < BUTTON_IMAGES.length; i++) {
-    const buttonImage = BUTTON_IMAGES[i]
-    if (buttonImage.char === char) {
-      return getWindowTextures()['buttons'][buttonImage.key]
-    }
-  }
-  return null
-}
-const getKernelTextLargeLetter = (letter, color) => {
-  const textureLetters = getWindowTextures()['battle-menu-text-large']
-  for (const key in textureLetters) {
-    const textureLetter = textureLetters[key]
-    if (textureLetter.char === letter && textureLetter.color === color) {
-      return textureLetter
-    }
-  }
-  return getDialogButton(letter)
-}
 
 const getPointRight = () => {
   return getWindowTextures()['battle-menu']['point - right']
@@ -250,7 +217,6 @@ export {
   getAnimatedArrowPositionHelperTextures,
   getCursorPositionHelperTexture,
   getDialogTextures,
-  getKernelTextLargeLetter,
   getPointRight,
   getFieldDialogNumber,
   getFieldMapList
