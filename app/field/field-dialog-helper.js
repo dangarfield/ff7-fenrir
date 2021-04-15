@@ -789,7 +789,7 @@ const showWindowWithDialog = async (
   }
 
   // Configure text
-  text = text.replace(/\t/g, '     ')
+  text = text.replace(/\t/g, '   ')
   text = replaceCharacterNames(text)
   text = replaceButtonImages(text)
   text = replaceVariables(text, dialog.id)
@@ -909,7 +909,7 @@ const showWindowWithDialog = async (
           // console.log('letter', letter, mesh.material)
           mesh.userData.isText = true
           mesh.position.set(posX, posY, dialogBox.userData.z)
-          offsetX = offsetX + textureLetter.w * scale
+          offsetX = offsetX + 0.5 + textureLetter.w * scale
           letters.push(mesh)
         } else {
           console.log('no char found', letter)
