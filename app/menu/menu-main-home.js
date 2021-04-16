@@ -29,6 +29,9 @@ let homeNav, homeTime, homeLocation, homeMain, char1Group, char2Group, char3Grou
 const navOptions = [
   'Item', 'Magic', 'Summon', 'Equip', 'Status', 'Order', 'Limit', 'Config', 'PHS', 'Save', 'Quit'
 ]
+const navOptionsMembersRequired = [
+  'Magic', 'Summon', 'Equip', 'Status', 'Limit'
+]
 const nav = {
   current: 0,
   options: []
@@ -60,7 +63,7 @@ const loadHomeMenu = async () => {
     })
   }
   nav.current = 0
-  window.nav = nav
+  window.homeNav = homeNav
 
   homeTime = await createDialogBox({
     id: 2,
@@ -244,7 +247,15 @@ const navNavigation = (up) => {
   }
   movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY)
 }
-const SELECT_PARTY_MEMBER_POSITIONS = { x: 10, y: [53, 113, 173], from: 0, to: 0, adjust: { x: 3, y: 7 } }
+const SELECT_PARTY_MEMBER_POSITIONS = {
+  x: 10,
+  y: [53, 113, 173],
+  from: 0,
+  to: 0,
+  adjust: { x: 3, y: 7 },
+  type: '',
+  member: 0
+}
 
 const navSelectOrderFromLoad = () => {
   console.log('navSelectOrderFromLoad')
@@ -326,14 +337,64 @@ const navSelectOrderToConfirm = () => {
   navSelectOrderFromLoad()
 }
 
+const navSelectMember = () => {
+  console.log('navSelectMember')
+  setMenuState('home-nav-select')
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false, true)
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member])
+}
+const navSelectNavigation = (up) => {
+  console.log('navSelectNavigation')
+  console.log('navSelectOrderToNavigation')
+  if (up) {
+    if (SELECT_PARTY_MEMBER_POSITIONS.member - 1 < 0) {
+      SELECT_PARTY_MEMBER_POSITIONS.member = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.member--
+    }
+  } else {
+    if (SELECT_PARTY_MEMBER_POSITIONS.member + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+      SELECT_PARTY_MEMBER_POSITIONS.member = 0
+    } else {
+      SELECT_PARTY_MEMBER_POSITIONS.member++
+    }
+  }
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member])
+}
+const navSelectCancel = () => {
+  console.log('navSelectCancel')
+  setMenuState('home')
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
+  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
+}
+const navSelectConfirm = () => {
+  console.log('navSelectConfirm', SELECT_PARTY_MEMBER_POSITIONS)
+  if (window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.member] === 'None') {
+    // Not possile, play sound
+    navSelectMember()
+  } else {
+    movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
+    movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
+    navSlideDown(SELECT_PARTY_MEMBER_POSITIONS.type, SELECT_PARTY_MEMBER_POSITIONS.member)
+  }
+}
 
+const navSlideDown = (type, member) => {
+  setMenuState('home') // temp, should be 'loading'
+  console.log('Nav Select Slide Down', 'loading', type, member)
+}
 const navSelect = () => {
   const selectedNav = nav.options[nav.current]
   console.log('Nav Select', selectedNav)
   if (selectedNav.type === 'Order') {
     navSelectOrderFromLoad()
+  } if (navOptionsMembersRequired.includes(selectedNav.type)) {
+    console.log('Nav Select member required')
+    SELECT_PARTY_MEMBER_POSITIONS.type = selectedNav.type
+    navSelectMember()
   } else {
     console.log('Nav Select Slide Down')
+    navSlideDown(selectedNav.type)
   }
 }
 const keyPress = async (key, firstPress, state) => {
@@ -375,6 +436,17 @@ const keyPress = async (key, firstPress, state) => {
       navSelectOrderToNavigation(true)
     } else if (key === KEY.DOWN) {
       navSelectOrderToNavigation(false)
+    }
+  }
+  if (state === 'home-nav-select') {
+    if (key === KEY.X) {
+      navSelectCancel()
+    } else if (key === KEY.O) {
+      navSelectConfirm()
+    } else if (key === KEY.UP) {
+      navSelectNavigation(true)
+    } else if (key === KEY.DOWN) {
+      navSelectNavigation(false)
     }
   }
 }

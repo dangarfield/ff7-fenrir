@@ -10,6 +10,7 @@ window.console = (function (origConsole) {
       'menu',
       'pointer',
       'navSelect',
+      'Nav Select',
       'press MAIN MENU HOME'
     ],
     log: function () {
