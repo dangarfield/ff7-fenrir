@@ -802,13 +802,14 @@ const createPointer = async () => {
 const movePointer = (pointer, x, y, hide, flash) => {
   pointer.position.x = x
   pointer.position.y = window.config.sizing.height - y
+  console.log('movePointer', pointer, x, y, hide, flash)
   if (flash && pointer.userData.interval === undefined) {
     pointer.userData.interval = setInterval(() => {
       pointer.visible = !pointer.visible
     }, 20)
-  } else {
+  } else if (!flash) {
     clearInterval(pointer.userData.interval)
-    pointer.userData.interval = undefined
+    delete pointer.userData.interval
     pointer.visible = true
   }
   if (hide) {

@@ -265,7 +265,7 @@ const navSelectOrderFromLoad = () => {
   movePointer(POINTERS.pointer3, 0, 0, true)
 }
 const navSelectOrderFromNavigation = (up) => {
-  console.log('navSelectOrderFromNavigation')
+  console.log('navSelectOrderFromNavigation', up)
   if (up) {
     if (SELECT_PARTY_MEMBER_POSITIONS.from - 1 < 0) {
       SELECT_PARTY_MEMBER_POSITIONS.from = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
@@ -388,7 +388,7 @@ const navSelect = () => {
   console.log('Nav Select', selectedNav)
   if (selectedNav.type === 'Order') {
     navSelectOrderFromLoad()
-  } if (navOptionsMembersRequired.includes(selectedNav.type)) {
+  } else if (navOptionsMembersRequired.includes(selectedNav.type)) {
     console.log('Nav Select member required')
     SELECT_PARTY_MEMBER_POSITIONS.type = selectedNav.type
     navSelectMember()
