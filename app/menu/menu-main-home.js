@@ -14,18 +14,22 @@ import {
   addShapeToDialog,
   POINTERS,
   initPointers,
-  movePointer
+  movePointer,
+  shrinkDialog,
+  createFadeOverlay,
+  fadeOverlayIn,
+  fadeOverlayOut
 } from './menu-box-helper.js'
 import {
   getMenuState,
   setMenuState,
   resolveMenuPromise
 } from './menu-module.js'
+import { loadItemsMenu } from './menu-main-items.js'
 import { getCurrentGameTime } from '../data/savemap-alias.js'
-import { sleep } from '../helpers/helpers.js'
 import { KEY } from '../interaction/inputs.js'
 
-let homeNav, homeTime, homeLocation, homeMain, char1Group, char2Group, char3Group
+let homeNav, homeTime, homeLocation, homeMain, homeBlackOverlay, char1Group, char2Group, char3Group
 const navOptions = [
   'Item', 'Magic', 'Summon', 'Equip', 'Status', 'Order', 'Limit', 'Config', 'PHS', 'Save', 'Quit'
 ]
@@ -36,6 +40,8 @@ const nav = {
   current: 0,
   options: []
 }
+const getHomeBlackOverlay = () => { return homeBlackOverlay }
+
 const loadHomeMenu = async () => {
   homeNav = await createDialogBox({
     id: 1,
@@ -49,6 +55,27 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
+  const homeNav2 = await createDialogBox({
+    id: 0.5,
+    name: 'homeNav2',
+    w: 82,
+    h: 25.5,
+    x: 320 - 82,
+    y: 0,
+    expandInstantly: true,
+    noClipping: true
+  })
+  for (let i = 0; i < 8; i++) {
+    homeNav.userData.posAdjustList[i].userData.posShrink = homeNav2.userData.posAdjustList[i].userData.posExpand
+  }
+  for (let i = 0; i < 4; i++) {
+    homeNav.userData.sizeAdjustList[i].userData.sizeShrink = homeNav2.userData.sizeAdjustList[i].userData.sizeExpand
+  }
+  homeNav.userData.bg.userData.posShrink = homeNav2.userData.bg.userData.posExpand
+  homeNav.userData.bg.userData.sizeShrink = homeNav2.userData.bg.userData.sizeExpand
+
+  // homeNav2.visible = true
+  window.homeNav2 = homeNav2
 
   const x = 246
   const y = 12
@@ -65,8 +92,12 @@ const loadHomeMenu = async () => {
   nav.current = 0
   window.homeNav = homeNav
 
+  homeBlackOverlay = createFadeOverlay()
+  homeBlackOverlay.material.opacity = 0
+  window.homeBlackOverlay = homeBlackOverlay
+
   homeTime = await createDialogBox({
-    id: 2,
+    id: 3,
     name: 'homeTime',
     w: 84,
     h: 36,
@@ -90,7 +121,7 @@ const loadHomeMenu = async () => {
   await addTextToDialog(homeTime, ('' + window.data.savemap.gil).padStart(9, ' '), 'home-gil', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 252, 201, 0.5)
   updateHomeMenuTime()
   homeLocation = await createDialogBox({
-    id: 3,
+    id: 4,
     name: 'homeLocation',
     w: 157,
     h: 29,
@@ -104,7 +135,7 @@ const loadHomeMenu = async () => {
   await addTextToDialog(homeLocation, window.data.savemap.location.currentLocation, 'home-loc', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 163, 225, 0.5)
   
   homeMain = await createDialogBox({
-    id: 4,
+    id: 5,
     name: 'homeMain',
     w: 259,
     h: 211,
@@ -379,9 +410,23 @@ const navSelectConfirm = () => {
   }
 }
 
-const navSlideDown = (type, member) => {
-  setMenuState('home') // temp, should be 'loading'
+const navSlideDown = async (type, member) => {
+  setMenuState('loading') // temp, should be 'loading'
   console.log('Nav Select Slide Down', 'loading', type, member)
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, true)
+  shrinkDialog(homeNav, type)
+  await fadeOverlayIn(homeBlackOverlay)
+  homeTime.visible = false
+  homeLocation.visible = false
+  homeMain.visible = false
+  loadSecondaryMenu(type, member)
+}
+const loadSecondaryMenu = async (type, member) => {
+  console.log('loadSecondaryMenu', type, member)
+  if (type === 'Item') {
+    console.log('loadSecondaryMenu -> ITEMS LOADING')
+    loadItemsMenu()
+  }
 }
 const navSelect = () => {
   const selectedNav = nav.options[nav.current]
@@ -450,4 +495,4 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadHomeMenu, keyPress, updateHomeMenuTime }
+export { loadHomeMenu, keyPress, updateHomeMenuTime, getHomeBlackOverlay }

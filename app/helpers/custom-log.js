@@ -12,7 +12,10 @@ window.console = (function (origConsole) {
       'navSelect',
       'Nav Select',
       'press MAIN MENU HOME',
-      'movePointer'
+      'movePointer',
+      'shrink dialog',
+      'loadSecondaryMenu',
+      'exitMenu'
     ],
     log: function () {
       if (limit) {

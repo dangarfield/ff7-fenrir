@@ -65,6 +65,7 @@ const setMenuState = newState => {
 const getMenuState = () => {
   return menuState
 }
+window.menuState = menuState
 const doesMenuRequireTransitionOut = menuCode => {
   return MENUS_WITH_FADE.includes(menuCode)
 }

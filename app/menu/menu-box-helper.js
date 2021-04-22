@@ -6,6 +6,7 @@ import { getConfigWindowColours } from '../data/savemap-config.js'
 import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
+import { sleep } from '../helpers/helpers.js'
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
 const BUTTON_IMAGES = [
@@ -80,6 +81,45 @@ const WINDOW_COLORS_SUMMARY = {
   LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
   LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
   LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue)
+}
+const createFadeOverlay = () => {
+  const fade = new THREE.Mesh(
+    new THREE.PlaneBufferGeometry(320, 240),
+    new THREE.MeshBasicMaterial({ color: 0x000000 })
+  )
+  fade.position.set(320 / 2, 240 / 2, 100 - 2)
+  fade.material.transparent = true
+  fade.visible = true
+  scene.add(fade)
+  return fade
+}
+const fadeOverlayIn = async fade => {
+  return new Promise(resolve => {
+    const from = { opacity: 0 }
+    const to = { opacity: 1 }
+    fadeOverlay(fade, from, to, resolve)
+  })
+}
+const fadeOverlayOut = async fade => {
+  return new Promise(resolve => {
+    const from = { opacity: 1 }
+    const to = { opacity: 0 }
+    fadeOverlay(fade, from, to, resolve)
+  })
+}
+const fadeOverlay = async (fade, from, to, resolve) => {
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 300)
+    // .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate(function () {
+      console.log('fadeOverlay: UPDATE', fade, from)
+      fade.material.opacity = from.opacity
+    })
+    .onComplete(function () {
+      console.log('fadeOverlay: END', fade, from)
+      resolve()
+    })
+    .start()
 }
 const createDialogBox = async dialog => {
   const id = dialog.id
@@ -490,7 +530,7 @@ const addTextToDialog = async (
   const textGroup = new THREE.Group()
   textGroup.userData = {
     id: id,
-    text: text,
+    type: text,
     x: x,
     y: y
   }
@@ -862,6 +902,102 @@ const addShapeToDialog = async (
   bg.userData = { id: id }
   dialogBox.add(bg)
 }
+
+const adjustDialogShrinkPos = (mesh, step, stepTotal, z, from, to) => {
+  mesh.position.set(
+    mesh.userData[from].x -
+      ((mesh.userData[from].x - mesh.userData[to].x) / stepTotal) * step,
+    mesh.userData[from].y -
+      ((mesh.userData[from].y - mesh.userData[to].y) / stepTotal) * step,
+    z
+  )
+}
+const adjustDialogShrinkSize = (mesh, step, stepTotal, from, to) => {
+  mesh.geometry = new THREE.PlaneBufferGeometry(
+    mesh.userData[from].w -
+      ((mesh.userData[from].w - mesh.userData[to].w) / stepTotal) * step,
+    mesh.userData[from].h -
+      ((mesh.userData[from].h - mesh.userData[to].h) / stepTotal) * step
+  )
+  mesh.geometry.setAttribute(
+    'color',
+    new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
+  )
+  const windowColours = getConfigWindowColours()
+  for (let i = 0; i < windowColours.length; i++) {
+    const color = new THREE.Color(windowColours[i])
+    mesh.geometry.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
+  }
+}
+
+const shrinkDialog = async (dialogBox, type) => {
+  const from = { step: 1 }
+  const to = { step: 1000 }
+
+  let textGroup
+  for (let i = 0; i < dialogBox.children.length; i++) {
+    const child = dialogBox.children[i]
+    if (child.type === 'Group') {
+      if (child.userData.type === type) {
+        textGroup = child
+        child.visible = true
+      } else {
+        child.visible = false
+      }
+    }
+  }
+
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 250)
+    // .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate(function () {
+      console.log('shrink dialog: UPDATE', dialogBox, from, to, textGroup)
+      // Text
+      textGroup.position.y =
+        0 - ((0 - (textGroup.userData.y - 12)) / to.step) * from.step
+
+      // Dialog edges and bg
+      dialogBox.userData.posAdjustList.map(mesh =>
+        adjustDialogShrinkPos(
+          mesh,
+          from.step,
+          to.step,
+          dialogBox.userData.z,
+          'posExpand',
+          'posShrink'
+        )
+      )
+      adjustDialogShrinkPos(
+        dialogBox.userData.bg,
+        from.step,
+        to.step,
+        dialogBox.userData.z,
+        'posExpand',
+        'posShrink'
+      )
+      dialogBox.userData.sizeAdjustList.map(mesh =>
+        adjustDialogShrinkSize(
+          mesh,
+          from.step,
+          to.step,
+          'sizeExpand',
+          'sizeShrink'
+        )
+      )
+      adjustDialogShrinkSize(
+        dialogBox.userData.bg,
+        from.step,
+        to.step,
+        'sizeExpand',
+        'sizeShrink'
+      )
+    })
+    .onComplete(function () {
+      console.log('shrink dialog: END', dialogBox, from.step, to.step)
+    })
+    .start()
+}
+const expandDialog = async dialogBox => {}
 export {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -877,5 +1013,10 @@ export {
   getDialogTextures,
   POINTERS,
   initPointers,
-  movePointer
+  movePointer,
+  shrinkDialog,
+  expandDialog,
+  createFadeOverlay,
+  fadeOverlayIn,
+  fadeOverlayOut
 }
