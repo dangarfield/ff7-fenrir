@@ -5,7 +5,7 @@ import { loadCreditsMenu } from './menu-credits.js'
 import { loadCharNameMenu } from './menu-char-name.js'
 import { loadPartySelectMenu } from './menu-party-select.js'
 import { loadShopMenu } from './menu-shop.js'
-import { loadMainMenu } from './menu-main.js'
+import { loadHomeMenu } from './menu-main-home.js'
 import { loadSaveMenu } from './menu-save.js'
 import { loadTitleMenu } from './menu-title.js'
 import { loadGameOverMenu } from './menu-game-over.js'
@@ -111,7 +111,7 @@ const loadMenuWithWait = (menuCode, param) => {
         loadShopMenu(param)
         break
       case MENU_TYPE.MainMenu:
-        loadMainMenu()
+        loadHomeMenu()
         break
       case MENU_TYPE.SaveScreen:
         loadSaveMenu()

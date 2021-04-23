@@ -12,12 +12,12 @@ import {
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
-let itemActions, itemDesc, itemParty, itemList
+let saveActions, itemDesc, itemParty, itemList
 
-const loadItemsMenu = async () => {
-  itemActions = await createDialogBox({
+const loadSaveMenu = async () => {
+  saveActions = await createDialogBox({
     id: 3,
-    name: 'itemActions',
+    name: 'saveActions',
     w: 157,
     h: 29,
     x: 320 - 157,
@@ -28,8 +28,8 @@ const loadItemsMenu = async () => {
     noClipping: true
   })
   await addTextToDialog(
-    itemActions,
-    'Items actions - tbc',
+    saveActions,
+    'Save actions - tbc',
     'home-loc',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -37,11 +37,11 @@ const loadItemsMenu = async () => {
     225,
     0.5
   )
-  itemActions.visible = true
-  window.itemActions = itemActions
+  saveActions.visible = true
+  window.saveActions = saveActions
   await fadeOverlayOut(getHomeBlackOverlay())
 
-  setMenuState('items')
+  setMenuState('save')
 
   movePointer(POINTERS.pointer1, 237, 17)
 }
@@ -49,17 +49,17 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   await fadeOverlayIn(getHomeBlackOverlay())
-  itemActions.visible = false
+  saveActions.visible = false
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {
-  console.log('press MAIN MENU ITEMS', key, firstPress, state)
-  if (state === 'items') {
+  console.log('press MAIN MENU SAVE', key, firstPress, state)
+  if (state === 'save') {
     if (key === KEY.X) {
-      console.log('press MAIN MENU ITEMS EXIT')
+      console.log('press MAIN MENU SAVE EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
     }
   }
 }
-export { loadItemsMenu, keyPress }
+export { loadSaveMenu, keyPress }

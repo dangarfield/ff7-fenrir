@@ -16,6 +16,7 @@ import {
   initPointers,
   movePointer,
   shrinkDialog,
+  expandDialog,
   createFadeOverlay,
   fadeOverlayIn,
   fadeOverlayOut
@@ -26,6 +27,15 @@ import {
   resolveMenuPromise
 } from './menu-module.js'
 import { loadItemsMenu } from './menu-main-items.js'
+import { loadMagicMenu } from './menu-main-magic.js'
+import { loadSummonMenu } from './menu-main-summon.js'
+import { loadEquipMenu } from './menu-main-equip.js'
+import { loadStatusMenu } from './menu-main-status.js'
+import { loadLimitMenu } from './menu-main-limit.js'
+import { loadConfigMenu } from './menu-main-config.js'
+import { loadPHSMenu } from './menu-main-phs.js'
+import { loadSaveMenu } from './menu-main-save.js'
+
 import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
@@ -421,11 +431,39 @@ const navSlideDown = async (type, member) => {
   homeMain.visible = false
   loadSecondaryMenu(type, member)
 }
+const navSlideUp = async (type) => {
+  await expandDialog(homeNav, type)
+  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY)
+  setMenuState('home')
+}
+const fadeInHomeMenu = async () => {
+  homeTime.visible = true
+  homeLocation.visible = true
+  homeMain.visible = true
+  fadeOverlayOut(homeBlackOverlay)
+  const selectedNav = nav.options[nav.current]
+  navSlideUp(selectedNav.type)
+}
 const loadSecondaryMenu = async (type, member) => {
   console.log('loadSecondaryMenu', type, member)
   if (type === 'Item') {
-    console.log('loadSecondaryMenu -> ITEMS LOADING')
     loadItemsMenu()
+  } else if (type === 'Magic') {
+    loadMagicMenu(member)
+  } else if (type === 'Summon') {
+    loadSummonMenu(member)
+  } else if (type === 'Equip') {
+    loadEquipMenu(member)
+  } else if (type === 'Status') {
+    loadStatusMenu(member)
+  } else if (type === 'Limit') {
+    loadLimitMenu(member)
+  } else if (type === 'Config') {
+    loadConfigMenu()
+  } else if (type === 'PHS') {
+    loadPHSMenu()
+  } else if (type === 'Save') {
+    loadSaveMenu()
   }
 }
 const navSelect = () => {
@@ -433,6 +471,8 @@ const navSelect = () => {
   console.log('Nav Select', selectedNav)
   if (selectedNav.type === 'Order') {
     navSelectOrderFromLoad()
+  } else if (selectedNav.type === 'Quit') {
+    console.log('Nav Select - QUIT - Not implemented')
   } else if (navOptionsMembersRequired.includes(selectedNav.type)) {
     console.log('Nav Select member required')
     SELECT_PARTY_MEMBER_POSITIONS.type = selectedNav.type
@@ -495,4 +535,4 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadHomeMenu, keyPress, updateHomeMenuTime, getHomeBlackOverlay }
+export { loadHomeMenu, keyPress, updateHomeMenuTime, getHomeBlackOverlay, fadeInHomeMenu }

@@ -997,7 +997,82 @@ const shrinkDialog = async (dialogBox, type) => {
     })
     .start()
 }
-const expandDialog = async dialogBox => {}
+const expandDialog = async (dialogBox, type) => {
+  return new Promise(resolve => {
+    const from = { step: 1 }
+    const to = { step: 1000 }
+
+    let textGroup
+    for (let i = 0; i < dialogBox.children.length; i++) {
+      const child = dialogBox.children[i]
+      if (child.type === 'Group') {
+        if (child.userData.type === type) {
+          textGroup = child
+          child.visible = true
+        } else {
+          child.visible = false
+        }
+      }
+    }
+
+    new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, 250)
+      // .easing(TWEEN.Easing.Quadratic.Out)
+      .onUpdate(function () {
+        console.log('shrink dialog: UPDATE', dialogBox, from, to, textGroup)
+        // Text
+        textGroup.position.y =
+          textGroup.userData.y -
+          12 -
+          ((textGroup.userData.y - 12 - 0) / to.step) * from.step
+
+        // Dialog edges and bg
+        dialogBox.userData.posAdjustList.map(mesh =>
+          adjustDialogShrinkPos(
+            mesh,
+            from.step,
+            to.step,
+            dialogBox.userData.z,
+            'posShrink',
+            'posExpand'
+          )
+        )
+        adjustDialogShrinkPos(
+          dialogBox.userData.bg,
+          from.step,
+          to.step,
+          dialogBox.userData.z,
+          'posShrink',
+          'posExpand'
+        )
+        dialogBox.userData.sizeAdjustList.map(mesh =>
+          adjustDialogShrinkSize(
+            mesh,
+            from.step,
+            to.step,
+            'sizeShrink',
+            'sizeExpand'
+          )
+        )
+        adjustDialogShrinkSize(
+          dialogBox.userData.bg,
+          from.step,
+          to.step,
+          'sizeShrink',
+          'sizeExpand'
+        )
+      })
+      .onComplete(function () {
+        console.log('shrink dialog: END', dialogBox, from.step, to.step)
+        for (let i = 0; i < dialogBox.children.length; i++) {
+          const child = dialogBox.children[i]
+          child.visible = true
+        }
+        resolve()
+      })
+      .start()
+  })
+}
 export {
   LETTER_TYPES,
   LETTER_COLORS,

@@ -1,7 +1,15 @@
 import { KEY, getKeyPressEmitter } from '../interaction/inputs.js'
 import { getMenuState } from './menu-module.js'
-import { keyPress as keyPressMain } from './menu-main.js'
+import { keyPress as keyPressMain } from './menu-main-home.js'
 import { keyPress as keyPressItems } from './menu-main-items.js'
+import { keyPress as keyPressMagic } from './menu-main-magic.js'
+import { keyPress as keyPressSummon } from './menu-main-summon.js'
+import { keyPress as keyPressEquip } from './menu-main-equip.js'
+import { keyPress as keyPressStatus } from './menu-main-status.js'
+import { keyPress as keyPressLimit } from './menu-main-limit.js'
+import { keyPress as keyPressConfig } from './menu-main-config.js'
+import { keyPress as keyPressPHS } from './menu-main-phs.js'
+import { keyPress as keyPressSave } from './menu-main-save.js'
 
 const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
@@ -9,85 +17,76 @@ const areMenuControlsActive = () => {
 
 // Not sure if these can be generalised or have to be added to individual menu / page types
 
+const sendKeyPressToMenu = (key, firstPress, state) => {
+  if (state.startsWith('home')) {
+    keyPressMain(key, firstPress, state)
+  } else if (state.startsWith('items')) {
+    keyPressItems(key, firstPress, state)
+  } else if (state.startsWith('magic')) {
+    keyPressMagic(key, firstPress, state)
+  } else if (state.startsWith('summon')) {
+    keyPressSummon(key, firstPress, state)
+  } else if (state.startsWith('equip')) {
+    keyPressEquip(key, firstPress, state)
+  } else if (state.startsWith('status')) {
+    keyPressStatus(key, firstPress, state)
+  } else if (state.startsWith('limit')) {
+    keyPressLimit(key, firstPress, state)
+  } else if (state.startsWith('config')) {
+    keyPressConfig(key, firstPress, state)
+  } else if (state.startsWith('phs')) {
+    keyPressPHS(key, firstPress, state)
+  } else if (state.startsWith('save')) {
+    keyPressSave(key, firstPress, state)
+  } else if (state.startsWith('quit')) {
+    // keyPressItems(key, firstPress, state)
+    // Nothing...
+  }
+}
 const initMenuKeypressActions = () => {
   getKeyPressEmitter().on(KEY.O, firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.O, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.O, firstPress)
-      }
+      sendKeyPressToMenu(KEY.O, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.X, async firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.X, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.X, firstPress)
-      }
+      sendKeyPressToMenu(KEY.X, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.SQUARE, firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.SQUARE, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.SQUARE, firstPress)
-      }
+      sendKeyPressToMenu(KEY.SQUARE, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.TRIANGLE, async firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.TRIANGLE, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.TRIANGLE, firstPress)
-      }
+      sendKeyPressToMenu(KEY.TRIANGLE, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.UP, firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.UP, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.UP, firstPress)
-      }
+      sendKeyPressToMenu(KEY.UP, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.DOWN, async firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.DOWN, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.DOWN, firstPress)
-      }
+      sendKeyPressToMenu(KEY.DOWN, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.LEFT, firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.LEFT, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.LEFT, firstPress)
-      }
+      sendKeyPressToMenu(KEY.LEFT, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.RIGHT, async firstPress => {
     if (areMenuControlsActive()) {
-      if (getMenuState().startsWith('home')) {
-        keyPressMain(KEY.RIGHT, firstPress)
-      }
-      if (getMenuState().startsWith('items')) {
-        keyPressItems(KEY.RIGHT, firstPress)
-      }
+      sendKeyPressToMenu(KEY.RIGHT, firstPress, getMenuState())
+    }
+  })
+  getKeyPressEmitter().on(KEY.RIGHT, async firstPress => {
+    if (areMenuControlsActive()) {
+      sendKeyPressToMenu(KEY.RIGHT, firstPress, getMenuState())
     }
   })
 }

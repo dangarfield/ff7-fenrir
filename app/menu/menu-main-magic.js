@@ -12,10 +12,10 @@ import {
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
-let itemActions, itemDesc, itemParty, itemList
+let magicActions, itemDesc, itemParty, itemList
 
-const loadItemsMenu = async () => {
-  itemActions = await createDialogBox({
+const loadMagicMenu = async partyMember => {
+  magicActions = await createDialogBox({
     id: 3,
     name: 'itemActions',
     w: 157,
@@ -28,8 +28,8 @@ const loadItemsMenu = async () => {
     noClipping: true
   })
   await addTextToDialog(
-    itemActions,
-    'Items actions - tbc',
+    magicActions,
+    `Magic menu - ${partyMember}`,
     'home-loc',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -37,11 +37,11 @@ const loadItemsMenu = async () => {
     225,
     0.5
   )
-  itemActions.visible = true
-  window.itemActions = itemActions
+  magicActions.visible = true
+  window.itemActions = magicActions
   await fadeOverlayOut(getHomeBlackOverlay())
 
-  setMenuState('items')
+  setMenuState('magic')
 
   movePointer(POINTERS.pointer1, 237, 17)
 }
@@ -49,17 +49,17 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   await fadeOverlayIn(getHomeBlackOverlay())
-  itemActions.visible = false
+  magicActions.visible = false
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {
-  console.log('press MAIN MENU ITEMS', key, firstPress, state)
-  if (state === 'items') {
+  console.log('press MAIN MENU MAGIC', key, firstPress, state)
+  if (state === 'magic') {
     if (key === KEY.X) {
-      console.log('press MAIN MENU ITEMS EXIT')
+      console.log('press MAIN MENU MAGIC EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
     }
   }
 }
-export { loadItemsMenu, keyPress }
+export { loadMagicMenu, keyPress }
