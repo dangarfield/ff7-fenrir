@@ -170,7 +170,7 @@ const loadTutorial = tutorialId => {
   console.log('loadMenuTutorial', tutorialId)
   clearScene()
   initMenuRenderLoop()
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     MENU_PROMISE = resolve
     loadMainMenuWithTutorial(tutorialId)
   })
@@ -186,6 +186,38 @@ const initMenuModule = () => {
     scene: scene
   }
 }
+const setPartyDebugDataForDebug = () => {
+  // Party
+  window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
+
+  // Status
+  window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
+  window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
+
+  // Items
+  for (let i = 0; i < 320; i++) {
+    if (i < window.data.kernel.itemData.length) {
+      window.data.savemap.items[i] = {
+        index: i,
+        itemId: i,
+        quantity: 127,
+        name: window.data.kernel.itemData[i].name,
+        description: window.data.kernel.itemData[i].description
+      }
+    } else {
+      window.data.savemap.items[i] = {
+        index: 127,
+        itemId: 127,
+        quantity: 127,
+        name: '',
+        description: ''
+      }
+    }
+  }
+
+  // Equipment - tbc
+}
+window.setPartyDebugDataForDebug = setPartyDebugDataForDebug
 export {
   initMenuModule,
   loadMenuWithWait,

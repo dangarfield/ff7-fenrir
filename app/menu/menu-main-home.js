@@ -39,20 +39,44 @@ import { loadSaveMenu } from './menu-main-save.js'
 import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
-let homeNav, homeTime, homeLocation, homeMain, homeBlackOverlay, char1Group, char2Group, char3Group
+let homeNav,
+  homeTime,
+  homeLocation,
+  homeMain,
+  homeBlackOverlay,
+  char1Group,
+  char2Group,
+  char3Group
 const navOptions = [
-  'Item', 'Magic', 'Summon', 'Equip', 'Status', 'Order', 'Limit', 'Config', 'PHS', 'Save', 'Quit'
+  'Item',
+  'Magic',
+  'Summon',
+  'Equip',
+  'Status',
+  'Order',
+  'Limit',
+  'Config',
+  'PHS',
+  'Save',
+  'Quit'
 ]
 const navOptionsMembersRequired = [
-  'Magic', 'Summon', 'Equip', 'Status', 'Limit'
+  'Magic',
+  'Summon',
+  'Equip',
+  'Status',
+  'Limit'
 ]
 const nav = {
   current: 0,
   options: []
 }
-const getHomeBlackOverlay = () => { return homeBlackOverlay }
+const getHomeBlackOverlay = () => {
+  return homeBlackOverlay
+}
 
 const loadHomeMenu = async () => {
+  window.setPartyDebugDataForDebug() // Temp
   homeNav = await createDialogBox({
     id: 1,
     name: 'homeNav',
@@ -76,13 +100,17 @@ const loadHomeMenu = async () => {
     noClipping: true
   })
   for (let i = 0; i < 8; i++) {
-    homeNav.userData.posAdjustList[i].userData.posShrink = homeNav2.userData.posAdjustList[i].userData.posExpand
+    homeNav.userData.posAdjustList[i].userData.posShrink =
+      homeNav2.userData.posAdjustList[i].userData.posExpand
   }
   for (let i = 0; i < 4; i++) {
-    homeNav.userData.sizeAdjustList[i].userData.sizeShrink = homeNav2.userData.sizeAdjustList[i].userData.sizeExpand
+    homeNav.userData.sizeAdjustList[i].userData.sizeShrink =
+      homeNav2.userData.sizeAdjustList[i].userData.sizeExpand
   }
-  homeNav.userData.bg.userData.posShrink = homeNav2.userData.bg.userData.posExpand
-  homeNav.userData.bg.userData.sizeShrink = homeNav2.userData.bg.userData.sizeExpand
+  homeNav.userData.bg.userData.posShrink =
+    homeNav2.userData.bg.userData.posExpand
+  homeNav.userData.bg.userData.sizeShrink =
+    homeNav2.userData.bg.userData.sizeExpand
 
   // homeNav2.visible = true
   window.homeNav2 = homeNav2
@@ -92,10 +120,19 @@ const loadHomeMenu = async () => {
   const d = 13
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
-    await addTextToDialog(homeNav, navOption, `nav-${navOption.toLowerCase()}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x, y + d * i, 0.5)
+    await addTextToDialog(
+      homeNav,
+      navOption,
+      `nav-${navOption.toLowerCase()}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x,
+      y + d * i,
+      0.5
+    )
     nav.options.push({
       pointerX: 237,
-      pointerY: 17 + (13 * i),
+      pointerY: 17 + 13 * i,
       type: navOption
     })
   }
@@ -118,17 +155,89 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  await addTextToDialog(homeTime, 'Time', 'home-label-time', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 232, 186, 0.5)
-  await addTextToDialog(homeTime, 'Gil', 'home-label-gil', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 233, 201, 0.5)
-  
+  await addTextToDialog(
+    homeTime,
+    'Time',
+    'home-label-time',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    232,
+    186,
+    0.5
+  )
+  await addTextToDialog(
+    homeTime,
+    'Gil',
+    'home-label-gil',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    233,
+    201,
+    0.5
+  )
+
   const gameTime = getCurrentGameTime()
-  await addTextToDialog(homeTime, ('' + gameTime.h).padStart(2, '0'), 'home-time-hrs', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 264, 186, 0.5)
-  await addTextToDialog(homeTime, ('' + gameTime.m).padStart(2, '0'), 'home-time-mins', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 279, 186, 0.5)
-  await addTextToDialog(homeTime, ('' + gameTime.s).padStart(2, '0'), 'home-time-secs', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 294, 186, 0.5)
-  await addTextToDialog(homeTime, ':', 'home-time-colon-1', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White, 273.75, 187, 0.5)
-  await addTextToDialog(homeTime, ':', 'home-time-colon-2', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White, 288.75, 187, 0.5)
-  
-  await addTextToDialog(homeTime, ('' + window.data.savemap.gil).padStart(9, ' '), 'home-gil', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 252, 201, 0.5)
+  await addTextToDialog(
+    homeTime,
+    ('' + gameTime.h).padStart(2, '0'),
+    'home-time-hrs',
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    264,
+    186,
+    0.5
+  )
+  await addTextToDialog(
+    homeTime,
+    ('' + gameTime.m).padStart(2, '0'),
+    'home-time-mins',
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    279,
+    186,
+    0.5
+  )
+  await addTextToDialog(
+    homeTime,
+    ('' + gameTime.s).padStart(2, '0'),
+    'home-time-secs',
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    294,
+    186,
+    0.5
+  )
+  await addTextToDialog(
+    homeTime,
+    ':',
+    'home-time-colon-1',
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.White,
+    273.75,
+    187,
+    0.5
+  )
+  await addTextToDialog(
+    homeTime,
+    ':',
+    'home-time-colon-2',
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.White,
+    288.75,
+    187,
+    0.5
+  )
+
+  await addTextToDialog(
+    homeTime,
+    ('' + window.data.savemap.gil).padStart(9, ' '),
+    'home-gil',
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    252,
+    201,
+    0.5
+  )
   updateHomeMenuTime()
   homeLocation = await createDialogBox({
     id: 4,
@@ -142,8 +251,17 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  await addTextToDialog(homeLocation, window.data.savemap.location.currentLocation, 'home-loc', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 163, 225, 0.5)
-  
+  await addTextToDialog(
+    homeLocation,
+    window.data.savemap.location.currentLocation,
+    'home-loc',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    163,
+    225,
+    0.5
+  )
+
   homeMain = await createDialogBox({
     id: 5,
     name: 'homeMain',
@@ -156,7 +274,7 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  
+
   char1Group = new THREE.Group()
   char1Group.userData = { id: 4, z: 100 - 4 }
   char1Group.position.y = -31
@@ -200,26 +318,128 @@ const drawHomeMain = () => {
       const expPerc = char.level.progressBar / 100
       const limitPerc = char.limit.bar / 255
 
-      addCharacterSummary(charGroup, 0, 77, 0, char.name, char.status.statusFlags === 'None' ? null : char.status.statusFlags, char.level.current, char.stats.hp.current, char.stats.hp.max, char.stats.mp.current, char.stats.mp.max)
-      addImageToDialog(charGroup, 'profiles', member, `profile-image-${i}`, char.status.battleOrder === 'Normal' ? 35.5 : 61.5, 16.5, 0.5)
-      addTextToDialog(charGroup, 'next level', `next-level-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, 10.5, 0.5)
-      addTextToDialog(charGroup, 'Limit level', `next-level-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, 154.5, 30.5, 0.5)
-      addImageToDialog(charGroup, 'bars', 'level', `level-bar-bg-${i}`, 200.5, 19.5, 0.5)
-      addImageToDialog(charGroup, 'bars', 'level', `limit-bar-bg-${i}`, 200.5, 39.5, 0.5)
-      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.EXP_1, `level-bar-${i}a`, 200, 19.5 - 2.5, 58, 3, expPerc, THREE.AdditiveBlending)
-      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.EXP_2, `level-bar-${i}b`, 200, 19.5 + 0.5, 58, 3, expPerc, THREE.AdditiveBlending)
-      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.LIMIT_1, `limit-bar-${i}a`, 200, 39.5 - 2.5, 58, 3, limitPerc, THREE.AdditiveBlending)
-      addShapeToDialog(charGroup, WINDOW_COLORS_SUMMARY.LIMIT_2, `limit-bar-${i}b`, 200, 39.5 + 0.5, 58, 3, limitPerc, THREE.AdditiveBlending)
+      addCharacterSummary(
+        charGroup,
+        0,
+        77,
+        0,
+        char.name,
+        char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+        char.level.current,
+        char.stats.hp.current,
+        char.stats.hp.max,
+        char.stats.mp.current,
+        char.stats.mp.max
+      )
+      addImageToDialog(
+        charGroup,
+        'profiles',
+        member,
+        `profile-image-${i}`,
+        char.status.battleOrder === 'Normal' ? 35.5 : 61.5,
+        16.5,
+        0.5
+      )
+      addTextToDialog(
+        charGroup,
+        'next level',
+        `next-level-${i}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        154.5,
+        10.5,
+        0.5
+      )
+      addTextToDialog(
+        charGroup,
+        'Limit level',
+        `next-level-${i}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        154.5,
+        30.5,
+        0.5
+      )
+      addImageToDialog(
+        charGroup,
+        'bars',
+        'level',
+        `level-bar-bg-${i}`,
+        200.5,
+        19.5,
+        0.5
+      )
+      addImageToDialog(
+        charGroup,
+        'bars',
+        'level',
+        `limit-bar-bg-${i}`,
+        200.5,
+        39.5,
+        0.5
+      )
+      addShapeToDialog(
+        charGroup,
+        WINDOW_COLORS_SUMMARY.EXP_1,
+        `level-bar-${i}a`,
+        200,
+        19.5 - 2.5,
+        58,
+        3,
+        expPerc,
+        THREE.AdditiveBlending
+      )
+      addShapeToDialog(
+        charGroup,
+        WINDOW_COLORS_SUMMARY.EXP_2,
+        `level-bar-${i}b`,
+        200,
+        19.5 + 0.5,
+        58,
+        3,
+        expPerc,
+        THREE.AdditiveBlending
+      )
+      addShapeToDialog(
+        charGroup,
+        WINDOW_COLORS_SUMMARY.LIMIT_1,
+        `limit-bar-${i}a`,
+        200,
+        39.5 - 2.5,
+        58,
+        3,
+        limitPerc,
+        THREE.AdditiveBlending
+      )
+      addShapeToDialog(
+        charGroup,
+        WINDOW_COLORS_SUMMARY.LIMIT_2,
+        `limit-bar-${i}b`,
+        200,
+        39.5 + 0.5,
+        58,
+        3,
+        limitPerc,
+        THREE.AdditiveBlending
+      )
     }
   }
   return charGroups
 }
 window.drawHomeMain = drawHomeMain
 
-const testColor = (i, j) => { // May be useful to find all the interpolated battle guage colours later on
-  const c = ['rgb(38,38,38)',
-    'rgb(126,38,38)', 'rgb(38,126,38)', 'rgb(38,38,126)',
-    'rgb(126,76,38)', 'rgb(126,38,76)', 'rgb(76,126,38)', 'rgb(76,38,126)']
+const testColor = (i, j) => {
+  // May be useful to find all the interpolated battle guage colours later on
+  const c = [
+    'rgb(38,38,38)',
+    'rgb(126,38,38)',
+    'rgb(38,126,38)',
+    'rgb(38,38,126)',
+    'rgb(126,76,38)',
+    'rgb(126,38,76)',
+    'rgb(76,126,38)',
+    'rgb(76,38,126)'
+  ]
   if (j === 1) {
     return ['rgb(0,0,0)', 'rgb(0,0,0)', c[i], c[i]]
   } else {
@@ -239,27 +459,67 @@ const updateHomeMenuTime = async () => {
     const s1 = sSplit[0]
     const s2 = sSplit[1]
 
-    const hrsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-hrs')[0]
+    const hrsGroup = homeTime.children.filter(
+      f => f.userData.id === 'home-time-hrs'
+    )[0]
     hrsGroup.userData.text = hSplit.join('')
-    hrsGroup.children[0].material.map = getLetterTexture(h1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
-    hrsGroup.children[1].material.map = getLetterTexture(h2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    hrsGroup.children[0].material.map = getLetterTexture(
+      h1,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
+    hrsGroup.children[1].material.map = getLetterTexture(
+      h2,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
 
-    const minsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-mins')[0]
+    const minsGroup = homeTime.children.filter(
+      f => f.userData.id === 'home-time-mins'
+    )[0]
     minsGroup.userData.text = mSplit.join('')
-    minsGroup.children[0].material.map = getLetterTexture(m1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
-    minsGroup.children[1].material.map = getLetterTexture(m2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    minsGroup.children[0].material.map = getLetterTexture(
+      m1,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
+    minsGroup.children[1].material.map = getLetterTexture(
+      m2,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
 
-    const secsGroup = homeTime.children.filter(f => f.userData.id === 'home-time-secs')[0]
+    const secsGroup = homeTime.children.filter(
+      f => f.userData.id === 'home-time-secs'
+    )[0]
     secsGroup.userData.text = sSplit.join('')
-    secsGroup.children[0].material.map = getLetterTexture(s1, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
-    secsGroup.children[1].material.map = getLetterTexture(s2, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White).texture
+    secsGroup.children[0].material.map = getLetterTexture(
+      s1,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
+    secsGroup.children[1].material.map = getLetterTexture(
+      s2,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White
+    ).texture
 
-    const colon1Group = homeTime.children.filter(f => f.userData.id === 'home-time-colon-1')[0]
-    colon1Group.children[0].material.map = getLetterTexture(':', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.White).texture
+    const colon1Group = homeTime.children.filter(
+      f => f.userData.id === 'home-time-colon-1'
+    )[0]
+    colon1Group.children[0].material.map = getLetterTexture(
+      ':',
+      LETTER_TYPES.MenuTextFixed,
+      LETTER_COLORS.White
+    ).texture
 
     setTimeout(() => {
       console.log('change colon')
-      colon1Group.children[0].material.map = getLetterTexture(':', LETTER_TYPES.MenuTextFixed, LETTER_COLORS.Gray).texture
+      colon1Group.children[0].material.map = getLetterTexture(
+        ':',
+        LETTER_TYPES.MenuTextFixed,
+        LETTER_COLORS.Gray
+      ).texture
     }, 500)
   }
 }
@@ -272,7 +532,7 @@ const slideOutMainMenu = async () => {
     slideTo(homeMain)
   ])
 }
-const navNavigation = (up) => {
+const navNavigation = up => {
   if (up) {
     if (nav.current - 1 < 0) {
       nav.current = nav.options.length - 1
@@ -286,7 +546,11 @@ const navNavigation = (up) => {
       nav.current++
     }
   }
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY)
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY
+  )
 }
 const SELECT_PARTY_MEMBER_POSITIONS = {
   x: 10,
@@ -301,71 +565,131 @@ const SELECT_PARTY_MEMBER_POSITIONS = {
 const navSelectOrderFromLoad = () => {
   console.log('navSelectOrderFromLoad')
   setMenuState('home-order-from')
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false, true)
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from])
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY,
+    false,
+    true
+  )
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from]
+  )
   movePointer(POINTERS.pointer3, 0, 0, true)
 }
-const navSelectOrderFromNavigation = (up) => {
+const navSelectOrderFromNavigation = up => {
   console.log('navSelectOrderFromNavigation', up)
   if (up) {
     if (SELECT_PARTY_MEMBER_POSITIONS.from - 1 < 0) {
-      SELECT_PARTY_MEMBER_POSITIONS.from = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+      SELECT_PARTY_MEMBER_POSITIONS.from =
+        SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.from--
     }
   } else {
-    if (SELECT_PARTY_MEMBER_POSITIONS.from + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+    if (
+      SELECT_PARTY_MEMBER_POSITIONS.from + 1 >=
+      SELECT_PARTY_MEMBER_POSITIONS.y.length
+    ) {
       SELECT_PARTY_MEMBER_POSITIONS.from = 0
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.from++
     }
   }
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from])
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from]
+  )
 }
 const navSelectOrderFromCancel = () => {
   console.log('navSelectOrderFromCancel')
   setMenuState('home')
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY,
+    false
+  )
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from],
+    true
+  )
 }
 const navSelectOrderFromConfirm = () => {
   console.log('navSelectOrderFromConfirm')
   setMenuState('home-order-to')
   SELECT_PARTY_MEMBER_POSITIONS.to = SELECT_PARTY_MEMBER_POSITIONS.from
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to])
-  movePointer(POINTERS.pointer3, SELECT_PARTY_MEMBER_POSITIONS.x - SELECT_PARTY_MEMBER_POSITIONS.adjust.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from] - SELECT_PARTY_MEMBER_POSITIONS.adjust.y, false, true)
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to]
+  )
+  movePointer(
+    POINTERS.pointer3,
+    SELECT_PARTY_MEMBER_POSITIONS.x - SELECT_PARTY_MEMBER_POSITIONS.adjust.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from] -
+      SELECT_PARTY_MEMBER_POSITIONS.adjust.y,
+    false,
+    true
+  )
 }
-const navSelectOrderToNavigation = (up) => {
+const navSelectOrderToNavigation = up => {
   console.log('navSelectOrderToNavigation')
   if (up) {
     if (SELECT_PARTY_MEMBER_POSITIONS.to - 1 < 0) {
-      SELECT_PARTY_MEMBER_POSITIONS.to = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+      SELECT_PARTY_MEMBER_POSITIONS.to =
+        SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.to--
     }
   } else {
-    if (SELECT_PARTY_MEMBER_POSITIONS.to + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+    if (
+      SELECT_PARTY_MEMBER_POSITIONS.to + 1 >=
+      SELECT_PARTY_MEMBER_POSITIONS.y.length
+    ) {
       SELECT_PARTY_MEMBER_POSITIONS.to = 0
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.to++
     }
   }
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to])
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.to]
+  )
 }
 const navSelectOrderToConfirm = () => {
   console.log('navSelectOrderToConfirm', SELECT_PARTY_MEMBER_POSITIONS)
   if (SELECT_PARTY_MEMBER_POSITIONS.from !== SELECT_PARTY_MEMBER_POSITIONS.to) {
     const tempMembers = [...window.data.savemap.party.members]
-    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] = tempMembers[SELECT_PARTY_MEMBER_POSITIONS.to]
-    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.to] = tempMembers[SELECT_PARTY_MEMBER_POSITIONS.from]
-    console.log('navSelectOrderToConfirm', 'swapped pos', tempMembers, window.data.savemap.party.members)
+    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] =
+      tempMembers[SELECT_PARTY_MEMBER_POSITIONS.to]
+    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.to] =
+      tempMembers[SELECT_PARTY_MEMBER_POSITIONS.from]
+    console.log(
+      'navSelectOrderToConfirm',
+      'swapped pos',
+      tempMembers,
+      window.data.savemap.party.members
+    )
   } else {
-    if (window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] === 'None') {
+    if (
+      window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from] ===
+      'None'
+    ) {
       // Not possile, play sound
       navSelectOrderFromLoad()
       return
     }
-    const char = window.data.savemap.characters[window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]]
+    const char =
+      window.data.savemap.characters[
+        window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]
+      ]
     if (char.status.battleOrder === 'Normal') {
       char.status.battleOrder = 'BackRow'
     } else {
@@ -381,49 +705,98 @@ const navSelectOrderToConfirm = () => {
 const navSelectMember = () => {
   console.log('navSelectMember')
   setMenuState('home-nav-select')
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false, true)
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member])
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY,
+    false,
+    true
+  )
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member]
+  )
 }
-const navSelectNavigation = (up) => {
+const navSelectNavigation = up => {
   console.log('navSelectNavigation')
   console.log('navSelectOrderToNavigation')
   if (up) {
     if (SELECT_PARTY_MEMBER_POSITIONS.member - 1 < 0) {
-      SELECT_PARTY_MEMBER_POSITIONS.member = SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
+      SELECT_PARTY_MEMBER_POSITIONS.member =
+        SELECT_PARTY_MEMBER_POSITIONS.y.length - 1
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.member--
     }
   } else {
-    if (SELECT_PARTY_MEMBER_POSITIONS.member + 1 >= SELECT_PARTY_MEMBER_POSITIONS.y.length) {
+    if (
+      SELECT_PARTY_MEMBER_POSITIONS.member + 1 >=
+      SELECT_PARTY_MEMBER_POSITIONS.y.length
+    ) {
       SELECT_PARTY_MEMBER_POSITIONS.member = 0
     } else {
       SELECT_PARTY_MEMBER_POSITIONS.member++
     }
   }
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member])
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.member]
+  )
 }
 const navSelectCancel = () => {
   console.log('navSelectCancel')
   setMenuState('home')
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
-  movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY,
+    false
+  )
+  movePointer(
+    POINTERS.pointer2,
+    SELECT_PARTY_MEMBER_POSITIONS.x,
+    SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from],
+    true
+  )
 }
 const navSelectConfirm = () => {
   console.log('navSelectConfirm', SELECT_PARTY_MEMBER_POSITIONS)
-  if (window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.member] === 'None') {
+  if (
+    window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.member] ===
+    'None'
+  ) {
     // Not possile, play sound
     navSelectMember()
   } else {
-    movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, false)
-    movePointer(POINTERS.pointer2, SELECT_PARTY_MEMBER_POSITIONS.x, SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from], true)
-    navSlideDown(SELECT_PARTY_MEMBER_POSITIONS.type, SELECT_PARTY_MEMBER_POSITIONS.member)
+    movePointer(
+      POINTERS.pointer1,
+      nav.options[nav.current].pointerX,
+      nav.options[nav.current].pointerY,
+      false
+    )
+    movePointer(
+      POINTERS.pointer2,
+      SELECT_PARTY_MEMBER_POSITIONS.x,
+      SELECT_PARTY_MEMBER_POSITIONS.y[SELECT_PARTY_MEMBER_POSITIONS.from],
+      true
+    )
+    navSlideDown(
+      SELECT_PARTY_MEMBER_POSITIONS.type,
+      SELECT_PARTY_MEMBER_POSITIONS.member
+    )
   }
 }
 
 const navSlideDown = async (type, member) => {
   setMenuState('loading') // temp, should be 'loading'
   console.log('Nav Select Slide Down', 'loading', type, member)
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY, true)
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY,
+    true
+  )
   shrinkDialog(homeNav, type)
   await fadeOverlayIn(homeBlackOverlay)
   homeTime.visible = false
@@ -431,12 +804,17 @@ const navSlideDown = async (type, member) => {
   homeMain.visible = false
   loadSecondaryMenu(type, member)
 }
-const navSlideUp = async (type) => {
+const navSlideUp = async type => {
   await expandDialog(homeNav, type)
-  movePointer(POINTERS.pointer1, nav.options[nav.current].pointerX, nav.options[nav.current].pointerY)
+  movePointer(
+    POINTERS.pointer1,
+    nav.options[nav.current].pointerX,
+    nav.options[nav.current].pointerY
+  )
   setMenuState('home')
 }
 const fadeInHomeMenu = async () => {
+  drawHomeMain()
   homeTime.visible = true
   homeLocation.visible = true
   homeMain.visible = true
@@ -535,4 +913,10 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadHomeMenu, keyPress, updateHomeMenuTime, getHomeBlackOverlay, fadeInHomeMenu }
+export {
+  loadHomeMenu,
+  keyPress,
+  updateHomeMenuTime,
+  getHomeBlackOverlay,
+  fadeInHomeMenu
+}

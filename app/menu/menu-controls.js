@@ -15,8 +15,6 @@ const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
 }
 
-// Not sure if these can be generalised or have to be added to individual menu / page types
-
 const sendKeyPressToMenu = (key, firstPress, state) => {
   if (state.startsWith('home')) {
     keyPressMain(key, firstPress, state)
@@ -77,11 +75,6 @@ const initMenuKeypressActions = () => {
   getKeyPressEmitter().on(KEY.LEFT, firstPress => {
     if (areMenuControlsActive()) {
       sendKeyPressToMenu(KEY.LEFT, firstPress, getMenuState())
-    }
-  })
-  getKeyPressEmitter().on(KEY.RIGHT, async firstPress => {
-    if (areMenuControlsActive()) {
-      sendKeyPressToMenu(KEY.RIGHT, firstPress, getMenuState())
     }
   })
   getKeyPressEmitter().on(KEY.RIGHT, async firstPress => {

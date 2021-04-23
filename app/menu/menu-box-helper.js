@@ -839,6 +839,17 @@ const createPointer = async () => {
   console.log('pointer', pointer)
   return pointer
 }
+const movePointerDebug = (i, x, y, hide, flash) => {
+  if (i === 1) {
+    movePointer(POINTERS.pointer1, x, y, hide, flash)
+  } else if (i === 2) {
+    movePointer(POINTERS.pointer2, x, y, hide, flash)
+  } else {
+    movePointer(POINTERS.pointer3, x, y, hide, flash)
+  }
+}
+window.movePointerDebug = movePointerDebug
+
 const movePointer = (pointer, x, y, hide, flash) => {
   pointer.position.x = x
   pointer.position.y = window.config.sizing.height - y
