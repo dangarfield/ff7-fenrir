@@ -17,6 +17,7 @@ import { KEY } from '../interaction/inputs.js'
 import { scene } from '../field/field-ortho-scene.js'
 
 let itemActions, itemDesc, itemParty, itemList, itemKeyList, itemArrange
+let itemListGroup, itemKeyListGroup
 let char1Group, char2Group, char3Group
 
 const loadItemsMenu = async () => {
@@ -109,25 +110,40 @@ const loadItemsMenu = async () => {
     id: 6,
     name: 'itemList',
     w: 320,
-    h: 192.5 + 2, //205
-    x: 0, //135
-    y: 48 - 2, //43
+    h: 192.5 + 2,
+    x: 0,
+    y: 48 - 2,
     expandInstantly: true
   })
   itemList.visible = true
   window.itemList = itemList
 
+  itemListGroup = new THREE.Group()
+  itemListGroup.position.y = -60
+  itemListGroup.position.x = 160
+  itemListGroup.position.z = 100 - itemList.userData.id
+  itemList.add(itemListGroup)
+  window.itemListGroup = itemListGroup
+  drawItems()
+
   itemKeyList = await createDialogBox({
     id: 7,
     name: 'itemKeyList',
     w: 320,
-    h: 192.5 + 2, //205
-    x: 0, //135
-    y: 48 - 2, //43
+    h: 192.5 + 2,
+    x: 0,
+    y: 48 - 2,
     expandInstantly: true
   })
   itemKeyList.visible = true
   window.itemKeyList = itemList
+
+  itemKeyListGroup = new THREE.Group()
+  itemKeyListGroup.position.y = -60
+  itemKeyListGroup.position.x = 160
+  itemKeyListGroup.position.z = 100 - itemKeyList.userData.id
+  itemKeyList.add(itemKeyListGroup)
+  window.itemKeyListGroup = itemKeyListGroup
 
   itemArrange = await createDialogBox({
     id: 3,
@@ -141,7 +157,11 @@ const loadItemsMenu = async () => {
   })
   // itemArrange.visible = true
   window.itemArrange = itemArrange
-  // 675 of 1441
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y
+  )
   await fadeOverlayOut(getHomeBlackOverlay())
 
   setMenuState('items-action-select')
@@ -221,10 +241,16 @@ const itemActionNavigation = up => {
   }
   if (ACTION_POSITIONS.action < 0) {
     ACTION_POSITIONS.action = ACTION_POSITIONS.x.length - 1
-  } else if (ACTION_POSITIONS.action > ACTION_POSITIONS.x.length) {
+  } else if (ACTION_POSITIONS.action >= ACTION_POSITIONS.x.length) {
     ACTION_POSITIONS.action = 0
   }
-
+  if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Key Items') {
+    // itemParty.visible = false
+    // itemList.visible = false
+  } else {
+    // itemParty.visible = true
+    // itemList.visible = true
+  }
   console.log('itemActionNavigation', up, ACTION_POSITIONS)
   movePointer(
     POINTERS.pointer1,
@@ -232,7 +258,91 @@ const itemActionNavigation = up => {
     ACTION_POSITIONS.y
   )
 }
-const itemActionConfirm = () => {}
+const itemActionConfirm = () => {
+  const currentAction = ACTION_POSITIONS.actions[ACTION_POSITIONS.action]
+  console.log('itemActionConfirm', currentAction)
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y,
+    false,
+    true
+  )
+  if (currentAction === 'Use') {
+    // movePointer(
+    //   POINTERS.pointer2,
+    //   ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    //   ACTION_POSITIONS.y,
+    //   false,
+    //   true
+    // )
+  }
+}
+const drawItems = async () => {
+  // Remove existing itemLiftGroup
+  while (itemListGroup.children.length) {
+    itemList.remove(itemListGroup.children[0])
+  }
+  // // Remove existing description
+  // while (itemListGroup.children.length) {
+  //   itemList.remove(itemListGroup.children[0])
+  // }
+
+  const items = window.data.savemap.items
+  const yGap = 18.5
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    await addTextToDialog(
+      itemListGroup,
+      item.name,
+      `items-list-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      18.5,
+      yGap * i,
+      0.5
+    )
+    await addTextToDialog(
+      itemListGroup,
+      ('' + Math.max(99, item.quantity)).padStart(3, ' '),
+      `items-count-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      107,
+      yGap * i,
+      0.5
+    )
+    await addTextToDialog(
+      itemListGroup,
+      ':',
+      `items-count-colon-${i}`,
+      LETTER_TYPES.MenuTextFixed,
+      LETTER_COLORS.White,
+      106,
+      yGap * i + 1,
+      0.5
+    )
+    // await addTextToDialog(
+    //   itemActions,
+    //   'Arrange',
+    //   'items-actions-arrange',
+    //   LETTER_TYPES.MenuBaseFont,
+    //   LETTER_COLORS.White,
+    //   67,
+    //   14.5,
+    //   0.5
+    // )
+    // addImageToDialog(
+    //   itemListGroup,
+    //   'profiles',
+    //   member,
+    //   `profile-image-${i}`,
+    //   39,
+    //   16.5,
+    //   0.5
+    // )
+  }
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU ITEMS', key, firstPress, state)
   if (state === 'items-action-select') {

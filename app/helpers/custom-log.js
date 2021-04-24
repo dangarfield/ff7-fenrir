@@ -13,8 +13,7 @@ window.console = (function (origConsole) {
       'Nav Select',
       'press MAIN MENU HOME',
       'movePointer',
-      'ITEMS',
-      'itemActionNavigation'
+      'item'
     ],
     log: function () {
       if (limit) {
