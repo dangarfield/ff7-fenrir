@@ -245,11 +245,11 @@ const itemActionNavigation = up => {
     ACTION_POSITIONS.action = 0
   }
   if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Key Items') {
-    // itemParty.visible = false
-    // itemList.visible = false
+    itemParty.visible = false
+    itemList.visible = false
   } else {
-    // itemParty.visible = true
-    // itemList.visible = true
+    itemParty.visible = true
+    itemList.visible = true
   }
   console.log('itemActionNavigation', up, ACTION_POSITIONS)
   movePointer(
@@ -283,31 +283,42 @@ const drawItems = async () => {
   while (itemListGroup.children.length) {
     itemList.remove(itemListGroup.children[0])
   }
-  // // Remove existing description
-  // while (itemListGroup.children.length) {
-  //   itemList.remove(itemListGroup.children[0])
-  // }
 
-  const items = window.data.savemap.items
+  // Remove existing description - tbc
+
+  itemListGroup.userData.items = []
   const yGap = 18.5
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]
+  for (let i = 0; i < window.data.savemap.items.length; i++) {
+    const item = window.data.savemap.items[i]
+    const itemData = { ...window.data.kernel.itemData[item.itemId] }
+    itemData.show = true
+    itemData.useable = false
+    itemData.quantity = item.quantity
+    let color = LETTER_COLORS.Gray
+    if (item.itemId === 127) {
+      itemData.show = false
+    }
+    if (itemData.restrictions.includes('CanBeUsedInMenu')) {
+      itemData.useable = true
+      color = LETTER_COLORS.White
+    }
+    itemListGroup.userData.items.push(itemData)
     await addTextToDialog(
       itemListGroup,
-      item.name,
+      itemData.name,
       `items-list-${i}`,
       LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
+      color,
       18.5,
       yGap * i,
       0.5
     )
     await addTextToDialog(
       itemListGroup,
-      ('' + Math.max(99, item.quantity)).padStart(3, ' '),
+      ('' + Math.max(99, itemData.quantity)).padStart(3, ' '),
       `items-count-${i}`,
       LETTER_TYPES.MenuTextStats,
-      LETTER_COLORS.White,
+      color,
       107,
       yGap * i,
       0.5
@@ -317,7 +328,7 @@ const drawItems = async () => {
       ':',
       `items-count-colon-${i}`,
       LETTER_TYPES.MenuTextFixed,
-      LETTER_COLORS.White,
+      color,
       106,
       yGap * i + 1,
       0.5
