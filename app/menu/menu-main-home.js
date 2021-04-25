@@ -76,7 +76,7 @@ const getHomeBlackOverlay = () => {
 }
 
 const loadHomeMenu = async () => {
-  window.setPartyDebugDataForDebug() // Temp
+  window.debugFillItems() // Temp
   homeNav = await createDialogBox({
     id: 1,
     name: 'homeNav',
