@@ -290,7 +290,7 @@ const drawItems = async () => {
   const yGap = 18.5
   for (let i = 0; i < window.data.savemap.items.length; i++) {
     const item = window.data.savemap.items[i]
-    const itemData = { ...window.data.kernel.itemData[item.itemId] }
+    const itemData = { ...window.data.kernel.allItemData[item.itemId] }
     itemData.show = true
     itemData.useable = false
     itemData.quantity = item.quantity

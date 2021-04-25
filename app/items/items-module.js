@@ -1,14 +1,8 @@
-const getItemsData = () => {
-  return window.data.kernel.itemData
-}
-
-const setItemToInventory = (position, id, quantity) => {
+const setItemToInventory = (position, itemId, quantity) => {
   const item = {
-    index: index, // TODO, not sure what I did here...
-    itemId: index,
+    itemId: itemId,
     quantity: quantity,
-    name: getItemsData()[id].name,
-    description: getItemsData()[id].description
+    name: window.data.kernel.allItemData[itemId].name
   }
   window.data.savemap.items[position] = item
 }
@@ -20,45 +14,13 @@ const debugFillItems = () => {
   window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
   window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
 
-  // Items
-  for (let i = 0; i < window.data.kernel.itemData.length; i++) {
-    const item = window.data.kernel.itemData[i]
-    window.data.savemap.items[item.index] = {
-      index: item.index,
-      itemId: item.itemId,
-      quantity: 127,
-      name: item.name,
-      description: item.description
-    }
-  }
-  for (let i = 0; i < window.data.kernel.weaponData.length; i++) {
-    const item = window.data.kernel.weaponData[i]
+  // Items (inc weapons, armor, accessories)
+  for (let i = 0; i < window.data.kernel.allItemData.length; i++) {
+    const item = window.data.kernel.allItemData[i]
     window.data.savemap.items[item.itemId] = {
-      index: item.itemId,
       itemId: item.itemId,
       quantity: 127,
-      name: item.name,
-      description: item.description
-    }
-  }
-  for (let i = 0; i < window.data.kernel.armorData.length; i++) {
-    const item = window.data.kernel.armorData[i]
-    window.data.savemap.items[item.itemId] = {
-      index: item.itemId,
-      itemId: item.itemId,
-      quantity: 127,
-      name: item.name,
-      description: item.description
-    }
-  }
-  for (let i = 0; i < window.data.kernel.accessoryData.length; i++) {
-    const item = window.data.kernel.accessoryData[i]
-    window.data.savemap.items[item.itemId] = {
-      index: item.itemId,
-      itemId: item.itemId,
-      quantity: 127,
-      name: item.name,
-      description: item.description
+      name: item.name
     }
   }
 }

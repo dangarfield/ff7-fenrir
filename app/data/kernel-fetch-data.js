@@ -48,6 +48,12 @@ const loadWindowTextures = async () => {
 const loadKernelData = async () => {
   const kernelBinRes = await fetch(`${KUJATA_BASE}/data/kernel/kernel.bin.json`)
   const kernelBin = await kernelBinRes.json()
+  const allItemData = []
+  allItemData.push.apply(allItemData, kernelBin.itemData)
+  allItemData.push.apply(allItemData, kernelBin.weaponData)
+  allItemData.push.apply(allItemData, kernelBin.armorData)
+  allItemData.push.apply(allItemData, kernelBin.accessoryData)
+  kernelBin.allItemData = allItemData
   window.data.kernel = kernelBin
 }
 
