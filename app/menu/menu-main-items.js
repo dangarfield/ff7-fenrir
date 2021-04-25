@@ -343,15 +343,43 @@ const drawItems = async () => {
     //   14.5,
     //   0.5
     // )
-    // addImageToDialog(
-    //   itemListGroup,
-    //   'profiles',
-    //   member,
-    //   `profile-image-${i}`,
-    //   39,
-    //   16.5,
-    //   0.5
-    // )
+    let icon = 'item'
+    if (itemData.type === 'Item') {
+      icon = 'item'
+    } else if (itemData.type === 'Armor') {
+      icon = 'armor'
+    } else if (itemData.type === 'Accessory') {
+      icon = 'accessory'
+    } else if (itemData.equipableBy.includes('Cloud')) {
+      icon = 'sword'
+    } else if (itemData.equipableBy.includes('Barret')) {
+      icon = 'gun'
+    } else if (itemData.equipableBy.includes('Tifa')) {
+      icon = 'glove'
+    } else if (itemData.equipableBy.includes('Aeris')) {
+      icon = 'staff'
+    } else if (itemData.equipableBy.includes('RedXIII')) {
+      icon = 'clip'
+    } else if (itemData.equipableBy.includes('Yuffie')) {
+      icon = 'shruiken'
+    } else if (itemData.equipableBy.includes('CaitSith')) {
+      icon = 'megaphone'
+    } else if (itemData.equipableBy.includes('Vincent')) {
+      icon = 'pistol'
+    } else if (itemData.equipableBy.includes('Cid')) {
+      icon = 'spear'
+    } else if (itemData.equipableBy.includes('Sephiroth')) {
+      icon = 'pistol' // Strange, but it's the last weapon on the list
+    }
+    addImageToDialog(
+      itemListGroup,
+      'icons-menu',
+      icon,
+      `items-icon-${i}`,
+      18,
+      yGap * i,
+      0.5
+    )
   }
 }
 const keyPress = async (key, firstPress, state) => {

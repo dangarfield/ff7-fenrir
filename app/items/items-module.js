@@ -30,11 +30,9 @@ const debugClearItems = () => {
   const items = window.data.savemap.items
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
-    item.index = 127
     item.itemId = 127
     item.quantity = 0
     item.name = ''
-    item.description = ''
   }
   console.log('debugClearItems - window.data.savemap', window.data.savemap)
 }
