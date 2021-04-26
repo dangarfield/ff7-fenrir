@@ -412,19 +412,17 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
   const bgClipDatas = [
     {
       w: w + EDGE_SIZE,
-      h: 10,
+      h: 2,
       mesh: t,
       x: 0,
-      h: 2,
       rotateX: true,
       flip: false
     },
     {
       w: w + EDGE_SIZE,
-      h: 10,
+      h: -2,
       mesh: b,
       x: 0,
-      h: -2,
       rotateX: true,
       flip: true
     },
@@ -433,11 +431,10 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
       h: h + EDGE_SIZE,
       mesh: l,
       x: -2,
-      h: 0,
       rotateX: false,
       flip: false
     },
-    { w: 10, h: h + EDGE_SIZE, mesh: r, x: 2, h: 0, rotateX: false, flip: true }
+    { w: 10, h: h + EDGE_SIZE, mesh: r, x: 2, rotateX: false, flip: true }
   ]
   for (let i = 0; i < bgClipDatas.length; i++) {
     const bgClipData = bgClipDatas[i]
@@ -459,6 +456,10 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
         z
       )
     )
+    // Figure out another day, but often ends up being -1.5
+    if (bgClipPlane.constant === -1.5) {
+      bgClipPlane.constant = -2
+    }
     bgClipPlanes.push(bgClipPlane)
   }
   return bgClipPlanes
@@ -494,7 +495,7 @@ const getImageTexture = (type, image) => {
   for (const key in textureImages) {
     const textureImage = textureImages[key]
     if (textureImage.description === image) {
-      console.log('found image', image, textureImage)
+      // console.log('found image', image, textureImage)
       return textureImage
     }
   }

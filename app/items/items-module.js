@@ -6,6 +6,37 @@ const setItemToInventory = (position, itemId, quantity) => {
   }
   window.data.savemap.items[position] = item
 }
+const getItemIcon = itemData => {
+  let icon = 'item'
+  if (itemData.type === 'Item') {
+    icon = 'item'
+  } else if (itemData.type === 'Armor') {
+    icon = 'armor'
+  } else if (itemData.type === 'Accessory') {
+    icon = 'accessory'
+  } else if (itemData.equipableBy.includes('Cloud')) {
+    icon = 'sword'
+  } else if (itemData.equipableBy.includes('Barret')) {
+    icon = 'gun'
+  } else if (itemData.equipableBy.includes('Tifa')) {
+    icon = 'glove'
+  } else if (itemData.equipableBy.includes('Aeris')) {
+    icon = 'staff'
+  } else if (itemData.equipableBy.includes('RedXIII')) {
+    icon = 'clip'
+  } else if (itemData.equipableBy.includes('Yuffie')) {
+    icon = 'shruiken'
+  } else if (itemData.equipableBy.includes('CaitSith')) {
+    icon = 'megaphone'
+  } else if (itemData.equipableBy.includes('Vincent')) {
+    icon = 'pistol'
+  } else if (itemData.equipableBy.includes('Cid')) {
+    icon = 'spear'
+  } else if (itemData.equipableBy.includes('Sephiroth')) {
+    icon = 'pistol' // Strange, but it's the last weapon on the list
+  }
+  return icon
+}
 const debugFillItems = () => {
   // Party
   window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
@@ -15,13 +46,23 @@ const debugFillItems = () => {
   window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
 
   // Items (inc weapons, armor, accessories)
+  window.data.savemap.items = []
   for (let i = 0; i < window.data.kernel.allItemData.length; i++) {
     const item = window.data.kernel.allItemData[i]
-    window.data.savemap.items[item.itemId] = {
-      itemId: item.itemId,
-      quantity: 127,
-      name: item.name
+    if (item.name !== '') {
+      window.data.savemap.items.push({
+        itemId: item.itemId,
+        quantity: 127,
+        name: item.name
+      })
     }
+  }
+  while (window.data.savemap.items.length < 320) {
+    window.data.savemap.items.push({
+      itemId: 127,
+      quantity: 127,
+      name: ''
+    })
   }
 }
 window.debugFillItems = debugFillItems
@@ -37,4 +78,4 @@ const debugClearItems = () => {
   console.log('debugClearItems - window.data.savemap', window.data.savemap)
 }
 
-export { debugFillItems, debugClearItems }
+export { debugFillItems, debugClearItems, getItemIcon }

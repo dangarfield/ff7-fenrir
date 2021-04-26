@@ -1,4 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getMenuState, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
@@ -13,11 +15,11 @@ import {
   addImageToDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
-import { KEY } from '../interaction/inputs.js'
-import { scene } from '../field/field-ortho-scene.js'
+import { KEY, getActiveInputs } from '../interaction/inputs.js'
+import { getItemIcon } from '../items/items-module.js'
 
 let itemActions, itemDesc, itemParty, itemList, itemKeyList, itemArrange
-let itemListGroup, itemKeyListGroup
+let itemListGroup, itemKeyListGroup, itemDescGroup
 let char1Group, char2Group, char3Group
 
 const loadItemsMenu = async () => {
@@ -76,6 +78,12 @@ const loadItemsMenu = async () => {
   })
   itemDesc.visible = true
   window.itemDesc = itemDesc
+
+  itemDescGroup = new THREE.Group()
+  itemDescGroup.userData = { id: 5, z: 100 - 5 }
+  itemDescGroup.position.x = 5.5
+  itemDescGroup.position.y = -38
+  itemDesc.add(itemDescGroup)
 
   itemParty = await createDialogBox({
     id: 4,
@@ -165,6 +173,7 @@ const loadItemsMenu = async () => {
   await fadeOverlayOut(getHomeBlackOverlay())
 
   setMenuState('items-action-select')
+  itemActionConfirm()
 }
 
 const drawParty = () => {
@@ -227,6 +236,7 @@ const exitMenu = async () => {
   })
   fadeInHomeMenu()
 }
+const ITEM_Y_GAP = 18.5
 const ACTION_POSITIONS = {
   x: [16.5, 63, 109.5],
   y: 20.5,
@@ -269,27 +279,29 @@ const itemActionConfirm = () => {
     true
   )
   if (currentAction === 'Use') {
-    // movePointer(
-    //   POINTERS.pointer2,
-    //   ACTION_POSITIONS.x[ACTION_POSITIONS.action],
-    //   ACTION_POSITIONS.y,
-    //   false,
-    //   true
-    // )
+    movePointer(
+      POINTERS.pointer2,
+      ITEM_POSITIONS.x,
+      ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+    )
+    setItemDescription()
+    setMenuState('items-item-select')
   }
 }
 const drawItems = async () => {
   // Remove existing itemLiftGroup
   while (itemListGroup.children.length) {
-    itemList.remove(itemListGroup.children[0])
+    itemListGroup.remove(itemListGroup.children[0])
   }
 
-  // Remove existing description - tbc
-
   itemListGroup.userData.items = []
-  const yGap = 18.5
+  itemListGroup.userData.bg = itemList.userData.bg
+
   for (let i = 0; i < window.data.savemap.items.length; i++) {
     const item = window.data.savemap.items[i]
+    if (item.name === '') {
+      continue
+    }
     const itemData = { ...window.data.kernel.allItemData[item.itemId] }
     itemData.show = true
     itemData.useable = false
@@ -303,34 +315,34 @@ const drawItems = async () => {
       color = LETTER_COLORS.White
     }
     itemListGroup.userData.items.push(itemData)
-    await addTextToDialog(
+    addTextToDialog(
       itemListGroup,
       itemData.name,
       `items-list-${i}`,
       LETTER_TYPES.MenuBaseFont,
       color,
       18.5,
-      yGap * i,
+      ITEM_Y_GAP * i,
       0.5
     )
-    await addTextToDialog(
+    addTextToDialog(
       itemListGroup,
       ('' + Math.max(99, itemData.quantity)).padStart(3, ' '),
       `items-count-${i}`,
       LETTER_TYPES.MenuTextStats,
       color,
       107,
-      yGap * i,
+      ITEM_Y_GAP * i,
       0.5
     )
-    await addTextToDialog(
+    addTextToDialog(
       itemListGroup,
       ':',
       `items-count-colon-${i}`,
       LETTER_TYPES.MenuTextFixed,
       color,
       106,
-      yGap * i + 1,
+      ITEM_Y_GAP * i + 1,
       0.5
     )
     // await addTextToDialog(
@@ -343,44 +355,162 @@ const drawItems = async () => {
     //   14.5,
     //   0.5
     // )
-    let icon = 'item'
-    if (itemData.type === 'Item') {
-      icon = 'item'
-    } else if (itemData.type === 'Armor') {
-      icon = 'armor'
-    } else if (itemData.type === 'Accessory') {
-      icon = 'accessory'
-    } else if (itemData.equipableBy.includes('Cloud')) {
-      icon = 'sword'
-    } else if (itemData.equipableBy.includes('Barret')) {
-      icon = 'gun'
-    } else if (itemData.equipableBy.includes('Tifa')) {
-      icon = 'glove'
-    } else if (itemData.equipableBy.includes('Aeris')) {
-      icon = 'staff'
-    } else if (itemData.equipableBy.includes('RedXIII')) {
-      icon = 'clip'
-    } else if (itemData.equipableBy.includes('Yuffie')) {
-      icon = 'shruiken'
-    } else if (itemData.equipableBy.includes('CaitSith')) {
-      icon = 'megaphone'
-    } else if (itemData.equipableBy.includes('Vincent')) {
-      icon = 'pistol'
-    } else if (itemData.equipableBy.includes('Cid')) {
-      icon = 'spear'
-    } else if (itemData.equipableBy.includes('Sephiroth')) {
-      icon = 'pistol' // Strange, but it's the last weapon on the list
-    }
     addImageToDialog(
       itemListGroup,
       'icons-menu',
-      icon,
+      getItemIcon(itemData),
       `items-icon-${i}`,
       18,
-      yGap * i,
+      ITEM_Y_GAP * i,
       0.5
     )
   }
+}
+const ITEM_POSITIONS = {
+  x: 159,
+  y: new Array(10).fill(null).map((v, i) => 62 + 18.5 * i),
+  pagePosition: 0,
+  cursorPosition: 0,
+  tweenInProgress: false
+}
+const clearItemDescription = () => {
+  while (itemDescGroup.children.length) {
+    itemDescGroup.remove(itemDescGroup.children[0])
+  }
+}
+const setItemDescription = () => {
+  clearItemDescription()
+  const item =
+    itemListGroup.userData.items[
+      ITEM_POSITIONS.pagePosition + ITEM_POSITIONS.cursorPosition
+    ]
+  if (item === undefined) {
+    return
+  }
+  addTextToDialog(
+    itemDescGroup,
+    item.description,
+    'item-desciption',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    0,
+    0.5
+  )
+}
+const selectItemCancel = () => {
+  setMenuState('items-action-select')
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y
+  )
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  clearItemDescription()
+}
+const selectItemConfirm = () => {}
+const selectItemNavigation = up => {
+  if (ITEM_POSITIONS.tweenInProgress) {
+    return
+  }
+  if (up) {
+    const cursorAtBottom = ITEM_POSITIONS.cursorPosition === 9
+    const isLastPage = ITEM_POSITIONS.pagePosition === 310
+    if (cursorAtBottom && isLastPage) {
+      // Do nothing
+      console.log('item selectItemNavigation - up do nothing')
+    } else if (cursorAtBottom) {
+      // Shift page up
+      ITEM_POSITIONS.pagePosition++
+      console.log('item selectItemNavigation - up shift page')
+      const oldY = itemListGroup.position.y
+      const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+      tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
+      // itemListGroup.position.y = newY
+    } else {
+      // Move pointer
+      ITEM_POSITIONS.cursorPosition++
+      console.log('item selectItemNavigation - up shift cursor')
+      movePointer(
+        POINTERS.pointer2,
+        ITEM_POSITIONS.x,
+        ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+      )
+    }
+  } else {
+    const cursorAtTop = ITEM_POSITIONS.cursorPosition === 0
+    const isFirstPage = ITEM_POSITIONS.pagePosition === 0
+    if (cursorAtTop && isFirstPage) {
+      // Do nothing
+      console.log('item selectItemNavigation - down do nothing')
+    } else if (cursorAtTop) {
+      // Shift page down
+      ITEM_POSITIONS.pagePosition--
+      console.log('item selectItemNavigation - down shift page')
+      const oldY = itemListGroup.position.y
+      const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+      tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
+      // itemListGroup.position.y = newY
+    } else {
+      // Move pointer
+      ITEM_POSITIONS.cursorPosition--
+      console.log('item selectItemNavigation - down shift cursor')
+      movePointer(
+        POINTERS.pointer2,
+        ITEM_POSITIONS.x,
+        ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+      )
+    }
+  }
+  console.log(
+    'item selectItemNavigation',
+    up,
+    ITEM_POSITIONS.cursorPosition,
+    ITEM_POSITIONS.pagePosition
+  )
+
+  // set description
+  setItemDescription()
+}
+const selectItemPageNavigation = up => {
+  if (up) {
+    ITEM_POSITIONS.pagePosition = ITEM_POSITIONS.pagePosition + 10
+  } else {
+    ITEM_POSITIONS.pagePosition = ITEM_POSITIONS.pagePosition - 10
+  }
+  if (ITEM_POSITIONS.pagePosition < 0) {
+    ITEM_POSITIONS.pagePosition = 0
+  } else if (ITEM_POSITIONS.pagePosition >= 310) {
+    ITEM_POSITIONS.pagePosition = 310
+  }
+  const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+  itemListGroup.position.y = newY
+  setItemDescription()
+  console.log(
+    'item selectItemPageNavigation',
+    up,
+    ITEM_POSITIONS.cursorPosition,
+    ITEM_POSITIONS.pagePosition
+  )
+}
+
+const tweenItems = (listGroup, from, to, metadata, up) => {
+  metadata.tweenInProgress = true
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      listGroup.position.y = from.y
+    })
+    .onComplete(function () {
+      metadata.tweenInProgress = false
+      // Very jagged...
+      if (up && getActiveInputs().up) {
+        selectItemNavigation(up)
+      } else if (!up && getActiveInputs().down) {
+        selectItemNavigation(up)
+      }
+    })
+    .start()
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU ITEMS', key, firstPress, state)
@@ -393,6 +523,21 @@ const keyPress = async (key, firstPress, state) => {
       itemActionNavigation(false)
     } else if (key === KEY.RIGHT) {
       itemActionNavigation(true)
+    }
+  }
+  if (state === 'items-item-select') {
+    if (key === KEY.X) {
+      selectItemCancel()
+    } else if (key === KEY.O) {
+      selectItemConfirm()
+    } else if (key === KEY.UP) {
+      selectItemNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectItemNavigation(true)
+    } else if (key === KEY.L1) {
+      selectItemPageNavigation(false)
+    } else if (key === KEY.R1) {
+      selectItemPageNavigation(true)
     }
   }
 }

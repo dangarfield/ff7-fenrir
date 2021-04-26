@@ -82,5 +82,15 @@ const initMenuKeypressActions = () => {
       sendKeyPressToMenu(KEY.RIGHT, firstPress, getMenuState())
     }
   })
+  getKeyPressEmitter().on(KEY.L1, firstPress => {
+    if (areMenuControlsActive()) {
+      sendKeyPressToMenu(KEY.L1, firstPress, getMenuState())
+    }
+  })
+  getKeyPressEmitter().on(KEY.R1, async firstPress => {
+    if (areMenuControlsActive()) {
+      sendKeyPressToMenu(KEY.R1, firstPress, getMenuState())
+    }
+  })
 }
 export { initMenuKeypressActions }
