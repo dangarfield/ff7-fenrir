@@ -818,21 +818,21 @@ const addCharacterSummary = async (
   )
 }
 const initPointers = async () => {
-  POINTERS.pointer1 = await createPointer()
-  POINTERS.pointer2 = await createPointer()
-  POINTERS.pointer3 = await createPointer()
-  // pointer2 = await createPointer()
+  POINTERS.pointer1 = createPointer(scene)
+  POINTERS.pointer2 = createPointer(scene)
+  POINTERS.pointer3 = createPointer(scene)
+  // pointer2 = createPointer()
   console.log('pointer1', POINTERS.pointer1)
   window.POINTERS = POINTERS
 }
-const createPointer = async () => {
+const createPointer = parent => {
   const pointer = new THREE.Group()
   const id = 0
   const z = 100 - id
 
   // const dialogBox = new THREE.Group()
   pointer.userData = { id, z }
-  await addImageToDialog(
+  addImageToDialog(
     pointer,
     'pointers',
     'hand-right-small-no-shadow',
@@ -841,7 +841,7 @@ const createPointer = async () => {
     window.config.sizing.height,
     0.5
   )
-  await addImageToDialog(
+  addImageToDialog(
     pointer,
     'pointers',
     'hand-right-small-shadow-only',
@@ -860,7 +860,7 @@ const createPointer = async () => {
   pointer.position.z = z
   pointer.children[1].material.opacity = 0.5
   pointer.visible = false
-  scene.add(pointer)
+  parent.add(pointer)
   console.log('pointer', pointer)
   return pointer
 }
@@ -1195,6 +1195,7 @@ export {
   getDialogTextures,
   POINTERS,
   initPointers,
+  createPointer,
   movePointer,
   shrinkDialog,
   expandDialog,

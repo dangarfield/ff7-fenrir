@@ -9,6 +9,7 @@ import {
   addTextToDialog,
   POINTERS,
   movePointer,
+  createPointer,
   fadeOverlayOut,
   fadeOverlayIn,
   addCharacterSummary,
@@ -169,6 +170,9 @@ const loadItemsMenu = async () => {
   itemArrange.visible = false
   window.itemArrange = itemArrange
   ACTION_POSITIONS.action = 0
+  ITEM_POSITIONS.use.pagePosition = 0
+  ITEM_POSITIONS.use.cursorPosition = 0
+  setItemPagePosition(ITEM_POSITIONS.use)
   movePointer(
     POINTERS.pointer1,
     ACTION_POSITIONS.x[ACTION_POSITIONS.action],
@@ -247,6 +251,7 @@ const ACTION_POSITIONS = {
   action: 0,
   actions: ['Use', 'Arrange', 'Key Items']
 }
+
 const itemActionNavigation = up => {
   if (up) {
     ACTION_POSITIONS.action++
@@ -286,11 +291,12 @@ const itemActionConfirm = () => {
     movePointer(
       POINTERS.pointer2,
       ITEM_POSITIONS.x,
-      ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+      ITEM_POSITIONS.y[ITEM_POSITIONS.use.cursorPosition] + 2
     )
-    setItemDescription()
+    setItemDescription(ITEM_POSITIONS.use)
     setMenuState('items-item-select')
-    setItemSliderPosition()
+    setItemSliderPosition(ITEM_POSITIONS.use)
+    setItemPagePosition(ITEM_POSITIONS.use)
   } else if (currentAction === 'Arrange') {
     showArrangeMenu()
   }
@@ -376,8 +382,18 @@ const drawItems = async () => {
 const ITEM_POSITIONS = {
   x: 159,
   y: new Array(10).fill(null).map((v, i) => 62 + 18.5 * i),
-  pagePosition: 0,
-  cursorPosition: 0,
+  use: {
+    pagePosition: 0,
+    cursorPosition: 0
+  },
+  swapSource: {
+    pagePosition: 0,
+    cursorPosition: 0
+  },
+  swapTarget: {
+    pagePosition: 0,
+    cursorPosition: 0
+  },
   tweenInProgress: false
 }
 const clearItemDescription = () => {
@@ -385,12 +401,10 @@ const clearItemDescription = () => {
     itemDescGroup.remove(itemDescGroup.children[0])
   }
 }
-const setItemDescription = () => {
+const setItemDescription = POS => {
   clearItemDescription()
   const item =
-    itemListGroup.userData.items[
-      ITEM_POSITIONS.pagePosition + ITEM_POSITIONS.cursorPosition
-    ]
+    itemListGroup.userData.items[POS.pagePosition + POS.cursorPosition]
   if (item === undefined) {
     return
   }
@@ -405,8 +419,12 @@ const setItemDescription = () => {
     0.5
   )
 }
-const setItemSliderPosition = () => {
-  itemList.userData.slider.userData.moveToPage(ITEM_POSITIONS.pagePosition)
+const setItemPagePosition = POS => {
+  const newY = POS.pagePosition * ITEM_Y_GAP - 60
+  itemListGroup.position.y = newY
+}
+const setItemSliderPosition = POS => {
+  itemList.userData.slider.userData.moveToPage(POS.pagePosition)
 }
 const selectItemCancel = () => {
   setMenuState('items-action-select')
@@ -419,91 +437,110 @@ const selectItemCancel = () => {
   clearItemDescription()
 }
 const selectItemConfirm = () => {}
+
 const selectItemNavigation = up => {
+  itemNavigation(up, ITEM_POSITIONS.use)
+}
+const selectSwapOrderSourceNavigation = up => {
+  itemNavigation(up, ITEM_POSITIONS.swapSource)
+}
+const selectSwapOrderTargetNavigation = up => {
+  itemNavigation(up, ITEM_POSITIONS.swapTarget)
+}
+const itemNavigation = (up, POS) => {
   if (ITEM_POSITIONS.tweenInProgress) {
     return
   }
   if (up) {
-    const cursorAtBottom = ITEM_POSITIONS.cursorPosition === 9
-    const isLastPage = ITEM_POSITIONS.pagePosition === 310
+    const cursorAtBottom = POS.cursorPosition === 9
+    const isLastPage = POS.pagePosition === 310
     if (cursorAtBottom && isLastPage) {
       // Do nothing
       console.log('item selectItemNavigation - up do nothing')
     } else if (cursorAtBottom) {
       // Shift page up
-      ITEM_POSITIONS.pagePosition++
+      POS.pagePosition++
       console.log('item selectItemNavigation - up shift page')
       const oldY = itemListGroup.position.y
-      const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+      const newY = POS.pagePosition * ITEM_Y_GAP - 60
       tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
       // itemListGroup.position.y = newY
-      setItemSliderPosition()
+      setItemSliderPosition(POS)
     } else {
       // Move pointer
-      ITEM_POSITIONS.cursorPosition++
+      POS.cursorPosition++
       console.log('item selectItemNavigation - up shift cursor')
       movePointer(
         POINTERS.pointer2,
         ITEM_POSITIONS.x,
-        ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+        ITEM_POSITIONS.y[POS.cursorPosition] + 2
       )
     }
   } else {
-    const cursorAtTop = ITEM_POSITIONS.cursorPosition === 0
-    const isFirstPage = ITEM_POSITIONS.pagePosition === 0
+    const cursorAtTop = POS.cursorPosition === 0
+    const isFirstPage = POS.pagePosition === 0
     if (cursorAtTop && isFirstPage) {
       // Do nothing
       console.log('item selectItemNavigation - down do nothing')
     } else if (cursorAtTop) {
       // Shift page down
-      ITEM_POSITIONS.pagePosition--
+      POS.pagePosition--
       console.log('item selectItemNavigation - down shift page')
       const oldY = itemListGroup.position.y
-      const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+      const newY = POS.pagePosition * ITEM_Y_GAP - 60
       tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
       // itemListGroup.position.y = newY
-      setItemSliderPosition()
+      setItemSliderPosition(POS)
     } else {
       // Move pointer
-      ITEM_POSITIONS.cursorPosition--
+      POS.cursorPosition--
       console.log('item selectItemNavigation - down shift cursor')
       movePointer(
         POINTERS.pointer2,
         ITEM_POSITIONS.x,
-        ITEM_POSITIONS.y[ITEM_POSITIONS.cursorPosition]
+        ITEM_POSITIONS.y[POS.cursorPosition] + 2
       )
     }
   }
   console.log(
     'item selectItemNavigation',
     up,
-    ITEM_POSITIONS.cursorPosition,
-    ITEM_POSITIONS.pagePosition
+    POS.cursorPosition,
+    POS.pagePosition
   )
 
   // set description
-  setItemDescription()
+  setItemDescription(POS)
 }
 const selectItemPageNavigation = up => {
+  itemPageNavigation(up, ITEM_POSITIONS.use)
+}
+const selectSwapOrderSourcePageNavigation = up => {
+  itemPageNavigation(up, ITEM_POSITIONS.swapSource)
+}
+const selectSwapOrderTargetPageNavigation = up => {
+  itemPageNavigation(up, ITEM_POSITIONS.swapTarget)
+}
+const itemPageNavigation = (up, POS) => {
   if (up) {
-    ITEM_POSITIONS.pagePosition = ITEM_POSITIONS.pagePosition + 10
+    POS.pagePosition = POS.pagePosition + 10
   } else {
-    ITEM_POSITIONS.pagePosition = ITEM_POSITIONS.pagePosition - 10
+    POS.pagePosition = POS.pagePosition - 10
   }
-  if (ITEM_POSITIONS.pagePosition < 0) {
-    ITEM_POSITIONS.pagePosition = 0
-  } else if (ITEM_POSITIONS.pagePosition >= 310) {
-    ITEM_POSITIONS.pagePosition = 310
+  if (POS.pagePosition < 0) {
+    POS.pagePosition = 0
+  } else if (POS.pagePosition >= 310) {
+    POS.pagePosition = 310
   }
-  const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
+  const newY = POS.pagePosition * ITEM_Y_GAP - 60
   itemListGroup.position.y = newY
-  setItemDescription()
-  setItemSliderPosition()
+  setItemDescription(POS)
+  setItemSliderPosition(POS)
   console.log(
     'item selectItemPageNavigation',
     up,
-    ITEM_POSITIONS.cursorPosition,
-    ITEM_POSITIONS.pagePosition
+    POS.cursorPosition,
+    POS.pagePosition
   )
 }
 
@@ -590,7 +627,7 @@ const selectArrangeConfirm = () => {
   const currentOption = ARRANGE_POSITIONS.options[ARRANGE_POSITIONS.option]
   switch (currentOption) {
     case 'Customize':
-      // TODO
+      selectSwapOrderSource()
       break
     case 'Field':
       sortItemsByRestriction('CanBeUsedInMenu')
@@ -751,6 +788,104 @@ const selectArrangeNavigation = up => {
     ARRANGE_POSITIONS.y[ARRANGE_POSITIONS.option] + ARRANGE_POSITIONS.offset.y
   )
 }
+const selectSwapOrderSource = (page, cursor) => {
+  console.log('item selectSwapOrderSource', page, cursor)
+  setMenuState('items-swap-source')
+  ITEM_POSITIONS.swapSource.pagePosition = page !== undefined ? page : 0
+  ITEM_POSITIONS.swapSource.cursorPosition = cursor !== undefined ? cursor : 0
+  movePointer(
+    POINTERS.pointer2,
+    ITEM_POSITIONS.x,
+    ITEM_POSITIONS.y[ITEM_POSITIONS.swapSource.cursorPosition] + 2
+  )
+  removeTemporarySwapPointer()
+  setItemDescription(ITEM_POSITIONS.swapSource)
+  setItemSliderPosition(ITEM_POSITIONS.swapSource)
+  setItemPagePosition(ITEM_POSITIONS.swapSource)
+  itemArrange.visible = false
+}
+const selectSwapOrderSourceCancel = () => {
+  selectSwapOrderEnd()
+}
+const selectSwapOrderSourceConfirm = () => {
+  console.log('item selectSwapOrderSourceConfirm', ITEM_POSITIONS)
+  setMenuState('items-swap-target')
+  ITEM_POSITIONS.swapTarget.pagePosition =
+    ITEM_POSITIONS.swapSource.pagePosition
+  ITEM_POSITIONS.swapTarget.cursorPosition =
+    ITEM_POSITIONS.swapSource.cursorPosition
+  movePointer(
+    POINTERS.pointer2,
+    ITEM_POSITIONS.x,
+    ITEM_POSITIONS.y[ITEM_POSITIONS.swapTarget.cursorPosition] + 2
+  )
+  setItemDescription(ITEM_POSITIONS.swapTarget)
+  setItemSliderPosition(ITEM_POSITIONS.swapTarget)
+  setItemPagePosition(ITEM_POSITIONS.swapTarget)
+  addTemporarySwapPointer()
+}
+const addTemporarySwapPointer = () => {
+  const listPointer = createPointer(itemListGroup)
+  itemListGroup.userData.swapPointer = listPointer
+  movePointer(
+    itemListGroup.userData.swapPointer,
+    -4,
+    ITEM_POSITIONS.y[ITEM_POSITIONS.swapSource.cursorPosition] -
+      62.5 +
+      ITEM_POSITIONS.swapSource.pagePosition * ITEM_Y_GAP,
+    false,
+    true
+  )
+  for (let i = 0; i < itemListGroup.userData.swapPointer.children.length; i++) {
+    const child = itemListGroup.userData.swapPointer.children[i]
+    child.material.clippingPlanes =
+      itemListGroup.userData.bg.material.clippingPlanes
+  }
+}
+const removeTemporarySwapPointer = () => {
+  if (itemListGroup.userData.swapPointer) {
+    movePointer(itemListGroup.userData.swapPointer, 0, 0, true, false)
+    itemListGroup.remove(itemListGroup.userData.swapPointer)
+    delete itemListGroup.userData.swapPointer
+  }
+}
+const selectSwapOrderTargetCancel = () => {
+  console.log('item selectSwapOrderTargetCancel')
+  selectSwapOrderEnd()
+}
+const selectSwapOrderTargetConfirm = () => {
+  console.log('item selectSwapOrderTargetConfirm', ITEM_POSITIONS)
+  executeSwap(
+    ITEM_POSITIONS.swapSource.pagePosition +
+      ITEM_POSITIONS.swapSource.cursorPosition,
+    ITEM_POSITIONS.swapTarget.pagePosition +
+      ITEM_POSITIONS.swapTarget.cursorPosition
+  )
+  selectSwapOrderSource(
+    ITEM_POSITIONS.swapTarget.pagePosition,
+    ITEM_POSITIONS.swapTarget.cursorPosition
+  )
+}
+const executeSwap = (item1Index, item2Index) => {
+  const item1 = { ...window.data.savemap.items[item1Index] }
+  const item2 = { ...window.data.savemap.items[item2Index] }
+  window.data.savemap.items[item1Index] = item2
+  window.data.savemap.items[item2Index] = item1
+  drawItems()
+}
+const selectSwapOrderEnd = () => {
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y
+  )
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  removeTemporarySwapPointer()
+  clearItemDescription()
+  setItemSliderPosition(ITEM_POSITIONS.use)
+  setItemPagePosition(ITEM_POSITIONS.use)
+  setMenuState('items-action-select')
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU ITEMS', key, firstPress, state)
   if (state === 'items-action-select') {
@@ -788,6 +923,36 @@ const keyPress = async (key, firstPress, state) => {
       selectArrangeNavigation(false)
     } else if (key === KEY.DOWN) {
       selectArrangeNavigation(true)
+    }
+  }
+  if (state === 'items-swap-source') {
+    if (key === KEY.X) {
+      selectSwapOrderSourceCancel()
+    } else if (key === KEY.O) {
+      selectSwapOrderSourceConfirm()
+    } else if (key === KEY.UP) {
+      selectSwapOrderSourceNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectSwapOrderSourceNavigation(true)
+    } else if (key === KEY.L1) {
+      selectSwapOrderSourcePageNavigation(false)
+    } else if (key === KEY.R1) {
+      selectSwapOrderSourcePageNavigation(true)
+    }
+  }
+  if (state === 'items-swap-target') {
+    if (key === KEY.X) {
+      selectSwapOrderTargetCancel()
+    } else if (key === KEY.O) {
+      selectSwapOrderTargetConfirm()
+    } else if (key === KEY.UP) {
+      selectSwapOrderTargetNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectSwapOrderTargetNavigation(true)
+    } else if (key === KEY.L1) {
+      selectSwapOrderTargetPageNavigation(false)
+    } else if (key === KEY.R1) {
+      selectSwapOrderTargetPageNavigation(true)
     }
   }
 }
