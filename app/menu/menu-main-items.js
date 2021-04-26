@@ -34,7 +34,7 @@ const loadItemsMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  await addTextToDialog(
+  addTextToDialog(
     itemActions,
     'Use',
     'items-actions-use',
@@ -44,7 +44,7 @@ const loadItemsMenu = async () => {
     14.5,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     itemActions,
     'Arrange',
     'items-actions-arrange',
@@ -54,7 +54,7 @@ const loadItemsMenu = async () => {
     14.5,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     itemActions,
     'Key Items',
     'items-actions-arrange',
@@ -158,15 +158,17 @@ const loadItemsMenu = async () => {
   itemArrange = await createDialogBox({
     id: 3,
     name: 'itemArrange',
-    w: 70,
-    h: 150,
-    x: 120,
-    y: 18,
+    w: 72.5,
+    h: 113.5,
+    x: 110.5,
+    y: 12.5,
     expandInstantly: true,
     noClipping: true
   })
-  // itemArrange.visible = true
+  drawArrangeOptions()
+  itemArrange.visible = false
   window.itemArrange = itemArrange
+  ACTION_POSITIONS.action = 0
   movePointer(
     POINTERS.pointer1,
     ACTION_POSITIONS.x[ACTION_POSITIONS.action],
@@ -289,6 +291,8 @@ const itemActionConfirm = () => {
     setItemDescription()
     setMenuState('items-item-select')
     setItemSliderPosition()
+  } else if (currentAction === 'Arrange') {
+    showArrangeMenu()
   }
 }
 const drawItems = async () => {
@@ -330,7 +334,7 @@ const drawItems = async () => {
     )
     addTextToDialog(
       itemListGroup,
-      ('' + Math.max(99, itemData.quantity)).padStart(3, ' '),
+      ('' + Math.min(99, itemData.quantity)).padStart(3, ' '),
       `items-count-${i}`,
       LETTER_TYPES.MenuTextStats,
       color,
@@ -521,6 +525,232 @@ const tweenItems = (listGroup, from, to, metadata, up) => {
     })
     .start()
 }
+
+const ARRANGE_POSITIONS = {
+  x: 109.5,
+  y: new Array(8).fill(null).map((v, i) => 25 + 13 * i),
+  offset: { x: -3.5, y: 4 },
+  option: 0,
+  options: [
+    'Customize',
+    'Field',
+    'Battle',
+    'Throw',
+    'Type',
+    'Name',
+    'Most',
+    'Least'
+  ]
+}
+
+const drawArrangeOptions = () => {
+  for (let i = 0; i < ARRANGE_POSITIONS.y.length; i++) {
+    const y = ARRANGE_POSITIONS.y[i]
+    const text = ARRANGE_POSITIONS.options[i]
+    addTextToDialog(
+      itemArrange,
+      text,
+      `items-arrange-text-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      ARRANGE_POSITIONS.x,
+      y,
+      0.5
+    )
+  }
+}
+const showArrangeMenu = () => {
+  setMenuState('items-arrange-select')
+  itemArrange.visible = true
+  movePointer(
+    POINTERS.pointer2,
+    ARRANGE_POSITIONS.x + ARRANGE_POSITIONS.offset.x,
+    ARRANGE_POSITIONS.y[ARRANGE_POSITIONS.option] + ARRANGE_POSITIONS.offset.y
+  )
+}
+
+const selectArrangeCancel = () => {
+  itemArrange.visible = false
+  setMenuState('items-action-select')
+  ARRANGE_POSITIONS.option = 0
+  movePointer(
+    POINTERS.pointer2,
+    ARRANGE_POSITIONS.x,
+    ARRANGE_POSITIONS.y[ARRANGE_POSITIONS.option],
+    true
+  )
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y
+  )
+  //
+}
+const selectArrangeConfirm = () => {
+  const currentOption = ARRANGE_POSITIONS.options[ARRANGE_POSITIONS.option]
+  switch (currentOption) {
+    case 'Customize':
+      // TODO
+      break
+    case 'Field':
+      sortItemsByRestriction('CanBeUsedInMenu')
+      break
+    case 'Battle':
+      sortItemsByRestriction('CanBeUsedInBattle')
+      break
+    case 'Throw':
+      sortItemsByRestriction('CanBeThrown')
+      break
+    case 'Type':
+      sortItemsByAttribute('itemId')
+      break
+    case 'Name':
+      sortItemsByAttribute('name')
+      break
+    case 'Most':
+      sortItemsByAttribute('quantity', true)
+      break
+    case 'Least':
+      sortItemsByAttribute('quantity')
+      break
+    default:
+      break
+  }
+}
+const sortItemsByAttribute = (attribute, descending) => {
+  // Note: This is not correct. See https://github.com/p3k22/FF7-Csharp/blob/main/FF7%20Arrange%20Inventory.cs
+
+  if (
+    itemListGroup.userData.items.length > 0 &&
+    typeof itemListGroup.userData.items[0][attribute] === 'string'
+  ) {
+    itemListGroup.userData.items.sort((a, b) =>
+      a[attribute].localeCompare(b[attribute])
+    )
+  } else {
+    console.log(
+      'item sortItemsByAttribute number',
+      attribute,
+      itemListGroup.userData.items[0][attribute],
+      itemListGroup.userData.items[1][attribute],
+      itemListGroup.userData.items[0][attribute] <
+        itemListGroup.userData.items[1][attribute]
+    )
+    if (!descending) {
+      itemListGroup.userData.items.sort((a, b) => {
+        const res = a[attribute] - b[attribute]
+        if (res === 0) {
+          return a.itemId - b.itemId
+        } else {
+          return res
+        }
+      })
+    } else {
+      itemListGroup.userData.items.sort((a, b) => {
+        const res = b[attribute] - a[attribute]
+        if (res === 0) {
+          return a.itemId - b.itemId
+        } else {
+          return res
+        }
+      })
+    }
+  }
+
+  const itemsSimple = itemListGroup.userData.items.map(item => {
+    return {
+      itemId: item.itemId,
+      quantity: item.quantity,
+      name: item.name
+    }
+  })
+  while (itemsSimple.length < 320) {
+    itemsSimple.push({
+      itemId: 127,
+      quantity: 127,
+      name: ''
+    })
+  }
+  window.data.savemap.items = itemsSimple
+  drawItems()
+  console.log('item sortItemsByRestriction result', itemsSimple)
+  selectArrangeCancel()
+}
+const sortItemsByRestriction = restriction => {
+  // Note: This is not correct. See https://github.com/p3k22/FF7-Csharp/blob/main/FF7%20Arrange%20Inventory.cs
+
+  // itemListGroup.userData.items = itemListGroup.userData.items.reverse()
+  // itemListGroup.userData.items.sort((item1, item2) => {
+  //   if (item1.restrictions.includes(restriction)) {
+  //     if (item2.restrictions.includes(restriction)) {
+  //       return 0
+  //     } else {
+  //       return 1
+  //     }
+  //   } else if (item2.restrictions.includes(restriction)) {
+  //     return -1
+  //   } else {
+  //     return 0
+  //   }
+  // })
+  // itemListGroup.userData.items = itemListGroup.userData.items.reverse()
+  // const itemsSimple = itemListGroup.userData.items.map(item => {
+  //   return {
+  //     itemId: item.itemId,
+  //     quantity: item.quantity,
+  //     name: item.name
+  //   }
+  // })
+
+  const yesGroup = []
+  const noGroup = []
+  for (let i = 0; i < itemListGroup.userData.items.length; i++) {
+    const item = itemListGroup.userData.items[i]
+    if (item.restrictions.includes(restriction)) {
+      yesGroup.push({
+        itemId: item.itemId,
+        quantity: item.quantity,
+        name: item.name
+      })
+    } else {
+      noGroup.push({
+        itemId: item.itemId,
+        quantity: item.quantity,
+        name: item.name
+      })
+    }
+  }
+  const itemsSimple = yesGroup.concat(noGroup)
+
+  while (itemsSimple.length < 320) {
+    itemsSimple.push({
+      itemId: 127,
+      quantity: 127,
+      name: ''
+    })
+  }
+  window.data.savemap.items = itemsSimple
+  drawItems()
+  console.log('item sortItemsByRestriction result', itemsSimple)
+  selectArrangeCancel()
+}
+const selectArrangeNavigation = up => {
+  if (up) {
+    ARRANGE_POSITIONS.option++
+  } else {
+    ARRANGE_POSITIONS.option--
+  }
+  if (ARRANGE_POSITIONS.option < 0) {
+    ARRANGE_POSITIONS.option = ARRANGE_POSITIONS.y.length - 1
+  } else if (ARRANGE_POSITIONS.option >= ARRANGE_POSITIONS.y.length) {
+    ARRANGE_POSITIONS.option = 0
+  }
+  movePointer(
+    POINTERS.pointer2,
+    ARRANGE_POSITIONS.x + ARRANGE_POSITIONS.offset.x,
+    ARRANGE_POSITIONS.y[ARRANGE_POSITIONS.option] + ARRANGE_POSITIONS.offset.y
+  )
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU ITEMS', key, firstPress, state)
   if (state === 'items-action-select') {
@@ -547,6 +777,17 @@ const keyPress = async (key, firstPress, state) => {
       selectItemPageNavigation(false)
     } else if (key === KEY.R1) {
       selectItemPageNavigation(true)
+    }
+  }
+  if (state === 'items-arrange-select') {
+    if (key === KEY.X) {
+      selectArrangeCancel()
+    } else if (key === KEY.O) {
+      selectArrangeConfirm()
+    } else if (key === KEY.UP) {
+      selectArrangeNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectArrangeNavigation(true)
     }
   }
 }
