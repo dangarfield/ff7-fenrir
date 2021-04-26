@@ -80,7 +80,31 @@ const WINDOW_COLORS_SUMMARY = {
   LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.Red),
   LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
   LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
-  LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue)
+  LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue),
+  ITEM_LIST_SLIDER_BG: [
+    'rgb(25,25,75)',
+    'rgb(25,25,75)',
+    'rgb(25,25,75)',
+    'rgb(25,25,75)'
+  ],
+  ITEM_LIST_SLIDER_M: [
+    'rgb(160,160,160)',
+    'rgb(160,160,160)',
+    'rgb(160,160,160)',
+    'rgb(160,160,160)'
+  ],
+  ITEM_LIST_SLIDER_TB: [
+    'rgb(240,240,240)',
+    'rgb(240,240,240)',
+    'rgb(64,64,64)',
+    'rgb(64,64,64)'
+  ],
+  ITEM_LIST_SLIDER_LR: [
+    'rgb(200,200,200)',
+    'rgb(112,112,112)',
+    'rgb(200,200,200)',
+    'rgb(112,112,112)'
+  ]
 }
 const createFadeOverlay = () => {
   const fade = new THREE.Mesh(
@@ -913,6 +937,7 @@ const addShapeToDialog = async (
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
   bg.userData = { id: id }
   dialogBox.add(bg)
+  return bg
 }
 
 const adjustDialogShrinkPos = (mesh, step, stepTotal, z, from, to) => {
@@ -1085,6 +1110,76 @@ const expandDialog = async (dialogBox, type) => {
       .start()
   })
 }
+
+const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
+  const sliderBg = addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
+    'slider-bg',
+    x,
+    window.config.sizing.height - y,
+    8,
+    h
+  )
+  dialog.userData.sliderBg = sliderBg
+
+  const slider = new THREE.Group()
+  slider.position.x = x
+  slider.position.y = y
+  slider.position.z = dialog.userData.z
+  slider.userData.z = dialog.userData.z
+
+  slider.userData.sliderHeight = h / ((totalLines - pageSize) / pageSize)
+  slider.userData.yMin = y + h / 2 - slider.userData.sliderHeight / 2
+  slider.userData.yMax = y - h / 2 + slider.userData.sliderHeight / 2
+  slider.userData.moveToPage = page => {
+    const newY =
+      slider.userData.yMin -
+      (slider.userData.yMin - slider.userData.yMax) *
+        (page / (totalLines - pageSize))
+    slider.position.y = newY
+    console.log(
+      'item moveToPage',
+      page,
+      slider,
+      slider.userData.yMin,
+      slider.userData.yMin - slider.userData.yMax,
+      page / (totalLines - pageSize),
+      newY
+    )
+  }
+
+  dialog.add(slider)
+  dialog.userData.slider = slider
+
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_TB,
+    'slider-main',
+    0,
+    window.config.sizing.height,
+    8,
+    h / ((totalLines - pageSize) / pageSize)
+  )
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_LR,
+    'slider-main',
+    0,
+    window.config.sizing.height,
+    8,
+    h / ((totalLines - pageSize) / pageSize) - 1
+  )
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_M,
+    'slider-main',
+    0,
+    window.config.sizing.height,
+    8 - 1,
+    h / ((totalLines - pageSize) / pageSize) - 1
+  )
+}
 export {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -1105,5 +1200,6 @@ export {
   expandDialog,
   createFadeOverlay,
   fadeOverlayIn,
-  fadeOverlayOut
+  fadeOverlayOut,
+  createItemListNavigation
 }

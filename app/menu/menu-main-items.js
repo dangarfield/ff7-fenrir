@@ -12,7 +12,8 @@ import {
   fadeOverlayOut,
   fadeOverlayIn,
   addCharacterSummary,
-  addImageToDialog
+  addImageToDialog,
+  createItemListNavigation
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY, getActiveInputs } from '../interaction/inputs.js'
@@ -125,6 +126,7 @@ const loadItemsMenu = async () => {
   })
   itemList.visible = true
   window.itemList = itemList
+  createItemListNavigation(itemList, 313, 96, 187, 320, 10)
 
   itemListGroup = new THREE.Group()
   itemListGroup.position.y = -60
@@ -286,6 +288,7 @@ const itemActionConfirm = () => {
     )
     setItemDescription()
     setMenuState('items-item-select')
+    setItemSliderPosition()
   }
 }
 const drawItems = async () => {
@@ -398,6 +401,9 @@ const setItemDescription = () => {
     0.5
   )
 }
+const setItemSliderPosition = () => {
+  itemList.userData.slider.userData.moveToPage(ITEM_POSITIONS.pagePosition)
+}
 const selectItemCancel = () => {
   setMenuState('items-action-select')
   movePointer(
@@ -427,6 +433,7 @@ const selectItemNavigation = up => {
       const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
       tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
       // itemListGroup.position.y = newY
+      setItemSliderPosition()
     } else {
       // Move pointer
       ITEM_POSITIONS.cursorPosition++
@@ -451,6 +458,7 @@ const selectItemNavigation = up => {
       const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
       tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
       // itemListGroup.position.y = newY
+      setItemSliderPosition()
     } else {
       // Move pointer
       ITEM_POSITIONS.cursorPosition--
@@ -486,6 +494,7 @@ const selectItemPageNavigation = up => {
   const newY = ITEM_POSITIONS.pagePosition * ITEM_Y_GAP - 60
   itemListGroup.position.y = newY
   setItemDescription()
+  setItemSliderPosition()
   console.log(
     'item selectItemPageNavigation',
     up,
