@@ -1,5 +1,5 @@
 import { KEY, getKeyPressEmitter } from '../interaction/inputs.js'
-import { getMenuState } from './menu-module.js'
+import { getMenuState, resolveMenuPromise } from './menu-module.js'
 import { keyPress as keyPressMain } from './menu-main-home.js'
 import { keyPress as keyPressItems } from './menu-main-items.js'
 import { keyPress as keyPressMagic } from './menu-main-magic.js'
@@ -39,6 +39,8 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
   } else if (state.startsWith('quit')) {
     // keyPressItems(key, firstPress, state)
     // Nothing...
+  } else {
+    resolveMenuPromise()
   }
 }
 const initMenuKeypressActions = () => {
