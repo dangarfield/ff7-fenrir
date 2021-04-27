@@ -19,7 +19,9 @@ import {
   expandDialog,
   createFadeOverlay,
   fadeOverlayIn,
-  fadeOverlayOut
+  fadeOverlayOut,
+  addLimitToDialog,
+  addLevelToDialog
 } from './menu-box-helper.js'
 import {
   getMenuState,
@@ -315,8 +317,6 @@ const drawHomeMain = () => {
     }
     if (member !== 'None') {
       const char = window.data.savemap.characters[member]
-      const expPerc = char.level.progressBar / 100
-      const limitPerc = char.limit.bar / 255
 
       addCharacterSummary(
         charGroup,
@@ -360,68 +360,8 @@ const drawHomeMain = () => {
         30.5,
         0.5
       )
-      addImageToDialog(
-        charGroup,
-        'bars',
-        'level',
-        `level-bar-bg-${i}`,
-        200.5,
-        19.5,
-        0.5
-      )
-      addImageToDialog(
-        charGroup,
-        'bars',
-        'level',
-        `limit-bar-bg-${i}`,
-        200.5,
-        39.5,
-        0.5
-      )
-      addShapeToDialog(
-        charGroup,
-        WINDOW_COLORS_SUMMARY.EXP_1,
-        `level-bar-${i}a`,
-        200,
-        19.5 - 2.5,
-        58,
-        3,
-        expPerc,
-        THREE.AdditiveBlending
-      )
-      addShapeToDialog(
-        charGroup,
-        WINDOW_COLORS_SUMMARY.EXP_2,
-        `level-bar-${i}b`,
-        200,
-        19.5 + 0.5,
-        58,
-        3,
-        expPerc,
-        THREE.AdditiveBlending
-      )
-      addShapeToDialog(
-        charGroup,
-        WINDOW_COLORS_SUMMARY.LIMIT_1,
-        `limit-bar-${i}a`,
-        200,
-        39.5 - 2.5,
-        58,
-        3,
-        limitPerc,
-        THREE.AdditiveBlending
-      )
-      addShapeToDialog(
-        charGroup,
-        WINDOW_COLORS_SUMMARY.LIMIT_2,
-        `limit-bar-${i}b`,
-        200,
-        39.5 + 0.5,
-        58,
-        3,
-        limitPerc,
-        THREE.AdditiveBlending
-      )
+      addLevelToDialog(charGroup, 200, 19.5, char)
+      addLimitToDialog(charGroup, 200, 39.5, char)
     }
   }
   return charGroups

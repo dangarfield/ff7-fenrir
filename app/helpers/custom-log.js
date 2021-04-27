@@ -7,13 +7,9 @@ window.console = (function (origConsole) {
     terms: [
       'FLOW ERROR',
       'executeOpDEBUG',
-      'menu',
-      'pointer',
-      'navSelect',
-      'Nav Select',
       'press MAIN MENU HOME',
       'movePointer',
-      'item'
+      'limit'
     ],
     log: function () {
       if (limit) {

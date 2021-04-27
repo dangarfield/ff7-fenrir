@@ -589,6 +589,7 @@ const addTextToDialog = async (
     }
   }
   dialogBox.add(textGroup)
+  return textGroup
 }
 const addImageToDialog = async (dialogBox, type, image, id, x, y, scale) => {
   const textureLetter = getImageTexture(type, image)
@@ -604,6 +605,7 @@ const addImageToDialog = async (dialogBox, type, image, id, x, y, scale) => {
   }
   mesh.position.set(posX, posY, dialogBox.userData.z)
   dialogBox.add(mesh)
+  return mesh
 }
 const slideFrom = async dialog => {
   return new Promise(resolve => {
@@ -665,7 +667,7 @@ const addCharacterSummary = async (
   const labelOffsetY = 13
   const labelGapY = 11
   const statsOffsetX = 15.5
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     name,
     `summary-name-${charId}`,
@@ -676,7 +678,7 @@ const addCharacterSummary = async (
     0.5
   )
 
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     'LV',
     `summary-lvl-label-${charId}`,
@@ -686,7 +688,7 @@ const addCharacterSummary = async (
     window.config.sizing.height - y + labelOffsetY,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     'HP',
     `summary-hp-label-${charId}`,
@@ -696,7 +698,7 @@ const addCharacterSummary = async (
     window.config.sizing.height - y + labelOffsetY + labelGapY,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     'MP',
     `summary-mp-label-${charId}`,
@@ -707,7 +709,7 @@ const addCharacterSummary = async (
     0.5
   )
   if (status) {
-    await addTextToDialog(
+    addTextToDialog(
       dialogBox,
       status,
       `summary-status-${charId}`,
@@ -719,7 +721,7 @@ const addCharacterSummary = async (
     )
   }
 
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     ('' + level).padStart(2, ' '),
     `summary-lvl-${charId}`,
@@ -729,7 +731,7 @@ const addCharacterSummary = async (
     window.config.sizing.height - y + labelOffsetY,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     `${('' + currentHP).padStart(4, ' ')}/${('' + maxHP).padStart(4, ' ')}`,
     `summary-hp-basic-${charId}`,
@@ -741,7 +743,7 @@ const addCharacterSummary = async (
   )
 
   if (hpPerc < 0.1) {
-    await addTextToDialog(
+    addTextToDialog(
       dialogBox,
       ('' + currentHP).padStart(4, ' '),
       `summary-hp-low-${charId}`,
@@ -753,7 +755,7 @@ const addCharacterSummary = async (
     )
   }
 
-  await addTextToDialog(
+  addTextToDialog(
     dialogBox,
     `${('' + currentMP).padStart(4, ' ')}/${('' + maxMP).padStart(4, ' ')}`,
     `summary-mp-basic-${charId}`,
@@ -765,7 +767,7 @@ const addCharacterSummary = async (
   )
 
   if (mpPerc < 0.1) {
-    await addTextToDialog(
+    addTextToDialog(
       dialogBox,
       ('' + currentMP).padStart(4, ' '),
       `summary-mp-low-${charId}`,
@@ -778,7 +780,7 @@ const addCharacterSummary = async (
   }
   const max = 52.5
   const xBarPos = x + statsOffsetX + 34.5
-  await addShapeToDialog(
+  addShapeToDialog(
     dialogBox,
     WINDOW_COLORS_SUMMARY.BG,
     `hp-bg-${charId}`,
@@ -787,7 +789,7 @@ const addCharacterSummary = async (
     max,
     2
   )
-  await addShapeToDialog(
+  addShapeToDialog(
     dialogBox,
     WINDOW_COLORS_SUMMARY.HP,
     `hp-${charId}`,
@@ -797,7 +799,7 @@ const addCharacterSummary = async (
     1,
     hpPerc
   )
-  await addShapeToDialog(
+  addShapeToDialog(
     dialogBox,
     WINDOW_COLORS_SUMMARY.BG,
     `mp-bg-${charId}`,
@@ -806,7 +808,7 @@ const addCharacterSummary = async (
     max,
     2
   )
-  await addShapeToDialog(
+  addShapeToDialog(
     dialogBox,
     WINDOW_COLORS_SUMMARY.MP,
     `mp-${charId}`,
@@ -1180,6 +1182,60 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     h / (totalLines / pageSize) - 1
   )
 }
+const addLimitToDialog = (dialog, x, y, char) => {
+  const limitPerc = char.limit.bar / 255
+
+  addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', x + 0.5, y, 0.5)
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.LIMIT_1,
+    'limit-bar-a',
+    x,
+    y - 2.5,
+    58,
+    3,
+    limitPerc,
+    THREE.AdditiveBlending
+  )
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.LIMIT_2,
+    'limit-bar-b',
+    x,
+    y + 0.5,
+    58,
+    3,
+    limitPerc,
+    THREE.AdditiveBlending
+  )
+}
+const addLevelToDialog = (dialog, x, y, char) => {
+  const expPerc = char.level.progressBar / 100
+
+  addImageToDialog(dialog, 'bars', 'level', 'level-bar-bg', x + 0.5, y, 0.5)
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.EXP_1,
+    'level-bar-a',
+    x,
+    y - 2.5,
+    58,
+    3,
+    expPerc,
+    THREE.AdditiveBlending
+  )
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.EXP_2,
+    'level-bar-b',
+    x,
+    y + 0.5,
+    58,
+    3,
+    expPerc,
+    THREE.AdditiveBlending
+  )
+}
 export {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -1202,5 +1258,7 @@ export {
   createFadeOverlay,
   fadeOverlayIn,
   fadeOverlayOut,
-  createItemListNavigation
+  createItemListNavigation,
+  addLimitToDialog,
+  addLevelToDialog
 }
