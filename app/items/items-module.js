@@ -1,3 +1,5 @@
+import { getBankData } from '../data/savemap.js'
+
 const setItemToInventory = (position, itemId, quantity) => {
   const item = {
     itemId: itemId,
@@ -77,5 +79,36 @@ const debugClearItems = () => {
   }
   console.log('debugClearItems - window.data.savemap', window.data.savemap)
 }
-
-export { debugFillItems, debugClearItems, getItemIcon }
+const dec2bin = dec => {
+  return (dec >>> 0).toString(2)
+}
+const getKeyItems = () => {
+  // Bank 1, var 64 - 70
+  const keyItems = []
+  let ids = []
+  for (let i = 64; i <= 70; i++) {
+    // Each has 8 bits, starting with the rightmost bit, put into an array of booleans
+    // const bankVal = Math.floor(Math.random() * 255) + 0 // Just for testing
+    const bankVal = getBankData(1, i)
+    const valBin = dec2bin(bankVal).padStart(8, '0')
+    const valBinArray = valBin
+      .split('')
+      .reverse()
+      .map(v => v === '1')
+    console.log('item keyItems', i, bankVal, valBin, valBinArray)
+    // array corresponds to window.data.kernel.keyitemNames & window.data.kernel.keyitemDescriptions
+    ids = ids.concat(valBinArray)
+  }
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i]
+    if (id && window.data.kernel.keyitemNames[i] !== '') {
+      keyItems.push({
+        name: window.data.kernel.keyitemNames[i],
+        description: window.data.kernel.keyitemDescriptions[i]
+      })
+    }
+  }
+  console.log('item keyItems done', ids, keyItems)
+  return keyItems
+}
+export { debugFillItems, debugClearItems, getItemIcon, getKeyItems }

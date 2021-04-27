@@ -18,7 +18,7 @@ import {
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY, getActiveInputs } from '../interaction/inputs.js'
-import { getItemIcon } from '../items/items-module.js'
+import { getItemIcon, getKeyItems } from '../items/items-module.js'
 
 let itemActions, itemDesc, itemParty, itemList, itemKeyList, itemArrange
 let itemListGroup, itemKeyListGroup, itemDescGroup
@@ -147,14 +147,17 @@ const loadItemsMenu = async () => {
     expandInstantly: true
   })
   itemKeyList.visible = true
-  window.itemKeyList = itemList
+  window.itemKeyList = itemKeyList
+  createItemListNavigation(itemKeyList, 313, 96, 187, 32, 10)
+  itemKeyList.userData.slider.visible = false
 
   itemKeyListGroup = new THREE.Group()
-  itemKeyListGroup.position.y = -60
-  itemKeyListGroup.position.x = 160
+  itemKeyListGroup.position.y = -67.5
+  itemKeyListGroup.position.x = 18.5
   itemKeyListGroup.position.z = 100 - itemKeyList.userData.id
   itemKeyList.add(itemKeyListGroup)
   window.itemKeyListGroup = itemKeyListGroup
+  drawKeyItems()
 
   itemArrange = await createDialogBox({
     id: 3,
@@ -266,9 +269,11 @@ const itemActionNavigation = up => {
   if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Key Items') {
     itemParty.visible = false
     itemList.visible = false
+    itemKeyList.userData.slider.visible = true
   } else {
     itemParty.visible = true
     itemList.visible = true
+    itemKeyList.userData.slider.visible = false
   }
   console.log('itemActionNavigation', up, ACTION_POSITIONS)
   movePointer(
@@ -299,6 +304,8 @@ const itemActionConfirm = () => {
     setItemPagePosition(ITEM_POSITIONS.use)
   } else if (currentAction === 'Arrange') {
     showArrangeMenu()
+  } else if (currentAction === 'Key Items') {
+    selectKeyItems()
   }
 }
 const drawItems = async () => {
@@ -463,7 +470,20 @@ const itemNavigation = (up, POS) => {
       console.log('item selectItemNavigation - up shift page')
       const oldY = itemListGroup.position.y
       const newY = POS.pagePosition * ITEM_Y_GAP - 60
-      tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
+      tweenItems(
+        itemListGroup,
+        { y: oldY },
+        { y: newY },
+        ITEM_POSITIONS,
+        function () {
+          // Very jagged...
+          if (up && getActiveInputs().up) {
+            selectItemNavigation(up)
+          } else if (!up && getActiveInputs().down) {
+            selectItemNavigation(up)
+          }
+        }
+      )
       // itemListGroup.position.y = newY
       setItemSliderPosition(POS)
     } else {
@@ -488,7 +508,20 @@ const itemNavigation = (up, POS) => {
       console.log('item selectItemNavigation - down shift page')
       const oldY = itemListGroup.position.y
       const newY = POS.pagePosition * ITEM_Y_GAP - 60
-      tweenItems(itemListGroup, { y: oldY }, { y: newY }, ITEM_POSITIONS, up)
+      tweenItems(
+        itemListGroup,
+        { y: oldY },
+        { y: newY },
+        ITEM_POSITIONS,
+        function () {
+          // Very jagged...
+          if (up && getActiveInputs().up) {
+            selectItemNavigation(up)
+          } else if (!up && getActiveInputs().down) {
+            selectItemNavigation(up)
+          }
+        }
+      )
       // itemListGroup.position.y = newY
       setItemSliderPosition(POS)
     } else {
@@ -544,7 +577,7 @@ const itemPageNavigation = (up, POS) => {
   )
 }
 
-const tweenItems = (listGroup, from, to, metadata, up) => {
+const tweenItems = (listGroup, from, to, metadata, resolve) => {
   metadata.tweenInProgress = true
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
@@ -553,12 +586,7 @@ const tweenItems = (listGroup, from, to, metadata, up) => {
     })
     .onComplete(function () {
       metadata.tweenInProgress = false
-      // Very jagged...
-      if (up && getActiveInputs().up) {
-        selectItemNavigation(up)
-      } else if (!up && getActiveInputs().down) {
-        selectItemNavigation(up)
-      }
+      resolve()
     })
     .start()
 }
@@ -886,6 +914,208 @@ const selectSwapOrderEnd = () => {
   setItemPagePosition(ITEM_POSITIONS.use)
   setMenuState('items-action-select')
 }
+const KEYITEM_Y_GAP = 18
+const KEYITEM_POSITIONS = {
+  positions: new Array(64).fill(null).map((v, i) => {
+    return { x: i % 2 ? 146.5 : 0, y: 0 + Math.floor(i / 2) * KEYITEM_Y_GAP }
+  }),
+  pagePosition: 0,
+  cursorPosition: 0,
+  tweenInProgress: false
+}
+window.KEYITEM_POSITIONS = KEYITEM_POSITIONS
+const drawKeyItems = () => {
+  const keyItems = getKeyItems()
+  console.log('keyItems', keyItems)
+
+  itemKeyListGroup.userData.items = keyItems
+  for (let i = 0; i < keyItems.length; i++) {
+    const keyItem = keyItems[i]
+    addTextToDialog(
+      itemKeyListGroup,
+      keyItem.name,
+      `items-keylist-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      KEYITEM_POSITIONS.positions[i].x,
+      KEYITEM_POSITIONS.positions[i].y,
+      0.5
+    )
+  }
+  setItemKeyPagePosition()
+  setItemKeySliderPosition()
+}
+const setItemKeyPagePosition = () => {
+  const newY = KEYITEM_POSITIONS.pagePosition * KEYITEM_Y_GAP - 67.5
+  itemKeyListGroup.position.y = newY
+  for (let i = 0; i < itemKeyListGroup.children.length; i++) {
+    const keyItemGroup = itemKeyListGroup.children[i]
+    if (i < KEYITEM_POSITIONS.pagePosition * 2) {
+      keyItemGroup.visible = false
+    } else {
+      keyItemGroup.visible = true
+    }
+  }
+}
+const setItemKeySliderPosition = () => {
+  itemKeyList.userData.slider.userData.moveToPage(
+    KEYITEM_POSITIONS.pagePosition
+  )
+}
+
+const setItemKeyCursorPosition = () => {
+  const x = KEYITEM_POSITIONS.cursorPosition % 2 ? 146.5 : 0
+  const y = Math.floor(KEYITEM_POSITIONS.cursorPosition / 2) * KEYITEM_Y_GAP
+
+  movePointer(
+    POINTERS.pointer2,
+    x + 18.5 - 6,
+    y + 67.5 + 4.5
+    // KEYITEM_POSITIONS.positions[KEYITEM_POSITIONS.cursorPosition].x + 18.5 - 6,
+    // KEYITEM_POSITIONS.positions[KEYITEM_POSITIONS.cursorPosition].y + 67.5 + 4.5
+  )
+}
+const setItemKeyDescription = () => {
+  clearItemDescription()
+  const item =
+    itemKeyListGroup.userData.items[
+      KEYITEM_POSITIONS.pagePosition * 2 + KEYITEM_POSITIONS.cursorPosition
+    ]
+  if (item === undefined) {
+    return
+  }
+  addTextToDialog(
+    itemDescGroup,
+    item.description,
+    'item-desciption',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    0,
+    0.5
+  )
+}
+const selectKeyItems = () => {
+  setMenuState('items-keyitem-select')
+  KEYITEM_POSITIONS.pagePosition = 0
+  KEYITEM_POSITIONS.cursorPosition = 0
+  setItemKeyPagePosition()
+  setItemKeySliderPosition()
+  setItemKeyCursorPosition()
+  setItemKeyDescription()
+}
+const selectKeyItemCancel = () => {
+  setMenuState('items-action-select')
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y
+  )
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  clearItemDescription()
+}
+const selectKeyItemConfirm = () => {}
+const selectKeyItemNavigation = indexShift => {
+  if (KEYITEM_POSITIONS.tweenInProgress) {
+    return
+  }
+  let slide = false
+
+  if (indexShift === -1) {
+    if (KEYITEM_POSITIONS.cursorPosition > 0) {
+      // Just move cursor
+      KEYITEM_POSITIONS.cursorPosition--
+    } else {
+      if (KEYITEM_POSITIONS.pagePosition === 0) {
+        // Do nothing
+      } else {
+        KEYITEM_POSITIONS.cursorPosition++
+        KEYITEM_POSITIONS.pagePosition--
+        slide = true
+      }
+    }
+  }
+
+  if (indexShift === -2) {
+    if (KEYITEM_POSITIONS.cursorPosition > 1) {
+      // Just move cursor
+      KEYITEM_POSITIONS.cursorPosition = KEYITEM_POSITIONS.cursorPosition - 2
+    } else {
+      if (KEYITEM_POSITIONS.pagePosition === 0) {
+        // Do nothing
+      } else {
+        KEYITEM_POSITIONS.pagePosition--
+        slide = true
+      }
+    }
+  }
+
+  if (indexShift === 1) {
+    if (KEYITEM_POSITIONS.cursorPosition < 19) {
+      // Just move cursor
+      KEYITEM_POSITIONS.cursorPosition++
+    } else {
+      if (KEYITEM_POSITIONS.pagePosition === 22) {
+        // Do nothing
+      } else {
+        KEYITEM_POSITIONS.cursorPosition--
+        KEYITEM_POSITIONS.pagePosition++
+        slide = true
+      }
+    }
+  }
+  if (indexShift === 2) {
+    if (KEYITEM_POSITIONS.cursorPosition < 18) {
+      // Just move cursor
+      KEYITEM_POSITIONS.cursorPosition = KEYITEM_POSITIONS.cursorPosition + 2
+    } else {
+      if (KEYITEM_POSITIONS.pagePosition === 22) {
+        // Do nothing
+      } else {
+        KEYITEM_POSITIONS.pagePosition++
+        slide = true
+      }
+    }
+  }
+
+  console.log('item selectKeyItemNavigation', KEYITEM_POSITIONS, slide)
+  // if pagePositions dont match, slide
+  if (slide) {
+    setItemKeySliderPosition()
+    const oldY = itemKeyListGroup.position.y
+    const newY = KEYITEM_POSITIONS.pagePosition * KEYITEM_Y_GAP - 67.5
+    tweenItems(
+      itemKeyListGroup,
+      { y: oldY },
+      { y: newY },
+      KEYITEM_POSITIONS,
+      function () {
+        console.log('item tween finished selectKeyItemNavigation')
+        setItemKeyPagePosition()
+      }
+    )
+  }
+
+  setItemKeyCursorPosition()
+  setItemKeyDescription()
+}
+const selectKeyItemPageNavigation = up => {
+  if (up) {
+    KEYITEM_POSITIONS.pagePosition = KEYITEM_POSITIONS.pagePosition + 10
+  } else {
+    KEYITEM_POSITIONS.pagePosition = KEYITEM_POSITIONS.pagePosition - 10
+  }
+  if (KEYITEM_POSITIONS.pagePosition < 0) {
+    KEYITEM_POSITIONS.pagePosition = 0
+  } else if (KEYITEM_POSITIONS.pagePosition >= 22) {
+    KEYITEM_POSITIONS.pagePosition = 22
+  }
+
+  setItemKeyPagePosition()
+  setItemKeySliderPosition()
+  // setItemKeyCursorPosition()
+  setItemKeyDescription()
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU ITEMS', key, firstPress, state)
   if (state === 'items-action-select') {
@@ -953,6 +1183,25 @@ const keyPress = async (key, firstPress, state) => {
       selectSwapOrderTargetPageNavigation(false)
     } else if (key === KEY.R1) {
       selectSwapOrderTargetPageNavigation(true)
+    }
+  }
+  if (state === 'items-keyitem-select') {
+    if (key === KEY.X) {
+      selectKeyItemCancel()
+    } else if (key === KEY.O) {
+      selectKeyItemConfirm()
+    } else if (key === KEY.LEFT) {
+      selectKeyItemNavigation(-1)
+    } else if (key === KEY.RIGHT) {
+      selectKeyItemNavigation(1)
+    } else if (key === KEY.UP) {
+      selectKeyItemNavigation(-2)
+    } else if (key === KEY.DOWN) {
+      selectKeyItemNavigation(2)
+    } else if (key === KEY.L1) {
+      selectKeyItemPageNavigation(false)
+    } else if (key === KEY.R1) {
+      selectKeyItemPageNavigation(true)
     }
   }
 }

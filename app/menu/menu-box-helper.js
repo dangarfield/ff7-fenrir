@@ -1129,7 +1129,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
   slider.position.z = dialog.userData.z
   slider.userData.z = dialog.userData.z
 
-  slider.userData.sliderHeight = h / ((totalLines - pageSize) / pageSize)
+  slider.userData.sliderHeight = (h / totalLines) * pageSize
   slider.userData.yMin = y + h / 2 - slider.userData.sliderHeight / 2
   slider.userData.yMax = y - h / 2 + slider.userData.sliderHeight / 2
   slider.userData.moveToPage = page => {
@@ -1144,7 +1144,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
       slider,
       slider.userData.yMin,
       slider.userData.yMin - slider.userData.yMax,
-      page / (totalLines - pageSize),
+      page / totalLines,
       newY
     )
   }
@@ -1159,7 +1159,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8,
-    h / ((totalLines - pageSize) / pageSize)
+    h / (totalLines / pageSize)
   )
   addShapeToDialog(
     slider,
@@ -1168,7 +1168,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8,
-    h / ((totalLines - pageSize) / pageSize) - 1
+    h / (totalLines / pageSize) - 1
   )
   addShapeToDialog(
     slider,
@@ -1177,7 +1177,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8 - 1,
-    h / ((totalLines - pageSize) / pageSize) - 1
+    h / (totalLines / pageSize) - 1
   )
 }
 export {
