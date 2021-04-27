@@ -3,7 +3,7 @@ import { getMenuState, resolveMenuPromise } from './menu-module.js'
 import { keyPress as keyPressMain } from './menu-main-home.js'
 import { keyPress as keyPressItems } from './menu-main-items.js'
 import { keyPress as keyPressMagic } from './menu-main-magic.js'
-import { keyPress as keyPressSummon } from './menu-main-summon.js'
+import { keyPress as keyPressMateria } from './menu-main-materia.js'
 import { keyPress as keyPressEquip } from './menu-main-equip.js'
 import { keyPress as keyPressStatus } from './menu-main-status.js'
 import { keyPress as keyPressLimit } from './menu-main-limit.js'
@@ -22,8 +22,8 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
     keyPressItems(key, firstPress, state)
   } else if (state.startsWith('magic')) {
     keyPressMagic(key, firstPress, state)
-  } else if (state.startsWith('summon')) {
-    keyPressSummon(key, firstPress, state)
+  } else if (state.startsWith('materia')) {
+    keyPressMateria(key, firstPress, state)
   } else if (state.startsWith('equip')) {
     keyPressEquip(key, firstPress, state)
   } else if (state.startsWith('status')) {

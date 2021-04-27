@@ -12,10 +12,10 @@ import {
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
-let summonActions, itemDesc, itemParty, itemList
+let materiaActions, itemDesc, itemParty, itemList
 
-const loadSummonMenu = async partyMember => {
-  summonActions = await createDialogBox({
+const loadMateriaMenu = async partyMember => {
+  materiaActions = await createDialogBox({
     id: 3,
     name: 'itemActions',
     w: 157,
@@ -28,8 +28,8 @@ const loadSummonMenu = async partyMember => {
     noClipping: true
   })
   await addTextToDialog(
-    summonActions,
-    `Summon menu - ${partyMember}`,
+    materiaActions,
+    `Materia menu - ${partyMember}`,
     'home-loc',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -37,11 +37,11 @@ const loadSummonMenu = async partyMember => {
     225,
     0.5
   )
-  summonActions.visible = true
-  window.itemActions = summonActions
+  materiaActions.visible = true
+  window.itemActions = materiaActions
   await fadeOverlayOut(getHomeBlackOverlay())
 
-  setMenuState('summon')
+  setMenuState('materia')
 
   movePointer(POINTERS.pointer1, 237, 17)
 }
@@ -49,17 +49,17 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   await fadeOverlayIn(getHomeBlackOverlay())
-  summonActions.visible = false
+  materiaActions.visible = false
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {
-  console.log('press MAIN MENU SUMMON', key, firstPress, state)
-  if (state === 'summon') {
+  console.log('press MAIN MENU MATERIA', key, firstPress, state)
+  if (state === 'materia') {
     if (key === KEY.X) {
-      console.log('press MAIN MENU SUMMON EXIT')
+      console.log('press MAIN MENU MATERIA EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
     }
   }
 }
-export { loadSummonMenu, keyPress }
+export { loadMateriaMenu, keyPress }

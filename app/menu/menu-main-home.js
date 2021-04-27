@@ -28,7 +28,7 @@ import {
 } from './menu-module.js'
 import { loadItemsMenu } from './menu-main-items.js'
 import { loadMagicMenu } from './menu-main-magic.js'
-import { loadSummonMenu } from './menu-main-summon.js'
+import { loadMateriaMenu } from './menu-main-materia.js'
 import { loadEquipMenu } from './menu-main-equip.js'
 import { loadStatusMenu } from './menu-main-status.js'
 import { loadLimitMenu } from './menu-main-limit.js'
@@ -50,7 +50,7 @@ let homeNav,
 const navOptions = [
   'Item',
   'Magic',
-  'Summon',
+  'Materia',
   'Equip',
   'Status',
   'Order',
@@ -62,7 +62,7 @@ const navOptions = [
 ]
 const navOptionsMembersRequired = [
   'Magic',
-  'Summon',
+  'Materia',
   'Equip',
   'Status',
   'Limit'
@@ -828,8 +828,8 @@ const loadSecondaryMenu = async (type, member) => {
     loadItemsMenu()
   } else if (type === 'Magic') {
     loadMagicMenu(member)
-  } else if (type === 'Summon') {
-    loadSummonMenu(member)
+  } else if (type === 'Materia') {
+    loadMateriaMenu(member)
   } else if (type === 'Equip') {
     loadEquipMenu(member)
   } else if (type === 'Status') {
