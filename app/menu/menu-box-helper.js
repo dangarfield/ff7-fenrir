@@ -1,14 +1,12 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { getCurrentGameTime } from '../data/savemap-alias.js'
 import { getConfigWindowColours } from '../data/savemap-config.js'
 import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
 const EDGE_SIZE = 8
-const LINE_HEIGHT = 16
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
   { text: 'SWITCH', char: '☐', key: 'button square' },
@@ -104,6 +102,12 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(112,112,112)',
     'rgb(200,200,200)',
     'rgb(112,112,112)'
+  ],
+  DIALOG_SPECIAL: [
+    'rgb(110,4,169)',
+    'rgb(110,4,125)',
+    'rgb(110,0,83)',
+    'rgb(110,0,35)'
   ]
 }
 const createFadeOverlay = () => {
@@ -151,8 +155,11 @@ const createDialogBox = async dialog => {
   const y = dialog.y
   const w = dialog.w
   const h = dialog.h
+  if (dialog.colors === undefined) {
+    dialog.colors = getConfigWindowColours()
+  }
   const z = 100 - id
-  console.log('createDialogBox', dialog, id, x, y, w, h, z)
+  console.log('limit createDialogBox', dialog, id, x, y, w, h, z, dialog.colors)
 
   const dialogBox = new THREE.Group()
   dialogBox.userData = dialog
@@ -167,11 +174,11 @@ const createDialogBox = async dialog => {
     'color',
     new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
   )
-  const windowColours = getConfigWindowColours()
-  for (let i = 0; i < windowColours.length; i++) {
+
+  for (let i = 0; i < dialog.colors.length; i++) {
     // This is not a smooth blend, but instead changes the vertices of the two triangles
     // This is how they do it in the game
-    const color = new THREE.Color(windowColours[i])
+    const color = new THREE.Color(dialog.colors[i])
     bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
   }
   // console.log('window.config', window.config)
@@ -372,13 +379,115 @@ const createDialogBox = async dialog => {
   scene.add(dialogBox)
   return dialogBox
 }
+
+const DIALOG_APPEAR_SPEED = 15
+const DIALOG_APPEAR_STEP_TOTAL = 6
+
+const showDialog = async dialogBox => {
+  dialogBox.visible = true
+
+  for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
+    await sleep(DIALOG_APPEAR_SPEED)
+    dialogBox.userData.posAdjustList.map(mesh =>
+      adjustDialogExpandPos(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.z
+      )
+    )
+    dialogBox.userData.sizeAdjustList.map(mesh =>
+      adjustDialogExpandSize(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.bgGeo,
+        dialogBox.userData.colors
+      )
+    )
+
+    dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
+      dialogBox.userData.w,
+      dialogBox.userData.h,
+      dialogBox.userData.z,
+      dialogBox.userData.sizeAdjustList[0],
+      dialogBox.userData.sizeAdjustList[1],
+      dialogBox.userData.sizeAdjustList[2],
+      dialogBox.userData.sizeAdjustList[3]
+    )
+    for (let i = 0; i < dialogBox.children.length; i++) {
+      const childlevel1 = dialogBox.children[i]
+      if (childlevel1.userData.isText || childlevel1.userData.isPointer) {
+        childlevel1.material.clippingPlanes =
+          dialogBox.userData.bg.material.clippingPlanes
+      }
+      if (childlevel1.children) {
+        for (let j = 0; j < childlevel1.children.length; j++) {
+          const childlevel2 = childlevel1.children[j]
+          if (childlevel2.userData.isText || childlevel2.userData.isPointer) {
+            childlevel2.material.clippingPlanes =
+              dialogBox.userData.bg.material.clippingPlanes
+          }
+        }
+      }
+    }
+  }
+}
+const closeDialog = async dialogBox => {
+  for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
+    dialogBox.userData.posAdjustList.map(mesh =>
+      adjustDialogExpandPos(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.z
+      )
+    )
+    dialogBox.userData.sizeAdjustList.map(mesh =>
+      adjustDialogExpandSize(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.bgGeo,
+        dialogBox.userData.colors
+      )
+    )
+    const clippingPlanes = createClippingPlanes(
+      dialogBox.userData.w,
+      dialogBox.userData.h,
+      dialogBox.userData.z,
+      dialogBox.userData.sizeAdjustList[0],
+      dialogBox.userData.sizeAdjustList[1],
+      dialogBox.userData.sizeAdjustList[2],
+      dialogBox.userData.sizeAdjustList[3]
+    )
+
+    dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
+    for (let i = 0; i < dialogBox.children.length; i++) {
+      if (
+        dialogBox.children[i].userData.isText ||
+        dialogBox.children[i].userData.isPointer
+      ) {
+        dialogBox.children[i].material.clippingPlanes = clippingPlanes
+      }
+    }
+    await sleep(DIALOG_APPEAR_SPEED)
+  }
+  dialogBox.visible = false
+}
 const enlargeInstant = dialogBox => {
   // await sleep(DIALOG_APPEAR_SPEED)
   dialogBox.userData.posAdjustList.map(mesh =>
     adjustDialogExpandPos(mesh, 1, 1, dialogBox.userData.z)
   )
   dialogBox.userData.sizeAdjustList.map(mesh =>
-    adjustDialogExpandSize(mesh, 1, 1, dialogBox.userData.bgGeo)
+    adjustDialogExpandSize(
+      mesh,
+      1,
+      1,
+      dialogBox.userData.bgGeo,
+      dialogBox.userData.colors
+    )
   )
   if (!dialogBox.userData.noClipping) {
     dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
@@ -410,7 +519,7 @@ const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
     z
   )
 }
-const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
+const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo, colors) => {
   mesh.geometry = new THREE.PlaneBufferGeometry(
     mesh.userData.sizeSmall.w -
       ((mesh.userData.sizeSmall.w - mesh.userData.sizeExpand.w) / stepTotal) *
@@ -423,11 +532,10 @@ const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
     'color',
     new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
   )
-  const windowColours = getConfigWindowColours()
-  for (let i = 0; i < windowColours.length; i++) {
+  for (let i = 0; i < colors.length; i++) {
     // This is not a smooth blend, but instead changes the vertices of the two triangles
     // This is how they do it in the game
-    const color = new THREE.Color(windowColours[i])
+    const color = new THREE.Color(colors[i])
     bgGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
   }
 }
@@ -492,7 +600,7 @@ const getDialogButton = char => {
   for (let i = 0; i < BUTTON_IMAGES.length; i++) {
     const buttonImage = BUTTON_IMAGES[i]
     if (buttonImage.char === char) {
-      return getWindowTextures()['buttons'][buttonImage.key] // TODO - Update these buttons
+      return getWindowTextures().buttons.[buttonImage.key] // TODO - Update these buttons
     }
   }
   return null
@@ -540,7 +648,40 @@ const getDialogTextures = () => {
     r: textures.borders['border r'].texture
   }
 }
+// const showDialog = async (dialogBox) => {
+//   dialogBox.visible = true
+//   const DIALOG_APPEAR_STEP_TOTAL = 3
+//   const DIALOG_APPEAR_SPEED = 3
+//   for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
+//     await sleep(DIALOG_APPEAR_SPEED)
+//     dialogBox.userData.posAdjustList.map(mesh =>
+//       adjustDialogExpandPos(
+//         mesh,
+//         step,
+//         DIALOG_APPEAR_STEP_TOTAL,
+//         dialogBox.userData.z
+//       )
+//     )
+//     dialogBox.userData.sizeAdjustList.map(mesh =>
+//       adjustDialogExpandSize(
+//         mesh,
+//         step,
+//         DIALOG_APPEAR_STEP_TOTAL,
+//         dialogBox.userData.bgGeo
+//       )
+//     )
 
+//     dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
+//       dialogBox.userData.w,
+//       dialogBox.userData.h,
+//       dialogBox.userData.z,
+//       dialogBox.userData.sizeAdjustList[0],
+//       dialogBox.userData.sizeAdjustList[1],
+//       dialogBox.userData.sizeAdjustList[2],
+//       dialogBox.userData.sizeAdjustList[3]
+//     )
+//   }
+// }
 const addTextToDialog = async (
   dialogBox,
   text,
@@ -951,7 +1092,7 @@ const adjustDialogShrinkPos = (mesh, step, stepTotal, z, from, to) => {
     z
   )
 }
-const adjustDialogShrinkSize = (mesh, step, stepTotal, from, to) => {
+const adjustDialogShrinkSize = (mesh, step, stepTotal, from, to, colors) => {
   mesh.geometry = new THREE.PlaneBufferGeometry(
     mesh.userData[from].w -
       ((mesh.userData[from].w - mesh.userData[to].w) / stepTotal) * step,
@@ -962,9 +1103,11 @@ const adjustDialogShrinkSize = (mesh, step, stepTotal, from, to) => {
     'color',
     new THREE.BufferAttribute(new Float32Array(4 * 3), 3)
   )
-  const windowColours = getConfigWindowColours()
-  for (let i = 0; i < windowColours.length; i++) {
-    const color = new THREE.Color(windowColours[i])
+  if (colors === undefined) {
+    colors = getConfigWindowColours()
+  }
+  for (let i = 0; i < colors.length; i++) {
+    const color = new THREE.Color(colors[i])
     mesh.geometry.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
   }
 }
@@ -1020,7 +1163,8 @@ const shrinkDialog = async (dialogBox, type) => {
           from.step,
           to.step,
           'sizeExpand',
-          'sizeShrink'
+          'sizeShrink',
+          dialogBox.userData.colors
         )
       )
       adjustDialogShrinkSize(
@@ -1028,7 +1172,8 @@ const shrinkDialog = async (dialogBox, type) => {
         from.step,
         to.step,
         'sizeExpand',
-        'sizeShrink'
+        'sizeShrink',
+        dialogBox.userData.colors
       )
     })
     .onComplete(function () {
@@ -1260,5 +1405,7 @@ export {
   fadeOverlayOut,
   createItemListNavigation,
   addLimitToDialog,
-  addLevelToDialog
+  addLevelToDialog,
+  showDialog,
+  closeDialog
 }

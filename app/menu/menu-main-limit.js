@@ -1,8 +1,9 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getMenuState, setMenuState } from './menu-module.js'
+import { setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
+  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   addTextToDialog,
   POINTERS,
@@ -11,12 +12,15 @@ import {
   fadeOverlayIn,
   addCharacterSummary,
   addImageToDialog,
-  addLimitToDialog
+  addLimitToDialog,
+  showDialog,
+  closeDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
+import { sleep } from '../helpers/helpers.js'
 
-let limitActions, limitDesc, limitList
+let limitActions, limitDesc, limitList, limitConfirm, limitConfirmComplete
 let limitActionsGroup, limitDescGroup, limitListGroup
 
 const loadLimitMenu = async partyMember => {
@@ -71,12 +75,98 @@ const loadLimitMenu = async partyMember => {
   limitList.visible = true
   window.limitListGroup = limitListGroup
 
+  limitConfirm = await createDialogBox({
+    id: 4,
+    name: 'limitConfirm',
+    w: 167,
+    h: 89,
+    x: 76.5,
+    y: 31,
+    expandInstantly: true
+  })
+  window.limitConfirm = limitConfirm
+  limitConfirmComplete = await createDialogBox({
+    id: 3,
+    name: 'limitConfirmComplete',
+    w: 58.5,
+    h: 25, // 30
+    x: 121,
+    y: 101.5,
+    colors: WINDOW_COLORS_SUMMARY.DIALOG_SPECIAL
+  })
+  // limitConfirmComplete.visible = true
+  window.limitConfirmComplete = limitConfirmComplete
+  drawConfirm()
+
   drawAll(partyMember)
 
   window.itemActions = limitActions
   await fadeOverlayOut(getHomeBlackOverlay())
   ACTION_POSITIONS.action = 0
   loadActionSelection()
+}
+const drawConfirm = () => {
+  addTextToDialog(
+    limitConfirm,
+    'To change BREAK LEVEL,',
+    'limit-confirm-1',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    75.5,
+    43.5,
+    0.5
+  )
+  addTextToDialog(
+    limitConfirm,
+    'it will begin from Limit Point 0.',
+    'limit-confirm-2',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    75.5,
+    43.5 + 1 * 17,
+    0.5
+  )
+  addTextToDialog(
+    limitConfirm,
+    'Change BREAK LEVEL?',
+    'limit-confirm-3',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    75.5,
+    43.5 + 2 * 17,
+    0.5
+  )
+
+  addTextToDialog(
+    limitConfirm,
+    'Yes',
+    'limit-confirm-yes',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    140.5,
+    44 + 3 * 17,
+    0.5
+  )
+  addTextToDialog(
+    limitConfirm,
+    'No',
+    'limit-confirm-no',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    140.5,
+    39.5 + 4 * 17,
+    0.5
+  )
+  addTextToDialog(
+    limitConfirmComplete,
+    'Limit Set!',
+    'limit-confirm-set',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    120,
+    113.5,
+    0.5
+  )
 }
 const LIMIT_DATA = {
   member: 0,
@@ -87,7 +177,8 @@ const LIMIT_DATA = {
     { x: 146, y: -68.5 }
   ],
   level: 0,
-  limit: 0
+  limit: 0,
+  confirm: false
 }
 window.LIMIT_DATA = LIMIT_DATA
 const drawAll = partyMember => {
@@ -212,8 +303,7 @@ const getLimitSkills = (char, potentialLimits, magicNameIndex, skip) => {
     for (let j = 0; j < potentialLimitLevel.length; j++) {
       const potentialLimit = potentialLimitLevel[j]
       if (char.limit.learnedLimitSkils.includes(potentialLimit)) {
-        // if (true) {
-        // Just temp
+        // if (true) { // Just temp
         skills[i].push({
           name: window.data.kernel.magicNames[magicNameIndex + counter].replace(
             '{COLOR(2)}',
@@ -282,6 +372,8 @@ const exitMenu = async () => {
   limitActions.visible = false
   limitDesc.visible = false
   limitList.visible = false
+  limitConfirm.visible = false
+  limitConfirmComplete.visible = false
   fadeInHomeMenu()
 }
 const clearDescription = () => {
@@ -297,7 +389,7 @@ const setDescription = description => {
     'description',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    13, //10-24
+    13,
     72.5,
     0.5
   )
@@ -321,6 +413,8 @@ const loadActionSelection = () => {
 const limitActionConfirm = () => {
   if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Check') {
     loadCheckLevelSelection()
+  } else if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Set') {
+    loadSetLevelSelection()
   }
 }
 const limitActionNavigationToggle = () => {
@@ -330,6 +424,7 @@ const limitActionNavigationToggle = () => {
 
 const loadCheckLevelSelection = () => {
   setMenuState('limit-check-level')
+  LIMIT_DATA.level = 0
   movePointer(
     POINTERS.pointer1,
     ACTION_POSITIONS.x[ACTION_POSITIONS.action],
@@ -342,11 +437,10 @@ const loadCheckLevelSelection = () => {
     LIMIT_DATA.levelPositions[LIMIT_DATA.level].x + 10,
     -LIMIT_DATA.levelPositions[LIMIT_DATA.level].y + 109
   )
-  // TODO - set description
   setDescription('Select LEVEL.')
 }
 
-const limitCheckLevelNavigation = horizontal => {
+const limitLevelNavigation = horizontal => {
   let newLevel = 0
   if (LIMIT_DATA.level === 0 && horizontal) {
     newLevel = 1
@@ -403,6 +497,78 @@ const limitCheckSelect = () => {
       17 * LIMIT_DATA.limit
   )
 }
+const loadSetLevelSelection = () => {
+  setMenuState('limit-set-level')
+  limitConfirm.visible = false
+  LIMIT_DATA.level = 0
+  movePointer(
+    POINTERS.pointer1,
+    ACTION_POSITIONS.x[ACTION_POSITIONS.action],
+    ACTION_POSITIONS.y,
+    false,
+    true
+  )
+  movePointer(
+    POINTERS.pointer2,
+    LIMIT_DATA.levelPositions[LIMIT_DATA.level].x + 10,
+    -LIMIT_DATA.levelPositions[LIMIT_DATA.level].y + 109
+  )
+  setDescription('Set BREAK LEVEL.')
+}
+
+const limitSetLevelConfirm = () => {
+  if (LIMIT_DATA.skills[LIMIT_DATA.level].length > 0) {
+    setMenuState('limit-set-confirm')
+    console.log('limit limitSetLevelConfirm')
+    limitConfirm.visible = true
+    LIMIT_DATA.confirm = 0
+    movePointer(POINTERS.pointer1, 135.5, LIMIT_DATA.confirm ? 99 : 112)
+    movePointer(POINTERS.pointer2, 0, 0, true)
+  }
+}
+const limitChangeLevelNavigationToggle = () => {
+  LIMIT_DATA.confirm = !LIMIT_DATA.confirm
+  movePointer(POINTERS.pointer1, 135.5, LIMIT_DATA.confirm ? 99 : 112)
+}
+const limitSetLevelConfirmChangeLevel = () => {
+  if (LIMIT_DATA.confirm) {
+    changeLevel()
+  } else {
+    loadSetLevelSelection()
+  }
+}
+const changeLevel = async () => {
+  setMenuState('loading')
+  limitConfirm.visible = false
+  movePointer(POINTERS.pointer1, 0, 0, true)
+  const char =
+    window.data.savemap.characters[
+      window.data.savemap.party.members[LIMIT_DATA.member]
+    ]
+  char.limit.level = LIMIT_DATA.level + 1
+  char.limit.bar = 0
+  drawAll(LIMIT_DATA.member)
+  await showDialog(limitConfirmComplete)
+  await sleep(500)
+  await closeDialog(limitConfirmComplete)
+  loadSetLevelSelection()
+}
+const limitSwitchPartyMember = delta => {
+  let newMember = false
+  while (newMember === false) {
+    let potential = LIMIT_DATA.member + delta
+    if (potential > 2) {
+      potential = 0
+    } else if (potential < 0) {
+      potential = 2
+    }
+    if (window.data.savemap.party.members[potential] !== 'None') {
+      newMember = potential
+    }
+  }
+  LIMIT_DATA.member = newMember
+  drawAll(newMember)
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU LIMIT', key, firstPress, state)
   if (state === 'limit-action-select') {
@@ -414,6 +580,10 @@ const keyPress = async (key, firstPress, state) => {
       limitActionNavigationToggle()
     } else if (key === KEY.RIGHT) {
       limitActionNavigationToggle()
+    } else if (key === KEY.L1) {
+      limitSwitchPartyMember(-1)
+    } else if (key === KEY.R1) {
+      limitSwitchPartyMember(1)
     }
   }
   if (state === 'limit-check-level') {
@@ -422,13 +592,13 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.O) {
       limitCheckLevelConfirm()
     } else if (key === KEY.UP) {
-      limitCheckLevelNavigation(false)
+      limitLevelNavigation(false)
     } else if (key === KEY.DOWN) {
-      limitCheckLevelNavigation(false)
+      limitLevelNavigation(false)
     } else if (key === KEY.LEFT) {
-      limitCheckLevelNavigation(true)
+      limitLevelNavigation(true)
     } else if (key === KEY.RIGHT) {
-      limitCheckLevelNavigation(true)
+      limitLevelNavigation(true)
     }
   }
   if (state === 'limit-check-limit') {
@@ -438,6 +608,32 @@ const keyPress = async (key, firstPress, state) => {
       limitCheckLimitNavigationToggle()
     } else if (key === KEY.DOWN) {
       limitCheckLimitNavigationToggle()
+    }
+  }
+  if (state === 'limit-set-level') {
+    if (key === KEY.X) {
+      loadActionSelection()
+    } else if (key === KEY.O) {
+      limitSetLevelConfirm()
+    } else if (key === KEY.UP) {
+      limitLevelNavigation(false)
+    } else if (key === KEY.DOWN) {
+      limitLevelNavigation(false)
+    } else if (key === KEY.LEFT) {
+      limitLevelNavigation(true)
+    } else if (key === KEY.RIGHT) {
+      limitLevelNavigation(true)
+    }
+  }
+  if (state === 'limit-set-confirm') {
+    if (key === KEY.X) {
+      loadSetLevelSelection()
+    } else if (key === KEY.O) {
+      limitSetLevelConfirmChangeLevel()
+    } else if (key === KEY.UP) {
+      limitChangeLevelNavigationToggle()
+    } else if (key === KEY.DOWN) {
+      limitChangeLevelNavigationToggle()
     }
   }
 }

@@ -37,8 +37,9 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
   } else if (state.startsWith('save')) {
     keyPressSave(key, firstPress, state)
   } else if (state.startsWith('quit')) {
-    // keyPressItems(key, firstPress, state)
     // Nothing...
+  } else if (state === 'loading') {
+    // Do nothing
   } else {
     resolveMenuPromise()
   }
