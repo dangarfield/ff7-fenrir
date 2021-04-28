@@ -367,7 +367,8 @@ const drawLimitList = (charName, char) => {
 }
 const exitMenu = async () => {
   setMenuState('loading')
-  movePointer(POINTERS.pointer1, 0, 0)
+  movePointer(POINTERS.pointer1, 0, 0, true)
+  movePointer(POINTERS.pointer2, 0, 0, true)
   await fadeOverlayIn(getHomeBlackOverlay())
   limitActions.visible = false
   limitDesc.visible = false

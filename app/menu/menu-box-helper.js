@@ -600,7 +600,7 @@ const getDialogButton = char => {
   for (let i = 0; i < BUTTON_IMAGES.length; i++) {
     const buttonImage = BUTTON_IMAGES[i]
     if (buttonImage.char === char) {
-      return getWindowTextures().buttons.[buttonImage.key] // TODO - Update these buttons
+      return getWindowTextures().buttons[buttonImage.key] // TODO - Update these buttons
     }
   }
   return null
