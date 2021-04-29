@@ -1327,6 +1327,60 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     h / (totalLines / pageSize) - 1
   )
 }
+const createHorizontalConfigSlider = (dialog, x, y) => {
+  const widthBG = 134
+  const h = 11
+  const slideW = 6.5
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
+    'slider-bg',
+    x + widthBG / 2,
+    y,
+    widthBG,
+    h
+  )
+  const slider = new THREE.Group()
+  slider.position.x = x
+  slider.position.y = y
+  slider.position.z = dialog.userData.z
+  slider.userData.z = dialog.userData.z
+  slider.userData.min = x
+  slider.userData.goToValue = val => {
+    slider.position.x = (widthBG - slideW) * (val / 255) + x
+  }
+
+  dialog.add(slider)
+  dialog.userData.slider = slider
+
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_TB,
+    'slider-main',
+    slideW / 2,
+    y * 2,
+    slideW,
+    h
+  )
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_LR,
+    'slider-main',
+    slideW / 2,
+    y * 2,
+    slideW,
+    h - 1
+  )
+  addShapeToDialog(
+    slider,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_M,
+    'slider-main',
+    slideW / 2,
+    y * 2,
+    slideW - 1,
+    h - 1
+  )
+}
 const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
 
@@ -1407,5 +1461,6 @@ export {
   addLimitToDialog,
   addLevelToDialog,
   showDialog,
-  closeDialog
+  closeDialog,
+  createHorizontalConfigSlider
 }

@@ -8,7 +8,8 @@ import {
   POINTERS,
   movePointer,
   fadeOverlayOut,
-  fadeOverlayIn
+  fadeOverlayIn,
+  createHorizontalConfigSlider
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -63,7 +64,7 @@ const loadConfigMenu = async () => {
   configColorPreviewAll = await createDialogBox({
     id: 5,
     name: 'configColorPreviewAll',
-    w: 60,
+    w: 51,
     h: 25.5,
     x: 132,
     y: 30,
@@ -100,37 +101,99 @@ const loadConfigMenu = async () => {
   window.configColorEditor = configColorEditor
 
   drawConfigOptions()
+  CONFIG_DATA.option = 0
+  pointerToOption(CONFIG_DATA.option)
 
   await fadeOverlayOut(getHomeBlackOverlay())
 
   setMenuState('config-select')
-
-  movePointer(POINTERS.pointer1, 237, 17)
 }
 
 const CONFIG_DATA = {
   option: 0,
   options: [
-    'Window color',
-    'Sound',
-    'Controller',
-    'Cursor',
-    'ATB',
-    'Battle speed',
-    'Battle message',
-    'Field message',
-    'Camera angle',
-    'Magic order'
+    {
+      name: 'Window color',
+      description: 'Select colors for each corner of the window',
+      type: 'color'
+    },
+    {
+      name: 'Sound',
+      description: 'Change the Sound Mode',
+      type: 'none',
+      value: 'No sound config available'
+    },
+    {
+      name: 'Controller',
+      description: 'Set buttons yourself',
+      type: 'select',
+      option: 1,
+      options: ['Normal', 'Customise']
+    },
+    {
+      name: 'Cursor',
+      description: 'Save cursor when window is closed?',
+      type: 'select',
+      option: 0,
+      options: ['Initial', 'Memory']
+    },
+    {
+      name: 'ATB',
+      description: 'Change battle time flow',
+      type: 'select',
+      option: 1,
+      options: ['Active', 'Recommended', 'Wait']
+    },
+    {
+      name: 'Battle speed',
+      description: 'Change battle speed',
+      type: 'slider',
+      value: 0
+    },
+    {
+      name: 'Battle message',
+      description: 'Change battle message speed',
+      type: 'slider',
+      value: 0
+    },
+    {
+      name: 'Field message',
+      description: 'Change field message speed',
+      type: 'slider',
+      value: 0
+    },
+    {
+      name: 'Camera angle',
+      description: 'Select battle screen movement',
+      type: 'select',
+      option: 0,
+      options: ['Auto', 'Fixed']
+    },
+    {
+      name: 'Magic order',
+      description: 'Select magic placement',
+      type: 'scroll',
+      option: 0,
+      options: [
+        ['restore', 'attack', 'indirect'],
+        ['restore', 'indirect', 'attack'],
+        ['attack', 'indirect', 'restore'],
+        ['attack', 'restore', 'indirect'],
+        ['indirect', 'restore', 'attack'],
+        ['indirect', 'attack', 'restore']
+      ]
+    }
   ],
   optionGroups: []
 }
+
 window.CONFIG_DATA = CONFIG_DATA
 const drawConfigOptions = () => {
   for (let i = 0; i < CONFIG_DATA.options.length; i++) {
     const option = CONFIG_DATA.options[i]
     addTextToDialog(
       configOptions,
-      option,
+      option.name,
       `config-option-title-${i}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
@@ -147,266 +210,142 @@ const drawConfigOptions = () => {
     group.position.y = -44.5 + i * -20
     configOptions.add(group)
     CONFIG_DATA.optionGroups.push(group)
+
+    drawConfigOptionSet(i)
   }
-  drawSoundOptions()
-  drawControllerOptions()
-  drawCursorOptions()
-  drawATBOptions()
-  drawBattleSpeedOptions()
-  drawBattleMessageOptions()
-  drawFieldMessageOptions()
-  drawCameraAngleOptions()
-  drawMagicOrderOptions()
+  // drawSoundOptions()
+  // drawControllerOptions()
+  // drawCursorOptions()
+  // drawATBOptions()
+  // drawBattleSpeedOptions()
+  // drawBattleMessageOptions()
+  // drawFieldMessageOptions()
+  // drawCameraAngleOptions()
+  // drawMagicOrderOptions()
 }
 const clearOptionGroup = i => {}
 
-const X_POS_1 = 0
-const X_POS_2_2 = 62
-const X_POS_3_2 = 52
-const X_POS_3_3 = 100
-const X_POS_5_2 = 20
-const X_POS_5_3 = 4
-const X_POS_5_4 = 60
-const X_POS_5_5 = 80
-const X_POS_F = -10
-const X_POS_S = 110
-
-const drawSoundOptions = () => {
-  const groupId = 1
+const XPOS = {
+  x1_1: 0,
+  x2_1: 0,
+  x2_2: 52,
+  x3_1: 0,
+  x3_2: 44,
+  x3_3: 133,
+  x5_1: 0,
+  x5_2: 20,
+  x5_3: 38.5,
+  x5_4: 82.5,
+  x5_5: 126.5,
+  Fast: -10,
+  Slow: 152
+}
+const drawConfigOptionSet = i => {
+  const group = CONFIG_DATA.options[i]
+  console.log('config drawConfigOptionSet', i, group)
+  if (group.type === 'color') {
+    // tbc
+  } else if (group.type === 'none') {
+    drawConfigOptionNone(i, group)
+  } else if (group.type === 'select') {
+    drawConfigOptionSelect(i, group)
+  } else if (group.type === 'slider') {
+    drawConfigOptionSlider(i)
+  } else if (group.type === 'scroll') {
+    drawConfigOptionScroll(i, group)
+  }
+}
+const drawConfigOptionNone = (groupId, group) => {
   clearOptionGroup(groupId)
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
-    'No sound config available',
-    '`config-option-sound',
+    group.value,
+    `config-none-${groupId}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Gray,
-    X_POS_1,
+    XPOS.x1_1,
     0,
     0.5
   )
 }
-const drawControllerOptions = () => {
-  const groupId = 2
+const drawConfigOptionSelect = (groupId, group) => {
   clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Show controls',
-    'config-option-controller',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_1,
-    0,
-    0.5
-  )
+  // console.log('config drawConfigOptionSelect', groupId)
+  for (let i = 0; i < group.options.length; i++) {
+    const option = group.options[i]
+    addTextToDialog(
+      CONFIG_DATA.optionGroups[groupId],
+      option,
+      `config-select-${groupId}-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      i === group.option ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      XPOS[`x${group.options.length}_${i + 1}`],
+      0,
+      0.5
+    )
+  }
 }
-const drawCursorOptions = () => {
-  const groupId = 3
-  clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Intial',
-    'config-option-cursor-1',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Gray,
-    X_POS_1,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Memory',
-    'config-option-cursor-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_2_2,
-    0,
-    0.5
-  )
-}
-const drawATBOptions = () => {
-  const groupId = 4
-  clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Active',
-    'config-option-atb-1',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Gray,
-    X_POS_1,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Recommended',
-    'config-option-atb-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_3_2,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Wait',
-    'config-option-atb-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_3_3,
-    0,
-    0.5
-  )
-}
-const drawBattleSpeedOptions = () => {
-  const groupId = 5
+const drawConfigOptionSlider = groupId => {
   clearOptionGroup(groupId)
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
     'Fast',
-    'config-option-bsped-1',
+    `config-slider-${groupId}a`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    X_POS_F,
+    XPOS.Fast,
     0,
     0.5
   )
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
     'Slow',
-    'config-option-bsped-2',
+    `config-slider-${groupId}b`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    X_POS_S,
+    XPOS.Slow,
     0,
     0.5
   )
+  createHorizontalConfigSlider(CONFIG_DATA.optionGroups[groupId], 23, -0.5)
 }
-const drawBattleMessageOptions = () => {
-  const groupId = 6
-  clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Fast',
-    'config-option-bmess-1',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_F,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Slow',
-    'config-option-bmess-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_S,
-    0,
-    0.5
-  )
-}
-const drawFieldMessageOptions = () => {
-  const groupId = 7
-  clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Fast',
-    'config-option-fmess-1',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_F,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Slow',
-    'config-option-fmess-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_S,
-    0,
-    0.5
-  )
-}
-const drawCameraAngleOptions = () => {
-  const groupId = 8
-  clearOptionGroup(groupId)
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Auto',
-    'config-option-camera-1',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_1,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'Fixed',
-    'config-option-camera-2',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Gray,
-    X_POS_2_2,
-    0,
-    0.5
-  )
-}
-const drawMagicOrderOptions = () => {
-  const groupId = 9
+const drawConfigOptionScroll = (groupId, group) => {
   clearOptionGroup(groupId)
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
     'No.',
-    'config-option-magic-1',
+    `config-scroll-${groupId}-1`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    X_POS_1,
+    XPOS.x5_1,
     0,
     0.5
   )
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
-    '1',
-    'config-option-magic-2',
+    '' + (group.option + 1),
+    `config-scroll-${groupId}-2`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
-    X_POS_5_2,
+    XPOS.x5_2,
     0,
     0.5
   )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'restore',
-    'config-option-magic-3',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_5_3,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'attack',
-    'config-option-magic-4',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_5_4,
-    0,
-    0.5
-  )
-  addTextToDialog(
-    CONFIG_DATA.optionGroups[groupId],
-    'indirect',
-    'config-option-magic-4',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    X_POS_5_5,
-    0,
-    0.5
-  )
+  for (let i = 0; i < 3; i++) {
+    const value = group.options[group.option][i]
+    addTextToDialog(
+      CONFIG_DATA.optionGroups[groupId],
+      value,
+      `config-scroll-${groupId}-${i + 2}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      XPOS[`x5_${i + 3}`],
+      0,
+      0.5
+    )
+  }
 }
+
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -419,6 +358,27 @@ const exitMenu = async () => {
   configColorEditor.visible = false
   fadeInHomeMenu()
 }
+
+const pointerToOption = i => {
+  movePointer(POINTERS.pointer1, 13, 49.5 + i * 20)
+  movePointer(POINTERS.pointer2, 0, 0, true)
+}
+const configOptionSelect = () => {}
+const configOptionNavigate = up => {
+  if (up) {
+    CONFIG_DATA.option++
+  } else {
+    CONFIG_DATA.option--
+  }
+  if (CONFIG_DATA.option < 0) {
+    CONFIG_DATA.option = CONFIG_DATA.options.length - 1
+  } else if (CONFIG_DATA.option >= CONFIG_DATA.options.length) {
+    CONFIG_DATA.option = 0
+  }
+  pointerToOption(CONFIG_DATA.option)
+}
+const configOptionChange = up => {}
+
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CONFIG', key, firstPress, state)
   if (state === 'config-select') {
@@ -426,6 +386,16 @@ const keyPress = async (key, firstPress, state) => {
       console.log('press MAIN MENU CONFIG EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
+    } else if (key === KEY.O) {
+      configOptionSelect()
+    } else if (key === KEY.LEFT) {
+      configOptionChange(false)
+    } else if (key === KEY.RIGHT) {
+      configOptionChange(true)
+    } else if (key === KEY.UP) {
+      configOptionNavigate(false)
+    } else if (key === KEY.DOWN) {
+      configOptionNavigate(true)
     }
   }
 }
