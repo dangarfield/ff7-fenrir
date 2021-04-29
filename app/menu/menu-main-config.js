@@ -22,7 +22,7 @@ let configDescription,
   configColorEditor
 
 const loadConfigMenu = async () => {
-  configDescription = await createDialogBox({
+  configDescription = createDialogBox({
     id: 7,
     name: 'configDescription',
     w: 320,
@@ -35,7 +35,7 @@ const loadConfigMenu = async () => {
   configDescription.visible = true
   window.configDescription = configOptions
 
-  configOptions = await createDialogBox({
+  configOptions = createDialogBox({
     id: 8,
     name: 'configOptions',
     w: 320,
@@ -48,7 +48,7 @@ const loadConfigMenu = async () => {
   configOptions.visible = true
   window.configOptions = configOptions
 
-  configControls = await createDialogBox({
+  configControls = createDialogBox({
     id: 6,
     name: 'configControls',
     w: 320,
@@ -61,7 +61,7 @@ const loadConfigMenu = async () => {
   // configDescription.visible = true
   window.configControls = configControls
 
-  configColorPreviewAll = await createDialogBox({
+  configColorPreviewAll = createDialogBox({
     id: 5,
     name: 'configColorPreviewAll',
     w: 51,
@@ -74,7 +74,7 @@ const loadConfigMenu = async () => {
   configColorPreviewAll.visible = true
   window.configColorPreviewAll = configColorPreviewAll
 
-  configColorPreviewOne = await createDialogBox({
+  configColorPreviewOne = createDialogBox({
     id: 5,
     name: 'configColorPreviewOne',
     w: 25.5,
@@ -87,7 +87,7 @@ const loadConfigMenu = async () => {
   // configColorPreviewOne.visible = true
   window.configColorPreviewOne = configColorPreviewOne
 
-  configColorEditor = await createDialogBox({
+  configColorEditor = createDialogBox({
     id: 5,
     name: 'configColorEditor',
     w: 184,
@@ -121,53 +121,60 @@ const CONFIG_DATA = {
       name: 'Sound',
       description: 'Change the Sound Mode',
       type: 'none',
-      value: 'No sound config available'
+      value: 'No sound config available',
+      save: 'sound'
     },
     {
       name: 'Controller',
       description: 'Set buttons yourself',
-      type: 'select',
-      option: 1,
-      options: ['Normal', 'Customise']
+      type: 'controls',
+      value: 'View controls',
+      save: 'controller'
     },
     {
       name: 'Cursor',
       description: 'Save cursor when window is closed?',
       type: 'select',
       option: 0,
-      options: ['Initial', 'Memory']
+      options: ['Initial', 'Memory'],
+      save: 'cursor'
     },
     {
       name: 'ATB',
       description: 'Change battle time flow',
       type: 'select',
-      option: 1,
-      options: ['Active', 'Recommended', 'Wait']
+      option: 0,
+      options: ['Active', 'Recommended', 'Wait'],
+      save: 'atb'
     },
     {
       name: 'Battle speed',
       description: 'Change battle speed',
       type: 'slider',
-      value: 0
+      value: 0,
+      save: 'battleSpeed'
     },
     {
       name: 'Battle message',
       description: 'Change battle message speed',
       type: 'slider',
-      value: 0
+      value: 0,
+      save: 'battleMessageSpeed'
     },
     {
       name: 'Field message',
       description: 'Change field message speed',
       type: 'slider',
-      value: 0
+      value: 0,
+      save: 'fieldMessageSpeed'
     },
     {
       name: 'Camera angle',
       description: 'Select battle screen movement',
       type: 'select',
       option: 0,
-      options: ['Auto', 'Fixed']
+      options: ['Auto', 'Fixed'],
+      save: 'cameraAngle'
     },
     {
       name: 'Magic order',
@@ -175,13 +182,14 @@ const CONFIG_DATA = {
       type: 'scroll',
       option: 0,
       options: [
-        ['restore', 'attack', 'indirect'],
-        ['restore', 'indirect', 'attack'],
-        ['attack', 'indirect', 'restore'],
-        ['attack', 'restore', 'indirect'],
-        ['indirect', 'restore', 'attack'],
-        ['indirect', 'attack', 'restore']
-      ]
+        'RestoreAttackIndirect',
+        'RestoreIndirectAttack',
+        'AttackIndirectRestore',
+        'AttackRestoreIndirect',
+        'IndirectRestoreAttack',
+        'IndirectAttackRestore'
+      ],
+      save: 'magicOrder'
     }
   ],
   optionGroups: []
@@ -189,6 +197,7 @@ const CONFIG_DATA = {
 
 window.CONFIG_DATA = CONFIG_DATA
 const drawConfigOptions = () => {
+  CONFIG_DATA.optionGroups = []
   for (let i = 0; i < CONFIG_DATA.options.length; i++) {
     const option = CONFIG_DATA.options[i]
     addTextToDialog(
@@ -210,20 +219,16 @@ const drawConfigOptions = () => {
     group.position.y = -44.5 + i * -20
     configOptions.add(group)
     CONFIG_DATA.optionGroups.push(group)
-
+    loadConfigOptionSaveData(i)
     drawConfigOptionSet(i)
   }
-  // drawSoundOptions()
-  // drawControllerOptions()
-  // drawCursorOptions()
-  // drawATBOptions()
-  // drawBattleSpeedOptions()
-  // drawBattleMessageOptions()
-  // drawFieldMessageOptions()
-  // drawCameraAngleOptions()
-  // drawMagicOrderOptions()
 }
-const clearOptionGroup = i => {}
+const clearOptionGroup = i => {
+  const group = CONFIG_DATA.optionGroups[i]
+  while (group.children.length) {
+    group.remove(group.children[0])
+  }
+}
 
 const XPOS = {
   x1_1: 0,
@@ -240,6 +245,41 @@ const XPOS = {
   Fast: -10,
   Slow: 152
 }
+const loadConfigOptionSaveData = i => {
+  const group = CONFIG_DATA.options[i]
+  if (group.type === 'color') {
+    // tbc
+  } else if (group.type === 'none') {
+    // none
+  } else if (group.type === 'controls') {
+    // none
+  } else if (group.type === 'select') {
+    loadSaveSelectScroll(group)
+  } else if (group.type === 'slider') {
+    group.value = window.data.savemap.config[group.save]
+  } else if (group.type === 'scroll') {
+    loadSaveSelectScroll(group)
+  }
+}
+const loadSaveSelectScroll = group => {
+  const keys = Object.keys(window.data.savemap.config[group.save])
+  console.log('config keys', keys)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    console.log('config key', key)
+    if (window.data.savemap.config[group.save][key] === true) {
+      console.log('config key true', key)
+      for (let j = 0; j < group.options.length; j++) {
+        const option = group.options[j]
+        console.log('config key true option check', option, j)
+        if (option === key) {
+          console.log('config key true option check', option, j, 'true')
+          group.option = j
+        }
+      }
+    }
+  }
+}
 const drawConfigOptionSet = i => {
   const group = CONFIG_DATA.options[i]
   console.log('config drawConfigOptionSet', i, group)
@@ -247,10 +287,12 @@ const drawConfigOptionSet = i => {
     // tbc
   } else if (group.type === 'none') {
     drawConfigOptionNone(i, group)
+  } else if (group.type === 'controls') {
+    drawConfigOptionControls(i, group)
   } else if (group.type === 'select') {
     drawConfigOptionSelect(i, group)
   } else if (group.type === 'slider') {
-    drawConfigOptionSlider(i)
+    drawConfigOptionSlider(i, group)
   } else if (group.type === 'scroll') {
     drawConfigOptionScroll(i, group)
   }
@@ -263,6 +305,19 @@ const drawConfigOptionNone = (groupId, group) => {
     `config-none-${groupId}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Gray,
+    XPOS.x1_1,
+    0,
+    0.5
+  )
+}
+const drawConfigOptionControls = (groupId, group) => {
+  clearOptionGroup(groupId)
+  addTextToDialog(
+    CONFIG_DATA.optionGroups[groupId],
+    group.value,
+    `config-controls-${groupId}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
     XPOS.x1_1,
     0,
     0.5
@@ -285,7 +340,7 @@ const drawConfigOptionSelect = (groupId, group) => {
     )
   }
 }
-const drawConfigOptionSlider = groupId => {
+const drawConfigOptionSlider = (groupId, group) => {
   clearOptionGroup(groupId)
   addTextToDialog(
     CONFIG_DATA.optionGroups[groupId],
@@ -307,7 +362,20 @@ const drawConfigOptionSlider = groupId => {
     0,
     0.5
   )
-  createHorizontalConfigSlider(CONFIG_DATA.optionGroups[groupId], 23, -0.5)
+  console.log(
+    'config drawConfigOptionSlider',
+    window.data.savemap.config[group.save],
+    group.value
+  )
+
+  createHorizontalConfigSlider(
+    CONFIG_DATA.optionGroups[groupId],
+    23,
+    -0.5,
+    group.value
+  )
+
+  // group.value = window.data.savemap.config[group.save]
 }
 const drawConfigOptionScroll = (groupId, group) => {
   clearOptionGroup(groupId)
@@ -331,11 +399,12 @@ const drawConfigOptionScroll = (groupId, group) => {
     0,
     0.5
   )
-  for (let i = 0; i < 3; i++) {
-    const value = group.options[group.option][i]
+  const value = group.options[group.option]
+  const valueSplit = value.match(/[A-Z][a-z]+/g)
+  for (let i = 0; i < valueSplit.length; i++) {
     addTextToDialog(
       CONFIG_DATA.optionGroups[groupId],
-      value,
+      valueSplit[i],
       `config-scroll-${groupId}-${i + 2}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
@@ -363,7 +432,14 @@ const pointerToOption = i => {
   movePointer(POINTERS.pointer1, 13, 49.5 + i * 20)
   movePointer(POINTERS.pointer2, 0, 0, true)
 }
-const configOptionSelect = () => {}
+const configOptionSelect = () => {
+  const groupId = CONFIG_DATA.option
+  const group = CONFIG_DATA.options[groupId]
+  if (group.type === 'controls') {
+    console.log('config show controls')
+    document.querySelector('.controls').click()
+  }
+}
 const configOptionNavigate = up => {
   if (up) {
     CONFIG_DATA.option++
@@ -375,10 +451,81 @@ const configOptionNavigate = up => {
   } else if (CONFIG_DATA.option >= CONFIG_DATA.options.length) {
     CONFIG_DATA.option = 0
   }
+  console.log('config configOptionNavigate')
   pointerToOption(CONFIG_DATA.option)
 }
-const configOptionChange = up => {}
+const configOptionChange = up => {
+  const groupId = CONFIG_DATA.option
+  const group = CONFIG_DATA.options[groupId]
+  if (group.type === 'color') {
+    // tbc
+  } else if (group.type === 'none') {
+    // drawConfigOptionNone(i, group)
+  } else if (group.type === 'select') {
+    configOptionChangeSelect(groupId, group, up)
+  } else if (group.type === 'slider') {
+    configOptionChangeSlider(groupId, group, up)
+  } else if (group.type === 'scroll') {
+    configOptionChangeScroll(groupId, group, up)
+  }
+}
+const configOptionChangeSelect = (groupId, group, up) => {
+  if (up && group.option + 1 < group.options.length) {
+    group.option++
+  } else if (!up && group.option > 0) {
+    group.option--
+  }
+  // TODO - save option
+  drawConfigOptionSelect(groupId, group)
+  configOptionSaveSelectScroll(group)
+}
+const configOptionSaveSelectScroll = group => {
+  const keys = Object.keys(window.data.savemap.config[group.save])
+  const valueString = group.options[group.option]
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    if (key === valueString) {
+      window.data.savemap.config[group.save][key] = true
+    } else {
+      window.data.savemap.config[group.save][key] = false
+    }
+  }
+}
+const configOptionChangeSlider = (groupId, group, up) => {
+  // Note: Really,to be smoother this should use the rendering loop,
+  // seeing if buttons are being pressed and then setting the position
+  // Leave it like this for now
+  const delta = 3
+  if (up) {
+    group.value = group.value + delta
+  } else {
+    group.value = group.value - delta
+  }
 
+  if (group.value < 0) {
+    group.value = 0
+  } else if (group.value > 255) {
+    group.value = 255
+  }
+  // TODO - save option
+  CONFIG_DATA.optionGroups[groupId].userData.slider.userData.goToValue(
+    group.value
+  )
+  configOptionSaveSlider(group)
+}
+const configOptionSaveSlider = group => {
+  window.data.savemap.config[group.save] = group.value
+}
+const configOptionChangeScroll = (groupId, group, up) => {
+  if (up && group.option + 1 < group.options.length) {
+    group.option++
+  } else if (!up && group.option > 0) {
+    group.option--
+  }
+  // TODO - save option
+  drawConfigOptionScroll(groupId, group)
+  configOptionSaveSelectScroll(group)
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CONFIG', key, firstPress, state)
   if (state === 'config-select') {

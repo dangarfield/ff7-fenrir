@@ -149,7 +149,7 @@ const fadeOverlay = async (fade, from, to, resolve) => {
     })
     .start()
 }
-const createDialogBox = async dialog => {
+const createDialogBox = dialog => {
   const id = dialog.id
   const x = dialog.x
   const y = dialog.y
@@ -1327,7 +1327,7 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     h / (totalLines / pageSize) - 1
   )
 }
-const createHorizontalConfigSlider = (dialog, x, y) => {
+const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   const widthBG = 134
   const h = 11
   const slideW = 6.5
@@ -1380,6 +1380,7 @@ const createHorizontalConfigSlider = (dialog, x, y) => {
     slideW - 1,
     h - 1
   )
+  slider.userData.goToValue(defaultValue)
 }
 const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
