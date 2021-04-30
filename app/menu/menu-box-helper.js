@@ -622,6 +622,8 @@ const getLetterTexture = (letter, letterType, color) => {
   console.log('not found letter', letter)
   return getDialogButton(letter)
 }
+window.getLetterTexture = getLetterTexture
+
 const getImageTexture = (type, image) => {
   const textureImages = getMenuTextures()[type]
   for (const key in textureImages) {
@@ -682,7 +684,7 @@ const getDialogTextures = () => {
 //     )
 //   }
 // }
-const addTextToDialog = async (
+const addTextToDialog = (
   dialogBox,
   text,
   id,
@@ -1381,6 +1383,7 @@ const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
     h - 1
   )
   slider.userData.goToValue(defaultValue)
+  return slider
 }
 const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
@@ -1436,6 +1439,12 @@ const addLevelToDialog = (dialog, x, y, char) => {
     THREE.AdditiveBlending
   )
 }
+const updateTexture = (mesh, letter, letterType, color) => {
+  const textureLetter = getLetterTexture(letter, letterType, color)
+
+  console.log('config updateTexture', mesh, textureLetter.texture)
+  // mesh.material.map = textureLetter.texture
+}
 export {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -1463,5 +1472,6 @@ export {
   addLevelToDialog,
   showDialog,
   closeDialog,
-  createHorizontalConfigSlider
+  createHorizontalConfigSlider,
+  updateTexture
 }

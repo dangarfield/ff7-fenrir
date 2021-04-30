@@ -9,7 +9,8 @@ import {
   movePointer,
   fadeOverlayOut,
   fadeOverlayIn,
-  createHorizontalConfigSlider
+  createHorizontalConfigSlider,
+  updateTexture
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -20,6 +21,7 @@ let configDescription,
   configColorPreviewAll,
   configColorPreviewOne,
   configColorEditor
+let configDescriptionGroup
 
 const loadConfigMenu = async () => {
   configDescription = createDialogBox({
@@ -34,6 +36,12 @@ const loadConfigMenu = async () => {
   })
   configDescription.visible = true
   window.configDescription = configOptions
+  configDescriptionGroup = new THREE.Group()
+  configDescriptionGroup.userData = { id: 5, z: 100 - 5 }
+  configDescriptionGroup.position.x = 0
+  configDescriptionGroup.position.y = -12.5
+  configDescription.add(configDescriptionGroup)
+  window.configDescription = configDescription
 
   configOptions = createDialogBox({
     id: 8,
@@ -106,7 +114,7 @@ const loadConfigMenu = async () => {
 
   await fadeOverlayOut(getHomeBlackOverlay())
 
-  setMenuState('config-select')
+  configOptionSelectOptions()
 }
 
 const CONFIG_DATA = {
@@ -222,6 +230,8 @@ const drawConfigOptions = () => {
     loadConfigOptionSaveData(i)
     drawConfigOptionSet(i)
   }
+  loadColorData()
+  drawColorData()
 }
 const clearOptionGroup = i => {
   const group = CONFIG_DATA.optionGroups[i]
@@ -428,16 +438,23 @@ const exitMenu = async () => {
   fadeInHomeMenu()
 }
 
+const configOptionSelectOptions = () => {
+  setMenuState('config-select')
+  pointerToOption(CONFIG_DATA.option)
+}
 const pointerToOption = i => {
   movePointer(POINTERS.pointer1, 13, 49.5 + i * 20)
   movePointer(POINTERS.pointer2, 0, 0, true)
+  setConfigDescription(CONFIG_DATA.options[i].description)
 }
 const configOptionSelect = () => {
   const groupId = CONFIG_DATA.option
   const group = CONFIG_DATA.options[groupId]
   if (group.type === 'controls') {
-    console.log('config show controls')
     document.querySelector('.controls').click()
+  } else if (group.type === 'color') {
+    COLOR_DATA.corner = 0
+    configColorChooseCorner()
   }
 }
 const configOptionNavigate = up => {
@@ -507,7 +524,6 @@ const configOptionChangeSlider = (groupId, group, up) => {
   } else if (group.value > 255) {
     group.value = 255
   }
-  // TODO - save option
   CONFIG_DATA.optionGroups[groupId].userData.slider.userData.goToValue(
     group.value
   )
@@ -522,9 +538,200 @@ const configOptionChangeScroll = (groupId, group, up) => {
   } else if (!up && group.option > 0) {
     group.option--
   }
-  // TODO - save option
   drawConfigOptionScroll(groupId, group)
   configOptionSaveSelectScroll(group)
+}
+const clearConfigDescription = () => {
+  while (configDescriptionGroup.children.length) {
+    configDescriptionGroup.remove(configDescriptionGroup.children[0])
+  }
+}
+const setConfigDescription = text => {
+  clearConfigDescription()
+  addTextToDialog(
+    configDescriptionGroup,
+    text,
+    'config-desciption',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    0,
+    0.5
+  )
+}
+const COLOR_DATA = {
+  corner: 0,
+  channel: 0,
+  corners: [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+  ],
+  pointers: [
+    { x: 118, y: 37.5 },
+    { x: 169, y: 37.5 },
+    { x: 118, y: 58.5 },
+    { x: 169, y: 58.5 }
+  ],
+  channels: [
+    { name: 'R', color: LETTER_COLORS.Red },
+    { name: 'G', color: LETTER_COLORS.Green },
+    { name: 'B', color: LETTER_COLORS.Blue }
+  ]
+}
+window.COLOR_DATA = COLOR_DATA
+const loadColorData = () => {
+  COLOR_DATA.corners[0] = window.data.savemap.config.windowColorTL
+  COLOR_DATA.corners[1] = window.data.savemap.config.windowColorTR
+  COLOR_DATA.corners[2] = window.data.savemap.config.windowColorBL
+  COLOR_DATA.corners[3] = window.data.savemap.config.windowColorBR
+}
+const drawColorData = () => {
+  for (let i = 0; i < COLOR_DATA.channels.length; i++) {
+    const channel = COLOR_DATA.channels[i]
+    const y = 67 + i * 13
+    addTextToDialog(
+      configColorEditor,
+      channel.name,
+      `config-channel-label-${i}`,
+      LETTER_TYPES.MenuTextFixed,
+      channel.color,
+      130.5,
+      y,
+      0.5
+    )
+    const value = COLOR_DATA.corners[COLOR_DATA.corner][i]
+    channel.numbers = addTextToDialog(
+      configColorEditor,
+      ('' + value).padStart(3, '0'),
+      `config-channel-value-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      146.5,
+      y,
+      0.5
+    )
+    channel.slider = createHorizontalConfigSlider(
+      configColorEditor,
+      177,
+      y - 0.5,
+      value
+    )
+  }
+}
+const configColorChooseCorner = () => {
+  setMenuState('config-color-corner')
+  // setMenuState('config-color-color')
+  movePointer(
+    POINTERS.pointer1,
+    13,
+    49.5 + CONFIG_DATA.option * 20,
+    false,
+    true
+  )
+  movePointer(
+    POINTERS.pointer2,
+    COLOR_DATA.pointers[COLOR_DATA.corner].x,
+    COLOR_DATA.pointers[COLOR_DATA.corner].y
+  )
+  movePointer(POINTERS.pointer3, 0, 0, true)
+  configColorPreviewOne.visible = false
+  configColorEditor.visible = false
+}
+const configColorChooseCornerSelect = () => {
+  setMenuState('config-color-color')
+  movePointer(
+    POINTERS.pointer2,
+    COLOR_DATA.pointers[COLOR_DATA.corner].x,
+    COLOR_DATA.pointers[COLOR_DATA.corner].y,
+    false,
+    true
+  )
+  movePointer(POINTERS.pointer3, 123, 69.5 + COLOR_DATA.channel * 13)
+  COLOR_DATA.channel = 0
+
+  for (let i = 0; i < COLOR_DATA.channels.length; i++) {
+    // Set default slider value
+    const val = COLOR_DATA.corners[COLOR_DATA.corner][i]
+    COLOR_DATA.channels[i].slider.userData.goToValue(val)
+    // TODO set default numbers
+    const valSplit = ('' + val).padStart(3, '0').split('')
+    const meshes = COLOR_DATA.channels[0].numbers.children
+    for (let j = 0; j < valSplit.length; j++) {
+      const letter = valSplit[j]
+      const mesh = meshes[j]
+      updateTexture(
+        mesh,
+        letter,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White
+      )
+    }
+  }
+
+  configColorPreviewOne.visible = true
+  configColorEditor.visible = true
+}
+const configColorChooseCornerNavigation = horizontal => {
+  if (COLOR_DATA.corner === 0 && horizontal) {
+    COLOR_DATA.corner = 1
+  } else if (COLOR_DATA.corner === 1 && horizontal) {
+    COLOR_DATA.corner = 0
+  } else if (COLOR_DATA.corner === 2 && horizontal) {
+    COLOR_DATA.corner = 3
+  } else if (COLOR_DATA.corner === 3 && horizontal) {
+    COLOR_DATA.corner = 2
+  } else if (COLOR_DATA.corner === 0 && !horizontal) {
+    COLOR_DATA.corner = 2
+  } else if (COLOR_DATA.corner === 1 && !horizontal) {
+    COLOR_DATA.corner = 3
+  } else if (COLOR_DATA.corner === 2 && !horizontal) {
+    COLOR_DATA.corner = 0
+  } else if (COLOR_DATA.corner === 3 && !horizontal) {
+    COLOR_DATA.corner = 1
+  }
+  movePointer(
+    POINTERS.pointer2,
+    COLOR_DATA.pointers[COLOR_DATA.corner].x,
+    COLOR_DATA.pointers[COLOR_DATA.corner].y
+  )
+}
+const configColorChooseColorChangeChannel = up => {
+  if (up) {
+    COLOR_DATA.channel++
+  } else {
+    COLOR_DATA.channel--
+  }
+  if (COLOR_DATA.channel < 0) {
+    COLOR_DATA.channel = 2
+  } else if (COLOR_DATA.channel > 2) {
+    COLOR_DATA.channel = 0
+  }
+  movePointer(POINTERS.pointer3, 123, 69.5 + COLOR_DATA.channel * 13)
+}
+const configColorChooseColorChangeValue = up => {
+  let val = COLOR_DATA.corners[COLOR_DATA.corner][COLOR_DATA.channel]
+  const delta = 3
+  if (up) {
+    val = val + delta
+  } else {
+    val = val - delta
+  }
+
+  if (val < 0) {
+    val = 0
+  } else if (val > 255) {
+    val = 255
+  }
+  COLOR_DATA.corners[COLOR_DATA.corner][COLOR_DATA.channel] = val
+  // CONFIG_DATA.optionGroups[groupId].userData.slider.userData.goToValue(
+  //   val
+  // )
+
+  // update slider
+  COLOR_DATA.channels[COLOR_DATA.channel].slider.userData.goToValue(val)
+  // update displayed numbers
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CONFIG', key, firstPress, state)
@@ -543,6 +750,34 @@ const keyPress = async (key, firstPress, state) => {
       configOptionNavigate(false)
     } else if (key === KEY.DOWN) {
       configOptionNavigate(true)
+    }
+  }
+  if (state === 'config-color-corner') {
+    if (key === KEY.X) {
+      configOptionSelectOptions()
+    } else if (key === KEY.O) {
+      configColorChooseCornerSelect()
+    } else if (key === KEY.LEFT) {
+      configColorChooseCornerNavigation(true)
+    } else if (key === KEY.RIGHT) {
+      configColorChooseCornerNavigation(true)
+    } else if (key === KEY.UP) {
+      configColorChooseCornerNavigation(false)
+    } else if (key === KEY.DOWN) {
+      configColorChooseCornerNavigation(false)
+    }
+  }
+  if (state === 'config-color-color') {
+    if (key === KEY.X) {
+      configColorChooseCorner()
+    } else if (key === KEY.LEFT) {
+      configColorChooseColorChangeValue(false)
+    } else if (key === KEY.RIGHT) {
+      configColorChooseColorChangeValue(true)
+    } else if (key === KEY.UP) {
+      configColorChooseColorChangeChannel(false)
+    } else if (key === KEY.DOWN) {
+      configColorChooseColorChangeChannel(true)
     }
   }
 }
