@@ -1330,6 +1330,8 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
   )
 }
 const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
+  // TODO - Slider bg have an additional light edge on bottom and right
+  // Also, it seems to be a blended color rather than fixed
   const widthBG = 134
   const h = 11
   const slideW = 6.5
@@ -1439,11 +1441,11 @@ const addLevelToDialog = (dialog, x, y, char) => {
     THREE.AdditiveBlending
   )
 }
+
 const updateTexture = (mesh, letter, letterType, color) => {
   const textureLetter = getLetterTexture(letter, letterType, color)
-
-  console.log('config updateTexture', mesh, textureLetter.texture)
-  // mesh.material.map = textureLetter.texture
+  mesh.material.needsUpdate = true
+  mesh.material.map = textureLetter.texture
 }
 export {
   LETTER_TYPES,

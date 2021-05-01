@@ -5,7 +5,7 @@ const MENU_TWEEN_GROUP = (window.MENU_TWEEN_GROUP = new TWEEN.Group())
 
 let scene
 let camera
-
+window.menuScene = scene
 const loadFont = async () => {
   return new Promise((resolve, reject) => {
     new THREE.FontLoader().load(

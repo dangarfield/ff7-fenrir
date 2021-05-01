@@ -14,6 +14,8 @@ import {
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
+import { scene } from './menu-scene.js'
+import { homeNav } from './menu-main-home.js'
 
 let configDescription,
   configOptions,
@@ -414,7 +416,7 @@ const drawConfigOptionScroll = (groupId, group) => {
   for (let i = 0; i < valueSplit.length; i++) {
     addTextToDialog(
       CONFIG_DATA.optionGroups[groupId],
-      valueSplit[i],
+      valueSplit[i].toLowerCase(),
       `config-scroll-${groupId}-${i + 2}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
@@ -492,7 +494,6 @@ const configOptionChangeSelect = (groupId, group, up) => {
   } else if (!up && group.option > 0) {
     group.option--
   }
-  // TODO - save option
   drawConfigOptionSelect(groupId, group)
   configOptionSaveSelectScroll(group)
 }
@@ -623,6 +624,7 @@ const drawColorData = () => {
 const configColorChooseCorner = () => {
   setMenuState('config-color-corner')
   // setMenuState('config-color-color')
+  updateAllColorsPreview()
   movePointer(
     POINTERS.pointer1,
     13,
@@ -648,30 +650,28 @@ const configColorChooseCornerSelect = () => {
     false,
     true
   )
+  // COLOR_DATA.channel = 0
   movePointer(POINTERS.pointer3, 123, 69.5 + COLOR_DATA.channel * 13)
-  COLOR_DATA.channel = 0
 
   for (let i = 0; i < COLOR_DATA.channels.length; i++) {
     // Set default slider value
     const val = COLOR_DATA.corners[COLOR_DATA.corner][i]
     COLOR_DATA.channels[i].slider.userData.goToValue(val)
-    // TODO set default numbers
-    const valSplit = ('' + val).padStart(3, '0').split('')
-    const meshes = COLOR_DATA.channels[0].numbers.children
-    for (let j = 0; j < valSplit.length; j++) {
-      const letter = valSplit[j]
-      const mesh = meshes[j]
-      updateTexture(
-        mesh,
-        letter,
-        LETTER_TYPES.MenuTextStats,
-        LETTER_COLORS.White
-      )
-    }
+    // Set default numbers
+    updateColorNumbers(val, i)
   }
-
+  updateSingleColorPreview()
   configColorPreviewOne.visible = true
   configColorEditor.visible = true
+}
+const updateColorNumbers = (val, channelIndex) => {
+  const valSplit = ('' + val).padStart(3, '0').split('')
+  const meshes = COLOR_DATA.channels[channelIndex].numbers.children
+  for (let j = 0; j < valSplit.length; j++) {
+    const letter = valSplit[j]
+    const mesh = meshes[j]
+    updateTexture(mesh, letter, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White)
+  }
 }
 const configColorChooseCornerNavigation = horizontal => {
   if (COLOR_DATA.corner === 0 && horizontal) {
@@ -732,7 +732,70 @@ const configColorChooseColorChangeValue = up => {
   // update slider
   COLOR_DATA.channels[COLOR_DATA.channel].slider.userData.goToValue(val)
   // update displayed numbers
+  updateColorNumbers(val, COLOR_DATA.channel)
+  // update single color preview
+  updateSingleColorPreview()
+  updateAllColorsPreview()
 }
+const updateSingleColorPreview = () => {
+  const r = COLOR_DATA.corners[COLOR_DATA.corner][0] / 255
+  const g = COLOR_DATA.corners[COLOR_DATA.corner][1] / 255
+  const b = COLOR_DATA.corners[COLOR_DATA.corner][2] / 255
+  console.log('config updateSingleColorPreview', r, g, b)
+  for (let i = 0; i < 4; i++) {
+    configColorPreviewOne.userData.bgGeo
+      .getAttribute('color')
+      .setXYZ(i, r, g, b)
+  }
+  configColorPreviewOne.userData.bgGeo.getAttribute('color').needsUpdate = true
+}
+const updateAllColorsPreview = () => {
+  // console.log('config updateSingleColorPreview', r, g, b)
+  for (let i = 0; i < 4; i++) {
+    const r = COLOR_DATA.corners[i][0] / 255
+    const g = COLOR_DATA.corners[i][1] / 255
+    const b = COLOR_DATA.corners[i][2] / 255
+    configColorPreviewAll.userData.bgGeo
+      .getAttribute('color')
+      .setXYZ(i, r, g, b)
+  }
+  configColorPreviewAll.userData.bgGeo.getAttribute('color').needsUpdate = true
+}
+const updateAllDialogsWithNewColors = () => {
+  // Update all existing dialogs
+  console.log('config updateAllDialogsWithNewColors')
+  for (let i = 0; i < scene.children.length; i++) {
+    const child = scene.children[i]
+    resetDialogColors(child)
+    if (child.type === 'Group') {
+      for (let k = 0; k < child.children.length; k++) {
+        const grandchild = child.children[k]
+        resetDialogColors(grandchild)
+      }
+    }
+  }
+  // Update the menu nav slider to have userData.color attribute for change on slide
+  homeNav.userData.colors = [
+    `rgb(${COLOR_DATA.corners[0][0]},${COLOR_DATA.corners[0][1]},${COLOR_DATA.corners[0][2]})`,
+    `rgb(${COLOR_DATA.corners[1][0]},${COLOR_DATA.corners[1][1]},${COLOR_DATA.corners[1][2]})`,
+    `rgb(${COLOR_DATA.corners[2][0]},${COLOR_DATA.corners[2][1]},${COLOR_DATA.corners[2][2]})`,
+    `rgb(${COLOR_DATA.corners[3][0]},${COLOR_DATA.corners[3][1]},${COLOR_DATA.corners[3][2]})`
+  ]
+  // resetDialogColors(homeNav)
+  configOptionSelectOptions()
+}
+const resetDialogColors = dialog => {
+  if (dialog.type === 'Group' && dialog.userData.bg) {
+    for (let l = 0; l < 4; l++) {
+      const r = COLOR_DATA.corners[l][0] / 255
+      const g = COLOR_DATA.corners[l][1] / 255
+      const b = COLOR_DATA.corners[l][2] / 255
+      dialog.userData.bg.geometry.getAttribute('color').setXYZ(l, r, g, b)
+    }
+    dialog.userData.bg.geometry.getAttribute('color').needsUpdate = true
+  }
+}
+window.resetDialogColors = resetDialogColors
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CONFIG', key, firstPress, state)
   if (state === 'config-select') {
@@ -754,7 +817,7 @@ const keyPress = async (key, firstPress, state) => {
   }
   if (state === 'config-color-corner') {
     if (key === KEY.X) {
-      configOptionSelectOptions()
+      updateAllDialogsWithNewColors()
     } else if (key === KEY.O) {
       configColorChooseCornerSelect()
     } else if (key === KEY.LEFT) {

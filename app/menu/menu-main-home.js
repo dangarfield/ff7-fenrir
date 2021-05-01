@@ -858,5 +858,6 @@ export {
   keyPress,
   updateHomeMenuTime,
   getHomeBlackOverlay,
-  fadeInHomeMenu
+  fadeInHomeMenu,
+  homeNav
 }
