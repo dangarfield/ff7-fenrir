@@ -9,7 +9,7 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'movePointer',
-      'config'
+      'save'
     ],
     log: function () {
       if (limit) {

@@ -1335,6 +1335,18 @@ const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   const widthBG = 134
   const h = 11
   const slideW = 6.5
+
+  // When white
+  // BG main: -55
+  // BG TL:   -65
+  // BG BR:  -100
+
+  // When black
+  // BG main:  25
+  // BG TL:    19
+  // BG BR:    60
+
+  //
   addShapeToDialog(
     dialog,
     WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,

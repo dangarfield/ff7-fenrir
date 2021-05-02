@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getMenuState, setMenuState } from './menu-module.js'
+import { setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,

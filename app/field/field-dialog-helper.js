@@ -646,7 +646,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
       speedUpHoldLetter = i
     }
     let speed = Math.floor(
-      Math.abs(getConfigFieldMessageSpeed() - 255) / (255 / 52) + 3
+      Math.abs(getConfigFieldMessageSpeed()) / (255 / 52) + 3
     )
     // console.log('field message speed', speed)
     if (speedUpHoldLetter !== -1 && speedUpHoldLetter + 7 < i) {
