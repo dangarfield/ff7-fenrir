@@ -122,7 +122,7 @@ const loadHomeMenu = async () => {
   const d = 13
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
-    await addTextToDialog(
+    addTextToDialog(
       homeNav,
       navOption,
       `nav-${navOption.toLowerCase()}`,
@@ -145,7 +145,7 @@ const loadHomeMenu = async () => {
   homeBlackOverlay.material.opacity = 0
   window.homeBlackOverlay = homeBlackOverlay
 
-  homeTime = await createDialogBox({
+  homeTime = createDialogBox({
     id: 3,
     name: 'homeTime',
     w: 84,
@@ -157,7 +157,7 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     'Time',
     'home-label-time',
@@ -167,7 +167,7 @@ const loadHomeMenu = async () => {
     186,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     'Gil',
     'home-label-gil',
@@ -179,7 +179,7 @@ const loadHomeMenu = async () => {
   )
 
   const gameTime = getCurrentGameTime()
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ('' + gameTime.h).padStart(2, '0'),
     'home-time-hrs',
@@ -189,7 +189,7 @@ const loadHomeMenu = async () => {
     186,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ('' + gameTime.m).padStart(2, '0'),
     'home-time-mins',
@@ -199,7 +199,7 @@ const loadHomeMenu = async () => {
     186,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ('' + gameTime.s).padStart(2, '0'),
     'home-time-secs',
@@ -209,7 +209,7 @@ const loadHomeMenu = async () => {
     186,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ':',
     'home-time-colon-1',
@@ -219,7 +219,7 @@ const loadHomeMenu = async () => {
     187,
     0.5
   )
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ':',
     'home-time-colon-2',
@@ -230,7 +230,7 @@ const loadHomeMenu = async () => {
     0.5
   )
 
-  await addTextToDialog(
+  addTextToDialog(
     homeTime,
     ('' + window.data.savemap.gil).padStart(9, ' '),
     'home-gil',
@@ -253,7 +253,7 @@ const loadHomeMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
-  await addTextToDialog(
+  addTextToDialog(
     homeLocation,
     window.data.savemap.location.currentLocation,
     'home-loc',

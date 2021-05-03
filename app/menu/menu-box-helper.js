@@ -377,6 +377,13 @@ const createDialogBox = dialog => {
   }
   dialogBox.visible = false
   scene.add(dialogBox)
+  if (dialog.group === undefined) {
+    scene.add(dialogBox)
+  } else {
+    console.log('save dialog.group', dialog.group, dialogBox)
+    dialog.group.add(dialogBox)
+  }
+
   return dialogBox
 }
 

@@ -8,18 +8,20 @@ import {
   POINTERS,
   movePointer,
   fadeOverlayOut,
-  fadeOverlayIn
+  fadeOverlayIn,
+  addImageToDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
+import { scene } from './menu-scene.js'
 
-let saveDescription, saveGroups
-let saveDescriptionGroup
+let saveDescription, saveGroups, saveSlotId
+let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup
 
 const loadSaveMenu = async () => {
   saveDescription = createDialogBox({
     id: 7,
-    name: 'configDescription',
+    name: 'saveDescription',
     w: 320,
     h: 25.5,
     x: 0,
@@ -47,8 +49,35 @@ const loadSaveMenu = async () => {
     noClipping: true
   })
   saveGroups.visible = true
+  scene.add(saveGroups)
   window.saveGroups = saveGroups
 
+  saveSlotId = createDialogBox({
+    id: 6,
+    name: 'saveSlotId',
+    w: 72,
+    h: 25.5,
+    x: 166,
+    y: 0,
+    expandInstantly: true,
+    noClipping: true
+  })
+  saveSlotId.visible = true
+  window.saveSlotId = saveSlotId
+  saveSlotIdGroup = new THREE.Group()
+  saveSlotIdGroup.userData = { id: 5, z: 100 - 5 }
+  saveSlotIdGroup.position.x = 0
+  saveSlotIdGroup.position.y = -12.5
+  saveSlotId.add(saveSlotIdGroup)
+  window.saveSlotIdGroup = saveSlotIdGroup
+
+  saveSlotsGroup = new THREE.Group()
+  saveSlotsGroup.userData = { id: 10, z: 100 - 10, name: 'saveSlotsGroup' }
+  saveSlotsGroup.position.x = 0
+  saveSlotsGroup.position.y = -25.5
+  saveSlotsGroup.position.z = 100 - 10
+  scene.add(saveSlotsGroup)
+  window.saveSlotsGroup = saveSlotsGroup
   drawAll()
   loadChooseSaveGroup()
   setMenuState('loading')
@@ -61,6 +90,7 @@ const exitMenu = async () => {
   await fadeOverlayIn(getHomeBlackOverlay())
   saveDescription.visible = false
   saveGroups.visible = false
+  saveSlotId.visible = false
   fadeInHomeMenu()
 }
 const clearSaveDescription = () => {
@@ -81,9 +111,39 @@ const setSaveDescription = text => {
     0.5
   )
 }
+const clearSlotId = () => {
+  while (saveSlotIdGroup.children.length) {
+    saveSlotIdGroup.remove(saveSlotIdGroup.children[0])
+  }
+}
+const setSlotId = text => {
+  clearSlotId()
+  addTextToDialog(
+    saveSlotIdGroup,
+    'GAME',
+    'save-slot-id',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Yellow,
+    164,
+    0,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotIdGroup,
+    text,
+    'save-slot-id',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    165 + 31,
+    0,
+    0.5
+  )
+}
 const SAVE_DATA = {
   group: 0,
-  groups: []
+  groups: [],
+  savePreviewDialogs: [],
+  slot: 0
 }
 window.SAVE_DATA = SAVE_DATA
 const drawAll = () => {
@@ -158,7 +218,7 @@ const saveChooseGroupNavigationVertical = () => {
   loadChooseSaveGroup()
 }
 const loadChooseSaveGroup = () => {
-  setMenuState('save-choose-group')
+  console.log('save loadChooseSaveGroup START')
   setSaveDescription('Select a data file.')
   const x =
     42.5 +
@@ -166,12 +226,236 @@ const loadChooseSaveGroup = () => {
     5
   const y = SAVE_DATA.group < 5 ? 115 + 3 : 128 + 3
   movePointer(POINTERS.pointer1, x, y)
+
+  // Hide and show dialogs and cursors
+  saveGroups.visible = true
+  saveSlotId.visible = false
+  saveSlotsGroup.visible = false
+
+  setMenuState('save-choose-group')
+  console.log('save loadChooseSaveGroup END')
 }
 const saveChooseGroupConfirm = () => {
+  console.log('save saveChooseGroupConfirm 1')
+  // Remove existing
+  while (SAVE_DATA.savePreviewDialogs.length) {
+    scene.remove(SAVE_DATA.savePreviewDialogs[0])
+  }
+  console.log('save saveChooseGroupConfirm 2')
+  while (saveSlotsGroup.length) {
+    saveSlotsGroup.remove(saveSlotsGroup[0])
+  }
+  console.log('save saveChooseGroupConfirm 3')
+
+  // Create dialogs
+  for (let i = 0; i < SAVE_DATA.groups[SAVE_DATA.group].length; i++) {
+    const previewData = SAVE_DATA.groups[SAVE_DATA.group][1]
+    console.log('save', i, previewData)
+    const previewDialog = createSavePreviewDialog(i, previewData)
+    SAVE_DATA.savePreviewDialogs.push(previewDialog)
+  }
+  SAVE_DATA.slot = 0
+  setSaveDescription('Select a save game.')
+  setSlotId(('' + SAVE_DATA.slot + 1).padStart(2, '0'))
+
+  // Hide and show dialogs and cursors
+  saveGroups.visible = false
+  saveSlotId.visible = true
+  saveSlotsGroup.visible = true
+
   setMenuState('save-choose-slot')
+}
+const createSavePreviewDialog = (index, previewData) => {
+  // Note: I don't think we need to use the preview data really, we can just read the main save data
+
+  const yOffset = 22.5 + 68.5 * index
+  const slotPreview = createDialogBox({
+    id: 10,
+    name: 'slotPreview',
+    w: 320,
+    h: 68.5,
+    x: 0,
+    y: 0 + index * 68.5,
+    expandInstantly: true,
+    noClipping: true,
+    group: saveSlotsGroup
+  })
+
+  if (previewData.data === undefined) {
+    // TODO - Deal with empty slots, draw slotPreview with current window's colors and add empty
+    return
+  }
+  const members = previewData.data.party.members
+  const char = previewData.data.characters[previewData.data.party.members[0]]
+  console.log('save char', char)
+
+  const slotPreviewLocation = createDialogBox({
+    id: 10,
+    name: 'slotPreviewLocation',
+    w: 150,
+    h: 25.5,
+    x: 320 - 150,
+    y: 68.5 - 25.5 + index * 68.5,
+    expandInstantly: true,
+    noClipping: true,
+    group: saveSlotsGroup
+  })
+  const slotPreviewTime = createDialogBox({
+    id: 10,
+    name: 'slotPreviewTime',
+    w: 82,
+    h: 38.5,
+    x: 320 - 82,
+    y: 68.5 - 38.5 - 25.5 + index * 68.5,
+    expandInstantly: true,
+    noClipping: true,
+    group: saveSlotsGroup
+  })
+
+  const picXFixed = 39.5
+  const picXSpacing = 46
+  addImageToDialog(
+    saveSlotsGroup,
+    'profiles',
+    members[0],
+    'profile-image-1',
+    picXFixed,
+    yOffset + 8,
+    0.5
+  )
+
+  if (members[1] !== 'None') {
+    addImageToDialog(
+      saveSlotsGroup,
+      'profiles',
+      members[1],
+      'profile-image-2',
+      picXFixed + picXSpacing * 1,
+      yOffset + 8,
+      0.5
+    )
+  }
+
+  if (members[2] !== 'None') {
+    addImageToDialog(
+      saveSlotsGroup,
+      'profiles',
+      members[2],
+      'profile-image-3',
+      picXFixed + picXSpacing * 2,
+      yOffset + 8,
+      0.5
+    )
+  }
+  addTextToDialog(
+    saveSlotsGroup,
+    'Ex-SOLDIER',
+    `save-name-${index}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    164,
+    yOffset - 8,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    'Level',
+    `save-level-label-${index}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    168,
+    yOffset + 11.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    '7  ',
+    `save-level-${index}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    202,
+    yOffset + 11.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    'Section 1 Station',
+    `save-location-${index}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    168,
+    yOffset + 33,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    'Time',
+    `save-time-label-${index}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    235,
+    yOffset - 6.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    'Gil',
+    `save-gil-label-${index}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    235,
+    yOffset + 8.5,
+    0.5
+  )
+  const timeX = 277.5
+  addTextToDialog(
+    saveSlotsGroup,
+    ('' + 0).padStart(2, '0'),
+    `save-time-hrs-${index}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    timeX,
+    yOffset - 6.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    ':',
+    `save-time-colon-${index}`,
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.White,
+    timeX + 11,
+    yOffset - 5.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    ('' + 20).padStart(2, '0'),
+    `save-time-mins-${index}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    timeX + 17,
+    yOffset - 6.5,
+    0.5
+  )
+  addTextToDialog(
+    saveSlotsGroup,
+    ('' + 260).padStart(9, ' '),
+    `save-time-mins-${index}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    252.5,
+    yOffset + 8.5,
+    0.5
+  )
+  slotPreview.visible = true
+  slotPreviewLocation.visible = true
+  slotPreviewTime.visible = true
+  return slotPreview
 }
 const saveChooseSlotNavigation = () => {}
 const saveChooseSlotConfirm = () => {}
+
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU SAVE', key, firstPress, state)
   if (state === 'save-choose-group') {
@@ -191,7 +475,7 @@ const keyPress = async (key, firstPress, state) => {
       saveChooseGroupNavigationVertical()
     }
   }
-  if (state === 'save-choose-group') {
+  if (state === 'save-choose-slot') {
     if (key === KEY.X) {
       loadChooseSaveGroup()
     } else if (key === KEY.O) {
