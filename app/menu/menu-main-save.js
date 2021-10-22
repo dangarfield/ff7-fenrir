@@ -532,9 +532,11 @@ const saveChooseSlotNavigation = (up) => {
   if(up && SAVE_SLOT_POSITIONS.cursorPosition < 2) {
     console.log('save slot nav cursor move up 1')
     movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition + 1)
+    SAVE_DATA.slot++
   } else if(!up && SAVE_SLOT_POSITIONS.cursorPosition > 0) {
     console.log('save slot nav cursor move down 1')
     movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition - 1)
+    SAVE_DATA.slot--
   } else if(up && SAVE_SLOT_POSITIONS.pagePosition === 15-3) {
     console.log('save page move up end of list')
   } else if(!up && SAVE_SLOT_POSITIONS.pagePosition === 0) {
@@ -542,11 +544,13 @@ const saveChooseSlotNavigation = (up) => {
   } else if (up) {
     console.log('save page move up next page')
     tweenSaveSlotPosition(SAVE_SLOT_POSITIONS.pagePosition, SAVE_SLOT_POSITIONS.pagePosition + 1)
+    SAVE_DATA.slot++
   } else if (!up) {
     console.log('save page move down next page')
     tweenSaveSlotPosition(SAVE_SLOT_POSITIONS.pagePosition, SAVE_SLOT_POSITIONS.pagePosition - 1)
-
+    SAVE_DATA.slot--
   }
+  setSlotId(('' + (SAVE_DATA.slot + 1)).padStart(2, '0'))
   console.log('save saveChooseSlotNavigation', up, SAVE_SLOT_POSITIONS.cursorPosition, SAVE_SLOT_POSITIONS.pagePosition)
   
 }
