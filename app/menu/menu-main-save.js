@@ -1,4 +1,6 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
@@ -12,11 +14,10 @@ import {
   addImageToDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { addShapeToDialog, WINDOW_COLORS_SUMMARY } from './menu-box-helper.js'
 import { KEY } from '../interaction/inputs.js'
-import { scene } from './menu-scene.js'
-
 let saveDescription, saveGroups, saveSlotId
-let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup
+let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover
 
 const loadSaveMenu = async () => {
   saveDescription = createDialogBox({
@@ -75,9 +76,36 @@ const loadSaveMenu = async () => {
   saveSlotsGroup.userData = { id: 10, z: 100 - 10, name: 'saveSlotsGroup' }
   saveSlotsGroup.position.x = 0
   saveSlotsGroup.position.y = -25.5
-  saveSlotsGroup.position.z = 100 - 10
+  saveSlotsGroup.position.z = -10
+
+  saveSlotsGroupCover = new THREE.Group()
+  saveSlotsGroupCover.userData = { id: 10, z: 100 - 9, name: 'saveSlotsGroupCover' }
+  saveSlotsGroupCover.position.z = -9
+
+  const blackCoverMesh = new THREE.MeshBasicMaterial({ color: 0x000000 })
+  const saveSlotsGroupCover1 = new THREE.Mesh(
+    new THREE.PlaneBufferGeometry(320, 25.5),
+    blackCoverMesh
+  )
+  saveSlotsGroupCover1.position.set(320 / 2, 240 - (25.5/2), 100 - 2)
+  saveSlotsGroupCover1.material.transparent = true
+  saveSlotsGroupCover1.visible = true
+  saveSlotsGroupCover.add(saveSlotsGroupCover1)
+  
+  const saveSlotsGroupCover2 = new THREE.Mesh(
+    new THREE.PlaneBufferGeometry(320, 240 - 25.5 - (68.5*3)),
+    blackCoverMesh
+  )
+  saveSlotsGroupCover2.position.set(320 / 2, (240 - 25.5 - (68.5*3)) / 2, 100 - 2)
+  saveSlotsGroupCover2.material.transparent = true
+  saveSlotsGroupCover2.visible = true
+  saveSlotsGroupCover.add(saveSlotsGroupCover2)
+  
+
   scene.add(saveSlotsGroup)
+  scene.add(saveSlotsGroupCover)
   window.saveSlotsGroup = saveSlotsGroup
+  window.saveSlotsGroupCover = saveSlotsGroupCover
   drawAll()
   loadChooseSaveGroup()
   setMenuState('loading')
@@ -96,7 +124,7 @@ const exitMenu = async () => {
 const clearSaveDescription = () => {
   while (saveDescriptionGroup.children.length) {
     saveDescriptionGroup.remove(saveDescriptionGroup.children[0])
-  }
+  } 
 }
 const setSaveDescription = text => {
   clearSaveDescription()
@@ -231,6 +259,7 @@ const loadChooseSaveGroup = () => {
   saveGroups.visible = true
   saveSlotId.visible = false
   saveSlotsGroup.visible = false
+  saveSlotsGroupCover.visible = false
 
   setMenuState('save-choose-group')
   console.log('save loadChooseSaveGroup END')
@@ -257,7 +286,7 @@ const saveChooseGroupConfirm = () => {
 
   // Create dialogs
   for (let i = 0; i < SAVE_DATA.groups[SAVE_DATA.group].length; i++) {
-    const previewData = SAVE_DATA.groups[SAVE_DATA.group][1]
+    const previewData = SAVE_DATA.groups[SAVE_DATA.group][i]
     const previewDialog = createSavePreviewDialog(i, previewData)
     console.log('save', i, previewData, previewDialog)
     SAVE_DATA.savePreviewDialogs.push(previewDialog)
@@ -270,7 +299,9 @@ const saveChooseGroupConfirm = () => {
   saveGroups.visible = false
   saveSlotId.visible = true
   saveSlotsGroup.visible = true
+  saveSlotsGroupCover.visible = true
 
+  movePointerToSaveSlot(0)
   setMenuState('save-choose-slot')
 }
 const createSavePreviewDialog = (index, previewData) => {
@@ -292,7 +323,8 @@ const createSavePreviewDialog = (index, previewData) => {
   if (previewData.data === undefined) {
     // TODO - Deal with empty slots, draw slotPreview with current window's colors and add empty
     console.log('need to deal with empty slots')
-    return
+    slotPreview.visible = true
+    return slotPreview
   }
   const members = previewData.data.party.members
   const char = previewData.data.characters[previewData.data.party.members[0]]
@@ -462,7 +494,63 @@ const createSavePreviewDialog = (index, previewData) => {
   slotPreviewTime.visible = true
   return slotPreview
 }
-const saveChooseSlotNavigation = () => {}
+
+// x: 0,
+// y: 0 + index * 68.5,
+const SAVE_SLOT_POSITIONS = {
+  slotPositions:  new Array(15).fill(null).map((v, i) => {return {x: 0, y: -25.5 + 68.5 * i }}),
+  cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 5, y: 55 + 68.5 * i }}),
+  pagePosition: 0,
+  cursorPosition: 0,
+  tweenInProgress: false
+}
+const movePointerToSaveSlot = (i) => {
+  movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[i].x, SAVE_SLOT_POSITIONS.cursorPositions[i].y)
+  SAVE_SLOT_POSITIONS.cursorPosition = i
+}
+const tweenSaveSlotPosition = (fromIndex, toIndex) => {
+  SAVE_SLOT_POSITIONS.tweenInProgress = true
+  const from = {
+    x: SAVE_SLOT_POSITIONS.slotPositions[fromIndex].x,
+    y: SAVE_SLOT_POSITIONS.slotPositions[fromIndex].y
+  }
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(SAVE_SLOT_POSITIONS.slotPositions[toIndex], 50)
+    .onUpdate(function () {
+      saveSlotsGroup.position.y = from.y
+    })
+    .onComplete(function () {
+      SAVE_SLOT_POSITIONS.tweenInProgress = false
+      SAVE_SLOT_POSITIONS.pagePosition = toIndex
+    })
+    .start()
+}
+const saveChooseSlotNavigation = (up) => {
+  if(SAVE_SLOT_POSITIONS.tweenInProgress) {
+    return
+  }
+  if(up && SAVE_SLOT_POSITIONS.cursorPosition < 2) {
+    console.log('save slot nav cursor move up 1')
+    movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition + 1)
+  } else if(!up && SAVE_SLOT_POSITIONS.cursorPosition > 0) {
+    console.log('save slot nav cursor move down 1')
+    movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition - 1)
+  } else if(up && SAVE_SLOT_POSITIONS.pagePosition === 15-3) {
+    console.log('save page move up end of list')
+  } else if(!up && SAVE_SLOT_POSITIONS.pagePosition === 0) {
+    console.log('save page move down end of list')
+  } else if (up) {
+    console.log('save page move up next page')
+    tweenSaveSlotPosition(SAVE_SLOT_POSITIONS.pagePosition, SAVE_SLOT_POSITIONS.pagePosition + 1)
+  } else if (!up) {
+    console.log('save page move down next page')
+    tweenSaveSlotPosition(SAVE_SLOT_POSITIONS.pagePosition, SAVE_SLOT_POSITIONS.pagePosition - 1)
+
+  }
+  console.log('save saveChooseSlotNavigation', up, SAVE_SLOT_POSITIONS.cursorPosition, SAVE_SLOT_POSITIONS.pagePosition)
+  
+}
+window.SAVE_SLOT_POSITIONS = SAVE_SLOT_POSITIONS
 const saveChooseSlotConfirm = () => {}
 
 const keyPress = async (key, firstPress, state) => {
