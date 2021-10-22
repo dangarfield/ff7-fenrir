@@ -236,10 +236,18 @@ const loadChooseSaveGroup = () => {
   console.log('save loadChooseSaveGroup END')
 }
 const saveChooseGroupConfirm = () => {
+
+  
+  if (SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
+    console.log('save no active save in group')
+    return
+  }
+
   console.log('save saveChooseGroupConfirm 1')
   // Remove existing
   while (SAVE_DATA.savePreviewDialogs.length) {
     scene.remove(SAVE_DATA.savePreviewDialogs[0])
+    SAVE_DATA.savePreviewDialogs.shift()
   }
   console.log('save saveChooseGroupConfirm 2')
   while (saveSlotsGroup.length) {
@@ -250,8 +258,8 @@ const saveChooseGroupConfirm = () => {
   // Create dialogs
   for (let i = 0; i < SAVE_DATA.groups[SAVE_DATA.group].length; i++) {
     const previewData = SAVE_DATA.groups[SAVE_DATA.group][1]
-    console.log('save', i, previewData)
     const previewDialog = createSavePreviewDialog(i, previewData)
+    console.log('save', i, previewData, previewDialog)
     SAVE_DATA.savePreviewDialogs.push(previewDialog)
   }
   SAVE_DATA.slot = 0
@@ -283,6 +291,7 @@ const createSavePreviewDialog = (index, previewData) => {
 
   if (previewData.data === undefined) {
     // TODO - Deal with empty slots, draw slotPreview with current window's colors and add empty
+    console.log('need to deal with empty slots')
     return
   }
   const members = previewData.data.party.members
