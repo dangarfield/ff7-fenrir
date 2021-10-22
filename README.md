@@ -16,8 +16,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 
 - None, [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/) link. If you want to install locally:
 - Clone this repo `git clone https://github.com/dangarfield/ff7-fenrir.git`
-- Clone `git clone https://github.com/dangarfield/kujata-data.git` into a seperate directory and symlink into a previously created `ff7-fenrir` folder, ensuring that it is called `kujata-data-dg`. Alternatively, edit `KUJATA_BASE` variable in `app.mjs` to NOT point to localhost
-- Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install serve` (or any other static web server), run `serve`, open `http://localhost:5000` in browser, or `http-server -p 5000 -s`
+- Clone `git clone https://github.com/dangarfield/kujata-data.git` into a seperate directory and symlink into a previously created `ff7-fenrir` folder, ensuring that it is called `kujata-data`. Alternatively, edit `KUJATA_BASE` variable in `app.mjs` to NOT point to localhost
+- Install `node.js`, `git clone https://github.com/dangarfield/ff7-fenrir.git`, `cd` to folder, `npm install` (or any other static web server), run `npm run dev`, open `http://localhost:3000` in browser
 
 ### Progress - Field
 

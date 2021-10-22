@@ -21,12 +21,14 @@
   },
   "homepage": "https://github.com/dangarfield/ff7-fenrir#readme",
   "nodemonConfig": {
-    "ignore": ["*.json"]
+    "ignore": [
+      "*.json"
+    ]
   },
   "devDependencies": {
     "fs-extra": "^9.1.0",
-    "http-server": "^0.12.3",
+    "http-server": "^14.0.0",
     "lodash": "^4.17.21",
-    "prettier-standard": "^16.4.1"
+    "prettier-standard": "^13.0.6"
   }
 }
