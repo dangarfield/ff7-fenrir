@@ -595,5 +595,16 @@ const keyPress = async (key, firstPress, state) => {
       saveChooseSlotNavigation(true)
     }
   }
+  if (state === 'save-choose-slot-confirm') {
+    // if (key === KEY.X) {
+    //   loadChooseSaveGroup()
+    // } else if (key === KEY.O) {
+    //   saveChooseSlotConfirm()
+    // } else if (key === KEY.UP) {
+    //   saveChooseSlotNavigation(false)
+    // } else if (key === KEY.DOWN) {
+    //   saveChooseSlotNavigation(true)
+    // }
+  }
 }
 export { loadSaveMenu, keyPress }
