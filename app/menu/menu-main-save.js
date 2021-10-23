@@ -267,10 +267,10 @@ const loadChooseSaveGroup = () => {
 const saveChooseGroupConfirm = () => {
 
   
-  if (SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
-    console.log('save no active save in group')
-    return
-  }
+  // if (SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
+  //   console.log('save no active save in group')
+  //   return
+  // }
 
   console.log('save saveChooseGroupConfirm 1')
   // Remove existing
@@ -321,8 +321,18 @@ const createSavePreviewDialog = (index, previewData) => {
   })
 
   if (previewData.data === undefined) {
-    // TODO - Deal with empty slots, draw slotPreview with current window's colors and add empty
+    // TODO - Deal with empty slots, draw slotPreview with current window's colors and add 'empty'
     console.log('need to deal with empty slots')
+    addTextToDialog(
+      saveSlotsGroup,
+      'Empty',
+      `empty-${index}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Yellow,
+      50,
+      yOffset + 17,
+      0.5
+    )
     slotPreview.visible = true
     return slotPreview
   }
@@ -515,7 +525,7 @@ const tweenSaveSlotPosition = (fromIndex, toIndex) => {
     y: SAVE_SLOT_POSITIONS.slotPositions[fromIndex].y
   }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-    .to(SAVE_SLOT_POSITIONS.slotPositions[toIndex], 50)
+    .to(SAVE_SLOT_POSITIONS.slotPositions[toIndex], 200)
     .onUpdate(function () {
       saveSlotsGroup.position.y = from.y
     })
