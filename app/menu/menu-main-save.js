@@ -325,12 +325,12 @@ const createSavePreviewDialog = (index, previewData) => {
     console.log('need to deal with empty slots')
     addTextToDialog(
       saveSlotsGroup,
-      'Empty',
+      'EMPTY',
       `empty-${index}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Yellow,
-      50,
-      yOffset + 17,
+      34,
+      yOffset + 11,
       0.5
     )
     slotPreview.visible = true
@@ -505,11 +505,9 @@ const createSavePreviewDialog = (index, previewData) => {
   return slotPreview
 }
 
-// x: 0,
-// y: 0 + index * 68.5,
 const SAVE_SLOT_POSITIONS = {
   slotPositions:  new Array(15).fill(null).map((v, i) => {return {x: 0, y: -25.5 + 68.5 * i }}),
-  cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 5, y: 55 + 68.5 * i }}),
+  cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 14, y: 68 + 68.5 * i }}),
   pagePosition: 0,
   cursorPosition: 0,
   tweenInProgress: false
