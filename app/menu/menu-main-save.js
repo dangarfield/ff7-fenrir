@@ -17,7 +17,7 @@ import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { addShapeToDialog, WINDOW_COLORS_SUMMARY } from './menu-box-helper.js'
 import { KEY } from '../interaction/inputs.js'
 let saveDescription, saveGroups, saveSlotId
-let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover
+let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog
 
 const loadSaveMenu = async () => {
   saveDescription = createDialogBox({
@@ -72,6 +72,14 @@ const loadSaveMenu = async () => {
   saveSlotId.add(saveSlotIdGroup)
   window.saveSlotIdGroup = saveSlotIdGroup
 
+  createSlotDialogHolders()
+  drawAll()
+  loadChooseSaveGroup()
+  setMenuState('loading')
+  await fadeOverlayOut(getHomeBlackOverlay())
+  setMenuState('save-choose-group')
+}
+const createSlotDialogHolders = () => {
   saveSlotsGroup = new THREE.Group()
   saveSlotsGroup.userData = { id: 10, z: 100 - 10, name: 'saveSlotsGroup' }
   saveSlotsGroup.position.x = 0
@@ -101,16 +109,53 @@ const loadSaveMenu = async () => {
   saveSlotsGroupCover2.visible = true
   saveSlotsGroupCover.add(saveSlotsGroupCover2)
   
+  saveSlotsConfirmDialog = createDialogBox({
+    id: 6,
+    name: 'saveSlotsConfirmDialog',
+    w: 160,
+    h: 50,
+    x: 40,
+    y: 40,
+    expandInstantly: true,
+    noClipping: true
+  })
+  addTextToDialog(
+    saveDescriptionGroup,
+    'Are you sure you wat to save?',
+    'save-slots-confirm-dialog',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    0,
+    0.5
+  )
+  addTextToDialog(
+    saveDescriptionGroup,
+    'Yes',
+    'save-slots-confirm-dialog-yes',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    20,
+    0.5
+  )
+  addTextToDialog(
+    saveDescriptionGroup,
+    'No',
+    'save-slots-confirm-dialog-no',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    0,
+    20,
+    0.5
+  )
 
   scene.add(saveSlotsGroup)
   scene.add(saveSlotsGroupCover)
+  scene.add(saveSlotsConfirmDialog)
   window.saveSlotsGroup = saveSlotsGroup
   window.saveSlotsGroupCover = saveSlotsGroupCover
-  drawAll()
-  loadChooseSaveGroup()
-  setMenuState('loading')
-  await fadeOverlayOut(getHomeBlackOverlay())
-  setMenuState('save-choose-group')
+  window.saveSlotsConfirmDialog = saveSlotsConfirmDialog
 }
 const exitMenu = async () => {
   console.log('exitMenu')
@@ -119,6 +164,9 @@ const exitMenu = async () => {
   saveDescription.visible = false
   saveGroups.visible = false
   saveSlotId.visible = false
+  saveSlotsGroup.visible = false
+  saveSlotsGroupCover.visible = false
+  saveSlotsConfirmDialog.visible = false
   fadeInHomeMenu()
 }
 const clearSaveDescription = () => {
@@ -260,6 +308,7 @@ const loadChooseSaveGroup = () => {
   saveSlotId.visible = false
   saveSlotsGroup.visible = false
   saveSlotsGroupCover.visible = false
+  saveSlotsConfirmDialog.visible = false
 
   setMenuState('save-choose-group')
   console.log('save loadChooseSaveGroup END')
@@ -300,8 +349,9 @@ const saveChooseGroupConfirm = () => {
   saveSlotId.visible = true
   saveSlotsGroup.visible = true
   saveSlotsGroupCover.visible = true
+  saveSlotsConfirmDialog.visible = false
 
-  movePointerToSaveSlot(0)
+  movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition)
   setMenuState('save-choose-slot')
 }
 const createSavePreviewDialog = (index, previewData) => {
@@ -508,13 +558,16 @@ const createSavePreviewDialog = (index, previewData) => {
 const SAVE_SLOT_POSITIONS = {
   slotPositions:  new Array(15).fill(null).map((v, i) => {return {x: 0, y: -25.5 + 68.5 * i }}),
   cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 14, y: 68 + 68.5 * i }}),
+  confirmPositions: [{x: 100, y:100}, {x: 100, y:140}],
   pagePosition: 0,
   cursorPosition: 0,
+  confirmPosition: 0,
   tweenInProgress: false
 }
 const movePointerToSaveSlot = (i) => {
   movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[i].x, SAVE_SLOT_POSITIONS.cursorPositions[i].y)
   SAVE_SLOT_POSITIONS.cursorPosition = i
+  movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[1].y, true)
 }
 const tweenSaveSlotPosition = (fromIndex, toIndex) => {
   SAVE_SLOT_POSITIONS.tweenInProgress = true
@@ -563,7 +616,31 @@ const saveChooseSlotNavigation = (up) => {
   
 }
 window.SAVE_SLOT_POSITIONS = SAVE_SLOT_POSITIONS
-const saveChooseSlotConfirm = () => {}
+
+const saveChooseSlotSelect = () => {
+  setMenuState('save-choose-slot-confirm')
+  saveSlotsConfirmDialog.visible = true
+  movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y, false, true)
+  movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y)
+}
+const saveChooseSlotCancel = () => {
+  saveChooseGroupConfirm()
+}
+const saveChooseSlotConfirm = () => {
+  SAVE_SLOT_POSITIONS.cursorPosition = 0
+  SAVE_SLOT_POSITIONS.pagePosition = 0
+  saveChooseGroupConfirm()
+}
+const saveChooseSlotConfirmNavigation = () => {
+  if(SAVE_SLOT_POSITIONS.confirmPosition === 0) {
+    movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[1].x, SAVE_SLOT_POSITIONS.confirmPositions[1].y)
+    SAVE_SLOT_POSITIONS.confirmPosition = 1
+  } else {
+    movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y)
+    SAVE_SLOT_POSITIONS.confirmPosition = 0
+  }
+
+}
 
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU SAVE', key, firstPress, state)
@@ -588,7 +665,7 @@ const keyPress = async (key, firstPress, state) => {
     if (key === KEY.X) {
       loadChooseSaveGroup()
     } else if (key === KEY.O) {
-      saveChooseSlotConfirm()
+      saveChooseSlotSelect()
     } else if (key === KEY.UP) {
       saveChooseSlotNavigation(false)
     } else if (key === KEY.DOWN) {
@@ -596,15 +673,15 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
   if (state === 'save-choose-slot-confirm') {
-    // if (key === KEY.X) {
-    //   loadChooseSaveGroup()
-    // } else if (key === KEY.O) {
-    //   saveChooseSlotConfirm()
-    // } else if (key === KEY.UP) {
-    //   saveChooseSlotNavigation(false)
-    // } else if (key === KEY.DOWN) {
-    //   saveChooseSlotNavigation(true)
-    // }
+    if (key === KEY.X) {
+      saveChooseSlotCancel()
+    } else if (key === KEY.O) {
+      saveChooseSlotConfirm()
+    } else if (key === KEY.UP) {
+      saveChooseSlotConfirmNavigation()
+    } else if (key === KEY.DOWN) {
+      saveChooseSlotConfirmNavigation()
+    }
   }
 }
 export { loadSaveMenu, keyPress }
