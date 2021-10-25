@@ -508,6 +508,9 @@ const enlargeInstant = dialogBox => {
     )
   }
 }
+window.showDialog = showDialog
+window.closeDialog = closeDialog
+window.enlargeInstant = enlargeInstant
 const createTextureMesh = (w, h, texture) => {
   const material = new THREE.MeshBasicMaterial({
     map: texture,

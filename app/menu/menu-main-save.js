@@ -5,19 +5,24 @@ import { setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
+  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   addTextToDialog,
   POINTERS,
   movePointer,
   fadeOverlayOut,
   fadeOverlayIn,
-  addImageToDialog
+  addImageToDialog,
+  showDialog,
+  closeDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
-import { addShapeToDialog, WINDOW_COLORS_SUMMARY } from './menu-box-helper.js'
 import { KEY } from '../interaction/inputs.js'
+import { sleep } from '../helpers/helpers.js'
+import { saveSaveMap } from '../data/savemap.js'
+
 let saveDescription, saveGroups, saveSlotId
-let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog
+let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog, saveSlotsSavedDialog
 
 const loadSaveMenu = async () => {
   saveDescription = createDialogBox({
@@ -121,7 +126,7 @@ const createSlotDialogHolders = () => {
   })
   addTextToDialog(
     saveSlotsConfirmDialog,
-    'Are you sure you wat to save?',
+    'Are you sure you want to save?',
     'save-slots-confirm-dialog',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -149,13 +154,33 @@ const createSlotDialogHolders = () => {
     134,
     0.5
   )
-
+  saveSlotsSavedDialog = createDialogBox({
+    id: 3,
+    name: 'saveSlotsSavedDialog',
+    w: 46,
+    h: 25.5,
+    x: 127.5,
+    y: 101,
+    colors: WINDOW_COLORS_SUMMARY.DIALOG_SPECIAL
+  })
+  addTextToDialog(
+    saveSlotsSavedDialog,
+    'Saved.',
+    'save-slots-saved-dialog',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    126,
+    113.5,
+    0.5
+  )
   scene.add(saveSlotsGroup)
   scene.add(saveSlotsGroupCover)
   scene.add(saveSlotsConfirmDialog)
+  scene.add(saveSlotsSavedDialog)
   window.saveSlotsGroup = saveSlotsGroup
   window.saveSlotsGroupCover = saveSlotsGroupCover
   window.saveSlotsConfirmDialog = saveSlotsConfirmDialog
+  window.saveSlotsSavedDialog = saveSlotsSavedDialog
 }
 const exitMenu = async () => {
   console.log('exitMenu')
@@ -616,26 +641,54 @@ const saveChooseSlotNavigation = (up) => {
   
 }
 window.SAVE_SLOT_POSITIONS = SAVE_SLOT_POSITIONS
-
+const saveChooseSlotCancel = () => {
+  SAVE_SLOT_POSITIONS.cursorPosition = 0
+  SAVE_SLOT_POSITIONS.pagePosition = 0
+  SAVE_DATA.slot = 0
+  loadChooseSaveGroup()
+}
 const saveChooseSlotSelect = () => {
   setMenuState('save-choose-slot-confirm')
   saveSlotsConfirmDialog.visible = true
   movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y, false, true)
   movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y)
 }
-const saveChooseSlotCancel = () => {
-  saveChooseGroupConfirm()
+const saveConfirmSlotCancel = () => {
+  setMenuState('save-choose-slot')
+  saveSlotsConfirmDialog.visible = false
+  movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y)
+  movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y, true)
 }
-const saveChooseSlotConfirm = () => {
-  SAVE_SLOT_POSITIONS.cursorPosition = 0
-  SAVE_SLOT_POSITIONS.pagePosition = 0
-  saveChooseGroupConfirm()
+const saveConfirmSlotConfirm = async () => {
+  // saveChooseGroupConfirm()
+  if (SAVE_SLOT_POSITIONS.confirmPosition === 0) {
+    setMenuState('save-saving')
+    saveSlotsConfirmDialog.visible = false
+    movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y)
+    movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y, true)
+    saveSaveMap(SAVE_DATA.group+1, SAVE_DATA.slot+1)
+    createGroupSaves()
+    saveChooseGroupConfirm()
+    SAVE_SLOT_POSITIONS.cursorPosition = 0
+    SAVE_SLOT_POSITIONS.pagePosition = 0
+    SAVE_DATA.slot = 0
+    
+    setMenuState('save-saving')
+    await showDialog(saveSlotsSavedDialog)
+    await sleep(1000)
+    await closeDialog(saveSlotsSavedDialog)
+    setMenuState('save-choose-slot')
+
+    // TODO - Bug - Need to re-set cursor and page positions
+  } else {
+    saveConfirmSlotCancel()
+  }
 }
-const saveChooseSlotConfirmNavigation = (pos) => {
+const saveConfirmSlotConfirmNavigation = (pos) => {
   movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[pos].x, SAVE_SLOT_POSITIONS.confirmPositions[pos].y)
   SAVE_SLOT_POSITIONS.confirmPosition = pos
 }
-
+// window.alert('sfd')
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU SAVE', key, firstPress, state)
   if (state === 'save-choose-group') {
@@ -657,7 +710,7 @@ const keyPress = async (key, firstPress, state) => {
   }
   if (state === 'save-choose-slot') {
     if (key === KEY.X) {
-      loadChooseSaveGroup()
+      saveChooseSlotCancel()
     } else if (key === KEY.O) {
       saveChooseSlotSelect()
     } else if (key === KEY.UP) {
@@ -668,14 +721,17 @@ const keyPress = async (key, firstPress, state) => {
   }
   if (state === 'save-choose-slot-confirm') {
     if (key === KEY.X) {
-      saveChooseSlotCancel()
+      saveConfirmSlotCancel()
     } else if (key === KEY.O) {
-      saveChooseSlotConfirm()
+      saveConfirmSlotConfirm()
     } else if (key === KEY.UP) {
-      saveChooseSlotConfirmNavigation(0)
+      saveConfirmSlotConfirmNavigation(0)
     } else if (key === KEY.DOWN) {
-      saveChooseSlotConfirmNavigation(1)
+      saveConfirmSlotConfirmNavigation(1)
     }
+  }
+  if (state === 'save-saving') {
+
   }
 }
 export { loadSaveMenu, keyPress }
