@@ -100,20 +100,20 @@ const createSlotDialogHolders = () => {
     new THREE.PlaneBufferGeometry(320, 25.5),
     blackCoverMesh
   )
-  saveSlotsGroupCover1.position.set(320 / 2, 240 - (25.5/2), 100 - 2)
+  saveSlotsGroupCover1.position.set(320 / 2, 240 - (25.5 / 2), 100 - 2)
   saveSlotsGroupCover1.material.transparent = true
   saveSlotsGroupCover1.visible = true
   saveSlotsGroupCover.add(saveSlotsGroupCover1)
-  
+
   const saveSlotsGroupCover2 = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(320, 240 - 25.5 - (68.5*3)),
+    new THREE.PlaneBufferGeometry(320, 240 - 25.5 - (68.5 * 3)),
     blackCoverMesh
   )
-  saveSlotsGroupCover2.position.set(320 / 2, (240 - 25.5 - (68.5*3)) / 2, 100 - 2)
+  saveSlotsGroupCover2.position.set(320 / 2, (240 - 25.5 - (68.5 * 3)) / 2, 100 - 2)
   saveSlotsGroupCover2.material.transparent = true
   saveSlotsGroupCover2.visible = true
   saveSlotsGroupCover.add(saveSlotsGroupCover2)
-  
+
   saveSlotsConfirmDialog = createDialogBox({
     id: 6,
     name: 'saveSlotsConfirmDialog',
@@ -197,7 +197,7 @@ const exitMenu = async () => {
 const clearSaveDescription = () => {
   while (saveDescriptionGroup.children.length) {
     saveDescriptionGroup.remove(saveDescriptionGroup.children[0])
-  } 
+  }
 }
 const setSaveDescription = text => {
   clearSaveDescription()
@@ -339,8 +339,6 @@ const loadChooseSaveGroup = () => {
   console.log('save loadChooseSaveGroup END')
 }
 const saveChooseGroupConfirm = () => {
-
-  
   // if (SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
   //   console.log('save no active save in group')
   //   return
@@ -581,9 +579,9 @@ const createSavePreviewDialog = (index, previewData) => {
 }
 
 const SAVE_SLOT_POSITIONS = {
-  slotPositions:  new Array(15).fill(null).map((v, i) => {return {x: 0, y: -25.5 + 68.5 * i }}),
-  cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 14, y: 68 + 68.5 * i }}),
-  confirmPositions: [{x: 104, y:125}, {x: 104, y:138}],
+  slotPositions: new Array(15).fill(null).map((v, i) => { return {x: 0, y: -25.5 + 68.5 * i } }),
+  cursorPositions: new Array(3).fill(null).map((v, i) => { return {x: 14, y: 68 + 68.5 * i } }),
+  confirmPositions: [{x: 104, y: 125}, {x: 104, y: 138}],
   pagePosition: 0,
   cursorPosition: 0,
   confirmPosition: 0,
@@ -612,20 +610,20 @@ const tweenSaveSlotPosition = (fromIndex, toIndex) => {
     .start()
 }
 const saveChooseSlotNavigation = (up) => {
-  if(SAVE_SLOT_POSITIONS.tweenInProgress) {
+  if (SAVE_SLOT_POSITIONS.tweenInProgress) {
     return
   }
-  if(up && SAVE_SLOT_POSITIONS.cursorPosition < 2) {
+  if (up && SAVE_SLOT_POSITIONS.cursorPosition < 2) {
     console.log('save slot nav cursor move up 1')
     movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition + 1)
     SAVE_DATA.slot++
-  } else if(!up && SAVE_SLOT_POSITIONS.cursorPosition > 0) {
+  } else if (!up && SAVE_SLOT_POSITIONS.cursorPosition > 0) {
     console.log('save slot nav cursor move down 1')
     movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition - 1)
     SAVE_DATA.slot--
-  } else if(up && SAVE_SLOT_POSITIONS.pagePosition === 15-3) {
+  } else if (up && SAVE_SLOT_POSITIONS.pagePosition === 15 - 3) {
     console.log('save page move up end of list')
-  } else if(!up && SAVE_SLOT_POSITIONS.pagePosition === 0) {
+  } else if (!up && SAVE_SLOT_POSITIONS.pagePosition === 0) {
     console.log('save page move down end of list')
   } else if (up) {
     console.log('save page move up next page')
@@ -638,7 +636,6 @@ const saveChooseSlotNavigation = (up) => {
   }
   setSlotId(('' + (SAVE_DATA.slot + 1)).padStart(2, '0'))
   console.log('save saveChooseSlotNavigation', up, SAVE_SLOT_POSITIONS.cursorPosition, SAVE_SLOT_POSITIONS.pagePosition)
-  
 }
 window.SAVE_SLOT_POSITIONS = SAVE_SLOT_POSITIONS
 const saveChooseSlotCancel = () => {
@@ -666,13 +663,13 @@ const saveConfirmSlotConfirm = async () => {
     saveSlotsConfirmDialog.visible = false
     movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y)
     movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y, true)
-    saveSaveMap(SAVE_DATA.group+1, SAVE_DATA.slot+1)
+    saveSaveMap(SAVE_DATA.group + 1, SAVE_DATA.slot + 1)
     createGroupSaves()
     saveChooseGroupConfirm()
     SAVE_SLOT_POSITIONS.cursorPosition = 0
     SAVE_SLOT_POSITIONS.pagePosition = 0
     SAVE_DATA.slot = 0
-    
+
     setMenuState('save-saving')
     await showDialog(saveSlotsSavedDialog)
     await sleep(1000)
