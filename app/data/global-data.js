@@ -25,7 +25,7 @@ window.config = {
   sizing: {
     width: 320,
     height: 240,
-    factor: 2.67 // Set to 0 to scale to available viewport size
+    factor: 4 // 2.67 // Set to 0 to scale to available viewport size
   },
   debug: {
     active: true,

@@ -14,7 +14,7 @@ const waitUntilMediaCanPlay = async () => {
     const newAudioCtx = new AudioContext()
     console.log('newAudioCtx', newAudioCtx)
     if (newAudioCtx.state !== 'running') {
-      window.alert('Please click on the screen to enable audio and video')
+      // window.alert('Please click on the screen to enable audio and video')
     }
     const sound = new Howl({
       src: [getTestSoundUrl()],

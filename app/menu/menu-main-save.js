@@ -685,7 +685,6 @@ const saveConfirmSlotConfirmNavigation = (pos) => {
   movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[pos].x, SAVE_SLOT_POSITIONS.confirmPositions[pos].y)
   SAVE_SLOT_POSITIONS.confirmPosition = pos
 }
-// window.alert('sfd')
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU SAVE', key, firstPress, state)
   if (state === 'save-choose-group') {
