@@ -452,10 +452,23 @@ const updateHomeMenuTime = async () => {
       LETTER_TYPES.MenuTextFixed,
       LETTER_COLORS.White
     ).texture
+    const colon2Group = homeTime.children.filter(
+      f => f.userData.id === 'home-time-colon-2'
+    )[0]
+    colon2Group.children[0].material.map = getLetterTexture(
+      ':',
+      LETTER_TYPES.MenuTextFixed,
+      LETTER_COLORS.White
+    ).texture
 
     setTimeout(() => {
       console.log('change colon')
       colon1Group.children[0].material.map = getLetterTexture(
+        ':',
+        LETTER_TYPES.MenuTextFixed,
+        LETTER_COLORS.Gray
+      ).texture
+      colon2Group.children[0].material.map = getLetterTexture(
         ':',
         LETTER_TYPES.MenuTextFixed,
         LETTER_COLORS.Gray
