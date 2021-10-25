@@ -112,41 +112,41 @@ const createSlotDialogHolders = () => {
   saveSlotsConfirmDialog = createDialogBox({
     id: 6,
     name: 'saveSlotsConfirmDialog',
-    w: 160,
-    h: 50,
-    x: 40,
-    y: 40,
+    w: 167.5,
+    h: 50.5,
+    x: 76.5,
+    y: 95,
     expandInstantly: true,
     noClipping: true
   })
   addTextToDialog(
-    saveDescriptionGroup,
+    saveSlotsConfirmDialog,
     'Are you sure you wat to save?',
     'save-slots-confirm-dialog',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    0,
-    0,
+    77,
+    107.5,
     0.5
   )
   addTextToDialog(
-    saveDescriptionGroup,
+    saveSlotsConfirmDialog,
     'Yes',
     'save-slots-confirm-dialog-yes',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    0,
-    20,
+    108.5,
+    121.5,
     0.5
   )
   addTextToDialog(
-    saveDescriptionGroup,
+    saveSlotsConfirmDialog,
     'No',
     'save-slots-confirm-dialog-no',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    0,
-    20,
+    108.5,
+    134,
     0.5
   )
 
@@ -558,7 +558,7 @@ const createSavePreviewDialog = (index, previewData) => {
 const SAVE_SLOT_POSITIONS = {
   slotPositions:  new Array(15).fill(null).map((v, i) => {return {x: 0, y: -25.5 + 68.5 * i }}),
   cursorPositions: new Array(3).fill(null).map((v, i) => {return {x: 14, y: 68 + 68.5 * i }}),
-  confirmPositions: [{x: 100, y:100}, {x: 100, y:140}],
+  confirmPositions: [{x: 104, y:125}, {x: 104, y:138}],
   pagePosition: 0,
   cursorPosition: 0,
   confirmPosition: 0,
@@ -631,15 +631,9 @@ const saveChooseSlotConfirm = () => {
   SAVE_SLOT_POSITIONS.pagePosition = 0
   saveChooseGroupConfirm()
 }
-const saveChooseSlotConfirmNavigation = () => {
-  if(SAVE_SLOT_POSITIONS.confirmPosition === 0) {
-    movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[1].x, SAVE_SLOT_POSITIONS.confirmPositions[1].y)
-    SAVE_SLOT_POSITIONS.confirmPosition = 1
-  } else {
-    movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[0].x, SAVE_SLOT_POSITIONS.confirmPositions[0].y)
-    SAVE_SLOT_POSITIONS.confirmPosition = 0
-  }
-
+const saveChooseSlotConfirmNavigation = (pos) => {
+  movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[pos].x, SAVE_SLOT_POSITIONS.confirmPositions[pos].y)
+  SAVE_SLOT_POSITIONS.confirmPosition = pos
 }
 
 const keyPress = async (key, firstPress, state) => {
@@ -678,9 +672,9 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.O) {
       saveChooseSlotConfirm()
     } else if (key === KEY.UP) {
-      saveChooseSlotConfirmNavigation()
+      saveChooseSlotConfirmNavigation(0)
     } else if (key === KEY.DOWN) {
-      saveChooseSlotConfirmNavigation()
+      saveChooseSlotConfirmNavigation(1)
     }
   }
 }
