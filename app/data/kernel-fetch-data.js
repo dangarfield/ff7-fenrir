@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { setLoadingProgress } from '../loading/loading-module.js'
 const KUJATA_BASE = window.location.host.includes('localhost')
-  ? 'kujata-data'
+  ? 'http://localhost:3001/kujata-data'
   : 'https://kujata-data-dg.netlify.app'
 
 const windowTextures = {}
