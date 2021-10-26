@@ -16,6 +16,7 @@ import {
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
+import { getBattleStatsForChar } from '../battle/battle-stats.js'
 
 let statusDialog, headerGroup, statsGroup, elementGroup, statusGroup
 window.statusDialog = statusDialog
@@ -186,23 +187,25 @@ const addPartyMemberStats = (partyMember) => {
     statsGroup.remove(statsGroup.children[0])
   }
   const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
-  console.log('status stats char', char, statsGroup)
+  const battleStats = getBattleStatsForChar(char)
+  console.log('status stats char', char, battleStats)
+
 
   const stats = [
-    ['Strength', char.stats.strength + char.stats.strengthBonus],
-    ['Dexterity', char.stats.dexterity + char.stats.dexterityBonus],
-    ['Vitality', char.stats.vitality + char.stats.vitalityBonus],
-    ['Magic', char.stats.magic + char.stats.magicBonus],
-    ['Spirit', char.stats.spirit + char.stats.spiritBonus],
-    ['Luck', char.stats.luck + char.stats.luckBonus],
+    ['Strength', battleStats.strength],
+    ['Dexterity', battleStats.dexterity],
+    ['Vitality', battleStats.vitality],
+    ['Magic', battleStats.magic],
+    ['Spirit', battleStats.spirit],
+    ['Luck', battleStats.luck],
 
-    ['Attack', 37],
-    ['Attack%', 96],
-    ['Defense', 24],
-    ['Defense%', 2],
-    ['Magic atk', 24],
-    ['Magic def', 17],
-    ['Magic def%', 0]
+    ['Attack', battleStats.attack],
+    ['Attack%', battleStats.attackPercent],
+    ['Defense', battleStats.defense],
+    ['Defense%', battleStats.defensePercent],
+    ['Magic atk', battleStats.magicAttack],
+    ['Magic def', battleStats.magicDefense],
+    ['Magic def%', battleStats.magicDefensePercent]
   ]
 
   for (let i = 0; i < stats.length; i++) {
