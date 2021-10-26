@@ -744,13 +744,17 @@ const addTextToDialog = (
   dialogBox.add(textGroup)
   return textGroup
 }
-const addImageToDialog = async (dialogBox, type, image, id, x, y, scale) => {
+const addImageToDialog = async (dialogBox, type, image, id, x, y, scale, blending) => {
   const textureLetter = getImageTexture(type, image)
   const mesh = createTextureMesh(
     textureLetter.w * scale,
     textureLetter.h * scale,
     textureLetter.texture
   )
+
+  if (blending) {
+    mesh.material.blending = blending
+  }
   const posX = x
   const posY = window.config.sizing.height - y
   if (dialogBox.userData.bg) {
@@ -1339,6 +1343,55 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     h / (totalLines / pageSize) - 1
   )
 }
+const createEquipmentMateriaViewer = (dialog, x, y, slots, materias) => {
+  // TODO - Slider bg have an additional light edge on bottom and right
+  // Also, it seems to be a blended color rather than fixed
+  const w = 113
+  const h = 11.5
+  const adjW = h - 4
+
+  const xStart = x
+  const yStart = y + h + adjW
+  addShapeToDialog(
+    dialog,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
+    'equipmentMateriaViewer',
+    xStart + w / 2,
+    yStart,
+    w,
+    h
+  )
+
+  const slotOffset = 8
+  const joinOffset = 7
+  const materiaOffset = 0
+  const materiaGap = 14
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i]
+    if (slot.includes('Normal')) {
+      addImageToDialog(dialog, 'materia', 'slot-normal', `slot-${i}`, xStart + slotOffset + (i * materiaGap), yStart + 0.5, 0.5)
+    } else if (slot.includes('Empty')) {
+      addImageToDialog(dialog, 'materia', 'slot-nogrowth', `slot-${i}`, xStart + slotOffset + (i * materiaGap), yStart + 0.5, 0.5)
+    }
+  }
+
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i]
+    if (slot.includes('LeftLinkedSlot')) {
+      addImageToDialog(dialog, 'materia', 'slot-link', `slot-${i}-link`, xStart + slotOffset + joinOffset + (i * materiaGap), yStart + 0.5, 0.5)
+    }
+  }
+
+  if (materias) {
+    for (let i = 0; i < materias.length; i++) {
+      const materia = materias[i]
+      if (materia !== 'None') {
+        addImageToDialog(dialog, 'materia', materia, `slot-${i}-link`, xStart + slotOffset + materiaOffset + (i * materiaGap), yStart, 0.5, THREE.AdditiveBlending)
+      }
+    }
+  }
+  console.log('status createEquipmentMateriaViewer', slots, materias)
+}
 const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   // TODO - Slider bg have an additional light edge on bottom and right
   // Also, it seems to be a blended color rather than fixed
@@ -1497,5 +1550,6 @@ export {
   showDialog,
   closeDialog,
   createHorizontalConfigSlider,
-  updateTexture
+  updateTexture,
+  createEquipmentMateriaViewer
 }

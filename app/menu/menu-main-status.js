@@ -12,7 +12,8 @@ import {
   addCharacterSummary,
   addImageToDialog,
   fadeOverlayOut,
-  fadeOverlayIn
+  fadeOverlayIn,
+  createEquipmentMateriaViewer
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -266,6 +267,35 @@ const addPartyMemberStats = (partyMember) => {
       0.5
     )
   }
+
+  createEquipmentMateriaViewer(statusDialog,
+    178.5,
+    159,
+    window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
+    weaponMateriaTypes(char)
+  )
+  createEquipmentMateriaViewer(statusDialog,
+    178.5,
+    159 + 32,
+    window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
+    armorMateriaTypes(char)
+  )
+}
+// data.savemap.characters[data.savemap.party.members[0]]
+// window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type
+const weaponMateriaTypes = (char) => {
+  const materiaTypes = []
+  for (let i = 1; i < 9; i++) {
+    materiaTypes.push(char.materia[`weaponMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type : 'None')
+  }
+  return materiaTypes
+}
+const armorMateriaTypes = (char) => {
+  const materiaTypes = []
+  for (let i = 1; i < 9; i++) {
+    materiaTypes.push(char.materia[`armorMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`armorMateria${i}`].id].type : 'None')
+  }
+  return materiaTypes
 }
 const exitMenu = async () => {
   console.log('exitMenu')
