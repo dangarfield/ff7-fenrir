@@ -5,6 +5,8 @@ import {
   LETTER_COLORS,
   createDialogBox,
   addTextToDialog,
+  addLevelToDialog,
+  addLimitToDialog,
   POINTERS,
   movePointer,
   addCharacterSummary,
@@ -58,6 +60,7 @@ const loadStatusMenu = async partyMember => {
   statusDialog.visible = true
   window.statusDialog = statusDialog
   addPartyMemberHeader(partyMember)
+  addPartyMemberStats(partyMember)
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
@@ -91,6 +94,7 @@ const addPartyMemberHeader = (partyMember) => {
     char.stats.mp.max
   )
 
+  // EXP
   addTextToDialog(
     statusDialog,
     `EXP:`,
@@ -103,32 +107,34 @@ const addPartyMemberHeader = (partyMember) => {
   )
   addTextToDialog(
     statusDialog,
-    `next level:`,
-    'status-next-level-label',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    123.5 - 8,
-    41 - 4,
-    0.5
-  )
-  addTextToDialog(
-    statusDialog,
-    `Limit level:`,
-    'status-limit-level-label',
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    123.5 - 8,
-    55 - 4,
-    0.5
-  )
-  addTextToDialog(
-    statusDialog,
     ('' + char.level.currentEXP).padStart(14, ' '),
     `status-exp`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     128.5 + 8,
     16.5 - 4,
+    0.5
+  )
+  addImageToDialog(
+    statusDialog,
+    'labels',
+    'points-small',
+    'status-next-level-p',
+    232.5,
+    14,
+    0.5
+  )
+  addLevelToDialog(statusDialog, 195, 25, char)
+
+  // Next level
+  addTextToDialog(
+    statusDialog,
+    `next level:`,
+    'status-next-level-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    123.5 - 8,
+    41 - 4,
     0.5
   )
   addTextToDialog(
@@ -141,6 +147,88 @@ const addPartyMemberHeader = (partyMember) => {
     41 - 4,
     0.5
   )
+
+  addImageToDialog(
+    statusDialog,
+    'labels',
+    'points-small',
+    'status-next-limit-p',
+    264.5,
+    38.5,
+    0.5
+  )
+
+  // Limit
+  addTextToDialog(
+    statusDialog,
+    `Limit level:`,
+    'status-limit-level-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    123.5 - 8,
+    55 - 4,
+    0.5
+  )
+  addTextToDialog(
+    statusDialog,
+    char.limit.level + '',
+    'status-limit-level',
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    175.5 - 8,
+    55 - 4,
+    0.5
+  )
+  addLimitToDialog(statusDialog, 232.5, 49, char)
+}
+const addPartyMemberStats = (partyMember) => {
+  while (statsGroup.children.length) {
+    statsGroup.remove(statsGroup.children[0])
+  }
+  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
+  console.log('status stats char', char, statsGroup)
+
+  const stats = [
+    ['Strength', char.stats.strength + char.stats.strengthBonus],
+    ['Dexterity', char.stats.dexterity + char.stats.dexterityBonus],
+    ['Vitality', char.stats.vitality + char.stats.vitalityBonus],
+    ['Magic', char.stats.magic + char.stats.magicBonus],
+    ['Spirit', char.stats.spirit + char.stats.spiritBonus],
+    ['Luck', char.stats.luck + char.stats.luckBonus],
+
+    ['Attack', 37],
+    ['Attack%', 96],
+    ['Defense', 24],
+    ['Defense%', 2],
+    ['Magic atk', 24],
+    ['Magic def', 17],
+    ['Magic def%', 0]
+  ]
+
+  for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i]
+    const adj = i > 5 ? 16 : 0
+    addTextToDialog(
+      statusDialog,
+      stat[0],
+      `stat-label-${stat[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      30 - 8,
+      70 - 4 + (i * 12) + adj,
+      0.5
+    )
+    addTextToDialog(
+      statusDialog,
+      ('' + stat[1]).padStart(3, ' '),
+      `stat-${stat[0]}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      101.5 - 8,
+      70 - 4 + (i * 12) + adj,
+      0.5
+    )
+  }
 }
 const exitMenu = async () => {
   console.log('exitMenu')
