@@ -190,7 +190,7 @@ const addPartyMemberStats = (partyMember) => {
   const battleStats = getBattleStatsForChar(char)
   console.log('status stats char', char, battleStats)
 
-
+  // Stats
   const stats = [
     ['Strength', battleStats.strength],
     ['Dexterity', battleStats.dexterity],
@@ -229,6 +229,40 @@ const addPartyMemberStats = (partyMember) => {
       LETTER_COLORS.White,
       101.5 - 8,
       70 - 4 + (i * 12) + adj,
+      0.5
+    )
+  }
+
+  // Commands
+  // TODO
+
+  // Equips
+  const equips = [
+    ['Wpn :', char.equip.weapon.index < 255 ? char.equip.weapon.name : ''],
+    ['Arm :', char.equip.armor.index < 255 ? char.equip.armor.name : ''],
+    ['Acc :', char.equip.accessory.index < 255 ? char.equip.accessory.name : '']
+  ]
+
+  for (let i = 0; i < equips.length; i++) {
+    const equip = equips[i]
+    addTextToDialog(
+      statusDialog,
+      equip[0],
+      `stat-label-${equip[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      154.5 - 8,
+      166.5 - 4 + (i * 32),
+      0.5
+    )
+    addTextToDialog(
+      statusDialog,
+      equip[1],
+      `stat-${equip[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      188 - 8,
+      166.5 - 4 + (i * 32),
       0.5
     )
   }
