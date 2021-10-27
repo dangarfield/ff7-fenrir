@@ -61,10 +61,12 @@ const loadStatusMenu = async partyMember => {
   statusDialog.visible = true
   window.statusDialog = statusDialog
   addPartyMemberHeader(partyMember)
-  addPartyMemberStats(partyMember)
+  // addPartyMemberStats(partyMember)
+  addPartyMemberElements(partyMember)
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
+
 const addPartyMemberHeader = (partyMember) => {
   while (headerGroup.children.length) {
     headerGroup.remove(headerGroup.children[0])
@@ -235,6 +237,7 @@ const addPartyMemberStats = (partyMember) => {
   }
 
   // Commands
+  // TODO - Finish this
   const commandDialog = createDialogBox({
     id: 15,
     name: 'commandDialog',
@@ -321,6 +324,80 @@ const addPartyMemberStats = (partyMember) => {
     window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
     armorMateriaTypes(char)
   )
+}
+const addPartyMemberElements = (partyMember) => {
+  while (elementGroup.children.length) {
+    elementGroup.remove(elementGroup.children[0])
+  }
+  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
+  const battleStats = getBattleStatsForChar(char)
+  console.log('status elements char', char, battleStats)
+
+  addTextToDialog(
+    elementGroup,
+    `Element`,
+    'status-element-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    18 - 8,
+    70 - 4,
+    0.5
+  )
+  addTextToDialog(
+    elementGroup,
+    `Attack`,
+    'status-element-attack-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    87 - 4,
+    0.5
+  )
+  addTextToDialog(
+    elementGroup,
+    `Halve`,
+    'status-element-halve-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    123.5 - 4,
+    0.5
+  )
+  addTextToDialog(
+    elementGroup,
+    `Invalid`,
+    'status-element-invalid-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    160 - 4,
+    0.5
+  )
+  addTextToDialog(
+    elementGroup,
+    `Absorb`,
+    'status-element-absorb-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    196.5 - 4,
+    0.5
+  )
+
+  const elements = [
+    ['Fire', 12, 12, false, false, false, false],
+    ['Ice', 12, 12, false, false, false, false],
+    ['Lightning', 12, 12, false, false, false, false],
+    ['Earth', 12, 12, false, false, false, false],
+    ['Poison', 12, 12, false, false, false, false],
+    ['Gravity', 12, 12, false, false, false, false],
+    ['Water', 12, 12, false, false, false, false],
+    ['Wind', 12, 12, false, false, false, false],
+    ['Holy', 12, 12, false, false, false, false]
+  ]
+
+  elementGroup.visible = true
+  window.elementGroup = elementGroup
 }
 
 const weaponMateriaTypes = (char) => {
