@@ -236,6 +236,48 @@ const addPartyMemberStats = (partyMember) => {
 
   // Commands
   // TODO
+  const commandDialog = createDialogBox({
+    id: 3,
+    name: 'commandDialog',
+    w: 50,
+    h: 60,
+    x: 148.5,
+    y: 68.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  commandDialog.visible = true
+  statusDialog.add(commandDialog)
+  addTextToDialog(
+    commandDialog,
+    'Attack',
+    `stat-cmd`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    153.5 - 8,
+    84 - 4,
+    0.5
+  )
+  addTextToDialog(
+    commandDialog,
+    'Magic',
+    `stat-cmd`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    153.5 - 8,
+    84 - 4 + 13,
+    0.5
+  )
+  addTextToDialog(
+    commandDialog,
+    'Item',
+    `stat-cmd`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    153.5 - 8,
+    84 - 4 + (13 * 3),
+    0.5
+  )
 
   // Equips
   const equips = [
@@ -281,8 +323,7 @@ const addPartyMemberStats = (partyMember) => {
     armorMateriaTypes(char)
   )
 }
-// data.savemap.characters[data.savemap.party.members[0]]
-// window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type
+
 const weaponMateriaTypes = (char) => {
   const materiaTypes = []
   for (let i = 1; i < 9; i++) {
