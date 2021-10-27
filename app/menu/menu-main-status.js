@@ -293,17 +293,18 @@ const addPartyMemberStats = (partyMember) => {
     addTextToDialog(
       statsGroup,
       equip[0],
-      `stat-label-${equip[0]}`,
+      `stat-label-equip${i}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       154.5 - 8,
       166.5 - 4 + (i * 32),
       0.5
     )
+    console.log('status equip', i, equip)
     addTextToDialog(
       statsGroup,
       equip[1],
-      `stat-${equip[0]}`,
+      `stat-equip-${i}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       188 - 8,
@@ -385,15 +386,15 @@ const addPartyMemberElements = (partyMember) => {
   )
 
   const elements = [
-    ['Fire', 0, 0, false, false, false, false],
-    ['Ice', 25.5, 0, false, false, false, false],
-    ['Lightning', 46, 0, false, false, false, false],
-    ['Earth', 96, 0, false, false, false, false],
-    ['Poison', 129.5, 0, false, false, false, false],
-    ['Gravity', 166.5, 0, false, false, false, false],
-    ['Water', 0, 15, false, false, false, false],
-    ['Wind', 37, 15, false, false, false, false],
-    ['Holy', 67.5, 15, false, false, false, false]
+    ['Fire', 0, 0],
+    ['Ice', 25.5, 0],
+    ['Lightning', 46, 0],
+    ['Earth', 96, 0],
+    ['Poison', 129.5, 0],
+    ['Gravity', 166.5, 0],
+    ['Water', 0, 15],
+    ['Wind', 37, 15],
+    ['Holy', 67.5, 15]
   ]
   const xPos = 69
   const yPos = [87, 123.5, 160, 196.5]
@@ -404,7 +405,7 @@ const addPartyMemberElements = (partyMember) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      element[3] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.attack.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
       xPos + element[1] - 8,
       yPos[0] + element[2] - 4,
       0.5
@@ -414,7 +415,7 @@ const addPartyMemberElements = (partyMember) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      element[4] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.halve.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
       xPos + element[1] - 8,
       yPos[1] + element[2] - 4,
       0.5
@@ -424,7 +425,7 @@ const addPartyMemberElements = (partyMember) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      element[5] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.invalid.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
       xPos + element[1] - 8,
       yPos[2] + element[2] - 4,
       0.5
@@ -434,7 +435,7 @@ const addPartyMemberElements = (partyMember) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      element[6] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.absorb.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
       xPos + element[1] - 8,
       yPos[3] + element[2] - 4,
       0.5

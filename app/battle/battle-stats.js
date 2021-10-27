@@ -23,9 +23,48 @@ const calculateEquipBonus = (stat, items, materias) => {
   return total
 }
 const calculateElementEquip = (elements, items, materias) => {
-  elements.attack.push(items[0].attackElements)
+  // weapon
+  addNoDuplicates(elements.attack, items[0].elements)
+  // armor
+  if (items[1].elements.length > 0) {
+    if (items[1].elementDamageModifier === 'Halve') {
+      addNoDuplicates(elements.halve, items[1].elements)
+    } else if (items[1].elementDamageModifier === 'Invalid') {
+      addNoDuplicates(elements.invalid, items[1].elements)
+    } else if (items[1].elementDamageModifier === 'Absorb') {
+      addNoDuplicates(elements.absorb, items[1].elements)
+    }
+  }
+  // accessory
+  if (items[2] && items[2].elements && items[2].elements.length > 0) {
+    if (items[2].elementDamageModifier === 'Halve') {
+      addNoDuplicates(elements.halve, items[2].elements)
+    } else if (items[2].elementDamageModifier === 'Invalid') {
+      addNoDuplicates(elements.invalid, items[2].elements)
+    } else if (items[2].elementDamageModifier === 'Absorb') {
+      addNoDuplicates(elements.absorb, items[2].elements)
+    }
+  }
+
+  // Materia
+  // TODO
+}
+const addNoDuplicates = (arr1, arr2) => {
+  for (let i = 0; i < arr2.length; i++) {
+    const v = arr2[i]
+    if (!arr1.includes(v)) {
+      arr1.push(v)
+    }
+  }
 }
 const getBattleStatsForChar = (char) => {
+  char.equip.weapon.index = 15
+  char.equip.weapon.name = 'Ultima Weapon'
+  char.equip.armor.index = 29
+  char.equip.armor.name = 'Ziedrich'
+  char.equip.accessory.index = 29
+  char.equip.accessory.name = 'Water Ring'
+
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
   const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
@@ -71,7 +110,9 @@ const getBattleStatsForChar = (char) => {
     defensePercent,
     magicAttack,
     magicDefense,
-    magicDefensePercent
+    magicDefensePercent,
+
+    elements
   }
 }
 
