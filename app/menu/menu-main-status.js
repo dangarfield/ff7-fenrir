@@ -19,12 +19,7 @@ import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 
-let statusDialog, headerGroup, statsGroup, elementGroup, statusGroup
-window.statusDialog = statusDialog
-window.headerGroup = headerGroup
-window.statsGroup = statsGroup
-window.elementGroup = elementGroup
-window.statusGroup = statusGroup
+let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
 
 const loadStatusMenu = async partyMember => {
   statusDialog = createDialogBox({
@@ -40,24 +35,28 @@ const loadStatusMenu = async partyMember => {
     noClipping: true
   })
   headerGroup = new THREE.Group()
-  headerGroup.userData = { id: 4, z: 100 - 4 }
-  statusDialog.add(headerGroup)
+  headerGroup.userData = { id: 15, z: 100 - 15 }
+  headerGroup.position.z = 12
   headerGroup.visible = true
-  console.log('status headerGroup', headerGroup)
+  statusDialog.add(headerGroup)
+
   statsGroup = new THREE.Group()
-  statsGroup.userData = { id: 5, z: 100 - 5 }
-  statusDialog.add(statsGroup)
+  statsGroup.userData = { id: 15, z: 100 - 15 }
+  statsGroup.position.z = 12
   statsGroup.visible = true
+  statusDialog.add(statsGroup)
 
   elementGroup = new THREE.Group()
-  elementGroup.userData = { id: 5, z: 100 - 5 }
-  statusDialog.add(elementGroup)
+  elementGroup.userData = { id: 15, z: 100 - 15 }
+  elementGroup.position.z = 12
   elementGroup.visible = false
+  statusDialog.add(elementGroup)
 
-  statusGroup = new THREE.Group()
-  statusGroup.userData = { id: 5, z: 100 - 5 }
-  statusDialog.add(statusGroup)
-  statusGroup.visible = false
+  statusEffectsGroup = new THREE.Group()
+  statusEffectsGroup.userData = { id: 15, z: 100 - 15 }
+  statusEffectsGroup.position.z = 12
+  statusEffectsGroup.visible = false
+  statusDialog.add(statusEffectsGroup)
 
   statusDialog.visible = true
   window.statusDialog = statusDialog
@@ -73,7 +72,7 @@ const addPartyMemberHeader = (partyMember) => {
   const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
   console.log('status char', char, headerGroup)
   addImageToDialog(
-    statusDialog,
+    headerGroup,
     'profiles',
     window.data.savemap.party.members[partyMember],
     'profile-image',
@@ -81,9 +80,8 @@ const addPartyMemberHeader = (partyMember) => {
     29,
     0.5
   )
-
   addCharacterSummary(
-    statusDialog,
+    headerGroup,
     partyMember,
     43.5,
     14.5,
@@ -98,7 +96,7 @@ const addPartyMemberHeader = (partyMember) => {
 
   // EXP
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     `EXP:`,
     'status-exp-label',
     LETTER_TYPES.MenuBaseFont,
@@ -108,7 +106,7 @@ const addPartyMemberHeader = (partyMember) => {
     0.5
   )
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     ('' + char.level.currentEXP).padStart(14, ' '),
     `status-exp`,
     LETTER_TYPES.MenuTextStats,
@@ -118,7 +116,7 @@ const addPartyMemberHeader = (partyMember) => {
     0.5
   )
   addImageToDialog(
-    statusDialog,
+    headerGroup,
     'labels',
     'points-small',
     'status-next-level-p',
@@ -126,11 +124,11 @@ const addPartyMemberHeader = (partyMember) => {
     14,
     0.5
   )
-  addLevelToDialog(statusDialog, 195, 25, char)
+  addLevelToDialog(headerGroup, 195, 25, char)
 
   // Next level
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     `next level:`,
     'status-next-level-label',
     LETTER_TYPES.MenuBaseFont,
@@ -140,7 +138,7 @@ const addPartyMemberHeader = (partyMember) => {
     0.5
   )
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     ('' + char.level.nextLevelEXP).padStart(14, ' '),
     `status-exp-next`,
     LETTER_TYPES.MenuTextStats,
@@ -151,7 +149,7 @@ const addPartyMemberHeader = (partyMember) => {
   )
 
   addImageToDialog(
-    statusDialog,
+    headerGroup,
     'labels',
     'points-small',
     'status-next-limit-p',
@@ -162,7 +160,7 @@ const addPartyMemberHeader = (partyMember) => {
 
   // Limit
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     `Limit level:`,
     'status-limit-level-label',
     LETTER_TYPES.MenuBaseFont,
@@ -172,7 +170,7 @@ const addPartyMemberHeader = (partyMember) => {
     0.5
   )
   addTextToDialog(
-    statusDialog,
+    headerGroup,
     char.limit.level + '',
     'status-limit-level',
     LETTER_TYPES.MenuTextStats,
@@ -181,7 +179,9 @@ const addPartyMemberHeader = (partyMember) => {
     55 - 4,
     0.5
   )
-  addLimitToDialog(statusDialog, 232.5, 49, char)
+  addLimitToDialog(headerGroup, 232.5, 49, char)
+  headerGroup.visible = true
+  window.headerGroup = headerGroup
 }
 const addPartyMemberStats = (partyMember) => {
   while (statsGroup.children.length) {
@@ -213,7 +213,7 @@ const addPartyMemberStats = (partyMember) => {
     const stat = stats[i]
     const adj = i > 5 ? 16 : 0
     addTextToDialog(
-      statusDialog,
+      statsGroup,
       stat[0],
       `stat-label-${stat[0]}`,
       LETTER_TYPES.MenuBaseFont,
@@ -223,7 +223,7 @@ const addPartyMemberStats = (partyMember) => {
       0.5
     )
     addTextToDialog(
-      statusDialog,
+      statsGroup,
       ('' + stat[1]).padStart(3, ' '),
       `stat-${stat[0]}`,
       LETTER_TYPES.MenuTextStats,
@@ -236,7 +236,7 @@ const addPartyMemberStats = (partyMember) => {
 
   // Commands
   const commandDialog = createDialogBox({
-    id: 3,
+    id: 15,
     name: 'commandDialog',
     w: 50,
     h: 60,
@@ -246,7 +246,7 @@ const addPartyMemberStats = (partyMember) => {
     noClipping: true
   })
   commandDialog.visible = true
-  statusDialog.add(commandDialog)
+  statsGroup.add(commandDialog)
   addTextToDialog(
     commandDialog,
     'Attack',
@@ -288,7 +288,7 @@ const addPartyMemberStats = (partyMember) => {
   for (let i = 0; i < equips.length; i++) {
     const equip = equips[i]
     addTextToDialog(
-      statusDialog,
+      statsGroup,
       equip[0],
       `stat-label-${equip[0]}`,
       LETTER_TYPES.MenuBaseFont,
@@ -298,7 +298,7 @@ const addPartyMemberStats = (partyMember) => {
       0.5
     )
     addTextToDialog(
-      statusDialog,
+      statsGroup,
       equip[1],
       `stat-${equip[0]}`,
       LETTER_TYPES.MenuBaseFont,
@@ -309,13 +309,13 @@ const addPartyMemberStats = (partyMember) => {
     )
   }
 
-  createEquipmentMateriaViewer(statusDialog,
+  createEquipmentMateriaViewer(statsGroup,
     178.5,
     159,
     window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
     weaponMateriaTypes(char)
   )
-  createEquipmentMateriaViewer(statusDialog,
+  createEquipmentMateriaViewer(statsGroup,
     178.5,
     159 + 32,
     window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
