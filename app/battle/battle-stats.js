@@ -29,7 +29,9 @@ const calculateEquipBonus = (stat, items, materias) => {
   //   console.log('status stat bonus', stat, total)
   return total
 }
-
+const calculateElementEquip = (elements, items, materias) => {
+  elements.attack.push(items[0].attackElements)
+}
 const getBattleStatsForChar = (char) => {
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
@@ -57,6 +59,10 @@ const getBattleStatsForChar = (char) => {
   const magicDefense = spirit + armorData.magicDefense
   const magicDefensePercent = armorData.magicEvade
 
+  const elements = { attack: [], halve: [], invalid: [], absorb: [] }
+  calculateElementEquip(elements, equippedItems, equippedMateria)
+
+  console.log('status getBattleStatsForChar', char, elements)
   // TODO - boosted stats
   return {
     strength,

@@ -385,16 +385,61 @@ const addPartyMemberElements = (partyMember) => {
   )
 
   const elements = [
-    ['Fire', 12, 12, false, false, false, false],
-    ['Ice', 12, 12, false, false, false, false],
-    ['Lightning', 12, 12, false, false, false, false],
-    ['Earth', 12, 12, false, false, false, false],
-    ['Poison', 12, 12, false, false, false, false],
-    ['Gravity', 12, 12, false, false, false, false],
-    ['Water', 12, 12, false, false, false, false],
-    ['Wind', 12, 12, false, false, false, false],
-    ['Holy', 12, 12, false, false, false, false]
+    ['Fire', 0, 0, false, false, false, false],
+    ['Ice', 25.5, 0, false, false, false, false],
+    ['Lightning', 46, 0, false, false, false, false],
+    ['Earth', 96, 0, false, false, false, false],
+    ['Poison', 129.5, 0, false, false, false, false],
+    ['Gravity', 166.5, 0, false, false, false, false],
+    ['Water', 0, 15, false, false, false, false],
+    ['Wind', 37, 15, false, false, false, false],
+    ['Holy', 67.5, 15, false, false, false, false]
   ]
+  const xPos = 69
+  const yPos = [87, 123.5, 160, 196.5]
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i]
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      element[3] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[1] - 8,
+      yPos[0] + element[2] - 4,
+      0.5
+    )
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      element[4] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[1] - 8,
+      yPos[1] + element[2] - 4,
+      0.5
+    )
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      element[5] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[1] - 8,
+      yPos[2] + element[2] - 4,
+      0.5
+    )
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      element[6] ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[1] - 8,
+      yPos[3] + element[2] - 4,
+      0.5
+    )
+  }
 
   elementGroup.visible = true
   window.elementGroup = elementGroup
