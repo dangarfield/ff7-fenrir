@@ -367,7 +367,19 @@ const createDialogBox = dialog => {
   dialogBox.userData.sizeAdjustList = [t, b, l, r]
   dialogBox.userData.bg = bg
   dialogBox.userData.bgGeo = bgGeo
+  if (dialog.noBackground) {
+    bg.visible = false
 
+    tl.visible = false
+    tr.visible = false
+    bl.visible = false
+    br.visible = false
+
+    l.visible = false
+    r.visible = false
+    t.visible = false
+    b.visible = false
+  }
   if (!dialog.noClipping) {
     bg.material.clippingPlanes = createClippingPlanes(w, h, z, t, b, l, r)
   }

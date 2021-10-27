@@ -235,7 +235,6 @@ const addPartyMemberStats = (partyMember) => {
   }
 
   // Commands
-  // TODO
   const commandDialog = createDialogBox({
     id: 3,
     name: 'commandDialog',
