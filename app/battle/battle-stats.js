@@ -3,17 +3,10 @@ const calculateEquipBonus = (stat, items, materias) => {
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
     if (item) {
-      if (item.boostedStat1 === stat) {
-        total = total + item.boostedStat1Bonus
-      }
-      if (item.boostedStat2 === stat) {
-        total = total + item.boostedStat2Bonus
-      }
-      if (item.boostedStat3 === stat) {
-        total = total + item.boostedStat3Bonus
-      }
-      if (item.boostedStat4 === stat) {
-        total = total + item.boostedStat4Bonus
+      for (let j = 0; j < item.boostedStats.length; j++) {
+        if (item.boostedStats[j].stat === stat) {
+          // total = total + item.boostedStats[j].value
+        }
       }
     }
   }
