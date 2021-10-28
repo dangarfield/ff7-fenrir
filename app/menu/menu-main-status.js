@@ -21,7 +21,14 @@ import { getBattleStatsForChar } from '../battle/battle-stats.js'
 
 let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
 
+const STATUS_DATA = {
+  partyMember: 0,
+  page: 0
+}
 const loadStatusMenu = async partyMember => {
+  STATUS_DATA.partyMember = partyMember
+  STATUS_DATA.page = 0
+
   statusDialog = createDialogBox({
     id: 3,
     name: 'statusMenu',
@@ -43,7 +50,7 @@ const loadStatusMenu = async partyMember => {
   statsGroup = new THREE.Group()
   statsGroup.userData = { id: 15, z: 100 - 15 }
   statsGroup.position.z = 12
-  statsGroup.visible = true
+  statsGroup.visible = false
   statusDialog.add(statsGroup)
 
   elementGroup = new THREE.Group()
@@ -60,19 +67,50 @@ const loadStatusMenu = async partyMember => {
 
   statusDialog.visible = true
   window.statusDialog = statusDialog
-  addPartyMemberHeader(partyMember)
-  // addPartyMemberStats(partyMember)
-  // addPartyMemberElements(partyMember)
-  addPartyMemberStatus(partyMember)
+  populatePagesForCharacter()
+  displayPage()
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
 
-const addPartyMemberHeader = (partyMember) => {
+const loadNextPage = () => {
+  if (STATUS_DATA.page === 2) {
+    STATUS_DATA.page = 0
+  } else {
+    STATUS_DATA.page++
+  }
+  displayPage()
+}
+const displayPage = () => {
+  if (STATUS_DATA.page === 0) {
+    statsGroup.visible = true
+    elementGroup.visible = false
+    statusEffectsGroup.visible = false
+  } else if (STATUS_DATA.page === 1) {
+    statsGroup.visible = false
+    elementGroup.visible = true
+    statusEffectsGroup.visible = false
+  } else {
+    statsGroup.visible = false
+    elementGroup.visible = false
+    statusEffectsGroup.visible = true
+  }
+}
+const populatePagesForCharacter = () => {
+  const char = window.data.savemap.characters[window.data.savemap.party.members[STATUS_DATA.partyMember]]
+
+  const battleStats = getBattleStatsForChar(char)
+  addPartyMemberHeader(char, STATUS_DATA.partyMember)
+  addPartyMemberStats(char, battleStats)
+  addPartyMemberElements(char, battleStats)
+  addPartyMemberStatus(char, battleStats)
+}
+
+const addPartyMemberHeader = (char, partyMember) => {
   while (headerGroup.children.length) {
     headerGroup.remove(headerGroup.children[0])
   }
-  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
+
   console.log('status char', char, headerGroup)
   addImageToDialog(
     headerGroup,
@@ -81,7 +119,7 @@ const addPartyMemberHeader = (partyMember) => {
     'profile-image',
     28,
     29,
-    0.5
+    0.5llllh
   )
   addCharacterSummary(
     headerGroup,
@@ -186,12 +224,10 @@ const addPartyMemberHeader = (partyMember) => {
   headerGroup.visible = true
   window.headerGroup = headerGroup
 }
-const addPartyMemberStats = (partyMember) => {
+const addPartyMemberStats = (char, battleStats) => {
   while (statsGroup.children.length) {
     statsGroup.remove(statsGroup.children[0])
   }
-  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
-  const battleStats = getBattleStatsForChar(char)
   console.log('status stats char', char, battleStats)
 
   // Stats
@@ -327,12 +363,10 @@ const addPartyMemberStats = (partyMember) => {
     armorMateriaTypes(char)
   )
 }
-const addPartyMemberElements = (partyMember) => {
+const addPartyMemberElements = (char, battleStats) => {
   while (elementGroup.children.length) {
     elementGroup.remove(elementGroup.children[0])
   }
-  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
-  const battleStats = getBattleStatsForChar(char)
   console.log('status elements char', char, battleStats)
 
   addTextToDialog(
@@ -447,12 +481,10 @@ const addPartyMemberElements = (partyMember) => {
   elementGroup.visible = true
   window.elementGroup = elementGroup
 }
-const addPartyMemberStatus = (partyMember) => {
+const addPartyMemberStatus = (char, battleStats) => {
   while (statusEffectsGroup.children.length) {
     statusEffectsGroup.remove(statusEffectsGroup.children[0])
   }
-  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
-  const battleStats = getBattleStatsForChar(char)
   console.log('status status char', char, battleStats)
 
   addTextToDialog(
@@ -572,11 +604,34 @@ const exitMenu = async () => {
   statusDialog.visible = false
   fadeInHomeMenu()
 }
+const switchPartyMember = delta => {
+  let newMember = false
+  while (newMember === false) {
+    let potential = STATUS_DATA.partyMember + delta
+    if (potential > 2) {
+      potential = 0
+    } else if (potential < 0) {
+      potential = 2
+    }
+    if (window.data.savemap.party.members[potential] !== 'None') {
+      newMember = potential
+    }
+  }
+  STATUS_DATA.partyMember = newMember
+  populatePagesForCharacter()
+  displayPage()
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU STATUS', key, firstPress, state)
   if (state === 'status-stats') {
     if (key === KEY.X) {
       await exitMenu()
+    } else if (key === KEY.O) {
+      loadNextPage()
+    } else if (key === KEY.L1) {
+      switchPartyMember(-1)
+    } else if (key === KEY.R1) {
+      switchPartyMember(1)
     }
   }
 }
