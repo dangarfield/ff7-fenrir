@@ -62,7 +62,8 @@ const loadStatusMenu = async partyMember => {
   window.statusDialog = statusDialog
   addPartyMemberHeader(partyMember)
   // addPartyMemberStats(partyMember)
-  addPartyMemberElements(partyMember)
+  // addPartyMemberElements(partyMember)
+  addPartyMemberStatus(partyMember)
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
@@ -444,6 +445,106 @@ const addPartyMemberElements = (partyMember) => {
 
   elementGroup.visible = true
   window.elementGroup = elementGroup
+}
+const addPartyMemberStatus = (partyMember) => {
+  while (statusEffectsGroup.children.length) {
+    statusEffectsGroup.remove(statusEffectsGroup.children[0])
+  }
+  const char = window.data.savemap.characters[window.data.savemap.party.members[partyMember]]
+  const battleStats = getBattleStatsForChar(char)
+  console.log('status status char', char, battleStats)
+
+  addTextToDialog(
+    statusEffectsGroup,
+    `Effect`,
+    'status-status-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    18 - 8,
+    70 - 4,
+    0.5
+  )
+  addTextToDialog(
+    statusEffectsGroup,
+    `Attack`,
+    'status-status-attack-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    87 - 4,
+    0.5
+  )
+  addTextToDialog(
+    statusEffectsGroup,
+    `Defend`,
+    'status-status-defend-label',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    31.5 - 8,
+    123.5 - 4,
+    0.5
+  )
+
+  const statuses = [
+    ['Death', 0, 0],
+    ['Near-death', 25.5, 0],
+    ['Sleep', 46, 0],
+    ['Poison', 96, 0],
+    ['Sadness', 129.5, 0],
+    ['Fury', 166.5, 0],
+
+    ['Confusion', 0, 15],
+    ['Silence', 25.5, 15],
+    ['Haste', 46, 15],
+    ['Slow', 96, 15],
+    ['Stop', 129.5, 15],
+    ['Frog', 166.5, 15],
+    ['Small', 185.5, 15],
+
+    ['Slow-numb', 0, 30],
+    ['Petrify', 25.5, 30],
+    ['Regen', 46, 30],
+    ['Barrier', 96, 30],
+    ['MBarrier', 129.5, 30],
+    ['Reflect', 166.5, 30],
+
+    ['Shield', 0, 45],
+    ['Death-sentence', 25.5, 45],
+    ['Manipulate', 46, 45],
+    ['Berserk', 96, 45],
+    ['Peerless', 129.5, 45],
+
+    ['Paralysed', 0, 60],
+    ['Darkness', 25.5, 60]
+  ]
+  const xPos = 69
+  const yPos = [87, 160]
+  for (let i = 0; i < statuses.length; i++) {
+    const status = statuses[i]
+    addTextToDialog(
+      statusEffectsGroup,
+      status[0],
+      `status-element-${status[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      battleStats.statusEffects.attack.includes(status[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + status[1] - 8,
+      yPos[0] + status[2] - 4,
+      0.5
+    )
+    addTextToDialog(
+      statusEffectsGroup,
+      status[0],
+      `status-element-${status[0]}`,
+      LETTER_TYPES.MenuBaseFont,
+      battleStats.statusEffects.defend.includes(status[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + status[1] - 8,
+      yPos[1] + status[2] - 4,
+      0.5
+    )
+  }
+
+  statusEffectsGroup.visible = true
+  window.statusEffectsGroup = statusEffectsGroup
 }
 
 const weaponMateriaTypes = (char) => {

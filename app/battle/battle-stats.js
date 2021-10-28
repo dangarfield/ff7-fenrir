@@ -146,6 +146,7 @@ const getBattleStatsForChar = (char) => {
 
   const elements = { attack: [], halve: [], invalid: [], absorb: [] }
   calculateElementEquip(elements, equippedItems, char.materia)
+  const statusEffects = { attack: [], defend: [] }
 
   console.log('status getBattleStatsForChar', char, elements)
   // TODO - boosted stats
@@ -165,7 +166,8 @@ const getBattleStatsForChar = (char) => {
     magicDefense,
     magicDefensePercent,
 
-    elements
+    elements,
+    statusEffects
   }
 }
 
