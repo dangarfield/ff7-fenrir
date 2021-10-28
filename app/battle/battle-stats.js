@@ -98,17 +98,80 @@ const calculateElementEquip = (elements, items, materia) => {
 }
 
 const calculateStatusEquip = (statusEffects, items, materia) => {
+  // Haste, not able to attack, slow / stop?
+  // Time with added effect? Levels of ap apply slow or stop?!
+  // Frog or small with transform?
+
+  const validStatusToApply = ['Death', 'Sleep', 'Poison', 'Sadness', 'Fury', 'Confusion', 'Silence', 'Slow', 'Stop',
+    'Frog', 'Small', 'SlowNumb', 'Petrify', 'DeathSentence', 'Berserk', 'Paralysis', 'Darkness']
+
   // weapon
-  addNoDuplicates(statusEffects.attack, items[0].status)
+  addNoDuplicates(statusEffects.attack, removeInvalidStatusEffect(items[0].status, validStatusToApply))
   // armor
   if (items[1].status.length > 0) {
-    addNoDuplicates(statusEffects.defend, items[1].status)
+    addNoDuplicates(statusEffects.defend, removeInvalidStatusEffect(items[1].status, validStatusToApply))
   }
   // acc
   if (items[2] && items[2].status && items[2].status.length > 0) {
-    addNoDuplicates(statusEffects.defend, items[2].status)
+    addNoDuplicates(statusEffects.defend, removeInvalidStatusEffect(items[2].status, validStatusToApply))
   }
+  // Materia
+  const equipment = [
+    {item: items[0], type: 'weapon'},
+    {item: items[1], type: 'armor'}
+  ]
+  const addedEffectMateriaData = window.data.kernel.materiaData.filter(m => m.name === 'Added Effect')[0]
+
+  for (let i = 0; i < equipment.length; i++) {
+    const item = equipment[i].item
+    const type = equipment[i].type
+
+    for (let j = 0; j < item.materiaSlots.length; j++) {
+      const slot = item.materiaSlots[j]
+      if (slot.includes('LinkedSlot')) {
+        // check if this slot has an elemental materia
+        const slotMateria = materia[`${type}Materia${j + 1}`]
+
+        console.log('status status linked slot', type, j, slot, slotMateria)
+        if (slotMateria.name && slotMateria.name === 'Added Effect') {
+          let attachedMateria
+          if (slot.includes('Left')) {
+            attachedMateria = materia[`${type}Materia${j + 2}`]
+          } else {
+            attachedMateria = materia[`${type}Materia${j}`]
+          }
+          // console.log('status IS added effect - attached:', attachedMateria)
+
+          // if this has a materia, check it's ap and elements
+          if (attachedMateria.name) {
+            let elementModifier
+            if (type === 'weapon') {
+              elementModifier = 'attack'
+            } else {
+              elementModifier = 'defend'
+            }
+            const attachedMateriaStatusEffects = window.data.kernel.materiaData[attachedMateria.id].status
+            console.log('status status ap', slotMateria.ap, addedEffectMateriaData.level3Ap, addedEffectMateriaData.level2Ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
+
+            addNoDuplicates(statusEffects[elementModifier], removeInvalidStatusEffect(attachedMateriaStatusEffects, validStatusToApply))
+          }
+        }
+      }
+    }
+  }
+  // TODO - Not all statuses have an added effect applied in game, eg weapon with addedEffect+Kujata = Barrier MBarrier Reflect, but nothing shows in game
+
   console.log('status calculateStatusEquip', statusEffects, items)
+}
+const removeInvalidStatusEffect = (arr1, arr2) => {
+  const newArr = []
+  for (let i = 0; i < arr1.length; i++) {
+    const v = arr1[i]
+    if (arr2.includes(v)) {
+      newArr.push(v)
+    }
+  }
+  return newArr
 }
 const addNoDuplicates = (arr1, arr2) => {
   for (let i = 0; i < arr2.length; i++) {
@@ -126,13 +189,21 @@ const getBattleStatsForChar = (char) => {
   char.equip.armor.name = 'Escort Guard'
   // char.equip.accessory.index = 29
   // char.equip.accessory.name = 'Water Ring'
-  char.equip.accessory.index = 18
-  char.equip.accessory.name = 'Ribbon'
-  window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
-  window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
+  // char.equip.accessory.index = 18
+  // char.equip.accessory.name = 'Ribbon'
+  // char.equip.accessory.index = 16
+  // char.equip.accessory.name = 'Sprint Shoes'
+  // window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+  // window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
 
-  window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
-  window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 65, ap: 60000, name: 'Time', description: 'Summons Kujata'}
+
+  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
+  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+
+  window.data.savemap.characters.Cloud.materia.armorMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
+  window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]

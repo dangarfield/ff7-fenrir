@@ -523,6 +523,7 @@ const addPartyMemberStatus = (partyMember) => {
   const yPos = [85, 162]
   for (let i = 0; i < statuses.length; i++) {
     const status = statuses[i]
+    console.log('status test', battleStats.statusEffects, status[1], battleStats.statusEffects.attack.includes(status[1]), battleStats.statusEffects.attack.includes(status[2]))
     addTextToDialog(
       statusEffectsGroup,
       status[0],
