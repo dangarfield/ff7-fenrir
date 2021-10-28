@@ -62,8 +62,8 @@ const loadStatusMenu = async partyMember => {
   window.statusDialog = statusDialog
   addPartyMemberHeader(partyMember)
   // addPartyMemberStats(partyMember)
-  // addPartyMemberElements(partyMember)
-  addPartyMemberStatus(partyMember)
+  addPartyMemberElements(partyMember)
+  // addPartyMemberStatus(partyMember)
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
@@ -387,15 +387,16 @@ const addPartyMemberElements = (partyMember) => {
   )
 
   const elements = [
-    ['Fire', 0, 0],
-    ['Ice', 25.5, 0],
-    ['Lightning', 46, 0],
-    ['Earth', 96, 0],
-    ['Poison', 129.5, 0],
-    ['Gravity', 166.5, 0],
-    ['Water', 0, 15],
-    ['Wind', 37, 15],
-    ['Holy', 67.5, 15]
+    // display text, element enum, x, y
+    ['Fire', 'Fire', 0, 0],
+    ['Ice', 'Ice', 25.5, 0],
+    ['Lightning', 'Bolt', 46, 0],
+    ['Earth', 'Earth', 96, 0],
+    ['Poison', 'Poison', 129.5, 0],
+    ['Gravity', 'Gravity', 166.5, 0],
+    ['Water', 'Water', 0, 15],
+    ['Wind', 'Wind', 37, 15],
+    ['Holy', 'Holy', 67.5, 15]
   ]
   const xPos = 69
   const yPos = [87, 123.5, 160, 196.5]
@@ -404,11 +405,31 @@ const addPartyMemberElements = (partyMember) => {
     addTextToDialog(
       elementGroup,
       element[0],
-      `status-element-${element[0]}`,
+      `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.attack.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + element[1] - 8,
-      yPos[0] + element[2] - 4,
+      battleStats.elements.attack.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[2] - 8,
+      yPos[0] + element[3] - 4,
+      0.5
+    )
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[1]}`,
+      LETTER_TYPES.MenuBaseFont,
+      battleStats.elements.halve.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[2] - 8,
+      yPos[1] + element[3] - 4,
+      0.5
+    )
+    addTextToDialog(
+      elementGroup,
+      element[0],
+      `status-element-${element[1]}`,
+      LETTER_TYPES.MenuBaseFont,
+      battleStats.elements.invalid.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[2] - 8,
+      yPos[2] + element[3] - 4,
       0.5
     )
     addTextToDialog(
@@ -416,29 +437,9 @@ const addPartyMemberElements = (partyMember) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.halve.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + element[1] - 8,
-      yPos[1] + element[2] - 4,
-      0.5
-    )
-    addTextToDialog(
-      elementGroup,
-      element[0],
-      `status-element-${element[0]}`,
-      LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.invalid.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + element[1] - 8,
-      yPos[2] + element[2] - 4,
-      0.5
-    )
-    addTextToDialog(
-      elementGroup,
-      element[0],
-      `status-element-${element[0]}`,
-      LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.absorb.includes(element[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + element[1] - 8,
-      yPos[3] + element[2] - 4,
+      battleStats.elements.absorb.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + element[2] - 8,
+      yPos[3] + element[3] - 4,
       0.5
     )
   }
@@ -486,6 +487,7 @@ const addPartyMemberStatus = (partyMember) => {
   )
 
   const statuses = [
+    // display text, status enum, x, y
     ['Death', 0, 0],
     ['Near-death', 32.5, 0],
     ['Sleep', 89.5, 0],

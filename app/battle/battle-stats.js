@@ -96,6 +96,20 @@ const calculateElementEquip = (elements, items, materia) => {
     }
   }
 }
+
+const calculateStatusEquip = (statusEffects, items, materia) => {
+  // weapon
+  addNoDuplicates(statusEffects.attack, items[0].status)
+  // armor
+  if (items[1].status.length > 0) {
+    addNoDuplicates(statusEffects.defend, items[1].status)
+  }
+  // acc
+  if (items[2] && items[2].status && items[2].status.length > 0) {
+    addNoDuplicates(statusEffects.defend, items[2].status)
+  }
+  console.log('status calculateStatusEquip', statusEffects, items)
+}
 const addNoDuplicates = (arr1, arr2) => {
   for (let i = 0; i < arr2.length; i++) {
     const v = arr2[i]
@@ -110,8 +124,10 @@ const getBattleStatsForChar = (char) => {
   char.equip.weapon.name = 'Ultima Weapon'
   char.equip.armor.index = 27
   char.equip.armor.name = 'Escort Guard'
-  char.equip.accessory.index = 29
-  char.equip.accessory.name = 'Water Ring'
+  // char.equip.accessory.index = 29
+  // char.equip.accessory.name = 'Water Ring'
+  char.equip.accessory.index = 18
+  char.equip.accessory.name = 'Ribbon'
   window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
   window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
 
@@ -139,14 +155,16 @@ const getBattleStatsForChar = (char) => {
   const attack = strength + weaponData.attackStrength
   const attackPercent = weaponData.accuracyRate
   const defense = vitality + armorData.defense
-  const defensePercent = armorData.evade // wrong
+  const defensePercent = Math.round(dexterity / 4) + armorData.evade // wrong
   const magicAttack = magic // ???
   const magicDefense = spirit + armorData.magicDefense
   const magicDefensePercent = armorData.magicEvade
 
   const elements = { attack: [], halve: [], invalid: [], absorb: [] }
   calculateElementEquip(elements, equippedItems, char.materia)
+
   const statusEffects = { attack: [], defend: [] }
+  calculateStatusEquip(statusEffects, equippedItems, char.materia)
 
   console.log('status getBattleStatsForChar', char, elements)
   // TODO - boosted stats
