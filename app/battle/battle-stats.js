@@ -5,7 +5,7 @@ const calculateEquipBonus = (stat, items, materias) => {
     if (item) {
       for (let j = 0; j < item.boostedStats.length; j++) {
         if (item.boostedStats[j].stat === stat) {
-          // total = total + item.boostedStats[j].value
+          total = total + item.boostedStats[j].value
         }
       }
     }
@@ -19,17 +19,17 @@ const calculateEquipBonus = (stat, items, materias) => {
       }
     }
   }
-  //   console.log('status stat bonus', stat, total)
+  console.log('status stat bonus', stat, total)
   return total
 }
-const calculateElementEquip = (elements, items, materias) => {
+const calculateElementEquip = (elements, items, materia) => {
   // weapon
   addNoDuplicates(elements.attack, items[0].elements)
   // armor
   if (items[1].elements.length > 0) {
     if (items[1].elementDamageModifier === 'Halve') {
       addNoDuplicates(elements.halve, items[1].elements)
-    } else if (items[1].elementDamageModifier === 'Invalid') {
+    } else if (items[1].elementDamageModifier === 'Nullify') {
       addNoDuplicates(elements.invalid, items[1].elements)
     } else if (items[1].elementDamageModifier === 'Absorb') {
       addNoDuplicates(elements.absorb, items[1].elements)
@@ -39,7 +39,7 @@ const calculateElementEquip = (elements, items, materias) => {
   if (items[2] && items[2].elements && items[2].elements.length > 0) {
     if (items[2].elementDamageModifier === 'Halve') {
       addNoDuplicates(elements.halve, items[2].elements)
-    } else if (items[2].elementDamageModifier === 'Invalid') {
+    } else if (items[2].elementDamageModifier === 'Nullify') {
       addNoDuplicates(elements.invalid, items[2].elements)
     } else if (items[2].elementDamageModifier === 'Absorb') {
       addNoDuplicates(elements.absorb, items[2].elements)
@@ -47,7 +47,54 @@ const calculateElementEquip = (elements, items, materias) => {
   }
 
   // Materia
-  // TODO
+  const equipment = [
+    {item: items[0], type: 'weapon'},
+    {item: items[1], type: 'armor'}
+  ]
+  const elementalMateriaData = window.data.kernel.materiaData.filter(m => m.name === 'Elemental')[0]
+  for (let i = 0; i < equipment.length; i++) {
+    const item = equipment[i].item
+    const type = equipment[i].type
+
+    for (let j = 0; j < item.materiaSlots.length; j++) {
+      const slot = item.materiaSlots[j]
+      if (slot.includes('LinkedSlot')) {
+        // check if this slot has an elemental materia
+        const slotMateria = materia[`${type}Materia${j + 1}`]
+
+        console.log('status linked slot', type, j, slot, slotMateria)
+        if (slotMateria.name && slotMateria.name === 'Elemental') {
+          let attachedMateria
+          if (slot.includes('Left')) {
+            attachedMateria = materia[`${type}Materia${j + 2}`]
+          } else {
+            attachedMateria = materia[`${type}Materia${j}`]
+          }
+          console.log('status IS elemental - attached:', attachedMateria)
+
+          // if this has a materia, check it's ap and elements
+          if (attachedMateria.name) {
+            let elementModifier
+            if (type === 'weapon') {
+              elementModifier = 'attack'
+            } else {
+              if (slotMateria.ap >= elementalMateriaData.level3Ap) {
+                elementModifier = 'absorb'
+              } else if (slotMateria.ap >= elementalMateriaData.level2Ap) {
+                elementModifier = 'invalid'
+              } else {
+                elementModifier = 'halve'
+              }
+            }
+            const attachedMateriaElements = [window.data.kernel.materiaData[attachedMateria.id].element]
+            console.log('status elemental ap', slotMateria.ap, elementalMateriaData.level3Ap, elementalMateriaData.level2Ap, elementModifier, elements[elementModifier], attachedMateriaElements)
+
+            addNoDuplicates(elements[elementModifier], attachedMateriaElements)
+          }
+        }
+      }
+    }
+  }
 }
 const addNoDuplicates = (arr1, arr2) => {
   for (let i = 0; i < arr2.length; i++) {
@@ -58,12 +105,18 @@ const addNoDuplicates = (arr1, arr2) => {
   }
 }
 const getBattleStatsForChar = (char) => {
+  // Temp data override
   char.equip.weapon.index = 15
   char.equip.weapon.name = 'Ultima Weapon'
-  char.equip.armor.index = 29
-  char.equip.armor.name = 'Ziedrich'
+  char.equip.armor.index = 27
+  char.equip.armor.name = 'Escort Guard'
   char.equip.accessory.index = 29
   char.equip.accessory.name = 'Water Ring'
+  window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
+
+  window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
@@ -92,7 +145,7 @@ const getBattleStatsForChar = (char) => {
   const magicDefensePercent = armorData.magicEvade
 
   const elements = { attack: [], halve: [], invalid: [], absorb: [] }
-  calculateElementEquip(elements, equippedItems, equippedMateria)
+  calculateElementEquip(elements, equippedItems, char.materia)
 
   console.log('status getBattleStatsForChar', char, elements)
   // TODO - boosted stats
