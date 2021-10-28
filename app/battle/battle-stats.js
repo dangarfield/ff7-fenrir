@@ -183,10 +183,10 @@ const addNoDuplicates = (arr1, arr2) => {
 }
 const getBattleStatsForChar = (char) => {
   // Temp data override
-  char.equip.weapon.index = 15
-  char.equip.weapon.name = 'Ultima Weapon'
-  char.equip.armor.index = 27
-  char.equip.armor.name = 'Escort Guard'
+  // char.equip.weapon.index = 15
+  // char.equip.weapon.name = 'Ultima Weapon'
+  // char.equip.armor.index = 27
+  // char.equip.armor.name = 'Escort Guard'
   // char.equip.accessory.index = 29
   // char.equip.accessory.name = 'Water Ring'
   // char.equip.accessory.index = 18
@@ -196,14 +196,14 @@ const getBattleStatsForChar = (char) => {
   // window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
   // window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
 
-  window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
-  window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 65, ap: 60000, name: 'Time', description: 'Summons Kujata'}
+  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
+  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 65, ap: 60000, name: 'Time', description: 'Summons Kujata'}
 
   // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
   // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
 
-  window.data.savemap.characters.Cloud.materia.armorMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
-  window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
+  // window.data.savemap.characters.Cloud.materia.armorMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
+  // window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]

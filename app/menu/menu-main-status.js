@@ -119,7 +119,7 @@ const addPartyMemberHeader = (char, partyMember) => {
     'profile-image',
     28,
     29,
-    0.5llllh
+    0.5
   )
   addCharacterSummary(
     headerGroup,

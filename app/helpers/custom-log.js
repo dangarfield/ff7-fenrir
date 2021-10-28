@@ -8,8 +8,8 @@ window.console = (function (origConsole) {
       'FLOW ERROR',
       'executeOpDEBUG',
       'press MAIN MENU HOME',
-      'movePointer',
-      'status'
+      'movePointer'
+      // 'status'
     ],
     log: function () {
       if (limit) {
