@@ -7,6 +7,7 @@ import { addToast } from '../helpers/toasts.js'
 import { getCharacterSaveMap } from '../field/field-op-codes-party-helper.js'
 import { loadField } from '../field/field-module.js'
 import { stopAllLoops } from '../field/field-op-loop.js'
+import { recalculateAndApplyHPMPToAll } from '../battle/battle-stats.js'
 
 let TEMP_FIELD_BANK = new Int16Array(256).fill(0)
 window.data.TEMP_FIELD_BANK = TEMP_FIELD_BANK
@@ -16,6 +17,7 @@ const initNewSaveMap = () => {
   // console.log('window.data.kernel', window.data.kernel)
   window.data.savemap = Object.assign({}, window.data.kernel.initData.data)
   // console.log('initNewSaveMap: END')
+  recalculateAndApplyHPMPToAll()
 }
 
 const loadSaveMap = (cardId, slotId) => {
@@ -24,10 +26,11 @@ const loadSaveMap = (cardId, slotId) => {
   if (savemap === null) {
     console.log('no save, creating a new one')
     window.data.savemap = Object.assign({}, window.data.kernel.initData.data)
-    saveSaveMap(cardId, slotId)
   } else {
     window.data.savemap = JSON.parse(savemap)
   }
+  recalculateAndApplyHPMPToAll()
+  saveSaveMap(cardId, slotId)
   console.log('window.data.savemap', window.data.savemap)
 }
 const generateSavePreview = () => {

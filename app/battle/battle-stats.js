@@ -216,6 +216,7 @@ const getBattleStatsForChar = (char) => {
     }
   }
 
+  const {hp, mp} = calculateHPMP(char)
   const strength = char.stats.strength + char.stats.strengthBonus + calculateEquipBonus('Strength', equippedItems, equippedMateria)
   const dexterity = char.stats.dexterity + char.stats.dexterityBonus + calculateEquipBonus('Dexterity', equippedItems, equippedMateria)
   const vitality = char.stats.vitality + char.stats.vitalityBonus + calculateEquipBonus('Vitality', equippedItems, equippedMateria)
@@ -226,7 +227,7 @@ const getBattleStatsForChar = (char) => {
   const attack = strength + weaponData.attackStrength
   const attackPercent = weaponData.accuracyRate
   const defense = vitality + armorData.defense
-  const defensePercent = Math.round(dexterity / 4) + armorData.evade // wrong
+  const defensePercent = Math.trunc(dexterity / 4) + armorData.evade // wrong
   const magicAttack = magic // ???
   const magicDefense = spirit + armorData.magicDefense
   const magicDefensePercent = armorData.magicEvade
@@ -237,9 +238,11 @@ const getBattleStatsForChar = (char) => {
   const statusEffects = { attack: [], defend: [] }
   calculateStatusEquip(statusEffects, equippedItems, char.materia)
 
-  console.log('status getBattleStatsForChar', char, elements)
+  console.log('status getBattleStatsForChar', char, hp, mp)
   // TODO - boosted stats
   return {
+    hp,
+    mp,
     strength,
     dexterity,
     vitality,
@@ -259,7 +262,50 @@ const getBattleStatsForChar = (char) => {
     statusEffects
   }
 }
+const calculateHPMP = (char) => {
+  const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
+  const armorData = window.data.kernel.armorData[char.equip.armor.index]
+  const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
+  const equippedItems = [weaponData, armorData, accessoryData]
+  const equippedMateria = []
+  for (const materiaSlot in char.materia) {
+    if (char.materia[materiaSlot].id !== 255) {
+      equippedMateria.push(window.data.kernel.materiaData[char.materia[materiaSlot].id])
+    }
+  }
+  const hp = {
+    current: char.stats.hp.current,
+    max: Math.trunc(char.stats.hp.base * ((100 + calculateEquipBonus('HP', equippedItems, equippedMateria)) / 100))
+  }
+  if (hp.current > hp.max) {
+    hp.current = hp.max
+  }
+  const mp = {
+    current: char.stats.mp.current,
+    max: Math.trunc(char.stats.mp.base * ((100 + calculateEquipBonus('MP', equippedItems, equippedMateria)) / 100))
+  }
+  if (mp.current > mp.max) {
+    mp.current = mp.max
+  }
+  return {hp, mp}
+}
 
+const recalculateAndApplyHPMPToAll = () => {
+  const names = Object.keys(window.data.savemap.characters)
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i]
+    recalculateAndApplyHPMP(window.data.savemap.characters[name])
+  }
+}
+const recalculateAndApplyHPMP = (char) => {
+  const {hp, mp} = calculateHPMP(char)
+  char.stats.hp.current = hp.current
+  char.stats.hp.max = hp.max
+  char.stats.mp.current = mp.current
+  char.stats.mp.max = mp.max
+}
 export {
+  recalculateAndApplyHPMPToAll,
+  recalculateAndApplyHPMP,
   getBattleStatsForChar
 }
