@@ -62,8 +62,8 @@ const loadStatusMenu = async partyMember => {
   window.statusDialog = statusDialog
   addPartyMemberHeader(partyMember)
   // addPartyMemberStats(partyMember)
-  addPartyMemberElements(partyMember)
-  // addPartyMemberStatus(partyMember)
+  // addPartyMemberElements(partyMember)
+  addPartyMemberStatus(partyMember)
   await fadeOverlayOut(getHomeBlackOverlay())
   setMenuState('status-stats')
 }
@@ -488,36 +488,36 @@ const addPartyMemberStatus = (partyMember) => {
 
   const statuses = [
     // display text, status enum, x, y
-    ['Death', 0, 0],
-    ['Near-death', 32.5, 0],
-    ['Sleep', 89.5, 0],
-    ['Poison', 118.5, 0],
-    ['Sadness', 152, 0],
-    ['Fury', 193.5, 0],
+    ['Death', 'Death', 0, 0],
+    ['Near-death', 'NearDeath', 32.5, 0],
+    ['Sleep', 'Sleep', 89.5, 0],
+    ['Poison', 'Poison', 118.5, 0],
+    ['Sadness', 'Sadness', 152, 0],
+    ['Fury', 'Fury', 193.5, 0],
 
-    ['Confusion', 0, 15],
-    ['Silence', 50, 15],
-    ['Haste', 85.5, 15],
-    ['Slow', 117, 15],
-    ['Stop', 144, 15],
-    ['Frog', 170, 15],
-    ['Small', 195.5, 15],
+    ['Confusion', 'Confusion', 0, 15],
+    ['Silence', 'Silence', 50, 15],
+    ['Haste', 'Haste', 85.5, 15],
+    ['Slow', 'Slow', 117, 15],
+    ['Stop', 'Stop', 144, 15],
+    ['Frog', 'Frog', 170, 15],
+    ['Small', 'Small', 195.5, 15],
 
-    ['Slow-numb', 0, 30],
-    ['Petrify', 56.5, 30],
-    ['Regen', 93, 30],
-    ['Barrier', 125.5, 30],
-    ['MBarrier', 161, 30],
-    ['Reflect', 205.5, 30],
+    ['Slow-numb', 'SlowNumb', 0, 30],
+    ['Petrify', 'Petrify', 56.5, 30],
+    ['Regen', 'Regen', 93, 30],
+    ['Barrier', 'Barrier', 125.5, 30],
+    ['MBarrier', 'MBarrier', 161, 30],
+    ['Reflect', 'Reflect', 205.5, 30],
 
-    ['Shield', 0, 45],
-    ['Death-sentence', 31, 45],
-    ['Manipulate', 108.5, 45],
-    ['Berserk', 164, 45],
-    ['Peerless', 202.5, 45],
+    ['Shield', 'Shield', 0, 45],
+    ['Death-sentence', 'DeathSentence', 31, 45],
+    ['Manipulate', 'Manipulate', 108.5, 45],
+    ['Berserk', 'Berserk', 164, 45],
+    ['Peerless', 'Peerless', 202.5, 45],
 
-    ['Paralysed', 0, 60],
-    ['Darkness', 48.5, 60]
+    ['Paralysed', 'Paralysis', 0, 60],
+    ['Darkness', 'Darkness', 48.5, 60]
   ]
   const xPos = 47
   const yPos = [85, 162]
@@ -526,21 +526,21 @@ const addPartyMemberStatus = (partyMember) => {
     addTextToDialog(
       statusEffectsGroup,
       status[0],
-      `status-element-${status[0]}`,
+      `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.attack.includes(status[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + status[1] - 8,
-      yPos[0] + status[2] - 4,
+      battleStats.statusEffects.attack.includes(status[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + status[2] - 8,
+      yPos[0] + status[3] - 4,
       0.5
     )
     addTextToDialog(
       statusEffectsGroup,
       status[0],
-      `status-element-${status[0]}`,
+      `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.defend.includes(status[0]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
-      xPos + status[1] - 8,
-      yPos[1] + status[2] - 4,
+      battleStats.statusEffects.defend.includes(status[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      xPos + status[2] - 8,
+      yPos[1] + status[3] - 4,
       0.5
     )
   }
