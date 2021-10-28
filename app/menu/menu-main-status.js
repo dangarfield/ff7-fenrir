@@ -460,7 +460,7 @@ const addPartyMemberStatus = (partyMember) => {
     'status-status-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
-    18 - 8,
+    6.5 - 8,
     70 - 4,
     0.5
   )
@@ -470,8 +470,8 @@ const addPartyMemberStatus = (partyMember) => {
     'status-status-attack-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
-    31.5 - 8,
-    87 - 4,
+    9.5 - 8,
+    85 - 4,
     0.5
   )
   addTextToDialog(
@@ -480,45 +480,45 @@ const addPartyMemberStatus = (partyMember) => {
     'status-status-defend-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
-    31.5 - 8,
-    123.5 - 4,
+    9.5 - 8,
+    162 - 4,
     0.5
   )
 
   const statuses = [
     ['Death', 0, 0],
-    ['Near-death', 25.5, 0],
-    ['Sleep', 46, 0],
-    ['Poison', 96, 0],
-    ['Sadness', 129.5, 0],
-    ['Fury', 166.5, 0],
+    ['Near-death', 32.5, 0],
+    ['Sleep', 89.5, 0],
+    ['Poison', 118.5, 0],
+    ['Sadness', 152, 0],
+    ['Fury', 193.5, 0],
 
     ['Confusion', 0, 15],
-    ['Silence', 25.5, 15],
-    ['Haste', 46, 15],
-    ['Slow', 96, 15],
-    ['Stop', 129.5, 15],
-    ['Frog', 166.5, 15],
-    ['Small', 185.5, 15],
+    ['Silence', 50, 15],
+    ['Haste', 85.5, 15],
+    ['Slow', 117, 15],
+    ['Stop', 144, 15],
+    ['Frog', 170, 15],
+    ['Small', 195.5, 15],
 
     ['Slow-numb', 0, 30],
-    ['Petrify', 25.5, 30],
-    ['Regen', 46, 30],
-    ['Barrier', 96, 30],
-    ['MBarrier', 129.5, 30],
-    ['Reflect', 166.5, 30],
+    ['Petrify', 56.5, 30],
+    ['Regen', 93, 30],
+    ['Barrier', 125.5, 30],
+    ['MBarrier', 161, 30],
+    ['Reflect', 205.5, 30],
 
     ['Shield', 0, 45],
-    ['Death-sentence', 25.5, 45],
-    ['Manipulate', 46, 45],
-    ['Berserk', 96, 45],
-    ['Peerless', 129.5, 45],
+    ['Death-sentence', 31, 45],
+    ['Manipulate', 108.5, 45],
+    ['Berserk', 164, 45],
+    ['Peerless', 202.5, 45],
 
     ['Paralysed', 0, 60],
-    ['Darkness', 25.5, 60]
+    ['Darkness', 48.5, 60]
   ]
-  const xPos = 69
-  const yPos = [87, 160]
+  const xPos = 47
+  const yPos = [85, 162]
   for (let i = 0; i < statuses.length; i++) {
     const status = statuses[i]
     addTextToDialog(
