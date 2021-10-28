@@ -62,7 +62,7 @@ const calculateElementEquip = (elements, items, materia) => {
         // check if this slot has an elemental materia
         const slotMateria = materia[`${type}Materia${j + 1}`]
 
-        console.log('status linked slot', type, j, slot, slotMateria)
+        // console.log('status linked slot', type, j, slot, slotMateria)
         if (slotMateria.name && slotMateria.name === 'Elemental') {
           let attachedMateria
           if (slot.includes('Left')) {
@@ -70,7 +70,7 @@ const calculateElementEquip = (elements, items, materia) => {
           } else {
             attachedMateria = materia[`${type}Materia${j}`]
           }
-          console.log('status IS elemental - attached:', attachedMateria)
+          // console.log('status IS elemental - attached:', attachedMateria)
 
           // if this has a materia, check it's ap and elements
           if (attachedMateria.name) {
