@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       'movePointer',
       'getBattleStatsForChar'
-      // 'status'
+      //'status'
 
     ],
     log: function () {
