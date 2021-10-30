@@ -181,6 +181,53 @@ const addNoDuplicates = (arr1, arr2) => {
     }
   }
 }
+const calculateHPMP = (char) => {
+  const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
+  const armorData = window.data.kernel.armorData[char.equip.armor.index]
+  const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
+  const equippedItems = [weaponData, armorData, accessoryData]
+  const equippedMateria = []
+  for (const materiaSlot in char.materia) {
+    if (char.materia[materiaSlot].id !== 255) {
+      equippedMateria.push(window.data.kernel.materiaData[char.materia[materiaSlot].id])
+    }
+  }
+  const hp = {
+    current: char.stats.hp.current,
+    max: Math.trunc(char.stats.hp.base * ((100 + calculateEquipBonus('HP', equippedItems, equippedMateria)) / 100))
+  }
+  if (hp.current > hp.max) {
+    hp.current = hp.max
+  }
+  const mp = {
+    current: char.stats.mp.current,
+    max: Math.trunc(char.stats.mp.base * ((100 + calculateEquipBonus('MP', equippedItems, equippedMateria)) / 100))
+  }
+  if (mp.current > mp.max) {
+    mp.current = mp.max
+  }
+  return {hp, mp}
+}
+
+const recalculateAndApplyHPMPToAll = () => {
+  const names = Object.keys(window.data.savemap.characters)
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i]
+    recalculateAndApplyHPMP(window.data.savemap.characters[name])
+  }
+}
+const recalculateAndApplyHPMP = (char) => {
+  const {hp, mp} = calculateHPMP(char)
+  char.stats.hp.current = hp.current
+  char.stats.hp.max = hp.max
+  char.stats.mp.current = mp.current
+  char.stats.mp.max = mp.max
+}
+const getMenuOptions = (char) => {
+  const all = []
+  const menu = []
+  return menu
+}
 const getBattleStatsForChar = (char) => {
   // Temp data override
   // char.equip.weapon.index = 15
@@ -237,8 +284,10 @@ const getBattleStatsForChar = (char) => {
 
   const statusEffects = { attack: [], defend: [] }
   calculateStatusEquip(statusEffects, equippedItems, char.materia)
-
   console.log('status getBattleStatsForChar', char, hp, mp)
+
+  const menu = getMenuOptions(char)
+
   // TODO - boosted stats
   return {
     hp,
@@ -259,50 +308,10 @@ const getBattleStatsForChar = (char) => {
     magicDefensePercent,
 
     elements,
-    statusEffects
-  }
-}
-const calculateHPMP = (char) => {
-  const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
-  const armorData = window.data.kernel.armorData[char.equip.armor.index]
-  const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
-  const equippedItems = [weaponData, armorData, accessoryData]
-  const equippedMateria = []
-  for (const materiaSlot in char.materia) {
-    if (char.materia[materiaSlot].id !== 255) {
-      equippedMateria.push(window.data.kernel.materiaData[char.materia[materiaSlot].id])
-    }
-  }
-  const hp = {
-    current: char.stats.hp.current,
-    max: Math.trunc(char.stats.hp.base * ((100 + calculateEquipBonus('HP', equippedItems, equippedMateria)) / 100))
-  }
-  if (hp.current > hp.max) {
-    hp.current = hp.max
-  }
-  const mp = {
-    current: char.stats.mp.current,
-    max: Math.trunc(char.stats.mp.base * ((100 + calculateEquipBonus('MP', equippedItems, equippedMateria)) / 100))
-  }
-  if (mp.current > mp.max) {
-    mp.current = mp.max
-  }
-  return {hp, mp}
-}
+    statusEffects,
 
-const recalculateAndApplyHPMPToAll = () => {
-  const names = Object.keys(window.data.savemap.characters)
-  for (let i = 0; i < names.length; i++) {
-    const name = names[i]
-    recalculateAndApplyHPMP(window.data.savemap.characters[name])
+    menu
   }
-}
-const recalculateAndApplyHPMP = (char) => {
-  const {hp, mp} = calculateHPMP(char)
-  char.stats.hp.current = hp.current
-  char.stats.hp.max = hp.max
-  char.stats.mp.current = mp.current
-  char.stats.mp.max = mp.max
 }
 export {
   recalculateAndApplyHPMPToAll,
