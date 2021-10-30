@@ -9,9 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'movePointer',
-      'getBattleStatsForChar'
-      //'status'
-
+      'getBattleStatsForChar',
+      'status'
     ],
     log: function () {
       if (limit) {

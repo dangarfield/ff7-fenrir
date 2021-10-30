@@ -1402,7 +1402,7 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, materias) => {
       }
     }
   }
-  console.log('status createEquipmentMateriaViewer', slots, materias)
+  // console.log('status createEquipmentMateriaViewer', slots, materias)
 }
 const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   // TODO - Slider bg have an additional light edge on bottom and right

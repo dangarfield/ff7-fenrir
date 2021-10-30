@@ -224,41 +224,97 @@ const recalculateAndApplyHPMP = (char) => {
   char.stats.mp.max = mp.max
 }
 const getMenuOptions = (char) => {
-  const all = [
+  console.log('status getMenuOptions')
+  const addMenuOption = (all, choiceName) => {
+    const choice = CHOICES.filter(c => c.name === choiceName)[0]
+    all.push(choice)
+  }
+  const CHOICES = [
     {name: 'Left', type: '?', order: 1},
 
-    {name: 'Attack', type: 'Attack', order: 2},
-    {name: 'Mug', type: 'Attack', order: 15},
-    {name: '2x-Cut', type: 'Attack', order: 20},
-    {name: '4x-Cut', type: 'Attack', order: 20},
-    {name: 'Slash-All', type: 'Attack', order: 20},
-    {name: 'Flash', type: 'Attack', order: 20},
-    {name: 'Limit', type: 'Attack', order: 20},
+    {name: 'Attack', type: 'Attack', order: 10},
+    {name: 'Mug', type: 'Attack', order: 11},
+    {name: '2x-Cut', type: 'Attack', order: 12},
+    {name: '4x-Cut', type: 'Attack', order: 13},
+    {name: 'Slash-All', type: 'Attack', order: 14},
+    {name: 'Flash', type: 'Attack', order: 15},
+    {name: 'Limit', type: 'Attack', order: 16},
 
-    {name: 'Magic', type: 'Magic', order: 3},
-    {name: 'W-Magic', type: 'Magic', order: 20},
+    {name: 'Magic', type: 'Magic', order: 20},
+    {name: 'W-Magic', type: 'Magic', order: 21},
 
-    {name: 'Summon', type: 'Summon', order: 4},
-    {name: 'W-Sum.', type: 'Summon', order: 20},
+    {name: 'Summon', type: 'Summon', order: 30},
+    {name: 'W-Sum.', type: 'Summon', order: 31},
 
-    {name: 'Item', type: 'Item', order: 5},
-    {name: 'W-Item', type: 'Item', order: 20},
+    {name: 'Item', type: 'Item', order: 40},
+    {name: 'W-Item', type: 'Item', order: 41},
 
-    {name: 'Steal', type: 'Command', order: 6},
-    {name: 'Sense', type: 'Command', order: 7},
-    {name: 'Coin', type: 'Command', order: 8},
-    {name: 'Throw', type: 'Command', order: 9},
-    {name: 'Morph', type: 'Command', order: 10},
-    {name: 'D.blow', type: 'Command', order: 11},
-    {name: 'Manip.', type: 'Command', order: 12},
-    {name: 'Mime', type: 'Command', order: 13},
-    {name: 'E.Skill', type: 'Command', order: 14},
+    {name: 'Steal', type: 'Command', order: 50},
+    {name: 'Sense', type: 'Command', order: 51},
+    {name: 'Coin', type: 'Command', order: 52},
+    {name: 'Throw', type: 'Command', order: 53},
+    {name: 'Morph', type: 'Command', order: 54},
+    {name: 'D.blow', type: 'Command', order: 55},
+    {name: 'Manip.', type: 'Command', order: 56},
+    {name: 'Mime', type: 'Command', order: 57},
+    {name: 'E.Skill', type: 'Command', order: 58},
 
-    {name: 'Change', type: 'Change', order: 20},
-    {name: 'Defend', type: 'Defend', order: 20}
+    {name: 'Change', type: 'Change', order: 60},
 
+    {name: 'Defend', type: 'Defend', order: 70}
   ]
-  const menu = []
+
+  const command = []
+  const magic = []
+  const summon = []
+
+  addMenuOption(command, 'Attack')
+
+  for (const materiaSlot in char.materia) {
+    if (char.materia[materiaSlot].id !== 255) {
+      const materiaData = window.data.kernel.materiaData[char.materia[materiaSlot].id]
+      if (materiaData.type === 'Magic') {
+        addMenuOption(command, 'Magic')
+        magic.push(materiaData) // TODO - improve this
+      }
+      if (materiaData.type === 'Summon') {
+        addMenuOption(command, 'Summon')
+        summon.push(materiaData) // TODO - improve this
+      }
+      if (materiaData.type === 'Command') {
+        if (materiaData.name === 'Steal') {
+          addMenuOption(command, 'Steal') // OR addMenuOption('Mug') // TODO - based on level
+        }
+        if (materiaData.name === 'Double Cut') {
+          addMenuOption(command, '2x-Cut') // OR addMenuOption('4x-Cut') // TODO - based on level
+        }
+        if (materiaData.name === 'Slash-All') {
+          addMenuOption(command, 'Slash-All') // OR addMenuOption('Flash') // TODO - based on level
+        }
+        if (materiaData.name === 'Sense') { addMenuOption(command, 'Sense') }
+        if (materiaData.name === 'Coin') { addMenuOption(command, 'Coin') }
+        if (materiaData.name === 'Throw') { addMenuOption(command, 'Throw') }
+        if (materiaData.name === 'Morph') { addMenuOption(command, 'Morph') }
+        if (materiaData.name === 'D.blow') { addMenuOption(command, 'D.blow') }
+        if (materiaData.name === 'Manipulate') { addMenuOption(command, 'Manip.') }
+        if (materiaData.name === 'Mime') { addMenuOption(command, 'Mime') }
+        if (materiaData.name === 'Enemy Skill') { addMenuOption(command, 'E.Skill') }
+        if (materiaData.name === 'Master Command') {
+          addMenuOption(command, 'Sense')
+          addMenuOption(command, 'Coin')
+          addMenuOption(command, 'Throw')
+          addMenuOption(command, 'Morph')
+          addMenuOption(command, 'D.blow')
+          addMenuOption(command, 'Manip.')
+          addMenuOption(command, 'Mime')
+        }
+      }
+    }
+  }
+
+  const menu = {command, magic, summon}
+  console.log('status menu', menu)
+
   return menu
 }
 const getBattleStatsForChar = (char) => {

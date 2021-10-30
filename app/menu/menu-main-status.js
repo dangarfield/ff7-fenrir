@@ -337,7 +337,7 @@ const addPartyMemberStats = (char, battleStats) => {
       166.5 - 4 + (i * 32),
       0.5
     )
-    console.log('status equip', i, equip)
+    // console.log('status equip', i, equip)
     addTextToDialog(
       statsGroup,
       equip[1],
@@ -367,7 +367,7 @@ const addPartyMemberElements = (char, battleStats) => {
   while (elementGroup.children.length) {
     elementGroup.remove(elementGroup.children[0])
   }
-  console.log('status elements char', char, battleStats)
+  // console.log('status elements char', char, battleStats)
 
   addTextToDialog(
     elementGroup,
@@ -485,7 +485,7 @@ const addPartyMemberStatus = (char, battleStats) => {
   while (statusEffectsGroup.children.length) {
     statusEffectsGroup.remove(statusEffectsGroup.children[0])
   }
-  console.log('status status char', char, battleStats)
+  // console.log('status status char', char, battleStats)
 
   addTextToDialog(
     statusEffectsGroup,
@@ -555,7 +555,7 @@ const addPartyMemberStatus = (char, battleStats) => {
   const yPos = [85, 162]
   for (let i = 0; i < statuses.length; i++) {
     const status = statuses[i]
-    console.log('status test', battleStats.statusEffects, status[1], battleStats.statusEffects.attack.includes(status[1]), battleStats.statusEffects.attack.includes(status[2]))
+    // console.log('status test', battleStats.statusEffects, status[1], battleStats.statusEffects.attack.includes(status[1]), battleStats.statusEffects.attack.includes(status[2]))
     addTextToDialog(
       statusEffectsGroup,
       status[0],
