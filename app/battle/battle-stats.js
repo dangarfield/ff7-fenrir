@@ -224,7 +224,40 @@ const recalculateAndApplyHPMP = (char) => {
   char.stats.mp.max = mp.max
 }
 const getMenuOptions = (char) => {
-  const all = []
+  const all = [
+    {name: 'Left', type: '?', order: 1},
+
+    {name: 'Attack', type: 'Attack', order: 2},
+    {name: 'Mug', type: 'Attack', order: 15},
+    {name: '2x-Cut', type: 'Attack', order: 20},
+    {name: '4x-Cut', type: 'Attack', order: 20},
+    {name: 'Slash-All', type: 'Attack', order: 20},
+    {name: 'Flash', type: 'Attack', order: 20},
+    {name: 'Limit', type: 'Attack', order: 20},
+
+    {name: 'Magic', type: 'Magic', order: 3},
+    {name: 'W-Magic', type: 'Magic', order: 20},
+
+    {name: 'Summon', type: 'Summon', order: 4},
+    {name: 'W-Sum.', type: 'Summon', order: 20},
+
+    {name: 'Item', type: 'Item', order: 5},
+    {name: 'W-Item', type: 'Item', order: 20},
+
+    {name: 'Steal', type: 'Command', order: 6},
+    {name: 'Sense', type: 'Command', order: 7},
+    {name: 'Coin', type: 'Command', order: 8},
+    {name: 'Throw', type: 'Command', order: 9},
+    {name: 'Morph', type: 'Command', order: 10},
+    {name: 'D.blow', type: 'Command', order: 11},
+    {name: 'Manip.', type: 'Command', order: 12},
+    {name: 'Mime', type: 'Command', order: 13},
+    {name: 'E.Skill', type: 'Command', order: 14},
+
+    {name: 'Change', type: 'Change', order: 20},
+    {name: 'Defend', type: 'Defend', order: 20}
+
+  ]
   const menu = []
   return menu
 }
