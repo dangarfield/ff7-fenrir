@@ -319,10 +319,10 @@ const getMenuOptions = (char) => {
 }
 const getBattleStatsForChar = (char) => {
   // Temp data override
-  // char.equip.weapon.index = 15
-  // char.equip.weapon.name = 'Ultima Weapon'
-  // char.equip.armor.index = 27
-  // char.equip.armor.name = 'Escort Guard'
+  char.equip.weapon.index = 15
+  char.equip.weapon.name = 'Ultima Weapon'
+  char.equip.armor.index = 27
+  char.equip.armor.name = 'Escort Guard'
   // char.equip.accessory.index = 29
   // char.equip.accessory.name = 'Water Ring'
   // char.equip.accessory.index = 18
@@ -332,8 +332,8 @@ const getBattleStatsForChar = (char) => {
   // window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
   // window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
 
-  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 65, ap: 60000, name: 'Time', description: 'Summons Kujata'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Command', description: 'Added Effect'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Enemy Skill', description: 'Summons Kujata'}
 
   // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
   // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
