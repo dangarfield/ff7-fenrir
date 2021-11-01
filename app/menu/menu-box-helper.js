@@ -1529,10 +1529,24 @@ const addLevelToDialog = (dialog, x, y, char) => {
   )
 }
 const addMenuCommandsToDialog = (dialog, x, y, commands) => {
+  const widthCol1 = 50
+  const widthCol2 = 86.5
+  const widthCol3 = 126.5
+
+  let width = widthCol1
+  if (commands.length > 8) {
+    width = widthCol3
+  } else if (commands.length > 4) {
+    width = widthCol2
+  }
+  const yAdjTextCol1 = 0
+  const yAdjTextCol2 = 40.5
+  const yAdjTextCol3 = 77
+
   const commandDialog = createDialogBox({
     id: 15,
     name: 'commandDialog',
-    w: 50,
+    w: width,
     h: 60,
     x: x,
     y: y,
@@ -1544,13 +1558,19 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
 
   for (let i = 0; i < commands.length; i++) {
     const command = commands[i]
+    let yAdjText = yAdjTextCol1
+    if (i >= 8) {
+      yAdjText = yAdjTextCol3
+    } else if (i >= 4) {
+      yAdjText = yAdjTextCol2
+    }
     addTextToDialog(
       commandDialog,
       command,
       `menu-cmd-${command}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
-      x + 5 - 8 + (Math.floor(i / 4) * 50),
+      x + 5 - 8 + yAdjText,
       y + 15.5 - 4 + (13 * (i % 4)),
       0.5
     )
