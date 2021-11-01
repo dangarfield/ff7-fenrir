@@ -229,8 +229,41 @@ const getMenuOptions = (char) => {
     const choice = CHOICES.filter(c => c.name === choiceName)[0]
     all.push(choice)
   }
+  const sortAndFilterCommands = (all) => {
+    const filtered = []
+    const types = {}
+    for (let i = 0; i < all.length; i++) {
+      const cmd = all[i]
+      if (!(cmd.type in types)) {
+        types[cmd.type] = []
+      }
+      types[cmd.type].push(cmd)
+    }
+    console.log('status sortAndFilterCommands type', types)
+    for (const type of Object.keys(types)) {
+      const cmds = types[type]
+      console.log('status sortAndFilterCommands type pre ', type, cmds)
+      cmds.sort((a, b) => b.order - a.order)
+      console.log('status sortAndFilterCommands type post', type, cmds)
+      filtered.push(cmds[0])
+    }
+    filtered.sort((a, b) => a.order - b.order)
+    console.log('status sortAndFilterCommands filtered', types, filtered)
+    const itemChoice = filtered.shift()
+    while (filtered.length < 3) {
+      filtered.push({name: 'Empty', type: 'Empty', order: 39})
+    }
+    filtered.splice(3, 0, itemChoice)
+    console.log('status sortAndFilterCommands end', filtered, all)
+    all.length = 0
+    for (let i = 0; i < filtered.length; i++) {
+      all.push(filtered[i])
+    }
+  }
   const CHOICES = [
-    {name: 'Left', type: '?', order: 1},
+
+    {name: 'Item', type: 'Item', order: 0},
+    {name: 'W-Item', type: 'Item', order: 1},
 
     {name: 'Attack', type: 'Attack', order: 10},
     {name: 'Mug', type: 'Attack', order: 11},
@@ -246,22 +279,21 @@ const getMenuOptions = (char) => {
     {name: 'Summon', type: 'Summon', order: 30},
     {name: 'W-Sum.', type: 'Summon', order: 31},
 
-    {name: 'Item', type: 'Item', order: 40},
-    {name: 'W-Item', type: 'Item', order: 41},
-
-    {name: 'Steal', type: 'Command', order: 50},
-    {name: 'Sense', type: 'Command', order: 51},
-    {name: 'Coin', type: 'Command', order: 52},
-    {name: 'Throw', type: 'Command', order: 53},
-    {name: 'Morph', type: 'Command', order: 54},
-    {name: 'D.blow', type: 'Command', order: 55},
-    {name: 'Manip.', type: 'Command', order: 56},
-    {name: 'Mime', type: 'Command', order: 57},
-    {name: 'E.Skill', type: 'Command', order: 58},
+    {name: 'Steal', type: 'Steal', order: 50},
+    {name: 'Sense', type: 'Sense', order: 51},
+    {name: 'Coin', type: 'Coin', order: 52},
+    {name: 'Throw', type: 'Throw', order: 53},
+    {name: 'Morph', type: 'Morph', order: 54},
+    {name: 'D.blow', type: 'D.blow', order: 55},
+    {name: 'Manip.', type: 'Manip.', order: 56},
+    {name: 'Mime', type: 'Mime', order: 57},
+    {name: 'E.Skill', type: 'E.Skill', order: 58},
 
     {name: 'Change', type: 'Change', order: 60},
 
-    {name: 'Defend', type: 'Defend', order: 70}
+    {name: 'Defend', type: 'Defend', order: 70},
+
+    {name: 'Left', type: '?', order: 80}
   ]
 
   const command = []
@@ -269,17 +301,18 @@ const getMenuOptions = (char) => {
   const summon = []
 
   addMenuOption(command, 'Attack')
+  addMenuOption(command, 'Item')
 
   for (const materiaSlot in char.materia) {
     if (char.materia[materiaSlot].id !== 255) {
       const materiaData = window.data.kernel.materiaData[char.materia[materiaSlot].id]
       if (materiaData.type === 'Magic') {
         addMenuOption(command, 'Magic')
-        magic.push(materiaData) // TODO - improve this
+        magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc
       }
       if (materiaData.type === 'Summon') {
         addMenuOption(command, 'Summon')
-        summon.push(materiaData) // TODO - improve this
+        summon.push(materiaData) // TODO - improve this, eg, master magic, support links etc
       }
       if (materiaData.type === 'Command') {
         if (materiaData.name === 'Steal') {
@@ -311,7 +344,7 @@ const getMenuOptions = (char) => {
       }
     }
   }
-
+  sortAndFilterCommands(command)
   const menu = {command, magic, summon}
   console.log('status menu', menu)
 
@@ -334,9 +367,12 @@ const getBattleStatsForChar = (char) => {
 
   window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Command', description: 'Added Effect'}
   window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Enemy Skill', description: 'Summons Kujata'}
-
-  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 37, ap: 8000, name: 'Sense', description: 'Summons Alexander'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 73, ap: 60000, name: 'Master Magic', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria5 = {id: 73, ap: 60000, name: 'Fire', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria6 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria7 = {id: 15, ap: 60000, name: 'Double Cut', description: 'Adds Materia element to equiped weapon or armor'}
+  window.data.savemap.characters.Cloud.materia.weaponMateria8 = {id: 14, ap: 60000, name: 'Slash-All', description: 'Adds Materia element to equiped weapon or armor'}
 
   // window.data.savemap.characters.Cloud.materia.armorMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
   // window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
