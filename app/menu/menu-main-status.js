@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getMenuState, setMenuState } from './menu-module.js'
+import { setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -13,7 +13,8 @@ import {
   addImageToDialog,
   fadeOverlayOut,
   fadeOverlayIn,
-  createEquipmentMateriaViewer
+  createEquipmentMateriaViewer,
+  addMenuCommandsToDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -275,48 +276,7 @@ const addPartyMemberStats = (char, battleStats) => {
 
   // Commands
   // TODO - Finish this
-  const commandDialog = createDialogBox({
-    id: 15,
-    name: 'commandDialog',
-    w: 50,
-    h: 60,
-    x: 148.5,
-    y: 68.5,
-    expandInstantly: true,
-    noClipping: true
-  })
-  commandDialog.visible = true
-  statsGroup.add(commandDialog)
-  addTextToDialog(
-    commandDialog,
-    'Attack',
-    `stat-cmd`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    153.5 - 8,
-    84 - 4,
-    0.5
-  )
-  addTextToDialog(
-    commandDialog,
-    'Magic',
-    `stat-cmd`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    153.5 - 8,
-    84 - 4 + 13,
-    0.5
-  )
-  addTextToDialog(
-    commandDialog,
-    'Item',
-    `stat-cmd`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    153.5 - 8,
-    84 - 4 + (13 * 3),
-    0.5
-  )
+  addMenuCommandsToDialog(statsGroup, 148.5, 68.5, battleStats.menu.command.map(c => c.name))
 
   // Equips
   const equips = [

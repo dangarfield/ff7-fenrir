@@ -1528,7 +1528,34 @@ const addLevelToDialog = (dialog, x, y, char) => {
     THREE.AdditiveBlending
   )
 }
+const addMenuCommandsToDialog = (dialog, x, y, commands) => {
+  const commandDialog = createDialogBox({
+    id: 15,
+    name: 'commandDialog',
+    w: 50,
+    h: 60,
+    x: x,
+    y: y,
+    expandInstantly: true,
+    noClipping: true
+  })
+  commandDialog.visible = true
+  dialog.add(commandDialog)
 
+  for (let i = 0; i < commands.length; i++) {
+    const command = commands[i]
+    addTextToDialog(
+      commandDialog,
+      command,
+      `menu-cmd-${command}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x + 5 - 8 + (Math.floor(i / 4) * 50),
+      y + 15.5 - 4 + (13 * (i % 4)),
+      0.5
+    )
+  }
+}
 const updateTexture = (mesh, letter, letterType, color) => {
   const textureLetter = getLetterTexture(letter, letterType, color)
   mesh.material.needsUpdate = true
@@ -1563,5 +1590,6 @@ export {
   closeDialog,
   createHorizontalConfigSlider,
   updateTexture,
-  createEquipmentMateriaViewer
+  createEquipmentMateriaViewer,
+  addMenuCommandsToDialog
 }
