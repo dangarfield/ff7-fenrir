@@ -19,7 +19,7 @@ const calculateEquipBonus = (stat, items, materias) => {
       }
     }
   }
-  console.log('status stat bonus', stat, total)
+  // console.log('status stat bonus', stat, total)
   return total
 }
 const calculateElementEquip = (elements, items, materia) => {
@@ -224,7 +224,7 @@ const recalculateAndApplyHPMP = (char) => {
   char.stats.mp.max = mp.max
 }
 const getMenuOptions = (char) => {
-  console.log('status getMenuOptions')
+  // console.log('status getMenuOptions')
   const addMenuOption = (all, choiceName) => {
     const choice = CHOICES.filter(c => c.name === choiceName)[0]
     all.push(choice)
@@ -239,22 +239,19 @@ const getMenuOptions = (char) => {
       }
       types[cmd.type].push(cmd)
     }
-    console.log('status sortAndFilterCommands type', types)
+    // console.log('status sortAndFilterCommands type', types)
     for (const type of Object.keys(types)) {
       const cmds = types[type]
-      console.log('status sortAndFilterCommands type pre ', type, cmds)
       cmds.sort((a, b) => b.order - a.order)
-      console.log('status sortAndFilterCommands type post', type, cmds)
       filtered.push(cmds[0])
     }
     filtered.sort((a, b) => a.order - b.order)
-    console.log('status sortAndFilterCommands filtered', types, filtered)
     const itemChoice = filtered.shift()
     while (filtered.length < 3) {
       filtered.push({name: 'Empty', type: 'Empty', order: 39})
     }
     filtered.splice(3, 0, itemChoice)
-    console.log('status sortAndFilterCommands end', filtered, all)
+    // console.log('status sortAndFilterCommands end', filtered, all)
     all.length = 0
     for (let i = 0; i < filtered.length; i++) {
       all.push(filtered[i])
