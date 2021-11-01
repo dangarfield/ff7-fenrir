@@ -329,6 +329,9 @@ const getMenuOptions = (char) => {
         if (materiaData.name === 'Manipulate') { addMenuOption(command, 'Manip.') }
         if (materiaData.name === 'Mime') { addMenuOption(command, 'Mime') }
         if (materiaData.name === 'Enemy Skill') { addMenuOption(command, 'E.Skill') }
+        if (materiaData.name === 'W-Item') { addMenuOption(command, 'W-Item') }
+        if (materiaData.name === 'W-Magic') { addMenuOption(command, 'W-Magic') }
+        if (materiaData.name === 'W-Summon') { addMenuOption(command, 'W-Summon') }
         if (materiaData.name === 'Master Command') {
           addMenuOption(command, 'Sense')
           addMenuOption(command, 'Coin')
@@ -371,7 +374,7 @@ const getBattleStatsForChar = (char) => {
   window.data.savemap.characters.Cloud.materia.weaponMateria7 = {id: 15, ap: 60000, name: 'Double Cut', description: 'Adds Materia element to equiped weapon or armor'}
   window.data.savemap.characters.Cloud.materia.weaponMateria8 = {id: 14, ap: 60000, name: 'Slash-All', description: 'Adds Materia element to equiped weapon or armor'}
 
-  // window.data.savemap.characters.Cloud.materia.armorMateria3 = {id: 30, ap: 8000, name: 'Added Effect', description: 'Added Effect'}
+  window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 21, ap: 8000, name: 'W-Item', description: 'Added Effect'}
   // window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
