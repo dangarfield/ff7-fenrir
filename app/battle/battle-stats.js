@@ -332,7 +332,7 @@ const getMenuOptions = (char) => {
       const materiaData = window.data.kernel.materiaData[char.materia[materiaSlot].id]
       if (materiaData.type === 'Magic') {
         addMenuOption(command, 'Magic')
-        magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc
+        magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc, not sure where to get ability list text data from yet
       }
       if (materiaData.type === 'Summon') {
         addMenuOption(command, 'Summon')
@@ -460,6 +460,9 @@ const getBattleStatsForChar = (char) => {
   const magic = char.stats.magic + char.stats.magicBonus + calculateEquipBonus('Magic', equippedItems, equippedMateria)
   const spirit = char.stats.spirit + char.stats.spiritBonus + calculateEquipBonus('Spirit', equippedItems, equippedMateria)
   const luck = char.stats.luck + char.stats.luckBonus + calculateEquipBonus('Luck', equippedItems, equippedMateria)
+
+  // TODO - Add based on independent materia abilities rather than equip effects, eg HP<->MP, Luck Plus, Magic Plus, Speed Plus, HP Plus, MP Plus
+  // TODO - How to add battle / field affecting materia (eg, all support and independent materia)
 
   const attack = strength + weaponData.attackStrength
   const attackPercent = weaponData.accuracyRate
