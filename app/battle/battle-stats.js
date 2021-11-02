@@ -231,11 +231,19 @@ const getMenuOptions = (char) => {
   }
   const sortAndFilterCommands = (all) => {
     // Command materia is actually just the order that the materia is on equipment...
-    console.log('status sortAndFilterCommands start', all)
+
+    let all2 = [...all]
+    if (all2.filter(c => c.name === 'Mug').length > 0) {
+      all2 = all2.filter(c => c.name !== 'Steal')
+    }
+    if (all2.filter(c => c.name === 'Coin').length > 0) {
+      all2 = all2.filter(c => c.name !== 'Throw')
+    }
+    // console.log('status sortAndFilterCommands start', all2, all2.filter(c => c.name === 'Mug'), all2.filter(c => c.name !== 'Steal'))
     const filtered = []
     const types = {}
-    for (let i = 0; i < all.length; i++) {
-      const cmd = all[i]
+    for (let i = 0; i < all2.length; i++) {
+      const cmd = all2[i]
       if (!(cmd.type in types)) {
         types[cmd.type] = []
       }
@@ -258,6 +266,7 @@ const getMenuOptions = (char) => {
     if (types['Command']) {
       for (let i = 0; i < types['Command'].length; i++) {
         const cmd = types['Command'][i]
+        console.log('status command', cmd)
         if (!filtered.includes(cmd)) {
           filtered.push(cmd)
         }
@@ -268,7 +277,7 @@ const getMenuOptions = (char) => {
       filtered.push({name: '', type: 'Empty', order: 39})
     }
     filtered.splice(3, 0, itemChoice)
-    // console.log('status sortAndFilterCommands end', filtered, all)
+    // console.log('status sortAndFilterCommands end', filtered, all, all2)
     all.length = 0
     for (let i = 0; i < filtered.length; i++) {
       all.push(filtered[i])
@@ -437,8 +446,8 @@ const getBattleStatsForChar = (char) => {
     char,
     // ['Master Magic', 'Quadra Magic', 'Earth', 'All'],
     // ['W-Item', 'Slash-All', 'Deathblow', 'Throw']
-    ['', 'Enemy Skill', ''],
-    ['Fire', 'W-Summon', 'Steal']
+    ['', '', ''],
+    ['Fire', 'Steal', 'Master Command', 'Steal']
   )
   // window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Magic', description: 'Added Effect'}
   // window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Quadra Magic', description: 'Summons Kujata'}
