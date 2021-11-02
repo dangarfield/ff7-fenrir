@@ -318,7 +318,8 @@ const getMenuOptions = (char) => {
   addMenuOption(command, 'Item')
 
   for (const materiaSlot in char.materia) {
-    if (char.materia[materiaSlot].id !== 255) {
+    const materia = char.materia[materiaSlot]
+    if (materia.id !== 255) {
       const materiaData = window.data.kernel.materiaData[char.materia[materiaSlot].id]
       if (materiaData.type === 'Magic') {
         addMenuOption(command, 'Magic')
@@ -333,20 +334,34 @@ const getMenuOptions = (char) => {
       }
       if (materiaData.type === 'Command') {
         if (materiaData.name === 'Steal') {
-          addMenuOption(command, 'Steal') // OR addMenuOption('Mug') // TODO - based on level
+          if (materiaData.name === 'Double Cut') {
+            if (materia.ap >= materiaData.level2Ap) {
+              addMenuOption(command, '4x-Cut')
+            } else {
+              addMenuOption(command, '2x-Cut')
+            }
+          }
+          if (materiaData.name === 'Slash-All') {
+            if (materia.ap >= materiaData.level2Ap) {
+              addMenuOption(command, 'Flash')
+            } else {
+              addMenuOption(command, 'Slash-All')
+            }
+          }
+          if (materia.ap >= materiaData.level2Ap) {
+            addMenuOption(command, 'Mug')
+          } else {
+            addMenuOption(command, 'Steal')
+          }
         }
         if (materiaData.name === 'Throw') {
-          addMenuOption(command, 'Throw') // OR addMenuOption('Coin') // TODO - based on level
+          if (materia.ap >= materiaData.level2Ap) {
+            addMenuOption(command, 'Coin')
+          } else {
+            addMenuOption(command, 'Throw')
+          }
         }
-        if (materiaData.name === 'Double Cut') {
-          addMenuOption(command, '2x-Cut') // OR addMenuOption('4x-Cut') // TODO - based on level
-        }
-        if (materiaData.name === 'Slash-All') {
-          addMenuOption(command, 'Slash-All') // OR addMenuOption('Flash') // TODO - based on level
-        }
-        if (materiaData.name === 'Steal') { addMenuOption(command, 'Steal') }
         if (materiaData.name === 'Sense') { addMenuOption(command, 'Sense') }
-        if (materiaData.name === 'Throw') { addMenuOption(command, 'Throw') }
         if (materiaData.name === 'Morph') { addMenuOption(command, 'Morph') }
         if (materiaData.name === 'Deathblow') { addMenuOption(command, 'D.blow') }
         if (materiaData.name === 'Manipulate') { addMenuOption(command, 'Manip.') }
@@ -374,11 +389,12 @@ const getMenuOptions = (char) => {
   return menu
 }
 const setMateriaForTesting = (char, weaponMat, armorMat) => {
+  const ap = 40000
   for (let i = 0; i < weaponMat.length; i++) {
     const materiaName = weaponMat[i]
     if (materiaName.length > 0) {
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
-      char.materia[`weaponMateria${i + 1}`] = {id: materia.index, ap: 60000, name: materia.name, description: materia.description}
+      char.materia[`weaponMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
       char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 16777215}
     }
@@ -387,7 +403,7 @@ const setMateriaForTesting = (char, weaponMat, armorMat) => {
     const materiaName = armorMat[i]
     if (materiaName.length > 0) {
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
-      char.materia[`armorMateria${i + 1}`] = {id: materia.index, ap: 60000, name: materia.name, description: materia.description}
+      char.materia[`armorMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
       char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 16777215}
     }
@@ -421,8 +437,8 @@ const getBattleStatsForChar = (char) => {
     char,
     // ['Master Magic', 'Quadra Magic', 'Earth', 'All'],
     // ['W-Item', 'Slash-All', 'Deathblow', 'Throw']
-    ['', 'Enemy Skill', 'Master Command'],
-    ['Fire', 'W-Summon', 'Mime', 'Double Cut', 'Slash-All']
+    ['', 'Enemy Skill', ''],
+    ['Fire', 'W-Summon', 'Steal']
   )
   // window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Magic', description: 'Added Effect'}
   // window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Quadra Magic', description: 'Summons Kujata'}
