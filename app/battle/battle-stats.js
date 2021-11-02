@@ -435,12 +435,12 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
 }
 const getBattleStatsForChar = (char) => {
   // Temp equipment and materia override for testing
-  setEquipmentAndMateriaForTesting(
-    char,
-    'Ultima Weapon', 'Escort Guard', '',
-    ['', '', ''],
-    ['Fire', 'Steal', 'Master Command', 'Steal']
-  )
+  // setEquipmentAndMateriaForTesting(
+  //   char,
+  //   'Ultima Weapon', 'Escort Guard', '',
+  //   ['', '', ''],
+  //   ['Fire', 'Steal', 'Master Command', 'Steal']
+  // )
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
