@@ -397,8 +397,23 @@ const getMenuOptions = (char) => {
 
   return menu
 }
-const setMateriaForTesting = (char, weaponMat, armorMat) => {
+const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
   const ap = 40000
+  const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
+  char.equip.weapon.index = weaponData.itemId - 128
+  char.equip.weapon.name = weaponData.name
+  const armorData = window.data.kernel.armorData.filter(m => m.name === armorName)[0]
+  char.equip.armor.index = armorData.itemId - 256
+  char.equip.armor.name = armorData.name
+  if (accessoryName === '') {
+    char.equip.accessory.index = 255
+    delete char.equip.accessory.name
+  } else {
+    const accessoryData = window.data.kernel.accessoryData.filter(m => m.name === accessoryName)[0]
+    char.equip.accessory.index = accessoryData.itemId - 128
+    char.equip.accessory.name = accessoryData.name
+  }
+
   for (let i = 0; i < weaponMat.length; i++) {
     const materiaName = weaponMat[i]
     if (materiaName.length > 0) {
@@ -419,47 +434,13 @@ const setMateriaForTesting = (char, weaponMat, armorMat) => {
   }
 }
 const getBattleStatsForChar = (char) => {
-  // Temp data override
-  char.equip.weapon.index = 15
-  char.equip.weapon.name = 'Ultima Weapon'
-  char.equip.armor.index = 27
-  char.equip.armor.name = 'Escort Guard'
-  // char.equip.accessory.index = 29
-  // char.equip.accessory.name = 'Water Ring'
-  // char.equip.accessory.index = 18
-  // char.equip.accessory.name = 'Ribbon'
-  // char.equip.accessory.index = 16
-  // char.equip.accessory.name = 'Sprint Shoes'
-  // window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.armorMateria2 = {id: 83, ap: 8000, name: 'Alexander', description: 'Summons Alexander'}
-
-  // window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Command', description: 'Added Effect'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Enemy Skill', description: 'Summons Kujata'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 37, ap: 8000, name: 'Sense', description: 'Summons Alexander'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 73, ap: 60000, name: 'Master Magic', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria5 = {id: 73, ap: 60000, name: 'Fire', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria6 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria7 = {id: 15, ap: 60000, name: 'Double Cut', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria8 = {id: 14, ap: 60000, name: 'Slash-All', description: 'Adds Materia element to equiped weapon or armor'}
-
-  setMateriaForTesting(
+  // Temp equipment and materia override for testing
+  setEquipmentAndMateriaForTesting(
     char,
-    // ['Master Magic', 'Quadra Magic', 'Earth', 'All'],
-    // ['W-Item', 'Slash-All', 'Deathblow', 'Throw']
+    'Ultima Weapon', 'Escort Guard', '',
     ['', '', ''],
     ['Fire', 'Steal', 'Master Command', 'Steal']
   )
-  // window.data.savemap.characters.Cloud.materia.weaponMateria1 = {id: 48, ap: 8000, name: 'Master Magic', description: 'Added Effect'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria2 = {id: 44, ap: 60000, name: 'Quadra Magic', description: 'Summons Kujata'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria3 = {id: 37, ap: 8000, name: 'Sense', description: 'Summons Alexander'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria4 = {id: 73, ap: 60000, name: 'Master Magic', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria5 = {id: 73, ap: 60000, name: 'Fire', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria6 = {id: 29, ap: 60000, name: 'Elemental', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria7 = {id: 15, ap: 60000, name: 'Double Cut', description: 'Adds Materia element to equiped weapon or armor'}
-  // window.data.savemap.characters.Cloud.materia.weaponMateria8 = {id: 14, ap: 60000, name: 'Slash-All', description: 'Adds Materia element to equiped weapon or armor'}
-
-  // window.data.savemap.characters.Cloud.materia.armorMateria1 = {id: 21, ap: 8000, name: 'W-Item', description: 'Added Effect'}
-  // window.data.savemap.characters.Cloud.materia.armorMateria4 = {id: 58, ap: 60000, name: 'Transform', description: 'Summons Kujata'}
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
