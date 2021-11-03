@@ -464,6 +464,13 @@ const getBattleStatsForChar = (char) => {
   // TODO - Add based on independent materia abilities rather than equip effects, eg HP<->MP, Luck Plus, Magic Plus, Speed Plus, HP Plus, MP Plus
   // TODO - How to add battle / field affecting materia (eg, all support and independent materia)
 
+  const modifiers = {
+    exp: 1,
+    gil: 1,
+    encounter: 1,
+    chocoobo: 1
+  }
+
   const attack = strength + weaponData.attackStrength
   const attackPercent = weaponData.accuracyRate
   const defense = vitality + armorData.defense
@@ -503,7 +510,9 @@ const getBattleStatsForChar = (char) => {
     elements,
     statusEffects,
 
-    menu
+    menu,
+
+    modifiers
   }
 }
 export {
