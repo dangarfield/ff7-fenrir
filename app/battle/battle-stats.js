@@ -51,7 +51,7 @@ const calculateElementEquip = (elements, items, materia) => {
     {item: items[0], type: 'weapon'},
     {item: items[1], type: 'armor'}
   ]
-  const elementalMateriaData = window.data.kernel.materiaData.filter(m => m.name === 'Elemental')[0]
+  const elementalMateriaData = window.data.kernel.materiaData.filter(a => a.attributes.type === 'Elemental')[0]
   for (let i = 0; i < equipment.length; i++) {
     const item = equipment[i].item
     const type = equipment[i].type
@@ -62,15 +62,15 @@ const calculateElementEquip = (elements, items, materia) => {
         // check if this slot has an elemental materia
         const slotMateria = materia[`${type}Materia${j + 1}`]
 
-        // console.log('status linked slot', type, j, slot, slotMateria)
-        if (slotMateria.name && slotMateria.name === 'Elemental') {
+        console.log('status linked slot', type, j, slot, slotMateria)
+        if (slotMateria.id === elementalMateriaData.index) {
           let attachedMateria
           if (slot.includes('Left')) {
             attachedMateria = materia[`${type}Materia${j + 2}`]
           } else {
             attachedMateria = materia[`${type}Materia${j}`]
           }
-          // console.log('status IS elemental - attached:', attachedMateria)
+          console.log('status IS elemental - attached:', attachedMateria)
 
           // if this has a materia, check it's ap and elements
           if (attachedMateria.name) {
@@ -78,16 +78,18 @@ const calculateElementEquip = (elements, items, materia) => {
             if (type === 'weapon') {
               elementModifier = 'attack'
             } else {
-              if (slotMateria.ap >= elementalMateriaData.level3Ap) {
-                elementModifier = 'absorb'
-              } else if (slotMateria.ap >= elementalMateriaData.level2Ap) {
+              const materiaLevel = currentMateriaLevel(elementalMateriaData, slotMateria.ap)
+              console.log('status elemental materia level', materiaLevel, elementalMateriaData, slotMateria.ap)
+              if (materiaLevel === 1) {
+                elementModifier = 'halve'
+              } else if (materiaLevel === 2) {
                 elementModifier = 'invalid'
               } else {
-                elementModifier = 'halve'
+                elementModifier = 'absorb'
               }
             }
             const attachedMateriaElements = [window.data.kernel.materiaData[attachedMateria.id].element]
-            console.log('status elemental ap', slotMateria.ap, elementalMateriaData.level3Ap, elementalMateriaData.level2Ap, elementModifier, elements[elementModifier], attachedMateriaElements)
+            // console.log('status elemental ap', slotMateria.ap, elementModifier, elements[elementModifier], attachedMateriaElements)
 
             addNoDuplicates(elements[elementModifier], attachedMateriaElements)
           }
@@ -120,7 +122,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
     {item: items[0], type: 'weapon'},
     {item: items[1], type: 'armor'}
   ]
-  const addedEffectMateriaData = window.data.kernel.materiaData.filter(m => m.name === 'Added Effect')[0]
+  const addedEffectMateriaData = window.data.kernel.materiaData.filter(m => m.attributes.type === 'AddedEffect')[0]
 
   for (let i = 0; i < equipment.length; i++) {
     const item = equipment[i].item
@@ -133,7 +135,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
         const slotMateria = materia[`${type}Materia${j + 1}`]
 
         console.log('status status linked slot', type, j, slot, slotMateria)
-        if (slotMateria.name && slotMateria.name === 'Added Effect') {
+        if (slotMateria.id && addedEffectMateriaData.index) {
           let attachedMateria
           if (slot.includes('Left')) {
             attachedMateria = materia[`${type}Materia${j + 2}`]
@@ -151,7 +153,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
               elementModifier = 'defend'
             }
             const attachedMateriaStatusEffects = window.data.kernel.materiaData[attachedMateria.id].status
-            console.log('status status ap', slotMateria.ap, addedEffectMateriaData.level3Ap, addedEffectMateriaData.level2Ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
+            console.log('status status ap', slotMateria.ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
 
             addNoDuplicates(statusEffects[elementModifier], removeInvalidStatusEffect(attachedMateriaStatusEffects, validStatusToApply))
           }
@@ -162,6 +164,18 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
   // TODO - Not all statuses have an added effect applied in game, eg weapon with addedEffect+Kujata = Barrier MBarrier Reflect, but nothing shows in game
 
   console.log('status calculateStatusEquip', statusEffects, items)
+}
+const currentMateriaLevel = (materiaData, currentAP) => {
+  let level = 0
+  for (let i = 0; i < materiaData.apLevels.length; i++) {
+    const apForLevel = materiaData.apLevels[i]
+    if (currentAP >= apForLevel) {
+      level++
+    } else {
+      return level
+    }
+  }
+  return level
 }
 const removeInvalidStatusEffect = (arr1, arr2) => {
   const newArr = []
@@ -398,7 +412,7 @@ const getMenuOptions = (char) => {
   return menu
 }
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
-  const ap = 40000
+  const ap = 39000
   const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
   char.equip.weapon.index = weaponData.itemId - 128
   char.equip.weapon.name = weaponData.name
@@ -420,7 +434,7 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
       char.materia[`weaponMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
-      char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 16777215}
+      char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
     }
   }
   for (let i = 0; i < armorMat.length; i++) {
@@ -429,18 +443,18 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
       char.materia[`armorMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
-      char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 16777215}
+      char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
     }
   }
 }
 const getBattleStatsForChar = (char) => {
   // Temp equipment and materia override for testing
-  // setEquipmentAndMateriaForTesting(
-  //   char,
-  //   'Ultima Weapon', 'Escort Guard', '',
-  //   ['', '', ''],
-  //   ['Fire', 'Steal', 'Master Command', 'Steal']
-  // )
+  setEquipmentAndMateriaForTesting(
+    char,
+    'Ultima Weapon', 'Escort Guard', '',
+    ['Lightning', 'Elemental', ''],
+    ['Fire', 'Steal', 'Master Command', 'Steal', 'Added Effect', 'Time']
+  )
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
