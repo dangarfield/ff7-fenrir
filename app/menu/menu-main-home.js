@@ -77,6 +77,9 @@ const getHomeBlackOverlay = () => {
   return homeBlackOverlay
 }
 const debugPopulateMenuTestData = () => {
+  // Menu Visibility
+  window.setBankData(2, 28, 0b1111111111)
+
   // Party
   window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
 
@@ -88,7 +91,7 @@ const debugPopulateMenuTestData = () => {
   window.debugSetEquipmentAndMateria()
 }
 const loadHomeMenu = async () => {
-  // debugPopulateMenuTestData() // Temp
+  debugPopulateMenuTestData() // Temp
 
   homeNav = await createDialogBox({
     id: 1,
