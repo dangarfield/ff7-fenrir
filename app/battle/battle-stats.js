@@ -239,180 +239,154 @@ const recalculateAndApplyHPMP = (char) => {
 }
 const getMenuOptions = (char) => {
   // console.log('status getMenuOptions')
-  const addMenuOption = (all, choiceName) => {
-    const choice = CHOICES.filter(c => c.name === choiceName)[0]
-    all.push(choice)
+  const addMenuOption = (all, choice) => {
+    const materiaData = window.data.kernel.materiaData.filter(a => a.name && a.attributes.menu && a.attributes.type === 'Add' && a.attributes.menu.length > 0 && a.attributes.menu.filter(m => m.id === choice.id).length > 0)[0]
+    const moreThanOneChoice = materiaData.attributes.menu.length > 1
+
+    if (!moreThanOneChoice) {
+      // if only one choice, add if not present
+      const choiceIsInList = all.filter(a => a.id === choice.id).length > 0
+      if (!choiceIsInList) {
+        all.push({...choice})
+      }
+    } else {
+      const firstChoiceSelected = materiaData.attributes.menu[0].id === choice.id
+      const choice1IsInList = all.filter(a => a.id === materiaData.attributes.menu[0].id).length > 0
+      const choice2IsInList = all.filter(a => a.id === materiaData.attributes.menu[1].id).length > 0
+
+      // if two choice, 1st choice is selected, 1st is not in list, 2nd is not in list = Add
+      if (firstChoiceSelected && !choice1IsInList && !choice2IsInList) {
+        all.push({...choice})
+      }
+      // if two choice, 1st choice is selected, 1st is in list    , 2nd is not in list = No Add
+      // if two choice, 1st choice is selected, 1st is not in list, 2nd is in list     = No Add
+      // if two choice, 1st choice is selected, 1st is in list    , 2nd is in list     = No Add  // Bad
+
+      // if two choice, 2nd choice is selected, 1st is not in list, 2nd is not in list = Add
+      if (!firstChoiceSelected && !choice1IsInList && !choice2IsInList) {
+        all.push({...choice})
+      }
+      // if two choice, 2nd choice is selected, 1st is in list    , 2nd is not in list = Replace 1st with 2nd
+      if (!firstChoiceSelected && choice1IsInList && !choice2IsInList) {
+        replaceMenuOption(all, materiaData.attributes.menu[0].id, choice)
+      }
+      // if two choice, 2nd choice is selected, 1st is not in list, 2nd is in list     = No Add
+      // if two choice, 2nd choice is selected, 1st is in list    , 2nd is in list     = No Add // Bad
+    }
   }
-  const sortAndFilterCommands = (all) => {
+  const replaceMenuOption = (all, replaceChoiceId, withChoice) => {
+    for (let i = 0; i < all.length; i++) {
+      const choice = all[i]
+
+      if (replaceChoiceId <= 4) {
+        // Replace type
+        if (choice.type === replaceChoiceId) {
+          choice.id = withChoice.id
+          choice.name = withChoice.name
+        }
+      } else {
+        // Replace choice
+        if (choice.id === replaceChoiceId) {
+          choice.id = withChoice.id
+          choice.name = withChoice.name
+        }
+      }
+    }
+  }
+  const removeMenuOption = (all, choiceId) => {
+    for (let i = 0; i < all.length; i++) {
+      const choice = all[i]
+      if (choice.id === choiceId) {
+        all.splice(i, 1)
+        break
+      }
+    }
+  }
+  const ensureCommandMenuMagicSummonItemOrder = (command, magic, summon) => {
     // Command materia is actually just the order that the materia is on equipment...
 
-    let all2 = [...all]
-    if (all2.filter(c => c.name === 'Mug').length > 0) {
-      all2 = all2.filter(c => c.name !== 'Steal')
+    if (magic.length === 0) {
+      // Remove magic command (2), keep W-Magic
+      removeMenuOption(command, 2)
     }
-    if (all2.filter(c => c.name === 'Coin').length > 0) {
-      all2 = all2.filter(c => c.name !== 'Throw')
+    if (summon.length === 0) {
+      // Remove summon command (3), keep W-Summon
+      removeMenuOption(command, 3)
     }
-    // console.log('status sortAndFilterCommands start', all2, all2.filter(c => c.name === 'Mug'), all2.filter(c => c.name !== 'Steal'))
-    const filtered = []
-    const types = {}
-    for (let i = 0; i < all2.length; i++) {
-      const cmd = all2[i]
-      if (!(cmd.type in types)) {
-        types[cmd.type] = []
-      }
-      types[cmd.type].push(cmd)
-    }
-    // console.log('status sortAndFilterCommands type', types)
-    const oneOfTypes = ['Item', 'Attack', 'Magic', 'Summon']
-    for (let i = 0; i < oneOfTypes.length; i++) {
-      const oneOfType = oneOfTypes[i]
-      if (types[oneOfType]) {
-        if (oneOfType === 'Attack') {
-          filtered.push(types[oneOfType][types[oneOfType].length - 1])
-        } else {
-          types[oneOfType].sort((a, b) => b.order - a.order)
-          filtered.push(types[oneOfType][0])
-          console.log('status oneOftype', oneOfType, types[oneOfType])
+
+    // Ensure item is always 4th
+    const itemCommandPosition = (command) => {
+      for (let i = 0; i < command.length; i++) {
+        const choice = command[i]
+        if (choice.id === 4 || choice.id === 23) {
+          return i
         }
       }
+      return 0
     }
-    if (types['Command']) {
-      for (let i = 0; i < types['Command'].length; i++) {
-        const cmd = types['Command'][i]
-        console.log('status command', cmd)
-        if (!filtered.includes(cmd)) {
-          filtered.push(cmd)
-        }
-      }
-    }
-    const itemChoice = filtered.shift()
-    while (filtered.length < 3) {
-      filtered.push({name: '', type: 'Empty', order: 39})
-    }
-    filtered.splice(3, 0, itemChoice)
-    // console.log('status sortAndFilterCommands end', filtered, all, all2)
-    all.length = 0
-    for (let i = 0; i < filtered.length; i++) {
-      all.push(filtered[i])
+    while (command.length < 4 && itemCommandPosition(command) !== 3) { //    [3].id !== 4 || command[3].id !== 23)) {
+      command.splice(command.length - 1, 0, {id: 255, name: 'BLANK'})
     }
   }
-  const CHOICES = [
 
-    {name: 'Item', type: 'Item', order: 0},
-    {name: 'W-Item', type: 'Item', order: 1},
-
-    {name: 'Attack', type: 'Attack', order: 10},
-    {name: '2x-Cut', type: 'Attack', order: 12},
-    {name: '4x-Cut', type: 'Attack', order: 13},
-    {name: 'Slash-All', type: 'Attack', order: 14},
-    {name: 'Flash', type: 'Attack', order: 15},
-    {name: 'Limit', type: 'Attack', order: 16},
-
-    {name: 'Magic', type: 'Magic', order: 20},
-    {name: 'W-Magic', type: 'Magic', order: 21},
-
-    {name: 'Summon', type: 'Summon', order: 30},
-    {name: 'W-Sum.', type: 'Summon', order: 31},
-
-    {name: 'Steal', type: 'Command', order: 50},
-    {name: 'Mug', type: 'Command', order: 11},
-    {name: 'Sense', type: 'Command', order: 51},
-    {name: 'Coin', type: 'Command', order: 52},
-    {name: 'Throw', type: 'Command', order: 53},
-    {name: 'Morph', type: 'Command', order: 54},
-    {name: 'D.blow', type: 'Command', order: 55},
-    {name: 'Manip.', type: 'Command', order: 56},
-    {name: 'Mime', type: 'Command', order: 57},
-    {name: 'E.Skill', type: 'Command', order: 58},
-
-    {name: 'Change', type: 'Change', order: 60},
-
-    {name: 'Defend', type: 'Defend', order: 70},
-
-    {name: 'Left', type: '?', order: 80}
+  const command = [
+    {id: 1, name: window.data.kernel.commandData[1].name, type: 1}, // Attack
+    {id: 2, name: window.data.kernel.commandData[2].name, type: 2}, // Magic
+    {id: 3, name: window.data.kernel.commandData[3].name, type: 3}, // Summon
+    {id: 4, name: window.data.kernel.commandData[4].name, type: 4} // Item
   ]
-
-  const command = []
   const magic = []
   const summon = []
-
-  addMenuOption(command, 'Attack')
-  addMenuOption(command, 'Item')
 
   for (const materiaSlot in char.materia) {
     const materia = char.materia[materiaSlot]
     if (materia.id !== 255) {
-      const materiaData = window.data.kernel.materiaData[char.materia[materiaSlot].id]
+      const materiaData = window.data.kernel.materiaData[materia.id]
+      const currentLevel = currentMateriaLevel(materiaData, materia.ap)
       if (materiaData.type === 'Magic') {
-        addMenuOption(command, 'Magic')
         magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc, not sure where to get ability list text data from yet
       }
       if (materiaData.type === 'Summon') {
-        addMenuOption(command, 'Summon')
         summon.push(materiaData) // TODO - improve this, eg, master magic, support links etc
       }
       if (materiaData.name === 'Mega All') {
-        addMenuOption(command, 'Slash-All')
+        // addMenuOption(command, 'Slash-All') // TODO
       }
       if (materiaData.type === 'Command') {
-        if (materiaData.name === 'Steal') {
-          if (materiaData.name === 'Double Cut') {
-            if (materia.ap >= materiaData.level2Ap) {
-              addMenuOption(command, '4x-Cut')
+        if (materiaData.attributes.type === 'Add') {
+          for (let i = 0; i < currentLevel; i++) {
+            // console.log('status Add', materiaData.name, materiaData, currentLevel)
+            if (currentLevel > 1 && materiaData.attributes.menu.length > 1) {
+              addMenuOption(command, materiaData.attributes.menu[1])
             } else {
-              addMenuOption(command, '2x-Cut')
+              addMenuOption(command, materiaData.attributes.menu[0])
             }
           }
-          if (materiaData.name === 'Slash-All') {
-            if (materia.ap >= materiaData.level2Ap) {
-              addMenuOption(command, 'Flash')
-            } else {
-              addMenuOption(command, 'Slash-All')
-            }
-          }
-          if (materia.ap >= materiaData.level2Ap) {
-            addMenuOption(command, 'Mug')
-          } else {
-            addMenuOption(command, 'Steal')
+        }
+        if (materiaData.attributes.type === 'AddAll') {
+          for (let i = 0; i < materiaData.attributes.menu.length; i++) {
+            addMenuOption(command, materiaData.attributes.menu[i])
           }
         }
-        if (materiaData.name === 'Throw') {
-          if (materia.ap >= materiaData.level2Ap) {
-            addMenuOption(command, 'Coin')
+        if (materiaData.attributes.type === 'Replace') {
+          // console.log('status Replace', materiaData.name, materiaData, currentLevel)
+          if (currentLevel > 1 && materiaData.attributes.with.length > 1) {
+            replaceMenuOption(command, materiaData.attributes.menu.id, materiaData.attributes.with[1])
           } else {
-            addMenuOption(command, 'Throw')
+            replaceMenuOption(command, materiaData.attributes.menu.id, materiaData.attributes.with[0])
           }
-        }
-        if (materiaData.name === 'Sense') { addMenuOption(command, 'Sense') }
-        if (materiaData.name === 'Morph') { addMenuOption(command, 'Morph') }
-        if (materiaData.name === 'Deathblow') { addMenuOption(command, 'D.blow') }
-        if (materiaData.name === 'Manipulate') { addMenuOption(command, 'Manip.') }
-        if (materiaData.name === 'Mime') { addMenuOption(command, 'Mime') }
-        if (materiaData.name === 'Enemy Skill') { addMenuOption(command, 'E.Skill') }
-        if (materiaData.name === 'W-Item') { addMenuOption(command, 'W-Item') }
-        if (materiaData.name === 'W-Magic') { addMenuOption(command, 'W-Magic') }
-        if (materiaData.name === 'W-Summon') { addMenuOption(command, 'W-Sum.') }
-        if (materiaData.name === 'Master Command') {
-          addMenuOption(command, 'Steal')
-          addMenuOption(command, 'Sense')
-          addMenuOption(command, 'Coin')
-          addMenuOption(command, 'Morph')
-          addMenuOption(command, 'D.blow')
-          addMenuOption(command, 'Manip.')
-          addMenuOption(command, 'Mime')
         }
       }
     }
   }
-  sortAndFilterCommands(command)
+  ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
   const menu = {command, magic, summon}
   console.log('status menu', menu)
 
   return menu
 }
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
-  const ap = 39000
+  const ap = 10000000
   const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
   char.equip.weapon.index = weaponData.itemId - 128
   char.equip.weapon.name = weaponData.name
@@ -449,12 +423,22 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
 }
 const getBattleStatsForChar = (char) => {
   // Temp equipment and materia override for testing
-  setEquipmentAndMateriaForTesting(
-    char,
-    'Ultima Weapon', 'Escort Guard', '',
-    ['Lightning', 'Elemental', ''],
-    ['Fire', 'Steal', 'Master Command', 'Steal', 'Added Effect', 'Time']
-  )
+  if (char.id === 0) {
+    setEquipmentAndMateriaForTesting(
+      char,
+      'Ultima Weapon', 'Escort Guard', '',
+      ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon'],
+      ['Fire', 'Steal', 'Master Command', 'Steal', 'Added Effect', 'Time']
+    )
+  }
+  if (char.id === 1) {
+    setEquipmentAndMateriaForTesting(
+      char,
+      'Ultima Weapon', 'Escort Guard', '',
+      ['Lightning'],
+      []
+    )
+  }
 
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]

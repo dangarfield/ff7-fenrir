@@ -276,7 +276,7 @@ const addPartyMemberStats = (char, battleStats) => {
 
   // Commands
   // TODO - Finish this
-  addMenuCommandsToDialog(statsGroup, 148.5, 68.5, battleStats.menu.command.map(c => c.name))
+  addMenuCommandsToDialog(statsGroup, 148.5, 68.5, battleStats.menu.command)
 
   // Equips
   const equips = [

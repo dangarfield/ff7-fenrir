@@ -1564,16 +1564,18 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
     } else if (i >= 4) {
       yAdjText = yAdjTextCol2
     }
-    addTextToDialog(
-      commandDialog,
-      command,
-      `menu-cmd-${command}`,
-      LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
-      x + 5 - 8 + yAdjText,
-      y + 15.5 - 4 + (13 * (i % 4)),
-      0.5
-    )
+    if (command.id < 255) {
+      addTextToDialog(
+        commandDialog,
+        command.name,
+        `menu-cmd-${command.name}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        x + 5 - 8 + yAdjText,
+        y + 15.5 - 4 + (13 * (i % 4)),
+        0.5
+      )
+    }
   }
 }
 const updateTexture = (mesh, letter, letterType, color) => {
