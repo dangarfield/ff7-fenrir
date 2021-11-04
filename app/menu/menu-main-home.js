@@ -76,9 +76,20 @@ const nav = {
 const getHomeBlackOverlay = () => {
   return homeBlackOverlay
 }
+const debugPopulateMenuTestData = () => {
+  // Party
+  window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
 
+  // Status
+  window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
+  window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
+
+  window.debugFillItems()
+  window.debugSetEquipmentAndMateria()
+}
 const loadHomeMenu = async () => {
-  window.debugFillItems() // Temp
+  // debugPopulateMenuTestData() // Temp
+
   homeNav = await createDialogBox({
     id: 1,
     name: 'homeNav',
@@ -122,6 +133,7 @@ const loadHomeMenu = async () => {
   const d = 13
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
+    // if() {}
     addTextToDialog(
       homeNav,
       navOption,

@@ -40,13 +40,6 @@ const getItemIcon = itemData => {
   return icon
 }
 const debugFillItems = () => {
-  // Party
-  window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
-
-  // Status
-  window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
-  window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
-
   // Items (inc weapons, armor, accessories)
   window.data.savemap.items = []
   for (let i = 0; i < window.data.kernel.allItemData.length; i++) {

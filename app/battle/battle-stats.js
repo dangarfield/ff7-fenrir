@@ -412,6 +412,22 @@ const getMenuOptions = (char) => {
 
   return menu
 }
+const debugSetEquipmentAndMateria = () => {
+  setEquipmentAndMateriaForTesting(
+    window.data.savemap.characters.Cloud,
+    'Ultima Weapon', 'Escort Guard', '',
+    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
+    ['Fire', 'Steal', 'Master Command', 'HP<->MP', 'HP Plus', 'MP Plus']
+  )
+  setEquipmentAndMateriaForTesting(
+    window.data.savemap.characters.Barret,
+    'Ultima Weapon', 'Escort Guard', '',
+    [], // ['MP Plus', 'HP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus'],
+    []
+  )
+}
+window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
+
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
   const ap = 10000000
   const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
@@ -460,23 +476,6 @@ const calculateStatValue = (base, bonus, stat, statBonuses) => {
 }
 const getBattleStatsForChar = (char) => {
   // Temp equipment and materia override for testing
-  if (char.id === 0) {
-    setEquipmentAndMateriaForTesting(
-      char,
-      'Ultima Weapon', 'Escort Guard', '',
-      ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
-      ['Fire', 'Steal', 'Master Command', 'HP<->MP', 'HP Plus', 'MP Plus']
-    )
-  }
-  if (char.id === 1) {
-    setEquipmentAndMateriaForTesting(
-      char,
-      'Ultima Weapon', 'Escort Guard', '',
-      [], // ['MP Plus', 'HP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus'],
-      []
-    )
-  }
-
   const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
   const armorData = window.data.kernel.armorData[char.equip.armor.index]
   const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]

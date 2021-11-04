@@ -34,4 +34,13 @@ const uuid = () => {
     lut[(d3 >> 24) & 0xff]
   )
 }
+const dec2bin = (dec) => {
+  return (dec >>> 0).toString(2)
+}
+window.dec2bin = dec2bin
+const dec2hex = (dec) => {
+  return `0x${parseInt(dec).toString(16)}`
+}
+window.dec2hex = dec2hex
+
 export { sleep, uuid }
