@@ -22,6 +22,21 @@ const calculateEquipBonus = (stat, items, materias) => {
   // console.log('status stat bonus', stat, total)
   return total
 }
+const calculateStatAbilityBonus = (stat, materias) => {
+  let perc = 100
+  // Change this to iterate around materias attributes
+  for (const materiaSlot in materias) {
+    const materia = materias[materiaSlot]
+    if (materia.id !== 255) {
+      const materiaData = window.data.kernel.materiaData.filter(a => a.index === materia.id)[0]
+      if (materiaData.type === 'Independent' && materiaData.attributes.type === 'StatBoost' && materiaData.attributes.stat === stat) {
+        const currentLevel = currentMateriaLevel(materiaData, materia.ap)
+        perc = perc + materiaData.attributes.attributes[Math.min(currentLevel - 1, materiaData.attributes.attributes.length - 1)]
+      }
+    }
+  }
+  return perc / 100
+}
 const calculateElementEquip = (elements, items, materia) => {
   // weapon
   addNoDuplicates(elements.attack, items[0].elements)
@@ -427,7 +442,7 @@ const getBattleStatsForChar = (char) => {
     setEquipmentAndMateriaForTesting(
       char,
       'Ultima Weapon', 'Escort Guard', '',
-      ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon'],
+      ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
       ['Fire', 'Steal', 'Master Command', 'Steal', 'Added Effect', 'Time']
     )
   }
@@ -452,12 +467,12 @@ const getBattleStatsForChar = (char) => {
   }
 
   const {hp, mp} = calculateHPMP(char)
-  const strength = char.stats.strength + char.stats.strengthBonus + calculateEquipBonus('Strength', equippedItems, equippedMateria)
-  const dexterity = char.stats.dexterity + char.stats.dexterityBonus + calculateEquipBonus('Dexterity', equippedItems, equippedMateria)
-  const vitality = char.stats.vitality + char.stats.vitalityBonus + calculateEquipBonus('Vitality', equippedItems, equippedMateria)
-  const magic = char.stats.magic + char.stats.magicBonus + calculateEquipBonus('Magic', equippedItems, equippedMateria)
-  const spirit = char.stats.spirit + char.stats.spiritBonus + calculateEquipBonus('Spirit', equippedItems, equippedMateria)
-  const luck = char.stats.luck + char.stats.luckBonus + calculateEquipBonus('Luck', equippedItems, equippedMateria)
+  const strength = Math.trunc((char.stats.strength + char.stats.strengthBonus + calculateEquipBonus('Strength', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Strength', char.materia))
+  const dexterity = Math.trunc((char.stats.dexterity + char.stats.dexterityBonus + calculateEquipBonus('Dexterity', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Dexterity', char.materia))
+  const vitality = Math.trunc((char.stats.vitality + char.stats.vitalityBonus + calculateEquipBonus('Vitality', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Vitality', char.materia))
+  const magic = Math.trunc((char.stats.magic + char.stats.magicBonus + calculateEquipBonus('Magic', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Magic', char.materia))
+  const spirit = Math.trunc((char.stats.spirit + char.stats.spiritBonus + calculateEquipBonus('Spirit', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Spirit', char.materia))
+  const luck = Math.trunc((char.stats.luck + char.stats.luckBonus + calculateEquipBonus('Luck', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Luck', char.materia))
 
   // TODO - Add based on independent materia abilities rather than equip effects, eg HP<->MP, Luck Plus, Magic Plus, Speed Plus, HP Plus, MP Plus
   // TODO - How to add battle / field affecting materia (eg, all support and independent materia)
