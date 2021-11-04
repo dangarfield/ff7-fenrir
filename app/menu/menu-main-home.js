@@ -38,7 +38,7 @@ import { loadConfigMenu } from './menu-main-config.js'
 import { loadPHSMenu } from './menu-main-phs.js'
 import { loadSaveMenu } from './menu-main-save.js'
 
-import { getCurrentGameTime } from '../data/savemap-alias.js'
+import { getCurrentGameTime, getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
 let homeNav,
@@ -50,17 +50,17 @@ let homeNav,
   char2Group,
   char3Group
 const navOptions = [
-  'Item',
-  'Magic',
-  'Materia',
-  'Equip',
-  'Status',
-  'Order',
-  'Limit',
-  'Config',
-  'PHS',
-  'Save',
-  'Quit'
+  {name: 'Item', display: true},
+  {name: 'Magic', display: true},
+  {name: 'Materia', display: true},
+  {name: 'Equip', display: true},
+  {name: 'Status', display: true},
+  {name: 'Order', display: true},
+  {name: 'Limit', display: true},
+  {name: 'Config', display: true},
+  {name: 'PHS', display: true},
+  {name: 'Save', display: true},
+  {name: 'Quit', display: true}
 ]
 const navOptionsMembersRequired = [
   'Magic',
@@ -131,24 +131,31 @@ const loadHomeMenu = async () => {
   const x = 246
   const y = 12
   const d = 13
+
+  // Update menu visibility
+  const menuVisibility = getMenuVisibility()
+  for (let i = 0; i < menuVisibility.length; i++) {
+    navOptions[i].display = menuVisibility[i]
+  }
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
-    // if() {}
-    addTextToDialog(
-      homeNav,
-      navOption,
-      `nav-${navOption.toLowerCase()}`,
-      LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
-      x,
-      y + d * i,
-      0.5
-    )
-    nav.options.push({
-      pointerX: 237,
-      pointerY: 17 + 13 * i,
-      type: navOption
-    })
+    if (navOption.display) {
+      addTextToDialog(
+        homeNav,
+        navOption.name,
+        `nav-${navOption.name.toLowerCase()}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        x,
+        y + d * i,
+        0.5
+      )
+      nav.options.push({
+        pointerX: 237,
+        pointerY: 17 + 13 * i,
+        type: navOption.name
+      })
+    }
   }
   nav.current = 0
   window.homeNav = homeNav

@@ -142,6 +142,9 @@ const incrementBattlesEscaped = () => {
   count++
   setBankData(2, 26, count)
 }
+const getMenuVisibility = () => {
+  return (getBankData(2, 28) >>> 0).toString(2).padStart(8, '0').split('').map((f, i) => f === '1').reverse()
+}
 
 export {
   processSavemapAlias,
@@ -160,5 +163,6 @@ export {
   updateSavemapLocationFieldLeader,
   getPlayableCharacterInitData,
   incrementBattlesFought,
-  incrementBattlesEscaped
+  incrementBattlesEscaped,
+  getMenuVisibility
 }
