@@ -30,7 +30,7 @@ const loadSaveMap = (cardId, slotId) => {
     window.data.savemap = JSON.parse(savemap)
   }
   recalculateAndApplyHPMPToAll()
-  saveSaveMap(cardId, slotId)
+  // saveSaveMap(cardId, slotId)
   console.log('window.data.savemap', window.data.savemap)
 }
 const generateSavePreview = () => {

@@ -201,25 +201,46 @@ const addNoDuplicates = (arr1, arr2) => {
     }
   }
 }
+const hasMPHPMateria = (char) => {
+  const hpMPMateriaData = window.data.kernel.materiaData.filter(m => m.attributes.type && m.attributes.type === 'HP<->MP')[0]
+  for (const materiaSlot in char.materia) {
+    const materia = char.materia[materiaSlot]
+    if (materia.id === hpMPMateriaData.index) {
+      return true
+    }
+  }
+  return false
+}
 const calculateHPMP = (char, statBonuses) => {
+  // Calc max HP MP
   const hpBonusAmount = statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP').map(s => s.value).reduce((a, b) => a + b, 100)
   const hp = {
     current: char.stats.hp.current ? char.stats.hp.current : char.stats.hp.base,
-    max: Math.trunc(char.stats.hp.base * (hpBonusAmount / 100))
-  }
-  if (hp.current > hp.max) {
-    hp.current = hp.max
+    max: Math.min(9999, Math.trunc(char.stats.hp.base * (hpBonusAmount / 100)))
   }
 
-  console.log('status HP', char.stats.hp.base, hpBonusAmount, hp, char, statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP'))
+  // console.log('status HP', char.stats.hp.base, hpBonusAmount, hp, char, statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP'))
   const mpBonusAmount = statBonuses.filter(s => s.type === 'percent' && s.stat === 'MP').map(s => s.value).reduce((a, b) => a + b, 100)
   const mp = {
     current: char.stats.mp.current ? char.stats.mp.current : char.stats.mp.base,
-    max: Math.trunc(char.stats.mp.base * (mpBonusAmount / 100))
+    max: Math.min(999, Math.trunc(char.stats.mp.base * (mpBonusAmount / 100)))
+  }
+  // Swap max if required
+  if (hasMPHPMateria(char)) {
+    const hpTemp = hp.max
+    hp.max = mp.max
+    mp.max = hpTemp
+  }
+
+  // Ensure current <= max
+  if (hp.current > hp.max) {
+    hp.current = hp.max
   }
   if (mp.current > mp.max) {
     mp.current = mp.max
   }
+  // hp.current = hp.max
+  // mp.current = mp.max
   return {hp, mp}
 }
 
@@ -330,7 +351,7 @@ const getMenuOptions = (char) => {
       }
       return 0
     }
-    while (command.length < 4 && itemCommandPosition(command) !== 3) { //    [3].id !== 4 || command[3].id !== 23)) {
+    while (command.length < 4 && itemCommandPosition(command) !== 3) {
       command.splice(command.length - 1, 0, {id: 255, name: 'BLANK'})
     }
   }
@@ -444,7 +465,7 @@ const getBattleStatsForChar = (char) => {
       char,
       'Ultima Weapon', 'Escort Guard', '',
       ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
-      ['Fire', 'Steal', 'Master Command', 'Steal', 'HP Plus', 'MP Plus']
+      ['Fire', 'Steal', 'Master Command', 'HP<->MP', 'HP Plus', 'MP Plus']
     )
   }
   if (char.id === 1) {
@@ -477,16 +498,7 @@ const getBattleStatsForChar = (char) => {
   const spirit = calculateStatValue(char.stats.spirit, char.stats.spiritBonus, 'Spirit', statBonuses)
   const luck = calculateStatValue(char.stats.luck, char.stats.luckBonus, 'Luck', statBonuses)
 
-  // const strength = Math.trunc((char.stats.strength + char.stats.strengthBonus + statBonuses.filter(s => s.type === 'amount' && s.stat === 'Strength').map(s => s.value).reduce((a, b) => a + b, 0) * calculateStatAbilityBonus('Strength', char.materia))
-  // // const strength = Math.trunc((char.stats.strength + char.stats.strengthBonus + calculateEquipBonus('Strength', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Strength', char.materia))
-  // const dexterity = Math.trunc((char.stats.dexterity + char.stats.dexterityBonus + calculateEquipBonus('Dexterity', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Dexterity', char.materia))
-  // const vitality = Math.trunc((char.stats.vitality + char.stats.vitalityBonus + calculateEquipBonus('Vitality', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Vitality', char.materia))
-  // const magic = Math.trunc((char.stats.magic + char.stats.magicBonus + calculateEquipBonus('Magic', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Magic', char.materia))
-  // const spirit = Math.trunc((char.stats.spirit + char.stats.spiritBonus + calculateEquipBonus('Spirit', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Spirit', char.materia))
-  // const luck = Math.trunc((char.stats.luck + char.stats.luckBonus + calculateEquipBonus('Luck', equippedItems, equippedMateria)) * calculateStatAbilityBonus('Luck', char.materia))
-
-  // TODO - Add based on independent materia abilities rather than equip effects, eg HP<->MP, Luck Plus, Magic Plus, Speed Plus, HP Plus, MP Plus
-  // TODO - How to add battle / field affecting materia (eg, all support and independent materia)
+  // TODO - How to add battle / field affecting materia (eg, all support and independent materia), Gil Exp
 
   const modifiers = {
     exp: 1,
