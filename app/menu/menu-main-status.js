@@ -14,6 +14,7 @@ import {
   fadeOverlayOut,
   fadeOverlayIn,
   createEquipmentMateriaViewer,
+  EQUIPMENT_TYPE,
   addMenuCommandsToDialog
 } from './menu-box-helper.js'
 import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
@@ -313,13 +314,14 @@ const addPartyMemberStats = (char, battleStats) => {
     178.5,
     159,
     window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
-    weaponMateriaTypes(char)
+    char, EQUIPMENT_TYPE.WEAPON
+
   )
   createEquipmentMateriaViewer(statsGroup,
     178.5,
     159 + 32,
     window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
-    armorMateriaTypes(char)
+    char, EQUIPMENT_TYPE.ARMOR
   )
 }
 const addPartyMemberElements = (char, battleStats) => {
@@ -541,20 +543,6 @@ const addPartyMemberStatus = (char, battleStats) => {
   window.statusEffectsGroup = statusEffectsGroup
 }
 
-const weaponMateriaTypes = (char) => {
-  const materiaTypes = []
-  for (let i = 1; i < 9; i++) {
-    materiaTypes.push(char.materia[`weaponMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type : 'None')
-  }
-  return materiaTypes
-}
-const armorMateriaTypes = (char) => {
-  const materiaTypes = []
-  for (let i = 1; i < 9; i++) {
-    materiaTypes.push(char.materia[`armorMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`armorMateria${i}`].id].type : 'None')
-  }
-  return materiaTypes
-}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')

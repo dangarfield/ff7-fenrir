@@ -50,6 +50,10 @@ const POINTERS = {
   pointer2: null,
   pointer3: null
 }
+const EQUIPMENT_TYPE = {
+  WEAPON: 'WEAPON',
+  ARMOR: 'ARMOR'
+}
 
 const generateGaugeBarsColors1 = c => {
   return ['rgb(0,0,0)', 'rgb(0,0,0)', c, c]
@@ -1363,7 +1367,22 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     h / (totalLines / pageSize) - 1
   )
 }
-const createEquipmentMateriaViewer = (dialog, x, y, slots, materias) => {
+
+const weaponMateriaTypes = (char) => {
+  const materiaTypes = []
+  for (let i = 1; i < 9; i++) {
+    materiaTypes.push(char.materia[`weaponMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type : 'None')
+  }
+  return materiaTypes
+}
+const armorMateriaTypes = (char) => {
+  const materiaTypes = []
+  for (let i = 1; i < 9; i++) {
+    materiaTypes.push(char.materia[`armorMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`armorMateria${i}`].id].type : 'None')
+  }
+  return materiaTypes
+}
+const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) => {
   // TODO - Slider bg have an additional light edge on bottom and right
   // Also, it seems to be a blended color rather than fixed
   const w = 113
@@ -1381,6 +1400,13 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, materias) => {
     w,
     h
   )
+
+  let materias
+  if (equipmentType === EQUIPMENT_TYPE.WEAPON) {
+    materias = weaponMateriaTypes(char)
+  } else {
+    materias = armorMateriaTypes(char)
+  }
 
   const slotOffset = 8
   const joinOffset = 7
@@ -1591,10 +1617,16 @@ const updateTexture = (mesh, letter, letterType, color) => {
   mesh.material.needsUpdate = true
   mesh.material.map = textureLetter.texture
 }
+const removeGroupChildren = (group) => {
+  while (group.children.length) {
+    group.remove(group.children[0])
+  }
+}
 export {
   LETTER_TYPES,
   LETTER_COLORS,
   WINDOW_COLORS_SUMMARY,
+  EQUIPMENT_TYPE,
   createDialogBox,
   slideFrom,
   slideTo,
@@ -1622,5 +1654,6 @@ export {
   createHorizontalConfigSlider,
   updateTexture,
   createEquipmentMateriaViewer,
-  addMenuCommandsToDialog
+  addMenuCommandsToDialog,
+  removeGroupChildren
 }
