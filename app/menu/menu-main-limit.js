@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { setMenuState } from './menu-module.js'
+import { setMenuState, getMenuBlackOverlay } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -16,7 +16,7 @@ import {
   showDialog,
   closeDialog
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 
@@ -101,7 +101,7 @@ const loadLimitMenu = async partyMember => {
   drawAll(partyMember)
 
   window.itemActions = limitActions
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
   ACTION_POSITIONS.action = 0
   loadActionSelection()
 }
@@ -194,10 +194,7 @@ const drawAll = partyMember => {
   }
   console.log('limit partyMember', partyMember, typeof partyMember)
   LIMIT_DATA.member = partyMember
-  const char =
-    window.data.savemap.characters[
-      window.data.savemap.party.members[LIMIT_DATA.member]
-    ]
+  const char = window.data.savemap.characters[window.data.savemap.party.members[LIMIT_DATA.member]]
   addCharacterSummary(
     limitActionsGroup,
     LIMIT_DATA.member,
@@ -305,13 +302,8 @@ const getLimitSkills = (char, potentialLimits, magicNameIndex, skip) => {
       if (char.limit.learnedLimitSkils.includes(potentialLimit)) {
         // if (true) { // Just temp
         skills[i].push({
-          name: window.data.kernel.magicNames[magicNameIndex + counter].replace(
-            '{COLOR(2)}',
-            ''
-          ),
-          description: window.data.kernel.magicDescriptions[
-            magicNameIndex + counter
-          ].replace('{COLOR(2)}', '')
+          name: window.data.kernel.magicNames[magicNameIndex + counter].replace('{COLOR(2)}', ''),
+          description: window.data.kernel.magicDescriptions[magicNameIndex + counter].replace('{COLOR(2)}', '')
         })
       }
       if (skip) {
@@ -369,7 +361,7 @@ const exitMenu = async () => {
   setMenuState('loading')
   movePointer(POINTERS.pointer1, 0, 0, true)
   movePointer(POINTERS.pointer2, 0, 0, true)
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   limitActions.visible = false
   limitDesc.visible = false
   limitList.visible = false
@@ -542,10 +534,7 @@ const changeLevel = async () => {
   setMenuState('loading')
   limitConfirm.visible = false
   movePointer(POINTERS.pointer1, 0, 0, true)
-  const char =
-    window.data.savemap.characters[
-      window.data.savemap.party.members[LIMIT_DATA.member]
-    ]
+  const char = window.data.savemap.characters[window.data.savemap.party.members[LIMIT_DATA.member]]
   char.limit.level = LIMIT_DATA.level + 1
   char.limit.bar = 0
   drawAll(LIMIT_DATA.member)
@@ -556,8 +545,9 @@ const changeLevel = async () => {
 }
 const limitSwitchPartyMember = delta => {
   let newMember = false
+  let potential = LIMIT_DATA.member
   while (newMember === false) {
-    let potential = LIMIT_DATA.member + delta
+    potential = potential + delta
     if (potential > 2) {
       potential = 0
     } else if (potential < 0) {

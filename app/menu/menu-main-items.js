@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { getMenuState, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -16,7 +16,7 @@ import {
   addImageToDialog,
   createItemListNavigation
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY, getActiveInputs } from '../interaction/inputs.js'
 import { getItemIcon, getKeyItems } from '../items/items-module.js'
 
@@ -93,7 +93,7 @@ const loadItemsMenu = async () => {
     w: 150,
     h: 192.5,
     x: 0,
-    y: 48, //51
+    y: 48, // 51
     expandInstantly: true,
     noClipping: true
   })
@@ -181,7 +181,7 @@ const loadItemsMenu = async () => {
     ACTION_POSITIONS.x[ACTION_POSITIONS.action],
     ACTION_POSITIONS.y
   )
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('items-action-select')
   itemActionConfirm()
@@ -229,7 +229,7 @@ const exitMenu = async () => {
   console.log('exitMenu')
   movePointer(POINTERS.pointer1, 0, 0, true)
   setMenuState('loading')
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   itemActions.visible = false
   const toRemove = [
     itemActions,
@@ -977,10 +977,7 @@ const setItemKeyCursorPosition = () => {
 }
 const setItemKeyDescription = () => {
   clearItemDescription()
-  const item =
-    itemKeyListGroup.userData.items[
-      KEYITEM_POSITIONS.pagePosition * 2 + KEYITEM_POSITIONS.cursorPosition
-    ]
+  const item = itemKeyListGroup.userData.items[KEYITEM_POSITIONS.pagePosition * 2 + KEYITEM_POSITIONS.cursorPosition]
   if (item === undefined) {
     return
   }

@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { setMenuState } from './menu-module.js'
+import { setMenuState, getMenuBlackOverlay } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -12,10 +12,9 @@ import {
   createHorizontalConfigSlider,
   updateTexture
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu, homeNav } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { scene } from './menu-scene.js'
-import { homeNav } from './menu-main-home.js'
 
 let configDescription,
   configOptions,
@@ -114,7 +113,7 @@ const loadConfigMenu = async () => {
   CONFIG_DATA.option = 0
   pointerToOption(CONFIG_DATA.option)
 
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
 
   configOptionSelectOptions()
 }
@@ -430,7 +429,7 @@ const drawConfigOptionScroll = (groupId, group) => {
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   configOptions.visible = false
   configDescription.visible = false
   configControls.visible = false

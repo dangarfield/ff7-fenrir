@@ -126,6 +126,7 @@ const createFadeOverlay = () => {
   return fade
 }
 const fadeOverlayIn = async fade => {
+  fade.visible = true
   return new Promise(resolve => {
     const from = { opacity: 0 }
     const to = { opacity: 1 }

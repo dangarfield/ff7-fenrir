@@ -71,7 +71,12 @@ const initFieldKeypressActions = () => {
       // unfreezeField()
     }
   })
-
+  getKeyPressEmitter().on('start', firstPress => {
+    if (areFieldControlsActive && firstPress) {
+      // Just debug controls
+      transitionOutAndLoadMenu(MENU_TYPE.PartySelect, 0)
+    }
+  })
   getKeyPressEmitter().on('select', firstPress => {
     if (areFieldControlsActive && firstPress) {
       // Toggle position helper visibility

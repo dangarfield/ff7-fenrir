@@ -1,4 +1,4 @@
-import { getMenuState, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -9,7 +9,7 @@ import {
   fadeOverlayOut,
   fadeOverlayIn
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
 let materiaActions, itemDesc, itemParty, itemList
@@ -39,7 +39,7 @@ const loadMateriaMenu = async partyMember => {
   )
   materiaActions.visible = true
   window.itemActions = materiaActions
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia')
 
@@ -48,7 +48,7 @@ const loadMateriaMenu = async partyMember => {
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   materiaActions.visible = false
   fadeInHomeMenu()
 }

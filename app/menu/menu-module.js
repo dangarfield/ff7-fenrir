@@ -11,6 +11,8 @@ import { loadTitleMenu } from './menu-title.js'
 import { loadGameOverMenu } from './menu-game-over.js'
 import { loadChangeDiscMenu } from './menu-change-disc.js'
 import { loadMainMenuWithTutorial } from './menu-tutorial.js'
+import { createFadeOverlay } from './menu-box-helper.js'
+
 import {
   yuffieStealMateriaAll,
   yuffieRestoreMateriaAll,
@@ -82,7 +84,17 @@ const clearScene = () => {
   while (scene.children.length) {
     scene.remove(scene.children[0])
   }
+  createMenuBlackOverlay()
 }
+let menuBlackOverlay
+const createMenuBlackOverlay = () => {
+  menuBlackOverlay = createFadeOverlay()
+  menuBlackOverlay.material.opacity = 0
+}
+const getMenuBlackOverlay = () => {
+  return menuBlackOverlay
+}
+window.getMenuBlackOverlay = getMenuBlackOverlay
 
 let MENU_PROMISE
 
@@ -116,7 +128,6 @@ const loadMenuWithWait = (menuCode, param) => {
       case MENU_TYPE.SaveScreen:
         loadSaveMenu()
         break
-
       case MENU_TYPE.ChangeDisc:
         loadChangeDiscMenu(param)
         break
@@ -185,6 +196,7 @@ const initMenuModule = () => {
   window.currentMenu = {
     scene: scene
   }
+  createMenuBlackOverlay()
 }
 
 export {
@@ -196,5 +208,6 @@ export {
   resolveMenuPromise,
   MENU_TYPE,
   setMenuState,
-  getMenuState
+  getMenuState,
+  getMenuBlackOverlay
 }

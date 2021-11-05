@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { setMenuState } from './menu-module.js'
+import { setMenuState, getMenuBlackOverlay } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -16,7 +16,7 @@ import {
   showDialog,
   closeDialog
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { saveSaveMap } from '../data/savemap.js'
@@ -81,7 +81,7 @@ const loadSaveMenu = async () => {
   drawAll()
   loadChooseSaveGroup()
   setMenuState('loading')
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('save-choose-group')
 }
 const createSlotDialogHolders = () => {
@@ -185,7 +185,7 @@ const createSlotDialogHolders = () => {
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   saveDescription.visible = false
   saveGroups.visible = false
   saveSlotId.visible = false
@@ -579,8 +579,8 @@ const createSavePreviewDialog = (index, previewData) => {
 }
 
 const SAVE_SLOT_POSITIONS = {
-  slotPositions: new Array(15).fill(null).map((v, i) => { return {x: 0, y: -25.5 + 68.5 * i } }),
-  cursorPositions: new Array(3).fill(null).map((v, i) => { return {x: 14, y: 68 + 68.5 * i } }),
+  slotPositions: new Array(15).fill(null).map((v, i) => { return { x: 0, y: -25.5 + 68.5 * i } }),
+  cursorPositions: new Array(3).fill(null).map((v, i) => { return { x: 14, y: 68 + 68.5 * i } }),
   confirmPositions: [{x: 104, y: 125}, {x: 104, y: 138}],
   pagePosition: 0,
   cursorPosition: 0,

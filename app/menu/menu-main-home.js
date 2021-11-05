@@ -1,9 +1,7 @@
-import { scene, showDebugText } from './menu-scene.js'
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
-  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   slideFrom,
   slideTo,
@@ -11,13 +9,11 @@ import {
   addImageToDialog,
   addCharacterSummary,
   getLetterTexture,
-  addShapeToDialog,
   POINTERS,
   initPointers,
   movePointer,
   shrinkDialog,
   expandDialog,
-  createFadeOverlay,
   fadeOverlayIn,
   fadeOverlayOut,
   addLimitToDialog,
@@ -26,7 +22,8 @@ import {
 import {
   getMenuState,
   setMenuState,
-  resolveMenuPromise
+  resolveMenuPromise,
+  getMenuBlackOverlay
 } from './menu-module.js'
 import { loadItemsMenu } from './menu-main-items.js'
 import { loadMagicMenu } from './menu-main-magic.js'
@@ -45,7 +42,6 @@ let homeNav,
   homeTime,
   homeLocation,
   homeMain,
-  homeBlackOverlay,
   char1Group,
   char2Group,
   char3Group
@@ -72,9 +68,6 @@ const navOptionsMembersRequired = [
 const nav = {
   current: 0,
   options: []
-}
-const getHomeBlackOverlay = () => {
-  return homeBlackOverlay
 }
 const debugPopulateMenuTestData = () => {
   // Menu Visibility
@@ -164,10 +157,6 @@ const loadHomeMenu = async () => {
   }
   nav.current = 0
   window.homeNav = homeNav
-
-  homeBlackOverlay = createFadeOverlay()
-  homeBlackOverlay.material.opacity = 0
-  window.homeBlackOverlay = homeBlackOverlay
 
   homeTime = createDialogBox({
     id: 3,
@@ -663,10 +652,7 @@ const navSelectOrderToConfirm = () => {
       navSelectOrderFromLoad()
       return
     }
-    const char =
-      window.data.savemap.characters[
-        window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]
-      ]
+    const char = window.data.savemap.characters[window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]]
     if (char.status.battleOrder === 'Normal') {
       char.status.battleOrder = 'BackRow'
     } else {
@@ -775,7 +761,7 @@ const navSlideDown = async (type, member) => {
     true
   )
   shrinkDialog(homeNav, type)
-  await fadeOverlayIn(homeBlackOverlay)
+  await fadeOverlayIn(getMenuBlackOverlay())
   homeTime.visible = false
   homeLocation.visible = false
   homeMain.visible = false
@@ -795,7 +781,7 @@ const fadeInHomeMenu = async () => {
   homeTime.visible = true
   homeLocation.visible = true
   homeMain.visible = true
-  fadeOverlayOut(homeBlackOverlay)
+  fadeOverlayOut(getMenuBlackOverlay())
   const selectedNav = nav.options[nav.current]
   navSlideUp(selectedNav.type)
 }
@@ -894,7 +880,6 @@ export {
   loadHomeMenu,
   keyPress,
   updateHomeMenuTime,
-  getHomeBlackOverlay,
   fadeInHomeMenu,
   homeNav
 }

@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { setMenuState } from './menu-module.js'
+import { setMenuState, getMenuBlackOverlay } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -17,7 +17,7 @@ import {
   EQUIPMENT_TYPE,
   addMenuCommandsToDialog
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 
@@ -71,7 +71,7 @@ const loadStatusMenu = async partyMember => {
   window.statusDialog = statusDialog
   populatePagesForCharacter()
   displayPage()
-  await fadeOverlayOut(getHomeBlackOverlay())
+  await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('status-stats')
 }
 
@@ -547,14 +547,15 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   movePointer(POINTERS.pointer1, 0, 0, true)
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   statusDialog.visible = false
   fadeInHomeMenu()
 }
 const switchPartyMember = delta => {
   let newMember = false
+  let potential = STATUS_DATA.partyMember
   while (newMember === false) {
-    let potential = STATUS_DATA.partyMember + delta
+    potential = potential + delta
     if (potential > 2) {
       potential = 0
     } else if (potential < 0) {

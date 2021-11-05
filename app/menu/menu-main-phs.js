@@ -1,5 +1,5 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getMenuState, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -17,7 +17,7 @@ import {
   EQUIPMENT_TYPE,
   removeGroupChildren
 } from './menu-box-helper.js'
-import { getHomeBlackOverlay, fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, partyDialog, membersDialog, equipmentDialog, charPreviewDialog
@@ -50,7 +50,7 @@ const setInitialMemberData = () => {
   data.sourceParty = true
   console.log('phs data', data)
 }
-const loadPHSMenu = async () => {
+const loadPHSMenu = async (param) => { // Note: Param is for param select menu
   headerDialog = await createDialogBox({
     id: 3,
     name: 'headerDialog',
@@ -130,8 +130,7 @@ const loadPHSMenu = async () => {
   // drawEquipment() // Testing only
   hideSelectedPointer()
   placeSelectPointer()
-  await fadeOverlayOut(getHomeBlackOverlay())
-
+  await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('phs-select-a')
 }
 
@@ -502,7 +501,7 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   hideSelectPointer()
-  await fadeOverlayIn(getHomeBlackOverlay())
+  await fadeOverlayIn(getMenuBlackOverlay())
   headerDialog.visible = false
   partyDialog.visible = false
   membersDialog.visible = false
