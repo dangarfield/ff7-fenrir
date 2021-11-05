@@ -81,7 +81,7 @@ const debugPopulateMenuTestData = () => {
   window.setBankData(2, 28, 0b1111111111)
 
   // Party
-  window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
+  // window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
   window.data.savemap.party.phsLocked = { 'Cloud': 1, 'Barret': 0, 'Tifa': 0, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 0, 'Vincent': 0, 'Cid': 1 }
   window.data.savemap.party.phsVisibility = { 'Cloud': 1, 'Barret': 1, 'Tifa': 1, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 1, 'Vincent': 1, 'Cid': 0 }
 

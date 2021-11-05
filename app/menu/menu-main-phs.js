@@ -26,8 +26,11 @@ let headerGroup, partyGroup, membersGroup, equipmentGroup, charPreviewGroup
 const data = {
   party: [],
   members: [],
-  partyCursor: 0,
-  memberCursor: 0
+  partyCurrent: 0,
+  membersCurrent: 0,
+  sourceParty: true,
+  selectA: null, // {sourceParty: true, index: 0},
+  selectB: null // {sourceParty: true, index: 0}
 }
 const setInitialMemberData = () => {
   data.party.push(...window.data.savemap.party.members)
@@ -40,6 +43,9 @@ const setInitialMemberData = () => {
   while (data.members.length < 9) {
     data.members.push('None')
   }
+  data.partyCursor = 0
+  data.memberCursor = 0
+  data.sourceParty = true
   console.log('phs data', data)
 }
 const loadPHSMenu = async () => {
@@ -118,13 +124,13 @@ const loadPHSMenu = async () => {
   drawHeader()
   drawParty()
   drawMembers()
-  drawCharPreview() // Testing only
-  drawEquipment() // Testing only
+  // drawCharPreview() // Testing only
+  // drawEquipment() // Testing only
+  hideSelectedPointer()
+  placeSelectPointer()
   await fadeOverlayOut(getHomeBlackOverlay())
 
-  setMenuState('phs')
-
-  movePointer(POINTERS.pointer1, 237, 17)
+  setMenuState('phs-select-a')
 }
 
 const drawHeader = async () => {
@@ -339,6 +345,79 @@ const drawEquipment = () => {
     )
   }
 }
+
+const calcPointerPos = () => {
+  const pos = {x: 0, y: 0}
+  if (data.sourceParty) {
+    pos.x = 20 - 10
+    pos.y = 61 + 7 + (data.partyCurrent * 68.5)
+  } else {
+    pos.x = 183 - 10 + (40 * (data.membersCurrent % 3))
+    pos.y = 112.5 + 7 + (49.5 * Math.trunc(data.membersCurrent / 3))
+  }
+  return pos
+}
+const placeSelectPointer = () => {
+  const {x, y} = calcPointerPos()
+  movePointer(POINTERS.pointer1, x, y)
+}
+const placeSelectedPointer = () => {
+  const {x, y} = calcPointerPos()
+  movePointer(POINTERS.pointer2, x - 5, y - 5, false, true)
+}
+const hideSelectedPointer = () => {
+  movePointer(POINTERS.pointer2, 0, 0, true)
+}
+const navigate = (key) => {
+  if (data.sourceParty) {
+    if (key === KEY.UP) {
+      data.partyCurrent--
+      if (data.partyCurrent < 0) {
+        data.partyCurrent = data.party.length - 1
+      }
+    } else if (key === KEY.DOWN) {
+      data.partyCurrent++
+      if (data.partyCurrent >= data.party.length) {
+        data.partyCurrent = 0
+      }
+    } else if (key === KEY.RIGHT) {
+      data.sourceParty = false
+    }
+  } else {
+    if (key === KEY.UP) {
+      if (data.membersCurrent - 3 >= 0) {
+        data.membersCurrent = data.membersCurrent - 3
+      }
+    } else if (key === KEY.DOWN) {
+      if (data.membersCurrent + 3 < 9) {
+        data.membersCurrent = data.membersCurrent + 3
+      }
+    } else if (key === KEY.LEFT) {
+      if (data.membersCurrent % 3 > 0) {
+        data.membersCurrent--
+      } else {
+        data.sourceParty = true
+      }
+    } else if (key === KEY.RIGHT) {
+      if (data.membersCurrent % 3 < 2) {
+        data.membersCurrent++
+      }
+    }
+  }
+  placeSelectPointer()
+}
+const selectA = () => {
+  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent}
+  const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
+}
+const attemptToExitPHSMenu = async () => {
+  if (data.party.filter(p => p !== 'None').length === 3) {
+    await exitMenu()
+  } else {
+    // Can't exit
+    console.log('phs Cannot exit PHS menu until a party is selected')
+  }
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -358,11 +437,24 @@ const exitMenu = async () => {
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU PHS', key, firstPress, state)
   if (state === 'phs') {
-    if (key === KEY.X) {
-      console.log('press MAIN MENU PHS EXIT')
-      movePointer(POINTERS.pointer1, 0, 0, true)
-      await exitMenu()
+
+  }
+  if (state === 'phs-select-a') {
+    if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
+      navigate(key)
     }
+    if (key === KEY.X) {
+      attemptToExitPHSMenu()
+    }
+    if (key === KEY.O) {
+      selectA()
+    }
+  }
+  if (state === 'phs-select-b') {
+
+  }
+  if (state === 'phs-equipment-preview') {
+
   }
 }
 export { loadPHSMenu, keyPress }
