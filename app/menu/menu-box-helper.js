@@ -756,6 +756,14 @@ const addTextToDialog = (
   dialogBox.add(textGroup)
   return textGroup
 }
+const addGroupToDialog = (dialog, id) => {
+  const group = new THREE.Group()
+  group.userData = { id: id, z: 100 - id }
+  group.position.z = id - 3
+  group.visible = true
+  dialog.add(group)
+  return group
+}
 const addImageToDialog = async (dialogBox, type, image, id, x, y, scale, blending) => {
   const textureLetter = getImageTexture(type, image)
   const mesh = createTextureMesh(
@@ -1592,6 +1600,7 @@ export {
   slideTo,
   addTextToDialog,
   addImageToDialog,
+  addGroupToDialog,
   addCharacterSummary,
   getLetterTexture,
   addShapeToDialog,
