@@ -18,9 +18,10 @@ import {
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
+import { sleep } from '../helpers/helpers.js'
 
-let headerDialog, partyDialog, membersDialog, equipmentDialog, charPreviewDialog
-let headerGroup, partyGroup, membersGroup, equipmentGroup, charPreviewGroup
+let titleDialog, headerDialog, partyDialog, membersDialog, equipmentDialog, charPreviewDialog
+let titleGroup, headerGroup, partyGroup, membersGroup, equipmentGroup, charPreviewGroup
 
 const data = {
   party: [],
@@ -29,8 +30,16 @@ const data = {
   membersCurrent: 0,
   sourceParty: true,
   selectA: null, // {sourceParty: true, index: 0},
-  selectB: null,
-  menuType: '' // {sourceParty: true, index: 0}
+  selectB: null, // {sourceParty: true, index: 0}
+  menuType: 'phs',
+  menuConfig: {
+    phs: { headings: ['Please make a party of three.'], exitKey: 'x' },
+    partySelect0: { headings: ['Please make a party of three.', 'Select with START button.'], exitKey: 'start' },
+    partySelect4: { headings: ['Split your allies into two groups.', 'Please make a party of three.'], exitKey: 'x' }
+  }
+}
+const isPartySelect = () => {
+  return data.menuType !== 'phs'
 }
 const setInitialMemberData = (param) => {
   data.party = []
@@ -51,11 +60,13 @@ const setInitialMemberData = (param) => {
   if (param === undefined) {
     data.menuType = 'phs'
   } else {
-    data.menuType = param
+    data.menuType = `partySelect${param}`
   }
   console.log('phs data', data)
 }
 const loadPHSMenu = async (param) => { // Note: Param is for param select menu
+  setInitialMemberData(param)
+
   headerDialog = await createDialogBox({
     id: 3,
     name: 'headerDialog',
@@ -127,7 +138,21 @@ const loadPHSMenu = async (param) => { // Note: Param is for param select menu
   window.equipmentGroup = equipmentGroup
   window.charPreviewGroup = charPreviewGroup
 
-  setInitialMemberData(param)
+  if (isPartySelect()) {
+    titleDialog = await createDialogBox({
+      id: 3,
+      name: 'titleDialog',
+      w: 82,
+      h: 25.5,
+      x: 238,
+      y: 0,
+      expandInstantly: true,
+      noClipping: true
+    })
+    titleDialog.visible = true
+    titleGroup = addGroupToDialog(titleDialog, 15)
+    drawTitle()
+  }
   drawHeader()
   drawParty()
   drawMembers()
@@ -138,19 +163,53 @@ const loadPHSMenu = async (param) => { // Note: Param is for param select menu
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('phs-select-a')
 }
-
-const drawHeader = async () => {
-  removeGroupChildren(headerGroup)
+const drawTitle = () => {
   addTextToDialog(
-    headerGroup,
-    'Please make a party of three.',
+    titleGroup,
+    'Reform',
     'phs-header',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    13.5 - 8,
-    16.5 - 4,
+    254 - 8,
+    17 - 4,
     0.5
   )
+}
+
+const drawHeader = async () => {
+  removeGroupChildren(headerGroup)
+
+  if (isPartySelect()) {
+    const text = data.menuConfig[data.menuType].headings
+    let current = 0
+    while (headerGroup.visible) {
+      console.log('phs SET TEXT', text[current])
+      removeGroupChildren(headerGroup)
+      addTextToDialog(
+        headerGroup,
+        text[current],
+        'phs-header',
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        13.5 - 8,
+        16.5 - 4,
+        0.5
+      )
+      await sleep(2000)
+      current = current === 0 ? 1 : 0
+    }
+  } else {
+    addTextToDialog(
+      headerGroup,
+      data.menuConfig.phs.headings[0],
+      'phs-header',
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      13.5 - 8,
+      16.5 - 4,
+      0.5
+    )
+  }
 }
 
 const drawParty = () => {
@@ -533,7 +592,9 @@ const keyPress = async (key, firstPress, state) => {
   if (state === 'phs-select-a') {
     if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
       navigate(key)
-    } else if (key === KEY.X) {
+    } else if (key === KEY.X && data.menuConfig[data.menuType].exitKey === KEY.X) {
+      attemptToExitPHSMenu()
+    } else if (key === KEY.START && data.menuConfig[data.menuType].exitKey === KEY.START) {
       attemptToExitPHSMenu()
     } else if (key === KEY.O) {
       selectA()

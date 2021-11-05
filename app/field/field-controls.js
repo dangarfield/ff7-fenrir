@@ -74,7 +74,6 @@ const initFieldKeypressActions = () => {
   getKeyPressEmitter().on('start', firstPress => {
     if (areFieldControlsActive && firstPress) {
       // Just debug controls
-      transitionOutAndLoadMenu(MENU_TYPE.PartySelect, 0)
     }
   })
   getKeyPressEmitter().on('select', firstPress => {
@@ -86,6 +85,9 @@ const initFieldKeypressActions = () => {
 
   getKeyPressEmitter().on('l1', async firstPress => {
     if (areFieldControlsActive && firstPress) {
+      window.data.savemap.party.phsLocked = { 'Cloud': 1, 'Barret': 0, 'Tifa': 0, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 0, 'Vincent': 0, 'Cid': 0 }
+      window.data.savemap.party.phsVisibility = { 'Cloud': 1, 'Barret': 1, 'Tifa': 1, 'Aeris': 1, 'RedXIII': 1, 'Yuffie': 1, 'CaitSith': 1, 'Vincent': 1, 'Cid': 1 }
+      transitionOutAndLoadMenu(MENU_TYPE.PartySelect, 5)
     }
   })
   getKeyPressEmitter().on('l2', async firstPress => {
