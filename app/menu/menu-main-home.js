@@ -314,7 +314,6 @@ const loadHomeMenu = async () => {
     slideFrom(homeMain)
   ])
   setMenuState('home')
-  await initPointers()
   movePointer(POINTERS.pointer1, 237, 17)
   // Nav pointer position, 217, 3, then -13
 }

@@ -11,7 +11,7 @@ import { loadTitleMenu } from './menu-title.js'
 import { loadGameOverMenu } from './menu-game-over.js'
 import { loadChangeDiscMenu } from './menu-change-disc.js'
 import { loadMainMenuWithTutorial } from './menu-tutorial.js'
-import { createFadeOverlay } from './menu-box-helper.js'
+import { createFadeOverlay, initPointers } from './menu-box-helper.js'
 
 import {
   yuffieStealMateriaAll,
@@ -84,7 +84,11 @@ const clearScene = () => {
   while (scene.children.length) {
     scene.remove(scene.children[0])
   }
+  initCommonMenuItems()
+}
+const initCommonMenuItems = () => {
   createMenuBlackOverlay()
+  initPointers()
 }
 let menuBlackOverlay
 const createMenuBlackOverlay = () => {
@@ -117,7 +121,7 @@ const loadMenuWithWait = (menuCode, param) => {
         loadCharNameMenu(param)
         break
       case MENU_TYPE.PartySelect:
-        loadPartySelectMenu()
+        loadPartySelectMenu(param)
         break
       case MENU_TYPE.Shop:
         loadShopMenu(param)
@@ -196,7 +200,7 @@ const initMenuModule = () => {
   window.currentMenu = {
     scene: scene
   }
-  createMenuBlackOverlay()
+  initCommonMenuItems()
 }
 
 export {

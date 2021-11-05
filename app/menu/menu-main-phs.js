@@ -1,5 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState, resolveMenuPromise } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -30,9 +29,10 @@ const data = {
   membersCurrent: 0,
   sourceParty: true,
   selectA: null, // {sourceParty: true, index: 0},
-  selectB: null // {sourceParty: true, index: 0}
+  selectB: null,
+  menuType: '' // {sourceParty: true, index: 0}
 }
-const setInitialMemberData = () => {
+const setInitialMemberData = (param) => {
   data.party = []
   data.members = []
   data.party.push(...window.data.savemap.party.members)
@@ -48,6 +48,11 @@ const setInitialMemberData = () => {
   data.partyCursor = 0
   data.memberCursor = 0
   data.sourceParty = true
+  if (param === undefined) {
+    data.menuType = 'phs'
+  } else {
+    data.menuType = param
+  }
   console.log('phs data', data)
 }
 const loadPHSMenu = async (param) => { // Note: Param is for param select menu
@@ -122,7 +127,7 @@ const loadPHSMenu = async (param) => { // Note: Param is for param select menu
   window.equipmentGroup = equipmentGroup
   window.charPreviewGroup = charPreviewGroup
 
-  setInitialMemberData()
+  setInitialMemberData(param)
   drawHeader()
   drawParty()
   drawMembers()
@@ -512,7 +517,13 @@ const exitMenu = async () => {
   membersGroup.visible = false
   equipmentGroup.visible = false
   charPreviewGroup.visible = false
-  fadeInHomeMenu()
+  if (data.menuType === 'phs') {
+    console.log('phs EXIT phs')
+    fadeInHomeMenu()
+  } else {
+    console.log('phs EXIT party select')
+    resolveMenuPromise()
+  }
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU PHS', key, firstPress, state)

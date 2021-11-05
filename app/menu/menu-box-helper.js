@@ -1001,7 +1001,7 @@ const addCharacterSummary = async (
     mpPerc
   )
 }
-const initPointers = async () => {
+const initPointers = () => {
   POINTERS.pointer1 = createPointer(scene)
   POINTERS.pointer2 = createPointer(scene)
   POINTERS.pointer3 = createPointer(scene)
