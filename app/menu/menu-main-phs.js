@@ -33,10 +33,16 @@ const data = {
   selectB: null, // {sourceParty: true, index: 0}
   menuType: 'phs',
   menuConfig: {
-    phs: { headings: ['Please make a party of three.'], exitKey: 'x' },
-    partySelect0: { headings: ['Please make a party of three.', 'Select with START button.'], exitKey: 'start' },
-    partySelect4: { headings: ['Split your allies into two groups.', 'Please make a party of three.'], exitKey: 'x' }
+    phs: { headings: ['Please make a party of three.'] },
+    // Not sure about some of these diffences (4/5, 6/7)
+    partySelect0: { headings: ['Please make a party of three.', 'Select with START button.'] }, // check if full party is emptied
+    partySelect4: { headings: ['Split your allies into two groups.', 'Please make a party of three.'] }, // check if full party is emptied
+    partySelect5: { headings: ['Split your allies into two groups.', 'Please make a party of three.'] },
+    partySelect6: { headings: ['Split your allies into three groups.', 'Please make a party of three.'] },
+    partySelect7: { headings: ['Split your allies into three groups.', 'Please make a party of three.'] },
+    partySelect8: { headings: ['Split your allies into three groups.', 'Please make a party of two.'], memberCount: 2 }
   }
+
 }
 const isPartySelect = () => {
   return data.menuType !== 'phs'
@@ -552,7 +558,13 @@ const equipmentPreviewCancel = () => {
   setMenuState('phs-select-a')
 }
 const attemptToExitPHSMenu = async () => {
-  if (data.party.filter(p => p !== 'None').length === 3) {
+  let targetPartyMembers = 3
+  if (data.menuConfig[data.menuType].memberCount) {
+    targetPartyMembers = data.menuConfig[data.menuType].memberCount
+  }
+
+  console.log('phs attemptToExitPHSMenu', data, targetPartyMembers)
+  if (data.party.filter(p => p !== 'None').length === targetPartyMembers) {
     // Set the actual party
     window.data.savemap.party.members = data.party
     await exitMenu()
@@ -592,9 +604,7 @@ const keyPress = async (key, firstPress, state) => {
   if (state === 'phs-select-a') {
     if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
       navigate(key)
-    } else if (key === KEY.X && data.menuConfig[data.menuType].exitKey === KEY.X) {
-      attemptToExitPHSMenu()
-    } else if (key === KEY.START && data.menuConfig[data.menuType].exitKey === KEY.START) {
+    } else if (key === KEY.X || key === KEY.START) {
       attemptToExitPHSMenu()
     } else if (key === KEY.O) {
       selectA()

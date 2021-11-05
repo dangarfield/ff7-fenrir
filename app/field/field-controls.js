@@ -87,7 +87,7 @@ const initFieldKeypressActions = () => {
     if (areFieldControlsActive && firstPress) {
       window.data.savemap.party.phsLocked = { 'Cloud': 1, 'Barret': 0, 'Tifa': 0, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 0, 'Vincent': 0, 'Cid': 0 }
       window.data.savemap.party.phsVisibility = { 'Cloud': 1, 'Barret': 1, 'Tifa': 1, 'Aeris': 1, 'RedXIII': 1, 'Yuffie': 1, 'CaitSith': 1, 'Vincent': 1, 'Cid': 1 }
-      transitionOutAndLoadMenu(MENU_TYPE.PartySelect, 5)
+      transitionOutAndLoadMenu(MENU_TYPE.PartySelect, 8)
     }
   })
   getKeyPressEmitter().on('l2', async firstPress => {
