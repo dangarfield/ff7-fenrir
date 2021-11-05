@@ -33,6 +33,8 @@ const data = {
   selectB: null // {sourceParty: true, index: 0}
 }
 const setInitialMemberData = () => {
+  data.party = []
+  data.members = []
   data.party.push(...window.data.savemap.party.members)
   for (const charName in window.data.savemap.party.phsVisibility) {
     const isVisible = window.data.savemap.party.phsVisibility[charName]
@@ -200,9 +202,8 @@ const drawMembers = () => {
 }
 const drawCharPreview = () => {
   removeGroupChildren(charPreviewGroup)
-  // hardcoded
-  const charName = data.members[0]
-  if (charName !== 'None') {
+  if (!data.sourceParty && data.members[data.membersCurrent] !== 'None') {
+    const charName = data.members[data.membersCurrent]
     const char = window.data.savemap.characters[charName]
     addImageToDialog(
       charPreviewGroup,
@@ -228,13 +229,10 @@ const drawCharPreview = () => {
     )
   }
 }
-const drawEquipment = () => {
+const drawEquipment = (charName) => {
   removeGroupChildren(equipmentGroup)
-  // hardcoded
-  const charName = data.members[0]
   if (charName !== 'None') {
     const char = window.data.savemap.characters[charName]
-
     // EXP
     addTextToDialog(
       equipmentGroup,
@@ -363,7 +361,10 @@ const placeSelectPointer = () => {
 }
 const placeSelectedPointer = () => {
   const {x, y} = calcPointerPos()
-  movePointer(POINTERS.pointer2, x - 5, y - 5, false, true)
+  movePointer(POINTERS.pointer2, x - 2.5, y - 3.5, false, true)
+}
+const hideSelectPointer = () => {
+  movePointer(POINTERS.pointer1, 0, 0, true)
 }
 const hideSelectedPointer = () => {
   movePointer(POINTERS.pointer2, 0, 0, true)
@@ -404,23 +405,103 @@ const navigate = (key) => {
       }
     }
   }
+  drawCharPreview()
   placeSelectPointer()
 }
 const selectA = () => {
-  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent}
   const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
+  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName}
+
+  if (window.data.savemap.party.phsLocked[charName]) {
+    // Cannot select, play sound
+    console.log('phs Cannot select as player is locked')
+  } else {
+    console.log('phs Select A: ', charName, potential)
+    data.selectA = potential
+    placeSelectedPointer()
+    setMenuState('phs-select-b')
+  }
+}
+const cancelSelectA = () => {
+  data.selectA = null
+  hideSelectedPointer()
+  setMenuState('phs-select-a')
+}
+const selectB = () => {
+  const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
+  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName}
+  if (window.data.savemap.party.phsLocked[charName]) {
+    // Cannot select, play sound
+    console.log('phs Cannot select as player is locked')
+  } else if (potential.sourceParty === data.selectA.sourceParty && potential.index === data.selectA.index) {
+    if (charName === 'None') {
+      console.log('phs No equipment view available for ', charName)
+      cancelSelectA()
+    } else {
+      console.log('phs Show equipment view for', charName)
+      drawEquipment(charName)
+      equipmentDialog.visible = true
+      equipmentGroup.visible = true
+      membersDialog.visible = false
+      membersGroup.visible = false
+      hideSelectPointer()
+      if (!data.sourceParty) {
+        hideSelectedPointer()
+      }
+      setMenuState('phs-equipment-preview')
+    }
+  } else {
+    console.log('phs Select B: ', charName, potential)
+    data.selectB = potential
+
+    // Swap
+    if (data.selectA.sourceParty) {
+      data.party[data.selectA.index] = data.selectB.name
+    } else {
+      data.members[data.selectA.index] = data.selectB.name
+    }
+    if (data.selectB.sourceParty) {
+      data.party[data.selectB.index] = data.selectA.name
+    } else {
+      data.members[data.selectB.index] = data.selectA.name
+    }
+    // Clean
+    data.selectA = null
+    data.selectB = null
+
+    // Render
+    drawParty()
+    drawMembers()
+    drawCharPreview()
+
+    // Reset
+    hideSelectedPointer()
+    setMenuState('phs-select-a')
+  }
+}
+const equipmentPreviewCancel = () => {
+  equipmentDialog.visible = false
+  equipmentGroup.visible = false
+  membersDialog.visible = true
+  membersGroup.visible = true
+  hideSelectedPointer()
+  placeSelectPointer()
+  setMenuState('phs-select-a')
 }
 const attemptToExitPHSMenu = async () => {
   if (data.party.filter(p => p !== 'None').length === 3) {
+    // Set the actual party
+    window.data.savemap.party.members = data.party
     await exitMenu()
   } else {
     // Can't exit
-    console.log('phs Cannot exit PHS menu until a party is selected')
+    console.log('phs Cannot exit PHS menu until a party is selected', data)
   }
 }
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
+  hideSelectPointer()
   await fadeOverlayIn(getHomeBlackOverlay())
   headerDialog.visible = false
   partyDialog.visible = false
@@ -442,19 +523,25 @@ const keyPress = async (key, firstPress, state) => {
   if (state === 'phs-select-a') {
     if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
       navigate(key)
-    }
-    if (key === KEY.X) {
+    } else if (key === KEY.X) {
       attemptToExitPHSMenu()
-    }
-    if (key === KEY.O) {
+    } else if (key === KEY.O) {
       selectA()
     }
   }
   if (state === 'phs-select-b') {
-
+    if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
+      navigate(key)
+    } else if (key === KEY.X) {
+      cancelSelectA()
+    } else if (key === KEY.O) {
+      selectB()
+    }
   }
   if (state === 'phs-equipment-preview') {
-
+    if (key === KEY.X || key === KEY.O) {
+      equipmentPreviewCancel()
+    }
   }
 }
 export { loadPHSMenu, keyPress }
