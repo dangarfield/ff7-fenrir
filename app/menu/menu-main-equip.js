@@ -179,8 +179,8 @@ const drawInfo = () => {
     `equip-info`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    14 - 8,
-    75 - 4,
+    12 - 8,
+    76.5 - 4,
     0.5
   )
 }
@@ -221,9 +221,9 @@ const drawSlots = () => {
   )
   createEquipmentMateriaViewer(slotsGroup,
     75,
-    92,
+    92 - 13.5,
     window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
-    char, EQUIPMENT_TYPE.WEAPON
+    char
   )
 }
 const exitMenu = async () => {

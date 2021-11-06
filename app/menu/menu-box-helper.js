@@ -1405,7 +1405,7 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) 
   let materias
   if (equipmentType === EQUIPMENT_TYPE.WEAPON) {
     materias = weaponMateriaTypes(char)
-  } else {
+  } else if (equipmentType === EQUIPMENT_TYPE.ARMOR) {
     materias = armorMateriaTypes(char)
   }
 
