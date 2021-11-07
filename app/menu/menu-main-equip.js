@@ -1,4 +1,4 @@
-import { getMenuState, getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -12,20 +12,27 @@ import {
   removeGroupChildren,
   addImageToDialog,
   addCharacterSummary,
-  createEquipmentMateriaViewer,
-  EQUIPMENT_TYPE
+  createEquipmentMateriaViewer
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
+import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, slotsDialog, statsDialog, listDialog
-let headerGroup, infoGroup, slotsGroup, statsGroup, listGroup
+let headerGroup, infoGroup, slotsGroup, statsLabelsGroup, statsBaseGroup, statsSelectedGroup, listGroup
 
 const DATA = {
   partyMember: 0,
+  char: {},
+  battleStats: {},
   equipType: 0,
   page: 0,
   pos: 0
+}
+const setDataFromPartyMember = () => {
+  const charName = window.data.savemap.party.members[DATA.partyMember]
+  DATA.char = window.data.savemap.characters[charName]
+  DATA.battleStats = getBattleStatsForChar(DATA.char)
 }
 
 const loadEquipMenu = async partyMember => {
@@ -34,6 +41,7 @@ const loadEquipMenu = async partyMember => {
   DATA.equipType = 0
   DATA.page = 0
   DATA.pos = 0
+  setDataFromPartyMember()
 
   headerDialog = await createDialogBox({
     id: 3,
@@ -85,15 +93,17 @@ const loadEquipMenu = async partyMember => {
     noClipping: true
   })
   statsDialog.visible = true
-  statsGroup = addGroupToDialog(statsDialog, 18)
+  statsLabelsGroup = addGroupToDialog(statsDialog, 18)
+  statsBaseGroup = addGroupToDialog(statsDialog, 18)
+  statsSelectedGroup = addGroupToDialog(statsDialog, 18)
 
   listDialog = await createDialogBox({
     id: 7,
     name: 'listDialog',
     w: 123,
-    h: 158.5,
+    h: 157.5,
     x: 197,
-    y: 81.5,
+    y: 82.5,
     expandInstantly: true,
     noClipping: true
   })
@@ -103,7 +113,9 @@ const loadEquipMenu = async partyMember => {
   drawHeader()
   drawInfo()
   drawSlots()
-
+  drawStatsLabels()
+  drawStatsBase()
+  drawStatsSelectedBase()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('equip')
@@ -111,14 +123,12 @@ const loadEquipMenu = async partyMember => {
 }
 const drawHeader = () => {
   removeGroupChildren(headerGroup)
-  const charName = window.data.savemap.party.members[DATA.partyMember]
-  const char = window.data.savemap.characters[charName]
 
   // Character
   addImageToDialog(
     headerGroup,
     'profiles',
-    charName,
+    DATA.char.name,
     'profile-image',
     8.5 + 20,
     4.5 + 24,
@@ -126,22 +136,22 @@ const drawHeader = () => {
   )
   addCharacterSummary(
     headerGroup,
-    charName,
+    DATA.char.name,
     55 - 8,
     18.5 - 4,
-    char.name,
-    char.status.statusFlags === 'None' ? null : char.status.statusFlags,
-    char.level.current,
-    char.stats.hp.current,
-    char.stats.hp.max,
-    char.stats.mp.current,
-    char.stats.mp.max
+    DATA.char.name,
+    DATA.char.status.statusFlags === 'None' ? null : DATA.char.status.statusFlags,
+    DATA.char.level.current,
+    DATA.char.stats.hp.current,
+    DATA.char.stats.hp.max,
+    DATA.char.stats.mp.current,
+    DATA.char.stats.mp.max
   )
   // Equips
   const equips = [
-    ['Wpn.', char.equip.weapon.index < 255 ? char.equip.weapon.name : ''],
-    ['Arm.', char.equip.armor.index < 255 ? char.equip.armor.name : ''],
-    ['Acc.', char.equip.accessory.index < 255 ? char.equip.accessory.name : '']
+    ['Wpn.', DATA.char.equip.weapon.index < 255 ? DATA.char.equip.weapon.name : ''],
+    ['Arm.', DATA.char.equip.armor.index < 255 ? DATA.char.equip.armor.name : ''],
+    ['Acc.', DATA.char.equip.accessory.index < 255 ? DATA.char.equip.accessory.name : '']
   ]
 
   for (let i = 0; i < equips.length; i++) {
@@ -171,11 +181,9 @@ const drawHeader = () => {
 }
 const drawInfo = () => {
   removeGroupChildren(infoGroup)
-  const charName = window.data.savemap.party.members[DATA.partyMember]
-  const char = window.data.savemap.characters[charName]
   addTextToDialog(
     infoGroup,
-    char.equip.weapon.description, // Not right obviously, just placeholder
+    DATA.char.equip.weapon.description, // Not right obviously, just placeholder
     `equip-info`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -187,8 +195,6 @@ const drawInfo = () => {
 const drawSlots = () => {
   removeGroupChildren(slotsGroup)
   // Not right obviously, just placeholder
-  const charName = window.data.savemap.party.members[DATA.partyMember]
-  const char = window.data.savemap.characters[charName]
   addTextToDialog(
     slotsGroup,
     'Slot',
@@ -222,9 +228,80 @@ const drawSlots = () => {
   createEquipmentMateriaViewer(slotsGroup,
     75,
     92 - 13.5,
-    window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
-    char
+    window.data.kernel.weaponData[DATA.char.equip.weapon.index].materiaSlots,
+    DATA.char
   )
+}
+const STAT_TYPES = [
+  ['Attack', 'attack'],
+  ['Attack%', 'attackPercent'],
+  ['Defense', 'defense'],
+  ['Defense%', 'defensePercent'],
+  ['Magic atk', 'magicAttack'],
+  ['Magic def', 'magicDefense'],
+  ['Magic def%', 'magicDefensePercent']
+]
+const drawStatsLabels = () => {
+  removeGroupChildren(statsLabelsGroup)
+  for (let i = 0; i < STAT_TYPES.length; i++) {
+    const label = STAT_TYPES[i][0]
+    addTextToDialog(
+      statsLabelsGroup,
+      label,
+      `equip-stats-label-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      26.5 - 8,
+      148.5 - 4 + (i * 13),
+      0.5
+    )
+    addTextToDialog(
+      statsLabelsGroup,
+      '→',
+      `equip-stats-label-${i}`,
+      LETTER_TYPES.MenuTextFixed,
+      LETTER_COLORS.Cyan,
+      100 + 23.5 - 8,
+      148.5 - 4 + (i * 13),
+      0.5
+    )
+  }
+
+  // TODO - arrows
+}
+const drawStatsBase = () => {
+  removeGroupChildren(statsBaseGroup)
+  for (let i = 0; i < STAT_TYPES.length; i++) {
+    const attr = STAT_TYPES[i][1]
+    addTextToDialog(
+      statsBaseGroup,
+      ('' + DATA.battleStats[attr]).padStart(3, ' '),
+      `equip-stats-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      100 - 8,
+      148.5 - 4 + (i * 13),
+      0.5
+    )
+  }
+}
+const drawStatsSelectedBase = () => {
+  removeGroupChildren(statsSelectedGroup)
+  for (let i = 0; i < STAT_TYPES.length; i++) {
+    const attr = STAT_TYPES[i][1]
+
+    // TODO - Colors and compare to base
+    addTextToDialog(
+      statsSelectedGroup,
+      ('' + DATA.battleStats[attr]).padStart(3, ' '),
+      `equip-stats-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      100 + 35 - 8,
+      148.5 - 4 + (i * 13),
+      0.5
+    )
+  }
 }
 const exitMenu = async () => {
   console.log('exitMenu')
