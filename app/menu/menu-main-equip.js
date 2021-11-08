@@ -206,7 +206,7 @@ const drawInfo = (isFromList) => {
   let description
   if (isFromList) {
     console.log('equip', DATA.equipable, DATA.page, DATA.pos)
-    description = DATA.equipable[(DATA.page * 8) + DATA.pos].description
+    description = DATA.equipable[DATA.page + DATA.pos].description
   } else if (DATA.equipType === 0) {
     description = DATA.char.equip.weapon.description
   } else if (DATA.equipType === 1) {
@@ -247,7 +247,7 @@ const drawSlots = (isFromList) => {
   let slots
   let growth
   if (isFromList) {
-    const equip = DATA.equipable[(DATA.page * 8) + DATA.pos]
+    const equip = DATA.equipable[DATA.page + DATA.pos]
     console.log('equip drawSlots', equip)
     if (equip.type !== 'Accessory') {
       slots = equip.materiaSlots
@@ -361,7 +361,7 @@ const hideStatsSelected = () => {
 }
 const drawStatsSelected = () => {
   const charClone = JSON.parse(JSON.stringify(DATA.char))
-  const equip = DATA.equipable[(DATA.page * 8) + DATA.pos]
+  const equip = DATA.equipable[DATA.page + DATA.pos]
   if (DATA.equipType === 0) {
     charClone.equip.weapon = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
   } else if (DATA.equipType === 1) {
@@ -495,13 +495,51 @@ const selectType = () => {
   setMenuState('equip-select-item')
 }
 
+const updatePage = () => {
+  listGroup.userData.slider.userData.moveToPage(DATA.page)
+}
 const selectItemNavigation = (up) => {
+  const lastPage = DATA.equipable.length - 8
+  console.log('equip selectItemNavigation', up, DATA.pos, DATA.page, lastPage)
 
+  if (up && DATA.pos < 7) {
+    // Simple add
+    console.log('equip selectItemNavigation POS UP')
+    DATA.pos++
+    // then update
+  } else if (!up && DATA.pos > 0) {
+    console.log('equip selectItemNavigation POS DOWN')
+    DATA.pos--
+  } else if (up && DATA.pos === 7 && DATA.page === lastPage) {
+    // Do nothing, bottom pos on last page
+    console.log('equip selectItemNavigation LAST PAGE')
+    return
+  } else if (!up && DATA.pos === 0 && DATA.page === 0) {
+    console.log('equip selectItemNavigation FIRST PAGE')
+    return
+  } else if (up && DATA.pos === 7 && DATA.page < lastPage) {
+    console.log('equip selectItemNavigation PAGE UP')
+    DATA.page++
+    // Animate list move
+    updatePage()
+  } else if (!up && DATA.pos === 0 && DATA.page > 0) {
+    console.log('equip selectItemNavigation PAGE DOWN')
+    DATA.page--
+    // Animate list move
+    updatePage()
+  }
+
+  drawSelectItemPointer()
+  drawInfo(true)
+  drawSlots(true)
+  drawStatsSelected()
 }
 const selectItem = () => {
 
 }
 const exitSelectItem = () => {
+  DATA.pos = 0
+  DATA.page = 0
   drawSelectTypePointer()
   hideList()
   drawInfo()
