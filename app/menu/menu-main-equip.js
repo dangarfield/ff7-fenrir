@@ -12,14 +12,15 @@ import {
   removeGroupChildren,
   addImageToDialog,
   addCharacterSummary,
-  createEquipmentMateriaViewer
+  createEquipmentMateriaViewer,
+  createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, slotsDialog, statsDialog, listDialog
-let headerGroup, infoGroup, slotsGroup, statsLabelsGroup, statsBaseGroup, statsSelectedGroup, listGroup
+let headerGroup, infoGroup, slotsGroup, statsLabelsGroup, statsBaseGroup, statsSelectedGroup, listGroup, listGroupContents
 
 const DATA = {
   partyMember: 0,
@@ -27,14 +28,25 @@ const DATA = {
   battleStats: {},
   equipType: 0,
   page: 0,
-  pos: 0
+  pos: 0,
+  equipable: []
 }
+window.DATA = DATA
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
   DATA.battleStats = getBattleStatsForChar(DATA.char)
 }
 
+const getEqiupTypeName = () => {
+  if (DATA.equipType === 0) {
+    return 'Weapon'
+  } else if (DATA.equipType === 1) {
+    return 'Armor'
+  } else {
+    return 'Accessory'
+  }
+}
 const loadEquipMenu = async partyMember => {
   // Reset data
   DATA.partyMember = partyMember
@@ -105,30 +117,39 @@ const loadEquipMenu = async partyMember => {
     x: 197,
     y: 82.5,
     expandInstantly: true,
-    noClipping: true
+    noClipping: false
   })
   listDialog.visible = true
   listGroup = addGroupToDialog(listDialog, 19)
 
+  // drawHeader()
+  // drawInfo()
+  // drawSlots()
+  drawStatsLabels()
+  // drawStatsBase()
+  // drawStatsSelectedBase()
+  // drawList()
+  loadCharacter()
+  await fadeOverlayOut(getMenuBlackOverlay())
+
+  setMenuState('equip-select-type')
+  // movePointer(POINTERS.pointer1, 237, 17)
+}
+const loadCharacter = () => {
   drawHeader()
   drawInfo()
   drawSlots()
-  drawStatsLabels()
   drawStatsBase()
-  drawStatsSelectedBase()
-  await fadeOverlayOut(getMenuBlackOverlay())
-
-  setMenuState('equip')
-  // movePointer(POINTERS.pointer1, 237, 17)
+  drawSelectTypePointer()
 }
 const drawHeader = () => {
   removeGroupChildren(headerGroup)
-
+  const charName = window.data.savemap.party.members[DATA.partyMember]
   // Character
   addImageToDialog(
     headerGroup,
     'profiles',
-    DATA.char.name,
+    charName,
     'profile-image',
     8.5 + 20,
     4.5 + 24,
@@ -136,7 +157,7 @@ const drawHeader = () => {
   )
   addCharacterSummary(
     headerGroup,
-    DATA.char.name,
+    charName,
     55 - 8,
     18.5 - 4,
     DATA.char.name,
@@ -179,59 +200,109 @@ const drawHeader = () => {
     )
   }
 }
-const drawInfo = () => {
+const drawInfo = (isFromList) => {
   removeGroupChildren(infoGroup)
-  addTextToDialog(
-    infoGroup,
-    DATA.char.equip.weapon.description, // Not right obviously, just placeholder
-    `equip-info`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    12 - 8,
-    76.5 - 4,
-    0.5
-  )
+
+  let description
+  if (isFromList) {
+    console.log('equip', DATA.equipable, DATA.page, DATA.pos)
+    description = DATA.equipable[(DATA.page * 8) + DATA.pos].description
+  } else if (DATA.equipType === 0) {
+    description = DATA.char.equip.weapon.description
+  } else if (DATA.equipType === 1) {
+    description = DATA.char.equip.armor.description
+  } else if (DATA.equipType === 2) {
+    description = DATA.char.equip.accessory.description
+  }
+
+  if (description) {
+    addTextToDialog(
+      infoGroup,
+      description,
+      `equip-info`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      12 - 8,
+      76.5 - 4,
+      0.5
+    )
+  }
 }
-const drawSlots = () => {
+const getGrowthText = (growthRateText) => {
+  if (growthRateText === 'None') {
+    return 'Nothing'
+  } else if (growthRateText === 'Double') {
+    return 'Double'
+  } else if (growthRateText === 'Triple') {
+    return 'Triple'
+  } else {
+    // Normal
+    return 'Normal'
+  }
+}
+const drawSlots = (isFromList) => {
   removeGroupChildren(slotsGroup)
   // Not right obviously, just placeholder
-  addTextToDialog(
-    slotsGroup,
-    'Slot',
-    `equip-slot-label`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Cyan,
-    13.5 - 8,
-    102 - 4,
-    0.5
-  )
-  addTextToDialog(
-    slotsGroup,
-    'Growth',
-    `equip-info`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Cyan,
-    13.5 - 8,
-    123.5 - 4,
-    0.5
-  )
-  addTextToDialog(
-    slotsGroup,
-    'Nothing',
-    `equip-info`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    104 - 8,
-    123.5 - 4,
-    0.5
-  )
-  createEquipmentMateriaViewer(slotsGroup,
-    75,
-    92 - 13.5,
-    window.data.kernel.weaponData[DATA.char.equip.weapon.index].materiaSlots,
-    DATA.char
-  )
+
+  let slots
+  let growth
+  if (isFromList) {
+    const equip = DATA.equipable[(DATA.page * 8) + DATA.pos]
+    console.log('equip drawSlots', equip)
+    if (equip.type !== 'Accessory') {
+      slots = equip.materiaSlots
+      growth = getGrowthText(equip.growthRate)
+    }
+  } else if (DATA.equipType === 0) {
+    const equip = window.data.kernel.weaponData[DATA.char.equip.weapon.index]
+    slots = equip.materiaSlots
+    growth = getGrowthText(equip.growthRate)
+  } else if (DATA.equipType === 1) {
+    const equip = window.data.kernel.armorData[DATA.char.equip.armor.index]
+    slots = equip.materiaSlots
+    growth = getGrowthText(equip.growthRate)
+  }
+
+  if (slots) {
+    addTextToDialog(
+      slotsGroup,
+      'Slot',
+      `equip-slot-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      13.5 - 8,
+      102 - 4,
+      0.5
+    )
+    addTextToDialog(
+      slotsGroup,
+      'Growth',
+      `equip-info`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      13.5 - 8,
+      123.5 - 4,
+      0.5
+    )
+    addTextToDialog(
+      slotsGroup,
+      growth,
+      `equip-info`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      104 - 8,
+      123.5 - 4,
+      0.5
+    )
+    createEquipmentMateriaViewer(slotsGroup,
+      75,
+      92 - 13.5,
+      slots,
+      DATA.char
+    )
+  }
 }
+
 const STAT_TYPES = [
   ['Attack', 'attack'],
   ['Attack%', 'attackPercent'],
@@ -285,23 +356,158 @@ const drawStatsBase = () => {
     )
   }
 }
-const drawStatsSelectedBase = () => {
+const hideStatsSelected = () => {
+  removeGroupChildren(statsSelectedGroup)
+}
+const drawStatsSelected = () => {
+  const charClone = JSON.parse(JSON.stringify(DATA.char))
+  const equip = DATA.equipable[(DATA.page * 8) + DATA.pos]
+  if (DATA.equipType === 0) {
+    charClone.equip.weapon = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+  } else if (DATA.equipType === 1) {
+    charClone.equip.armor = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+  } else if (DATA.equipType === 2) {
+    charClone.equip.accessory = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+  }
+
+  console.log('equip drawStatsSelected', charClone)
+  const battleStats = getBattleStatsForChar(charClone)
+  console.log('equip drawStatsSelected', charClone, battleStats)
   removeGroupChildren(statsSelectedGroup)
   for (let i = 0; i < STAT_TYPES.length; i++) {
     const attr = STAT_TYPES[i][1]
 
-    // TODO - Colors and compare to base
+    console.log('equip drawStatsSelected attr', attr, DATA.battleStats[attr], battleStats[attr])
+
+    let color = LETTER_COLORS.White
+    if (DATA.battleStats[attr] > battleStats[attr]) {
+      color = LETTER_COLORS.Red
+    } else if (DATA.battleStats[attr] < battleStats[attr]) {
+      color = LETTER_COLORS.Yellow
+    }
     addTextToDialog(
       statsSelectedGroup,
-      ('' + DATA.battleStats[attr]).padStart(3, ' '),
+      ('' + battleStats[attr]).padStart(3, ' '),
       `equip-stats-${i}`,
       LETTER_TYPES.MenuTextStats,
-      LETTER_COLORS.White,
+      color,
       100 + 35 - 8,
       148.5 - 4 + (i * 13),
       0.5
     )
   }
+}
+const hideList = () => {
+  removeGroupChildren(listGroup)
+}
+const drawList = () => {
+  removeGroupChildren(listGroup)
+  const charName = window.data.savemap.party.members[DATA.partyMember]
+  DATA.equipable = []
+  for (let i = 0; i < window.data.savemap.items.length; i++) {
+    const item = window.data.savemap.items[i]
+    const type = getEqiupTypeName(DATA.equipType)
+    if (item.itemId !== 0x7F) {
+      const itemData = window.data.kernel.allItemData.filter(i => i.itemId === item.itemId)[0]
+      if (itemData.type === type && itemData.equipableBy.includes(charName)) {
+        DATA.equipable.push(itemData)
+      }
+    }
+  }
+  console.log('equip equipable', DATA.equipable)
+
+  createItemListNavigation(listGroup, 200 + 113, 85.5 - 6.75, 151.5, DATA.equipable.length, 8)
+  listGroup.userData.slider.userData.moveToPage(DATA.page)
+
+  listGroupContents = addGroupToDialog(listGroup, 19)
+  listGroup.position.x = 0
+  listGroup.position.y = 0
+  listGroup.userData.contents = listGroupContents
+  const x = 213.5
+  const y = 106.5
+  const yAdj = 18
+
+  for (let i = 0; i < DATA.equipable.length; i++) {
+    const equip = DATA.equipable[i]
+    addTextToDialog(
+      listGroupContents,
+      equip.name,
+      `equip-list-contents-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x - 8,
+      y - 4 + (yAdj * i),
+      0.5
+    )
+  }
+  for (let i = 0; i < listGroupContents.children.length; i++) {
+    const listGroupContentsChild = listGroupContents.children[i]
+    for (let j = 0; j < listGroupContentsChild.children.length; j++) {
+      const listGroupContentsChildChild = listGroupContentsChild.children[j]
+      listGroupContentsChildChild.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+    }
+  }
+  // listGroupContents.children[0].children[0].material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+
+  window.listGroup = listGroup
+  window.listDialog = listDialog
+  window.listGroupContents = listGroupContents
+}
+const drawSelectTypePointer = (flashing) => {
+  const x = 123.5 - 10 + 0.5
+  const y = 9.5 + 7
+  const yAdj = 17
+  movePointer(POINTERS.pointer1, x, y + (yAdj * DATA.equipType), false, flashing)
+  if (flashing === undefined) {
+    movePointer(POINTERS.pointer2, 0, 0, true)
+  }
+}
+const drawSelectItemPointer = () => {
+  const x = 212.5 - 10 - 0.5
+  const y = 99.5 + 7
+  const yAdj = 18
+  movePointer(POINTERS.pointer2, x, y + (yAdj * DATA.pos))
+}
+const selectTypeNavigation = (up) => {
+  if (up) {
+    DATA.equipType++
+    if (DATA.equipType > 2) {
+      DATA.equipType = 0
+    }
+  } else {
+    DATA.equipType--
+    if (DATA.equipType < 0) {
+      DATA.equipType = 2
+    }
+  }
+  drawSelectTypePointer()
+  drawInfo()
+  drawSlots()
+}
+const selectType = () => {
+  drawSelectTypePointer(true)
+  drawSelectItemPointer()
+  drawList()
+  drawInfo(true)
+  drawSlots(true)
+  drawStatsSelected()
+  console.log('equip DATA', DATA.equipable)
+  setMenuState('equip-select-item')
+}
+
+const selectItemNavigation = (up) => {
+
+}
+const selectItem = () => {
+
+}
+const exitSelectItem = () => {
+  drawSelectTypePointer()
+  hideList()
+  drawInfo()
+  drawSlots()
+  hideStatsSelected()
+  setMenuState('equip-select-type')
 }
 const exitMenu = async () => {
   console.log('exitMenu')
@@ -316,11 +522,28 @@ const exitMenu = async () => {
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU EQUIP', key, firstPress, state)
-  if (state === 'equip') {
+  if (state === 'equip-select-type') {
     if (key === KEY.X) {
       console.log('press MAIN MENU EQUIP EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
+    } else if (key === KEY.UP) {
+      selectTypeNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectTypeNavigation(true)
+    } else if (key === KEY.O) {
+      selectType()
+    }
+  }
+  if (state === 'equip-select-item') {
+    if (key === KEY.X) {
+      exitSelectItem()
+    } else if (key === KEY.UP) {
+      selectItemNavigation(false)
+    } else if (key === KEY.DOWN) {
+      selectItemNavigation(true)
+    } else if (key === KEY.O) {
+      selectItem()
     }
   }
 }
