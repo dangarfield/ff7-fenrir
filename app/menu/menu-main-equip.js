@@ -44,7 +44,7 @@ const setDataFromPartyMember = () => {
   DATA.battleStats = getBattleStatsForChar(DATA.char)
 }
 
-const getEqiupTypeName = () => {
+const getEquipTypeName = () => {
   if (DATA.equipType === 0) {
     return 'Weapon'
   } else if (DATA.equipType === 1) {
@@ -417,7 +417,7 @@ const drawList = () => {
   DATA.equipable = []
   for (let i = 0; i < window.data.savemap.items.length; i++) {
     const item = window.data.savemap.items[i]
-    const type = getEqiupTypeName(DATA.equipType)
+    const type = getEquipTypeName(DATA.equipType)
     if (item.itemId !== 0x7F) {
       const itemData = window.data.kernel.allItemData.filter(i => i.itemId === item.itemId)[0]
       if (itemData.type === type && itemData.equipableBy.includes(charName)) {
@@ -650,6 +650,24 @@ const switchToMateriaMenu = async () => {
 const isMateriaMenuAvailable = () => {
   return getMenuVisibility()[2]
 }
+const switchPartyMember = delta => {
+  let newMember = false
+  let potential = DATA.partyMember
+  while (newMember === false) {
+    potential = potential + delta
+    if (potential > 2) {
+      potential = 0
+    } else if (potential < 0) {
+      potential = 2
+    }
+    if (window.data.savemap.party.members[potential] !== 'None') {
+      newMember = potential
+    }
+  }
+  DATA.partyMember = newMember
+  setDataFromPartyMember()
+  loadCharacter()
+}
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU EQUIP', key, firstPress, state)
   if (state === 'equip-select-type') {
@@ -665,6 +683,10 @@ const keyPress = async (key, firstPress, state) => {
       selectType()
     } else if (key === KEY.SQUARE) {
       switchToMateriaMenu()
+    } else if (key === KEY.L1) {
+      switchPartyMember(-1)
+    } else if (key === KEY.R1) {
+      switchPartyMember(1)
     }
   }
   if (state === 'equip-select-item') {
