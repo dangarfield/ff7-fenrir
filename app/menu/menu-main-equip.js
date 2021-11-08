@@ -1,4 +1,5 @@
 import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { loadMateriaMenu } from './menu-main-materia.js'
 import { equipItemOnCharacter } from '../items/items-module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
@@ -20,6 +21,7 @@ import {
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, slotsDialog, statsDialog, listDialog
@@ -32,7 +34,8 @@ const DATA = {
   equipType: 0,
   page: 0,
   pos: 0,
-  equipable: []
+  equipable: [],
+  showMateriaMenuOnExit: false
 }
 window.DATA = DATA
 const setDataFromPartyMember = () => {
@@ -56,6 +59,7 @@ const loadEquipMenu = async partyMember => {
   DATA.equipType = 0
   DATA.page = 0
   DATA.pos = 0
+  DATA.showMateriaMenuOnExit = false
   setDataFromPartyMember()
 
   headerDialog = await createDialogBox({
@@ -591,8 +595,11 @@ const tweenItemList = (up) => {
 }
 const selectItem = () => {
   const item = DATA.equipable[DATA.page + DATA.pos]
-  const materiaRemoved = equipItemOnCharacter(DATA.char, item)
-  console.log('equip selectItem materiaRemoved', materiaRemoved)
+  const showMateriaMenuOnExit = equipItemOnCharacter(DATA.char, item)
+  if (showMateriaMenuOnExit) {
+    DATA.showMateriaMenuOnExit = true
+  }
+  console.log('equip selectItem showMateriaMenuOnExit', showMateriaMenuOnExit)
   // TODO - Switch to materia menu on exitMenu if materia has been removed
   DATA.battleStats = getBattleStatsForChar(DATA.char)
   drawStatsBase()
@@ -618,7 +625,30 @@ const exitMenu = async () => {
   slotsDialog.visible = false
   statsDialog.visible = false
   listDialog.visible = false
-  fadeInHomeMenu()
+
+  if (DATA.showMateriaMenuOnExit && isMateriaMenuAvailable()) { // TODO - Materia menu has to be enabled too
+    console.log('equip SHOW MATERIA MENU')
+    // fadeInHomeMenu() // Just temp
+    loadMateriaMenu(DATA.partyMember)
+  } else {
+    fadeInHomeMenu()
+  }
+}
+const switchToMateriaMenu = async () => {
+  if (isMateriaMenuAvailable()) {
+    setMenuState('loading')
+    movePointer(POINTERS.pointer1, 0, 0, true)
+    await fadeOverlayIn(getMenuBlackOverlay())
+    headerDialog.visible = false
+    infoDialog.visible = false
+    slotsDialog.visible = false
+    statsDialog.visible = false
+    listDialog.visible = false
+    loadMateriaMenu(DATA.partyMember)
+  }
+}
+const isMateriaMenuAvailable = () => {
+  return getMenuVisibility()[2]
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU EQUIP', key, firstPress, state)
@@ -633,6 +663,8 @@ const keyPress = async (key, firstPress, state) => {
       selectTypeNavigation(true)
     } else if (key === KEY.O) {
       selectType()
+    } else if (key === KEY.SQUARE) {
+      switchToMateriaMenu()
     }
   }
   if (state === 'equip-select-item') {

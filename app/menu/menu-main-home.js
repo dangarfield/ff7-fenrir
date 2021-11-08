@@ -10,7 +10,6 @@ import {
   addCharacterSummary,
   getLetterTexture,
   POINTERS,
-  initPointers,
   movePointer,
   shrinkDialog,
   expandDialog,
@@ -74,7 +73,7 @@ const debugPopulateMenuTestData = () => {
   window.setBankData(2, 28, 0b1111111111)
 
   // Party
-  // window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
+  window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
   window.data.savemap.party.phsLocked = { 'Cloud': 1, 'Barret': 0, 'Tifa': 0, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 0, 'Vincent': 0, 'Cid': 1 }
   window.data.savemap.party.phsVisibility = { 'Cloud': 1, 'Barret': 1, 'Tifa': 1, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 1, 'Vincent': 1, 'Cid': 0 }
 
@@ -784,6 +783,21 @@ const fadeInHomeMenu = async () => {
   const selectedNav = nav.options[nav.current]
   navSlideUp(selectedNav.type)
 }
+const setSelectedNav = (navId) => {
+  nav.current = navId
+
+  const homeNavGroups = homeNav.children.filter(c => c.type === 'Group')
+  for (let i = 0; i < homeNavGroups.length; i++) {
+    const childNav = homeNavGroups[i]
+    if (i === navId) {
+      childNav.position.y = navId * 13
+      childNav.visible = true
+    } else {
+      childNav.position.y = 0
+      childNav.visible = false
+    }
+  }
+}
 const loadSecondaryMenu = async (type, member) => {
   console.log('loadSecondaryMenu', type, member)
   if (type === 'Item') {
@@ -880,5 +894,6 @@ export {
   keyPress,
   updateHomeMenuTime,
   fadeInHomeMenu,
-  homeNav
+  homeNav,
+  setSelectedNav
 }

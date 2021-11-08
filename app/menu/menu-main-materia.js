@@ -9,7 +9,7 @@ import {
   fadeOverlayOut,
   fadeOverlayIn
 } from './menu-box-helper.js'
-import { fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu, homeNav, setSelectedNav } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 
 let materiaActions, itemDesc, itemParty, itemList
@@ -39,10 +39,10 @@ const loadMateriaMenu = async partyMember => {
   )
   materiaActions.visible = true
   window.itemActions = materiaActions
+  setSelectedNav(2)
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia')
-
   movePointer(POINTERS.pointer1, 237, 17)
 }
 const exitMenu = async () => {

@@ -148,12 +148,15 @@ const removeItemFromInventory = (itemId, quantity) => {
   }
 }
 const equipItemOnCharacter = (char, itemToEquip) => {
+  let showMateriaMenuOnExit = false
   let existingItemId
   // Remove existing item if there is one and add it to the inventory
   if (itemToEquip.type === 'Weapon') {
     existingItemId = char.equip.weapon.itemId
+    showMateriaMenuOnExit = true
   } else if (itemToEquip.type === 'Armor') {
     existingItemId = char.equip.armor.itemId
+    showMateriaMenuOnExit = true
   } else if (itemToEquip.type === 'Accessory') {
     existingItemId = char.equip.accessory.itemId
   }
@@ -204,7 +207,7 @@ const equipItemOnCharacter = (char, itemToEquip) => {
     }
   }
 
-  // If materia has been removed and materia menu is available, load materia inventory on exitMenu
-  return materiaRemoved
+  // If weapon / armor has been change and materia menu is available, load materia inventory on exitMenu
+  return showMateriaMenuOnExit
 }
 export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter }
