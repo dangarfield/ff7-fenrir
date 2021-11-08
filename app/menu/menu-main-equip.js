@@ -1,4 +1,6 @@
 import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -521,10 +523,12 @@ const selectItemNavigation = (up) => {
     console.log('equip selectItemNavigation PAGE UP')
     DATA.page++
     // Animate list move
+    tweenItemList(true)
     updatePage()
   } else if (!up && DATA.pos === 0 && DATA.page > 0) {
     console.log('equip selectItemNavigation PAGE DOWN')
     DATA.page--
+    tweenItemList(false)
     // Animate list move
     updatePage()
   }
@@ -533,6 +537,28 @@ const selectItemNavigation = (up) => {
   drawInfo(true)
   drawSlots(true)
   drawStatsSelected()
+}
+const tweenItemList = (up) => {
+  setMenuState('equip-tweening-item')
+  // listGroupContents.children.forEach(c => { c.visible = true })
+
+  for (let i = 0; i < DATA.page + 1; i++) {
+    listGroupContents.children[i].visible = true
+  }
+  let from = {y: listGroupContents.position.y}
+  let to = {y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      listGroupContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        listGroupContents.children[i].visible = false
+      }
+      setMenuState('equip-select-item')
+    })
+    .start()
 }
 const selectItem = () => {
 
