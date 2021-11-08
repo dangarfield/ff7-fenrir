@@ -372,6 +372,10 @@ const drawStatsSelected = () => {
     charClone.equip.accessory = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
   }
 
+  // Note: This appears to be more accurate that the game displays in the menu
+  // eg, Curse Ring in the game does not shown state changes but here it does because it alters the Strength and Magic stat
+  // and affects Attack & Magic atk. I'll keep it in as I like it a little more, even though it's not the exact same behaviour
+
   console.log('equip drawStatsSelected', charClone)
   const battleStats = getBattleStatsForChar(charClone)
   console.log('equip drawStatsSelected', charClone, battleStats)
@@ -416,7 +420,7 @@ const drawList = () => {
       }
     }
   }
-  console.log('equip equipable', DATA.equipable)
+  // console.log('equip equipable', DATA.equipable)
 
   createItemListNavigation(listGroup, 200 + 113, 85.5 - 6.75, 151.5, DATA.equipable.length, 8)
   listGroup.userData.slider.userData.moveToPage(DATA.page)
@@ -502,34 +506,29 @@ const updatePage = () => {
 }
 const selectItemNavigation = (up) => {
   const lastPage = DATA.equipable.length - 8
-  console.log('equip selectItemNavigation', up, DATA.pos, DATA.page, lastPage)
+  // console.log('equip selectItemNavigation', up, DATA.pos, DATA.page, lastPage)
 
   if (up && DATA.pos < 7) {
-    // Simple add
-    console.log('equip selectItemNavigation POS UP')
+    // console.log('equip selectItemNavigation POS UP')
     DATA.pos++
-    // then update
   } else if (!up && DATA.pos > 0) {
-    console.log('equip selectItemNavigation POS DOWN')
+    // console.log('equip selectItemNavigation POS DOWN')
     DATA.pos--
   } else if (up && DATA.pos === 7 && DATA.page === lastPage) {
-    // Do nothing, bottom pos on last page
-    console.log('equip selectItemNavigation LAST PAGE')
+    // console.log('equip selectItemNavigation LAST PAGE')
     return
   } else if (!up && DATA.pos === 0 && DATA.page === 0) {
-    console.log('equip selectItemNavigation FIRST PAGE')
+    // console.log('equip selectItemNavigation FIRST PAGE')
     return
   } else if (up && DATA.pos === 7 && DATA.page < lastPage) {
-    console.log('equip selectItemNavigation PAGE UP')
+    // console.log('equip selectItemNavigation PAGE UP')
     DATA.page++
-    // Animate list move
     tweenItemList(true)
     updatePage()
   } else if (!up && DATA.pos === 0 && DATA.page > 0) {
-    console.log('equip selectItemNavigation PAGE DOWN')
+    // console.log('equip selectItemNavigation PAGE DOWN')
     DATA.page--
     tweenItemList(false)
-    // Animate list move
     updatePage()
   }
 
@@ -538,9 +537,38 @@ const selectItemNavigation = (up) => {
   drawSlots(true)
   drawStatsSelected()
 }
+const selectItemPageNavigation = (up) => {
+  const lastPage = DATA.equipable.length - 8
+  if (up) {
+    DATA.page = DATA.page + 8
+    if (DATA.page > lastPage) {
+      DATA.page = lastPage
+    }
+  } else {
+    DATA.page = DATA.page - 8
+    if (DATA.page < 0) {
+      DATA.page = 0
+    }
+  }
+  instantlyMoveItemList()
+  updatePage()
+  drawInfo(true)
+  drawSlots(true)
+  drawStatsSelected()
+}
+const instantlyMoveItemList = () => {
+  // console.log('equip instantlyMoveItemList', DATA.page, DATA.pos)
+  for (let i = 0; i < listGroupContents.children.length; i++) {
+    if (i < DATA.page) {
+      listGroupContents.children[i].visible = false
+    } else {
+      listGroupContents.children[i].visible = true
+    }
+  }
+  listGroupContents.position.y = DATA.page * 18
+}
 const tweenItemList = (up) => {
   setMenuState('equip-tweening-item')
-  // listGroupContents.children.forEach(c => { c.visible = true })
 
   for (let i = 0; i < DATA.page + 1; i++) {
     listGroupContents.children[i].visible = true
@@ -606,6 +634,10 @@ const keyPress = async (key, firstPress, state) => {
       selectItemNavigation(false)
     } else if (key === KEY.DOWN) {
       selectItemNavigation(true)
+    } else if (key === KEY.L1) {
+      selectItemPageNavigation(false)
+    } else if (key === KEY.R1) {
+      selectItemPageNavigation(true)
     } else if (key === KEY.O) {
       selectItem()
     }
