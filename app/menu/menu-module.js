@@ -16,7 +16,7 @@ import { createFadeOverlay, initPointers } from './menu-box-helper.js'
 import {
   yuffieStealMateriaAll,
   yuffieRestoreMateriaAll,
-  unequipMateriaCharX,
+  unequipAllMateriaCharX,
   temporarilyHideMateriaCloud,
   reinstateMateriaCloud
 } from '../materia/materia-module.js'
@@ -35,7 +35,7 @@ const MENU_TYPE = {
 
   YuffieStealMateriaAll: 15, // Eg Yuffie
   YuffieRestoreMateriaAll: 16, // Eg Yuffie
-  UnequipMateriaCharX: 17, // with params
+  unequipAllMateriaCharX: 17, // with params
   TemporarilyHideMateriaCloud: 18, // Makou reactor = Clear Cloud's Materias
   ReinstateMateriaCloud: 19, // Makou reactor = Restore Cloud's Materias
   Unknown20: 20, // Unknown with params
@@ -162,8 +162,8 @@ const loadMenuWithoutWait = (menuCode, param) => {
       yuffieRestoreMateriaAll()
       break
 
-    case MENU_TYPE.UnequipMateriaCharX:
-      unequipMateriaCharX(param)
+    case MENU_TYPE.unequipAllMateriaCharX:
+      unequipAllMateriaCharX(param)
       break
 
     case MENU_TYPE.TemporarilyHideMateriaCloud:

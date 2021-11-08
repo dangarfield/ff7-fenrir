@@ -432,9 +432,11 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
   const ap = 10000000
   const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
   char.equip.weapon.index = weaponData.itemId - 128
+  char.equip.weapon.itemId = weaponData.itemId
   char.equip.weapon.name = weaponData.name
   const armorData = window.data.kernel.armorData.filter(m => m.name === armorName)[0]
   char.equip.armor.index = armorData.itemId - 256
+  char.equip.armor.itemId = armorData.itemId
   char.equip.armor.name = armorData.name
   if (accessoryName === '') {
     char.equip.accessory.index = 255
@@ -442,6 +444,7 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
   } else {
     const accessoryData = window.data.kernel.accessoryData.filter(m => m.name === accessoryName)[0]
     char.equip.accessory.index = accessoryData.itemId - 128
+    char.equip.accessory.itemId = accessoryData.itemId
     char.equip.accessory.name = accessoryData.name
   }
 

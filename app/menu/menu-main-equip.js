@@ -1,4 +1,5 @@
 import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { equipItemOnCharacter } from '../items/items-module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
@@ -589,7 +590,14 @@ const tweenItemList = (up) => {
     .start()
 }
 const selectItem = () => {
-
+  const item = DATA.equipable[DATA.page + DATA.pos]
+  const materiaRemoved = equipItemOnCharacter(DATA.char, item)
+  console.log('equip selectItem materiaRemoved', materiaRemoved)
+  // TODO - Switch to materia menu on exitMenu if materia has been removed
+  DATA.battleStats = getBattleStatsForChar(DATA.char)
+  drawStatsBase()
+  drawHeader()
+  exitSelectItem()
 }
 const exitSelectItem = () => {
   DATA.pos = 0

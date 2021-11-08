@@ -1,4 +1,5 @@
 import { getBankData } from '../data/savemap.js'
+import { unequipMateria } from '../materia/materia-module.js'
 
 const setItemToInventory = (position, itemId, quantity) => {
   const item = {
@@ -104,4 +105,106 @@ const getKeyItems = () => {
   console.log('item keyItems done', ids, keyItems)
   return keyItems
 }
-export { debugFillItems, debugClearItems, getItemIcon, getKeyItems }
+
+const addItemToInventory = (itemId, quantity) => {
+  console.log('equip addItemToInventory', itemId, quantity)
+  let quantityUpdated = false
+  for (let i = 0; i < window.data.savemap.items.length; i++) {
+    const item = window.data.savemap.items[i]
+    if (item.itemId === itemId) {
+      item.quantity = Math.min(127, item.quantity + quantity)
+      quantityUpdated = true
+      console.log('equip addItemToInventory updated')
+      break
+    }
+  }
+  if (!quantityUpdated) {
+    const itemData = window.data.kernel.allItemData[itemId]
+    for (let i = 0; i < window.data.savemap.items.length; i++) {
+      const item = window.data.savemap.items[i]
+      if (item.itemId === 127) {
+        item.itemId = itemData.itemId
+        item.quantity = quantity
+        item.name = itemData.name
+        console.log('equip addItemToInventory added')
+        break
+      }
+    }
+  }
+}
+const removeItemFromInventory = (itemId, quantity) => {
+  console.log('equip removeItemFromInventory', itemId, quantity)
+  for (let i = 0; i < window.data.savemap.items.length; i++) {
+    const item = window.data.savemap.items[i]
+    if (item.itemId === itemId) {
+      item.quantity = item.quantity - quantity
+      if (item.quantity <= 0) {
+        item.itemId = 127
+        item.quantity = 127
+        item.name = ''
+      }
+      console.log('equip removeItemFromInventory removed')
+    }
+  }
+}
+const equipItemOnCharacter = (char, itemToEquip) => {
+  let existingItemId
+  // Remove existing item if there is one and add it to the inventory
+  if (itemToEquip.type === 'Weapon') {
+    existingItemId = char.equip.weapon.itemId
+  } else if (itemToEquip.type === 'Armor') {
+    existingItemId = char.equip.armor.itemId
+  } else if (itemToEquip.type === 'Accessory') {
+    existingItemId = char.equip.accessory.itemId
+  }
+  console.log('equip equipItemOnCharacter', char, itemToEquip, existingItemId)
+  if (existingItemId !== 543) { // Eg, index 255 for accessory -> none equipped
+    addItemToInventory(existingItemId, 1)
+  }
+
+  // Add selected item to char and remove it / decrement it from the inventory
+  removeItemFromInventory(itemToEquip.itemId, 1)
+  let equip
+  if (itemToEquip.type === 'Weapon') {
+    equip = char.equip.weapon
+  } else if (itemToEquip.type === 'Armor') {
+    equip = char.equip.armor
+  } else if (itemToEquip.type === 'Accessory') {
+    equip = char.equip.accessory
+  }
+  equip.index = itemToEquip.index
+  equip.itemId = itemToEquip.itemId
+  equip.name = itemToEquip.name
+  equip.description = itemToEquip.description
+
+  // If the armor / materia has less slots, remove those materias and add to materia inventory
+  let materiaRemoved = false
+  if (itemToEquip.materiaSlots) {
+    const materiasToKeep = 8 - window.data.kernel.allItemData[itemToEquip.itemId].materiaSlots.filter(s => s === 'None').length
+    if (itemToEquip.type === 'Weapon') {
+      for (let i = 1; i <= 8; i++) {
+        const slotName = `weaponMateria${i}`
+        const materia = char.materia[slotName]
+        console.log('equip materia to remove', slotName, materia, i > materiasToKeep)
+        if (i > materiasToKeep && materia.id !== 255) {
+          unequipMateria(char, slotName)
+          materiaRemoved = true
+        }
+      }
+    } else if (itemToEquip.type === 'Armor') {
+      for (let i = 1; i <= 8; i++) {
+        const slotName = `armorMateria${i}`
+        const materia = char.materia[slotName]
+        console.log('equip materia to remove', slotName, materia, i > materiasToKeep)
+        if (i > materiasToKeep && materia.id !== 255) {
+          unequipMateria(char, slotName)
+          materiaRemoved = true
+        }
+      }
+    }
+  }
+
+  // If materia has been removed and materia menu is available, load materia inventory on exitMenu
+  return materiaRemoved
+}
+export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter }

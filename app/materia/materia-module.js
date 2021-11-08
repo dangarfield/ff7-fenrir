@@ -18,9 +18,7 @@ const debugFillMateria = () => {
   for (let i = 0; i < materias.length; i++) {
     const materia = materias[i]
     if (materia.id === 255) {
-      const randomMateria = getMateriaData()[
-        Math.floor(Math.random() * getMateriaData().length)
-      ]
+      const randomMateria = getMateriaData()[Math.floor(Math.random() * getMateriaData().length)]
       setMateriaToInventory(i, randomMateria.index, 0)
     }
   }
@@ -64,9 +62,13 @@ const yuffieRestoreMateriaAll = () => {
   console.log('yuffieRestoreMateriaAll')
   // TODO
 }
-const unequipMateriaCharX = charId => {
+const unequipMateria = (char, slotName) => {
+  addMateriaToInventory(char.materia[slotName].id, char.materia[slotName].ap) // Add materia to inventory
+  char.materia[slotName] = { id: 0xFF, ap: 0xFFFFFF } // Set slot to empty
+}
+const unequipAllMateriaCharX = charId => {
   const charName = getPlayableCharacterName(charId)
-  console.log('unequipMateriaCharX: START', charId, charName)
+  console.log('unequipAllMateriaCharX: START', charId, charName)
   const materiaKeys = Object.keys(
     window.data.savemap.characters[charName].materia
   )
@@ -93,7 +95,7 @@ const unequipMateriaCharX = charId => {
     }
   }
   console.log(
-    'unequipMateriaCharX: END',
+    'unequipAllMateriaCharX: END',
     materias,
     window.data.savemap.characters[charName].materia,
     window.data.savemap.materias
@@ -130,7 +132,8 @@ export {
   deleteMateriaFromInventory,
   yuffieStealMateriaAll,
   yuffieRestoreMateriaAll,
-  unequipMateriaCharX,
+  unequipAllMateriaCharX,
   temporarilyHideMateriaCloud,
-  reinstateMateriaCloud
+  reinstateMateriaCloud,
+  unequipMateria
 }
