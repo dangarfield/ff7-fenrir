@@ -1,11 +1,28 @@
 import { getBankData, setBankData } from './savemap.js'
 import { degreesToDirection } from '../field/field-models.js'
 import { updatePositionHelperVisility } from '../field/field-position-helpers.js'
+import { bitTest, setBitOn } from '../field/field-op-codes-assign-helper.js'
 
 const processSavemapAlias = (bankRef, index, value) => {
   if (bankRef === 13 && index === 30) {
     // field pointers
     updatePositionHelperVisility()
+  } else if (bankRef === 1 && index === 48) {
+    if (bitTest(value, 4)) {
+      console.log('save 1,48 (0xBD4), kernel sets 1,75 bit 8 (0xBEF) if bit 4 is on')
+      getBankData(1, 75)
+      let bankVal = getBankData(1, 75)
+      const val = setBitOn(bankVal, 8)
+      setBankData(1, 75, val)
+    }
+  } else if (bankRef === 7 && index === 34) {
+    if (bitTest(value, 2)) {
+      console.log('save 7,34 (0xFC6), kernel sets 1,75 bit 7 (0xBEF) if bit 2 is on')
+      getBankData(1, 75)
+      let bankVal = getBankData(1, 75)
+      const val = setBitOn(bankVal, 7)
+      setBankData(1, 75, val)
+    }
   }
 }
 const persistFieldPointersActiveForPlayer = active => {

@@ -13,4 +13,4 @@ const toggleBit = (num, bit) => {
   return bitTest(num, bit) ? setBitOff(num, bit) : setBitOn(num, bit)
 }
 
-export { setBitOn, setBitOff, toggleBit }
+export { setBitOn, setBitOff, toggleBit, bitTest }

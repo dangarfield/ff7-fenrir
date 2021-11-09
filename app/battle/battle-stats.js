@@ -419,12 +419,6 @@ const debugSetEquipmentAndMateria = () => {
     ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
     ['Fire', 'Steal', 'Master Command', 'HP<->MP', 'HP Plus', 'MP Plus']
   )
-  setEquipmentAndMateriaForTesting(
-    window.data.savemap.characters.Barret,
-    'Ultima Weapon', 'Escort Guard', '',
-    [], // ['MP Plus', 'HP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus'],
-    []
-  )
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 
