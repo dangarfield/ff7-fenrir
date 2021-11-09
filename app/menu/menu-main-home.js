@@ -70,7 +70,8 @@ const nav = {
 }
 const debugPopulateMenuTestData = () => {
   // Menu Visibility
-  window.setBankData(2, 28, 0b1111111111)
+  window.setBankData(2, 28, 0b1111111111) // Menu visibility
+  window.setBankData(1, 75, 0b11000000) // Magic menu
 
   // Party
   window.data.savemap.party.members = ['Cloud', 'Barret', 'Aeris']
