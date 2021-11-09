@@ -370,12 +370,12 @@ const getMenuOptions = (char) => {
     if (materia.id !== 255) {
       const materiaData = window.data.kernel.materiaData[materia.id]
       const currentLevel = currentMateriaLevel(materiaData, materia.ap)
-      if (materiaData.type === 'Magic') {
-        magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc, not sure where to get ability list text data from yet
-      }
-      if (materiaData.type === 'Summon') {
-        summon.push(materiaData) // TODO - improve this, eg, master magic, support links etc
-      }
+      // if (materiaData.type === 'Magic') {
+      //   magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc, not sure where to get ability list text data from yet
+      // }
+      // if (materiaData.type === 'Summon') {
+      //   summon.push(materiaData) // TODO - improve this, eg, master magic, support links etc
+      // }
       if (materiaData.name === 'Mega All') {
         // addMenuOption(command, 'Slash-All') // TODO
       }
@@ -407,20 +407,150 @@ const getMenuOptions = (char) => {
     }
   }
   ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
-  const menu = {command, magic, summon}
+  const menu = {command, magic: calculateMagicMenu(char), summon}
   console.log('status menu', menu)
 
   return menu
 }
-const debugSetEquipmentAndMateria = () => {
-  setEquipmentAndMateriaForTesting(
-    window.data.savemap.characters.Cloud,
-    'Ultima Weapon', 'Escort Guard', '',
-    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
-    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
-  )
+const calculateMagicMenu = (char) => {
+  // Interestingly, the config magic order does change the order of the magic on the menu, must just be in battle. Leave it as below for now
+  const pairedAddedAbilities = [
+    {type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget'}, // not escape, only available if targetFlags has ToggleSingleMultiTarget
+    {type: 'QuadraMagic', order: 2, text: '4x-M', count: 5, targetFlag: 'EnableSelection'}, // not escape
+    {type: 'HPAbsorb', order: 3, text: 'Absorb HP'},
+    {type: 'MPAbsorb', order: 4, text: 'Absorb MP'},
+    {type: 'StealAsWell', order: 5, text: 'Steal as well'},
+    {type: 'AddedCut', order: 6, text: 'Extra cut'},
+    {type: 'MPTurbo', order: 7, text: 'Turbo MP', level: 5}
+  ]
+  // remove - ['EnableSelection', 'StartCursorOnEnemyRow', 'DefaultMultipleTargets']
+  const magics = []
+
+  const enableMagic = (magicsList, id, addedAbility, targetFlag) => {
+    for (let i = 0; i < magicsList.length; i++) {
+      const magic = magicsList[i]
+      if (magic.index === id) {
+        magic.enabled = true
+
+        console.log('stats enable', magic.index, addedAbility, targetFlag)
+        if (addedAbility !== null) {
+          // First check if it can be added to the magic with targetFlag check
+          if (targetFlag && !window.data.kernel.attackData[id].targetFlags.includes(targetFlag)) {
+            break
+          }
+
+          let updated = false
+          for (let j = 0; j < magic.addedAbilities.length; j++) {
+            const ability = magic.addedAbilities[j]
+            if (ability.type === addedAbility.type) {
+              if (ability.hasOwnProperty('count') && addedAbility.hasOwnProperty('count') && addedAbility.count > ability.count) {
+                console.log('updated', ability.count, addedAbility.count, ability.count + addedAbility.count)
+                ability.count = ability.count + addedAbility.count // All is accumulative in terms of count
+              } else if (ability.hasOwnProperty('level') && addedAbility.hasOwnProperty('level') && addedAbility.level > ability.level) {
+                ability.level = addedAbility.level
+              }
+
+              updated = true
+              break
+            }
+          }
+          if (!updated) {
+            magic.addedAbilities.push(addedAbility)
+          }
+          magic.addedAbilities.sort(function (a, b) {
+            return a.order - b.order
+          })
+        }
+        break
+      }
+    }
+  }
+
+  for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
+    const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
+    magics.push({
+      name: spell.name,
+      index: spell.index,
+      enabled: false,
+      addedAbilities: []
+    })
+  }
+
+  const equipment = [
+    {item: window.data.kernel.allItemData[char.equip.weapon.itemId], type: 'weapon'},
+    {item: window.data.kernel.allItemData[char.equip.armor.itemId], type: 'armor'}
+  ]
+  let megaAllPresent = false
+  for (let i = 0; i < equipment.length; i++) {
+    const item = equipment[i].item
+    const type = equipment[i].type
+
+    for (let j = 0; j < item.materiaSlots.length; j++) {
+      const slot = item.materiaSlots[j]
+      const isLinked = slot.includes('LinkedSlot')
+      const linkedMateria = slot.includes('Left') ? char.materia[`${type}Materia${j + 2}`] : char.materia[`${type}Materia${j}`]
+      const materia = char.materia[`${type}Materia${j + 1}`]
+      if (materia.id !== 255) {
+        const materiaData = window.data.kernel.materiaData[materia.id]
+        if (materiaData.type === 'Magic') {
+          const currentLevel = currentMateriaLevel(materiaData, materia.ap)
+          const toAdd = materiaData.attributes.magic.filter(m => m.level <= currentLevel)
+          // console.log('stats materia', materia, materiaData, currentLevel, toAdd)
+
+          let addedAbility = null
+          let targetFlag = null
+          if (isLinked && linkedMateria && linkedMateria.id !== 255) {
+            const linkedMateriaData = window.data.kernel.materiaData[linkedMateria.id]
+            const level = currentMateriaLevel(linkedMateriaData, linkedMateria.ap)
+            // console.log('stats linked materia', linkedMateria, linkedMateriaData, level)
+
+            if (linkedMateriaData.attributes.type) {
+              const ability = pairedAddedAbilities.filter(a => a.type === linkedMateriaData.attributes.type)[0]
+
+              if (ability !== undefined) {
+                addedAbility = { type: ability.type, order: ability.order, text: ability.text }
+                if (ability.hasOwnProperty('count')) {
+                  addedAbility.count = level
+                }
+                if (ability.hasOwnProperty('level')) {
+                  addedAbility.level = level
+                }
+                if (ability.hasOwnProperty('targetFlag')) {
+                  targetFlag = ability.targetFlag
+                }
+              }
+              // console.log('stats ability', ability)
+            }
+          }
+          // console.log('stats added ability', addedAbility)
+
+          for (let i = 0; i < toAdd.length; i++) {
+            const spell = toAdd[i]
+            // can spell be given a specific added ability
+            enableMagic(magics, spell.attackId, addedAbility, targetFlag)
+          }
+        } else if (materiaData.attributes.type && materiaData.attributes.type === 'MegaAll') {
+          megaAllPresent = true
+        }
+      }
+    }
+  }
+  // If mega all is present, added an extra count 5 all to every active magic if targetFlags allow
+
+  if (megaAllPresent) {
+    console.log('stats MEGA ALL') // TODO - Still need to finish this
+    const allAbility = JSON.parse(JSON.stringify(pairedAddedAbilities[0])) // All
+    const targetFlag = allAbility.targetFlag
+    delete allAbility.targetFlag
+    for (let i = 0; i < magics.length; i++) {
+      const magic = magics[i]
+      if (magic.enabled) {
+        enableMagic(magics, magic.index, allAbility, targetFlag)
+      }
+    }
+  }
+  return magics
 }
-window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
   const ap = 10000000
@@ -547,6 +677,18 @@ const getBattleStatsForChar = (char) => {
     modifiers
   }
 }
+const debugSetEquipmentAndMateria = () => {
+  setEquipmentAndMateriaForTesting(
+    window.data.savemap.characters.Cloud,
+    'Ultima Weapon', 'Wizard Bracelet', '',
+    ['Master Magic', 'Steal as well', 'Master Magic', 'HP Absorb', 'Master Magic', 'Quadra Magic', 'Master Magic', 'Mega All'],
+    ['Master Magic', 'Added Cut', 'Master Magic', 'MP Absorb', 'Master Magic', 'MP Turbo', 'Master Magic', 'All']
+    // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
+    // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
+  )
+  window.data.savemap.characters.Cloud.materia.weaponMateria8.ap = 1000
+}
+window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {
   recalculateAndApplyHPMPToAll,
   recalculateAndApplyHPMP,

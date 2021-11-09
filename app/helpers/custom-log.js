@@ -9,7 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       // 'movePointer',
-      'magic'
+      'magic',
+      'stats'
     ],
     log: function () {
       if (limit) {
