@@ -15,26 +15,27 @@ import {
 } from './menu-box-helper.js'
 import { isMagicMenuSummonEnabled, isMagicMenuEnemySkillEnabled } from '../data/savemap-alias.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
+import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, typeSelectDialog, mpDialog, itemsDailog
-let headerGroup, infoGroup, typeSelectGroup, mpGroup, itemsGroup
+let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, itemsGroup
 
 const DATA = {
   partyMember: 0,
   char: {},
+  battleStats: {},
   menus: [
-    {type: 'Magic', enabled: true},
-    {type: 'Summon', enabled: false},
-    {type: 'Enemy-Skill', enabled: false}
+    {type: 'Magic', enabled: true, page: 0, pos: 0},
+    {type: 'Summon', enabled: false, page: 0, pos: 0},
+    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0}
   ],
-  menuCurrent: 0,
-  page: 0,
-  pos: 0
+  menuCurrent: 0
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
+  DATA.battleStats = getBattleStatsForChar(DATA.char)
 }
 const setMenuVisibility = () => {
   DATA.menus[1].enabled = isMagicMenuSummonEnabled()
@@ -43,8 +44,7 @@ const setMenuVisibility = () => {
 const loadMagicMenu = async partyMember => {
   DATA.partyMember = partyMember
   DATA.menuCurrent = 0
-  DATA.page = 0
-  DATA.pos = 0
+  DATA.menus.forEach(m => { m.page = 0; m.pos = 0 })
   setMenuVisibility()
   setDataFromPartyMember()
 
@@ -60,6 +60,7 @@ const loadMagicMenu = async partyMember => {
   })
   headerDialog.visible = true
   headerGroup = addGroupToDialog(headerDialog, 15)
+  abilityGroup = addGroupToDialog(headerDialog, 15)
 
   mpDialog = await createDialogBox({
     id: 3,
@@ -74,19 +75,6 @@ const loadMagicMenu = async partyMember => {
   mpDialog.visible = true
   mpGroup = addGroupToDialog(mpDialog, 15)
 
-  infoDialog = await createDialogBox({
-    id: 3,
-    name: 'infoDialog',
-    w: 320,
-    h: 25.5,
-    x: 0,
-    y: 81.5,
-    expandInstantly: true,
-    noClipping: true
-  })
-  infoDialog.visible = true
-  infoGroup = addGroupToDialog(infoDialog, 15)
-
   itemsDailog = await createDialogBox({
     id: 3,
     name: 'itemsDailog',
@@ -99,6 +87,19 @@ const loadMagicMenu = async partyMember => {
   })
   itemsDailog.visible = true
   itemsGroup = addGroupToDialog(itemsDailog, 15)
+
+  infoDialog = await createDialogBox({
+    id: 3,
+    name: 'infoDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 81.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  infoDialog.visible = true
+  infoGroup = addGroupToDialog(infoDialog, 15)
 
   typeSelectDialog = await createDialogBox({
     id: 3,
@@ -114,9 +115,9 @@ const loadMagicMenu = async partyMember => {
   typeSelectGroup = addGroupToDialog(typeSelectDialog, 15)
 
   // Testing
+  drawHeaderCharacterSummary()
   drawTypeSelect()
   drawTypeSelectPointer()
-  drawHeaderCharacterSummary()
 
   console.log('magic DATA', DATA)
   await fadeOverlayOut(getMenuBlackOverlay())
@@ -186,6 +187,26 @@ const typeSelectNavigation = (up) => {
   }
   drawTypeSelectPointer()
 }
+const selectTypeMagic = () => {
+
+}
+const selectTypeSummon = () => {
+  // setMenuState('magic-summon')
+}
+const selectTypeEnemySkill = () => {
+
+}
+const selectType = () => {
+  if (DATA.menus[DATA.menuCurrent].type === 'Magic') {
+    selectTypeMagic()
+  }
+  if (DATA.menus[DATA.menuCurrent].type === 'Summon') {
+    selectTypeSummon()
+  }
+  if (DATA.menus[DATA.menuCurrent].type === 'Enemy-Skill') {
+    selectTypeEnemySkill()
+  }
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -208,6 +229,8 @@ const keyPress = async (key, firstPress, state) => {
       typeSelectNavigation(false)
     } else if (key === KEY.DOWN) {
       typeSelectNavigation(true)
+    } else if (key === KEY.O) {
+      selectType()
     }
   }
 }

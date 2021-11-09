@@ -416,8 +416,8 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Escort Guard', '',
-    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Magic Plus'],
-    ['Fire', 'Steal', 'Master Command', 'HP<->MP', 'HP Plus', 'MP Plus']
+    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
+    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
   )
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
