@@ -431,31 +431,31 @@ const calculateMagicMenu = (char) => {
       const magic = magicsList[i]
       if (magic.index === id) {
         magic.enabled = true
-
-        console.log('stats enable', magic.index, addedAbility, targetFlag)
+        // console.log('stats enable', magic.index, addedAbility, targetFlag)
         if (addedAbility !== null) {
           // First check if it can be added to the magic with targetFlag check
           if (targetFlag && !window.data.kernel.attackData[id].targetFlags.includes(targetFlag)) {
             break
           }
-
           let updated = false
           for (let j = 0; j < magic.addedAbilities.length; j++) {
             const ability = magic.addedAbilities[j]
             if (ability.type === addedAbility.type) {
-              if (ability.hasOwnProperty('count') && addedAbility.hasOwnProperty('count') && addedAbility.count > ability.count) {
-                console.log('updated', ability.count, addedAbility.count, ability.count + addedAbility.count)
+              // console.log('stats updated', ability.count, addedAbility.count, ability.count + addedAbility.count)
+              if (ability.hasOwnProperty('count') && addedAbility.hasOwnProperty('count')) {
+                // console.log('stats updated count', magic, ability, addedAbility, ability.count, addedAbility.count, ability.count + addedAbility.count)
                 ability.count = ability.count + addedAbility.count // All is accumulative in terms of count
               } else if (ability.hasOwnProperty('level') && addedAbility.hasOwnProperty('level') && addedAbility.level > ability.level) {
+                // console.log('stats updated level', ability.count, addedAbility.count, ability.count + addedAbility.count)
                 ability.level = addedAbility.level
               }
-
               updated = true
               break
             }
           }
           if (!updated) {
-            magic.addedAbilities.push(addedAbility)
+            magic.addedAbilities.push(JSON.parse(JSON.stringify(addedAbility)))
+            // console.log('stats added', addedAbility)
           }
           magic.addedAbilities.sort(function (a, b) {
             return a.order - b.order
@@ -538,13 +538,13 @@ const calculateMagicMenu = (char) => {
   // If mega all is present, added an extra count 5 all to every active magic if targetFlags allow
 
   if (megaAllPresent) {
-    console.log('stats MEGA ALL') // TODO - Still need to finish this
-    const allAbility = JSON.parse(JSON.stringify(pairedAddedAbilities[0])) // All
-    const targetFlag = allAbility.targetFlag
-    delete allAbility.targetFlag
+    // console.log('stats MEGA ALL')
     for (let i = 0; i < magics.length; i++) {
       const magic = magics[i]
       if (magic.enabled) {
+        const allAbility = JSON.parse(JSON.stringify(pairedAddedAbilities.filter(a => a.type === 'All')[0]))
+        const targetFlag = allAbility.targetFlag
+        delete allAbility.targetFlag
         enableMagic(magics, magic.index, allAbility, targetFlag)
       }
     }
