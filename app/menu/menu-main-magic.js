@@ -375,7 +375,6 @@ const drawAbilities = (abilities) => {
       0.5
     )
   }
-  // TODO - If there are no abilities added, need to add this too
 }
 const drawInfo = (info) => {
   removeGroupChildren(infoGroup)
@@ -569,7 +568,6 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.R1) {
       switchPartyMember(1)
     }
-    // TODO - Switch party member, eg L1, R1
   } else if (state === 'magic-magic' || state === 'magic-summon' || state === 'magic-enemyskills') {
     if (key === KEY.UP) {
       listNavigation(0 - DATA.menus[DATA.menuCurrent].cols)
@@ -586,6 +584,7 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.X) {
       cancelListView()
     }
+    // TODO - Apply healing magic menu and logic
   }
 }
 export { loadMagicMenu, keyPress }

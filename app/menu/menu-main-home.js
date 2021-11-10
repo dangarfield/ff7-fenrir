@@ -84,6 +84,7 @@ const debugPopulateMenuTestData = () => {
 
   window.debugFillItems()
   window.debugSetEquipmentAndMateria()
+  // console.log('magic debugPopulateMenuTestData', window.data.savemap.characters.Cloud.materia)
 }
 const loadHomeMenu = async () => {
   debugPopulateMenuTestData() // Temp

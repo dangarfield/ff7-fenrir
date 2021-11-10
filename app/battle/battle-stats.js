@@ -409,14 +409,14 @@ const getMenuOptions = (char) => {
     }
   }
   ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
-  const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonMenu(char)
+  const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonEnemySkillMenus(char)
   const menu = {command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu}
   console.log('status menu', menu)
 
   return menu
 }
 
-const calculateMagicSummonMenu = (char) => {
+const calculateMagicSummonEnemySkillMenus = (char) => {
   // Interestingly, the config magic order does change the order of the magic on the menu, must just be in battle. Leave it as below for now
   const pairedAddedAbilities = [
     {type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget'}, // not escape, only available if targetFlags has ToggleSingleMultiTarget
@@ -530,7 +530,32 @@ const calculateMagicSummonMenu = (char) => {
 
     return {addedAbility, targetFlag}
   }
-  const magics = populateAllMagicsList()
+  const filterUnusedMagicRows = (oMagics) => {
+    // Magic list does't leave gaps, eg, filter the un-enabled spell options, but it does include the row if there is an active spell on that row,
+    // eg, restore has regen and is on row 3 with life and life2, therefore include that row but if you don't have poisona, esuna or resist, ignore row 2
+    const filteredMagics = []
+    for (let i = 0; i < oMagics.length; i = i + 3) {
+      const keepRow = oMagics[i].enabled || oMagics[i + 1].enabled || oMagics[i + 2].enabled
+      console.log('magic filter row', i, 'of', oMagics.length,
+        oMagics[i].name, oMagics[i].enabled,
+        oMagics[i + 1].name, oMagics[i + 1].enabled,
+        oMagics[i + 2].name, oMagics[i + 2].enabled,
+        '->', keepRow
+      )
+      if (keepRow) {
+        filteredMagics.push(oMagics[i])
+        filteredMagics.push(oMagics[i + 1])
+        filteredMagics.push(oMagics[i + 2])
+      }
+    }
+    console.log('magic filterUnusedMagicRows', oMagics, filteredMagics)
+    while (filteredMagics.length !== oMagics.length) {
+      filteredMagics.push({index: 255, name: '', enabled: false, addedAbilities: []})
+    }
+    return filteredMagics
+  }
+
+  let magics = populateAllMagicsList()
   const summons = populateAllSummonsList()
   const enemySkills = populateAllEnemySkillsList()
 
@@ -606,7 +631,8 @@ const calculateMagicSummonMenu = (char) => {
       }
     }
   }
-  return {magicMenu: magics, summonMenu: summons, enemySkillsMenu: enemySkills}
+
+  return {magicMenu: filterUnusedMagicRows(magics), summonMenu: summons, enemySkillsMenu: enemySkills}
 }
 
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
@@ -631,6 +657,7 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
 
   for (let i = 0; i < weaponMat.length; i++) {
     const materiaName = weaponMat[i]
+    console.log('magic', `weaponMateria${i + 1}`, materiaName)
     if (materiaName.length > 0) {
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
       char.materia[`weaponMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
@@ -644,9 +671,10 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
       char.materia[`armorMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
-      char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
+      char.materia[`armorMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
     }
   }
+
   recalculateAndApplyHPMP(char)
 }
 const calculateStatValue = (base, bonus, stat, statBonuses) => {
@@ -738,12 +766,10 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Fire'],
-    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Enemy Skill', 'All']
-    // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
-    // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
+    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
+    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
   )
-  window.data.savemap.characters.Cloud.materia.armorMateria7.ap = 0xFD08DF
+  // window.data.savemap.characters.Cloud.materia.armorMateria7.ap = 0xFD08DF
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {
