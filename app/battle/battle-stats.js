@@ -407,12 +407,14 @@ const getMenuOptions = (char) => {
     }
   }
   ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
-  const menu = {command, magic: calculateMagicMenu(char), summon}
+  const { magicMenu, summonMenu } = calculateMagicSummonMenu(char)
+  const menu = {command, magic: magicMenu, summonMenu}
   console.log('status menu', menu)
 
   return menu
 }
-const calculateMagicMenu = (char) => {
+
+const calculateMagicSummonMenu = (char) => {
   // Interestingly, the config magic order does change the order of the magic on the menu, must just be in battle. Leave it as below for now
   const pairedAddedAbilities = [
     {type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget'}, // not escape, only available if targetFlags has ToggleSingleMultiTarget
@@ -424,13 +426,31 @@ const calculateMagicMenu = (char) => {
     {type: 'MPTurbo', order: 7, text: 'Turbo MP', level: 5}
   ]
   // remove - ['EnableSelection', 'StartCursorOnEnemyRow', 'DefaultMultipleTargets']
-  const magics = []
 
-  const enableMagic = (magicsList, id, addedAbility, targetFlag) => {
-    for (let i = 0; i < magicsList.length; i++) {
-      const magic = magicsList[i]
-      if (magic.index === id) {
-        magic.enabled = true
+  const populateAllMagicsList = () => {
+    const m = []
+    for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
+      const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
+      m.push({
+        name: spell.name,
+        index: spell.index,
+        enabled: false,
+        addedAbilities: []
+      })
+    }
+    return m
+  }
+  const populateAllSummonsList = () => {
+    return window.data.kernel.materiaData.filter(m => m.type === 'Summon' && m.attributes.summon.length > 1)[0]
+      .attributes.summon.map((s) => {
+        return {index: s.attackId, name: s.name, enabled: false, addedAbilities: []}
+      })
+  }
+  const enabledAttacks = (list, id, addedAbility, targetFlag) => {
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i]
+      if (item.index === id) {
+        item.enabled = true
         // console.log('stats enable', magic.index, addedAbility, targetFlag)
         if (addedAbility !== null) {
           // First check if it can be added to the magic with targetFlag check
@@ -438,8 +458,8 @@ const calculateMagicMenu = (char) => {
             break
           }
           let updated = false
-          for (let j = 0; j < magic.addedAbilities.length; j++) {
-            const ability = magic.addedAbilities[j]
+          for (let j = 0; j < item.addedAbilities.length; j++) {
+            const ability = item.addedAbilities[j]
             if (ability.type === addedAbility.type) {
               // console.log('stats updated', ability.count, addedAbility.count, ability.count + addedAbility.count)
               if (ability.hasOwnProperty('count') && addedAbility.hasOwnProperty('count')) {
@@ -454,10 +474,10 @@ const calculateMagicMenu = (char) => {
             }
           }
           if (!updated) {
-            magic.addedAbilities.push(JSON.parse(JSON.stringify(addedAbility)))
+            item.addedAbilities.push(JSON.parse(JSON.stringify(addedAbility)))
             // console.log('stats added', addedAbility)
           }
-          magic.addedAbilities.sort(function (a, b) {
+          item.addedAbilities.sort(function (a, b) {
             return a.order - b.order
           })
         }
@@ -466,15 +486,36 @@ const calculateMagicMenu = (char) => {
     }
   }
 
-  for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
-    const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
-    magics.push({
-      name: spell.name,
-      index: spell.index,
-      enabled: false,
-      addedAbilities: []
-    })
+  const getLinkedAbility = (isLinked, linkedMateria) => {
+    let addedAbility = null
+    let targetFlag = null
+    if (isLinked && linkedMateria && linkedMateria.id !== 255) {
+      const linkedMateriaData = window.data.kernel.materiaData[linkedMateria.id]
+      const level = currentMateriaLevel(linkedMateriaData, linkedMateria.ap)
+      // console.log('stats linked materia', linkedMateria, linkedMateriaData, level)
+
+      if (linkedMateriaData.attributes.type) {
+        const ability = pairedAddedAbilities.filter(a => a.type === linkedMateriaData.attributes.type)[0]
+
+        if (ability !== undefined) {
+          addedAbility = { type: ability.type, order: ability.order, text: ability.text }
+          if (ability.hasOwnProperty('count')) {
+            addedAbility.count = level
+          }
+          if (ability.hasOwnProperty('level')) {
+            addedAbility.level = level
+          }
+          if (ability.hasOwnProperty('targetFlag')) {
+            targetFlag = ability.targetFlag
+          }
+        }
+      }
+    }
+
+    return {addedAbility, targetFlag}
   }
+  const magics = populateAllMagicsList()
+  const summons = populateAllSummonsList()
 
   const equipment = [
     {item: window.data.kernel.allItemData[char.equip.weapon.itemId], type: 'weapon'},
@@ -492,42 +533,28 @@ const calculateMagicMenu = (char) => {
       const materia = char.materia[`${type}Materia${j + 1}`]
       if (materia.id !== 255) {
         const materiaData = window.data.kernel.materiaData[materia.id]
+        const currentLevel = currentMateriaLevel(materiaData, materia.ap)
         if (materiaData.type === 'Magic') {
-          const currentLevel = currentMateriaLevel(materiaData, materia.ap)
           const toAdd = materiaData.attributes.magic.filter(m => m.level <= currentLevel)
-          // console.log('stats materia', materia, materiaData, currentLevel, toAdd)
-
-          let addedAbility = null
-          let targetFlag = null
-          if (isLinked && linkedMateria && linkedMateria.id !== 255) {
-            const linkedMateriaData = window.data.kernel.materiaData[linkedMateria.id]
-            const level = currentMateriaLevel(linkedMateriaData, linkedMateria.ap)
-            // console.log('stats linked materia', linkedMateria, linkedMateriaData, level)
-
-            if (linkedMateriaData.attributes.type) {
-              const ability = pairedAddedAbilities.filter(a => a.type === linkedMateriaData.attributes.type)[0]
-
-              if (ability !== undefined) {
-                addedAbility = { type: ability.type, order: ability.order, text: ability.text }
-                if (ability.hasOwnProperty('count')) {
-                  addedAbility.count = level
-                }
-                if (ability.hasOwnProperty('level')) {
-                  addedAbility.level = level
-                }
-                if (ability.hasOwnProperty('targetFlag')) {
-                  targetFlag = ability.targetFlag
-                }
-              }
-              // console.log('stats ability', ability)
-            }
-          }
-          // console.log('stats added ability', addedAbility)
-
+          const {addedAbility, targetFlag} = getLinkedAbility(isLinked, linkedMateria)
           for (let i = 0; i < toAdd.length; i++) {
             const spell = toAdd[i]
-            // can spell be given a specific added ability
-            enableMagic(magics, spell.attackId, addedAbility, targetFlag)
+            enabledAttacks(magics, spell.attackId, addedAbility, targetFlag)
+          }
+        } else if (materiaData.type === 'Summon') {
+          const {addedAbility, targetFlag} = getLinkedAbility(isLinked, linkedMateria)
+          // console.log('magic ADD SUMMON', materiaData, materiaData.attributes.summon)
+
+          for (let i = 0; i < materiaData.attributes.summon.length; i++) {
+            const summon = materiaData.attributes.summon[i]
+            // console.log('magic ENABLE SUMMON', summon.attackId, addedAbility, targetFlag, window.data.kernel.attackData[summon.attackId])
+
+            // For some reason KOTR summon isn't allowed to use Quadra Magic, but I can't see what flag to use, so I'll use this
+            if (window.data.kernel.attackData[summon.attackId].additionalEffects.type === 0 && addedAbility && addedAbility.type === 'QuadraMagic') {
+              enabledAttacks(summons, summon.attackId, null, null)
+            } else {
+              enabledAttacks(summons, summon.attackId, addedAbility, targetFlag)
+            }
           }
         } else if (materiaData.attributes.type && materiaData.attributes.type === 'MegaAll') {
           megaAllPresent = true
@@ -545,11 +572,11 @@ const calculateMagicMenu = (char) => {
         const allAbility = JSON.parse(JSON.stringify(pairedAddedAbilities.filter(a => a.type === 'All')[0]))
         const targetFlag = allAbility.targetFlag
         delete allAbility.targetFlag
-        enableMagic(magics, magic.index, allAbility, targetFlag)
+        enabledAttacks(magics, magic.index, allAbility, targetFlag)
       }
     }
   }
-  return magics
+  return {magicMenu: magics, summonMenu: summons}
 }
 
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
@@ -681,8 +708,8 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Master Magic', 'Steal as well', 'Master Magic', 'HP Absorb', 'Master Magic', 'Quadra Magic', 'Master Magic', 'Mega All'],
-    ['Master Magic', 'Added Cut', 'Master Magic', 'MP Absorb', 'Master Magic', 'MP Turbo', 'Master Magic', 'All']
+    ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Mega All'],
+    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Master Summon', 'All']
     // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
     // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
   )

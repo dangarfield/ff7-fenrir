@@ -215,19 +215,21 @@ const drawMagicList = () => {
   for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
     const magic = DATA.battleStats.menu.magic[i]
     const {x, y} = getThreeRowTextPosition(i)
-    const textGroup = addTextToDialog(
-      listGroupContents,
-      magic.name,
-      `magic-list-${i}`,
-      LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.Gray, // TODO - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
-      x,
-      y,
-      0.5
-    )
-    for (let j = 0; j < textGroup.children.length; j++) {
-      const textLetters = textGroup.children[j]
-      textLetters.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+    if (magic.enabled) {
+      const textGroup = addTextToDialog(
+        listGroupContents,
+        magic.name,
+        `magic-list-${i}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.Gray, // TODO - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
+        x,
+        y,
+        0.5
+      )
+      for (let j = 0; j < textGroup.children.length; j++) {
+        const textLetters = textGroup.children[j]
+        textLetters.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+      }
     }
   }
   createItemListNavigation(listGroup, 313, 100 - 32, 130, DATA.battleStats.menu.magic.length / 3, 7)
@@ -274,6 +276,9 @@ const drawAbilities = (abilities) => {
     20.5 - 4,
     0.5
   )
+  if (abilities === false) {
+    return
+  }
   const x = 124
   const y = 32.5
   const xAdj = 60
@@ -327,6 +332,8 @@ const drawAbilities = (abilities) => {
       )
     }
   }
+
+  // TODO - If there are no abilities added, need to add this too
 }
 const drawInfo = (info) => {
   removeGroupChildren(infoGroup)
@@ -352,6 +359,8 @@ const updateInfoForSelectedMagic = () => {
   const attackData = window.data.kernel.attackData[magic.index]
   if (!magic.enabled) {
     drawMP(false)
+    drawAbilities(false)
+    // TODO - ensure that 'Added-Ability' is still there too ,just chck this
   } else {
     // console.log('magic drawMP', magic, attackData)
     if (magic.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0) {
