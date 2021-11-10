@@ -312,7 +312,6 @@ const drawAbilities = (abilities) => {
         yPos - 0.5,
         0.5
       )
-      // TODO - do the x sign
     }
 
     if (ability.hasOwnProperty('level')) {
@@ -348,14 +347,13 @@ const drawInfo = (info) => {
 
 const updateInfoForSelectedMagic = () => {
   const menu = DATA.menus[DATA.menuCurrent]
-  console.log('magic updateInfoForSelectedMagic', menu.page, menu.pos)
+  // console.log('magic updateInfoForSelectedMagic', menu.page, menu.pos)
   const magic = DATA.battleStats.menu.magic[(menu.page * 3) + menu.pos]
   const attackData = window.data.kernel.attackData[magic.index]
   if (!magic.enabled) {
     drawMP(false)
   } else {
-    // TODO - Apply MP Turbo
-    console.log('magic drawMP', magic, attackData)
+    // console.log('magic drawMP', magic, attackData)
     if (magic.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0) {
       const mpTurboAbility = magic.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
       const mp = Math.min(255, Math.trunc(((attackData.mp * (10 + mpTurboAbility.level)) / 10) + 1))
@@ -420,29 +418,47 @@ const magicNavigation = (delta) => {
   const potential = menu.pos + delta
   if (potential < 0) {
     if (menu.page === 0) {
-      console.log('magic magicNavigation on first page - do nothing')
+      // console.log('magic magicNavigation on first page - do nothing')
     } else {
-      console.log('magic magicNavigation not on first page - PAGE DOWN')
+      // console.log('magic magicNavigation not on first page - PAGE DOWN')
+      if (delta === -1) {
+        menu.pos = menu.pos + 2
+        drawListPointer()
+      }
       menu.page--
       tweenMagicList(false, 'magic-magic', updateInfoForSelectedMagic)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
   } else if (potential >= maxPos) {
-    console.log('magic magicNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
+    // console.log('magic magicNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
     if (menu.page >= (maxPage - 7)) {
-      console.log('magic magicNavigation on last page - do nothing')
+      // console.log('magic magicNavigation on last page - do nothing')
     } else {
-      console.log('magic magicNavigation not on last page - PAGE UP')
+      // console.log('magic magicNavigation not on last page - PAGE UP', delta, delta === 1, menu.pos)
+      if (delta === 1) {
+        menu.pos = menu.pos - 2
+        drawListPointer()
+      }
       menu.page++
       tweenMagicList(true, 'magic-magic', updateInfoForSelectedMagic)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
   } else {
-    console.log('magic magicNavigation', menu.page, menu.pos, potential)
+    // console.log('magic magicNavigation', menu.page, menu.pos, potential)
     menu.pos = potential
     updateInfoForSelectedMagic()
     drawListPointer()
   }
+}
+const cancelListView = () => {
+  removeGroupChildren(listGroup)
+  removeGroupChildren(listGroupContents)
+  removeGroupChildren(infoGroup)
+  removeGroupChildren(mpGroup)
+  removeGroupChildren(abilityGroup)
+  typeSelectDialog.visible = true
+  drawTypeSelectPointer()
+  setMenuState('magic-type-select')
 }
 const exitMenu = async () => {
   console.log('exitMenu')
@@ -478,6 +494,8 @@ const keyPress = async (key, firstPress, state) => {
       magicNavigation(-1)
     } else if (key === KEY.RIGHT) {
       magicNavigation(1)
+    } else if (key === KEY.X) {
+      cancelListView()
     }
   }
 }
