@@ -39,6 +39,9 @@ const addMateriaToInventory = (materiaId, ap) => {
       break
     }
   }
+
+  // TODO - There are some kernel based callbacks for summon and enemy skills that appear to be hijacking save bank changes, but it'd be better to do them here
+  // See savemap alias - save 1,48 (0x0BD4), kernel sets 1,75 bit 8 (0x0BEF) if bit 4 is on etc
 }
 const deleteMateriaFromInventory = materiaId => {
   console.log('deleteMateriaFromInventory', materiaId)

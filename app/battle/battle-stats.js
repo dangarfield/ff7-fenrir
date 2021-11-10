@@ -408,7 +408,7 @@ const getMenuOptions = (char) => {
   }
   ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
   const { magicMenu, summonMenu } = calculateMagicSummonMenu(char)
-  const menu = {command, magic: magicMenu, summonMenu}
+  const menu = {command, magic: magicMenu, summon: summonMenu}
   console.log('status menu', menu)
 
   return menu
@@ -709,7 +709,7 @@ const debugSetEquipmentAndMateria = () => {
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
     ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Mega All'],
-    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Master Summon', 'All']
+    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Master Magic', 'All']
     // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
     // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
   )

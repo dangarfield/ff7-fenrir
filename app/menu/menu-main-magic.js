@@ -29,9 +29,9 @@ const DATA = {
   char: {},
   battleStats: {},
   menus: [
-    {type: 'Magic', enabled: true, page: 0, pos: 0},
-    {type: 'Summon', enabled: false, page: 0, pos: 0},
-    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0}
+    {type: 'Magic', enabled: true, page: 0, pos: 0, cols: 3, state: 'magic-magic'},
+    {type: 'Summon', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-summon'},
+    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskill'}
   ],
   menuCurrent: 0
 }
@@ -39,6 +39,9 @@ const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
   DATA.battleStats = getBattleStatsForChar(DATA.char)
+  DATA.menus[0].spells = DATA.battleStats.menu.magic
+  DATA.menus[1].spells = DATA.battleStats.menu.summon
+  DATA.menus[2].spells = DATA.battleStats.menu.summon // change this
 }
 const setMenuVisibility = () => {
   DATA.menus[1].enabled = isMagicMenuSummonEnabled()
@@ -191,6 +194,23 @@ const typeSelectNavigation = (up) => {
   }
   drawTypeSelectPointer()
 }
+const getTextRowPosition = (i, cols) => {
+  if (cols === 2) {
+    return getTwoRowTextPosition(i)
+  } else { // then cols === 3
+    return getThreeRowTextPosition(i)
+  }
+}
+const getTwoRowTextPosition = (i) => {
+  const x = 23.5
+  const y = 121.5
+  const xAdj = 155 // Needs to change
+  const yAdj = 18
+  return {
+    x: x + ((i % 2) * xAdj) - 8,
+    y: y + (Math.trunc(i / 2) * yAdj) - 4
+  }
+}
 const getThreeRowTextPosition = (i) => {
   const x = 38.5
   const y = 121.5
@@ -207,21 +227,31 @@ const drawListPointer = () => {
     const {x, y} = getThreeRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5, y + 5.5)
   }
+  if (menu.type === 'Summon') {
+    const {x, y} = getTwoRowTextPosition(menu.pos)
+    movePointer(POINTERS.pointer1, x - 10.5 + 5, y + 5.5)
+  }
 }
-const drawMagicList = () => {
+const drawList = () => {
   removeGroupChildren(listGroup)
   removeGroupChildren(listGroupContents)
   const menu = DATA.menus[DATA.menuCurrent]
-  for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
-    const magic = DATA.battleStats.menu.magic[i]
-    const {x, y} = getThreeRowTextPosition(i)
-    if (magic.enabled) {
+  for (let i = 0; i < menu.spells.length; i++) {
+    const spell = menu.spells[i]
+    const {x, y} = getTextRowPosition(i, menu.cols)
+    if (spell.enabled) {
+      let color = LETTER_COLORS.White
+      if (menu.type === 'Magic') {
+        // TODO Magic is grey, unless - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
+        color = LETTER_COLORS.Gray
+      }
+
       const textGroup = addTextToDialog(
         listGroupContents,
-        magic.name,
+        spell.name,
         `magic-list-${i}`,
         LETTER_TYPES.MenuBaseFont,
-        LETTER_COLORS.Gray, // TODO - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
+        color,
         x,
         y,
         0.5
@@ -232,9 +262,11 @@ const drawMagicList = () => {
       }
     }
   }
-  createItemListNavigation(listGroup, 313, 100 - 32, 130, DATA.battleStats.menu.magic.length / 3, 7)
+  createItemListNavigation(listGroup, 313, 100 - 32, 130, menu.spells.length / menu.cols, 7)
   listGroup.userData.slider.userData.moveToPage(menu.page)
+  listGroupContents.position.y = menu.page * 18
   window.listGroup = listGroup
+  window.listGroupContents = listGroupContents
 }
 const drawMPNeededImage = () => {
   addImageToDialog(
@@ -351,52 +383,35 @@ const drawInfo = (info) => {
     0.5
   )
 }
-
-const updateInfoForSelectedMagic = () => {
+const isMPTurboActive = (item) => {
+  return item.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0
+}
+const applyMPTurbo = (originalMP, item) => {
+  const mpTurboAbility = item.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
+  const mp = Math.min(255, Math.trunc(((originalMP * (10 + mpTurboAbility.level)) / 10) + 1))
+  return mp
+}
+const updateInfoForSelectedSpell = () => {
   const menu = DATA.menus[DATA.menuCurrent]
-  // console.log('magic updateInfoForSelectedMagic', menu.page, menu.pos)
-  const magic = DATA.battleStats.menu.magic[(menu.page * 3) + menu.pos]
-  const attackData = window.data.kernel.attackData[magic.index]
-  if (!magic.enabled) {
+  let spell
+  if (menu.type === 'Magic') {
+    spell = DATA.battleStats.menu.magic[(menu.page * 3) + menu.pos]
+  } else if (menu.type === 'Summon') {
+    spell = DATA.battleStats.menu.summon[(menu.page * 2) + menu.pos]
+  }
+
+  const attackData = window.data.kernel.attackData[spell.index]
+  if (!spell.enabled) {
     drawMP(false)
     drawAbilities(false)
-    // TODO - ensure that 'Added-Ability' is still there too ,just chck this
   } else {
-    // console.log('magic drawMP', magic, attackData)
-    if (magic.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0) {
-      const mpTurboAbility = magic.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
-      const mp = Math.min(255, Math.trunc(((attackData.mp * (10 + mpTurboAbility.level)) / 10) + 1))
-      // console.log('magic MP Turbo', attackData.mp, mpTurboAbility.level, '->', mp)
-      drawMP(mp)
+    if (isMPTurboActive(spell)) {
+      drawMP(applyMPTurbo(attackData.mp, spell))
     } else {
       drawMP(attackData.mp)
     }
     drawInfo(attackData.description)
-    drawAbilities(magic.addedAbilities)
-  }
-}
-const selectTypeMagic = () => {
-  drawMagicList()
-  drawListPointer()
-  typeSelectDialog.visible = false
-  updateInfoForSelectedMagic()
-  setMenuState('magic-magic')
-}
-const selectTypeSummon = () => {
-  // setMenuState('magic-summon')
-}
-const selectTypeEnemySkill = () => {
-
-}
-const selectType = () => {
-  if (DATA.menus[DATA.menuCurrent].type === 'Magic') {
-    selectTypeMagic()
-  }
-  if (DATA.menus[DATA.menuCurrent].type === 'Summon') {
-    selectTypeSummon()
-  }
-  if (DATA.menus[DATA.menuCurrent].type === 'Enemy-Skill') {
-    selectTypeEnemySkill()
+    drawAbilities(spell.addedAbilities)
   }
 }
 const tweenMagicList = (up, state, cb) => {
@@ -420,44 +435,70 @@ const tweenMagicList = (up, state, cb) => {
     })
     .start()
 }
-const magicNavigation = (delta) => {
-  const maxPage = DATA.battleStats.menu.magic.length / 3
-  const maxPos = 21
+const listNavigation = (delta) => {
   const menu = DATA.menus[DATA.menuCurrent]
+  const maxPage = menu.spells.length / menu.cols
+  const maxPos = menu.cols * 7 // 21
   const potential = menu.pos + delta
   if (potential < 0) {
     if (menu.page === 0) {
-      // console.log('magic magicNavigation on first page - do nothing')
+      // console.log('magic listNavigation on first page - do nothing')
     } else {
-      // console.log('magic magicNavigation not on first page - PAGE DOWN')
+      // console.log('magic listNavigation not on first page - PAGE DOWN')
       if (delta === -1) {
-        menu.pos = menu.pos + 2
+        menu.pos = menu.pos + (menu.cols - 1)
         drawListPointer()
       }
       menu.page--
-      tweenMagicList(false, 'magic-magic', updateInfoForSelectedMagic)
+      tweenMagicList(false, menu.state, updateInfoForSelectedSpell)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
   } else if (potential >= maxPos) {
-    // console.log('magic magicNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
+    // console.log('magic listNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
     if (menu.page >= (maxPage - 7)) {
-      // console.log('magic magicNavigation on last page - do nothing')
+      // console.log('magic listNavigation on last page - do nothing')
     } else {
-      // console.log('magic magicNavigation not on last page - PAGE UP', delta, delta === 1, menu.pos)
+      // console.log('magic listNavigation not on last page - PAGE UP', delta, delta === 1, menu.pos)
       if (delta === 1) {
-        menu.pos = menu.pos - 2
+        menu.pos = menu.pos - (menu.cols - 1)
         drawListPointer()
       }
       menu.page++
-      tweenMagicList(true, 'magic-magic', updateInfoForSelectedMagic)
+      tweenMagicList(true, menu.state, updateInfoForSelectedSpell)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
   } else {
-    // console.log('magic magicNavigation', menu.page, menu.pos, potential)
+    // console.log('magic listNavigation', menu.page, menu.pos, potential)
     menu.pos = potential
-    updateInfoForSelectedMagic()
+    updateInfoForSelectedSpell()
     drawListPointer()
   }
+}
+// const listPageNavigation = (up) => {
+//   const lastPage = DATA.equipable.length - 8
+//   if (up) {
+//     DATA.page = DATA.page + 8
+//     if (DATA.page > lastPage) {
+//       DATA.page = lastPage
+//     }
+//   } else {
+//     DATA.page = DATA.page - 8
+//     if (DATA.page < 0) {
+//       DATA.page = 0
+//     }
+//   }
+//   instantlyMoveItemList()
+//   updatePage()
+//   drawInfo(true)
+//   drawSlots(true)
+//   drawStatsSelected()
+// }
+const selectType = () => {
+  drawList()
+  drawListPointer()
+  typeSelectDialog.visible = false
+  updateInfoForSelectedSpell()
+  setMenuState(DATA.menus[DATA.menuCurrent].state)
 }
 const cancelListView = () => {
   removeGroupChildren(listGroup)
@@ -494,15 +535,37 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.O) {
       selectType()
     }
+    // TODO - Switch party member, eg L1, R1
   } else if (state === 'magic-magic') {
     if (key === KEY.UP) {
-      magicNavigation(-3)
+      listNavigation(-3)
     } else if (key === KEY.DOWN) {
-      magicNavigation(3)
+      listNavigation(3)
     } else if (key === KEY.LEFT) {
-      magicNavigation(-1)
+      listNavigation(-1)
     } else if (key === KEY.RIGHT) {
-      magicNavigation(1)
+      listNavigation(1)
+    // } else if (key === KEY.L1) {
+    //   listPageNavigation(false)
+    // } else if (key === KEY.R1) {
+    //   listPageNavigation(true)
+    } else if (key === KEY.X) {
+      cancelListView()
+    }
+    // TODO - paged navigation, eg L1, R1
+  } else if (state === 'magic-summon') {
+    if (key === KEY.UP) {
+      listNavigation(-2)
+    } else if (key === KEY.DOWN) {
+      listNavigation(2)
+    } else if (key === KEY.LEFT) {
+      listNavigation(-1)
+    } else if (key === KEY.RIGHT) {
+      listNavigation(1)
+    // } else if (key === KEY.L1) {
+    //   listPageNavigation(false)
+    // } else if (key === KEY.R1) {
+    //   listPageNavigation(true)
     } else if (key === KEY.X) {
       cancelListView()
     }
