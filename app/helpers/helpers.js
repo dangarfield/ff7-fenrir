@@ -43,4 +43,4 @@ const dec2hex = (dec) => {
 }
 window.dec2hex = dec2hex
 
-export { sleep, uuid }
+export { sleep, uuid, dec2bin }

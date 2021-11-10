@@ -31,7 +31,7 @@ const DATA = {
   menus: [
     {type: 'Magic', enabled: true, page: 0, pos: 0, cols: 3, state: 'magic-magic'},
     {type: 'Summon', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-summon'},
-    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskill'}
+    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskills'}
   ],
   menuCurrent: 0
 }
@@ -41,7 +41,7 @@ const setDataFromPartyMember = () => {
   DATA.battleStats = getBattleStatsForChar(DATA.char)
   DATA.menus[0].spells = DATA.battleStats.menu.magic
   DATA.menus[1].spells = DATA.battleStats.menu.summon
-  DATA.menus[2].spells = DATA.battleStats.menu.summon // change this
+  DATA.menus[2].spells = DATA.battleStats.menu.enemySkills
 }
 const setMenuVisibility = () => {
   DATA.menus[1].enabled = isMagicMenuSummonEnabled()
@@ -227,7 +227,7 @@ const drawListPointer = () => {
     const {x, y} = getThreeRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5, y + 5.5)
   }
-  if (menu.type === 'Summon') {
+  if (menu.type === 'Summon' || menu.type === 'Enemy-Skill') {
     const {x, y} = getTwoRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5 + 5, y + 5.5)
   }
@@ -398,6 +398,8 @@ const updateInfoForSelectedSpell = () => {
     spell = DATA.battleStats.menu.magic[(menu.page * 3) + menu.pos]
   } else if (menu.type === 'Summon') {
     spell = DATA.battleStats.menu.summon[(menu.page * 2) + menu.pos]
+  } else if (menu.type === 'Enemy-Skill') {
+    spell = DATA.battleStats.menu.enemySkills[(menu.page * 2) + menu.pos]
   }
 
   const attackData = window.data.kernel.attackData[spell.index]
@@ -536,28 +538,11 @@ const keyPress = async (key, firstPress, state) => {
       selectType()
     }
     // TODO - Switch party member, eg L1, R1
-  } else if (state === 'magic-magic') {
+  } else if (state === 'magic-magic' || state === 'magic-summon' || state === 'magic-enemyskills') {
     if (key === KEY.UP) {
-      listNavigation(-3)
+      listNavigation(0 - DATA.menus[DATA.menuCurrent].cols)
     } else if (key === KEY.DOWN) {
-      listNavigation(3)
-    } else if (key === KEY.LEFT) {
-      listNavigation(-1)
-    } else if (key === KEY.RIGHT) {
-      listNavigation(1)
-    } else if (key === KEY.L1) {
-      listPageNavigation(false)
-    } else if (key === KEY.R1) {
-      listPageNavigation(true)
-    } else if (key === KEY.X) {
-      cancelListView()
-    }
-    // TODO - paged navigation, eg L1, R1
-  } else if (state === 'magic-summon') {
-    if (key === KEY.UP) {
-      listNavigation(-2)
-    } else if (key === KEY.DOWN) {
-      listNavigation(2)
+      listNavigation(DATA.menus[DATA.menuCurrent].cols)
     } else if (key === KEY.LEFT) {
       listNavigation(-1)
     } else if (key === KEY.RIGHT) {

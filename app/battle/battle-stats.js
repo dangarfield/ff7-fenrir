@@ -1,3 +1,5 @@
+import { dec2bin } from '../helpers/helpers.js'
+
 const groupStatBonuses = (items, materias) => {
   const stats = []
   for (let i = 0; i < items.length; i++) {
@@ -407,8 +409,8 @@ const getMenuOptions = (char) => {
     }
   }
   ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
-  const { magicMenu, summonMenu } = calculateMagicSummonMenu(char)
-  const menu = {command, magic: magicMenu, summon: summonMenu}
+  const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonMenu(char)
+  const menu = {command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu}
   console.log('status menu', menu)
 
   return menu
@@ -432,8 +434,8 @@ const calculateMagicSummonMenu = (char) => {
     for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
       const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
       m.push({
-        name: spell.name,
         index: spell.index,
+        name: spell.name,
         enabled: false,
         addedAbilities: []
       })
@@ -441,10 +443,24 @@ const calculateMagicSummonMenu = (char) => {
     return m
   }
   const populateAllSummonsList = () => {
+    // I assume there is a more kernel oriented way of getting this
     return window.data.kernel.materiaData.filter(m => m.type === 'Summon' && m.attributes.summon.length > 1)[0]
       .attributes.summon.map((s) => {
         return {index: s.attackId, name: s.name, enabled: false, addedAbilities: []}
       })
+  }
+  const populateAllEnemySkillsList = () => {
+    // I assume there is a more kernel oriented way of getting this
+    const s = []
+    for (let i = 72; i <= 95; i++) {
+      s.push({
+        index: i,
+        name: window.data.kernel.attackData[i].name,
+        enabled: false,
+        addedAbilities: []
+      })
+    }
+    return s
   }
   const enabledAttacks = (list, id, addedAbility, targetFlag) => {
     for (let i = 0; i < list.length; i++) {
@@ -516,6 +532,7 @@ const calculateMagicSummonMenu = (char) => {
   }
   const magics = populateAllMagicsList()
   const summons = populateAllSummonsList()
+  const enemySkills = populateAllEnemySkillsList()
 
   const equipment = [
     {item: window.data.kernel.allItemData[char.equip.weapon.itemId], type: 'weapon'},
@@ -556,6 +573,19 @@ const calculateMagicSummonMenu = (char) => {
               enabledAttacks(summons, summon.attackId, addedAbility, targetFlag)
             }
           }
+        } else if (materiaData.type === 'Command' && materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
+          // This is a little tricky and should probably be done else, but keep it here for now.
+          // Basically ap is 3 bytes, 1st byte contains the first 8 spell flags from LSB to MSB, but because I store the ap as single int, it's a pain
+          const flags = dec2bin(materia.ap).padStart(24, '0').match(/[\s\S]{1,8}/g).map(s => s.split('').reverse().join('')).join('').split('').map(s => s === '1')
+
+          for (let i = 0; i < flags.length; i++) {
+            const enabled = flags[i]
+            if (enabled) {
+              enemySkills[i].enabled = true
+              // No added abilities?
+            }
+          }
+          console.log('magic enemy Skill materia', materia, materia.ap, dec2bin(materia.ap).padStart(24, '0'), flags)
         } else if (materiaData.attributes.type && materiaData.attributes.type === 'MegaAll') {
           megaAllPresent = true
         }
@@ -576,7 +606,7 @@ const calculateMagicSummonMenu = (char) => {
       }
     }
   }
-  return {magicMenu: magics, summonMenu: summons}
+  return {magicMenu: magics, summonMenu: summons, enemySkillsMenu: enemySkills}
 }
 
 const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
@@ -709,11 +739,11 @@ const debugSetEquipmentAndMateria = () => {
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
     ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Mega All'],
-    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Master Magic', 'All']
+    ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Enemy Skill', 'All']
     // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
     // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
   )
-  window.data.savemap.characters.Cloud.materia.weaponMateria8.ap = 1000
+  window.data.savemap.characters.Cloud.materia.armorMateria7.ap = 0xFD08DF
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {
