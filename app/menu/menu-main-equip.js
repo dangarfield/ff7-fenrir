@@ -37,7 +37,7 @@ const DATA = {
   equipable: [],
   showMateriaMenuOnExit: false
 }
-window.DATA = DATA
+// window.DATA = DATA
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
@@ -460,9 +460,9 @@ const drawList = () => {
   }
   // listGroupContents.children[0].children[0].material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
 
-  window.listGroup = listGroup
-  window.listDialog = listDialog
-  window.listGroupContents = listGroupContents
+  // window.listGroup = listGroup
+  // window.listDialog = listDialog
+  // window.listGroupContents = listGroupContents
 }
 const drawSelectTypePointer = (flashing) => {
   const x = 123.5 - 10 + 0.5

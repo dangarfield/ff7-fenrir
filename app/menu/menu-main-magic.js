@@ -18,8 +18,8 @@ import { fadeInHomeMenu } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
-let headerDialog, infoDialog, typeSelectDialog, mpDialog, itemsDailog
-let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, itemsGroup
+let headerDialog, infoDialog, typeSelectDialog, mpDialog, listDialog
+let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, listGroup
 
 const DATA = {
   partyMember: 0,
@@ -73,20 +73,21 @@ const loadMagicMenu = async partyMember => {
     noClipping: true
   })
   mpDialog.visible = true
+  drawMPNeededImage()
   mpGroup = addGroupToDialog(mpDialog, 15)
 
-  itemsDailog = await createDialogBox({
+  listDialog = await createDialogBox({
     id: 3,
-    name: 'itemsDailog',
+    name: 'listDialog',
     w: 320,
     h: 136,
     x: 0,
     y: 104,
     expandInstantly: true,
-    noClipping: true
+    noClipping: false
   })
-  itemsDailog.visible = true
-  itemsGroup = addGroupToDialog(itemsDailog, 15)
+  listDialog.visible = true
+  listGroup = addGroupToDialog(listDialog, 15)
 
   infoDialog = await createDialogBox({
     id: 3,
@@ -118,7 +119,6 @@ const loadMagicMenu = async partyMember => {
   drawHeaderCharacterSummary()
   drawTypeSelect()
   drawTypeSelectPointer()
-
   console.log('magic DATA', DATA)
   await fadeOverlayOut(getMenuBlackOverlay())
 
@@ -187,8 +187,178 @@ const typeSelectNavigation = (up) => {
   }
   drawTypeSelectPointer()
 }
-const selectTypeMagic = () => {
+const getThreeRowTextPosition = (i) => {
+  const x = 38.5
+  const y = 121.5
+  const xAdj = 84
+  const yAdj = 18
+  return {
+    x: x + ((i % 3) * xAdj) - 8,
+    y: y + (Math.trunc(i / 3) * yAdj) - 4
+  }
+}
+const drawListPointer = () => {
+  const menu = DATA.menus[DATA.menuCurrent]
+  if (menu.type === 'Magic') {
+    const {x, y} = getThreeRowTextPosition(DATA.menus[DATA.menuCurrent].pos)
+    movePointer(POINTERS.pointer1, x - 10.5, y + 5.5)
+  }
+}
+const drawMagicList = () => {
+  removeGroupChildren(listGroup)
 
+  for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
+    const magic = DATA.battleStats.menu.magic[i]
+    const {x, y} = getThreeRowTextPosition(i)
+    const textGroup = addTextToDialog(
+      listGroup,
+      magic.name,
+      `magic-list-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x,
+      y,
+      0.5
+    )
+    for (let j = 0; j < textGroup.children.length; j++) {
+      const textLetters = textGroup.children[j]
+      textLetters.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+    }
+  }
+}
+const drawMPNeededImage = () => {
+  addImageToDialog(
+    mpDialog,
+    'labels',
+    'mp-needed',
+    'mp-needed-image',
+    282.5,
+    38,
+    0.5
+  )
+}
+const drawMP = (mp) => {
+  removeGroupChildren(mpGroup)
+  if (mp === false) {
+    return
+  }
+  addTextToDialog(
+    mpGroup,
+    ('' + mp).padStart(3, '0'),
+    `magic-mp`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    261,
+    64,
+    0.5
+  )
+}
+const drawAbilities = (abilities) => {
+  removeGroupChildren(abilityGroup)
+
+  addTextToDialog(
+    abilityGroup,
+    'Added-Ability',
+    `magic-ability-label`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    113.5 - 8,
+    20.5 - 4,
+    0.5
+  )
+  const x = 124
+  const y = 32.5
+  const xAdj = 60
+  const yAdj = 13
+  for (let i = 0; i < abilities.length; i++) {
+    const ability = abilities[i]
+    const xPos = x + (Math.trunc(i / 4) * xAdj) - 8
+    const yPos = y + ((i % 4) * yAdj) - 4
+    addTextToDialog(
+      abilityGroup,
+      ability.text,
+      `magic-ability-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      xPos,
+      yPos,
+      0.5
+    )
+    if (ability.hasOwnProperty('count')) {
+      addTextToDialog(
+        abilityGroup,
+        ('' + ability.count).padStart(3, ' '),
+        `magic-ability-count-${i}`,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White,
+        xPos + 29.5,
+        yPos - 0.5,
+        0.5
+      )
+      addImageToDialog(
+        abilityGroup,
+        'labels',
+        'times',
+        `magic-ability-times-${i}`,
+        xPos + 60,
+        yPos - 0.5,
+        0.5
+      )
+      // TODO - do the x sign
+    }
+
+    if (ability.hasOwnProperty('level')) {
+      addTextToDialog(
+        abilityGroup,
+        ('' + ability.level).padStart(3, ' '),
+        `magic-ability-level-${i}`,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White,
+        xPos + 35.5,
+        yPos - 0.5,
+        0.5
+      )
+    }
+  }
+}
+const drawInfo = (info) => {
+  removeGroupChildren(infoGroup)
+  if (info === false) {
+    return
+  }
+  addTextToDialog(
+    mpGroup,
+    info,
+    `magic-info`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    13.5 - 8,
+    98 - 4,
+    0.5
+  )
+}
+const updateInfoForSelectedMagic = () => {
+  const magic = DATA.battleStats.menu.magic[DATA.menuCurrent]
+  const attackData = window.data.kernel.attackData[magic.index]
+  if (!magic.enabled) {
+    drawMP(false)
+  } else {
+    // TODO - Apply MP Turbo
+    console.log('magic drawMP', magic, attackData)
+    drawMP(attackData.mp)
+    drawInfo(attackData.description)
+    drawAbilities(magic.addedAbilities)
+  }
+
+  // drawInfo()
+  // drawAbilities()
+}
+const selectTypeMagic = () => {
+  drawMagicList()
+  drawListPointer()
+  typeSelectDialog.visible = false
+  updateInfoForSelectedMagic()
+  // setMenuState('magic-magic')
 }
 const selectTypeSummon = () => {
   // setMenuState('magic-summon')
@@ -215,7 +385,7 @@ const exitMenu = async () => {
   infoDialog.visible = false
   typeSelectDialog.visible = false
   mpDialog.visible = false
-  itemsDailog.visible = false
+  listDialog.visible = false
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {
