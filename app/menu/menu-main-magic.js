@@ -1,3 +1,5 @@
+import TWEEN from '../../assets/tween.esm.js'
+import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
@@ -11,7 +13,8 @@ import {
   addGroupToDialog,
   addCharacterSummary,
   addImageToDialog,
-  removeGroupChildren
+  removeGroupChildren,
+  createItemListNavigation
 } from './menu-box-helper.js'
 import { isMagicMenuSummonEnabled, isMagicMenuEnemySkillEnabled } from '../data/savemap-alias.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
@@ -19,7 +22,7 @@ import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, typeSelectDialog, mpDialog, listDialog
-let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, listGroup
+let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, listGroup, listGroupContents
 
 const DATA = {
   partyMember: 0,
@@ -88,6 +91,7 @@ const loadMagicMenu = async partyMember => {
   })
   listDialog.visible = true
   listGroup = addGroupToDialog(listDialog, 15)
+  listGroupContents = addGroupToDialog(listDialog, 15)
 
   infoDialog = await createDialogBox({
     id: 3,
@@ -206,16 +210,17 @@ const drawListPointer = () => {
 }
 const drawMagicList = () => {
   removeGroupChildren(listGroup)
-
+  removeGroupChildren(listGroupContents)
+  const menu = DATA.menus[DATA.menuCurrent]
   for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
     const magic = DATA.battleStats.menu.magic[i]
     const {x, y} = getThreeRowTextPosition(i)
     const textGroup = addTextToDialog(
-      listGroup,
+      listGroupContents,
       magic.name,
       `magic-list-${i}`,
       LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
+      LETTER_COLORS.Gray, // TODO - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
       x,
       y,
       0.5
@@ -225,6 +230,9 @@ const drawMagicList = () => {
       textLetters.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
     }
   }
+  createItemListNavigation(listGroup, 313, 100 - 32, 130, DATA.battleStats.menu.magic.length / 3, 7)
+  listGroup.userData.slider.userData.moveToPage(menu.page)
+  window.listGroup = listGroup
 }
 const drawMPNeededImage = () => {
   addImageToDialog(
@@ -337,6 +345,7 @@ const drawInfo = (info) => {
     0.5
   )
 }
+
 const updateInfoForSelectedMagic = () => {
   const menu = DATA.menus[DATA.menuCurrent]
   console.log('magic updateInfoForSelectedMagic', menu.page, menu.pos)
@@ -347,7 +356,14 @@ const updateInfoForSelectedMagic = () => {
   } else {
     // TODO - Apply MP Turbo
     console.log('magic drawMP', magic, attackData)
-    drawMP(attackData.mp)
+    if (magic.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0) {
+      const mpTurboAbility = magic.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
+      const mp = Math.min(255, Math.trunc(((attackData.mp * (10 + mpTurboAbility.level)) / 10) + 1))
+      // console.log('magic MP Turbo', attackData.mp, mpTurboAbility.level, '->', mp)
+      drawMP(mp)
+    } else {
+      drawMP(attackData.mp)
+    }
     drawInfo(attackData.description)
     drawAbilities(magic.addedAbilities)
   }
@@ -376,12 +392,51 @@ const selectType = () => {
     selectTypeEnemySkill()
   }
 }
+const tweenMagicList = (up, state, cb) => {
+  setMenuState('magic-tweening-list')
+  for (let i = 0; i < DATA.page + 1; i++) {
+    listGroupContents.children[i].visible = true
+  }
+  let from = {y: listGroupContents.position.y}
+  let to = {y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      listGroupContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        listGroupContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
+}
 const magicNavigation = (delta) => {
+  const maxPage = DATA.battleStats.menu.magic.length / 3
   const maxPos = 21
   const menu = DATA.menus[DATA.menuCurrent]
   const potential = menu.pos + delta
-  if (potential < 0 || potential >= maxPos) {
-    // TODO - Move pages
+  if (potential < 0) {
+    if (menu.page === 0) {
+      console.log('magic magicNavigation on first page - do nothing')
+    } else {
+      console.log('magic magicNavigation not on first page - PAGE DOWN')
+      menu.page--
+      tweenMagicList(false, 'magic-magic', updateInfoForSelectedMagic)
+      listGroup.userData.slider.userData.moveToPage(menu.page)
+    }
+  } else if (potential >= maxPos) {
+    console.log('magic magicNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
+    if (menu.page >= (maxPage - 7)) {
+      console.log('magic magicNavigation on last page - do nothing')
+    } else {
+      console.log('magic magicNavigation not on last page - PAGE UP')
+      menu.page++
+      tweenMagicList(true, 'magic-magic', updateInfoForSelectedMagic)
+      listGroup.userData.slider.userData.moveToPage(menu.page)
+    }
   } else {
     console.log('magic magicNavigation', menu.page, menu.pos, potential)
     menu.pos = potential
