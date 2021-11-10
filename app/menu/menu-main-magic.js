@@ -200,7 +200,7 @@ const getThreeRowTextPosition = (i) => {
 const drawListPointer = () => {
   const menu = DATA.menus[DATA.menuCurrent]
   if (menu.type === 'Magic') {
-    const {x, y} = getThreeRowTextPosition(DATA.menus[DATA.menuCurrent].pos)
+    const {x, y} = getThreeRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5, y + 5.5)
   }
 }
@@ -338,7 +338,9 @@ const drawInfo = (info) => {
   )
 }
 const updateInfoForSelectedMagic = () => {
-  const magic = DATA.battleStats.menu.magic[DATA.menuCurrent]
+  const menu = DATA.menus[DATA.menuCurrent]
+  console.log('magic updateInfoForSelectedMagic', menu.page, menu.pos)
+  const magic = DATA.battleStats.menu.magic[(menu.page * 3) + menu.pos]
   const attackData = window.data.kernel.attackData[magic.index]
   if (!magic.enabled) {
     drawMP(false)
@@ -349,16 +351,13 @@ const updateInfoForSelectedMagic = () => {
     drawInfo(attackData.description)
     drawAbilities(magic.addedAbilities)
   }
-
-  // drawInfo()
-  // drawAbilities()
 }
 const selectTypeMagic = () => {
   drawMagicList()
   drawListPointer()
   typeSelectDialog.visible = false
   updateInfoForSelectedMagic()
-  // setMenuState('magic-magic')
+  setMenuState('magic-magic')
 }
 const selectTypeSummon = () => {
   // setMenuState('magic-summon')
@@ -375,6 +374,19 @@ const selectType = () => {
   }
   if (DATA.menus[DATA.menuCurrent].type === 'Enemy-Skill') {
     selectTypeEnemySkill()
+  }
+}
+const magicNavigation = (delta) => {
+  const maxPos = 21
+  const menu = DATA.menus[DATA.menuCurrent]
+  const potential = menu.pos + delta
+  if (potential < 0 || potential >= maxPos) {
+    // TODO - Move pages
+  } else {
+    console.log('magic magicNavigation', menu.page, menu.pos, potential)
+    menu.pos = potential
+    updateInfoForSelectedMagic()
+    drawListPointer()
   }
 }
 const exitMenu = async () => {
@@ -401,6 +413,16 @@ const keyPress = async (key, firstPress, state) => {
       typeSelectNavigation(true)
     } else if (key === KEY.O) {
       selectType()
+    }
+  } else if (state === 'magic-magic') {
+    if (key === KEY.UP) {
+      magicNavigation(-3)
+    } else if (key === KEY.DOWN) {
+      magicNavigation(3)
+    } else if (key === KEY.LEFT) {
+      magicNavigation(-1)
+    } else if (key === KEY.RIGHT) {
+      magicNavigation(1)
     }
   }
 }
