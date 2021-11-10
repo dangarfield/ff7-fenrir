@@ -122,7 +122,6 @@ const loadMagicMenu = async partyMember => {
   typeSelectDialog.visible = true
   typeSelectGroup = addGroupToDialog(typeSelectDialog, 15)
 
-  // Testing
   drawHeaderCharacterSummary()
   drawTypeSelect()
   drawTypeSelectPointer()
@@ -364,7 +363,18 @@ const drawAbilities = (abilities) => {
       )
     }
   }
-
+  if (abilities.length === 0) {
+    addTextToDialog(
+      abilityGroup,
+      'Nothing.',
+      `magic-ability-nothing-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      128.5 - 8,
+      38 - 4,
+      0.5
+    )
+  }
   // TODO - If there are no abilities added, need to add this too
 }
 const drawInfo = (info) => {
@@ -512,6 +522,24 @@ const cancelListView = () => {
   drawTypeSelectPointer()
   setMenuState('magic-type-select')
 }
+const switchPartyMember = delta => {
+  let newMember = false
+  let potential = DATA.partyMember
+  while (newMember === false) {
+    potential = potential + delta
+    if (potential > 2) {
+      potential = 0
+    } else if (potential < 0) {
+      potential = 2
+    }
+    if (window.data.savemap.party.members[potential] !== 'None') {
+      newMember = potential
+    }
+  }
+  DATA.partyMember = newMember
+  setDataFromPartyMember()
+  drawHeaderCharacterSummary()
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -536,6 +564,10 @@ const keyPress = async (key, firstPress, state) => {
       typeSelectNavigation(true)
     } else if (key === KEY.O) {
       selectType()
+    } else if (key === KEY.L1) {
+      switchPartyMember(-1)
+    } else if (key === KEY.R1) {
+      switchPartyMember(1)
     }
     // TODO - Switch party member, eg L1, R1
   } else if (state === 'magic-magic' || state === 'magic-summon' || state === 'magic-enemyskills') {

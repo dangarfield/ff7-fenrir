@@ -738,7 +738,7 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Mega All'],
+    ['Master Summon', 'Steal as well', 'Master Summon', 'HP Absorb', 'Master Summon', 'Quadra Magic', 'Master Summon', 'Fire'],
     ['Master Summon', 'Added Cut', 'Master Summon', 'MP Absorb', 'Master Summon', 'MP Turbo', 'Enemy Skill', 'All']
     // ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
     // ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
