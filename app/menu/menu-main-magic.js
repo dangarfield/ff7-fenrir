@@ -474,25 +474,25 @@ const listNavigation = (delta) => {
     drawListPointer()
   }
 }
-// const listPageNavigation = (up) => {
-//   const lastPage = DATA.equipable.length - 8
-//   if (up) {
-//     DATA.page = DATA.page + 8
-//     if (DATA.page > lastPage) {
-//       DATA.page = lastPage
-//     }
-//   } else {
-//     DATA.page = DATA.page - 8
-//     if (DATA.page < 0) {
-//       DATA.page = 0
-//     }
-//   }
-//   instantlyMoveItemList()
-//   updatePage()
-//   drawInfo(true)
-//   drawSlots(true)
-//   drawStatsSelected()
-// }
+const listPageNavigation = (up) => {
+  const menu = DATA.menus[DATA.menuCurrent]
+  const lastPage = (menu.spells.length / menu.cols) - 7
+  if (up) {
+    menu.page = menu.page + 7
+    if (menu.page > lastPage) {
+      menu.page = lastPage
+    }
+  } else {
+    menu.page = menu.page - 7
+    if (menu.page < 0) {
+      menu.page = 0
+    }
+  }
+  // Update list group positions
+  listGroup.userData.slider.userData.moveToPage(menu.page)
+  listGroupContents.position.y = menu.page * 18
+  updateInfoForSelectedSpell()
+}
 const selectType = () => {
   drawList()
   drawListPointer()
@@ -545,10 +545,10 @@ const keyPress = async (key, firstPress, state) => {
       listNavigation(-1)
     } else if (key === KEY.RIGHT) {
       listNavigation(1)
-    // } else if (key === KEY.L1) {
-    //   listPageNavigation(false)
-    // } else if (key === KEY.R1) {
-    //   listPageNavigation(true)
+    } else if (key === KEY.L1) {
+      listPageNavigation(false)
+    } else if (key === KEY.R1) {
+      listPageNavigation(true)
     } else if (key === KEY.X) {
       cancelListView()
     }
@@ -562,10 +562,10 @@ const keyPress = async (key, firstPress, state) => {
       listNavigation(-1)
     } else if (key === KEY.RIGHT) {
       listNavigation(1)
-    // } else if (key === KEY.L1) {
-    //   listPageNavigation(false)
-    // } else if (key === KEY.R1) {
-    //   listPageNavigation(true)
+    } else if (key === KEY.L1) {
+      listPageNavigation(false)
+    } else if (key === KEY.R1) {
+      listPageNavigation(true)
     } else if (key === KEY.X) {
       cancelListView()
     }
