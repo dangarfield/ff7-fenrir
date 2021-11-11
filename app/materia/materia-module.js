@@ -14,17 +14,20 @@ const setMateriaToInventory = (position, id, ap) => {
   window.data.savemap.materias[position] = materia
 }
 const debugFillMateria = () => {
-  const materias = window.data.savemap.materias
-  for (let i = 0; i < materias.length; i++) {
-    const materia = materias[i]
-    if (materia.id === 255) {
-      const randomMateria = getMateriaData()[Math.floor(Math.random() * getMateriaData().length)]
-      setMateriaToInventory(i, randomMateria.index, 0)
+  const getRandomInt = (max) => {
+    return Math.floor(Math.random() * max)
+  }
+  for (let i = 0; i < window.data.kernel.materiaData.length; i++) {
+    const materiaData = window.data.kernel.materiaData[i]
+    const maxAP = materiaData.apLevels[materiaData.apLevels.length - 1]
+    if (materiaData.name !== '') {
+      setMateriaToInventory((i * 2), materiaData.index, maxAP)
+      setMateriaToInventory((i * 2) + 1, materiaData.index, getRandomInt(maxAP))
     }
   }
   console.log('debugFillMateria - window.data.savemap', window.data.savemap)
 }
-
+window.debugFillMateria = debugFillMateria
 const addMateriaToInventory = (materiaId, ap) => {
   console.log('addMateriaToInventory', materiaId, ap)
   const materias = window.data.savemap.materias

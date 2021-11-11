@@ -769,7 +769,7 @@ const addGroupToDialog = (dialog, id) => {
   dialog.add(group)
   return group
 }
-const addImageToDialog = async (dialogBox, type, image, id, x, y, scale, blending) => {
+const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending) => {
   const textureLetter = getImageTexture(type, image)
   const mesh = createTextureMesh(
     textureLetter.w * scale,

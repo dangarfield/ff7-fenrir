@@ -83,6 +83,7 @@ const debugPopulateMenuTestData = () => {
   window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
 
   window.debugFillItems()
+  window.debugFillMateria()
   window.debugSetEquipmentAndMateria()
   // console.log('magic debugPopulateMenuTestData', window.data.savemap.characters.Cloud.materia)
 }
