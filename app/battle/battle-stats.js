@@ -331,14 +331,14 @@ const getMenuOptions = (char) => {
       }
     }
   }
-  const ensureCommandMenuMagicSummonItemOrder = (command, magic, summon) => {
+  const ensureCommandMenuMagicSummonItemOrder = (command, hasMagic, hasSummon) => {
     // Command materia is actually just the order that the materia is on equipment...
 
-    if (magic.length === 0) {
+    if (!hasMagic) {
       // Remove magic command (2), keep W-Magic
       removeMenuOption(command, 2)
     }
-    if (summon.length === 0) {
+    if (!hasSummon) {
       // Remove summon command (3), keep W-Summon
       removeMenuOption(command, 3)
     }
@@ -364,20 +364,20 @@ const getMenuOptions = (char) => {
     {id: 3, name: window.data.kernel.commandData[3].name, type: 3}, // Summon
     {id: 4, name: window.data.kernel.commandData[4].name, type: 4} // Item
   ]
-  const magic = []
-  const summon = []
+  let hasMagic = false
+  let hasSummon = false
 
   for (const materiaSlot in char.materia) {
     const materia = char.materia[materiaSlot]
     if (materia.id !== 255) {
       const materiaData = window.data.kernel.materiaData[materia.id]
       const currentLevel = currentMateriaLevel(materiaData, materia.ap)
-      // if (materiaData.type === 'Magic') {
-      //   magic.push(materiaData) // TODO - improve this, eg, master magic, support links etc, not sure where to get ability list text data from yet
-      // }
-      // if (materiaData.type === 'Summon') {
-      //   summon.push(materiaData) // TODO - improve this, eg, master magic, support links etc
-      // }
+      if (materiaData.type === 'Magic') {
+        hasMagic = true
+      }
+      if (materiaData.type === 'Summon') {
+        hasSummon = true
+      }
       if (materiaData.name === 'Mega All') {
         // addMenuOption(command, 'Slash-All') // TODO
       }
@@ -408,7 +408,7 @@ const getMenuOptions = (char) => {
       }
     }
   }
-  ensureCommandMenuMagicSummonItemOrder(command, magic, summon)
+  ensureCommandMenuMagicSummonItemOrder(command, hasMagic, hasSummon)
   const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonEnemySkillMenus(char)
   const menu = {command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu}
   console.log('status menu', menu)
@@ -766,10 +766,10 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
-    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo', 'Restore', 'Mega All']
+    ['Full Cure', 'Master Magic', 'Ultima', 'Poison', 'Lightning', 'Quadra Magic', 'Master Command', 'Enemy Skill'],
+    ['Deathblow', 'Steal', 'Double Cut', 'Cover', 'Enemy Lure', 'HP Plus', 'Master Summon', 'Odin']
   )
-  // window.data.savemap.characters.Cloud.materia.armorMateria7.ap = 0xFD08DF
+  window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 20000
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {

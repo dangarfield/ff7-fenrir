@@ -278,9 +278,10 @@ const drawSmallMateriaList = () => {
         y + (i * yAdj),
         0.5
       )
+      const materiaData = window.data.kernel.materiaData[materia.id]
       const materiaIcon = addImageToDialog(smallMateriaListContentsGroup,
         'materia',
-        'Magic',
+        materiaData.type,
         `materia-small-list-${i}-type`,
         x + 2,
         y + (i * yAdj) - 0.5,
@@ -300,28 +301,81 @@ const drawSmallMateriaList = () => {
   // TODO - Still need some clipping etc, will look at when doing list navigation
 }
 const drawMateriaDetails = () => {
-  console.log('materia drawCheck')
+  console.log('materia drawMateriaDetails')
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
+
+  let slotName
+  if (DATA.mainNavPos < 9) {
+    slotName = `weaponMateria${DATA.mainNavPos}`
+  } else {
+    slotName = `armorMateria${DATA.mainNavPos % 9}`
+  }
+  const materia = DATA.char.materia[slotName]
+
+  if (materia.id === 255) {
+    return
+  }
+
+  const materiaData = window.data.kernel.materiaData[materia.id]
+  console.log('materia drawMateriaDetails', slotName, materia, materiaData)
+
+  // Name, type, description
+  addTextToDialog(
+    smallMateriaListContentsGroup,
+    materiaData.name,
+    `materia-details-name`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    20 - 8,
+    117 - 4,
+    0.5
+  )
+  addImageToDialog(smallMateriaListContentsGroup,
+    'materia',
+    materiaData.type,
+    `materia-details-type`,
+    20 - 8 + 0.5,
+    117 - 4 - 0.5,
+    0.5
+  )
+  drawInfo(materiaData.description)
+}
+const drawInfo = (text) => {
+  removeGroupChildren(infoGroup)
+  addTextToDialog(
+    infoGroup,
+    text,
+    `materia-info`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    8 - 8,
+    89.5 - 4,
+    0.5
+  )
 }
 const mainNavigation = delta => {
   console.log('materia mainNavigation', delta)
 
   const potential = DATA.mainNavPos + delta
   if (DATA.mainNavPos === 0 && delta === -9) {
-    console.log('materia mainNavigation check -> arrange downwards')
+    // console.log('materia mainNavigation check -> arrange downwards')
     DATA.mainNavPos = 9
   } else if (DATA.mainNavPos === 9 && delta === 9) {
-    console.log('materia mainNavigation arrange -> check upwards')
+    // console.log('materia mainNavigation arrange -> check upwards')
     DATA.mainNavPos = 0
   } else if (potential < 0) {
-    console.log('materia mainNavigation too low, do nothing')
+    // console.log('materia mainNavigation too low, do nothing')
+    return
   } else if (potential > 17) {
-    console.log('materia mainNavigation too high, do nothing')
+    // console.log('materia mainNavigation too high, do nothing')
+    return
   } else if (DATA.mainNavPos === 8 && delta === 1) {
-    console.log('materia mainNavigation dont go up a row')
+    // console.log('materia mainNavigation dont go up a row')
+    return
   } else if (DATA.mainNavPos === 9 && delta === -1) {
-    console.log('materia mainNavigation dont go down a row')
+    // console.log('materia mainNavigation dont go down a row')
+    return
   } else {
     DATA.mainNavPos = potential
   }
