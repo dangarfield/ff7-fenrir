@@ -217,7 +217,24 @@ const drawHeader = () => {
     )
   }
 }
-
+const switchPartyMember = delta => {
+  let newMember = false
+  let potential = DATA.partyMember
+  while (newMember === false) {
+    potential = potential + delta
+    if (potential > 2) {
+      potential = 0
+    } else if (potential < 0) {
+      potential = 2
+    }
+    if (window.data.savemap.party.members[potential] !== 'None') {
+      newMember = potential
+    }
+  }
+  DATA.partyMember = newMember
+  setDataFromPartyMember()
+  drawHeader()
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -238,6 +255,10 @@ const keyPress = async (key, firstPress, state) => {
       console.log('press MAIN MENU MATERIA EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await exitMenu()
+    } else if (key === KEY.L1) {
+      switchPartyMember(-1)
+    } else if (key === KEY.R1) {
+      switchPartyMember(1)
     }
   }
 }
