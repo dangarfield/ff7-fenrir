@@ -298,8 +298,6 @@ const drawList = () => {
   createItemListNavigation(listGroup, 313, 100 - 32, 130, menu.spells.length / menu.cols, 7)
   listGroup.userData.slider.userData.moveToPage(menu.page)
   listGroupContents.position.y = menu.page * 18
-  window.listGroup = listGroup
-  window.listGroupContents = listGroupContents
 }
 const drawMPNeededImage = () => {
   addImageToDialog(
