@@ -556,18 +556,20 @@ const cancelListView = () => {
   setMenuState('magic-type-select')
 }
 const centrePaddedString = (str, desiredLength) => {
-  return str
+  const changed = ' '.repeat(Math.floor((desiredLength - str.length) / 2)) + str
+  console.log(`magic centrePaddedString _${changed}_ ${str}`, Math.floor((desiredLength - str.length) / 2))
+  return changed
 }
 const drawApplyMagic = (spell) => {
   removeGroupChildren(applyGroup)
   removeGroupChildren(applyNameGroup)
   addTextToDialog(
     applyNameGroup,
-    centrePaddedString(spell.name), // TODO - Should really be horizontally centered
+    centrePaddedString(spell.name, 8), // Should really be horizontally centered, but this good enough
     `magic-apply-magic-label`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    189 - 8,
+    180.5 - 8,
     48.5 - 4,
     0.5
   )
