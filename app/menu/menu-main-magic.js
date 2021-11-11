@@ -21,8 +21,8 @@ import { fadeInHomeMenu } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
-let headerDialog, infoDialog, typeSelectDialog, mpDialog, listDialog
-let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, listGroup, listGroupContents
+let headerDialog, infoDialog, typeSelectDialog, mpDialog, listDialog, applyDialog, applyNameDialog
+let headerGroup, abilityGroup, infoGroup, typeSelectGroup, mpGroup, listGroup, listGroupContents, applyGroup, applyNameGroup
 
 const DATA = {
   partyMember: 0,
@@ -33,8 +33,12 @@ const DATA = {
     {type: 'Summon', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-summon'},
     {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskills'}
   ],
-  menuCurrent: 0
+  menuCurrent: 0,
+  applyCurrent: 0,
+  applyAll: false
 }
+const ALLOWABLE_MENU_MAGIC = [0, 1, 2, 7, 8, 51] // Cure, Cure2, Cure3, Life, Life2, FullCure
+
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
@@ -50,12 +54,13 @@ const setMenuVisibility = () => {
 const loadMagicMenu = async partyMember => {
   DATA.partyMember = partyMember
   DATA.menuCurrent = 0
+  DATA.applyCurrent = 0
   DATA.menus.forEach(m => { m.page = 0; m.pos = 0 })
   setMenuVisibility()
   setDataFromPartyMember()
 
   headerDialog = await createDialogBox({
-    id: 3,
+    id: 15,
     name: 'headerDialog',
     w: 253.5,
     h: 81.5,
@@ -69,7 +74,7 @@ const loadMagicMenu = async partyMember => {
   abilityGroup = addGroupToDialog(headerDialog, 15)
 
   mpDialog = await createDialogBox({
-    id: 3,
+    id: 15,
     name: 'mpDialog',
     w: 71,
     h: 60.5,
@@ -83,7 +88,7 @@ const loadMagicMenu = async partyMember => {
   mpGroup = addGroupToDialog(mpDialog, 15)
 
   listDialog = await createDialogBox({
-    id: 3,
+    id: 15,
     name: 'listDialog',
     w: 320,
     h: 136,
@@ -97,7 +102,7 @@ const loadMagicMenu = async partyMember => {
   listGroupContents = addGroupToDialog(listDialog, 15)
 
   infoDialog = await createDialogBox({
-    id: 3,
+    id: 15,
     name: 'infoDialog',
     w: 320,
     h: 25.5,
@@ -110,7 +115,7 @@ const loadMagicMenu = async partyMember => {
   infoGroup = addGroupToDialog(infoDialog, 15)
 
   typeSelectDialog = await createDialogBox({
-    id: 3,
+    id: 15,
     name: 'typeSelectDialog',
     w: 82,
     h: 60.5,
@@ -121,6 +126,34 @@ const loadMagicMenu = async partyMember => {
   })
   typeSelectDialog.visible = true
   typeSelectGroup = addGroupToDialog(typeSelectDialog, 15)
+
+  applyDialog = await createDialogBox({
+    id: 10,
+    name: 'applyDialog',
+    w: 146.5,
+    h: 183,
+    x: 83.5,
+    y: 53.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  applyDialog.visible = false
+  applyDialog.position.z = 10 // Some weird stuff required here, need to revisit at some point
+  applyGroup = addGroupToDialog(applyDialog, 16)
+
+  applyNameDialog = await createDialogBox({
+    id: 10,
+    name: 'applyNameDialog',
+    w: 77,
+    h: 25.5,
+    x: 160.5,
+    y: 32,
+    expandInstantly: true,
+    noClipping: true
+  })
+  applyNameDialog.visible = false
+  applyNameDialog.position.z = 10
+  applyNameGroup = addGroupToDialog(applyNameDialog, 16)
 
   drawHeaderCharacterSummary()
   drawTypeSelect()
@@ -230,6 +263,8 @@ const drawListPointer = () => {
     const {x, y} = getTwoRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5 + 5, y + 5.5)
   }
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  movePointer(POINTERS.pointer3, 0, 0, true)
 }
 const drawList = () => {
   removeGroupChildren(listGroup)
@@ -240,8 +275,7 @@ const drawList = () => {
     const {x, y} = getTextRowPosition(i, menu.cols)
     if (spell.enabled) {
       let color = LETTER_COLORS.White
-      if (menu.type === 'Magic') {
-        // TODO Magic is grey, unless - Cure, Cure2, Cure3, Life, Life2, FullCure can be used. Any others? What is the trigger?
+      if (menu.type === 'Magic' && !ALLOWABLE_MENU_MAGIC.includes(spell.index)) {
         color = LETTER_COLORS.Gray
       }
 
@@ -521,6 +555,128 @@ const cancelListView = () => {
   drawTypeSelectPointer()
   setMenuState('magic-type-select')
 }
+const centrePaddedString = (str, desiredLength) => {
+  return str
+}
+const drawApplyMagic = (spell) => {
+  removeGroupChildren(applyGroup)
+  removeGroupChildren(applyNameGroup)
+  addTextToDialog(
+    applyNameGroup,
+    centrePaddedString(spell.name), // TODO - Should really be horizontally centered
+    `magic-apply-magic-label`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    189 - 8,
+    48.5 - 4,
+    0.5
+  )
+
+  const yAdj = 60
+  for (let i = 0; i < window.data.savemap.party.members.length; i++) {
+    const charName = window.data.savemap.party.members[i]
+    const char = window.data.savemap.characters[charName]
+    addImageToDialog(
+      applyGroup,
+      'profiles',
+      charName,
+      'profile-image',
+      101 + 20,
+      59 + 24 + (i * yAdj),
+      0.5
+    )
+    addCharacterSummary(
+      applyGroup,
+      charName,
+      147.5 - 8,
+      69 - 4 + (i * yAdj),
+      char.name,
+      char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+      char.level.current,
+      char.stats.hp.current,
+      char.stats.hp.max,
+      char.stats.mp.current,
+      char.stats.mp.max
+    )
+  }
+  applyDialog.visible = true
+  applyNameDialog.visible = true
+}
+const drawApplyPointer = () => {
+  const yAdj = 60
+  const x = 103.5 // - 10
+  const y = 84.5 // + 7
+  if (!DATA.applyAll) {
+    movePointer(POINTERS.pointer1, x - 10, y + (yAdj * DATA.applyCurrent) + 7)
+    movePointer(POINTERS.pointer2, 0, 0, true)
+    movePointer(POINTERS.pointer3, 0, 0, true)
+  } else {
+    movePointer(POINTERS.pointer1, x - 10, y + (yAdj * 0) + 7, false, true)
+    movePointer(POINTERS.pointer2, x - 10, y + (yAdj * 1) + 7, false, true)
+    movePointer(POINTERS.pointer3, x - 10, y + (yAdj * 2) + 7, false, true)
+  }
+}
+const applyNavigationAllToggle = () => {
+  const menu = DATA.menus[DATA.menuCurrent]
+  const spell = menu.spells[(menu.page * menu.cols) + menu.pos]
+  if (spell.addedAbilities.filter(a => a.type === 'All').length > 0) {
+    DATA.applyAll = !DATA.applyAll
+    drawApplyPointer()
+  }
+}
+const applyNavigation = (up) => {
+  // Note: You can still navigate whilst applying all, which is how the game works
+  if (up) {
+    DATA.applyCurrent++
+    if (DATA.applyCurrent > 2) {
+      DATA.applyCurrent = 0
+    }
+  } else {
+    DATA.applyCurrent--
+    if (DATA.applyCurrent < 0) {
+      DATA.applyCurrent = 2
+    }
+  }
+  drawApplyPointer()
+}
+const cancelApplyMagic = () => {
+  applyDialog.visible = false
+  applyNameDialog.visible = false
+  DATA.applyAll = false
+  drawListPointer()
+  setMenuState('magic-magic')
+}
+const playErrorSound = () => {
+  console.log('magic playErrorSound')
+}
+const selectMagicToApply = () => {
+  const menu = DATA.menus[DATA.menuCurrent]
+
+  console.log('magic', 'selectMagicToApply menu.type', menu.type)
+  if (menu.type === 'Magic') {
+    const spell = menu.spells[(menu.page * menu.cols) + menu.pos]
+    console.log('magic', 'selectMagicToApply spell', spell)
+    if (ALLOWABLE_MENU_MAGIC.includes(spell.index)) {
+      console.log('magic', 'selectMagicToApply ALLOW', spell)
+      drawApplyMagic(spell)
+      drawApplyPointer()
+      setMenuState('magic-apply')
+    } else {
+      playErrorSound()
+    }
+  } else {
+    playErrorSound()
+  }
+}
+const envokeMagic = () => {
+  // TODO - Apply healing magic menu and logic
+  // Life = 1/4 of max HP
+  // Life2 = all hp
+  // Cure = (5 x 22) + ((charLevel + MagicAtk) x 6)
+  // Cure = (35 x 22) + ((charLevel + MagicAtk) x 6)
+  // Cure = (130 x 22) + ((charLevel + MagicAtk) x 6)
+  // Dont forgot to factor in MP Turbo and ALL abilities
+}
 const switchPartyMember = delta => {
   let newMember = false
   let potential = DATA.partyMember
@@ -548,6 +704,8 @@ const exitMenu = async () => {
   typeSelectDialog.visible = false
   mpDialog.visible = false
   listDialog.visible = false
+  applyDialog.visible = false
+  applyNameDialog.visible = false
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {
@@ -583,8 +741,22 @@ const keyPress = async (key, firstPress, state) => {
       listPageNavigation(true)
     } else if (key === KEY.X) {
       cancelListView()
+    } else if (key === KEY.O) {
+      selectMagicToApply()
     }
-    // TODO - Apply healing magic menu and logic
+  } else if (state === 'magic-apply') {
+    if (key === KEY.UP) {
+      applyNavigation(false)
+    } else if (key === KEY.DOWN) {
+      applyNavigation(true)
+    } else if (key === KEY.L1 || key === KEY.R1) {
+      applyNavigationAllToggle()
+    } else if (key === KEY.O) {
+      envokeMagic()
+    } else if (key === KEY.X) {
+      cancelApplyMagic()
+    }
   }
 }
+
 export { loadMagicMenu, keyPress }

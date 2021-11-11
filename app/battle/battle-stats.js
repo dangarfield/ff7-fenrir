@@ -536,19 +536,19 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     const filteredMagics = []
     for (let i = 0; i < oMagics.length; i = i + 3) {
       const keepRow = oMagics[i].enabled || oMagics[i + 1].enabled || oMagics[i + 2].enabled
-      console.log('magic filter row', i, 'of', oMagics.length,
-        oMagics[i].name, oMagics[i].enabled,
-        oMagics[i + 1].name, oMagics[i + 1].enabled,
-        oMagics[i + 2].name, oMagics[i + 2].enabled,
-        '->', keepRow
-      )
+      // console.log('magic filter row', i, 'of', oMagics.length,
+      //   oMagics[i].name, oMagics[i].enabled,
+      //   oMagics[i + 1].name, oMagics[i + 1].enabled,
+      //   oMagics[i + 2].name, oMagics[i + 2].enabled,
+      //   '->', keepRow
+      // )
       if (keepRow) {
         filteredMagics.push(oMagics[i])
         filteredMagics.push(oMagics[i + 1])
         filteredMagics.push(oMagics[i + 2])
       }
     }
-    console.log('magic filterUnusedMagicRows', oMagics, filteredMagics)
+    // console.log('magic filterUnusedMagicRows', oMagics, filteredMagics)
     while (filteredMagics.length !== oMagics.length) {
       filteredMagics.push({index: 255, name: '', enabled: false, addedAbilities: []})
     }
@@ -767,7 +767,7 @@ const debugSetEquipmentAndMateria = () => {
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
     ['Lightning', 'Elemental', 'Double Cut', 'Slash-All', 'W-Item', 'W-Magic', 'W-Summon', 'Enemy Skill'],
-    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo']
+    ['Master Magic', 'HP Absorb', 'Master Command', '', 'Master Summon', 'MP Turbo', 'Restore', 'Mega All']
   )
   // window.data.savemap.characters.Cloud.materia.armorMateria7.ap = 0xFD08DF
 }
