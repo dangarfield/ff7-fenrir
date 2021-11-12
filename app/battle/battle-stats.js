@@ -769,11 +769,13 @@ const debugSetEquipmentAndMateria = () => {
     ['Full Cure', 'Master Magic', 'Ultima', 'Poison', 'Lightning', 'Quadra Magic', 'Master Command', 'Enemy Skill'],
     ['Deathblow', 'Steal', 'Double Cut', 'Cover', 'Enemy Lure', 'HP Plus', 'Master Summon', 'Odin']
   )
-  window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 20000
+  window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 2000
+  window.data.savemap.characters.Cloud.materia.armorMateria3.ap = 2000
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {
   recalculateAndApplyHPMPToAll,
   recalculateAndApplyHPMP,
-  getBattleStatsForChar
+  getBattleStatsForChar,
+  currentMateriaLevel
 }

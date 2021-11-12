@@ -20,7 +20,7 @@ import {
   createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, homeNav, setSelectedNav } from './menu-main-home.js'
-import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, currentMateriaLevel } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, headerGroup //
@@ -351,7 +351,203 @@ const drawMateriaDetails = () => {
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
     console.log('materia ENEMY SKILL materia, need to implement') // TODO
   } else {
-    console.log('materia standard materia display')
+    console.log('materia standard materia display') // TODO
+
+    // Labels
+    addTextToDialog(
+      smallMateriaListContentsGroup,
+      'AP',
+      `materia-details-ap-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      103.5 - 8,
+      132 - 4,
+      0.5
+    )
+    addTextToDialog(
+      smallMateriaListContentsGroup,
+      'To next level',
+      `materia-details-next-level-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      54 - 8,
+      145 - 4,
+      0.5
+    )
+    addTextToDialog(
+      smallMateriaListContentsGroup,
+      'Ability List',
+      `materia-details-next-ability-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      4 - 8,
+      160 - 4,
+      0.5
+    )
+    addTextToDialog(
+      smallMateriaListContentsGroup,
+      'Equip effects',
+      `materia-details-next-effects-label`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      93.5 - 8,
+      160 - 4,
+      0.5
+    )
+
+    // Level stars - TODO
+    const currentLevel = currentMateriaLevel(materiaData, materia.ap)
+
+    // AP & next level - TODO
+
+    // Ability list
+    if (materiaData.type === 'Magic') {
+      for (let i = 0; i < materiaData.attributes.magic.length; i++) {
+        const ability = materiaData.attributes.magic[i]
+        // color based on it being enabled
+        let color = LETTER_COLORS.Gray
+        if (ability.level <= currentLevel) {
+          color = LETTER_COLORS.White
+        }
+        console.log('materia level', ability.level, currentLevel, ability)
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          ability.name,
+          `materia-details-ability-${i}`,
+          LETTER_TYPES.MenuBaseFont,
+          color,
+          20 - 8,
+          173 + (i * 12) - 4,
+          0.5
+        )
+      }
+    } else if (materiaData.type === 'Summon') {
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        materiaData.attributes.summon[0].name,
+        `materia-details-ability`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        20 - 8,
+        173 - 4,
+        0.5
+      )
+    } else if (materiaData.type === 'Support') {
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        materiaData.name,
+        `materia-details-ability`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        20 - 8,
+        173 - 4,
+        0.5
+      )
+    } else if (materiaData.type === 'Command') {
+      const abilities = []
+
+      let attributeSelector = materiaData.attributes.menu // Add is default, change to Replace if needed
+      if (materiaData.attributes.type === 'Replace') {
+        attributeSelector = materiaData.attributes.with
+      }
+      for (let i = 0; i < attributeSelector.length; i++) {
+        const ability = attributeSelector[i]
+        if (i + 1 <= currentLevel) {
+          abilities.push({name: ability.name, active: true})
+        } else {
+          abilities.push({name: ability.name, active: false})
+        }
+      }
+      // Only allow the last active (learned) ability to show. eg, Mug not Steal
+      let lastActiveFound = false
+      for (var i = abilities.length - 1; i >= 0; i--) {
+        const ability = abilities[i]
+        if (ability.active && !lastActiveFound) {
+          lastActiveFound = true
+        } else if (ability.active && lastActiveFound) {
+          ability.active = false
+        }
+      }
+
+      for (let i = 0; i < abilities.length; i++) {
+        const ability = abilities[i]
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          ability.name,
+          `materia-details-ability-${i}`,
+          LETTER_TYPES.MenuBaseFont,
+          ability.active ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+          20 - 8,
+          173 + (i * 12) - 4,
+          0.5
+        )
+      }
+    }
+
+    // Equip effects
+    for (let i = 0; i < materiaData.equipEffect.length; i++) {
+      const effect = materiaData.equipEffect[i]
+      // stat name
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        statDisplayText(effect[0]),
+        `materia-details-effect-${i}-label`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        100 - 8,
+        173 + (i * 12) - 4,
+        0.5
+      )
+
+      // + / -
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        effect[1] < 0 ? '-' : '+',
+        `materia-details-effect-${i}-sign`,
+        LETTER_TYPES.MenuTextFixed,
+        LETTER_COLORS.White,
+        151 - 9,
+        173 + (i * 12) - 4,
+        0.5
+      )
+      // value
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        ('' + Math.abs(effect[1])).padStart(2, '0'),
+        `materia-details-effect-${i}-value`,
+        LETTER_TYPES.MenuTextStats,
+        effect[1] < 0 ? LETTER_COLORS.Red : LETTER_COLORS.Yellow,
+        156.5 - 8,
+        173 + (i * 12) - 4,
+        0.5
+      )
+      // perc
+      if (effect[0] === 'HP' || effect[0] === 'MP') {
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          '%',
+          `materia-details-effect-${i}-label`,
+          LETTER_TYPES.MenuTextFixed,
+          LETTER_COLORS.White,
+          169.5 - 9,
+          173 + (i * 12) - 4,
+          0.5
+        )
+      }
+    }
+  }
+}
+const statDisplayText = (stat) => {
+  switch (stat) {
+    // case 'Strength': return 'Strength'
+    // case 'Dexterity': return 'Dexterity'
+    // case 'Vitality': return 'Vitality'
+    // case 'Magic': return 'Magic'
+    case 'Spirit': return 'Magic def'
+    // case 'Luck': return 'Luck'
+    case 'HP': return 'MaxHP'
+    case 'MP': return 'MaxMP'
+    default: return stat
   }
 }
 const drawInfo = (text) => {
