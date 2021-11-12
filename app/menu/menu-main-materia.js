@@ -46,6 +46,7 @@ const setDataFromPartyMember = () => {
 }
 
 const loadMateriaMenu = async partyMember => {
+  DATA.partyMember = partyMember
   setDataFromPartyMember()
   DATA.mainNavPos = 1
   DATA.smallMateriaListPos = 0
@@ -340,6 +341,18 @@ const drawMateriaDetails = () => {
     0.5
   )
   drawInfo(materiaData.description)
+
+  // Appears to be 3 types
+  // 1 - Masters - with nothing else, I think I should better flag these masters in kujata
+  // 2 - enemy skill, lots to do here
+  // 3 - All others with everything
+  if (materiaData.attributes.master) {
+    console.log('materia MASTER materia, no more details required')
+  } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
+    console.log('materia ENEMY SKILL materia, need to implement') // TODO
+  } else {
+    console.log('materia standard materia display')
+  }
 }
 const drawInfo = (text) => {
   removeGroupChildren(infoGroup)
