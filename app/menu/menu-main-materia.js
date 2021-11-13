@@ -397,6 +397,10 @@ const drawMateriaDetails = () => {
 
     // Level stars - TODO
     const currentLevel = currentMateriaLevel(materiaData, materia.ap)
+    const starX = 103.5
+    const starY = 119
+    const starXAdj = 12.5
+    // Need to add star assets to kujata, btl_win_b_h
 
     // AP & next level - TODO
 
@@ -482,6 +486,56 @@ const drawMateriaDetails = () => {
           0.5
         )
       }
+    } else if (materiaData.type === 'Independent') {
+      addTextToDialog(
+        smallMateriaListContentsGroup,
+        materiaAbilityText(materiaData.name),
+        `materia-details-ability`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        20 - 8,
+        173 - 4,
+        0.5
+      )
+
+      const xPos = 69.5
+      if (['Cover'].includes(materiaData.attributes.type) || ['Luck', 'Magic', 'Dexterity', 'HP', 'MP'].includes(materiaData.attributes.stat)) {
+        // positive currentlevel-attributes.attributes as % in ability
+        const value = materiaData.attributes.attributes[currentLevel - 1]
+        console.log('materia %value', value)
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          '+',
+          `materia-details-effect-${i}-sign`,
+          LETTER_TYPES.MenuTextFixed,
+          LETTER_COLORS.White,
+          xPos - 9 - (value === 100 ? 5.5 : 0),
+          173 - 4,
+          0.5
+        )
+        // value
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          ('' + value).padStart(2, '0'),
+          `materia-details-effect-${i}-value`,
+          LETTER_TYPES.MenuTextStats,
+          LETTER_COLORS.Yellow,
+          xPos + 5.5 - 8 - (value === 100 ? 6 : 0),
+          173 - 4,
+          0.5
+        )
+        // perc
+        addTextToDialog(
+          smallMateriaListContentsGroup,
+          '%',
+          `materia-details-effect-${i}-label`,
+          LETTER_TYPES.MenuTextFixed,
+          LETTER_COLORS.White,
+          xPos + 18.5 - 9,
+          173 - 4,
+          0.5
+        )
+      }
     }
 
     // Equip effects
@@ -535,6 +589,25 @@ const drawMateriaDetails = () => {
         )
       }
     }
+  }
+}
+const materiaAbilityText = (materiaName) => { // I'm not sure where these actual data strings are located, just do this for now
+  switch (materiaName) {
+    case 'Counter Attack': return 'Counter attack'
+    case 'Mega All': return 'Attack all'
+    case 'Long Range': return 'Long range attack'
+    case 'Pre-Emptive': return 'Pre-emptive'
+    case 'Chocobo Lure': return 'Meet Chocobos'
+    case 'Enemy Lure': return 'Encount Up'
+    case 'Enemy Away': return 'Encount Down'
+    case 'Gil Plus': return 'Gil UP'
+    case 'EXP Plus': return 'EXP. UP'
+    case 'Luck Plus': return 'Luck'
+    case 'Magic Plus': return 'Magic'
+    case 'Speed Plus': return 'Dexterity'
+    case 'HP Plus': return 'MaxHPUP'
+    case 'MP Plus': return 'MaxMPUP'
+    default: return materiaName
   }
 }
 const statDisplayText = (stat) => {

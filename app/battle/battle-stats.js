@@ -771,6 +771,12 @@ const debugSetEquipmentAndMateria = () => {
   )
   window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 2000
   window.data.savemap.characters.Cloud.materia.armorMateria3.ap = 2000
+  setEquipmentAndMateriaForTesting(
+    window.data.savemap.characters.Tifa,
+    'Premium Heart', 'Wizard Bracelet', '',
+    ['HP<->MP', 'Underwater', 'Cover', 'Counter Attack', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
+    ['Enemy Lure', 'Enemy Away', 'Gil Plus', 'EXP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus', 'HP Plus']
+  )
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {

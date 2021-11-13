@@ -755,7 +755,7 @@ const addTextToDialog = (
       offsetX = offsetX + textureLetter.w * scale
       textGroup.add(mesh)
     } else {
-      console.log('no char found', letter)
+      // console.log('letter no char found', letter)
     }
   }
   dialogBox.add(textGroup)
