@@ -405,7 +405,7 @@ const drawMateriaDetails = () => {
 
     // AP & next level
     if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
-      // Master
+      // Mastered
       addTextToDialog(
         materiaDetailsDialog,
         'MASTER',
@@ -423,10 +423,11 @@ const drawMateriaDetails = () => {
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
-        145 - 4 - 0.5,
+        145 - 4,
         0.5
       )
     } else {
+      // Still to develop
       addTextToDialog(
         materiaDetailsDialog,
         ('' + materia.ap).padStart(8, ' '),
@@ -434,17 +435,17 @@ const drawMateriaDetails = () => {
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
-        132 - 4 - 0.5,
+        132 - 4,
         0.5
       )
       addTextToDialog(
         materiaDetailsDialog,
-        ('123').padStart(8, ' '), // TODO - calc this
+        ('' + (materiaData.apLevels[currentLevel] - materia.ap)).padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
-        145 - 4 - 0.5,
+        145 - 4,
         0.5
       )
     }
