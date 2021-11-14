@@ -303,6 +303,7 @@ const drawSmallMateriaList = () => {
 }
 const drawMateriaDetails = () => {
   console.log('materia drawMateriaDetails')
+  removeGroupChildren(materiaDetailsDialog)
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
 
@@ -323,7 +324,7 @@ const drawMateriaDetails = () => {
 
   // Name, type, description
   addTextToDialog(
-    smallMateriaListContentsGroup,
+    materiaDetailsDialog,
     materiaData.name,
     `materia-details-name`,
     LETTER_TYPES.MenuBaseFont,
@@ -332,7 +333,7 @@ const drawMateriaDetails = () => {
     117 - 4,
     0.5
   )
-  addImageToDialog(smallMateriaListContentsGroup,
+  addImageToDialog(materiaDetailsDialog,
     'materia',
     materiaData.type,
     `materia-details-type`,
@@ -355,7 +356,7 @@ const drawMateriaDetails = () => {
 
     // Labels
     addTextToDialog(
-      smallMateriaListContentsGroup,
+      materiaDetailsDialog,
       'AP',
       `materia-details-ap-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -365,7 +366,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      smallMateriaListContentsGroup,
+      materiaDetailsDialog,
       'To next level',
       `materia-details-next-level-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -375,7 +376,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      smallMateriaListContentsGroup,
+      materiaDetailsDialog,
       'Ability List',
       `materia-details-next-ability-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -385,7 +386,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      smallMateriaListContentsGroup,
+      materiaDetailsDialog,
       'Equip effects',
       `materia-details-next-effects-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -402,7 +403,51 @@ const drawMateriaDetails = () => {
     const starXAdj = 12.5
     // Need to add star assets to kujata, btl_win_b_h
 
-    // AP & next level - TODO
+    // AP & next level
+    if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
+      // Master
+      addTextToDialog(
+        materiaDetailsDialog,
+        'MASTER',
+        `materia-ap-master`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        125 - 8,
+        132 - 4,
+        0.5
+      )
+      addTextToDialog(
+        materiaDetailsDialog,
+        ('0').padStart(8, ' '),
+        `materia-ap-master`,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White,
+        120.5 - 8,
+        145 - 4 - 0.5,
+        0.5
+      )
+    } else {
+      addTextToDialog(
+        materiaDetailsDialog,
+        ('' + materia.ap).padStart(8, ' '),
+        `materia-ap-master`,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White,
+        120.5 - 8,
+        132 - 4 - 0.5,
+        0.5
+      )
+      addTextToDialog(
+        materiaDetailsDialog,
+        ('123').padStart(8, ' '), // TODO - calc this
+        `materia-ap-master`,
+        LETTER_TYPES.MenuTextStats,
+        LETTER_COLORS.White,
+        120.5 - 8,
+        145 - 4 - 0.5,
+        0.5
+      )
+    }
 
     // Ability list
     if (materiaData.type === 'Magic') {
@@ -415,7 +460,7 @@ const drawMateriaDetails = () => {
         }
         console.log('materia level', ability.level, currentLevel, ability)
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -427,7 +472,7 @@ const drawMateriaDetails = () => {
       }
     } else if (materiaData.type === 'Summon') {
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         materiaData.attributes.summon[0].name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -438,7 +483,7 @@ const drawMateriaDetails = () => {
       )
     } else if (materiaData.type === 'Support') {
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         materiaData.name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -476,7 +521,7 @@ const drawMateriaDetails = () => {
       for (let i = 0; i < abilities.length; i++) {
         const ability = abilities[i]
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -488,7 +533,7 @@ const drawMateriaDetails = () => {
       }
     } else if (materiaData.type === 'Independent') {
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         materiaAbilityText(materiaData.name),
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -504,7 +549,7 @@ const drawMateriaDetails = () => {
         const value = materiaData.attributes.attributes[currentLevel - 1]
         console.log('materia %value', value)
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           '+',
           `materia-details-effect-${i}-sign`,
           LETTER_TYPES.MenuTextFixed,
@@ -515,7 +560,7 @@ const drawMateriaDetails = () => {
         )
         // value
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           ('' + value).padStart(2, '0'),
           `materia-details-effect-${i}-value`,
           LETTER_TYPES.MenuTextStats,
@@ -526,7 +571,7 @@ const drawMateriaDetails = () => {
         )
         // perc
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
@@ -543,7 +588,7 @@ const drawMateriaDetails = () => {
       const effect = materiaData.equipEffect[i]
       // stat name
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         statDisplayText(effect[0]),
         `materia-details-effect-${i}-label`,
         LETTER_TYPES.MenuBaseFont,
@@ -555,7 +600,7 @@ const drawMateriaDetails = () => {
 
       // + / -
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         effect[1] < 0 ? '-' : '+',
         `materia-details-effect-${i}-sign`,
         LETTER_TYPES.MenuTextFixed,
@@ -566,7 +611,7 @@ const drawMateriaDetails = () => {
       )
       // value
       addTextToDialog(
-        smallMateriaListContentsGroup,
+        materiaDetailsDialog,
         ('' + Math.abs(effect[1])).padStart(2, '0'),
         `materia-details-effect-${i}-value`,
         LETTER_TYPES.MenuTextStats,
@@ -578,7 +623,7 @@ const drawMateriaDetails = () => {
       // perc
       if (effect[0] === 'HP' || effect[0] === 'MP') {
         addTextToDialog(
-          smallMateriaListContentsGroup,
+          materiaDetailsDialog,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
