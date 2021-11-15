@@ -397,12 +397,23 @@ const drawMateriaDetails = () => {
       0.5
     )
 
-    // Level stars - TODO
+    // Level stars
     const currentLevel = currentMateriaLevel(materiaData, materia.ap)
-    const starX = 103.5
-    const starY = 119
+    const starX = 103.5 + 6
+    const starY = 119 - 6.5
     const starXAdj = 12.5
-    // Need to add star assets to kujata, btl_win_b_h
+
+    for (let i = 0; i < materiaData.apLevels.length; i++) {
+      addImageToDialog(
+        materiaDetailsDialog,
+        'materia',
+        i < currentLevel ? `${materiaData.type}-star-active-small` : `${materiaData.type}-star-inactive-small`,
+        `material-details-level-${i}`,
+        starX + (starXAdj * i),
+        starY,
+        0.5
+      )
+    }
 
     // AP & next level
     if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
