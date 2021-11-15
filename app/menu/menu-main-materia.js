@@ -54,7 +54,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.smallMateriaListPos = 0
   DATA.smallMateriaListPage = 0
 
-  headerDialog = await createDialogBox({
+  headerDialog = createDialogBox({
     id: 25,
     name: 'headerDialog',
     w: 320,
@@ -67,7 +67,7 @@ const loadMateriaMenu = async partyMember => {
   headerDialog.visible = true
   headerGroup = addGroupToDialog(headerDialog, 35)
 
-  checkDialog = await createDialogBox({
+  checkDialog = createDialogBox({
     id: 24,
     name: 'checkDialog',
     w: 320,
@@ -80,7 +80,7 @@ const loadMateriaMenu = async partyMember => {
   checkDialog.visible = true
   checkGroup = addGroupToDialog(checkDialog, 34)
 
-  smallMateriaListDialog = await createDialogBox({
+  smallMateriaListDialog = createDialogBox({
     id: 23,
     name: 'smallMateriaListDialog',
     w: 129.5,
@@ -94,7 +94,7 @@ const loadMateriaMenu = async partyMember => {
   smallMateriaListGroup = addGroupToDialog(smallMateriaListDialog, 33)
   smallMateriaListContentsGroup = addGroupToDialog(smallMateriaListDialog, 33)
 
-  materiaDetailsDialog = await createDialogBox({
+  materiaDetailsDialog = createDialogBox({
     id: 22,
     name: 'materiaDetailsDialog',
     w: 193.5,
@@ -109,7 +109,7 @@ const loadMateriaMenu = async partyMember => {
   materialsDetailsEnemySkillGroup = addGroupToDialog(materiaDetailsDialog, 32)
   // materialsDetailsEnemySkillGroup.visible = true // TODO - temp
 
-  infoDialog = await createDialogBox({
+  infoDialog = createDialogBox({
     id: 21,
     name: 'infoDialog',
     w: 320,
@@ -122,7 +122,7 @@ const loadMateriaMenu = async partyMember => {
   infoDialog.visible = true
   infoGroup = addGroupToDialog(infoDialog, 31)
 
-  arrangeDialog = await createDialogBox({
+  arrangeDialog = createDialogBox({
     id: 20,
     name: 'arrangeDialog',
     w: 63.5,
@@ -134,7 +134,7 @@ const loadMateriaMenu = async partyMember => {
   })
   arrangeDialog.visible = false
 
-  trashDialog = await createDialogBox({
+  trashDialog = createDialogBox({
     id: 19,
     name: 'trashDialog',
     w: 186.5,
@@ -148,9 +148,9 @@ const loadMateriaMenu = async partyMember => {
 
   console.log('materia DATA', DATA)
   setSelectedNav(2)
+  drawEnemySkillsGroup()
   drawHeader()
   drawMainNavPointer()
-  drawEnemySkillsGroup()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
@@ -430,10 +430,13 @@ const drawEnemySkillsGroup = () => {
       letter.position.z = 39
     }
   }
+
   window.enemySkillTextList = enemySkillTextList
   window.materialsDetailsEnemySkillTextContents = materialsDetailsEnemySkillTextContents
   window.materialsDetailsEnemySkillGroup = materialsDetailsEnemySkillGroup
   window.materiaDetailsDialog = materiaDetailsDialog
+
+  // TODO - Tweening the group repeatedly and moving it back up etc while the materia menu is visible
 }
 const drawMateriaDetails = () => {
   console.log('materia drawMateriaDetails')
@@ -486,8 +489,25 @@ const drawMateriaDetails = () => {
     materialsDetailsEnemySkillGroup.visible = false
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
     materialsDetailsEnemySkillGroup.visible = true
-    const skills = getEnemySkillFlagsWithSkills(materia.ap)
-    console.log('materia ENEMY SKILL materia, need to implement', skills) // TODO
+    const skills = getEnemySkillFlagsWithSkills(materia.ap).map(s => s.enabled ? `${s.index}-active` : `${s.index}-inactive`)
+    console.log('materia ENEMY SKILL materia, need to implement', skills)
+
+    const groups = [materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents]
+
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i]
+      for (let j = 0; j < group.children.length; j++) {
+        const item = group.children[j]
+        if (item.userData.enemyskill) {
+          console.log('materia enemyskill item', item.userData.enemyskill, skills.includes(item.userData.enemyskill))
+          if (skills.includes(item.userData.enemyskill)) {
+            item.visible = true
+          } else {
+            item.visible = false
+          }
+        }
+      }
+    }
   } else {
     console.log('materia standard materia display')
     materialsDetailsEnemySkillGroup.visible = false
