@@ -20,7 +20,7 @@ import {
   createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, homeNav, setSelectedNav } from './menu-main-home.js'
-import { getBattleStatsForChar, currentMateriaLevel } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, currentMateriaLevel, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, headerGroup //
@@ -350,9 +350,10 @@ const drawMateriaDetails = () => {
   if (materiaData.attributes.master) {
     console.log('materia MASTER materia, no more details required')
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
-    console.log('materia ENEMY SKILL materia, need to implement') // TODO
+    const skills = getEnemySkillFlagsWithSkills(materia.ap)
+    console.log('materia ENEMY SKILL materia, need to implement', skills) // TODO
   } else {
-    console.log('materia standard materia display') // TODO
+    console.log('materia standard materia display')
 
     // Labels
     addTextToDialog(

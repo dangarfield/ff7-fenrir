@@ -213,6 +213,35 @@ const hasMPHPMateria = (char) => {
   }
   return false
 }
+const getEnemySkillFlags = (ap) => {
+// This is a little tricky and should probably be done else, but keep it here for now.
+  // Basically ap is 3 bytes, 1st byte contains the first 8 spell flags from LSB to MSB, but because I store the ap as single int, it's a pain
+  const flags = dec2bin(ap).padStart(24, '0').match(/[\s\S]{1,8}/g).map(s => s.split('').reverse().join('')).join('').split('').map(s => s === '1')
+  return flags
+}
+const populateAllEnemySkillsList = () => {
+  // I assume there is a more kernel oriented way of getting this
+  const s = []
+  for (let i = 72; i <= 95; i++) {
+    s.push({
+      index: i,
+      name: window.data.kernel.attackData[i].name,
+      enabled: false,
+      addedAbilities: []
+    })
+  }
+  return s
+}
+const getEnemySkillFlagsWithSkills = (ap) => {
+  const flags = getEnemySkillFlags(ap)
+  const skills = populateAllEnemySkillsList()
+  for (let i = 0; i < skills.length; i++) {
+    const skill = skills[i]
+    delete skill.addedAbilities
+    skill.enabled = flags[i]
+  }
+  return skills
+}
 const calculateHPMP = (char, statBonuses) => {
   // Calc max HP MP
   const hpBonusAmount = statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP').map(s => s.value).reduce((a, b) => a + b, 100)
@@ -449,19 +478,7 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
         return {index: s.attackId, name: s.name, enabled: false, addedAbilities: []}
       })
   }
-  const populateAllEnemySkillsList = () => {
-    // I assume there is a more kernel oriented way of getting this
-    const s = []
-    for (let i = 72; i <= 95; i++) {
-      s.push({
-        index: i,
-        name: window.data.kernel.attackData[i].name,
-        enabled: false,
-        addedAbilities: []
-      })
-    }
-    return s
-  }
+
   const enabledAttacks = (list, id, addedAbility, targetFlag) => {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
@@ -599,9 +616,7 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
             }
           }
         } else if (materiaData.type === 'Command' && materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
-          // This is a little tricky and should probably be done else, but keep it here for now.
-          // Basically ap is 3 bytes, 1st byte contains the first 8 spell flags from LSB to MSB, but because I store the ap as single int, it's a pain
-          const flags = dec2bin(materia.ap).padStart(24, '0').match(/[\s\S]{1,8}/g).map(s => s.split('').reverse().join('')).join('').split('').map(s => s === '1')
+          const flags = getEnemySkillFlags(materia.ap)
 
           for (let i = 0; i < flags.length; i++) {
             const enabled = flags[i]
@@ -783,5 +798,6 @@ export {
   recalculateAndApplyHPMPToAll,
   recalculateAndApplyHPMP,
   getBattleStatsForChar,
-  currentMateriaLevel
+  currentMateriaLevel,
+  getEnemySkillFlagsWithSkills
 }
