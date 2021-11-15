@@ -719,7 +719,8 @@ const addTextToDialog = (
   color,
   x,
   y,
-  scale
+  scale,
+  clippingPlanes
 ) => {
   const letters = text.split('')
   const textGroup = new THREE.Group()
@@ -746,6 +747,9 @@ const addTextToDialog = (
       if (dialogBox.userData.bg) {
         mesh.material.clippingPlanes =
           dialogBox.userData.bg.material.clippingPlanes
+      }
+      if (clippingPlanes) {
+        mesh.material.clippingPlanes = clippingPlanes
       }
 
       // console.log('pox', posX, '+', textureLetter.w, '->', posX + textureLetter.w, '.', posY, '-', textureLetter.h, '->', posY - textureLetter.h)

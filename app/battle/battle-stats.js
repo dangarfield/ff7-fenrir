@@ -781,9 +781,12 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Full Cure', 'Master Magic', 'Ultima', 'Poison', 'Lightning', 'Quadra Magic', 'Master Command', 'Enemy Skill'],
+    // ['Full Cure',
+    ['Enemy Skill', 'Master Magic', 'Ultima', 'Poison', 'Lightning', 'Quadra Magic', 'Master Command', 'Enemy Skill'],
     ['Deathblow', 'Steal', 'Double Cut', 'Cover', 'Enemy Lure', 'HP Plus', 'Master Summon', 'Odin']
   )
+
+  window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677
   window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 2000
   window.data.savemap.characters.Cloud.materia.armorMateria3.ap = 2000
   setEquipmentAndMateriaForTesting(

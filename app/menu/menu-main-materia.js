@@ -4,6 +4,7 @@ import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
+  WINDOW_COLORS_SUMMARY,
   createDialogBox,
   addTextToDialog,
   POINTERS,
@@ -17,16 +18,17 @@ import {
   createEquipmentMateriaViewer,
   EQUIPMENT_TYPE,
   addMenuCommandsToDialog,
-  createItemListNavigation
+  createItemListNavigation,
+  addShapeToDialog
 } from './menu-box-helper.js'
-import { fadeInHomeMenu, homeNav, setSelectedNav } from './menu-main-home.js'
+import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
 import { getBattleStatsForChar, currentMateriaLevel, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, headerGroup //
 let infoDialog, infoGroup //
 let arrangeDialog // no need for group //
-let materiaDetailsDialog, materiaDetailsGroup //
+let materiaDetailsDialog, materiaDetailsGroup, materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents //
 let smallMateriaListDialog, smallMateriaListGroup, smallMateriaListContentsGroup //
 let trashDialog // no need for group
 let checkDialog, checkGroup //
@@ -104,6 +106,8 @@ const loadMateriaMenu = async partyMember => {
   })
   materiaDetailsDialog.visible = true
   materiaDetailsGroup = addGroupToDialog(materiaDetailsDialog, 32)
+  materialsDetailsEnemySkillGroup = addGroupToDialog(materiaDetailsDialog, 32)
+  // materialsDetailsEnemySkillGroup.visible = true // TODO - temp
 
   infoDialog = await createDialogBox({
     id: 21,
@@ -146,6 +150,7 @@ const loadMateriaMenu = async partyMember => {
   setSelectedNav(2)
   drawHeader()
   drawMainNavPointer()
+  drawEnemySkillsGroup()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
@@ -301,11 +306,140 @@ const drawSmallMateriaList = () => {
   smallMateriaListContentsGroup.position.y = DATA.smallMateriaListPage * yAdj
   // TODO - Still need some clipping etc, will look at when doing list navigation
 }
+const drawEnemySkillsGroup = () => {
+  const skills = getEnemySkillFlagsWithSkills(0)
+
+  const enemySkillTextList = createDialogBox({
+    id: 22,
+    name: 'enemySkillTextList',
+    w: 150,
+    h: 80.5,
+    x: 20,
+    y: 152,
+    expandInstantly: true,
+    noClipping: false,
+    group: materialsDetailsEnemySkillGroup
+  })
+  for (let i = 0; i < enemySkillTextList.children.length; i++) {
+    enemySkillTextList.children[i].visible = false
+  }
+  enemySkillTextList.visible = true
+  materialsDetailsEnemySkillTextContents = addGroupToDialog(enemySkillTextList, 32)
+  materialsDetailsEnemySkillTextContents.userData.bg = enemySkillTextList.userData.bg
+
+  addShapeToDialog(
+    materialsDetailsEnemySkillGroup,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
+    'material-details-enemy-skills-bg',
+    95,
+    192.25,
+    150,
+    80.5
+  )
+
+  for (let i = 0; i < skills.length; i++) {
+    const skill = skills[i]
+    // Stars
+    const starX = 20 + 6
+    const starY = 136 - 6.5
+    const starXAdj = 12.5
+    const starYAdj = 14.5
+
+    const imgActive = addImageToDialog(
+      materialsDetailsEnemySkillGroup,
+      'materia',
+      `Command-star-active-small`,
+      `material-enemy-skill-${skill.index}-active`,
+      starX + ((i % 12) * starXAdj),
+      starY + (Math.trunc(i / 12) * starYAdj),
+      0.5
+    )
+    imgActive.userData.enemyskill = `${skill.index}-active`
+
+    const imgInactive = addImageToDialog(
+      materialsDetailsEnemySkillGroup,
+      'materia',
+      `Command-star-inactive-small`,
+      `material-enemy-skill-${skill.index}-inactive`,
+      starX + ((i % 12) * starXAdj),
+      starY + (Math.trunc(i / 12) * starYAdj),
+      0.5
+    )
+    imgInactive.userData.enemyskill = `${skill.index}-inactive`
+
+    // Text
+    const textX = 24 - 8
+    const textY = 163 - 4
+
+    const textXAdj = 77.5
+    const text2ndGroup = 77.5 * 12
+    const textYAdj = 13
+
+    const textActive1 = addTextToDialog(
+      materialsDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textActive1.userData.enemyskill = `${skill.index}-active`
+
+    const textInactive1 = addTextToDialog(
+      materialsDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Gray,
+      textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textInactive1.userData.enemyskill = `${skill.index}-inactive`
+
+    const textActive2 = addTextToDialog(
+      materialsDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      text2ndGroup + textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textActive2.userData.enemyskill = `${skill.index}-active`
+
+    const textInactive2 = addTextToDialog(
+      materialsDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Gray,
+      text2ndGroup + textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textInactive2.userData.enemyskill = `${skill.index}-inactive`
+  }
+  for (let i = 0; i < materialsDetailsEnemySkillTextContents.children.length; i++) { // Hack, I really need to look at the z index issues for fadeoverlay
+    const words = materialsDetailsEnemySkillTextContents.children[i]
+    for (let j = 0; j < words.children.length; j++) {
+      const letter = words.children[j]
+      letter.position.z = 39
+    }
+  }
+  window.enemySkillTextList = enemySkillTextList
+  window.materialsDetailsEnemySkillTextContents = materialsDetailsEnemySkillTextContents
+  window.materialsDetailsEnemySkillGroup = materialsDetailsEnemySkillGroup
+  window.materiaDetailsDialog = materiaDetailsDialog
+}
 const drawMateriaDetails = () => {
   console.log('materia drawMateriaDetails')
-  removeGroupChildren(materiaDetailsDialog)
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
+  removeGroupChildren(materiaDetailsGroup)
 
   let slotName
   if (DATA.mainNavPos < 9) {
@@ -324,7 +458,7 @@ const drawMateriaDetails = () => {
 
   // Name, type, description
   addTextToDialog(
-    materiaDetailsDialog,
+    materiaDetailsGroup,
     materiaData.name,
     `materia-details-name`,
     LETTER_TYPES.MenuBaseFont,
@@ -333,7 +467,7 @@ const drawMateriaDetails = () => {
     117 - 4,
     0.5
   )
-  addImageToDialog(materiaDetailsDialog,
+  addImageToDialog(materiaDetailsGroup,
     'materia',
     materiaData.type,
     `materia-details-type`,
@@ -349,15 +483,18 @@ const drawMateriaDetails = () => {
   // 3 - All others with everything
   if (materiaData.attributes.master) {
     console.log('materia MASTER materia, no more details required')
+    materialsDetailsEnemySkillGroup.visible = false
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
+    materialsDetailsEnemySkillGroup.visible = true
     const skills = getEnemySkillFlagsWithSkills(materia.ap)
     console.log('materia ENEMY SKILL materia, need to implement', skills) // TODO
   } else {
     console.log('materia standard materia display')
+    materialsDetailsEnemySkillGroup.visible = false
 
     // Labels
     addTextToDialog(
-      materiaDetailsDialog,
+      materiaDetailsGroup,
       'AP',
       `materia-details-ap-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -367,7 +504,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      materiaDetailsDialog,
+      materiaDetailsGroup,
       'To next level',
       `materia-details-next-level-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -377,7 +514,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      materiaDetailsDialog,
+      materiaDetailsGroup,
       'Ability List',
       `materia-details-next-ability-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -387,7 +524,7 @@ const drawMateriaDetails = () => {
       0.5
     )
     addTextToDialog(
-      materiaDetailsDialog,
+      materiaDetailsGroup,
       'Equip effects',
       `materia-details-next-effects-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -405,7 +542,7 @@ const drawMateriaDetails = () => {
 
     for (let i = 0; i < materiaData.apLevels.length; i++) {
       addImageToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         'materia',
         i < currentLevel ? `${materiaData.type}-star-active-small` : `${materiaData.type}-star-inactive-small`,
         `material-details-level-${i}`,
@@ -419,7 +556,7 @@ const drawMateriaDetails = () => {
     if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
       // Mastered
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         'MASTER',
         `materia-ap-master`,
         LETTER_TYPES.MenuBaseFont,
@@ -429,7 +566,7 @@ const drawMateriaDetails = () => {
         0.5
       )
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         ('0').padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -441,7 +578,7 @@ const drawMateriaDetails = () => {
     } else {
       // Still to develop
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         ('' + materia.ap).padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -451,7 +588,7 @@ const drawMateriaDetails = () => {
         0.5
       )
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         ('' + (materiaData.apLevels[currentLevel] - materia.ap)).padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -473,7 +610,7 @@ const drawMateriaDetails = () => {
         }
         console.log('materia level', ability.level, currentLevel, ability)
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -485,7 +622,7 @@ const drawMateriaDetails = () => {
       }
     } else if (materiaData.type === 'Summon') {
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         materiaData.attributes.summon[0].name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -496,7 +633,7 @@ const drawMateriaDetails = () => {
       )
     } else if (materiaData.type === 'Support') {
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         materiaData.name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -534,7 +671,7 @@ const drawMateriaDetails = () => {
       for (let i = 0; i < abilities.length; i++) {
         const ability = abilities[i]
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -546,7 +683,7 @@ const drawMateriaDetails = () => {
       }
     } else if (materiaData.type === 'Independent') {
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         materiaAbilityText(materiaData.name),
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -562,7 +699,7 @@ const drawMateriaDetails = () => {
         const value = materiaData.attributes.attributes[currentLevel - 1]
         console.log('materia %value', value)
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           '+',
           `materia-details-effect-${i}-sign`,
           LETTER_TYPES.MenuTextFixed,
@@ -573,7 +710,7 @@ const drawMateriaDetails = () => {
         )
         // value
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           ('' + value).padStart(2, '0'),
           `materia-details-effect-${i}-value`,
           LETTER_TYPES.MenuTextStats,
@@ -584,7 +721,7 @@ const drawMateriaDetails = () => {
         )
         // perc
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
@@ -601,7 +738,7 @@ const drawMateriaDetails = () => {
       const effect = materiaData.equipEffect[i]
       // stat name
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         statDisplayText(effect[0]),
         `materia-details-effect-${i}-label`,
         LETTER_TYPES.MenuBaseFont,
@@ -613,7 +750,7 @@ const drawMateriaDetails = () => {
 
       // + / -
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         effect[1] < 0 ? '-' : '+',
         `materia-details-effect-${i}-sign`,
         LETTER_TYPES.MenuTextFixed,
@@ -624,7 +761,7 @@ const drawMateriaDetails = () => {
       )
       // value
       addTextToDialog(
-        materiaDetailsDialog,
+        materiaDetailsGroup,
         ('' + Math.abs(effect[1])).padStart(2, '0'),
         `materia-details-effect-${i}-value`,
         LETTER_TYPES.MenuTextStats,
@@ -636,7 +773,7 @@ const drawMateriaDetails = () => {
       // perc
       if (effect[0] === 'HP' || effect[0] === 'MP') {
         addTextToDialog(
-          materiaDetailsDialog,
+          materiaDetailsGroup,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
