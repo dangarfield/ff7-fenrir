@@ -39,7 +39,8 @@ const DATA = {
   battleStats: {},
   mainNavPos: 1, // 0 check, 1-8 weap, 9 arrange, 10-17 arm
   smallMateriaListPos: 0,
-  smallMateriaListPage: 0
+  smallMateriaListPage: 0,
+  tweenEnemySkills: false
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
@@ -107,7 +108,6 @@ const loadMateriaMenu = async partyMember => {
   materiaDetailsDialog.visible = true
   materiaDetailsGroup = addGroupToDialog(materiaDetailsDialog, 32)
   materialsDetailsEnemySkillGroup = addGroupToDialog(materiaDetailsDialog, 32)
-  // materialsDetailsEnemySkillGroup.visible = true // TODO - temp
 
   infoDialog = createDialogBox({
     id: 21,
@@ -259,6 +259,7 @@ const drawCheck = () => {
   console.log('materia drawCheck')
   materiaDetailsDialog.visible = false
   smallMateriaListDialog.visible = false
+  materialsDetailsEnemySkillGroup.visible = false
 
   addMenuCommandsToDialog(checkGroup, 23.5, 107, DATA.battleStats.menu.command)
 }
@@ -266,6 +267,7 @@ const drawSmallMateriaList = () => {
   console.log('materia drawCheck')
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
+  materialsDetailsEnemySkillGroup.visible = false
 
   const x = 213.5 - 8
   const y = 115 - 4
@@ -372,8 +374,8 @@ const drawEnemySkillsGroup = () => {
     const textY = 163 - 4
 
     const textXAdj = 77.5
-    const text2ndGroup = 77.5 * 12
     const textYAdj = 13
+    const text2ndGroup = textYAdj * 12
 
     const textActive1 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
@@ -405,8 +407,8 @@ const drawEnemySkillsGroup = () => {
       `materia-details-name`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
-      text2ndGroup + textX + ((i % 2) * textXAdj),
-      textY + (Math.trunc(i / 2) * textYAdj),
+      textX + ((i % 2) * textXAdj),
+      text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
     textActive2.userData.enemyskill = `${skill.index}-active`
@@ -414,16 +416,17 @@ const drawEnemySkillsGroup = () => {
     const textInactive2 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      `materia-textActive2details-name`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Gray,
-      text2ndGroup + textX + ((i % 2) * textXAdj),
-      textY + (Math.trunc(i / 2) * textYAdj),
+      textX + ((i % 2) * textXAdj),
+      text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
     textInactive2.userData.enemyskill = `${skill.index}-inactive`
   }
-  for (let i = 0; i < materialsDetailsEnemySkillTextContents.children.length; i++) { // Hack, I really need to look at the z index issues for fadeoverlay
+  // Hack, I really need to look at the z index issues for fadeoverlay
+  for (let i = 0; i < materialsDetailsEnemySkillTextContents.children.length; i++) {
     const words = materialsDetailsEnemySkillTextContents.children[i]
     for (let j = 0; j < words.children.length; j++) {
       const letter = words.children[j]
@@ -436,7 +439,25 @@ const drawEnemySkillsGroup = () => {
   window.materialsDetailsEnemySkillGroup = materialsDetailsEnemySkillGroup
   window.materiaDetailsDialog = materiaDetailsDialog
 
-  // TODO - Tweening the group repeatedly and moving it back up etc while the materia menu is visible
+  tweenEnemySkills()
+}
+const tweenEnemySkills = async () => {
+  if (DATA.tweenEnemySkills === false) {
+    const from = { y: 0 }
+    const to = { y: 13 * 12 }
+    DATA.tweenEnemySkills = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, 5000)
+      .repeat(Infinity)
+      .onUpdate(function () {
+        materialsDetailsEnemySkillTextContents.position.y = from.y
+      })
+      .onComplete(function () {
+        console.log('materia - Tween enemy skills: START')
+      })
+      .start()
+  } else {
+    DATA.tweenEnemySkills.start()
+  }
 }
 const drawMateriaDetails = () => {
   console.log('materia drawMateriaDetails')
@@ -959,6 +980,8 @@ const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
   await fadeOverlayIn(getMenuBlackOverlay())
+  DATA.tweenEnemySkills.stop()
+
   headerDialog.visible = false
   infoDialog.visible = false
   arrangeDialog.visible = false
