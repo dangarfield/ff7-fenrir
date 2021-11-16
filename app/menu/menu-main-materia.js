@@ -25,13 +25,13 @@ import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
 import { getBattleStatsForChar, currentMateriaLevel, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
-let headerDialog, headerGroup //
-let infoDialog, infoGroup //
-let arrangeDialog // no need for group //
-let materiaDetailsDialog, materiaDetailsGroup, materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents //
-let smallMateriaListDialog, smallMateriaListGroup, smallMateriaListContentsGroup //
-let trashDialog // no need for group
-let checkDialog, checkGroup //
+let headerDialog, headerGroup
+let infoDialog, infoGroup
+let arrangeDialog
+let materiaDetailsDialog, materiaDetailsGroup, materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents
+let smallMateriaListDialog, smallMateriaListGroup, smallMateriaListContentsGroup
+let trashDialog
+let checkDialog, checkGroup, checkSubGroup
 
 const DATA = {
   partyMember: 0,
@@ -40,7 +40,8 @@ const DATA = {
   mainNavPos: 1, // 0 check, 1-8 weap, 9 arrange, 10-17 arm
   smallMateriaListPos: 0,
   smallMateriaListPage: 0,
-  tweenEnemySkills: false
+  tweenEnemySkills: false,
+  check: { main: 0, sub: 0 }
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
@@ -54,6 +55,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.mainNavPos = 1
   DATA.smallMateriaListPos = 0
   DATA.smallMateriaListPage = 0
+  DATA.check = { main: 0, sub: 0 }
 
   headerDialog = createDialogBox({
     id: 25,
@@ -80,6 +82,7 @@ const loadMateriaMenu = async partyMember => {
   })
   checkDialog.visible = true
   checkGroup = addGroupToDialog(checkDialog, 34)
+  checkSubGroup = addGroupToDialog(checkDialog, 34)
 
   smallMateriaListDialog = createDialogBox({
     id: 23,
@@ -256,12 +259,165 @@ const drawMainNavPointer = () => {
   }
 }
 const drawCheck = () => {
-  console.log('materia drawCheck')
+  console.log('materia drawCheck', DATA)
   materiaDetailsDialog.visible = false
   smallMateriaListDialog.visible = false
   materialsDetailsEnemySkillGroup.visible = false
 
   addMenuCommandsToDialog(checkGroup, 23.5, 107, DATA.battleStats.menu.command)
+}
+const drawCheckSelect = () => {
+  // DATA.check = { main: 0, sub: 0 }
+  DATA.check.main = 0
+
+  // Update info
+  drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
+
+  // Show main pointer
+  drawCheckMainPointer()
+
+  setMenuState('materia-check')
+}
+const drawCheckMainPointer = () => {
+  const x = 27 - 10
+  const y = 116.5 + 7
+  const xAdj = 43 // TODO - This is not a set value for each col
+  const yAdj = 13
+
+  movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  movePointer(POINTERS.pointer2,
+    x + (Math.trunc(DATA.check.main / 4) * xAdj),
+    y + ((DATA.check.main % 4) * yAdj)
+  )
+}
+const cancelCheck = () => {
+  console.log('materia cancelCheck')
+  drawMainNavPointer()
+  drawInfo('')
+  setMenuState('materia-main')
+}
+const checkSelectCommand = () => {
+  const command = DATA.battleStats.menu.command[DATA.check.main]
+  console.log('materia checkSelectCommand', command)
+  if (command.type && command.type === 2) {
+    drawCheckCommandMagic()
+  } else if (command.type && command.type === 3) {
+    drawCheckCommandSummon()
+  } else if (command.id === 13) {
+    drawCheckCommandEnemySkill()
+  }
+}
+const checkNavigation = (vertical, delta) => {
+  console.log('materia checkNavigation', DATA, vertical, delta)
+  window.DATA = DATA
+
+  if (vertical) {
+    // vertical movement
+
+    // group commands into groups of 4
+    // select group which the DATA.check.main is in
+    const startPos = Math.trunc(DATA.check.main / 4) * 4
+    const commandSubset = DATA.battleStats.menu.command.slice(startPos, startPos + 4)
+    let offset = DATA.check.main % 4 + delta
+    if (offset < 0) {
+      offset = commandSubset.length - 1
+    } else if (offset >= commandSubset.length) {
+      offset = 0
+    }
+    DATA.check.main = startPos + offset
+    console.log('materia checkNavigation vertical', DATA.check.main)
+    // +1 / -1 and wrap around if needed
+  } else {
+    // horizontal movement
+
+    // group every 4th command
+    // select group which the DATA.check.main is in
+    const startPos = DATA.check.main % 4
+    const commandSubset = DATA.battleStats.menu.command.filter((c, i) => i % 4 === DATA.check.main % 4)
+    let offset = (Math.trunc(DATA.check.main / 4)) + delta
+    if (offset < 0) {
+      offset = commandSubset.length - 1
+    } else if (offset >= commandSubset.length) {
+      offset = 0
+    }
+    DATA.check.main = (startPos * 1) + (offset * 4)
+    // +1 / -1 and wrap around if needed
+    console.log('materia checkNavigation horizontal', DATA.check.main)
+  }
+  drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
+  drawCheckMainPointer()
+}
+
+const drawCheckCommandMagic = () => {
+  console.log('materia drawCheckCommandMagic')
+  removeGroupChildren(checkSubGroup)
+  const checkMagicDialog = createDialogBox({
+    id: 23,
+    name: 'checkMagicDialog',
+    w: 209,
+    h: 60,
+    x: 23.5,
+    y: 171.5,
+    expandInstantly: true,
+    noClipping: false,
+    group: checkSubGroup
+  })
+  checkMagicDialog.visible = true
+  const checkMagicList = addGroupToDialog(checkMagicDialog, 33)
+  const checkMagicListContents = addGroupToDialog(checkMagicDialog, 33)
+
+  const x = 41
+  const y = 188
+  const xAdj = 65
+  const yAdj = 17
+  for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
+    const magic = DATA.battleStats.menu.magic[i]
+    if (magic.enabled) {
+      // addTextToDialog(
+      //   materiaDetailsGroup,
+      //   'AP',
+      //   `materia-details-ap-label`,
+      //   LETTER_TYPES.MenuBaseFont,
+      //   LETTER_COLORS.Cyan,
+      //   103.5 - 8,
+      //   132 - 4,
+      //   0.5
+      // )
+    }
+  }
+
+  const checkMagicCastingDialog = createDialogBox({
+    id: 23,
+    name: 'checkMagicCastingDialog',
+    w: 57.5,
+    h: 60,
+    x: 232.5,
+    y: 171.5,
+    expandInstantly: true,
+    noClipping: true,
+    group: checkSubGroup
+  })
+  checkMagicCastingDialog.visible = true
+  const checkMagicCastingGroup = addGroupToDialog(checkMagicCastingDialog, 33)
+  setMenuState('materia-check-sub')
+}
+
+const drawCheckCommandSummon = () => {
+  console.log('materia drawCheckCommandSummon')
+}
+
+const drawCheckCommandEnemySkill = () => {
+  console.log('materia drawCheckCommandEnemySkill')
+}
+const checkSubNavigation = (vertical, delta) => {
+  console.log('materia checkSubNavigation', vertical, delta)
+}
+const cancelSubCheck = () => {
+  console.log('materia cancelSubCheck')
+  removeGroupChildren(checkSubGroup)
+  drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
+  drawCheckMainPointer()
+  setMenuState('materia-check')
 }
 const drawSmallMateriaList = () => {
   console.log('materia drawCheck')
@@ -520,7 +676,7 @@ const drawMateriaDetails = () => {
       for (let j = 0; j < group.children.length; j++) {
         const item = group.children[j]
         if (item.userData.enemyskill) {
-          console.log('materia enemyskill item', item.userData.enemyskill, skills.includes(item.userData.enemyskill))
+          // console.log('materia enemyskill item', item.userData.enemyskill, skills.includes(item.userData.enemyskill))
           if (skills.includes(item.userData.enemyskill)) {
             item.visible = true
           } else {
@@ -899,6 +1055,12 @@ const mainNavigation = delta => {
   }
   drawMainNavPointer()
 }
+const mainNavigationSelect = () => {
+  console.log('materia mainNavigationSelect', DATA.mainNavPos, DATA.battleStats.menu.command)
+  if (DATA.mainNavPos === 0) {
+    drawCheckSelect()
+  }
+}
 // const listNavigation = (delta) => {
 //   const menu = DATA.menus[DATA.menuCurrent]
 //   const maxPage = menu.spells.length / menu.cols
@@ -1010,6 +1172,34 @@ const keyPress = async (key, firstPress, state) => {
       mainNavigation(-9)
     } else if (key === KEY.DOWN) {
       mainNavigation(9)
+    } else if (key === KEY.O) {
+      mainNavigationSelect()
+    }
+  } else if (state === 'materia-check') {
+    if (key === KEY.LEFT) {
+      checkNavigation(false, -1)
+    } else if (key === KEY.RIGHT) {
+      checkNavigation(false, 1)
+    } else if (key === KEY.UP) {
+      checkNavigation(true, -1)
+    } else if (key === KEY.DOWN) {
+      checkNavigation(true, 1)
+    } else if (key === KEY.O) {
+      checkSelectCommand()
+    } else if (key === KEY.X) {
+      cancelCheck()
+    }
+  } else if (state === 'materia-check-sub') {
+    if (key === KEY.LEFT) {
+      checkSubNavigation(false, -1)
+    } else if (key === KEY.RIGHT) {
+      checkSubNavigation(false, 1)
+    } else if (key === KEY.UP) {
+      checkSubNavigation(true, -1)
+    } else if (key === KEY.DOWN) {
+      checkSubNavigation(true, 1)
+    } else if (key === KEY.X) {
+      cancelSubCheck()
     }
   }
 }
