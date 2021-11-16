@@ -418,6 +418,39 @@ const drawCheckCommandMagic = () => {
 
   const checkMagicCastingGroup = addGroupToDialog(checkMagicCastingDialog, 33)
   checkSubGroup.userData.subCasting = checkMagicCastingGroup
+
+  // Default parts
+  addImageToDialog(
+    checkMagicCastingDialog,
+    'labels',
+    'mp-needed',
+    'materia-check-sub-mp-needed-image',
+    265,
+    181.5,
+    0.5
+  )
+  addTextToDialog(
+    checkMagicCastingDialog,
+    `   /`,
+    `materia-check-sub-mp-cost`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    241.5 - 8,
+    199 - 4,
+    0.5
+  )
+  // Also, in this menu, when using HP<->MP, the game caps the current mp to 999 for display purposes
+  addTextToDialog(
+    checkMagicCastingDialog,
+    ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
+    `materia-check-sub-mp-current`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    264.5 - 8,
+    199 - 4,
+    0.5
+  )
+
   setMenuState('materia-check-sub')
 }
 const drawCheckMagicPointer = () => {
@@ -432,19 +465,10 @@ const drawMagicCastingInfo = () => {
   console.log('materia drawMagicCastingInfo', DATA, magic)
   const checkMagicCastingGroup = checkSubGroup.userData.subCasting
   removeGroupChildren(checkMagicCastingGroup)
+
   if (magic.enabled) {
     const attackData = window.data.kernel.attackData[magic.index]
     drawInfo(attackData.description)
-
-    addImageToDialog(
-      checkMagicCastingGroup,
-      'labels',
-      'mp-needed',
-      'materia-check-sub-mp-needed-image',
-      265,
-      181.5,
-      0.5
-    )
 
     let mpCost = attackData.mp // Add turbo mp if required
     if (isMPTurboActive(magic)) {
@@ -453,22 +477,11 @@ const drawMagicCastingInfo = () => {
 
     addTextToDialog(
       checkMagicCastingGroup,
-      `${('' + mpCost).padStart(3, ' ')}/`,
+      ('' + mpCost).padStart(3, ' '),
       `materia-check-sub-mp-cost`,
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       241.5 - 8,
-      199 - 4,
-      0.5
-    )
-    // Also, in this menu, when using HP<->MP, the game caps the current mp to 999 for display purposes
-    addTextToDialog(
-      checkMagicCastingGroup,
-      ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
-      `materia-check-sub-mp-current`,
-      LETTER_TYPES.MenuTextStats,
-      LETTER_COLORS.White,
-      264.5 - 8,
       199 - 4,
       0.5
     )
@@ -515,7 +528,7 @@ const drawMagicCastingInfo = () => {
       }
     }
   } else {
-    drawInfo('') // TODO
+    drawInfo('')
   }
 }
 const drawCheckCommandSummon = () => {

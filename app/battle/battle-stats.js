@@ -460,9 +460,52 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
   // remove - ['EnableSelection', 'StartCursorOnEnemyRow', 'DefaultMultipleTargets']
 
   const populateAllMagicsList = () => {
-    const m = []
+    // There is an interesting 'bug' in the game where the sorted magic order as defined in the config settings doesn't update the magic list
+    // UNTIL you either go into a battle of the check command in the materia menu, at which point, it is updated
+    // I'm just going to make sure that it's always the right order in the beginning
+    // restore - 0
+    // attack - 1
+    // indirect - 2
+    // ultimate - 3 (no position config, always last)
+    // window.data.savemap.config.magicOrder = {
+    //   AttackIndirectRestore: false,
+    //   AttackRestoreIndirect: false,
+    //   IndirectAttackRestore: false,
+    //   IndirectRestoreAttack: false,
+    //   RestoreAttackIndirect: true,
+    //   RestoreIndirectAttack: false
+    // }
+    const orderingList = []
+    let boostRestore = 0
+    let boostAttack = 0
+    let boostIndirect = 0
+    const boostUltimate = 400
+    if (window.data.savemap.config.magicOrder.RestoreAttackIndirect) {
+      boostRestore = 100; boostAttack = 200; boostIndirect = 300
+    } else if (window.data.savemap.config.magicOrder.RestoreIndirectAttack) {
+      boostRestore = 100; boostAttack = 300; boostIndirect = 200
+    } else if (window.data.savemap.config.magicOrder.AttackIndirectRestore) {
+      boostRestore = 300; boostAttack = 100; boostIndirect = 200
+    } else if (window.data.savemap.config.magicOrder.AttackRestoreIndirect) {
+      boostRestore = 200; boostAttack = 100; boostIndirect = 300
+    } else if (window.data.savemap.config.magicOrder.IndirectRestoreAttack) {
+      boostRestore = 200; boostAttack = 300; boostIndirect = 100
+    } else if (window.data.savemap.config.magicOrder.IndirectAttackRestore) {
+      boostRestore = 300; boostAttack = 200; boostIndirect = 100
+    }
+    const orderTypes = [boostRestore, boostAttack, boostIndirect, boostUltimate]
+
     for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
       const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
+      orderingList.push({index: spell.index, name: spell.name, order: orderTypes[spell.section] + spell.position})
+    }
+
+    orderingList.sort((a, b) => a.order - b.order)
+    // console.log('materia ORDERING LIST', orderingList)
+    const m = []
+
+    for (let i = 0; i < orderingList.length; i++) {
+      const spell = orderingList[i]
       m.push({
         index: spell.index,
         name: spell.name,
@@ -676,6 +719,9 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
     console.log('magic', `weaponMateria${i + 1}`, materiaName)
     if (materiaName.length > 0) {
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
+      if (!materia) {
+        window.alert(`No materia: ${materiaName} in weaponMateria${i + 1}`)
+      }
       char.materia[`weaponMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
       char.materia[`weaponMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
@@ -685,6 +731,9 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
     const materiaName = armorMat[i]
     if (materiaName.length > 0) {
       const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
+      if (!materia) {
+        window.alert(`No materia: ${materiaName} in armorMateria${i + 1}`)
+      }
       char.materia[`armorMateria${i + 1}`] = {id: materia.index, ap: ap, name: materia.name, description: materia.description}
     } else {
       char.materia[`armorMateria${i + 1}`] = {id: 255, ap: 0xFFFFFF}
@@ -809,8 +858,8 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Tifa,
     'Premium Heart', 'Wizard Bracelet', '',
-    ['Double Cut', 'Underwater', 'Cover', 'Counter Attack', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
-    ['Enemy Lure', 'Enemy Away', 'Gil Plus', 'EXP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus', 'HP Plus']
+    ['Double Cut', 'Underwater', 'Cover', 'Ultima', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
+    ['Enemy Lure', 'Time', 'Gil Plus', 'Revive', 'Fire', 'Magic Plus', 'Speed Plus', 'HP Plus']
   )
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria

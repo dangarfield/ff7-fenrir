@@ -269,6 +269,7 @@ const drawListPointer = () => {
 const drawList = () => {
   removeGroupChildren(listGroup)
   removeGroupChildren(listGroupContents)
+
   const menu = DATA.menus[DATA.menuCurrent]
   for (let i = 0; i < menu.spells.length; i++) {
     const spell = menu.spells[i]
