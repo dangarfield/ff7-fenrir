@@ -839,16 +839,8 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-
-    // {type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget'}, // not escape, only available if targetFlags has ToggleSingleMultiTarget
-    // {type: 'QuadraMagic', order: 2, text: '4x-M', count: 5, targetFlag: 'EnableSelection'}, // not escape
-    // {type: 'HPAbsorb', order: 3, text: 'Absorb HP'},
-    // {type: 'MPAbsorb', order: 4, text: 'Absorb MP'},
-    // {type: 'StealAsWell', order: 5, text: 'Steal as well'},
-    // {type: 'AddedCut', order: 6, text: 'Extra cut'},
-    // {type: 'MPTurbo', order: 7, text: 'Turbo MP', level: 5}
-    ['Master Magic', 'All', 'Master Magic', 'Quadra Magic', 'Master Magic', 'HP Absorb', 'Master Magic', 'MP Absorb'],
-    ['Master Magic', 'Steal as well', 'Master Magic', 'Added Cut', 'Master Magic', 'MP Turbo', 'Master Magic', 'Mega All']
+    ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
+    ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
   )
 
   // window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677
