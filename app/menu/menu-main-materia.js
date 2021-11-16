@@ -41,7 +41,7 @@ const DATA = {
   smallMateriaListPos: 0,
   smallMateriaListPage: 0,
   tweenEnemySkills: false,
-  check: { main: 0, sub: 0 }
+  check: { main: 0, sub: {pos: 0, page: 0} }
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
@@ -55,7 +55,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.mainNavPos = 1
   DATA.smallMateriaListPos = 0
   DATA.smallMateriaListPage = 0
-  DATA.check = { main: 0, sub: 0 }
+  DATA.check = { main: 0, sub: {pos: 0, page: 0} }
 
   headerDialog = createDialogBox({
     id: 25,
@@ -301,6 +301,9 @@ const checkSelectCommand = () => {
   console.log('materia checkSelectCommand', command)
   if (command.type && command.type === 2) {
     drawCheckCommandMagic()
+    drawCheckMagicPointer()
+    drawInfo('') // TODO
+    drawMagicCastingInfo()
   } else if (command.type && command.type === 3) {
     drawCheckCommandSummon()
   } else if (command.id === 13) {
@@ -347,7 +350,13 @@ const checkNavigation = (vertical, delta) => {
   drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
   drawCheckMainPointer()
 }
-
+const checkMagicPositions = () => {
+  return { x: 41 - 8,
+    y: 188 - 4,
+    xAdj: 65,
+    yAdj: 17
+  }
+}
 const drawCheckCommandMagic = () => {
   console.log('materia drawCheckCommandMagic')
   removeGroupChildren(checkSubGroup)
@@ -363,29 +372,36 @@ const drawCheckCommandMagic = () => {
     group: checkSubGroup
   })
   checkMagicDialog.visible = true
-  const checkMagicList = addGroupToDialog(checkMagicDialog, 33)
-  const checkMagicListContents = addGroupToDialog(checkMagicDialog, 33)
+  // const checkMagicList = addGroupToDialog(checkMagicDialog, 33)
 
-  const x = 41
-  const y = 188
-  const xAdj = 65
-  const yAdj = 17
+  createItemListNavigation(checkMagicDialog, 225.5, 174.5 - 136, 54, DATA.battleStats.menu.magic.length / 3, 3)
+  checkMagicDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
+
+  const checkMagicListContents = addGroupToDialog(checkMagicDialog, 33)
+  checkMagicListContents.userData.bg = checkMagicDialog.userData.bg
+  checkMagicListContents.position.y = 0
+
+  // TODO - slider
+  const {x, y, xAdj, yAdj} = checkMagicPositions()
   for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
     const magic = DATA.battleStats.menu.magic[i]
     if (magic.enabled) {
-      // addTextToDialog(
-      //   materiaDetailsGroup,
-      //   'AP',
-      //   `materia-details-ap-label`,
-      //   LETTER_TYPES.MenuBaseFont,
-      //   LETTER_COLORS.Cyan,
-      //   103.5 - 8,
-      //   132 - 4,
-      //   0.5
-      // )
+      console.log('materia check magic add', magic)
+      addTextToDialog(
+        checkMagicListContents,
+        magic.name,
+        `materia-check-magic-${i}`,
+        LETTER_TYPES.MenuBaseFont,
+        LETTER_COLORS.White,
+        x + ((i % 3) * xAdj),
+        y + (Math.trunc(i / 3) * yAdj),
+        0.5
+      )
     }
   }
 
+  // window.checkMagicDialog = checkMagicDialog
+  // window.checkMagicListContents = checkMagicListContents
   const checkMagicCastingDialog = createDialogBox({
     id: 23,
     name: 'checkMagicCastingDialog',
@@ -398,10 +414,28 @@ const drawCheckCommandMagic = () => {
     group: checkSubGroup
   })
   checkMagicCastingDialog.visible = true
+  addImageToDialog(
+    checkMagicCastingDialog,
+    'labels',
+    'mp-needed',
+    'mp-needed-image',
+    265,
+    181.5,
+    0.5
+  )
   const checkMagicCastingGroup = addGroupToDialog(checkMagicCastingDialog, 33)
   setMenuState('materia-check-sub')
 }
+const drawCheckMagicPointer = () => {
+  const {x, y, xAdj, yAdj} = checkMagicPositions()
+  movePointer(POINTERS.pointer2,
+    x + (((DATA.check.sub.page * 3) + DATA.check.sub.pos) * xAdj) - 2,
+    y + (Math.trunc(((DATA.check.sub.page * 3) + DATA.check.sub.pos) / 3) * yAdj) + 4
+  )
+}
+const drawMagicCastingInfo = () => {
 
+}
 const drawCheckCommandSummon = () => {
   console.log('materia drawCheckCommandSummon')
 }
