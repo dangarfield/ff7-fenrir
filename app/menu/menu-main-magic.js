@@ -18,7 +18,7 @@ import {
 } from './menu-box-helper.js'
 import { isMagicMenuSummonEnabled, isMagicMenuEnemySkillEnabled } from '../data/savemap-alias.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
-import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, isMPTurboActive, applyMPTurbo } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, typeSelectDialog, mpDialog, listDialog, applyDialog, applyNameDialog
@@ -424,14 +424,7 @@ const drawInfo = (info) => {
     0.5
   )
 }
-const isMPTurboActive = (item) => {
-  return item.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0
-}
-const applyMPTurbo = (originalMP, item) => {
-  const mpTurboAbility = item.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
-  const mp = Math.min(255, Math.trunc(((originalMP * (10 + mpTurboAbility.level)) / 10) + 1))
-  return mp
-}
+
 const updateInfoForSelectedSpell = () => {
   const menu = DATA.menus[DATA.menuCurrent]
   let spell

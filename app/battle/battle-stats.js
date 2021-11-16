@@ -778,6 +778,14 @@ const getBattleStatsForChar = (char) => {
     modifiers
   }
 }
+const isMPTurboActive = (item) => {
+  return item.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0
+}
+const applyMPTurbo = (originalMP, item) => {
+  const mpTurboAbility = item.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
+  const mp = Math.min(255, Math.trunc(((originalMP * (10 + mpTurboAbility.level)) / 10) + 1))
+  return mp
+}
 const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
@@ -811,5 +819,7 @@ export {
   recalculateAndApplyHPMP,
   getBattleStatsForChar,
   currentMateriaLevel,
-  getEnemySkillFlagsWithSkills
+  getEnemySkillFlagsWithSkills,
+  isMPTurboActive,
+  applyMPTurbo
 }

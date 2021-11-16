@@ -10,7 +10,8 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       // 'movePointer',
       'materia',
-      'stats'
+      'stats',
+      'magic'
     ],
     log: function () {
       if (limit) {

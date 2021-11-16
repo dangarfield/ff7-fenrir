@@ -1,5 +1,5 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
+import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
@@ -287,7 +287,6 @@ const checkSelectCommand = () => {
   if (command.type && command.type === 2) {
     drawCheckCommandMagic()
     drawCheckMagicPointer()
-    drawInfo('') // TODO
     drawMagicCastingInfo()
   } else if (command.type && command.type === 3) {
     drawCheckCommandSummon()
@@ -360,21 +359,23 @@ const drawCheckCommandMagic = () => {
     group: checkSubGroup
   })
   checkMagicDialog.visible = true
-  // const checkMagicList = addGroupToDialog(checkMagicDialog, 33)
 
   createItemListNavigation(checkMagicDialog, 225.5, 174.5 - 136, 54, DATA.battleStats.menu.magic.length / 3, 3)
   checkMagicDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
+  checkSubGroup.userData.subDialog = checkMagicDialog
 
   const checkMagicListContents = addGroupToDialog(checkMagicDialog, 33)
   checkMagicListContents.userData.bg = checkMagicDialog.userData.bg
   checkMagicListContents.position.y = 0
+  checkSubGroup.userData.subContents = checkMagicListContents
 
-  // TODO - slider
   const {x, y, xAdj, yAdj} = checkMagicPositions()
+
+  // TODO - Reorder based on spell order config?
   for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
     const magic = DATA.battleStats.menu.magic[i]
     if (magic.enabled) {
-      console.log('materia check magic add', magic)
+      // console.log('materia check magic add', magic)
       addTextToDialog(
         checkMagicListContents,
         magic.name,
@@ -385,6 +386,18 @@ const drawCheckCommandMagic = () => {
         y + (Math.trunc(i / 3) * yAdj),
         0.5
       )
+      const isAll = magic.addedAbilities.filter(a => a.type === 'All').length > 0
+      if (isAll) {
+        addImageToDialog(
+          checkMagicListContents,
+          'pointers',
+          'arrow-right',
+          `materia-check-magic-${i}-all`,
+          x + ((i % 3) * xAdj) + 56,
+          y + (Math.trunc(i / 3) * yAdj),
+          0.5
+        )
+      }
     }
   }
 
@@ -402,28 +415,108 @@ const drawCheckCommandMagic = () => {
     group: checkSubGroup
   })
   checkMagicCastingDialog.visible = true
-  addImageToDialog(
-    checkMagicCastingDialog,
-    'labels',
-    'mp-needed',
-    'mp-needed-image',
-    265,
-    181.5,
-    0.5
-  )
+
   const checkMagicCastingGroup = addGroupToDialog(checkMagicCastingDialog, 33)
+  checkSubGroup.userData.subCasting = checkMagicCastingGroup
   setMenuState('materia-check-sub')
 }
 const drawCheckMagicPointer = () => {
   const {x, y, xAdj, yAdj} = checkMagicPositions()
   movePointer(POINTERS.pointer2,
-    x + (((DATA.check.sub.page * 3) + DATA.check.sub.pos) * xAdj) - 2,
-    y + (Math.trunc(((DATA.check.sub.page * 3) + DATA.check.sub.pos) / 3) * yAdj) + 4
+    x + ((DATA.check.sub.pos % 3) * xAdj) - 2,
+    y + (Math.trunc(DATA.check.sub.pos / 3) * yAdj) + 4
   )
 }
 const drawMagicCastingInfo = () => {
   const magic = DATA.battleStats.menu.magic[(DATA.check.sub.page * 3) + DATA.check.sub.pos]
-  console.log('magic drawMagicCastingInfo', magic)
+  console.log('materia drawMagicCastingInfo', DATA, magic)
+  const checkMagicCastingGroup = checkSubGroup.userData.subCasting
+  removeGroupChildren(checkMagicCastingGroup)
+  if (magic.enabled) {
+    const attackData = window.data.kernel.attackData[magic.index]
+    drawInfo(attackData.description)
+
+    addImageToDialog(
+      checkMagicCastingGroup,
+      'labels',
+      'mp-needed',
+      'materia-check-sub-mp-needed-image',
+      265,
+      181.5,
+      0.5
+    )
+
+    let mpCost = attackData.mp // Add turbo mp if required
+    if (isMPTurboActive(magic)) {
+      mpCost = applyMPTurbo(mpCost, magic)
+    }
+
+    addTextToDialog(
+      checkMagicCastingGroup,
+      `${('' + mpCost).padStart(3, ' ')}/`,
+      `materia-check-sub-mp-cost`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      241.5 - 8,
+      199 - 4,
+      0.5
+    )
+    // Also, in this menu, when using HP<->MP, the game caps the current mp to 999 for display purposes
+    addTextToDialog(
+      checkMagicCastingGroup,
+      ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
+      `materia-check-sub-mp-current`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      264.5 - 8,
+      199 - 4,
+      0.5
+    )
+
+    const displayedAbilities = [
+      ['QuadraMagic', '4x:'],
+      ['All', 'All:']
+    ]
+    for (let i = 0; i < displayedAbilities.length; i++) {
+      const displayedAbility = displayedAbilities[i]
+      if (magic.addedAbilities.filter(a => a.type === displayedAbility[0]).length) {
+        const ability = magic.addedAbilities.filter(a => a.type === displayedAbility[0])[0]
+        const x = 238.5
+        const y = 211.5
+        addTextToDialog(
+          checkMagicCastingGroup,
+          displayedAbility[1],
+          `materia-check-sub-quadra-label`,
+          LETTER_TYPES.MenuBaseFont,
+          LETTER_COLORS.White,
+          x - 8,
+          y + (i * 12) - 4,
+          0.5
+        )
+        addTextToDialog(
+          checkMagicCastingGroup,
+          ('' + ability.count).padStart(3, ' '),
+          `materia-check-sub-quadra-label`,
+          LETTER_TYPES.MenuTextStats,
+          LETTER_COLORS.White,
+          x + 6,
+          y + (i * 12) - 4,
+          0.5
+        )
+        addImageToDialog(
+          checkMagicCastingGroup,
+          'labels',
+          'times',
+          `materia-check-sub-quadra-times`,
+          x + 36.5,
+          y + (i * 12) - 4,
+          0.5
+        )
+      }
+    }
+  } else {
+    drawInfo('') // TODO
+  }
 }
 const drawCheckCommandSummon = () => {
   console.log('materia drawCheckCommandSummon')
@@ -432,9 +525,92 @@ const drawCheckCommandSummon = () => {
 const drawCheckCommandEnemySkill = () => {
   console.log('materia drawCheckCommandEnemySkill')
 }
-const checkSubNavigation = (vertical, delta) => {
-  console.log('materia checkSubNavigation', vertical, delta)
+const tweenCheckSubList = (up, state, cb) => {
+  setMenuState('materia-tweening-list')
+  const subContents = checkSubGroup.userData.subContents
+  for (let i = 0; i < DATA.page + 1; i++) {
+    subContents.children[i].visible = true
+  }
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + 17 : subContents.position.y - 17}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        subContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
 }
+const checkSubNavigation = (delta) => {
+  // console.log('materia checkSubNavigation', delta)
+
+  const submenu = DATA.check.sub
+  const maxPage = (DATA.battleStats.menu.magic.length / 3) - 3
+  const maxPos = 9 // magic = 9
+  const potential = submenu.pos + delta
+
+  console.log('materia checkSubNavigation', delta, '-', submenu.page, submenu.pos, '->', potential, ':', maxPage, maxPos)
+
+  if (potential < 0) {
+    if (submenu.page === 0) {
+      console.log('magic listNavigation on first page - do nothing')
+    } else {
+      console.log('magic listNavigation not on first page - PAGE DOWN')
+      if (delta === -1) {
+        submenu.pos = submenu.pos + (3 - 1) // 3 magic per row
+        drawCheckMagicPointer()
+      }
+      submenu.page--
+      tweenCheckSubList(false, 'materia-check-sub', drawMagicCastingInfo)
+      checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
+    }
+  } else if (potential >= maxPos) {
+    console.log('magic listNavigation page - is last page??', submenu.page, maxPos, maxPage)
+    if (submenu.page >= maxPage) {
+      console.log('magic listNavigation on last page - do nothing')
+    } else {
+      console.log('magic listNavigation not on last page - PAGE UP', delta, delta === 1, submenu.pos)
+      if (delta === 1) {
+        submenu.pos = submenu.pos - (3 - 1)
+        drawCheckMagicPointer()
+      }
+      submenu.page++
+      tweenCheckSubList(true, 'materia-check-sub', drawMagicCastingInfo)
+      checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
+    }
+  } else {
+    console.log('magic listNavigation move pointer only', submenu.page, submenu.pos, potential)
+    submenu.pos = potential
+    drawMagicCastingInfo()
+    drawCheckMagicPointer()
+  }
+}
+const checkSubPageNavigation = (up) => {
+  const submenu = DATA.check.sub
+  const lastPage = (DATA.battleStats.menu.magic.length / 3) - 3
+  if (up) {
+    submenu.page = submenu.page + 3
+    if (submenu.page > lastPage) {
+      submenu.page = lastPage
+    }
+  } else {
+    submenu.page = submenu.page - 3
+    if (submenu.page < 0) {
+      submenu.page = 0
+    }
+  }
+  // Update list group positions
+  checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
+  checkSubGroup.userData.subContents.position.y = submenu.page * 17
+  drawMagicCastingInfo()
+}
+
 const cancelSubCheck = () => {
   console.log('materia cancelSubCheck')
   removeGroupChildren(checkSubGroup)
@@ -1046,7 +1222,7 @@ const drawInfo = (text) => {
     `materia-info`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    8 - 8,
+    13.5 - 8,
     89.5 - 4,
     0.5
   )
@@ -1214,13 +1390,17 @@ const keyPress = async (key, firstPress, state) => {
     }
   } else if (state === 'materia-check-sub') {
     if (key === KEY.LEFT) {
-      checkSubNavigation(false, -1)
+      checkSubNavigation(-1)
     } else if (key === KEY.RIGHT) {
-      checkSubNavigation(false, 1)
+      checkSubNavigation(1)
     } else if (key === KEY.UP) {
-      checkSubNavigation(true, -1)
+      checkSubNavigation(-3)
     } else if (key === KEY.DOWN) {
-      checkSubNavigation(true, 1)
+      checkSubNavigation(3)
+    } else if (key === KEY.L1) {
+      checkSubPageNavigation(false)
+    } else if (key === KEY.R1) {
+      checkSubPageNavigation(true)
     } else if (key === KEY.X) {
       cancelSubCheck()
     }
