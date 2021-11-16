@@ -408,7 +408,8 @@ const getMenuOptions = (char) => {
         hasSummon = true
       }
       if (materiaData.name === 'Mega All') {
-        // addMenuOption(command, 'Slash-All') // TODO
+        const slashAllMateriaData = window.data.kernel.materiaData.filter(m => m.index === 14)[0]
+        replaceMenuOption(command, slashAllMateriaData.attributes.menu.id, slashAllMateriaData.attributes.with[0])
       }
       if (materiaData.type === 'Command') {
         if (materiaData.attributes.type === 'Add') {
@@ -781,17 +782,26 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Full Cure', 'Master Magic', 'Ultima', 'Poison', 'Lightning', 'Quadra Magic', 'W-Magic', 'Enemy Skill'],
-    ['Deathblow', 'Steal', 'Double Cut', 'Cover', 'Enemy Lure', 'HP Plus', 'Master Summon', 'Odin']
+
+    // {type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget'}, // not escape, only available if targetFlags has ToggleSingleMultiTarget
+    // {type: 'QuadraMagic', order: 2, text: '4x-M', count: 5, targetFlag: 'EnableSelection'}, // not escape
+    // {type: 'HPAbsorb', order: 3, text: 'Absorb HP'},
+    // {type: 'MPAbsorb', order: 4, text: 'Absorb MP'},
+    // {type: 'StealAsWell', order: 5, text: 'Steal as well'},
+    // {type: 'AddedCut', order: 6, text: 'Extra cut'},
+    // {type: 'MPTurbo', order: 7, text: 'Turbo MP', level: 5}
+    ['Master Magic', 'All', 'Master Magic', 'Quadra Magic', 'Master Magic', 'HP Absorb', 'Master Magic', 'MP Absorb'],
+    ['Master Magic', 'Steal as well', 'Master Magic', 'Added Cut', 'Master Magic', 'MP Turbo', 'Master Magic', 'Mega All']
   )
 
-  window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677
-  window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 2000
+  // window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677
+  // window.data.savemap.characters.Cloud.materia.weaponMateria5.ap = 2000
   // window.data.savemap.characters.Cloud.materia.armorMateria3.ap = 2000
+
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Tifa,
     'Premium Heart', 'Wizard Bracelet', '',
-    ['HP<->MP', 'Underwater', 'Cover', 'Counter Attack', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
+    ['Double Cut', 'Underwater', 'Cover', 'Counter Attack', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
     ['Enemy Lure', 'Enemy Away', 'Gil Plus', 'EXP Plus', 'Luck Plus', 'Magic Plus', 'Speed Plus', 'HP Plus']
   )
 }

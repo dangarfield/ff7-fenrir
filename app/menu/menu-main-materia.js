@@ -1,29 +1,12 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { MENU_TWEEN_GROUP } from './menu-scene.js'
-import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
+import { KEY } from '../interaction/inputs.js'
 import {
-  LETTER_TYPES,
-  LETTER_COLORS,
-  WINDOW_COLORS_SUMMARY,
-  createDialogBox,
-  addTextToDialog,
-  POINTERS,
-  movePointer,
-  fadeOverlayOut,
-  fadeOverlayIn,
-  addGroupToDialog,
-  removeGroupChildren,
-  addImageToDialog,
-  addCharacterSummary,
-  createEquipmentMateriaViewer,
-  EQUIPMENT_TYPE,
-  addMenuCommandsToDialog,
-  createItemListNavigation,
-  addShapeToDialog
+  addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
-import { getBattleStatsForChar, currentMateriaLevel, getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
-import { KEY } from '../interaction/inputs.js'
+import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { MENU_TWEEN_GROUP } from './menu-scene.js'
 
 let headerDialog, headerGroup
 let infoDialog, infoGroup
@@ -297,6 +280,8 @@ const cancelCheck = () => {
   setMenuState('materia-main')
 }
 const checkSelectCommand = () => {
+  DATA.check.sub.page = 0
+  DATA.check.sub.pos = 0
   const command = DATA.battleStats.menu.command[DATA.check.main]
   console.log('materia checkSelectCommand', command)
   if (command.type && command.type === 2) {
@@ -314,39 +299,42 @@ const checkNavigation = (vertical, delta) => {
   console.log('materia checkNavigation', DATA, vertical, delta)
   window.DATA = DATA
 
-  if (vertical) {
+  do {
+    if (vertical) {
     // vertical movement
 
     // group commands into groups of 4
     // select group which the DATA.check.main is in
-    const startPos = Math.trunc(DATA.check.main / 4) * 4
-    const commandSubset = DATA.battleStats.menu.command.slice(startPos, startPos + 4)
-    let offset = DATA.check.main % 4 + delta
-    if (offset < 0) {
-      offset = commandSubset.length - 1
-    } else if (offset >= commandSubset.length) {
-      offset = 0
-    }
-    DATA.check.main = startPos + offset
-    console.log('materia checkNavigation vertical', DATA.check.main)
+      const startPos = Math.trunc(DATA.check.main / 4) * 4
+      const commandSubset = DATA.battleStats.menu.command.slice(startPos, startPos + 4)
+      let offset = DATA.check.main % 4 + delta
+      if (offset < 0) {
+        offset = commandSubset.length - 1
+      } else if (offset >= commandSubset.length) {
+        offset = 0
+      }
+      DATA.check.main = startPos + offset
+      console.log('materia checkNavigation vertical', DATA.check.main)
     // +1 / -1 and wrap around if needed
-  } else {
+    } else {
     // horizontal movement
 
     // group every 4th command
     // select group which the DATA.check.main is in
-    const startPos = DATA.check.main % 4
-    const commandSubset = DATA.battleStats.menu.command.filter((c, i) => i % 4 === DATA.check.main % 4)
-    let offset = (Math.trunc(DATA.check.main / 4)) + delta
-    if (offset < 0) {
-      offset = commandSubset.length - 1
-    } else if (offset >= commandSubset.length) {
-      offset = 0
+      const startPos = DATA.check.main % 4
+      const commandSubset = DATA.battleStats.menu.command.filter((c, i) => i % 4 === DATA.check.main % 4)
+      let offset = (Math.trunc(DATA.check.main / 4)) + delta
+      if (offset < 0) {
+        offset = commandSubset.length - 1
+      } else if (offset >= commandSubset.length) {
+        offset = 0
+      }
+      DATA.check.main = (startPos * 1) + (offset * 4)
+      // +1 / -1 and wrap around if needed
+      console.log('materia checkNavigation horizontal', DATA.check.main)
     }
-    DATA.check.main = (startPos * 1) + (offset * 4)
-    // +1 / -1 and wrap around if needed
-    console.log('materia checkNavigation horizontal', DATA.check.main)
-  }
+  } while (DATA.battleStats.menu.command[DATA.check.main].id === 255)
+
   drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
   drawCheckMainPointer()
 }
@@ -434,7 +422,8 @@ const drawCheckMagicPointer = () => {
   )
 }
 const drawMagicCastingInfo = () => {
-
+  const magic = DATA.battleStats.menu.magic[(DATA.check.sub.page * 3) + DATA.check.sub.pos]
+  console.log('magic drawMagicCastingInfo', magic)
 }
 const drawCheckCommandSummon = () => {
   console.log('materia drawCheckCommandSummon')
