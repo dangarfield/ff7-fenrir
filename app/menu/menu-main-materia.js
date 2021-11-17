@@ -1475,64 +1475,25 @@ const smallMateriaNavigation = (delta) => {
     drawSmallMateriaSelectPointer()
   }
 }
-// const listNavigation = (delta) => {
-//   const menu = DATA.menus[DATA.menuCurrent]
-//   const maxPage = menu.spells.length / menu.cols
-//   const maxPos = menu.cols * 7 // 21
-//   const potential = menu.pos + delta
-//   if (potential < 0) {
-//     if (menu.page === 0) {
-//       // console.log('magic listNavigation on first page - do nothing')
-//     } else {
-//       // console.log('magic listNavigation not on first page - PAGE DOWN')
-//       if (delta === -1) {
-//         menu.pos = menu.pos + (menu.cols - 1)
-//         drawListPointer()
-//       }
-//       menu.page--
-//       tweenMagicList(false, menu.state, updateInfoForSelectedSpell)
-//       listGroup.userData.slider.userData.moveToPage(menu.page)
-//     }
-//   } else if (potential >= maxPos) {
-//     // console.log('magic listNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
-//     if (menu.page >= (maxPage - 7)) {
-//       // console.log('magic listNavigation on last page - do nothing')
-//     } else {
-//       // console.log('magic listNavigation not on last page - PAGE UP', delta, delta === 1, menu.pos)
-//       if (delta === 1) {
-//         menu.pos = menu.pos - (menu.cols - 1)
-//         drawListPointer()
-//       }
-//       menu.page++
-//       tweenMagicList(true, menu.state, updateInfoForSelectedSpell)
-//       listGroup.userData.slider.userData.moveToPage(menu.page)
-//     }
-//   } else {
-//     // console.log('magic listNavigation', menu.page, menu.pos, potential)
-//     menu.pos = potential
-//     updateInfoForSelectedSpell()
-//     drawListPointer()
-//   }
-// }
-// const listPageNavigation = (up) => {
-//   const menu = DATA.menus[DATA.menuCurrent]
-//   const lastPage = (menu.spells.length / menu.cols) - 7
-//   if (up) {
-//     menu.page = menu.page + 7
-//     if (menu.page > lastPage) {
-//       menu.page = lastPage
-//     }
-//   } else {
-//     menu.page = menu.page - 7
-//     if (menu.page < 0) {
-//       menu.page = 0
-//     }
-//   }
-//   // Update list group positions
-//   listGroup.userData.slider.userData.moveToPage(menu.page)
-//   listGroupContents.position.y = menu.page * 18
-//   updateInfoForSelectedSpell()
-// }
+
+const smallMateriaPageNavigation = (up) => {
+  const lastPage = window.data.savemap.materias.length - 10
+  if (up) {
+    DATA.smallMateriaList.page = DATA.smallMateriaList.page + 3
+    if (DATA.smallMateriaList.page > lastPage) {
+      DATA.smallMateriaList.page = lastPage
+    }
+  } else {
+    DATA.smallMateriaList.page = DATA.smallMateriaList.page - 3
+    if (DATA.smallMateriaList.page < 0) {
+      DATA.smallMateriaList.page = 0
+    }
+  }
+  // Update list group positions
+  smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+  smallMateriaListContentsGroup.position.y = DATA.smallMateriaList.page * 13
+  drawMateriaDetails()
+}
 const switchPartyMember = delta => {
   let newMember = false
   let potential = DATA.partyMember
@@ -1625,9 +1586,9 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.DOWN) {
       smallMateriaNavigation(1)
     } else if (key === KEY.L1) {
-      // checkSubPageNavigation(false)
+      smallMateriaPageNavigation(false)
     } else if (key === KEY.R1) {
-      // checkSubPageNavigation(true)
+      smallMateriaPageNavigation(true)
     } else if (key === KEY.O) {
       selectMateriaForEquipReplace()
     } else if (key === KEY.X) {
