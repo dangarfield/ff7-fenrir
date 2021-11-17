@@ -11,7 +11,7 @@ import { MENU_TWEEN_GROUP } from './menu-scene.js'
 let headerDialog, headerGroup
 let infoDialog, infoGroup
 let arrangeDialog
-let materiaDetailsDialog, materiaDetailsGroup, materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents
+let materiaDetailsDialog, materiaDetailsGroup, materiaDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents
 let smallMateriaListDialog, smallMateriaListGroup, smallMateriaListContentsGroup
 let trashDialog
 let checkDialog, checkGroup, checkSubGroup
@@ -21,8 +21,7 @@ const DATA = {
   char: {},
   battleStats: {},
   mainNavPos: 1, // 0 check, 1-8 weap, 9 arrange, 10-17 arm
-  smallMateriaListPos: 0,
-  smallMateriaListPage: 0,
+  smallMateriaList: {active: false, pos: 0, page: 0},
   tweenEnemySkills: false,
   check: { main: 0,
     sub: {
@@ -53,8 +52,8 @@ const loadMateriaMenu = async partyMember => {
   DATA.partyMember = partyMember
   setDataFromPartyMember()
   DATA.mainNavPos = 1
-  DATA.smallMateriaListPos = 0
-  DATA.smallMateriaListPage = 0
+  DATA.smallMateriaList.pos = 0
+  DATA.smallMateriaList.page = 0
   DATA.check.main = 0
 
   headerDialog = createDialogBox({
@@ -110,7 +109,7 @@ const loadMateriaMenu = async partyMember => {
   })
   materiaDetailsDialog.visible = true
   materiaDetailsGroup = addGroupToDialog(materiaDetailsDialog, 32)
-  materialsDetailsEnemySkillGroup = addGroupToDialog(materiaDetailsDialog, 32)
+  materiaDetailsEnemySkillGroup = addGroupToDialog(materiaDetailsDialog, 32)
 
   infoDialog = createDialogBox({
     id: 21,
@@ -154,6 +153,7 @@ const loadMateriaMenu = async partyMember => {
   drawEnemySkillsGroup()
   drawHeader()
   drawMainNavPointer()
+  drawSmallMateriaList()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
@@ -247,22 +247,30 @@ const drawMainNavPointer = () => {
   removeGroupChildren(checkGroup)
   removeGroupChildren(infoGroup)
   removeGroupChildren(materiaDetailsGroup)
-  removeGroupChildren(smallMateriaListGroup)
-  removeGroupChildren(smallMateriaListContentsGroup)
+  // removeGroupChildren(smallMateriaListGroup)
+  // removeGroupChildren(smallMateriaListContentsGroup)
 
   if (DATA.mainNavPos === 0) {
+    smallMateriaListGroup.visible = false
+    smallMateriaListContentsGroup.visible = false
     drawCheck()
   } else if (DATA.mainNavPos === 9) {
-    drawSmallMateriaList()
+    smallMateriaListGroup.visible = true
+    smallMateriaListContentsGroup.visible = true
+    showSmallMateriaList()
   } else {
+    smallMateriaListGroup.visible = false
+    smallMateriaListContentsGroup.visible = false
     drawMateriaDetails()
   }
 }
 const drawCheck = () => {
   console.log('materia drawCheck', DATA)
   materiaDetailsDialog.visible = false
+  materiaDetailsEnemySkillGroup.visible = false
   smallMateriaListDialog.visible = false
-  materialsDetailsEnemySkillGroup.visible = false
+  smallMateriaListGroup.visible = false
+  smallMateriaListContentsGroup.visible = false
 
   addMenuCommandsToDialog(checkGroup, 23.5, 107, DATA.battleStats.menu.command)
 }
@@ -710,15 +718,28 @@ const cancelSubCheck = () => {
   drawCheckMainPointer()
   setMenuState('materia-check')
 }
-const drawSmallMateriaList = () => {
-  console.log('materia drawCheck')
+const showSmallMateriaList = () => {
   materiaDetailsDialog.visible = true
+  materiaDetailsEnemySkillGroup.visible = false
   smallMateriaListDialog.visible = true
-  materialsDetailsEnemySkillGroup.visible = false
+  smallMateriaListGroup.visible = true
+  smallMateriaListContentsGroup.visible = true
+}
+const getSmallMateriaListPositions = () => {
+  return {
+    x: 213.5 - 8,
+    y: 115 - 4,
+    yAdj: 13
+  }
+}
+const drawSmallMateriaList = () => {
+  console.log('materia drawSmallMateriaList')
+  // materiaDetailsDialog.visible = false
+  smallMateriaListDialog.visible = true
+  smallMateriaListGroup.visible = false
+  smallMateriaListContentsGroup.visible = false
 
-  const x = 213.5 - 8
-  const y = 115 - 4
-  const yAdj = 13
+  const { x, y, yAdj } = getSmallMateriaListPositions()
   // const menu = DATA.menus[DATA.menuCurrent]
   for (let i = 0; i < window.data.savemap.materias.length; i++) {
     const materia = window.data.savemap.materias[i]
@@ -751,8 +772,8 @@ const drawSmallMateriaList = () => {
     }
   }
   createItemListNavigation(smallMateriaListGroup, 313, 104 - 32, 138.5, window.data.savemap.materias.length, 10)
-  smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaListPage)
-  smallMateriaListContentsGroup.position.y = DATA.smallMateriaListPage * yAdj
+  smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+  smallMateriaListContentsGroup.position.y = DATA.smallMateriaList.page * yAdj
   // TODO - Still need some clipping etc, will look at when doing list navigation
 }
 const drawEnemySkillsGroup = () => {
@@ -767,7 +788,7 @@ const drawEnemySkillsGroup = () => {
     y: 152,
     expandInstantly: true,
     noClipping: false,
-    group: materialsDetailsEnemySkillGroup
+    group: materiaDetailsEnemySkillGroup
   })
   for (let i = 0; i < enemySkillTextList.children.length; i++) {
     enemySkillTextList.children[i].visible = false
@@ -777,7 +798,7 @@ const drawEnemySkillsGroup = () => {
   materialsDetailsEnemySkillTextContents.userData.bg = enemySkillTextList.userData.bg
 
   addShapeToDialog(
-    materialsDetailsEnemySkillGroup,
+    materiaDetailsEnemySkillGroup,
     WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
     'material-details-enemy-skills-bg',
     95,
@@ -795,7 +816,7 @@ const drawEnemySkillsGroup = () => {
     const starYAdj = 14.5
 
     const imgActive = addImageToDialog(
-      materialsDetailsEnemySkillGroup,
+      materiaDetailsEnemySkillGroup,
       'materia',
       `Command-star-active-small`,
       `material-enemy-skill-${skill.index}-active`,
@@ -806,7 +827,7 @@ const drawEnemySkillsGroup = () => {
     imgActive.userData.enemySkills = `${skill.index}-active`
 
     const imgInactive = addImageToDialog(
-      materialsDetailsEnemySkillGroup,
+      materiaDetailsEnemySkillGroup,
       'materia',
       `Command-star-inactive-small`,
       `material-enemy-skill-${skill.index}-inactive`,
@@ -883,7 +904,7 @@ const drawEnemySkillsGroup = () => {
 
   window.enemySkillTextList = enemySkillTextList
   window.materialsDetailsEnemySkillTextContents = materialsDetailsEnemySkillTextContents
-  window.materialsDetailsEnemySkillGroup = materialsDetailsEnemySkillGroup
+  window.materiaDetailsEnemySkillGroup = materiaDetailsEnemySkillGroup
   window.materiaDetailsDialog = materiaDetailsDialog
 
   tweenEnemySkills()
@@ -912,20 +933,26 @@ const drawMateriaDetails = () => {
   smallMateriaListDialog.visible = true
   removeGroupChildren(materiaDetailsGroup)
 
-  let slotName
-  if (DATA.mainNavPos < 9) {
-    slotName = `weaponMateria${DATA.mainNavPos}`
+  let materia
+  if (DATA.smallMateriaList.active) {
+    materia = window.data.savemap.materias[DATA.smallMateriaList.page + DATA.smallMateriaList.pos]
+    // smallMateriaListGroup.visible = true
+    // smallMateriaListContentsGroup.visible = true
+  } else if (DATA.mainNavPos < 9) {
+    materia = DATA.char.materia[`weaponMateria${DATA.mainNavPos}`]
+    // smallMateriaListGroup.visible = false
+    // smallMateriaListContentsGroup.visible = false
   } else {
-    slotName = `armorMateria${DATA.mainNavPos % 9}`
+    materia = DATA.char.materia[`armorMateria${DATA.mainNavPos % 9}`]
+    // smallMateriaListGroup.visible = false
+    // smallMateriaListContentsGroup.visible = false
   }
-  const materia = DATA.char.materia[slotName]
-
   if (materia.id === 255) {
     return
   }
 
   const materiaData = window.data.kernel.materiaData[materia.id]
-  console.log('materia drawMateriaDetails', slotName, materia, materiaData)
+  console.log('materia drawMateriaDetails', materia, materiaData)
 
   // Name, type, description
   addTextToDialog(
@@ -954,13 +981,13 @@ const drawMateriaDetails = () => {
   // 3 - All others with everything
   if (materiaData.attributes.master) {
     console.log('materia MASTER materia, no more details required')
-    materialsDetailsEnemySkillGroup.visible = false
+    materiaDetailsEnemySkillGroup.visible = false
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
-    materialsDetailsEnemySkillGroup.visible = true
+    materiaDetailsEnemySkillGroup.visible = true
     const skills = getEnemySkillFlagsWithSkills(materia.ap).map(s => s.enabled ? `${s.index}-active` : `${s.index}-inactive`)
     console.log('materia ENEMY SKILL materia, need to implement', skills)
 
-    const groups = [materialsDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents]
+    const groups = [materiaDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents]
 
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
@@ -978,7 +1005,7 @@ const drawMateriaDetails = () => {
     }
   } else {
     console.log('materia standard materia display')
-    materialsDetailsEnemySkillGroup.visible = false
+    materiaDetailsEnemySkillGroup.visible = false
 
     // Labels
     addTextToDialog(
@@ -1350,6 +1377,102 @@ const mainNavigationSelect = () => {
   console.log('materia mainNavigationSelect', DATA.mainNavPos, DATA.battleStats.menu.command)
   if (DATA.mainNavPos === 0) {
     drawCheckSelect()
+  } else if (DATA.mainNavPos === 9) {
+    // TODO - Show arrange menu
+  } else {
+    selectEquippedMateriaForSwap()
+  }
+}
+
+const selectEquippedMateriaForSwap = () => {
+  const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos - 9}`
+  console.log('materia selectEquippedMateriaForSwap', slot)
+  DATA.smallMateriaList.active = true
+  drawSmallMateriaSelectPointer()
+  showSmallMateriaList()
+  drawMateriaDetails()
+  setMenuState('materia-select-materia-equip-replace')
+}
+const drawSmallMateriaSelectPointer = () => {
+  const { x, y, yAdj } = getSmallMateriaListPositions()
+  movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  movePointer(POINTERS.pointer2,
+    x - 14, // TODO - get position right
+    y + (DATA.smallMateriaList.pos * yAdj) + 4
+  )
+}
+const cancelSelectMateriaForEquipReplace = () => {
+  console.log('materia cancelSelectMateriaForEquipReplace')
+  DATA.smallMateriaList.active = false
+  drawMainNavPointer()
+  drawInfo('')
+  drawMateriaDetails()
+  setMenuState('materia-main')
+}
+const selectMateriaForEquipReplace = () => {
+  console.log('materia selectMateriaForEquipReplace')
+}
+const tweenSmallMateriaList = (up, state, cb) => {
+  setMenuState('materia-tweening-list')
+  const subContents = smallMateriaListContentsGroup
+  for (let i = 0; i < DATA.page + 1; i++) {
+    subContents.children[i].visible = true
+  }
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + 13 : subContents.position.y - 13}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        subContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
+}
+const smallMateriaNavigation = (delta) => {
+  const maxPage = window.data.savemap.materias.length - 10
+  const maxPos = 10
+  const potential = DATA.smallMateriaList.pos + delta
+
+  console.log('materia smallMateriaNavigation', delta, '-', DATA.smallMateriaList.page, DATA.smallMateriaList.pos, '->', potential, ':', maxPage, maxPos)
+
+  if (potential < 0) {
+    if (DATA.smallMateriaList.page === 0) {
+      console.log('materia smallMateriaNavigation on first page - do nothing')
+    } else {
+      console.log('materia smallMateriaNavigation not on first page - PAGE DOWN')
+      // if (delta === -1 && DATA.check.sub.type !== 'summon') {
+      //   DATA.smallMateriaList.pos = DATA.smallMateriaList.pos + (cols - 1) // 3 magic per row
+      //   drawCheckSubPointer()
+      // }
+      DATA.smallMateriaList.page--
+      tweenSmallMateriaList(false, 'materia-select-materia-equip-replace', drawMateriaDetails)
+      smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+    }
+  } else if (potential >= maxPos) {
+    console.log('materia smallMateriaNavigation page - is last page??', DATA.smallMateriaList.page, maxPos, maxPage)
+    if (DATA.smallMateriaList.page >= maxPage) {
+      console.log('materia smallMateriaNavigation on last page - do nothing')
+    } else {
+      console.log('materia smallMateriaNavigation not on last page - PAGE UP', delta, delta === 1, DATA.smallMateriaList.pos)
+      // if (delta === 1 && DATA.check.sub.type !== 'summon') {
+      //   DATA.smallMateriaList.pos = DATA.smallMateriaList.pos - (cols - 1)
+      //   drawCheckSubPointer()
+      // }
+      DATA.smallMateriaList.page++
+      tweenSmallMateriaList(true, 'materia-select-materia-equip-replace', drawMateriaDetails)
+      smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+    }
+  } else {
+    console.log('materia smallMateriaNavigation move pointer only', DATA.smallMateriaList.page, DATA.smallMateriaList.pos, potential)
+    DATA.smallMateriaList.pos = potential
+    drawMateriaDetails()
+    drawSmallMateriaSelectPointer()
   }
 }
 // const listNavigation = (delta) => {
@@ -1495,6 +1618,20 @@ const keyPress = async (key, firstPress, state) => {
       checkSubPageNavigation(true)
     } else if (key === KEY.X) {
       cancelSubCheck()
+    }
+  } else if (state === 'materia-select-materia-equip-replace') {
+    if (key === KEY.UP) {
+      smallMateriaNavigation(-1)
+    } else if (key === KEY.DOWN) {
+      smallMateriaNavigation(1)
+    } else if (key === KEY.L1) {
+      // checkSubPageNavigation(false)
+    } else if (key === KEY.R1) {
+      // checkSubPageNavigation(true)
+    } else if (key === KEY.O) {
+      selectMateriaForEquipReplace()
+    } else if (key === KEY.X) {
+      cancelSelectMateriaForEquipReplace()
     }
   }
 }
