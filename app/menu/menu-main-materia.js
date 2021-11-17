@@ -303,18 +303,14 @@ const checkSelectCommand = () => {
   if (command.type && command.type === 2) {
     DATA.check.sub.type = 'magic'
     DATA.check.sub.spells = DATA.battleStats.menu.magic
-    drawCheckCommandMagic()
   } else if (command.type && command.type === 3) {
     DATA.check.sub.type = 'summon'
     DATA.check.sub.spells = DATA.battleStats.menu.summon
-    // drawCheckCommandSummon()
-    drawCheckCommandMagic()
   } else if (command.id === 13) {
     DATA.check.sub.type = 'enemySkills'
     DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
-    // drawCheckCommandEnemySkill()
-    drawCheckCommandMagic()
   }
+  drawCheckSubCommand()
   drawCheckSubPointer()
   drawCheckSubCastingInfo()
   setMenuState('materia-check-sub')
@@ -362,11 +358,26 @@ const checkNavigation = (vertical, delta) => {
   drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
   drawCheckMainPointer()
 }
-const checkMagicPositions = () => {
-  return { x: 41 - 8,
-    y: 188 - 4,
-    xAdj: 65,
-    yAdj: 17
+const getCheckSubSpellPositions = () => {
+  const cols = DATA.check.sub.config[DATA.check.sub.type].cols
+  if (cols === 3) {
+    return { x: 41 - 8,
+      y: 188 - 4,
+      xAdj: 65,
+      yAdj: 17
+    }
+  } else if (cols === 2) {
+    return { x: 55 - 8, // TODO - Get the right offsets
+      y: 188 - 4,
+      xAdj: 90, // - Get the right offsets
+      yAdj: 17
+    }
+  } else {
+    return { x: 70 - 8, // - Get the right offsets
+      y: 188 - 4,
+      xAdj: 65, // - Get the right offsets
+      yAdj: 17
+    }
   }
 }
 const drawCheckSubDialogs = () => {
@@ -439,13 +450,13 @@ const drawCheckSubDialogs = () => {
     0.5
   )
 }
-const drawCheckCommandMagic = () => {
-  console.log('materia drawCheckCommandMagic')
+const drawCheckSubCommand = () => {
+  console.log('materia drawCheckSubCommand')
 
   const cols = DATA.check.sub.config[DATA.check.sub.type].cols
   createItemListNavigation(checkSubGroup.userData.subDialog, 225.5, 174.5 - 136, 54, DATA.check.sub.spells.length / cols, 3)
   checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
-  const {x, y, xAdj, yAdj} = checkMagicPositions()
+  const {x, y, xAdj, yAdj} = getCheckSubSpellPositions()
 
   for (let i = 0; i < DATA.check.sub.spells.length; i++) {
     const spell = DATA.check.sub.spells[i]
@@ -476,17 +487,10 @@ const drawCheckCommandMagic = () => {
     }
   }
 }
-const drawCheckCommandSummon = () => {
-  console.log('materia drawCheckCommandSummon')
-}
-
-const drawCheckCommandEnemySkill = () => {
-  console.log('materia drawCheckCommandEnemySkill')
-}
 const drawCheckSubPointer = () => {
   const cols = DATA.check.sub.config[DATA.check.sub.type].cols
   // if (DATA.check.sub.type === 'magic') {
-  const {x, y, xAdj, yAdj} = checkMagicPositions()
+  const {x, y, xAdj, yAdj} = getCheckSubSpellPositions()
   movePointer(POINTERS.pointer2,
     x + ((DATA.check.sub.pos % cols) * xAdj) - 2,
     y + (Math.trunc(DATA.check.sub.pos / cols) * yAdj) + 4
