@@ -153,7 +153,7 @@ const loadMateriaMenu = async partyMember => {
   drawEnemySkillsGroup()
   drawHeader()
   drawMainNavPointer()
-  drawSmallMateriaList()
+  drawSmallMateriaListSlider()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
@@ -257,7 +257,7 @@ const drawMainNavPointer = () => {
   } else if (DATA.mainNavPos === 9) {
     smallMateriaListGroup.visible = true
     smallMateriaListContentsGroup.visible = true
-    showSmallMateriaList()
+    drawSmallMateriaList()
   } else {
     smallMateriaListGroup.visible = false
     smallMateriaListContentsGroup.visible = false
@@ -718,13 +718,6 @@ const cancelSubCheck = () => {
   drawCheckMainPointer()
   setMenuState('materia-check')
 }
-const showSmallMateriaList = () => {
-  materiaDetailsDialog.visible = true
-  materiaDetailsEnemySkillGroup.visible = false
-  smallMateriaListDialog.visible = true
-  smallMateriaListGroup.visible = true
-  smallMateriaListContentsGroup.visible = true
-}
 const getSmallMateriaListPositions = () => {
   return {
     x: 213.5 - 8,
@@ -732,49 +725,55 @@ const getSmallMateriaListPositions = () => {
     yAdj: 13
   }
 }
-const drawSmallMateriaList = () => {
-  console.log('materia drawSmallMateriaList')
-  // materiaDetailsDialog.visible = false
-  smallMateriaListDialog.visible = true
-  smallMateriaListGroup.visible = false
-  smallMateriaListContentsGroup.visible = false
+const drawSmallMateriaListSlider = () => {
+  createItemListNavigation(smallMateriaListGroup, 313, 104 - 32, 138.5, window.data.savemap.materias.length, 10)
+}
+const drawSmallMateriaListOneItem = (i, x, y, yAdj) => {
+  const materia = window.data.savemap.materias[i + DATA.smallMateriaList.page]
+  if (materia.id < 255) {
+    const textGroup = addTextToDialog(
+      smallMateriaListContentsGroup,
+      materia.name,
+      `materia-small-list-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x,
+      y + (i * yAdj),
+      0.5
+    )
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    const materiaIcon = addImageToDialog(smallMateriaListContentsGroup,
+      'materia',
+      materiaData.type,
+      `materia-small-list-${i}-type`,
+      x + 2,
+      y + (i * yAdj) - 0.5,
+      0.5
+    )
 
+    for (let j = 0; j < textGroup.children.length; j++) {
+      const textLetters = textGroup.children[j]
+      textLetters.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
+    }
+    materiaIcon.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
+  }
+}
+const drawSmallMateriaList = () => {
+  console.log('materia drawSmallMateriaList', DATA.smallMateriaList.page, DATA.smallMateriaList.pos, DATA.smallMateriaList.page + DATA.smallMateriaList.pos)
+  materiaDetailsDialog.visible = true
+  materiaDetailsEnemySkillGroup.visible = false
+  smallMateriaListDialog.visible = true
+  smallMateriaListGroup.visible = true
+  smallMateriaListContentsGroup.visible = true
+
+  removeGroupChildren(smallMateriaListContentsGroup)
   const { x, y, yAdj } = getSmallMateriaListPositions()
   // const menu = DATA.menus[DATA.menuCurrent]
-  for (let i = 0; i < window.data.savemap.materias.length; i++) {
-    const materia = window.data.savemap.materias[i]
-    if (materia.id < 255) {
-      const textGroup = addTextToDialog(
-        smallMateriaListContentsGroup,
-        materia.name,
-        `materia-small-list-${i}`,
-        LETTER_TYPES.MenuBaseFont,
-        LETTER_COLORS.White,
-        x,
-        y + (i * yAdj),
-        0.5
-      )
-      const materiaData = window.data.kernel.materiaData[materia.id]
-      const materiaIcon = addImageToDialog(smallMateriaListContentsGroup,
-        'materia',
-        materiaData.type,
-        `materia-small-list-${i}-type`,
-        x + 2,
-        y + (i * yAdj) - 0.5,
-        0.5
-      )
-
-      for (let j = 0; j < textGroup.children.length; j++) {
-        const textLetters = textGroup.children[j]
-        textLetters.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
-      }
-      materiaIcon.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
-    }
+  for (let i = 0; i < 10; i++) {
+    drawSmallMateriaListOneItem(i, x, y, yAdj)
   }
-  createItemListNavigation(smallMateriaListGroup, 313, 104 - 32, 138.5, window.data.savemap.materias.length, 10)
   smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
-  smallMateriaListContentsGroup.position.y = DATA.smallMateriaList.page * yAdj
-  // TODO - Still need some clipping etc, will look at when doing list navigation
+  smallMateriaListContentsGroup.position.y = 0
 }
 const drawEnemySkillsGroup = () => {
   const skills = getEnemySkillFlagsWithSkills(0)
@@ -1389,7 +1388,7 @@ const selectEquippedMateriaForSwap = () => {
   console.log('materia selectEquippedMateriaForSwap', slot)
   DATA.smallMateriaList.active = true
   drawSmallMateriaSelectPointer()
-  showSmallMateriaList()
+  drawSmallMateriaList()
   drawMateriaDetails()
   setMenuState('materia-select-materia-equip-replace')
 }
@@ -1441,32 +1440,28 @@ const smallMateriaNavigation = (delta) => {
 
   console.log('materia smallMateriaNavigation', delta, '-', DATA.smallMateriaList.page, DATA.smallMateriaList.pos, '->', potential, ':', maxPage, maxPos)
 
+  const { x, y, yAdj } = getSmallMateriaListPositions()
+
   if (potential < 0) {
     if (DATA.smallMateriaList.page === 0) {
       console.log('materia smallMateriaNavigation on first page - do nothing')
     } else {
       console.log('materia smallMateriaNavigation not on first page - PAGE DOWN')
-      // if (delta === -1 && DATA.check.sub.type !== 'summon') {
-      //   DATA.smallMateriaList.pos = DATA.smallMateriaList.pos + (cols - 1) // 3 magic per row
-      //   drawCheckSubPointer()
-      // }
+      drawSmallMateriaListOneItem(-1, x, y, yAdj)
       DATA.smallMateriaList.page--
-      tweenSmallMateriaList(false, 'materia-select-materia-equip-replace', drawMateriaDetails)
-      smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+      tweenSmallMateriaList(false, 'materia-select-materia-equip-replace', drawSmallMateriaList) // Could optimise further
+      drawMateriaDetails()
     }
   } else if (potential >= maxPos) {
     console.log('materia smallMateriaNavigation page - is last page??', DATA.smallMateriaList.page, maxPos, maxPage)
     if (DATA.smallMateriaList.page >= maxPage) {
       console.log('materia smallMateriaNavigation on last page - do nothing')
     } else {
-      console.log('materia smallMateriaNavigation not on last page - PAGE UP', delta, delta === 1, DATA.smallMateriaList.pos)
-      // if (delta === 1 && DATA.check.sub.type !== 'summon') {
-      //   DATA.smallMateriaList.pos = DATA.smallMateriaList.pos - (cols - 1)
-      //   drawCheckSubPointer()
-      // }
+      console.log('materia smallMateriaNavigation not on last page - PAGE UP', delta, DATA.smallMateriaList.pos)
+      drawSmallMateriaListOneItem(10, x, y, yAdj)
       DATA.smallMateriaList.page++
-      tweenSmallMateriaList(true, 'materia-select-materia-equip-replace', drawMateriaDetails)
-      smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
+      tweenSmallMateriaList(true, 'materia-select-materia-equip-replace', drawSmallMateriaList)
+      drawMateriaDetails()
     }
   } else {
     console.log('materia smallMateriaNavigation move pointer only', DATA.smallMateriaList.page, DATA.smallMateriaList.pos, potential)
@@ -1475,23 +1470,23 @@ const smallMateriaNavigation = (delta) => {
     drawSmallMateriaSelectPointer()
   }
 }
-
 const smallMateriaPageNavigation = (up) => {
   const lastPage = window.data.savemap.materias.length - 10
   if (up) {
-    DATA.smallMateriaList.page = DATA.smallMateriaList.page + 3
+    DATA.smallMateriaList.page = DATA.smallMateriaList.page + 10
     if (DATA.smallMateriaList.page > lastPage) {
       DATA.smallMateriaList.page = lastPage
     }
   } else {
-    DATA.smallMateriaList.page = DATA.smallMateriaList.page - 3
+    DATA.smallMateriaList.page = DATA.smallMateriaList.page - 10
     if (DATA.smallMateriaList.page < 0) {
       DATA.smallMateriaList.page = 0
     }
   }
   // Update list group positions
   smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
-  smallMateriaListContentsGroup.position.y = DATA.smallMateriaList.page * 13
+  // smallMateriaListContentsGroup.position.y = DATA.smallMateriaList.page * 13
+  drawSmallMateriaList()
   drawMateriaDetails()
 }
 const switchPartyMember = delta => {
