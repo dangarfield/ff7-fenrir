@@ -533,11 +533,11 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     // I assume there is a more kernel oriented way of getting this
     return window.data.kernel.materiaData.filter(m => m.type === 'Summon' && m.attributes.summon.length > 1)[0]
       .attributes.summon.map((s) => {
-        return {index: s.attackId, name: s.name, enabled: false, addedAbilities: []}
+        return {index: s.attackId, name: s.name, enabled: false, addedAbilities: [], uses: 0}
       })
   }
 
-  const enabledAttacks = (list, id, addedAbility, targetFlag) => {
+  const enabledAttacks = (list, id, addedAbility, targetFlag, uses) => {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
       if (item.index === id) {
@@ -571,6 +571,14 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
           item.addedAbilities.sort(function (a, b) {
             return a.order - b.order
           })
+        }
+
+        if (uses !== undefined) {
+          if (!item.hasOwnProperty('uses')) {
+            item.uses = uses
+          } else if (item.hasOwnProperty('uses') && uses > item.uses) {
+            item.uses = uses
+          }
         }
         break
       }
@@ -660,17 +668,19 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
           }
         } else if (materiaData.type === 'Summon') {
           const {addedAbility, targetFlag} = getLinkedAbility(isLinked, linkedMateria)
-          // console.log('magic ADD SUMMON', materiaData, materiaData.attributes.summon)
+          console.log('stats ADD SUMMON', materiaData, materiaData.attributes.summon, currentLevel)
 
           for (let i = 0; i < materiaData.attributes.summon.length; i++) {
             const summon = materiaData.attributes.summon[i]
-            // console.log('magic ENABLE SUMMON', summon.attackId, addedAbility, targetFlag, window.data.kernel.attackData[summon.attackId])
 
+            // console.log('magic ENABLE SUMMON', summon.attackId, addedAbility, targetFlag, window.data.kernel.attackData[summon.attackId])
+            const uses = materiaData.attributes.master ? 0xFF : currentLevel
+            console.log('stats ADD SUMMON attack', summon, uses)
             // For some reason KOTR summon isn't allowed to use Quadra Magic, but I can't see what flag to use, so I'll use this
             if (window.data.kernel.attackData[summon.attackId].additionalEffects.type === 0 && addedAbility && addedAbility.type === 'QuadraMagic') {
-              enabledAttacks(summons, summon.attackId, null, null)
+              enabledAttacks(summons, summon.attackId, null, null, uses)
             } else {
-              enabledAttacks(summons, summon.attackId, addedAbility, targetFlag)
+              enabledAttacks(summons, summon.attackId, addedAbility, targetFlag, uses)
             }
           }
         } else if (materiaData.type === 'Command' && materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {

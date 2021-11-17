@@ -45,6 +45,8 @@ const setDataFromPartyMember = () => {
   // DATA.check.sub.spells = DATA.battleStats.menu.magic
   // DATA.check.sub.spells = DATA.battleStats.menu.summon
   // DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
+
+  window.DATA = DATA
 }
 
 const loadMateriaMenu = async partyMember => {
@@ -319,8 +321,6 @@ const checkSelectCommand = () => {
 }
 const checkNavigation = (vertical, delta) => {
   console.log('materia checkNavigation', DATA, vertical, delta)
-  window.DATA = DATA
-
   do {
     if (vertical) {
     // vertical movement
@@ -532,12 +532,12 @@ const drawCheckSubCastingInfo = () => {
       ['QuadraMagic', '4x:'],
       ['All', 'All:']
     ]
+    const x = 238.5
+    const y = 211.5
     for (let i = 0; i < displayedAbilities.length; i++) {
       const displayedAbility = displayedAbilities[i]
       if (spell.addedAbilities.filter(a => a.type === displayedAbility[0]).length) {
         const ability = spell.addedAbilities.filter(a => a.type === displayedAbility[0])[0]
-        const x = 238.5
-        const y = 211.5
         addTextToDialog(
           checkSubGroup.userData.subCasting,
           displayedAbility[1],
@@ -551,7 +551,7 @@ const drawCheckSubCastingInfo = () => {
         addTextToDialog(
           checkSubGroup.userData.subCasting,
           ('' + ability.count).padStart(3, ' '),
-          `materia-check-sub-ability-${displayedAbility[0]}-label`,
+          `materia-check-sub-ability-${displayedAbility[0]}-times`,
           LETTER_TYPES.MenuTextStats,
           LETTER_COLORS.White,
           x + 6,
@@ -562,12 +562,47 @@ const drawCheckSubCastingInfo = () => {
           checkSubGroup.userData.subCasting,
           'labels',
           'times',
-          `materia-check-sub-ability-${displayedAbility[0]}-times`,
+          `materia-check-sub-ability-${displayedAbility[0]}-times-label`,
           x + 36.5,
           y + (i * 12) - 4,
           0.5
         )
       }
+    }
+
+    if (spell.hasOwnProperty('uses')) {
+      if (spell.uses === 0xFF) {
+        addImageToDialog(
+          checkSubGroup.userData.subCasting,
+          'labels',
+          'infinity',
+          `materia-check-sub-ability-uses-times-label`,
+          x + 36.5 - 10, // TODO - Positioning
+          y + (1 * 12) - 4,
+          0.5
+        )
+      } else {
+        addTextToDialog(
+          checkSubGroup.userData.subCasting,
+          ('' + spell.uses).padStart(3, ' '),
+          `materia-check-sub-ability-uses-times`,
+          LETTER_TYPES.MenuTextStats,
+          LETTER_COLORS.White,
+          x + 6, // TODO - Positioning
+          y + (1 * 12) - 4,
+          0.5
+        )
+      }
+
+      addImageToDialog(
+        checkSubGroup.userData.subCasting,
+        'labels',
+        'times',
+        `materia-check-sub-ability-uses-times-label`,
+        x + 36.5, // TODO - Positioning
+        y + (1 * 12) - 4,
+        0.5
+      )
     }
   } else {
     drawInfo('')
