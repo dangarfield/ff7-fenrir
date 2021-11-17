@@ -1583,7 +1583,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
   const yAdjTextCol3 = 77
 
   const commandDialog = createDialogBox({
-    id: 15,
+    id: dialog.position.z + 3,
     name: 'commandDialog',
     w: width,
     h: 60,
