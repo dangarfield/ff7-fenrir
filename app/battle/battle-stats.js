@@ -385,6 +385,8 @@ const getMenuOptions = (char) => {
     while (command.length < 4 && itemCommandPosition(command) !== 3) {
       command.splice(command.length - 1, 0, {id: 255, name: 'BLANK'})
     }
+
+    // TODO - Something is still wrong here, need to investigate
   }
 
   const command = [
@@ -851,7 +853,7 @@ const debugSetEquipmentAndMateria = () => {
     window.data.savemap.characters.Tifa,
     'Premium Heart', 'Wizard Bracelet', '',
     ['Double Cut', 'Underwater', 'Cover', 'Ultima', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
-    ['Enemy Lure', 'Time', 'Gil Plus', 'Revive', 'Fire', 'Magic Plus', 'Speed Plus', 'HP Plus']
+    ['Enemy Skill', 'Time', 'Gil Plus', 'Revive', 'Fire', 'Magic Plus', 'Speed Plus', 'HP Plus']
   )
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
