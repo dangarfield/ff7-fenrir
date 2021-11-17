@@ -1,5 +1,5 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo } from '../battle/battle-stats.js'
+import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo, recalculateAndApplyHPMP } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
@@ -926,7 +926,7 @@ const tweenEnemySkills = async () => {
     DATA.tweenEnemySkills.start()
   }
 }
-const drawMateriaDetails = () => {
+const drawMateriaDetails = () => { // TODO - This is generally quite an expensive operation
   console.log('materia drawMateriaDetails')
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
@@ -935,16 +935,10 @@ const drawMateriaDetails = () => {
   let materia
   if (DATA.smallMateriaList.active) {
     materia = window.data.savemap.materias[DATA.smallMateriaList.page + DATA.smallMateriaList.pos]
-    // smallMateriaListGroup.visible = true
-    // smallMateriaListContentsGroup.visible = true
   } else if (DATA.mainNavPos < 9) {
     materia = DATA.char.materia[`weaponMateria${DATA.mainNavPos}`]
-    // smallMateriaListGroup.visible = false
-    // smallMateriaListContentsGroup.visible = false
   } else {
     materia = DATA.char.materia[`armorMateria${DATA.mainNavPos % 9}`]
-    // smallMateriaListGroup.visible = false
-    // smallMateriaListContentsGroup.visible = false
   }
   if (materia.id === 255) {
     return
@@ -1384,8 +1378,7 @@ const mainNavigationSelect = () => {
 }
 
 const selectEquippedMateriaForSwap = () => {
-  const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos - 9}`
-  console.log('materia selectEquippedMateriaForSwap', slot)
+  console.log('materia selectEquippedMateriaForSwap')
   DATA.smallMateriaList.active = true
   drawSmallMateriaSelectPointer()
   drawSmallMateriaList()
@@ -1409,7 +1402,18 @@ const cancelSelectMateriaForEquipReplace = () => {
   setMenuState('materia-main')
 }
 const selectMateriaForEquipReplace = () => {
-  console.log('materia selectMateriaForEquipReplace')
+  const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos - 9}`
+  const materiaPos = DATA.smallMateriaList.page + DATA.smallMateriaList.pos
+
+  const toInventoryMateria = JSON.parse(JSON.stringify(DATA.char.materia[slot]))
+  const toEquipMateria = JSON.parse(JSON.stringify(window.data.savemap.materias[materiaPos]))
+  console.log('materia selectMateriaForEquipReplace', slot, materiaPos, toInventoryMateria, toEquipMateria)
+  DATA.char.materia[slot] = toEquipMateria
+  window.data.savemap.materias[materiaPos] = toInventoryMateria
+  recalculateAndApplyHPMP(DATA.char)
+  setDataFromPartyMember()
+  drawHeader()
+  cancelSelectMateriaForEquipReplace()
 }
 const tweenSmallMateriaList = (up, state, cb) => {
   setMenuState('materia-tweening-list')
