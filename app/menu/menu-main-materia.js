@@ -24,12 +24,27 @@ const DATA = {
   smallMateriaListPos: 0,
   smallMateriaListPage: 0,
   tweenEnemySkills: false,
-  check: { main: 0, sub: {pos: 0, page: 0} }
+  check: { main: 0,
+    sub: {
+      type: '',
+      pos: 0,
+      page: 0,
+      config: {
+        magic: {cols: 3},
+        summon: {cols: 1},
+        enemySkills: {cols: 2}
+      },
+      spells: []
+    }
+  }
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
   DATA.battleStats = getBattleStatsForChar(DATA.char)
+  // DATA.check.sub.spells = DATA.battleStats.menu.magic
+  // DATA.check.sub.spells = DATA.battleStats.menu.summon
+  // DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
 }
 
 const loadMateriaMenu = async partyMember => {
@@ -38,7 +53,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.mainNavPos = 1
   DATA.smallMateriaListPos = 0
   DATA.smallMateriaListPage = 0
-  DATA.check = { main: 0, sub: {pos: 0, page: 0} }
+  DATA.check.main = 0
 
   headerDialog = createDialogBox({
     id: 25,
@@ -284,13 +299,20 @@ const checkSelectCommand = () => {
   DATA.check.sub.pos = 0
   const command = DATA.battleStats.menu.command[DATA.check.main]
   console.log('materia checkSelectCommand', command)
+  drawCheckSubDialogs()
   if (command.type && command.type === 2) {
+    DATA.check.sub.type = 'magic'
+    DATA.check.sub.spells = DATA.battleStats.menu.magic
     drawCheckCommandMagic()
-    drawCheckMagicPointer()
-    drawMagicCastingInfo()
+    drawCheckSubPointer()
+    drawCheckSubCastingInfo()
   } else if (command.type && command.type === 3) {
+    DATA.check.sub.type = 'summon'
+    DATA.check.sub.spells = DATA.battleStats.menu.summon
     drawCheckCommandSummon()
   } else if (command.id === 13) {
+    DATA.check.sub.type = 'enemySkills'
+    DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
     drawCheckCommandEnemySkill()
   }
 }
@@ -344,12 +366,12 @@ const checkMagicPositions = () => {
     yAdj: 17
   }
 }
-const drawCheckCommandMagic = () => {
-  console.log('materia drawCheckCommandMagic')
+const drawCheckSubDialogs = () => {
+  console.log('materia drawCheckSubDialogs')
   removeGroupChildren(checkSubGroup)
-  const checkMagicDialog = createDialogBox({
+  const subDialog = createDialogBox({
     id: 23,
-    name: 'checkMagicDialog',
+    name: 'subDialog',
     w: 209,
     h: 60,
     x: 23.5,
@@ -358,26 +380,75 @@ const drawCheckCommandMagic = () => {
     noClipping: false,
     group: checkSubGroup
   })
-  checkMagicDialog.visible = true
+  subDialog.visible = true
+  checkSubGroup.userData.subDialog = subDialog
 
-  createItemListNavigation(checkMagicDialog, 225.5, 174.5 - 136, 54, DATA.battleStats.menu.magic.length / 3, 3)
-  checkMagicDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
-  checkSubGroup.userData.subDialog = checkMagicDialog
+  const subContents = addGroupToDialog(subDialog, 33)
+  subContents.userData.bg = subDialog.userData.bg
+  subContents.position.y = 0
+  checkSubGroup.userData.subContents = subContents
 
-  const checkMagicListContents = addGroupToDialog(checkMagicDialog, 33)
-  checkMagicListContents.userData.bg = checkMagicDialog.userData.bg
-  checkMagicListContents.position.y = 0
-  checkSubGroup.userData.subContents = checkMagicListContents
+  const subCastingDialog = createDialogBox({
+    id: 23,
+    name: 'subCastingDialog',
+    w: 57.5,
+    h: 60,
+    x: 232.5,
+    y: 171.5,
+    expandInstantly: true,
+    noClipping: true,
+    group: checkSubGroup
+  })
+  subCastingDialog.visible = true
 
+  const subCasting = addGroupToDialog(subCastingDialog, 33)
+  checkSubGroup.userData.subCasting = subCasting
+
+  // Default parts
+  addImageToDialog(
+    subCastingDialog,
+    'labels',
+    'mp-needed',
+    'materia-check-sub-mp-needed-image',
+    265,
+    181.5,
+    0.5
+  )
+  addTextToDialog(
+    subCastingDialog,
+    `   /`,
+    `materia-check-sub-mp-cost`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    241.5 - 8,
+    199 - 4,
+    0.5
+  )
+  // Also, in this menu, when using HP<->MP, the game caps the current mp to 999 for display purposes
+  addTextToDialog(
+    subCastingDialog,
+    ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
+    `materia-check-sub-mp-current`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    264.5 - 8,
+    199 - 4,
+    0.5
+  )
+}
+const drawCheckCommandMagic = () => {
+  console.log('materia drawCheckCommandMagic')
+
+  createItemListNavigation(checkSubGroup.userData.subDialog, 225.5, 174.5 - 136, 54, DATA.battleStats.menu.magic.length / 3, 3)
+  checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
   const {x, y, xAdj, yAdj} = checkMagicPositions()
 
-  // TODO - Reorder based on spell order config?
   for (let i = 0; i < DATA.battleStats.menu.magic.length; i++) {
     const magic = DATA.battleStats.menu.magic[i]
     if (magic.enabled) {
       // console.log('materia check magic add', magic)
       addTextToDialog(
-        checkMagicListContents,
+        checkSubGroup.userData.subContents,
         magic.name,
         `materia-check-magic-${i}`,
         LETTER_TYPES.MenuBaseFont,
@@ -389,7 +460,7 @@ const drawCheckCommandMagic = () => {
       const isAll = magic.addedAbilities.filter(a => a.type === 'All').length > 0
       if (isAll) {
         addImageToDialog(
-          checkMagicListContents,
+          checkSubGroup.userData.subContents,
           'pointers',
           'arrow-right',
           `materia-check-magic-${i}-all`,
@@ -401,82 +472,36 @@ const drawCheckCommandMagic = () => {
     }
   }
 
-  // window.checkMagicDialog = checkMagicDialog
-  // window.checkMagicListContents = checkMagicListContents
-  const checkMagicCastingDialog = createDialogBox({
-    id: 23,
-    name: 'checkMagicCastingDialog',
-    w: 57.5,
-    h: 60,
-    x: 232.5,
-    y: 171.5,
-    expandInstantly: true,
-    noClipping: true,
-    group: checkSubGroup
-  })
-  checkMagicCastingDialog.visible = true
-
-  const checkMagicCastingGroup = addGroupToDialog(checkMagicCastingDialog, 33)
-  checkSubGroup.userData.subCasting = checkMagicCastingGroup
-
-  // Default parts
-  addImageToDialog(
-    checkMagicCastingDialog,
-    'labels',
-    'mp-needed',
-    'materia-check-sub-mp-needed-image',
-    265,
-    181.5,
-    0.5
-  )
-  addTextToDialog(
-    checkMagicCastingDialog,
-    `   /`,
-    `materia-check-sub-mp-cost`,
-    LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
-    241.5 - 8,
-    199 - 4,
-    0.5
-  )
-  // Also, in this menu, when using HP<->MP, the game caps the current mp to 999 for display purposes
-  addTextToDialog(
-    checkMagicCastingDialog,
-    ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
-    `materia-check-sub-mp-current`,
-    LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
-    264.5 - 8,
-    199 - 4,
-    0.5
-  )
-
   setMenuState('materia-check-sub')
 }
-const drawCheckMagicPointer = () => {
-  const {x, y, xAdj, yAdj} = checkMagicPositions()
-  movePointer(POINTERS.pointer2,
-    x + ((DATA.check.sub.pos % 3) * xAdj) - 2,
-    y + (Math.trunc(DATA.check.sub.pos / 3) * yAdj) + 4
-  )
+const drawCheckSubPointer = () => {
+  if (DATA.check.sub.type === 'magic') {
+    const {x, y, xAdj, yAdj} = checkMagicPositions()
+    movePointer(POINTERS.pointer2,
+      x + ((DATA.check.sub.pos % 3) * xAdj) - 2,
+      y + (Math.trunc(DATA.check.sub.pos / 3) * yAdj) + 4
+    )
+  } else if (DATA.check.sub.type === 'summon') {
+  } else if (DATA.check.sub.type === 'enemySkills') {
+  }
 }
-const drawMagicCastingInfo = () => {
-  const magic = DATA.battleStats.menu.magic[(DATA.check.sub.page * 3) + DATA.check.sub.pos]
-  console.log('materia drawMagicCastingInfo', DATA, magic)
-  const checkMagicCastingGroup = checkSubGroup.userData.subCasting
-  removeGroupChildren(checkMagicCastingGroup)
+const drawCheckSubCastingInfo = () => {
+  const spell = DATA.check.sub.spells[(DATA.check.sub.page * 3) + DATA.check.sub.pos]
+  console.log('materia drawCheckSubCastingInfo', DATA, spell)
+  // const checkMagicCastingGroup = checkSubGroup.userData.subCasting
+  removeGroupChildren(checkSubGroup.userData.subCasting)
 
-  if (magic.enabled) {
-    const attackData = window.data.kernel.attackData[magic.index]
+  if (spell.enabled) {
+    const attackData = window.data.kernel.attackData[spell.index]
     drawInfo(attackData.description)
 
     let mpCost = attackData.mp // Add turbo mp if required
-    if (isMPTurboActive(magic)) {
-      mpCost = applyMPTurbo(mpCost, magic)
+    if (isMPTurboActive(spell)) {
+      mpCost = applyMPTurbo(mpCost, spell)
     }
 
     addTextToDialog(
-      checkMagicCastingGroup,
+      checkSubGroup.userData.subCasting,
       ('' + mpCost).padStart(3, ' '),
       `materia-check-sub-mp-cost`,
       LETTER_TYPES.MenuTextStats,
@@ -492,14 +517,14 @@ const drawMagicCastingInfo = () => {
     ]
     for (let i = 0; i < displayedAbilities.length; i++) {
       const displayedAbility = displayedAbilities[i]
-      if (magic.addedAbilities.filter(a => a.type === displayedAbility[0]).length) {
-        const ability = magic.addedAbilities.filter(a => a.type === displayedAbility[0])[0]
+      if (spell.addedAbilities.filter(a => a.type === displayedAbility[0]).length) {
+        const ability = spell.addedAbilities.filter(a => a.type === displayedAbility[0])[0]
         const x = 238.5
         const y = 211.5
         addTextToDialog(
-          checkMagicCastingGroup,
+          checkSubGroup.userData.subCasting,
           displayedAbility[1],
-          `materia-check-sub-quadra-label`,
+          `materia-check-sub-ability-${displayedAbility[0]}-label`,
           LETTER_TYPES.MenuBaseFont,
           LETTER_COLORS.White,
           x - 8,
@@ -507,9 +532,9 @@ const drawMagicCastingInfo = () => {
           0.5
         )
         addTextToDialog(
-          checkMagicCastingGroup,
+          checkSubGroup.userData.subCasting,
           ('' + ability.count).padStart(3, ' '),
-          `materia-check-sub-quadra-label`,
+          `materia-check-sub-ability-${displayedAbility[0]}-label`,
           LETTER_TYPES.MenuTextStats,
           LETTER_COLORS.White,
           x + 6,
@@ -517,10 +542,10 @@ const drawMagicCastingInfo = () => {
           0.5
         )
         addImageToDialog(
-          checkMagicCastingGroup,
+          checkSubGroup.userData.subCasting,
           'labels',
           'times',
-          `materia-check-sub-quadra-times`,
+          `materia-check-sub-ability-${displayedAbility[0]}-times`,
           x + 36.5,
           y + (i * 12) - 4,
           0.5
@@ -560,53 +585,62 @@ const tweenCheckSubList = (up, state, cb) => {
     })
     .start()
 }
-const checkSubNavigation = (delta) => {
+const checkSubNavigation = (vertical, delta) => {
   // console.log('materia checkSubNavigation', delta)
 
+  const cols = DATA.check.sub.config[DATA.check.sub.type].cols
+  if (vertical) {
+    delta = cols * delta
+  }
+  if (vertical && DATA.check.sub.type === 'summon') {
+    return
+  }
+
   const submenu = DATA.check.sub
-  const maxPage = (DATA.battleStats.menu.magic.length / 3) - 3
-  const maxPos = 9 // magic = 9
+  const maxPage = (DATA.check.sub.spells.length / cols) - 3
+  const maxPos = cols * 3
   const potential = submenu.pos + delta
 
   console.log('materia checkSubNavigation', delta, '-', submenu.page, submenu.pos, '->', potential, ':', maxPage, maxPos)
 
   if (potential < 0) {
     if (submenu.page === 0) {
-      console.log('magic listNavigation on first page - do nothing')
+      console.log('materia checkSubNavigation on first page - do nothing')
     } else {
-      console.log('magic listNavigation not on first page - PAGE DOWN')
-      if (delta === -1) {
-        submenu.pos = submenu.pos + (3 - 1) // 3 magic per row
-        drawCheckMagicPointer()
+      console.log('materia checkSubNavigation not on first page - PAGE DOWN')
+      if (delta === -1 && DATA.check.sub.type !== 'summon') {
+        submenu.pos = submenu.pos + (cols - 1) // 3 magic per row
+        drawCheckSubPointer()
       }
       submenu.page--
-      tweenCheckSubList(false, 'materia-check-sub', drawMagicCastingInfo)
+      tweenCheckSubList(false, 'materia-check-sub', drawCheckSubCastingInfo)
       checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
     }
   } else if (potential >= maxPos) {
-    console.log('magic listNavigation page - is last page??', submenu.page, maxPos, maxPage)
+    console.log('materia checkSubNavigation page - is last page??', submenu.page, maxPos, maxPage)
     if (submenu.page >= maxPage) {
-      console.log('magic listNavigation on last page - do nothing')
+      console.log('materia checkSubNavigation on last page - do nothing')
     } else {
-      console.log('magic listNavigation not on last page - PAGE UP', delta, delta === 1, submenu.pos)
-      if (delta === 1) {
-        submenu.pos = submenu.pos - (3 - 1)
-        drawCheckMagicPointer()
+      console.log('materia checkSubNavigation not on last page - PAGE UP', delta, delta === 1, submenu.pos)
+      if (delta === 1 && DATA.check.sub.type !== 'summon') {
+        submenu.pos = submenu.pos - (cols - 1)
+        drawCheckSubPointer()
       }
       submenu.page++
-      tweenCheckSubList(true, 'materia-check-sub', drawMagicCastingInfo)
+      tweenCheckSubList(true, 'materia-check-sub', drawCheckSubCastingInfo)
       checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
     }
   } else {
-    console.log('magic listNavigation move pointer only', submenu.page, submenu.pos, potential)
+    console.log('materia checkSubNavigation move pointer only', submenu.page, submenu.pos, potential)
     submenu.pos = potential
-    drawMagicCastingInfo()
-    drawCheckMagicPointer()
+    drawCheckSubCastingInfo()
+    drawCheckSubPointer()
   }
 }
 const checkSubPageNavigation = (up) => {
   const submenu = DATA.check.sub
-  const lastPage = (DATA.battleStats.menu.magic.length / 3) - 3
+  const cols = DATA.check.sub.config[DATA.check.sub.type].cols
+  const lastPage = (DATA.check.sub.spells.length / cols) - 3
   if (up) {
     submenu.page = submenu.page + 3
     if (submenu.page > lastPage) {
@@ -621,7 +655,7 @@ const checkSubPageNavigation = (up) => {
   // Update list group positions
   checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(submenu.page)
   checkSubGroup.userData.subContents.position.y = submenu.page * 17
-  drawMagicCastingInfo()
+  drawCheckSubCastingInfo()
 }
 
 const cancelSubCheck = () => {
@@ -724,7 +758,7 @@ const drawEnemySkillsGroup = () => {
       starY + (Math.trunc(i / 12) * starYAdj),
       0.5
     )
-    imgActive.userData.enemyskill = `${skill.index}-active`
+    imgActive.userData.enemySkills = `${skill.index}-active`
 
     const imgInactive = addImageToDialog(
       materialsDetailsEnemySkillGroup,
@@ -735,7 +769,7 @@ const drawEnemySkillsGroup = () => {
       starY + (Math.trunc(i / 12) * starYAdj),
       0.5
     )
-    imgInactive.userData.enemyskill = `${skill.index}-inactive`
+    imgInactive.userData.enemySkills = `${skill.index}-inactive`
 
     // Text
     const textX = 24 - 8
@@ -755,7 +789,7 @@ const drawEnemySkillsGroup = () => {
       textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
-    textActive1.userData.enemyskill = `${skill.index}-active`
+    textActive1.userData.enemySkills = `${skill.index}-active`
 
     const textInactive1 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
@@ -767,7 +801,7 @@ const drawEnemySkillsGroup = () => {
       textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
-    textInactive1.userData.enemyskill = `${skill.index}-inactive`
+    textInactive1.userData.enemySkills = `${skill.index}-inactive`
 
     const textActive2 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
@@ -779,7 +813,7 @@ const drawEnemySkillsGroup = () => {
       text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
-    textActive2.userData.enemyskill = `${skill.index}-active`
+    textActive2.userData.enemySkills = `${skill.index}-active`
 
     const textInactive2 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
@@ -791,7 +825,7 @@ const drawEnemySkillsGroup = () => {
       text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
       0.5
     )
-    textInactive2.userData.enemyskill = `${skill.index}-inactive`
+    textInactive2.userData.enemySkills = `${skill.index}-inactive`
   }
   // Hack, I really need to look at the z index issues for fadeoverlay
   for (let i = 0; i < materialsDetailsEnemySkillTextContents.children.length; i++) {
@@ -887,9 +921,9 @@ const drawMateriaDetails = () => {
       const group = groups[i]
       for (let j = 0; j < group.children.length; j++) {
         const item = group.children[j]
-        if (item.userData.enemyskill) {
-          // console.log('materia enemyskill item', item.userData.enemyskill, skills.includes(item.userData.enemyskill))
-          if (skills.includes(item.userData.enemyskill)) {
+        if (item.userData.enemySkills) {
+          // console.log('materia enemySkills item', item.userData.enemySkills, skills.includes(item.userData.enemySkills))
+          if (skills.includes(item.userData.enemySkills)) {
             item.visible = true
           } else {
             item.visible = false
@@ -1403,13 +1437,13 @@ const keyPress = async (key, firstPress, state) => {
     }
   } else if (state === 'materia-check-sub') {
     if (key === KEY.LEFT) {
-      checkSubNavigation(-1)
+      checkSubNavigation(false, -1)
     } else if (key === KEY.RIGHT) {
-      checkSubNavigation(1)
+      checkSubNavigation(false, 1)
     } else if (key === KEY.UP) {
-      checkSubNavigation(-3)
+      checkSubNavigation(true, -1)
     } else if (key === KEY.DOWN) {
-      checkSubNavigation(3)
+      checkSubNavigation(true, 1)
     } else if (key === KEY.L1) {
       checkSubPageNavigation(false)
     } else if (key === KEY.R1) {
