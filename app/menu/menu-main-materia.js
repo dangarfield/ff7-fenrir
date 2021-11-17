@@ -299,7 +299,6 @@ const checkSelectCommand = () => {
   DATA.check.sub.pos = 0
   const command = DATA.battleStats.menu.command[DATA.check.main]
   console.log('materia checkSelectCommand', command)
-  drawCheckSubDialogs()
   if (command.type && command.type === 2) {
     DATA.check.sub.type = 'magic'
     DATA.check.sub.spells = DATA.battleStats.menu.magic
@@ -309,7 +308,10 @@ const checkSelectCommand = () => {
   } else if (command.id === 13) {
     DATA.check.sub.type = 'enemySkills'
     DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
+  } else {
+    return // No sub navigation
   }
+  drawCheckSubDialogs()
   drawCheckSubCommand()
   drawCheckSubPointer()
   drawCheckSubCastingInfo()

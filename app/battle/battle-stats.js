@@ -70,7 +70,7 @@ const calculateElementEquip = (elements, items, materia) => {
         // check if this slot has an elemental materia
         const slotMateria = materia[`${type}Materia${j + 1}`]
 
-        console.log('status linked slot', type, j, slot, slotMateria)
+        // console.log('status linked slot', type, j, slot, slotMateria)
         if (slotMateria.id === elementalMateriaData.index) {
           let attachedMateria
           if (slot.includes('Left')) {
@@ -78,7 +78,7 @@ const calculateElementEquip = (elements, items, materia) => {
           } else {
             attachedMateria = materia[`${type}Materia${j}`]
           }
-          console.log('status IS elemental - attached:', attachedMateria)
+          // console.log('status IS elemental - attached:', attachedMateria)
 
           // if this has a materia, check it's ap and elements
           if (attachedMateria.name) {
@@ -87,7 +87,7 @@ const calculateElementEquip = (elements, items, materia) => {
               elementModifier = 'attack'
             } else {
               const materiaLevel = currentMateriaLevel(elementalMateriaData, slotMateria.ap)
-              console.log('status elemental materia level', materiaLevel, elementalMateriaData, slotMateria.ap)
+              // console.log('status elemental materia level', materiaLevel, elementalMateriaData, slotMateria.ap)
               if (materiaLevel === 1) {
                 elementModifier = 'halve'
               } else if (materiaLevel === 2) {
@@ -142,7 +142,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
         // check if this slot has an elemental materia
         const slotMateria = materia[`${type}Materia${j + 1}`]
 
-        console.log('status status linked slot', type, j, slot, slotMateria)
+        // console.log('status status linked slot', type, j, slot, slotMateria)
         if (slotMateria.id && addedEffectMateriaData.index) {
           let attachedMateria
           if (slot.includes('Left')) {
@@ -161,7 +161,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
               elementModifier = 'defend'
             }
             const attachedMateriaStatusEffects = window.data.kernel.materiaData[attachedMateria.id].status
-            console.log('status status ap', slotMateria.ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
+            // console.log('status status ap', slotMateria.ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
 
             addNoDuplicates(statusEffects[elementModifier], removeInvalidStatusEffect(attachedMateriaStatusEffects, validStatusToApply))
           }
@@ -171,7 +171,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
   }
   // TODO - Not all statuses have an added effect applied in game, eg weapon with addedEffect+Kujata = Barrier MBarrier Reflect, but nothing shows in game
 
-  console.log('status calculateStatusEquip', statusEffects, items)
+  // console.log('status calculateStatusEquip', statusEffects, items)
 }
 const currentMateriaLevel = (materiaData, currentAP) => {
   let level = 0
@@ -300,21 +300,25 @@ const getMenuOptions = (char) => {
   const addMenuOption = (all, choice) => {
     const materiaData = window.data.kernel.materiaData.filter(a => a.name && a.attributes.menu && a.attributes.type === 'Add' && a.attributes.menu.length > 0 && a.attributes.menu.filter(m => m.id === choice.id).length > 0)[0]
     const moreThanOneChoice = materiaData.attributes.menu.length > 1
-
+    // console.log('stats addMenuOption', choice, materiaData)
     if (!moreThanOneChoice) {
       // if only one choice, add if not present
       const choiceIsInList = all.filter(a => a.id === choice.id).length > 0
+      // console.log('stats addMenuOption one', choiceIsInList)
       if (!choiceIsInList) {
         all.push({...choice})
+        // console.log('stats addMenuOption one push A', all, choice)
       }
     } else {
       const firstChoiceSelected = materiaData.attributes.menu[0].id === choice.id
       const choice1IsInList = all.filter(a => a.id === materiaData.attributes.menu[0].id).length > 0
       const choice2IsInList = all.filter(a => a.id === materiaData.attributes.menu[1].id).length > 0
 
+      // console.log('stats addMenuOption multi', firstChoiceSelected, choice1IsInList, choice2IsInList)
       // if two choice, 1st choice is selected, 1st is not in list, 2nd is not in list = Add
       if (firstChoiceSelected && !choice1IsInList && !choice2IsInList) {
         all.push({...choice})
+        // console.log('stats addMenuOption multi push A', all, choice)
       }
       // if two choice, 1st choice is selected, 1st is in list    , 2nd is not in list = No Add
       // if two choice, 1st choice is selected, 1st is not in list, 2nd is in list     = No Add
@@ -323,10 +327,12 @@ const getMenuOptions = (char) => {
       // if two choice, 2nd choice is selected, 1st is not in list, 2nd is not in list = Add
       if (!firstChoiceSelected && !choice1IsInList && !choice2IsInList) {
         all.push({...choice})
+        // console.log('stats addMenuOption multi push B', all, choice)
       }
       // if two choice, 2nd choice is selected, 1st is in list    , 2nd is not in list = Replace 1st with 2nd
       if (!firstChoiceSelected && choice1IsInList && !choice2IsInList) {
         replaceMenuOption(all, materiaData.attributes.menu[0].id, choice)
+        // console.log('stats addMenuOption multi replace', all, choice)
       }
       // if two choice, 2nd choice is selected, 1st is not in list, 2nd is in list     = No Add
       // if two choice, 2nd choice is selected, 1st is in list    , 2nd is in list     = No Add // Bad
@@ -360,33 +366,38 @@ const getMenuOptions = (char) => {
       }
     }
   }
-  const ensureCommandMenuMagicSummonItemOrder = (command, hasMagic, hasSummon) => {
+  const ensureCommandMenuMagicSummonItemOrder = (all, hasMagic, hasSummon) => {
     // Command materia is actually just the order that the materia is on equipment...
-
-    if (!hasMagic) {
-      // Remove magic command (2), keep W-Magic
-      removeMenuOption(command, 2)
-    }
-    if (!hasSummon) {
-      // Remove summon command (3), keep W-Summon
-      removeMenuOption(command, 3)
-    }
-
-    // Ensure item is always 4th
-    const itemCommandPosition = (command) => {
-      for (let i = 0; i < command.length; i++) {
-        const choice = command[i]
+    const itemCommandPosition = (all) => {
+      for (let i = 0; i < all.length; i++) {
+        const choice = all[i]
         if (choice.id === 4 || choice.id === 23) {
           return i
         }
       }
       return 0
     }
-    while (command.length < 4 && itemCommandPosition(command) !== 3) {
-      command.splice(command.length - 1, 0, {id: 255, name: 'BLANK'})
+    if (!hasMagic) {
+      // Remove magic command (2), keep W-Magic
+      removeMenuOption(all, 2)
+    }
+    if (!hasSummon) {
+      // Remove summon command (3), keep W-Summon
+      removeMenuOption(all, 3)
     }
 
-    // TODO - Something is still wrong here, need to investigate
+    const itemPosition = itemCommandPosition(all)
+    const itemCommand = all.splice(itemPosition, 1)[0]
+    // Ensure item is always 4th
+    if (all.length < 4) {
+      while (all.length < 3) {
+        all.splice(all.length, 0, {id: 255, name: 'BLANK'})
+      }
+      all.push(itemCommand)
+    } else {
+      all.splice(3, 0, itemCommand)
+    }
+    // console.log('materia ensureCommandMenuMagicSummonItemOrder', all, itemPosition, itemCommand)
   }
 
   const command = [
@@ -425,6 +436,7 @@ const getMenuOptions = (char) => {
           }
         }
         if (materiaData.attributes.type === 'AddAll') {
+          // console.log('status AddAll', materiaData.name, materiaData, currentLevel)
           for (let i = 0; i < materiaData.attributes.menu.length; i++) {
             addMenuOption(command, materiaData.attributes.menu[i])
           }
@@ -855,6 +867,15 @@ const debugSetEquipmentAndMateria = () => {
     ['Double Cut', 'Underwater', 'Cover', 'Ultima', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
     ['Enemy Skill', 'Time', 'Gil Plus', 'Revive', 'Fire', 'Magic Plus', 'Speed Plus', 'HP Plus']
   )
+  setEquipmentAndMateriaForTesting(
+    window.data.savemap.characters.Barret,
+    'Missing Score', 'Wizard Bracelet', '',
+    ['Master Command', 'Choco/Mog', 'Shiva', 'Ifrit', '', '', '', ''],
+    ['', '', '', '', '', '', '', '']
+  )
+  window.data.savemap.characters.Barret.materia.weaponMateria2.ap = 1000
+  window.data.savemap.characters.Barret.materia.weaponMateria3.ap = 16000
+  window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 export {
