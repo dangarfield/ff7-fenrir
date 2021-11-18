@@ -18,6 +18,11 @@ let smallMateriaListDialog, smallMateriaListGroup, smallMateriaListContentsGroup
 let trashDialog
 let checkDialog, checkGroup, checkSubGroup
 
+let exchangeMateriaDetailsDialog, exchangeMateriaDetailsGroup
+let exchangeInfoDialog, exchangeInfoGroup
+let exchangeCharDialog, exchangeCharGroup, exchangeCharContentsGroup
+let exchangeMateriaListDialog, exchangeMateriaListGroup, exchangeMateriaListContentsGroup
+
 const DATA = {
   partyMember: 0,
   char: {},
@@ -40,13 +45,20 @@ const DATA = {
       },
       spells: []
     }
+  },
+  exchange: {
+    activeCharacters: [],
+    selected: {type: 'chars', page: 0, pos: 0},
+    type: 'chars',
+    chars: {page: 0, pos: 0},
+    list: {page: 0, pos: 0}
   }
 }
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
   DATA.battleStats = getBattleStatsForChar(DATA.char)
-  // window.DATA = DATA
+  window.DATA = DATA
 }
 
 const loadMateriaMenu = async partyMember => {
@@ -56,6 +68,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.smallMateriaList.pos = 0
   DATA.smallMateriaList.page = 0
   DATA.check.main = 0
+  DATA.exchange.activeCharacters = getActiveCharacters()
 
   headerDialog = createDialogBox({
     id: 25,
@@ -153,6 +166,61 @@ const loadMateriaMenu = async partyMember => {
   trashDialog.position.z = 100 - 14
   window.trashDialog = trashDialog
 
+  // Exchange
+  exchangeMateriaDetailsDialog = createDialogBox({
+    id: 20,
+    name: 'exchangeMateriaDetailsDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 0,
+    expandInstantly: true,
+    noClipping: true
+  })
+  exchangeMateriaDetailsDialog.visible = true
+  exchangeMateriaDetailsGroup = addGroupToDialog(exchangeMateriaDetailsDialog, 30)
+
+  exchangeInfoDialog = createDialogBox({
+    id: 19,
+    name: 'exchangeInfoDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 25.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  exchangeInfoDialog.visible = true
+  exchangeMateriaDetailsGroup = addGroupToDialog(exchangeInfoDialog, 29)
+
+  exchangeCharDialog = createDialogBox({
+    id: 18,
+    name: 'exchangeCharDialog',
+    w: 13.5, // TODO - validate sizes
+    h: 189,
+    x: 180,
+    y: 51,
+    expandInstantly: true,
+    noClipping: false
+  })
+  exchangeCharDialog.visible = true
+  exchangeCharGroup = addGroupToDialog(exchangeCharDialog, 28)
+  exchangeCharContentsGroup = addGroupToDialog(exchangeCharDialog, 28)
+
+  exchangeMateriaListDialog = createDialogBox({
+    id: 17,
+    name: 'exchangeMateriaListDialog',
+    w: 126.5,
+    h: 189,
+    x: 193.5,
+    y: 51,
+    expandInstantly: true,
+    noClipping: true
+  })
+  exchangeMateriaListDialog.visible = true
+  exchangeMateriaListGroup = addGroupToDialog(exchangeMateriaListDialog, 27)
+  exchangeMateriaListContentsGroup = addGroupToDialog(exchangeMateriaListDialog, 27)
+
   console.log('materia DATA', DATA)
   setSelectedNav(2)
   drawEnemySkillsGroup()
@@ -161,9 +229,154 @@ const loadMateriaMenu = async partyMember => {
   drawHeader()
   drawMainNavPointer()
   drawSmallMateriaListSlider()
+  drawExchangeMenu()
+  showExchangeMenu()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
+}
+const getActiveCharacters = () => {
+  const chars = ['Cloud', 'Barret', 'Tifa', 'Aeris', 'RedXIII', 'Yuffie', 'CaitSith', 'Vincent', 'Cid']
+  return chars.filter(c => window.data.savemap.party.phsVisibility[c] === 1)
+}
+const drawExchangeMenu = () => {
+  // Add sliders
+  createItemListNavigation(exchangeMateriaListGroup, 313, 104 - 32 + 22.5, 183, window.data.savemap.materias.length, 10)
+  exchangeMateriaListGroup.userData.slider.userData.moveToPage(0)
+  // const activeMembers = getFrom phs visibility? order?
+  exchangeCharGroup.userData.z = 100 - 71
+  createItemListNavigation(exchangeCharGroup, 186.5, 104 - 32 + 22.5, 183, DATA.exchange.activeCharacters.length, 4)
+  exchangeCharGroup.userData.slider.userData.moveToPage(0)
+}
+const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
+  const char = window.data.savemap.characters[DATA.exchange.activeCharacters[i + page]]
+  const charDialog = createDialogBox({
+    id: 16,
+    name: `materia-exchange-char-dialog-${i}`,
+    w: 184, // TODO - validate
+    h: yAdj,
+    x: 0,
+    y: y + (i * yAdj),
+    expandInstantly: true,
+    noClipping: true
+  })
+  charDialog.visible = true
+  console.log('materia drawExchangeCharListOneItem', char)
+
+  const rowOffset = 15 // TODO - validate all of these
+  const rowAdj = 13
+
+  const equips = [
+    ['Wpn.', window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots, EQUIPMENT_TYPE.WEAPON],
+    ['Arm.', window.data.kernel.armorData[char.equip.armor.index].materiaSlots, EQUIPMENT_TYPE.ARMOR]
+  ]
+  addTextToDialog(
+    group,
+    char.name,
+    `materia-exchange-char-name-${i}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    x - 8,
+    y - 4 + (i * yAdj) + rowOffset,
+    0.5
+  )
+  for (let j = 0; j < equips.length; j++) {
+    const equip = equips[j]
+    addTextToDialog(
+      group,
+      equip[0],
+      `materia-exchange-equip-type-${i}-${j}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      x - 8,
+      y - 4 + (i * yAdj) + rowOffset + (rowAdj * (j + 1)),
+      0.5
+    )
+    createEquipmentMateriaViewer(group,
+      x + 28,
+      y - 24 + (i * yAdj) + rowOffset + (rowAdj * (j + 1)), // TODO - validate positions
+      equip[1],
+      char, equip[2]
+    )
+  }
+}
+const drawExchangeChars = () => {
+  console.log('materia drawExchangeChars')
+  removeGroupChildren(exchangeCharContentsGroup)
+  const { x, y, yAdj } = getExchangeCharPositions()
+  for (let i = 0; i < 4; i++) {
+    drawExchangeCharListOneItem(exchangeCharContentsGroup, i, DATA.exchange.chars.page, x, y, yAdj)
+  }
+  exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
+  exchangeMateriaListContentsGroup.position.y = 0
+}
+const drawExchangeMateriaList = () => {
+  console.log('materia drawExchangeMateriaList')
+  removeGroupChildren(exchangeMateriaListContentsGroup)
+  const { x, y, yAdj } = getExchangeMateriaListPositions()
+  for (let i = 0; i < 10; i++) {
+    drawMateriaListOneItem(exchangeMateriaListContentsGroup, i, DATA.exchange.list.page, x, y, yAdj)
+  }
+  exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
+  exchangeMateriaListContentsGroup.position.y = 0
+}
+const drawExchangePointers = () => {
+  if (DATA.exchange.type === 'chars') {
+    const { x, y, yAdj } = getExchangeCharPositions()
+    // y 51, x 31
+
+    const rowOffset = 15 // TODO - validate all of these
+    const rowAdj = 13
+    const xAdj = 14
+
+    const xAdjAction = DATA.exchange.chars.pos % 9 === 0 ? -17.5 : 0
+    movePointer(POINTERS.pointer1,
+      x + ((DATA.exchange.chars.pos % 9) * xAdj) + xAdjAction + 6.5,
+      y + (DATA.exchange.chars.page * yAdj) + rowOffset + ((Math.trunc(DATA.exchange.chars.pos / 9) + 1) * rowAdj)
+    )
+    // movePointer(POINTERS.pointer2, 0, 0, true)
+  }
+}
+window.drawExchangePointers = drawExchangePointers
+// window.DATA = DATA
+const showExchangeMenu = () => {
+  exchangeMateriaDetailsDialog.visible = true
+  exchangeInfoDialog.visible = true
+  exchangeCharDialog.visible = true
+  exchangeMateriaListDialog.visible = true
+
+  headerDialog.visible = false
+  checkDialog.visible = false
+  smallMateriaListDialog.visible = false
+  materiaDetailsDialog.visible = false
+  infoDialog.visible = false
+  arrangeDialog.visible = false
+  // trashDialog.visible = false
+  DATA.exchange.chars.page = 0
+  DATA.exchange.chars.pos = 1
+  DATA.exchange.list.page = 0
+  DATA.exchange.list.pos = 0
+
+  drawExchangeChars()
+  drawExchangeMateriaList()
+  drawExchangePointers()
+  setMenuState('materia-exchange-select')
+}
+const hideExchangeMenu = () => {
+  exchangeMateriaDetailsDialog.visible = false
+  exchangeInfoDialog.visible = false
+  exchangeCharDialog.visible = false
+  exchangeMateriaListDialog.visible = false
+
+  headerDialog.visible = true
+  checkDialog.visible = true
+  smallMateriaListDialog.visible = true
+  materiaDetailsDialog.visible = true
+  infoDialog.visible = true
+  arrangeDialog.visible = true
+  // trashDialog.visible = false
+  // TODO - get pointers and menus in right position etc
+  setMenuState('materia-arrange-menu')
 }
 const drawHeader = () => {
   removeGroupChildren(headerGroup)
@@ -725,6 +938,20 @@ const cancelSubCheck = () => {
   drawCheckMainPointer()
   setMenuState('materia-check')
 }
+const getExchangeCharPositions = () => {
+  return {
+    x: 31,
+    y: 51,
+    yAdj: 47.25
+  }
+}
+const getExchangeMateriaListPositions = () => {
+  return {
+    x: 213.5 - 8,
+    y: 67 - 4,
+    yAdj: 18
+  }
+}
 const getSmallMateriaListPositions = () => {
   return {
     x: 213.5 - 8,
@@ -735,11 +962,11 @@ const getSmallMateriaListPositions = () => {
 const drawSmallMateriaListSlider = () => {
   createItemListNavigation(smallMateriaListGroup, 313, 104 - 32, 138.5, window.data.savemap.materias.length, 10)
 }
-const drawSmallMateriaListOneItem = (i, x, y, yAdj) => {
-  const materia = window.data.savemap.materias[i + DATA.smallMateriaList.page]
+const drawMateriaListOneItem = (group, i, page, x, y, yAdj) => {
+  const materia = window.data.savemap.materias[i + page]
   if (materia.id < 255) {
     const textGroup = addTextToDialog(
-      smallMateriaListContentsGroup,
+      group,
       materia.name,
       `materia-small-list-${i}`,
       LETTER_TYPES.MenuBaseFont,
@@ -749,7 +976,7 @@ const drawSmallMateriaListOneItem = (i, x, y, yAdj) => {
       0.5
     )
     const materiaData = window.data.kernel.materiaData[materia.id]
-    const materiaIcon = addImageToDialog(smallMateriaListContentsGroup,
+    const materiaIcon = addImageToDialog(group,
       'materia',
       materiaData.type,
       `materia-small-list-${i}-type`,
@@ -760,9 +987,9 @@ const drawSmallMateriaListOneItem = (i, x, y, yAdj) => {
 
     for (let j = 0; j < textGroup.children.length; j++) {
       const textLetters = textGroup.children[j]
-      textLetters.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
+      textLetters.material.clippingPlanes = group.parent.userData.bg.material.clippingPlanes // TODO - make sure this works
     }
-    materiaIcon.material.clippingPlanes = smallMateriaListDialog.userData.bg.material.clippingPlanes
+    materiaIcon.material.clippingPlanes = group.parent.userData.bg.material.clippingPlanes
   }
 }
 const drawSmallMateriaList = () => {
@@ -777,7 +1004,7 @@ const drawSmallMateriaList = () => {
   const { x, y, yAdj } = getSmallMateriaListPositions()
   // const menu = DATA.menus[DATA.menuCurrent]
   for (let i = 0; i < 10; i++) {
-    drawSmallMateriaListOneItem(i, x, y, yAdj)
+    drawMateriaListOneItem(smallMateriaListContentsGroup, i, DATA.smallMateriaList.page, x, y, yAdj)
   }
   smallMateriaListGroup.userData.slider.userData.moveToPage(DATA.smallMateriaList.page)
   smallMateriaListContentsGroup.position.y = 0
@@ -1638,7 +1865,7 @@ const smallMateriaNavigation = (delta) => {
       console.log('materia smallMateriaNavigation on first page - do nothing')
     } else {
       console.log('materia smallMateriaNavigation not on first page - PAGE DOWN')
-      drawSmallMateriaListOneItem(-1, x, y, yAdj)
+      drawMateriaListOneItem(smallMateriaListContentsGroup, -1, DATA.smallMateriaList.page, x, y, yAdj)
       DATA.smallMateriaList.page--
       tweenSmallMateriaList(false, 'materia-select-materia-equip-replace', drawSmallMateriaList) // Could optimise further
       drawMateriaDetails()
@@ -1649,7 +1876,7 @@ const smallMateriaNavigation = (delta) => {
       console.log('materia smallMateriaNavigation on last page - do nothing')
     } else {
       console.log('materia smallMateriaNavigation not on last page - PAGE UP', delta, DATA.smallMateriaList.pos)
-      drawSmallMateriaListOneItem(10, x, y, yAdj)
+      drawMateriaListOneItem(smallMateriaListContentsGroup, 10, DATA.smallMateriaList.page, x, y, yAdj)
       DATA.smallMateriaList.page++
       tweenSmallMateriaList(true, 'materia-select-materia-equip-replace', drawSmallMateriaList)
       drawMateriaDetails()
