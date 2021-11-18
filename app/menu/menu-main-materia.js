@@ -5,6 +5,7 @@ import { unequipMateria } from '../materia/materia-module.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
+import { loadEquipMenu } from './menu-main-equip.js'
 import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
 import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
@@ -42,11 +43,7 @@ const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
   DATA.battleStats = getBattleStatsForChar(DATA.char)
-  // DATA.check.sub.spells = DATA.battleStats.menu.magic
-  // DATA.check.sub.spells = DATA.battleStats.menu.summon
-  // DATA.check.sub.spells = DATA.battleStats.menu.enemySkills
-
-  window.DATA = DATA
+  // window.DATA = DATA
 }
 
 const loadMateriaMenu = async partyMember => {
@@ -1530,6 +1527,19 @@ const switchPartyMember = delta => {
   drawHeader()
   drawMainNavPointer()
 }
+const switchToEquipMenu = async () => {
+  setMenuState('loading')
+  movePointer(POINTERS.pointer1, 0, 0, true)
+  await fadeOverlayIn(getMenuBlackOverlay())
+  headerDialog.visible = false
+  infoDialog.visible = false
+  arrangeDialog.visible = false
+  materiaDetailsDialog.visible = false
+  smallMateriaListDialog.visible = false
+  trashDialog.visible = false
+  checkDialog.visible = false
+  loadEquipMenu(DATA.partyMember)
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -1568,7 +1578,9 @@ const keyPress = async (key, firstPress, state) => {
       mainNavigationSelect()
     } else if (key === KEY.TRIANGLE) {
       removeMateriaFromSlot()
-    } // TODO - square button goes to equip menu
+    } else if (key === KEY.SQUARE) {
+      switchToEquipMenu()
+    }
   } else if (state === 'materia-check') {
     if (key === KEY.LEFT) {
       checkNavigation(false, -1)

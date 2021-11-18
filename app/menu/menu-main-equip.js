@@ -19,7 +19,7 @@ import {
   createEquipmentMateriaViewer,
   createItemListNavigation
 } from './menu-box-helper.js'
-import { fadeInHomeMenu } from './menu-main-home.js'
+import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
@@ -37,7 +37,6 @@ const DATA = {
   equipable: [],
   showMateriaMenuOnExit: false
 }
-// window.DATA = DATA
 const setDataFromPartyMember = () => {
   const charName = window.data.savemap.party.members[DATA.partyMember]
   DATA.char = window.data.savemap.characters[charName]
@@ -132,6 +131,8 @@ const loadEquipMenu = async partyMember => {
   // drawHeader()
   // drawInfo()
   // drawSlots()
+
+  setSelectedNav(3)
   drawStatsLabels()
   // drawStatsBase()
   // drawStatsSelectedBase()
