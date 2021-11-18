@@ -393,7 +393,7 @@ const exchangeNavigation = (vertical, delta) => {
         drawExchangeCharListOneItem(exchangeCharContentsGroup, -1, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page--
         tweenExchangeCharsList(false, 'materia-exchange-select', drawExchangeChars)
-        // TODO - update materia details
+        drawExchangeMateriaDetailsAndInfo()
       }
     } else if (potential >= maxPos) {
       if (DATA.exchange.chars.page >= maxPage) {
@@ -403,11 +403,12 @@ const exchangeNavigation = (vertical, delta) => {
         drawExchangeCharListOneItem(exchangeCharContentsGroup, 4, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page++
         tweenExchangeCharsList(true, 'materia-exchange-select', drawExchangeChars)
-        // TODO - update materia details
+        drawExchangeMateriaDetailsAndInfo()
       }
     } else {
       DATA.exchange.chars.pos = potential
       drawExchangePointers()
+      drawExchangeMateriaDetailsAndInfo()
     }
   } else if (DATA.exchange.type === 'list') {
     console.log('materia exchangeNavigation list TODO') // TODO
@@ -430,10 +431,78 @@ const exchangePageNavigation = (up) => {
     // Update list group positions
     exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.chars.page)
     drawExchangeChars()
-    // TODO - update materia details
+    drawExchangeMateriaDetailsAndInfo()
   } else if (DATA.exchange.type === 'list') {
     console.log('materia exchangeNavigation list TODO') // TODO
   }
+}
+const drawExchangeMateriaDetailsAndInfo = () => {
+  removeGroupChildren(exchangeMateriaDetailsGroup)
+  removeGroupChildren(exchangeInfoGroup)
+  if (DATA.exchange.type === 'chars') {
+    const char = window.data.savemap.characters[DATA.exchange.activeCharacters[DATA.exchange.chars.page + Math.trunc(DATA.exchange.chars.pos / 18)]]
+    const position = DATA.exchange.chars.pos % 18
+    const slot = position < 9 ? `weaponMateria${position}` : `armorMateria${position % 9}`
+    if (position === 0 || position === 9) {
+      return
+    }
+    const materia = char.materia[slot]
+    if (materia.id === 0xFF) {
+      return
+    }
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    drawExchangeMateriaDetails(materia, materiaData)
+    drawExchangeInfo(materiaData.description)
+  }
+}
+const drawExchangeMateriaDetails = (materia, materiaData) => {
+  const y = 17
+  addTextToDialog(
+    exchangeInfoGroup,
+    materiaData.name,
+    `materia-exchange-details-name`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    31 - 8, // TODO - positions
+    y - 4,
+    0.5
+  )
+  addImageToDialog(exchangeInfoGroup,
+    'materia',
+    materiaData.type,
+    `materia-details-type`,
+    31 - 8 + 0.5,
+    y - 4 - 1.5,
+    0.5
+  )
+  const currentLevel = currentMateriaLevel(materiaData, materia.ap)
+  const starX = 153 + 6 // TODO - positions
+  const starY = y - 4 - 1
+  const starXAdj = 12.5
+
+  for (let i = 0; i < materiaData.apLevels.length; i++) {
+    addImageToDialog(
+      exchangeInfoGroup,
+      'materia',
+      i < currentLevel ? `${materiaData.type}-star-active-small` : `${materiaData.type}-star-inactive-small`,
+      `material-details-level-${i}`,
+      starX + (starXAdj * i),
+      starY,
+      0.5
+    )
+  }
+}
+const drawExchangeInfo = (text) => {
+  addTextToDialog(
+    exchangeInfoGroup,
+    text,
+    `materia-exchange-info`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    10 - 8, // TODO - positions
+    42 - 4,
+    0.5
+  )
 }
 const exchangeSelectCancel = () => {
 
@@ -463,6 +532,7 @@ const showExchangeMenu = () => {
   drawExchangeChars()
   drawExchangeMateriaList()
   drawExchangePointers()
+  drawExchangeMateriaDetailsAndInfo()
   setMenuState('materia-exchange-select')
 }
 const hideExchangeMenu = () => {
