@@ -48,7 +48,7 @@ const DATA = {
   },
   exchange: {
     activeCharacters: [],
-    selected: {type: 'chars', page: 0, pos: 0},
+    selected: {type: 'none', page: 0, pos: 0},
     type: 'chars',
     chars: {page: 0, pos: 0},
     list: {page: 0, pos: 0}
@@ -68,6 +68,7 @@ const loadMateriaMenu = async partyMember => {
   DATA.smallMateriaList.pos = 0
   DATA.smallMateriaList.page = 0
   DATA.check.main = 0
+  DATA.arrangePos = 0
   DATA.exchange.activeCharacters = getActiveCharacters()
 
   headerDialog = createDialogBox({
@@ -236,7 +237,7 @@ const loadMateriaMenu = async partyMember => {
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
-  showExchangeMenu()
+  // showExchangeMenu()
 }
 const getActiveCharacters = () => {
   const chars = ['Cloud', 'Barret', 'Tifa', 'Aeris', 'RedXIII', 'Yuffie', 'CaitSith', 'Vincent', 'Cid']
@@ -336,13 +337,18 @@ const drawExchangePointers = () => {
 
     const xAdjAction = DATA.exchange.chars.pos % 9 === 0 ? -17.5 : 0
 
-    // Math.trunc(DATA.exchange.chars.pos / 9
-
     movePointer(POINTERS.pointer1,
       x + ((DATA.exchange.chars.pos % 9) * xAdj) + xAdjAction + 6.5,
       y + (Math.trunc(DATA.exchange.chars.pos / 18) * yAdj) + rowOffset + ((1 + Math.trunc(DATA.exchange.chars.pos / 9) % 2) * rowAdj)// + rowOffset + ((Math.trunc(DATA.exchange.chars.pos / 9) + 0) * rowAdj)
     )
     // movePointer(POINTERS.pointer2, 0, 0, true)
+  } else if (DATA.exchange.type === 'list') {
+    const { x, y, yAdj } = getExchangeMateriaListPositions()
+
+    movePointer(POINTERS.pointer1,
+      x - 14, // TODO - get position right
+      y + (DATA.exchange.list.pos * yAdj) + 4
+    )
   }
 }
 window.drawExchangePointers = drawExchangePointers
@@ -356,6 +362,28 @@ const tweenExchangeCharsList = (up, state, cb) => {
   }
   let from = {y: subContents.position.y}
   let to = {y: up ? subContents.position.y + 47.25 : subContents.position.y - 47.25}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        subContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
+}
+const tweenExchangeMateriaList = (up, state, cb) => {
+  setMenuState('materia-tweening-list')
+  const subContents = exchangeMateriaListContentsGroup
+  for (let i = 0; i < DATA.page + 1; i++) {
+    subContents.children[i].visible = true
+  }
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + 18 : subContents.position.y - 18}
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -384,7 +412,8 @@ const exchangeNavigation = (vertical, delta) => {
     } else if (DATA.exchange.chars.pos % 9 === 8 && !vertical && delta > 0) {
       console.log('materia exchangeNavigation chars right on last materia - switch to list menu navigation')
       DATA.exchange.type = 'list'
-      exchangeNavigation()
+      drawExchangePointers()
+      drawExchangeMateriaDetailsAndInfo()
     } else if (potential < 0) {
       if (DATA.exchange.chars.page === 0) {
         console.log('materia exchangeNavigation chars on first page - do nothing')
@@ -411,7 +440,46 @@ const exchangeNavigation = (vertical, delta) => {
       drawExchangeMateriaDetailsAndInfo()
     }
   } else if (DATA.exchange.type === 'list') {
-    console.log('materia exchangeNavigation list TODO') // TODO
+    const { x, y, yAdj } = getExchangeMateriaListPositions()
+    const maxPage = window.data.savemap.materias.length - 10
+    const maxPos = 10
+    const potential = DATA.exchange.list.pos + delta
+    console.log('materia exchangeNavigation list', vertical, delta, '-', DATA.exchange.list.page, DATA.exchange.list.pos, '->', potential, ':', maxPage, maxPos)
+
+    if (!vertical && delta > 0) {
+      console.log('materia exchangeNavigation list right - do nothing')
+    } else if (!vertical && delta < 0) {
+      console.log('materia exchangeNavigation list left - switch to chars menu navigation')
+      DATA.exchange.type = 'chars'
+      drawExchangePointers()
+      drawExchangeMateriaDetailsAndInfo()
+    } else if (potential < 0) {
+      if (DATA.exchange.list.page === 0) {
+        console.log('materia exchangeNavigation list on first page - do nothing')
+      } else {
+        console.log('materia exchangeNavigation list not on first page - PAGE DOWN')
+        drawMateriaListOneItem(exchangeMateriaListContentsGroup, -1, DATA.exchange.list.page, x, y, yAdj)
+        DATA.exchange.list.page--
+        tweenExchangeMateriaList(false, 'materia-exchange-select', drawExchangeMateriaList)
+        drawExchangeMateriaDetailsAndInfo()
+      }
+    } else if (potential >= maxPos) {
+      if (DATA.exchange.list.page >= maxPage) {
+        console.log('materia exchangeNavigation list on last page - do nothing')
+      } else {
+        console.log('materia exchangeNavigation list not on last page - PAGE UP')
+        drawMateriaListOneItem(exchangeMateriaListContentsGroup, 10, DATA.exchange.list.page, x, y, yAdj)
+        DATA.exchange.list.page++
+        tweenExchangeMateriaList(true, 'materia-exchange-select', drawExchangeMateriaList)
+        drawExchangeMateriaDetailsAndInfo()
+      }
+    } else {
+      console.log('materia exchangeNavigation list normal pos based navigation')
+      DATA.exchange.list.pos = potential
+      drawExchangePointers()
+      drawExchangeMateriaDetailsAndInfo()
+    }
+    // drawExchangePointers() // Temp for all
   }
 }
 const exchangePageNavigation = (up) => {
@@ -433,12 +501,28 @@ const exchangePageNavigation = (up) => {
     drawExchangeChars()
     drawExchangeMateriaDetailsAndInfo()
   } else if (DATA.exchange.type === 'list') {
-    console.log('materia exchangeNavigation list TODO') // TODO
+    const maxPage = window.data.savemap.materias.length - 10
+    if (up) {
+      DATA.exchange.list.page = DATA.exchange.list.page + 10
+      if (DATA.exchange.list.page > maxPage) {
+        DATA.exchange.list.page = maxPage
+      }
+    } else {
+      DATA.exchange.list.page = DATA.exchange.list.page - 10
+      if (DATA.exchange.list.page < 0) {
+        DATA.exchange.list.page = 0
+      }
+    }
+    // Update list group positions
+    exchangeMateriaListGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
+    drawExchangeMateriaList()
+    drawExchangeMateriaDetailsAndInfo()
   }
 }
 const drawExchangeMateriaDetailsAndInfo = () => {
   removeGroupChildren(exchangeMateriaDetailsGroup)
   removeGroupChildren(exchangeInfoGroup)
+  let materia
   if (DATA.exchange.type === 'chars') {
     const char = window.data.savemap.characters[DATA.exchange.activeCharacters[DATA.exchange.chars.page + Math.trunc(DATA.exchange.chars.pos / 18)]]
     const position = DATA.exchange.chars.pos % 18
@@ -446,14 +530,18 @@ const drawExchangeMateriaDetailsAndInfo = () => {
     if (position === 0 || position === 9) {
       return
     }
-    const materia = char.materia[slot]
-    if (materia.id === 0xFF) {
-      return
-    }
-    const materiaData = window.data.kernel.materiaData[materia.id]
-    drawExchangeMateriaDetails(materia, materiaData)
-    drawExchangeInfo(materiaData.description)
+    materia = char.materia[slot]
+  } else if (DATA.exchange.type === 'list') {
+    materia = window.data.savemap.materias[DATA.exchange.list.page + DATA.exchange.list.pos]
+  } else {
+    return
   }
+  if (materia.id === 0xFF) {
+    return
+  }
+  const materiaData = window.data.kernel.materiaData[materia.id]
+  drawExchangeMateriaDetails(materia, materiaData)
+  drawExchangeInfo(materiaData.description)
 }
 const drawExchangeMateriaDetails = (materia, materiaData) => {
   const y = 17
@@ -505,7 +593,9 @@ const drawExchangeInfo = (text) => {
   )
 }
 const exchangeSelectCancel = () => {
-
+  hideExchangeMenu()
+  drawArrangePointer()
+  drawSmallMateriaList()
 }
 const exchangeSelectSelect = () => {
 
@@ -524,10 +614,12 @@ const showExchangeMenu = () => {
   infoDialog.visible = false
   arrangeDialog.visible = false
   // trashDialog.visible = false
+  DATA.exchange.type = 'chars'
   DATA.exchange.chars.page = 0
   DATA.exchange.chars.pos = 1
   DATA.exchange.list.page = 0
   DATA.exchange.list.pos = 0
+  DATA.exchange.selected.type = 'none'
 
   drawExchangeChars()
   drawExchangeMateriaList()
@@ -1851,6 +1943,7 @@ const selectArrangeMenuOption = () => {
     // cancelArrangeMenu() // TODO - Assume that the arrange menu is still open
   } else if (DATA.arrangePos === 1) {
     // TODO - All exchange menus and behaviour
+    showExchangeMenu()
   } else if (DATA.arrangePos === 2) {
     setMenuState('loading')
     removeAllMateriaForCharacter()
