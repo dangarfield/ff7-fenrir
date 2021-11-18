@@ -168,7 +168,7 @@ const loadMateriaMenu = async partyMember => {
 
   // Exchange
   exchangeMateriaDetailsDialog = createDialogBox({
-    id: 20,
+    id: 10,
     name: 'exchangeMateriaDetailsDialog',
     w: 320,
     h: 25.5,
@@ -177,11 +177,12 @@ const loadMateriaMenu = async partyMember => {
     expandInstantly: true,
     noClipping: true
   })
-  exchangeMateriaDetailsDialog.visible = true
-  exchangeMateriaDetailsGroup = addGroupToDialog(exchangeMateriaDetailsDialog, 30)
+  // exchangeMateriaDetailsDialog.visible = true
+  exchangeMateriaDetailsDialog.position.z = 20
+  exchangeMateriaDetailsGroup = addGroupToDialog(exchangeMateriaDetailsDialog, 19)
 
   exchangeInfoDialog = createDialogBox({
-    id: 19,
+    id: 10,
     name: 'exchangeInfoDialog',
     w: 320,
     h: 25.5,
@@ -190,8 +191,10 @@ const loadMateriaMenu = async partyMember => {
     expandInstantly: true,
     noClipping: true
   })
-  exchangeInfoDialog.visible = true
-  exchangeMateriaDetailsGroup = addGroupToDialog(exchangeInfoDialog, 29)
+  // exchangeInfoDialog.visible = true
+  exchangeInfoDialog.position.z = 20
+  exchangeInfoGroup = addGroupToDialog(exchangeInfoDialog, 19)
+  window.exchangeInfoDialog = exchangeInfoDialog
 
   exchangeCharDialog = createDialogBox({
     id: 18,
@@ -203,7 +206,7 @@ const loadMateriaMenu = async partyMember => {
     expandInstantly: true,
     noClipping: false
   })
-  exchangeCharDialog.visible = true
+  // exchangeCharDialog.visible = true
   exchangeCharGroup = addGroupToDialog(exchangeCharDialog, 28)
   exchangeCharContentsGroup = addGroupToDialog(exchangeCharDialog, 28)
 
@@ -217,7 +220,7 @@ const loadMateriaMenu = async partyMember => {
     expandInstantly: true,
     noClipping: true
   })
-  exchangeMateriaListDialog.visible = true
+  // exchangeMateriaListDialog.visible = true
   exchangeMateriaListGroup = addGroupToDialog(exchangeMateriaListDialog, 27)
   exchangeMateriaListContentsGroup = addGroupToDialog(exchangeMateriaListDialog, 27)
 
@@ -230,10 +233,10 @@ const loadMateriaMenu = async partyMember => {
   drawMainNavPointer()
   drawSmallMateriaListSlider()
   drawExchangeMenu()
-  showExchangeMenu()
   await fadeOverlayOut(getMenuBlackOverlay())
 
   setMenuState('materia-main')
+  showExchangeMenu()
 }
 const getActiveCharacters = () => {
   const chars = ['Cloud', 'Barret', 'Tifa', 'Aeris', 'RedXIII', 'Yuffie', 'CaitSith', 'Vincent', 'Cid']
@@ -258,8 +261,11 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
     x: 0,
     y: y + (i * yAdj),
     expandInstantly: true,
-    noClipping: true
+    noClipping: true,
+    group: group
   })
+  // charDialog.position.z = 16
+  // charDialog.userData.z = 100 - 16
   charDialog.visible = true
   console.log('materia drawExchangeCharListOneItem', char)
 
@@ -271,7 +277,7 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
     ['Arm.', window.data.kernel.armorData[char.equip.armor.index].materiaSlots, EQUIPMENT_TYPE.ARMOR]
   ]
   addTextToDialog(
-    group,
+    charDialog,
     char.name,
     `materia-exchange-char-name-${i}`,
     LETTER_TYPES.MenuBaseFont,
@@ -283,7 +289,7 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
   for (let j = 0; j < equips.length; j++) {
     const equip = equips[j]
     addTextToDialog(
-      group,
+      charDialog,
       equip[0],
       `materia-exchange-equip-type-${i}-${j}`,
       LETTER_TYPES.MenuBaseFont,
@@ -292,7 +298,7 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
       y - 4 + (i * yAdj) + rowOffset + (rowAdj * (j + 1)),
       0.5
     )
-    createEquipmentMateriaViewer(group,
+    createEquipmentMateriaViewer(charDialog,
       x + 28,
       y - 24 + (i * yAdj) + rowOffset + (rowAdj * (j + 1)), // TODO - validate positions
       equip[1],
@@ -307,8 +313,9 @@ const drawExchangeChars = () => {
   for (let i = 0; i < 4; i++) {
     drawExchangeCharListOneItem(exchangeCharContentsGroup, i, DATA.exchange.chars.page, x, y, yAdj)
   }
-  exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
-  exchangeMateriaListContentsGroup.position.y = 0
+  exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.chars.page)
+  exchangeCharContentsGroup.position.y = 0
+  window.exchangeCharContentsGroup = exchangeCharContentsGroup
 }
 const drawExchangeMateriaList = () => {
   console.log('materia drawExchangeMateriaList')
@@ -317,28 +324,124 @@ const drawExchangeMateriaList = () => {
   for (let i = 0; i < 10; i++) {
     drawMateriaListOneItem(exchangeMateriaListContentsGroup, i, DATA.exchange.list.page, x, y, yAdj)
   }
-  exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
+  exchangeMateriaListGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
   exchangeMateriaListContentsGroup.position.y = 0
 }
 const drawExchangePointers = () => {
   if (DATA.exchange.type === 'chars') {
     const { x, y, yAdj } = getExchangeCharPositions()
-    // y 51, x 31
-
     const rowOffset = 15 // TODO - validate all of these
     const rowAdj = 13
     const xAdj = 14
 
     const xAdjAction = DATA.exchange.chars.pos % 9 === 0 ? -17.5 : 0
+
+    // Math.trunc(DATA.exchange.chars.pos / 9
+
     movePointer(POINTERS.pointer1,
       x + ((DATA.exchange.chars.pos % 9) * xAdj) + xAdjAction + 6.5,
-      y + (DATA.exchange.chars.page * yAdj) + rowOffset + ((Math.trunc(DATA.exchange.chars.pos / 9) + 1) * rowAdj)
+      y + (Math.trunc(DATA.exchange.chars.pos / 18) * yAdj) + rowOffset + ((1 + Math.trunc(DATA.exchange.chars.pos / 9) % 2) * rowAdj)// + rowOffset + ((Math.trunc(DATA.exchange.chars.pos / 9) + 0) * rowAdj)
     )
     // movePointer(POINTERS.pointer2, 0, 0, true)
   }
 }
 window.drawExchangePointers = drawExchangePointers
 // window.DATA = DATA
+
+const tweenExchangeCharsList = (up, state, cb) => {
+  setMenuState('materia-tweening-list')
+  const subContents = exchangeCharContentsGroup
+  for (let i = 0; i < DATA.page + 1; i++) {
+    subContents.children[i].visible = true
+  }
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + 47.25 : subContents.position.y - 47.25}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        subContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
+}
+const exchangeNavigation = (vertical, delta) => {
+  if (DATA.exchange.type === 'chars') {
+    const { x, y, yAdj } = getExchangeCharPositions()
+    const maxPage = DATA.exchange.activeCharacters.length - 4
+    const maxPos = 18 * 4
+    const potential = DATA.exchange.chars.pos + (vertical ? delta * 9 : delta)
+    console.log('materia exchangeNavigation chars', vertical, delta, '-', DATA.exchange.chars.page, DATA.exchange.chars.pos, '->', potential, ':', maxPage, maxPos)
+
+    // TODO - Not sure, but it might be that a no equippable slot (eg weapon ony has 2 mat slots, if potential  = weaponMateria3, go to item list), test this
+    if (DATA.exchange.chars.pos % 9 === 0 && !vertical && delta < 0) {
+      console.log('materia exchangeNavigation chars left on equip type - do nothing')
+    } else if (DATA.exchange.chars.pos % 9 === 8 && !vertical && delta > 0) {
+      console.log('materia exchangeNavigation chars right on last materia - switch to list menu navigation')
+      DATA.exchange.type = 'list'
+      exchangeNavigation()
+    } else if (potential < 0) {
+      if (DATA.exchange.chars.page === 0) {
+        console.log('materia exchangeNavigation chars on first page - do nothing')
+      } else {
+        console.log('materia exchangeNavigation chars not on first page - PAGE DOWN')
+        drawExchangeCharListOneItem(exchangeCharContentsGroup, -1, DATA.exchange.chars.page, x, y, yAdj)
+        DATA.exchange.chars.page--
+        tweenExchangeCharsList(false, 'materia-exchange-select', drawExchangeChars)
+        // TODO - update materia details
+      }
+    } else if (potential >= maxPos) {
+      if (DATA.exchange.chars.page >= maxPage) {
+        console.log('materia exchangeNavigation chars on last page - do nothing')
+      } else {
+        console.log('materia exchangeNavigation chars not on last page - PAGE UP')
+        drawExchangeCharListOneItem(exchangeCharContentsGroup, 4, DATA.exchange.chars.page, x, y, yAdj)
+        DATA.exchange.chars.page++
+        tweenExchangeCharsList(true, 'materia-exchange-select', drawExchangeChars)
+        // TODO - update materia details
+      }
+    } else {
+      DATA.exchange.chars.pos = potential
+      drawExchangePointers()
+    }
+  } else if (DATA.exchange.type === 'list') {
+    console.log('materia exchangeNavigation list TODO') // TODO
+  }
+}
+const exchangePageNavigation = (up) => {
+  if (DATA.exchange.type === 'chars') {
+    const maxPage = DATA.exchange.activeCharacters.length - 4
+    if (up) {
+      DATA.exchange.chars.page = DATA.exchange.chars.page + 4
+      if (DATA.exchange.chars.page > maxPage) {
+        DATA.exchange.chars.page = maxPage
+      }
+    } else {
+      DATA.exchange.chars.page = DATA.exchange.chars.page - 4
+      if (DATA.exchange.chars.page < 0) {
+        DATA.exchange.chars.page = 0
+      }
+    }
+    // Update list group positions
+    exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.chars.page)
+    drawExchangeChars()
+    // TODO - update materia details
+  } else if (DATA.exchange.type === 'list') {
+    console.log('materia exchangeNavigation list TODO') // TODO
+  }
+}
+const exchangeSelectCancel = () => {
+
+}
+const exchangeSelectSelect = () => {
+
+}
+
 const showExchangeMenu = () => {
   exchangeMateriaDetailsDialog.visible = true
   exchangeInfoDialog.visible = true
@@ -2043,6 +2146,24 @@ const keyPress = async (key, firstPress, state) => {
       confirmTrashConfirm()
     } else if (key === KEY.X) {
       cancelTrashConfirm()
+    }
+  } else if (state === 'materia-exchange-select') {
+    if (key === KEY.LEFT) {
+      exchangeNavigation(false, -1)
+    } else if (key === KEY.RIGHT) {
+      exchangeNavigation(false, 1)
+    } else if (key === KEY.UP) {
+      exchangeNavigation(true, -1)
+    } else if (key === KEY.DOWN) {
+      exchangeNavigation(true, 1)
+    } else if (key === KEY.L1) {
+      exchangePageNavigation(false)
+    } else if (key === KEY.R1) {
+      exchangePageNavigation(true)
+    } else if (key === KEY.X) {
+      exchangeSelectCancel()
+    } else if (key === KEY.O) {
+      exchangeSelectSelect()
     }
   }
 }
