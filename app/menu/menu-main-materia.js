@@ -23,6 +23,7 @@ const DATA = {
   char: {},
   battleStats: {},
   mainNavPos: 1, // 0 check, 1-8 weap, 9 arrange, 10-17 arm
+  arrangePos: 0,
   smallMateriaList: {active: false, pos: 0, page: 0},
   tweenEnemySkills: false,
   check: { main: 0,
@@ -123,7 +124,7 @@ const loadMateriaMenu = async partyMember => {
   infoGroup = addGroupToDialog(infoDialog, 31)
 
   arrangeDialog = createDialogBox({
-    id: 20,
+    id: 10,
     name: 'arrangeDialog',
     w: 63.5,
     h: 60,
@@ -133,6 +134,7 @@ const loadMateriaMenu = async partyMember => {
     noClipping: true
   })
   arrangeDialog.visible = false
+  arrangeDialog.position.z = 10
 
   trashDialog = createDialogBox({
     id: 19,
@@ -149,6 +151,7 @@ const loadMateriaMenu = async partyMember => {
   console.log('materia DATA', DATA)
   setSelectedNav(2)
   drawEnemySkillsGroup()
+  drawArrangeMenu()
   drawHeader()
   drawMainNavPointer()
   drawSmallMateriaListSlider()
@@ -1369,10 +1372,69 @@ const mainNavigationSelect = () => {
   if (DATA.mainNavPos === 0) {
     drawCheckSelect()
   } else if (DATA.mainNavPos === 9) {
-    // TODO - Show arrange menu
+    showArrangeMenu()
   } else {
     selectEquippedMateriaForSwap()
   }
+}
+const getArrangeMenuPos = () => {
+  return {
+    x: 130, // TODO - Validate these positions
+    y: 34,
+    yAdj: 12
+  }
+}
+const drawArrangeMenu = () => {
+  const options = ['Arrange', 'Exchange', 'Remove all', 'Trash']
+  const { x, y, yAdj } = getArrangeMenuPos()
+  for (let i = 0; i < options.length; i++) {
+    const option = options[i]
+    addTextToDialog(
+      arrangeDialog,
+      option,
+      `materia-arrange-menu-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x - 8,
+      y + (i * yAdj) - 4,
+      0.5
+    )
+  }
+}
+const drawArrangePointer = () => {
+  const { x, y, yAdj } = getArrangeMenuPos()
+  movePointer(POINTERS.pointer1, x - 11.5, y + (DATA.arrangePos * yAdj) - 1) // TODO - Validate these positionss
+}
+const arrangeNavigation = (up) => {
+  // TODO - Assume that navigation wraps around the top and bottom, need to validate
+  if (up) {
+    DATA.arrangePos++
+    if (DATA.arrangePos > 3) {
+      DATA.arrangePos = 0
+    }
+  } else {
+    DATA.arrangePos--
+    if (DATA.arrangePos < 0) {
+      DATA.arrangePos = 3
+    }
+  }
+  drawArrangePointer()
+}
+const showArrangeMenu = () => {
+  arrangeDialog.visible = true
+  DATA.arrangePos = 0 // TODO - Does this reset each time?
+  drawArrangePointer()
+  setMenuState('materia-arrange-menu')
+  window.arrangeDialog = arrangeDialog
+}
+const cancelArrangeMenu = () => {
+  arrangeDialog.visible = false
+  drawMainNavPointer()
+  drawInfo('')
+  setMenuState('materia-main')
+}
+const selectArrangeMenuOption = () => {
+  console.log('materia selectArrangeMenuOption', DATA.arrangePos)
 }
 const removeMateriaFromSlot = () => {
   if (DATA.mainNavPos !== 0 && DATA.mainNavPos !== 9) {
@@ -1624,6 +1686,16 @@ const keyPress = async (key, firstPress, state) => {
       selectMateriaForEquipReplace()
     } else if (key === KEY.X) {
       cancelSelectMateriaForEquipReplace()
+    }
+  } else if (state === 'materia-arrange-menu') {
+    if (key === KEY.UP) {
+      arrangeNavigation(false)
+    } else if (key === KEY.DOWN) {
+      arrangeNavigation(true)
+    } else if (key === KEY.O) {
+      selectArrangeMenuOption()
+    } else if (key === KEY.X) {
+      cancelArrangeMenu()
     }
   }
 }
