@@ -1,7 +1,7 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo, recalculateAndApplyHPMP } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
-import { unequipMateria } from '../materia/materia-module.js'
+import { unequipMateria, arrangeMateria } from '../materia/materia-module.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
@@ -942,6 +942,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     materia = DATA.char.materia[`armorMateria${DATA.mainNavPos % 9}`]
   }
   if (materia.id === 255) {
+    materiaDetailsEnemySkillGroup.visible = false
     return
   }
 
@@ -1422,7 +1423,7 @@ const arrangeNavigation = (up) => {
 }
 const showArrangeMenu = () => {
   arrangeDialog.visible = true
-  DATA.arrangePos = 0 // TODO - Does this reset each time?
+  // DATA.arrangePos = 0 // TODO - Does this reset each time?
   drawArrangePointer()
   setMenuState('materia-arrange-menu')
   window.arrangeDialog = arrangeDialog
@@ -1435,6 +1436,20 @@ const cancelArrangeMenu = () => {
 }
 const selectArrangeMenuOption = () => {
   console.log('materia selectArrangeMenuOption', DATA.arrangePos)
+  if (DATA.arrangePos === 0) {
+    setMenuState('loading')
+    arrangeMateria()
+    drawSmallMateriaList()
+    setMenuState('materia-arrange-menu')
+    // cancelArrangeMenu() // TODO - Assume that the arrange menu is still open
+  } else if (DATA.arrangePos === 1) {
+
+  } else if (DATA.arrangePos === 2) {
+    setMenuState('loading')
+    removeAllMateriaForCharacter()
+    cancelArrangeMenu() // TODO - Assume that this closes the menu
+  } else if (DATA.arrangePos === 3) {
+  }
 }
 const removeMateriaFromSlot = () => {
   if (DATA.mainNavPos !== 0 && DATA.mainNavPos !== 9) {

@@ -134,6 +134,9 @@ const reinstateMateriaCloud = () => {
   delete window.data.savemap.characters.Cloud.materiaTemp
   console.log('reinstateMateriaCloud', window.data.savemap.characters.Cloud)
 }
+const arrangeMateria = () => {
+  window.data.savemap.materias.sort((a, b) => a.id - b.id)
+}
 export {
   debugFillMateria,
   addMateriaToInventory,
@@ -143,5 +146,6 @@ export {
   unequipAllMateriaCharX,
   temporarilyHideMateriaCloud,
   reinstateMateriaCloud,
-  unequipMateria
+  unequipMateria,
+  arrangeMateria
 }
