@@ -137,6 +137,9 @@ const reinstateMateriaCloud = () => {
 const arrangeMateria = () => {
   window.data.savemap.materias.sort((a, b) => a.id - b.id)
 }
+const trashMateria = (index) => {
+  window.data.savemap.materias[index] = { id: 0xFF, ap: 0xFFFFFF }
+}
 export {
   debugFillMateria,
   addMateriaToInventory,
@@ -147,5 +150,6 @@ export {
   temporarilyHideMateriaCloud,
   reinstateMateriaCloud,
   unequipMateria,
-  arrangeMateria
+  arrangeMateria,
+  trashMateria
 }

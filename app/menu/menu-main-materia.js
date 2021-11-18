@@ -1,7 +1,7 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo, recalculateAndApplyHPMP } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
-import { unequipMateria, arrangeMateria } from '../materia/materia-module.js'
+import { unequipMateria, arrangeMateria, trashMateria } from '../materia/materia-module.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
@@ -24,6 +24,8 @@ const DATA = {
   battleStats: {},
   mainNavPos: 1, // 0 check, 1-8 weap, 9 arrange, 10-17 arm
   arrangePos: 0,
+  trashMode: false,
+  trashConfirmPos: 0,
   smallMateriaList: {active: false, pos: 0, page: 0},
   tweenEnemySkills: false,
   check: { main: 0,
@@ -124,7 +126,7 @@ const loadMateriaMenu = async partyMember => {
   infoGroup = addGroupToDialog(infoDialog, 31)
 
   arrangeDialog = createDialogBox({
-    id: 10,
+    id: 15,
     name: 'arrangeDialog',
     w: 63.5,
     h: 60,
@@ -134,10 +136,11 @@ const loadMateriaMenu = async partyMember => {
     noClipping: true
   })
   arrangeDialog.visible = false
-  arrangeDialog.position.z = 10
+  arrangeDialog.position.z = 15
+  window.arrangeDialog = arrangeDialog
 
   trashDialog = createDialogBox({
-    id: 19,
+    id: 14,
     name: 'trashDialog',
     w: 186.5,
     h: 54.5,
@@ -147,11 +150,14 @@ const loadMateriaMenu = async partyMember => {
     noClipping: true
   })
   trashDialog.visible = false
+  trashDialog.position.z = 100 - 14
+  window.trashDialog = trashDialog
 
   console.log('materia DATA', DATA)
   setSelectedNav(2)
   drawEnemySkillsGroup()
   drawArrangeMenu()
+  drawTrashDialog()
   drawHeader()
   drawMainNavPointer()
   drawSmallMateriaListSlider()
@@ -1404,7 +1410,8 @@ const drawArrangeMenu = () => {
 }
 const drawArrangePointer = () => {
   const { x, y, yAdj } = getArrangeMenuPos()
-  movePointer(POINTERS.pointer1, x - 11.5, y + (DATA.arrangePos * yAdj) - 1) // TODO - Validate these positionss
+  movePointer(POINTERS.pointer1, x - 11.5, y + (DATA.arrangePos * yAdj) - 1) // TODO - Validate these positions
+  movePointer(POINTERS.pointer2, 0, 0, true)
 }
 const arrangeNavigation = (up) => {
   // TODO - Assume that navigation wraps around the top and bottom, need to validate
@@ -1443,13 +1450,85 @@ const selectArrangeMenuOption = () => {
     setMenuState('materia-arrange-menu')
     // cancelArrangeMenu() // TODO - Assume that the arrange menu is still open
   } else if (DATA.arrangePos === 1) {
-
+    // TODO - All exchange menus and behaviour
   } else if (DATA.arrangePos === 2) {
     setMenuState('loading')
     removeAllMateriaForCharacter()
     cancelArrangeMenu() // TODO - Assume that this closes the menu
   } else if (DATA.arrangePos === 3) {
+    setTrashMode()
   }
+}
+const drawTrashDialog = () => {
+  addTextToDialog(
+    trashDialog,
+    'Are you sure you want to trash?', // TODO - confirm text wording and positions, if yes or no first
+    `materia-trash-label-1`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    52.5 - 8,
+    32 - 4,
+    0.5
+  )
+  addTextToDialog(
+    trashDialog,
+    'Yes',
+    `materia-trash-label-2`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    75 + 12 - 8,
+    32 + 13 - 4,
+    0.5
+  )
+  addTextToDialog(
+    trashDialog,
+    'No',
+    `materia-trash-label-3`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    75 + 12 - 8,
+    32 + 26 - 4,
+    0.5
+  )
+}
+const setTrashMode = () => {
+  DATA.trashMode = true
+  DATA.trashConfirmPos = 0 // TODO - confirm when the confirm position is reset
+  selectEquippedMateriaForSwap()
+}
+const cancelTrashConfirm = () => {
+  trashDialog.visible = false
+  setTrashMode()
+}
+const confirmTrashConfirm = () => {
+  trashDialog.visible = false
+  if (DATA.trashConfirmPos === 0) {
+    setMenuState('loading')
+    console.log('materia trashMateria', DATA.smallMateriaList.page + DATA.smallMateriaList.pos)
+    trashMateria(DATA.smallMateriaList.page + DATA.smallMateriaList.pos)
+    drawSmallMateriaList()
+    cancelSelectMateriaForEquipReplace()
+  } else {
+    cancelTrashConfirm()
+  }
+}
+const trashConfirmNavigation = () => {
+  DATA.trashConfirmPos === 0 ? DATA.trashConfirmPos = 1 : DATA.trashConfirmPos = 0
+  drawTrashConfirmPointers()
+}
+const openTrashConfirmDialog = () => {
+  console.log('materia openTrashConfirmDialog')
+  trashDialog.visible = true
+  drawTrashConfirmPointers()
+  setMenuState('materia-trash-confirm-navigation')
+}
+const drawTrashConfirmPointers = () => {
+  if (DATA.trashConfirmPos === 0) {
+    movePointer(POINTERS.pointer1, 75, 32 + 13) // TODO - validate positions
+  } else {
+    movePointer(POINTERS.pointer1, 75, 32 + 26)
+  }
+  movePointer(POINTERS.pointer2, POINTERS.pointer2.position.x, 240 - POINTERS.pointer2.position.y, false, true)
 }
 const removeMateriaFromSlot = () => {
   if (DATA.mainNavPos !== 0 && DATA.mainNavPos !== 9) {
@@ -1479,7 +1558,13 @@ const selectEquippedMateriaForSwap = () => {
 }
 const drawSmallMateriaSelectPointer = () => {
   const { x, y, yAdj } = getSmallMateriaListPositions()
-  movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  if (DATA.trashMode) {
+    const { x, y, yAdj } = getArrangeMenuPos()
+    movePointer(POINTERS.pointer1, x - 11.5, y + (DATA.arrangePos * yAdj) - 1, false, true) // TODO - Validate these positionss
+  } else {
+    movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  }
+
   movePointer(POINTERS.pointer2,
     x - 14, // TODO - get position right
     y + (DATA.smallMateriaList.pos * yAdj) + 4
@@ -1488,12 +1573,22 @@ const drawSmallMateriaSelectPointer = () => {
 const cancelSelectMateriaForEquipReplace = () => {
   console.log('materia cancelSelectMateriaForEquipReplace')
   DATA.smallMateriaList.active = false
-  drawMainNavPointer()
   drawInfo('')
-  drawMateriaDetails()
-  setMenuState('materia-main')
+  if (DATA.trashMode) {
+    drawArrangePointer()
+    DATA.trashMode = false
+    setMenuState('materia-arrange-menu')
+  } else {
+    drawMainNavPointer()
+    drawMateriaDetails()
+    setMenuState('materia-main')
+  }
 }
 const selectMateriaForEquipReplace = () => {
+  if (DATA.trashMode) {
+    openTrashConfirmDialog()
+    return
+  }
   const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos % 9}`
   const materiaPos = DATA.smallMateriaList.page + DATA.smallMateriaList.pos
 
@@ -1711,6 +1806,16 @@ const keyPress = async (key, firstPress, state) => {
       selectArrangeMenuOption()
     } else if (key === KEY.X) {
       cancelArrangeMenu()
+    }
+  } else if (state === 'materia-trash-confirm-navigation') {
+    if (key === KEY.UP) {
+      trashConfirmNavigation()
+    } else if (key === KEY.DOWN) {
+      trashConfirmNavigation()
+    } else if (key === KEY.O) {
+      confirmTrashConfirm()
+    } else if (key === KEY.X) {
+      cancelTrashConfirm()
     }
   }
 }
