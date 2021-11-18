@@ -69,8 +69,10 @@ const yuffieRestoreMateriaAll = () => {
   // TODO
 }
 const unequipMateria = (char, slotName) => {
-  addMateriaToInventory(char.materia[slotName].id, char.materia[slotName].ap) // Add materia to inventory
-  char.materia[slotName] = { id: 0xFF, ap: 0xFFFFFF } // Set slot to empty
+  if (char.materia[slotName].id !== 0xFF) {
+    addMateriaToInventory(char.materia[slotName].id, char.materia[slotName].ap) // Add materia to inventory
+    char.materia[slotName] = { id: 0xFF, ap: 0xFFFFFF } // Set slot to empty
+  }
 }
 const unequipAllMateriaCharX = charId => {
   const charName = getPlayableCharacterName(charId)

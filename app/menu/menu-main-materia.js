@@ -1,6 +1,7 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo, recalculateAndApplyHPMP } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
+import { unequipMateria } from '../materia/materia-module.js'
 import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
@@ -1376,6 +1377,23 @@ const mainNavigationSelect = () => {
     selectEquippedMateriaForSwap()
   }
 }
+const removeMateriaFromSlot = () => {
+  if (DATA.mainNavPos !== 0 && DATA.mainNavPos !== 9) {
+    const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos % 9}`
+    unequipMateria(DATA.char, slot)
+    recalculateAndApplyHPMP(DATA.char)
+    setDataFromPartyMember()
+    drawHeader()
+  }
+}
+const removeAllMateriaForCharacter = () => {
+  for (const slot in DATA.char.materia) {
+    unequipMateria(DATA.char, slot)
+  }
+  recalculateAndApplyHPMP(DATA.char)
+  setDataFromPartyMember()
+  drawHeader()
+}
 
 const selectEquippedMateriaForSwap = () => {
   console.log('materia selectEquippedMateriaForSwap')
@@ -1402,7 +1420,7 @@ const cancelSelectMateriaForEquipReplace = () => {
   setMenuState('materia-main')
 }
 const selectMateriaForEquipReplace = () => {
-  const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos - 9}`
+  const slot = DATA.mainNavPos < 9 ? `weaponMateria${DATA.mainNavPos}` : `armorMateria${DATA.mainNavPos % 9}`
   const materiaPos = DATA.smallMateriaList.page + DATA.smallMateriaList.pos
 
   const toInventoryMateria = JSON.parse(JSON.stringify(DATA.char.materia[slot]))
@@ -1548,7 +1566,9 @@ const keyPress = async (key, firstPress, state) => {
       mainNavigation(9)
     } else if (key === KEY.O) {
       mainNavigationSelect()
-    }
+    } else if (key === KEY.TRIANGLE) {
+      removeMateriaFromSlot()
+    } // TODO - square button goes to equip menu
   } else if (state === 'materia-check') {
     if (key === KEY.LEFT) {
       checkNavigation(false, -1)

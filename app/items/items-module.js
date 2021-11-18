@@ -181,7 +181,6 @@ const equipItemOnCharacter = (char, itemToEquip) => {
   equip.description = itemToEquip.description
 
   // If the armor / materia has less slots, remove those materias and add to materia inventory
-  let materiaRemoved = false
   if (itemToEquip.materiaSlots) {
     const materiasToKeep = 8 - window.data.kernel.allItemData[itemToEquip.itemId].materiaSlots.filter(s => s === 'None').length
     if (itemToEquip.type === 'Weapon') {
@@ -191,7 +190,6 @@ const equipItemOnCharacter = (char, itemToEquip) => {
         console.log('equip materia to remove', slotName, materia, i > materiasToKeep)
         if (i > materiasToKeep && materia.id !== 255) {
           unequipMateria(char, slotName)
-          materiaRemoved = true
         }
       }
     } else if (itemToEquip.type === 'Armor') {
@@ -201,7 +199,6 @@ const equipItemOnCharacter = (char, itemToEquip) => {
         console.log('equip materia to remove', slotName, materia, i > materiasToKeep)
         if (i > materiasToKeep && materia.id !== 255) {
           unequipMateria(char, slotName)
-          materiaRemoved = true
         }
       }
     }
