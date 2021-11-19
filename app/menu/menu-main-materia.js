@@ -7,7 +7,7 @@ import {
 } from './menu-box-helper.js'
 import { loadEquipMenu } from './menu-main-equip.js'
 import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
-import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, getMenuState, setMenuState } from './menu-module.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 
 let headerDialog, headerGroup
@@ -328,28 +328,73 @@ const drawExchangeMateriaList = () => {
   exchangeMateriaListGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
   exchangeMateriaListContentsGroup.position.y = 0
 }
-const drawExchangePointers = () => {
-  if (DATA.exchange.type === 'chars') {
+const getExchangePointerCoords = (type, pos) => {
+  if (type === undefined) {
+    type = DATA.exchange.type
+  }
+  if (pos === undefined) {
+    pos = DATA.exchange[type].pos
+  }
+  if (type === 'chars') {
     const { x, y, yAdj } = getExchangeCharPositions()
     const rowOffset = 15 // TODO - validate all of these
     const rowAdj = 13
     const xAdj = 14
-
-    const xAdjAction = DATA.exchange.chars.pos % 9 === 0 ? -17.5 : 0
-
-    movePointer(POINTERS.pointer1,
-      x + ((DATA.exchange.chars.pos % 9) * xAdj) + xAdjAction + 6.5,
-      y + (Math.trunc(DATA.exchange.chars.pos / 18) * yAdj) + rowOffset + ((1 + Math.trunc(DATA.exchange.chars.pos / 9) % 2) * rowAdj)// + rowOffset + ((Math.trunc(DATA.exchange.chars.pos / 9) + 0) * rowAdj)
-    )
-    // movePointer(POINTERS.pointer2, 0, 0, true)
-  } else if (DATA.exchange.type === 'list') {
+    if (pos === undefined) {
+      pos = DATA.exchange.chars.pos
+    }
+    const xAdjAction = pos % 9 === 0 ? -17.5 : 0
+    return {
+      x: x + ((pos % 9) * xAdj) + xAdjAction + 6.5,
+      y: y + (Math.trunc(pos / 18) * yAdj) + rowOffset + ((1 + Math.trunc(pos / 9) % 2) * rowAdj)
+    }
+  } else if (type === 'list') {
     const { x, y, yAdj } = getExchangeMateriaListPositions()
-
-    movePointer(POINTERS.pointer1,
-      x - 14, // TODO - get position right
-      y + (DATA.exchange.list.pos * yAdj) + 4
-    )
+    return {
+      x: x - 14,
+      y: y + (pos * yAdj) + 4
+    }
   }
+  return {x: 0, y: 0}
+}
+const drawExchangePointers = () => {
+  const {x, y} = getExchangePointerCoords()
+  movePointer(POINTERS.pointer1, x, y)
+  drawExchangeSelectedPointers()
+}
+const drawExchangeSelectedPointers = () => {
+  if (DATA.exchange.selected.type === 'chars') {
+    const pageDiff = DATA.exchange.selected.page - DATA.exchange.chars.page
+    const pos = (pageDiff * 18) + DATA.exchange.selected.pos
+    console.log('materia drawExchangeSelectedPointers chars', DATA.exchange, pageDiff, pos)
+    if (pos < 0 || pos >= 18 * 4) {
+      console.log('materia drawExchangeSelectedPointers chars no draw')
+      movePointer(POINTERS.pointer2, 0, 0, true)
+    } else {
+      const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
+      console.log('materia drawExchangeSelectedPointers chars draw', x, y)
+      movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
+    }
+  } else if (DATA.exchange.selected.type === 'list') {
+    console.log('materia drawExchangeSelectedPointers list')
+    const pageDiff = DATA.exchange.selected.page - DATA.exchange.list.page
+    const pos = pageDiff + DATA.exchange.selected.pos
+    console.log('materia drawExchangeSelectedPointers list', DATA.exchange, pageDiff, pos)
+    if (pos < 0 || pos >= 10) {
+      console.log('materia drawExchangeSelectedPointers list no draw')
+      movePointer(POINTERS.pointer2, 0, 0, true)
+    } else {
+      const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
+      console.log('materia drawExchangeSelectedPointers list draw', x, y)
+      movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
+    }
+  } else {
+    console.log('materia drawExchangeSelectedPointers no selected')
+    movePointer(POINTERS.pointer2, 0, 0, true)
+  }
+
+  // const {x, y} = getExchangePointerCoords()
+  // movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
 }
 window.drawExchangePointers = drawExchangePointers
 // window.DATA = DATA
@@ -399,6 +444,8 @@ const tweenExchangeMateriaList = (up, state, cb) => {
     .start()
 }
 const exchangeNavigation = (vertical, delta) => {
+  const currentState = getMenuState()
+  console.log('materia currentState', currentState)
   if (DATA.exchange.type === 'chars') {
     const { x, y, yAdj } = getExchangeCharPositions()
     const maxPage = DATA.exchange.activeCharacters.length - 4
@@ -421,7 +468,8 @@ const exchangeNavigation = (vertical, delta) => {
         console.log('materia exchangeNavigation chars not on first page - PAGE DOWN')
         drawExchangeCharListOneItem(exchangeCharContentsGroup, -1, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page--
-        tweenExchangeCharsList(false, 'materia-exchange-select', drawExchangeChars)
+        tweenExchangeCharsList(false, currentState, drawExchangeChars)
+        drawExchangeSelectedPointers()
         drawExchangeMateriaDetailsAndInfo()
       }
     } else if (potential >= maxPos) {
@@ -431,7 +479,8 @@ const exchangeNavigation = (vertical, delta) => {
         console.log('materia exchangeNavigation chars not on last page - PAGE UP')
         drawExchangeCharListOneItem(exchangeCharContentsGroup, 4, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page++
-        tweenExchangeCharsList(true, 'materia-exchange-select', drawExchangeChars)
+        tweenExchangeCharsList(true, currentState, drawExchangeChars)
+        drawExchangeSelectedPointers()
         drawExchangeMateriaDetailsAndInfo()
       }
     } else {
@@ -460,7 +509,8 @@ const exchangeNavigation = (vertical, delta) => {
         console.log('materia exchangeNavigation list not on first page - PAGE DOWN')
         drawMateriaListOneItem(exchangeMateriaListContentsGroup, -1, DATA.exchange.list.page, x, y, yAdj)
         DATA.exchange.list.page--
-        tweenExchangeMateriaList(false, 'materia-exchange-select', drawExchangeMateriaList)
+        tweenExchangeMateriaList(false, currentState, drawExchangeMateriaList)
+        drawExchangeSelectedPointers()
         drawExchangeMateriaDetailsAndInfo()
       }
     } else if (potential >= maxPos) {
@@ -470,7 +520,8 @@ const exchangeNavigation = (vertical, delta) => {
         console.log('materia exchangeNavigation list not on last page - PAGE UP')
         drawMateriaListOneItem(exchangeMateriaListContentsGroup, 10, DATA.exchange.list.page, x, y, yAdj)
         DATA.exchange.list.page++
-        tweenExchangeMateriaList(true, 'materia-exchange-select', drawExchangeMateriaList)
+        tweenExchangeMateriaList(true, currentState, drawExchangeMateriaList)
+        drawExchangeSelectedPointers()
         drawExchangeMateriaDetailsAndInfo()
       }
     } else {
@@ -500,6 +551,7 @@ const exchangePageNavigation = (up) => {
     exchangeCharGroup.userData.slider.userData.moveToPage(DATA.exchange.chars.page)
     drawExchangeChars()
     drawExchangeMateriaDetailsAndInfo()
+    drawExchangeSelectedPointers()
   } else if (DATA.exchange.type === 'list') {
     const maxPage = window.data.savemap.materias.length - 10
     if (up) {
@@ -517,6 +569,7 @@ const exchangePageNavigation = (up) => {
     exchangeMateriaListGroup.userData.slider.userData.moveToPage(DATA.exchange.list.page)
     drawExchangeMateriaList()
     drawExchangeMateriaDetailsAndInfo()
+    drawExchangeSelectedPointers()
   }
 }
 const drawExchangeMateriaDetailsAndInfo = () => {
@@ -598,7 +651,22 @@ const exchangeSelectCancel = () => {
   drawSmallMateriaList()
 }
 const exchangeSelectSelect = () => {
-
+  console.log('materia exchangeSelectSelect', DATA.exchange)
+  if (DATA.exchange.selected.type === 'none') {
+    DATA.exchange.selected.type = DATA.exchange.type
+    DATA.exchange.selected.page = DATA.exchange[DATA.exchange.type].page
+    DATA.exchange.selected.pos = DATA.exchange[DATA.exchange.type].pos
+    drawExchangeSelectedPointers()
+    setMenuState('materia-exchange-confirm')
+  }
+}
+const exchangeConfirmCancel = () => {
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  setMenuState('materia-exchange-select')
+}
+const exchangeConfirmSelect = () => {
+  console.log('materia exchangeConfirmSelect', DATA.exchange.selected)
 }
 
 const showExchangeMenu = () => {
@@ -2327,6 +2395,24 @@ const keyPress = async (key, firstPress, state) => {
       exchangeSelectCancel()
     } else if (key === KEY.O) {
       exchangeSelectSelect()
+    }
+  } else if (state === 'materia-exchange-confirm') {
+    if (key === KEY.LEFT) {
+      exchangeNavigation(false, -1)
+    } else if (key === KEY.RIGHT) {
+      exchangeNavigation(false, 1)
+    } else if (key === KEY.UP) {
+      exchangeNavigation(true, -1)
+    } else if (key === KEY.DOWN) {
+      exchangeNavigation(true, 1)
+    } else if (key === KEY.L1) {
+      exchangePageNavigation(false)
+    } else if (key === KEY.R1) {
+      exchangePageNavigation(true)
+    } else if (key === KEY.X) {
+      exchangeConfirmCancel()
+    } else if (key === KEY.O) {
+      exchangeConfirmSelect()
     }
   }
 }
