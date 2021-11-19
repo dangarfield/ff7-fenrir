@@ -666,6 +666,16 @@ const exchangeSelectSelect = () => {
     setMenuState('materia-exchange-confirm')
   }
 }
+const exchangeRemoveMateriaFromSlot = () => {
+  if (DATA.exchange.type === 'chars') {
+    const from = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+    addIndexInformationToSwapMateria(from)
+    console.log('materia exchangeRemoveMateriaFromSlot', from)
+    if (from.invalidSlot) {
+      console.log('materia exchangeRemoveMateriaFromSlot INVALID SLOT')
+    }
+  }
+}
 const exchangeConfirmCancel = () => {
   console.log('materia exchangeConfirmCancel', DATA.exchange.selected)
   movePointer(POINTERS.pointer2, 0, 0, true)
@@ -687,7 +697,30 @@ const exchangeConfirmSelect = () => {
     swapSingleMateria(from, to)
   } else {
     console.log('materia exchangeConfirmSelect SWAP equipment row')
+    swapEquipmentRow(from, to)
   }
+}
+const swapEquipmentRow = (from, to) => {
+  const totalMateriaToSwap = Math.min(from.materiaCount, to.materiaCount)
+  console.log('materia exchangeConfirmSelect swapEquipmentRow totalMateriaToSwap', totalMateriaToSwap)
+  for (let i = 1; i <= totalMateriaToSwap; i++) {
+    console.log('materia exchangeConfirmSelect swapEquipmentRow', i)
+    from.char.materia[`${from.equipType}Materia${i}`] = to.materias[i - 1]
+    to.char.materia[`${to.equipType}Materia${i}`] = from.materias[i - 1]
+  }
+
+  drawExchangeChars()
+  recalculateAndApplyHPMP(from.char)
+  recalculateAndApplyHPMP(to.char)
+  if (from.char.id === DATA.char.id || to.char.id === DATA.char.id) {
+    setDataFromPartyMember()
+    drawHeader()
+  }
+
+  drawExchangeMateriaDetailsAndInfo()
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  setMenuState('materia-exchange-select')
 }
 const swapSingleMateria = (from, to) => {
   if (from.type === 'chars') {
@@ -709,7 +742,7 @@ const swapSingleMateria = (from, to) => {
 
   if (from.char || to.char) {
     if (from.char) {
-      recalculateAndApplyHPMP(from.char)
+      recalculateAndApplyHPMP(from.char) // Can reduce these calls a bit
     }
     if (to.char) {
       recalculateAndApplyHPMP(to.char)
@@ -731,9 +764,18 @@ const addIndexInformationToSwapMateria = (from) => {
     from.char = window.data.savemap.characters[DATA.exchange.activeCharacters[from.page + Math.trunc(from.pos / 18)]]
     const equipType = from.pos % 18 < 9 ? 'weapon' : 'armor'
     const slotNumber = from.pos % 18 % 9
-    from.slotName = `${equipType}Materia${slotNumber}`
-    from.invalidSlot = window.data.kernel.allItemData[from.char.equip[equipType].itemId].materiaSlots[slotNumber - 1] === 'None'
-    from.materia = JSON.parse(JSON.stringify(from.char.materia[from.slotName]))
+    if (slotNumber > 0) {
+      from.slotName = `${equipType}Materia${slotNumber}`
+      from.invalidSlot = window.data.kernel.allItemData[from.char.equip[equipType].itemId].materiaSlots[slotNumber - 1] === 'None'
+      from.materia = JSON.parse(JSON.stringify(from.char.materia[from.slotName]))
+    } else {
+      from.equipType = equipType
+      from.materiaCount = window.data.kernel.allItemData[from.char.equip[equipType].itemId].materiaSlots.filter(s => s !== 'None').length
+      from.materias = []
+      for (let i = 1; i <= from.materiaCount; i++) {
+        from.materias.push(JSON.parse(JSON.stringify(from.char.materia[`${equipType}Materia${i}`])))
+      }
+    }
   } else { // list
     from.index = from.page + from.pos
     from.materia = JSON.parse(JSON.stringify(window.data.savemap.materias[from.index]))
@@ -2480,6 +2522,8 @@ const keyPress = async (key, firstPress, state) => {
       exchangePageNavigation(false)
     } else if (key === KEY.R1) {
       exchangePageNavigation(true)
+    } else if (key === KEY.TRIANGLE) {
+      exchangeRemoveMateriaFromSlot()
     } else if (key === KEY.X) {
       exchangeConfirmCancel()
     } else if (key === KEY.O) {
