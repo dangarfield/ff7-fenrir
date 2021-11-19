@@ -70,6 +70,11 @@ const loadMateriaMenu = async partyMember => {
   DATA.check.main = 0
   DATA.arrangePos = 0
   DATA.exchange.activeCharacters = getActiveCharacters()
+  DATA.exchange.type = 'chars' // TODO - Is this here on every time the exchange menu is opened?
+  DATA.exchange.chars.page = 0
+  DATA.exchange.chars.pos = 1
+  DATA.exchange.list.page = 0
+  DATA.exchange.list.pos = 0
 
   headerDialog = createDialogBox({
     id: 25,
@@ -671,9 +676,20 @@ const exchangeRemoveMateriaFromSlot = () => {
     const from = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
     addIndexInformationToSwapMateria(from)
     console.log('materia exchangeRemoveMateriaFromSlot', from)
-    if (from.invalidSlot) {
-      console.log('materia exchangeRemoveMateriaFromSlot INVALID SLOT')
+    if (from.invalidSlot || from.materia.id === 0xFF) {
+      console.log('materia exchangeRemoveMateriaFromSlot INVALID SLOT / no materia')
+      return
     }
+    console.log('materia exchangeRemoveMateriaFromSlot REMOVING')
+    unequipMateria(from.char, from.slotName)
+    drawExchangeChars()
+    drawExchangeMateriaList()
+    recalculateAndApplyHPMP(from.char)
+    if (from.char.id === DATA.char.id) {
+      setDataFromPartyMember()
+      drawHeader()
+    }
+    drawExchangeMateriaDetailsAndInfo()
   }
 }
 const exchangeConfirmCancel = () => {
@@ -747,7 +763,7 @@ const swapSingleMateria = (from, to) => {
     if (to.char) {
       recalculateAndApplyHPMP(to.char)
     }
-    if (from.char.id === DATA.char.id || to.char.id === DATA.char.id) {
+    if ((from.char && from.char.id === DATA.char.id) || (to.char && to.char.id === DATA.char.id)) {
       setDataFromPartyMember()
       drawHeader()
     }
@@ -795,11 +811,11 @@ const showExchangeMenu = () => {
   infoDialog.visible = false
   arrangeDialog.visible = false
   // trashDialog.visible = false
-  DATA.exchange.type = 'chars'
-  DATA.exchange.chars.page = 0
-  DATA.exchange.chars.pos = 1
-  DATA.exchange.list.page = 0
-  DATA.exchange.list.pos = 0
+  // DATA.exchange.type = 'chars'
+  // DATA.exchange.chars.page = 0
+  // DATA.exchange.chars.pos = 1
+  // DATA.exchange.list.page = 0
+  // DATA.exchange.list.pos = 0
   DATA.exchange.selected.type = 'none'
 
   drawExchangeChars()
@@ -2504,6 +2520,8 @@ const keyPress = async (key, firstPress, state) => {
       exchangePageNavigation(false)
     } else if (key === KEY.R1) {
       exchangePageNavigation(true)
+    } else if (key === KEY.TRIANGLE) {
+      exchangeRemoveMateriaFromSlot()
     } else if (key === KEY.X) {
       exchangeSelectCancel()
     } else if (key === KEY.O) {
