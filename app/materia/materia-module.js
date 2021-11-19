@@ -135,7 +135,18 @@ const reinstateMateriaCloud = () => {
   console.log('reinstateMateriaCloud', window.data.savemap.characters.Cloud)
 }
 const arrangeMateria = () => {
-  window.data.savemap.materias.sort((a, b) => a.id - b.id)
+  // TODO - Not sure about materia ordering, need to match with game behaviour, this doesn't seem right, maybe just master materia first?!
+  const magicTypeOrder = ['Magic', 'Command', 'Independent', 'Support', 'Summon', 'None']
+  window.data.savemap.materias.sort((a, b) => {
+    const aType = a.id === 0xFF ? 'None' : window.data.kernel.materiaData[a.id].type
+    const bType = b.id === 0xFF ? 'None' : window.data.kernel.materiaData[b.id].type
+    const aMaster = a.id === 0xFF ? 0 : (window.data.kernel.materiaData[a.id].attributes.master ? 1 : 0)
+    const bMaster = b.id === 0xFF ? 0 : (window.data.kernel.materiaData[b.id].attributes.master ? 1 : 0)
+    // if (a.id === 73) {
+    //   console.log('materia arrangeMateria', a, a.id, aMaster, '-', b, bMaster)
+    // }
+    return magicTypeOrder.indexOf(aType) - magicTypeOrder.indexOf(bType) || bMaster - aMaster || a.id - b.id
+  })
 }
 const trashMateria = (index) => {
   window.data.savemap.materias[index] = { id: 0xFF, ap: 0xFFFFFF }
