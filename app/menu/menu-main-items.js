@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { getMenuBlackOverlay, setMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -9,19 +9,36 @@ import {
   addTextToDialog,
   POINTERS,
   movePointer,
-  createPointer,
   fadeOverlayOut,
   fadeOverlayIn,
   addCharacterSummary,
   addImageToDialog,
-  createItemListNavigation
+  createItemListNavigation,
+  addGroupToDialog,
+  removeGroupChildren
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
-import { KEY, getActiveInputs } from '../interaction/inputs.js'
+import { KEY } from '../interaction/inputs.js'
 import { getItemIcon, getKeyItems } from '../items/items-module.js'
 
-let itemActions, itemDesc, itemParty, itemList, itemKeyList, itemArrange
-let itemListGroup, itemKeyListGroup, itemDescGroup
+// Man, this is a mess. I did this first and have learned a lot since, should could back and redo.
+// Although, I did redo the main item list and navigation to render just the displayed 10 items and not using userData
+// to store information as the rest of this mess does. Lots learned
+
+const DATA = {
+  use: {
+    page: 0,
+    pos: 0
+  },
+  selected: {
+    page: 0,
+    pos: 0
+  }
+}
+
+let itemActions, itemDesc, itemParty, itemKeyList, itemArrange
+let itemKeyListGroup, itemDescGroup
+let itemDialog, itemGroup, itemContentsGroup
 let char1Group, char2Group, char3Group
 
 const loadItemsMenu = async () => {
@@ -66,7 +83,6 @@ const loadItemsMenu = async () => {
     0.5
   )
   itemActions.visible = true
-  window.itemActions = itemActions
 
   itemDesc = await createDialogBox({
     id: 5,
@@ -79,13 +95,8 @@ const loadItemsMenu = async () => {
     noClipping: true
   })
   itemDesc.visible = true
-  window.itemDesc = itemDesc
 
-  itemDescGroup = new THREE.Group()
-  itemDescGroup.userData = { id: 5, z: 100 - 5 }
-  itemDescGroup.position.x = 5.5
-  itemDescGroup.position.y = -38
-  itemDesc.add(itemDescGroup)
+  itemDescGroup = addGroupToDialog(itemDesc, 15)
 
   itemParty = await createDialogBox({
     id: 4,
@@ -114,28 +125,22 @@ const loadItemsMenu = async () => {
   drawParty()
 
   itemParty.visible = true
-  window.itemParty = itemParty
 
-  itemList = await createDialogBox({
+  itemDialog = await createDialogBox({
     id: 6,
-    name: 'itemList',
+    name: 'itemDialog',
     w: 320,
     h: 192.5 + 2,
     x: 0,
     y: 48 - 2,
-    expandInstantly: true
+    expandInstantly: true,
+    noClipping: false // TODO - temp
   })
-  itemList.visible = true
-  window.itemList = itemList
-  createItemListNavigation(itemList, 313, 96, 187, 320, 10)
-
-  itemListGroup = new THREE.Group()
-  itemListGroup.position.y = -60
-  itemListGroup.position.x = 160
-  itemListGroup.position.z = 100 - itemList.userData.id
-  itemList.add(itemListGroup)
-  window.itemListGroup = itemListGroup
-  drawItems()
+  itemDialog.visible = true
+  itemGroup = addGroupToDialog(itemDialog, 16)
+  itemContentsGroup = addGroupToDialog(itemDialog, 16)
+  itemContentsGroup.userData.bg = itemDialog.userData.bg
+  createItemListNavigation(itemGroup, 313, 96, 187, 320, 10)
 
   itemKeyList = await createDialogBox({
     id: 7,
@@ -147,7 +152,6 @@ const loadItemsMenu = async () => {
     expandInstantly: true
   })
   itemKeyList.visible = true
-  window.itemKeyList = itemKeyList
   createItemListNavigation(itemKeyList, 313, 96, 187, 32, 10)
   itemKeyList.userData.slider.visible = false
 
@@ -156,7 +160,6 @@ const loadItemsMenu = async () => {
   itemKeyListGroup.position.x = 18.5
   itemKeyListGroup.position.z = 100 - itemKeyList.userData.id
   itemKeyList.add(itemKeyListGroup)
-  window.itemKeyListGroup = itemKeyListGroup
   drawKeyItems()
 
   itemArrange = await createDialogBox({
@@ -169,22 +172,22 @@ const loadItemsMenu = async () => {
     expandInstantly: true,
     noClipping: true
   })
+  itemArrange.position.z = 100 - 50
   drawArrangeOptions()
   itemArrange.visible = false
-  window.itemArrange = itemArrange
   ACTION_POSITIONS.action = 0
-  ITEM_POSITIONS.use.pagePosition = 0
-  ITEM_POSITIONS.use.cursorPosition = 0
-  setItemPagePosition(ITEM_POSITIONS.use)
+  DATA.use.page = 0
+  DATA.use.pos = 0
+  // setItempage(DATA.use)
   movePointer(
     POINTERS.pointer1,
     ACTION_POSITIONS.x[ACTION_POSITIONS.action],
     ACTION_POSITIONS.y
   )
+  itemActionConfirm()
   await fadeOverlayOut(getMenuBlackOverlay())
 
-  setMenuState('items-action-select')
-  itemActionConfirm()
+  // setMenuState('items-item-select')
 }
 
 const drawParty = () => {
@@ -235,7 +238,7 @@ const exitMenu = async () => {
     itemActions,
     itemDesc,
     itemParty,
-    itemList,
+    itemDialog,
     itemKeyList,
     itemArrange
   ]
@@ -247,7 +250,6 @@ const exitMenu = async () => {
   })
   fadeInHomeMenu()
 }
-const ITEM_Y_GAP = 18.5
 const ACTION_POSITIONS = {
   x: [16.5, 63, 109.5],
   y: 20.5,
@@ -268,11 +270,11 @@ const itemActionNavigation = up => {
   }
   if (ACTION_POSITIONS.actions[ACTION_POSITIONS.action] === 'Key Items') {
     itemParty.visible = false
-    itemList.visible = false
+    itemDialog.visible = false
     itemKeyList.userData.slider.visible = true
   } else {
     itemParty.visible = true
-    itemList.visible = true
+    itemDialog.visible = true
     itemKeyList.userData.slider.visible = false
   }
   console.log('itemActionNavigation', up, ACTION_POSITIONS)
@@ -293,125 +295,119 @@ const itemActionConfirm = () => {
     true
   )
   if (currentAction === 'Use') {
-    movePointer(
-      POINTERS.pointer2,
-      ITEM_POSITIONS.x,
-      ITEM_POSITIONS.y[ITEM_POSITIONS.use.cursorPosition] + 2
-    )
-    setItemDescription(ITEM_POSITIONS.use)
+    drawItems()
+    drawItemsPointer(DATA.use)
+    drawItemInfo(DATA.use)
     setMenuState('items-item-select')
-    setItemSliderPosition(ITEM_POSITIONS.use)
-    setItemPagePosition(ITEM_POSITIONS.use)
   } else if (currentAction === 'Arrange') {
     showArrangeMenu()
   } else if (currentAction === 'Key Items') {
     selectKeyItems()
   }
 }
-const drawItems = async () => {
+const getItemPositions = () => {
+  return {
+    x: 180, // TODO
+    y: 62,
+    yAdj: 18.5
+  }
+}
+const drawOneItem = (group, i, page, x, y, yAdj) => {
+  const item = window.data.savemap.items[i + page]
+  if (item.name === '') {
+    return
+  }
+  const itemData = window.data.kernel.allItemData[item.itemId]
+  if (itemData.itemId === 127) {
+    return
+  }
+  let color = LETTER_COLORS.Gray
+  if (itemData.restrictions.includes('CanBeUsedInMenu')) {
+    color = LETTER_COLORS.White
+  }
+  addTextToDialog(
+    group,
+    itemData.name,
+    `items-list-${i}`,
+    LETTER_TYPES.MenuBaseFont,
+    color,
+    x,
+    y + (yAdj * i),
+    0.5
+  )
+  addTextToDialog(
+    group,
+    ('' + Math.min(99, item.quantity)).padStart(3, ' '),
+    `items-count-${i}`,
+    LETTER_TYPES.MenuTextStats,
+    color,
+    x + 88.5,
+    y + (yAdj * i),
+    0.5
+  )
+  addTextToDialog(
+    group,
+    ':',
+    `items-count-colon-${i}`,
+    LETTER_TYPES.MenuTextFixed,
+    color,
+    x + 87.5,
+    y + (yAdj * i),
+    0.5
+  )
+  addImageToDialog(
+    group,
+    'icons-menu',
+    getItemIcon(itemData),
+    `items-icon-${i}`,
+    x - 0.5,
+    y + (yAdj * i),
+    0.5
+  )
+}
+const drawItems = () => {
   // Remove existing itemLiftGroup
-  while (itemListGroup.children.length) {
-    itemListGroup.remove(itemListGroup.children[0])
+
+  removeGroupChildren(itemContentsGroup)
+
+  const { x, y, yAdj } = getItemPositions()
+  // const menu = DATA.menus[DATA.menuCurrent]
+  for (let i = 0; i < 10; i++) {
+    drawOneItem(itemContentsGroup, i, DATA.use.page, x, y, yAdj)
   }
-
-  itemListGroup.userData.items = []
-  itemListGroup.userData.bg = itemList.userData.bg
-
-  for (let i = 0; i < window.data.savemap.items.length; i++) {
-    const item = window.data.savemap.items[i]
-    if (item.name === '') {
-      continue
-    }
-    const itemData = { ...window.data.kernel.allItemData[item.itemId] }
-    itemData.show = true
-    itemData.useable = false
-    itemData.quantity = item.quantity
-    let color = LETTER_COLORS.Gray
-    if (item.itemId === 127) {
-      itemData.show = false
-    }
-    if (itemData.restrictions.includes('CanBeUsedInMenu')) {
-      itemData.useable = true
-      color = LETTER_COLORS.White
-    }
-    itemListGroup.userData.items.push(itemData)
-    addTextToDialog(
-      itemListGroup,
-      itemData.name,
-      `items-list-${i}`,
-      LETTER_TYPES.MenuBaseFont,
-      color,
-      18.5,
-      ITEM_Y_GAP * i,
-      0.5
-    )
-    addTextToDialog(
-      itemListGroup,
-      ('' + Math.min(99, itemData.quantity)).padStart(3, ' '),
-      `items-count-${i}`,
-      LETTER_TYPES.MenuTextStats,
-      color,
-      107,
-      ITEM_Y_GAP * i,
-      0.5
-    )
-    addTextToDialog(
-      itemListGroup,
-      ':',
-      `items-count-colon-${i}`,
-      LETTER_TYPES.MenuTextFixed,
-      color,
-      106,
-      ITEM_Y_GAP * i + 1,
-      0.5
-    )
-    // await addTextToDialog(
-    //   itemActions,
-    //   'Arrange',
-    //   'items-actions-arrange',
-    //   LETTER_TYPES.MenuBaseFont,
-    //   LETTER_COLORS.White,
-    //   67,
-    //   14.5,
-    //   0.5
-    // )
-    addImageToDialog(
-      itemListGroup,
-      'icons-menu',
-      getItemIcon(itemData),
-      `items-icon-${i}`,
-      18,
-      ITEM_Y_GAP * i,
-      0.5
+  itemGroup.userData.slider.userData.moveToPage(DATA.use.page)
+  itemContentsGroup.position.y = 0
+}
+const drawItemsPointer = (POS) => {
+  const {x, y, yAdj} = getItemPositions()
+  movePointer(
+    POINTERS.pointer2,
+    x - 17, // TODO - positions
+    y + (yAdj * POS.pos) + 2
+  )
+}
+const drawItemsSelectedPointer = () => {
+  const pageDiff = DATA.selected.page - DATA.use.page
+  const pos = pageDiff + DATA.selected.pos
+  if (pos < 0 || pos >= 10) {
+    movePointer(POINTERS.pointer3, 0, 0, true)
+  } else {
+    const {x, y, yAdj} = getItemPositions()
+    movePointer(
+      POINTERS.pointer3,
+      x - 17 - 2, // TODO - positions
+      y + (yAdj * pos) + 2 - 2,
+      false, true
     )
   }
 }
-const ITEM_POSITIONS = {
-  x: 159,
-  y: new Array(10).fill(null).map((v, i) => 62 + 18.5 * i),
-  use: {
-    pagePosition: 0,
-    cursorPosition: 0
-  },
-  swapSource: {
-    pagePosition: 0,
-    cursorPosition: 0
-  },
-  swapTarget: {
-    pagePosition: 0,
-    cursorPosition: 0
-  },
-  tweenInProgress: false
-}
+
 const clearItemDescription = () => {
-  while (itemDescGroup.children.length) {
-    itemDescGroup.remove(itemDescGroup.children[0])
-  }
+  removeGroupChildren(itemDescGroup)
 }
-const setItemDescription = POS => {
-  clearItemDescription()
-  const item =
-    itemListGroup.userData.items[POS.pagePosition + POS.cursorPosition]
+const drawItemInfo = POS => {
+  removeGroupChildren(itemDescGroup)
+  const item = window.data.kernel.allItemData[window.data.savemap.items[POS.page + POS.pos].itemId]
   if (item === undefined) {
     return
   }
@@ -421,17 +417,10 @@ const setItemDescription = POS => {
     'item-desciption',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    0,
-    0,
+    5.5,
+    38,
     0.5
   )
-}
-const setItemPagePosition = POS => {
-  const newY = POS.pagePosition * ITEM_Y_GAP - 60
-  itemListGroup.position.y = newY
-}
-const setItemSliderPosition = POS => {
-  itemList.userData.slider.userData.moveToPage(POS.pagePosition)
 }
 const selectItemCancel = () => {
   setMenuState('items-action-select')
@@ -443,138 +432,114 @@ const selectItemCancel = () => {
   movePointer(POINTERS.pointer2, 0, 0, true)
   clearItemDescription()
 }
-const selectItemConfirm = () => {}
+const selectItemConfirm = () => {
+  const item = window.data.savemap.items[DATA.use.page + DATA.use.pos]
+  console.log('item selectItemConfirm', item)
+  // TODO
+}
 
 const selectItemNavigation = up => {
-  itemNavigation(up, ITEM_POSITIONS.use)
+  itemNavigation(up, DATA.use)
 }
 const selectSwapOrderSourceNavigation = up => {
-  itemNavigation(up, ITEM_POSITIONS.swapSource)
+  itemNavigation(up, DATA.use)
 }
 const selectSwapOrderTargetNavigation = up => {
-  itemNavigation(up, ITEM_POSITIONS.swapTarget)
+  itemNavigation(up, DATA.use, drawItemsSelectedPointer)
 }
-const itemNavigation = (up, POS) => {
-  if (ITEM_POSITIONS.tweenInProgress) {
-    return
+const tweenItemList = (up, state, POS, cb) => {
+  setMenuState('loading')
+  const subContents = itemContentsGroup
+  for (let i = 0; i < POS.page + 1; i++) {
+    subContents.children[i].visible = true
   }
-  if (up) {
-    const cursorAtBottom = POS.cursorPosition === 9
-    const isLastPage = POS.pagePosition === 310
-    if (cursorAtBottom && isLastPage) {
-      // Do nothing
-      console.log('item selectItemNavigation - up do nothing')
-    } else if (cursorAtBottom) {
-      // Shift page up
-      POS.pagePosition++
-      console.log('item selectItemNavigation - up shift page')
-      const oldY = itemListGroup.position.y
-      const newY = POS.pagePosition * ITEM_Y_GAP - 60
-      tweenItems(
-        itemListGroup,
-        { y: oldY },
-        { y: newY },
-        ITEM_POSITIONS,
-        function () {
-          // Very jagged...
-          if (up && getActiveInputs().up) {
-            selectItemNavigation(up)
-          } else if (!up && getActiveInputs().down) {
-            selectItemNavigation(up)
-          }
-        }
-      )
-      // itemListGroup.position.y = newY
-      setItemSliderPosition(POS)
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + 18.5 : subContents.position.y - 18.5}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < POS.page; i++) {
+        subContents.children[i].visible = false
+      }
+      setMenuState(state)
+      cb()
+    })
+    .start()
+}
+const itemNavigation = (up, POS, pageChangeCallback) => {
+  const maxPage = window.data.savemap.items.length - 10
+  const maxPos = 10
+  const delta = (up ? 1 : -1)
+  const potential = POS.pos + delta
+
+  console.log('item itemNavigation', delta, '-', POS.pos, POS.pos, '->', potential, ':', maxPage, maxPos)
+
+  const { x, y, yAdj } = getItemPositions()
+
+  if (potential < 0) {
+    if (POS.page === 0) {
+      console.log('item itemNavigation on first page - do nothing')
     } else {
-      // Move pointer
-      POS.cursorPosition++
-      console.log('item selectItemNavigation - up shift cursor')
-      movePointer(
-        POINTERS.pointer2,
-        ITEM_POSITIONS.x,
-        ITEM_POSITIONS.y[POS.cursorPosition] + 2
-      )
+      console.log('item itemNavigation not on first page - PAGE DOWN')
+      drawOneItem(itemContentsGroup, -1, POS.page, x, y, yAdj)
+      POS.page--
+      tweenItemList(false, getMenuState(), POS, drawItems) // Could optimise further
+      drawItemInfo(POS)
+      if (pageChangeCallback) {
+        pageChangeCallback()
+      }
+    }
+  } else if (potential >= maxPos) {
+    console.log('item itemNavigation page - is last page??', POS.page, maxPos, maxPage)
+    if (POS.page >= maxPage) {
+      console.log('item itemNavigation on last page - do nothing')
+    } else {
+      console.log('item itemNavigation not on last page - PAGE UP', delta, POS.pos)
+      drawOneItem(itemContentsGroup, 10, POS.page, x, y, yAdj)
+      POS.page++
+      tweenItemList(true, getMenuState(), POS, drawItems)
+      drawItemInfo(POS)
+      if (pageChangeCallback) {
+        pageChangeCallback()
+      }
     }
   } else {
-    const cursorAtTop = POS.cursorPosition === 0
-    const isFirstPage = POS.pagePosition === 0
-    if (cursorAtTop && isFirstPage) {
-      // Do nothing
-      console.log('item selectItemNavigation - down do nothing')
-    } else if (cursorAtTop) {
-      // Shift page down
-      POS.pagePosition--
-      console.log('item selectItemNavigation - down shift page')
-      const oldY = itemListGroup.position.y
-      const newY = POS.pagePosition * ITEM_Y_GAP - 60
-      tweenItems(
-        itemListGroup,
-        { y: oldY },
-        { y: newY },
-        ITEM_POSITIONS,
-        function () {
-          // Very jagged...
-          if (up && getActiveInputs().up) {
-            selectItemNavigation(up)
-          } else if (!up && getActiveInputs().down) {
-            selectItemNavigation(up)
-          }
-        }
-      )
-      // itemListGroup.position.y = newY
-      setItemSliderPosition(POS)
-    } else {
-      // Move pointer
-      POS.cursorPosition--
-      console.log('item selectItemNavigation - down shift cursor')
-      movePointer(
-        POINTERS.pointer2,
-        ITEM_POSITIONS.x,
-        ITEM_POSITIONS.y[POS.cursorPosition] + 2
-      )
-    }
+    console.log('item itemNavigation move pointer only', POS.page, POS.pos, potential)
+    POS.pos = potential
+    drawItemInfo(POS)
+    drawItemsPointer(POS)
   }
-  console.log(
-    'item selectItemNavigation',
-    up,
-    POS.cursorPosition,
-    POS.pagePosition
-  )
-
-  // set description
-  setItemDescription(POS)
 }
 const selectItemPageNavigation = up => {
-  itemPageNavigation(up, ITEM_POSITIONS.use)
+  itemPageNavigation(up, DATA.use)
 }
 const selectSwapOrderSourcePageNavigation = up => {
-  itemPageNavigation(up, ITEM_POSITIONS.swapSource)
+  itemPageNavigation(up, DATA.use)
 }
 const selectSwapOrderTargetPageNavigation = up => {
-  itemPageNavigation(up, ITEM_POSITIONS.swapTarget)
+  itemPageNavigation(up, DATA.use)
+  drawItemsSelectedPointer()
 }
 const itemPageNavigation = (up, POS) => {
+  const lastPage = window.data.savemap.items.length - 10
   if (up) {
-    POS.pagePosition = POS.pagePosition + 10
+    POS.page = POS.page + 10
+    if (POS.page > lastPage) {
+      POS.page = lastPage
+    }
   } else {
-    POS.pagePosition = POS.pagePosition - 10
+    POS.page = POS.page - 10
+    if (POS.page < 0) {
+      POS.page = 0
+    }
   }
-  if (POS.pagePosition < 0) {
-    POS.pagePosition = 0
-  } else if (POS.pagePosition >= 310) {
-    POS.pagePosition = 310
-  }
-  const newY = POS.pagePosition * ITEM_Y_GAP - 60
-  itemListGroup.position.y = newY
-  setItemDescription(POS)
-  setItemSliderPosition(POS)
-  console.log(
-    'item selectItemPageNavigation',
-    up,
-    POS.cursorPosition,
-    POS.pagePosition
-  )
+  // Update list group positions
+  itemGroup.userData.slider.userData.moveToPage(POS.page)
+  drawItems()
+  drawItemInfo(POS)
 }
 
 const tweenItems = (listGroup, from, to, metadata, resolve) => {
@@ -685,60 +650,17 @@ const selectArrangeConfirm = () => {
 const sortItemsByAttribute = (attribute, descending) => {
   // Note: This is not correct. See https://github.com/p3k22/FF7-Csharp/blob/main/FF7%20Arrange%20Inventory.cs
 
-  if (
-    itemListGroup.userData.items.length > 0 &&
-    typeof itemListGroup.userData.items[0][attribute] === 'string'
-  ) {
-    itemListGroup.userData.items.sort((a, b) =>
-      a[attribute].localeCompare(b[attribute])
-    )
+  const items = window.data.savemap.items.filter(i => i.itemId !== 127)
+
+  if (items.length > 0 && typeof (items[0][attribute]) === 'string') {
+    items.sort((a, b) => descending ? b[attribute].localeCompare(a[attribute]) : a[attribute].localeCompare(b[attribute]))
   } else {
-    console.log(
-      'item sortItemsByAttribute number',
-      attribute,
-      itemListGroup.userData.items[0][attribute],
-      itemListGroup.userData.items[1][attribute],
-      itemListGroup.userData.items[0][attribute] <
-        itemListGroup.userData.items[1][attribute]
-    )
-    if (!descending) {
-      itemListGroup.userData.items.sort((a, b) => {
-        const res = a[attribute] - b[attribute]
-        if (res === 0) {
-          return a.itemId - b.itemId
-        } else {
-          return res
-        }
-      })
-    } else {
-      itemListGroup.userData.items.sort((a, b) => {
-        const res = b[attribute] - a[attribute]
-        if (res === 0) {
-          return a.itemId - b.itemId
-        } else {
-          return res
-        }
-      })
-    }
+    items.sort((a, b) => descending ? b[attribute] - a[attribute] : a[attribute] - b[attribute])
   }
 
-  const itemsSimple = itemListGroup.userData.items.map(item => {
-    return {
-      itemId: item.itemId,
-      quantity: item.quantity,
-      name: item.name
-    }
-  })
-  while (itemsSimple.length < 320) {
-    itemsSimple.push({
-      itemId: 127,
-      quantity: 127,
-      name: ''
-    })
-  }
-  window.data.savemap.items = itemsSimple
+  window.data.savemap.items = items
   drawItems()
-  console.log('item sortItemsByRestriction result', itemsSimple)
+  console.log('item sortItemsByAttribute result', attribute, descending, items)
   selectArrangeCancel()
 }
 const sortItemsByRestriction = restriction => {
@@ -769,9 +691,10 @@ const sortItemsByRestriction = restriction => {
 
   const yesGroup = []
   const noGroup = []
-  for (let i = 0; i < itemListGroup.userData.items.length; i++) {
-    const item = itemListGroup.userData.items[i]
-    if (item.restrictions.includes(restriction)) {
+  for (let i = 0; i < window.data.savemap.items.length; i++) {
+    const item = window.data.savemap.items[i]
+    const itemData = window.data.kernel.allItemData[item.itemId]
+    if (itemData.restrictions.includes(restriction)) {
       yesGroup.push({
         itemId: item.itemId,
         quantity: item.quantity,
@@ -816,83 +739,38 @@ const selectArrangeNavigation = up => {
     ARRANGE_POSITIONS.y[ARRANGE_POSITIONS.option] + ARRANGE_POSITIONS.offset.y
   )
 }
-const selectSwapOrderSource = (page, cursor) => {
-  console.log('item selectSwapOrderSource', page, cursor)
+const selectSwapOrderSource = () => {
+  console.log('item selectSwapOrderSource')
   setMenuState('items-swap-source')
-  ITEM_POSITIONS.swapSource.pagePosition = page !== undefined ? page : 0
-  ITEM_POSITIONS.swapSource.cursorPosition = cursor !== undefined ? cursor : 0
-  movePointer(
-    POINTERS.pointer2,
-    ITEM_POSITIONS.x,
-    ITEM_POSITIONS.y[ITEM_POSITIONS.swapSource.cursorPosition] + 2
-  )
-  removeTemporarySwapPointer()
-  setItemDescription(ITEM_POSITIONS.swapSource)
-  setItemSliderPosition(ITEM_POSITIONS.swapSource)
-  setItemPagePosition(ITEM_POSITIONS.swapSource)
+  DATA.selected.page = 0
+  DATA.selected.pos = 0
+  movePointer(POINTERS.pointer3, 0, 0, true)
+  drawItemsPointer(DATA.use)
+  drawItemInfo(DATA.use)
   itemArrange.visible = false
 }
 const selectSwapOrderSourceCancel = () => {
   selectSwapOrderEnd()
 }
 const selectSwapOrderSourceConfirm = () => {
-  console.log('item selectSwapOrderSourceConfirm', ITEM_POSITIONS)
+  console.log('item selectSwapOrderSourceConfirm', DATA)
+  DATA.selected.page = DATA.use.page
+  DATA.selected.pos = DATA.use.pos
+  drawItemsSelectedPointer(DATA.selected)
+  // Change state
   setMenuState('items-swap-target')
-  ITEM_POSITIONS.swapTarget.pagePosition =
-    ITEM_POSITIONS.swapSource.pagePosition
-  ITEM_POSITIONS.swapTarget.cursorPosition =
-    ITEM_POSITIONS.swapSource.cursorPosition
-  movePointer(
-    POINTERS.pointer2,
-    ITEM_POSITIONS.x,
-    ITEM_POSITIONS.y[ITEM_POSITIONS.swapTarget.cursorPosition] + 2
-  )
-  setItemDescription(ITEM_POSITIONS.swapTarget)
-  setItemSliderPosition(ITEM_POSITIONS.swapTarget)
-  setItemPagePosition(ITEM_POSITIONS.swapTarget)
-  addTemporarySwapPointer()
-}
-const addTemporarySwapPointer = () => {
-  const listPointer = createPointer(itemListGroup)
-  itemListGroup.userData.swapPointer = listPointer
-  movePointer(
-    itemListGroup.userData.swapPointer,
-    -4,
-    ITEM_POSITIONS.y[ITEM_POSITIONS.swapSource.cursorPosition] -
-      62.5 +
-      ITEM_POSITIONS.swapSource.pagePosition * ITEM_Y_GAP,
-    false,
-    true
-  )
-  for (let i = 0; i < itemListGroup.userData.swapPointer.children.length; i++) {
-    const child = itemListGroup.userData.swapPointer.children[i]
-    child.material.clippingPlanes =
-      itemListGroup.userData.bg.material.clippingPlanes
-  }
-}
-const removeTemporarySwapPointer = () => {
-  if (itemListGroup.userData.swapPointer) {
-    movePointer(itemListGroup.userData.swapPointer, 0, 0, true, false)
-    itemListGroup.remove(itemListGroup.userData.swapPointer)
-    delete itemListGroup.userData.swapPointer
-  }
 }
 const selectSwapOrderTargetCancel = () => {
   console.log('item selectSwapOrderTargetCancel')
-  selectSwapOrderEnd()
+  selectSwapOrderEnd() // TODO - is this right? or is it just back to swap source selection?
 }
 const selectSwapOrderTargetConfirm = () => {
-  console.log('item selectSwapOrderTargetConfirm', ITEM_POSITIONS)
+  console.log('item selectSwapOrderTargetConfirm', DATA)
   executeSwap(
-    ITEM_POSITIONS.swapSource.pagePosition +
-      ITEM_POSITIONS.swapSource.cursorPosition,
-    ITEM_POSITIONS.swapTarget.pagePosition +
-      ITEM_POSITIONS.swapTarget.cursorPosition
+    DATA.selected.page + DATA.selected.pos,
+    DATA.use.page + DATA.use.pos
   )
-  selectSwapOrderSource(
-    ITEM_POSITIONS.swapTarget.pagePosition,
-    ITEM_POSITIONS.swapTarget.cursorPosition
-  )
+  selectSwapOrderSource() // Eg go back to swap source selection
 }
 const executeSwap = (item1Index, item2Index) => {
   const item1 = { ...window.data.savemap.items[item1Index] }
@@ -908,22 +786,20 @@ const selectSwapOrderEnd = () => {
     ACTION_POSITIONS.y
   )
   movePointer(POINTERS.pointer2, 0, 0, true)
-  removeTemporarySwapPointer()
+  movePointer(POINTERS.pointer3, 0, 0, true)
   clearItemDescription()
-  setItemSliderPosition(ITEM_POSITIONS.use)
-  setItemPagePosition(ITEM_POSITIONS.use)
   setMenuState('items-action-select')
 }
 const KEYITEM_Y_GAP = 18
-const KEYITEM_POSITIONS = {
+const KEYDATA = {
   positions: new Array(64).fill(null).map((v, i) => {
     return { x: i % 2 ? 146.5 : 0, y: 0 + Math.floor(i / 2) * KEYITEM_Y_GAP }
   }),
-  pagePosition: 0,
-  cursorPosition: 0,
+  page: 0,
+  pos: 0,
   tweenInProgress: false
 }
-window.KEYITEM_POSITIONS = KEYITEM_POSITIONS
+
 const drawKeyItems = () => {
   const keyItems = getKeyItems()
   console.log('keyItems', keyItems)
@@ -937,20 +813,20 @@ const drawKeyItems = () => {
       `items-keylist-${i}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
-      KEYITEM_POSITIONS.positions[i].x,
-      KEYITEM_POSITIONS.positions[i].y,
+      KEYDATA.positions[i].x,
+      KEYDATA.positions[i].y,
       0.5
     )
   }
-  setItemKeyPagePosition()
+  setItemKeypage()
   setItemKeySliderPosition()
 }
-const setItemKeyPagePosition = () => {
-  const newY = KEYITEM_POSITIONS.pagePosition * KEYITEM_Y_GAP - 67.5
+const setItemKeypage = () => {
+  const newY = KEYDATA.page * KEYITEM_Y_GAP - 67.5
   itemKeyListGroup.position.y = newY
   for (let i = 0; i < itemKeyListGroup.children.length; i++) {
     const keyItemGroup = itemKeyListGroup.children[i]
-    if (i < KEYITEM_POSITIONS.pagePosition * 2) {
+    if (i < KEYDATA.page * 2) {
       keyItemGroup.visible = false
     } else {
       keyItemGroup.visible = true
@@ -959,25 +835,25 @@ const setItemKeyPagePosition = () => {
 }
 const setItemKeySliderPosition = () => {
   itemKeyList.userData.slider.userData.moveToPage(
-    KEYITEM_POSITIONS.pagePosition
+    KEYDATA.page
   )
 }
 
-const setItemKeyCursorPosition = () => {
-  const x = KEYITEM_POSITIONS.cursorPosition % 2 ? 146.5 : 0
-  const y = Math.floor(KEYITEM_POSITIONS.cursorPosition / 2) * KEYITEM_Y_GAP
+const setItemKeypos = () => {
+  const x = KEYDATA.pos % 2 ? 146.5 : 0
+  const y = Math.floor(KEYDATA.pos / 2) * KEYITEM_Y_GAP
 
   movePointer(
     POINTERS.pointer2,
     x + 18.5 - 6,
     y + 67.5 + 4.5
-    // KEYITEM_POSITIONS.positions[KEYITEM_POSITIONS.cursorPosition].x + 18.5 - 6,
-    // KEYITEM_POSITIONS.positions[KEYITEM_POSITIONS.cursorPosition].y + 67.5 + 4.5
+    // KEYDATA.positions[KEYDATA.pos].x + 18.5 - 6,
+    // KEYDATA.positions[KEYDATA.pos].y + 67.5 + 4.5
   )
 }
 const setItemKeyDescription = () => {
   clearItemDescription()
-  const item = itemKeyListGroup.userData.items[KEYITEM_POSITIONS.pagePosition * 2 + KEYITEM_POSITIONS.cursorPosition]
+  const item = itemKeyListGroup.userData.items[KEYDATA.page * 2 + KEYDATA.pos]
   if (item === undefined) {
     return
   }
@@ -994,11 +870,11 @@ const setItemKeyDescription = () => {
 }
 const selectKeyItems = () => {
   setMenuState('items-keyitem-select')
-  KEYITEM_POSITIONS.pagePosition = 0
-  KEYITEM_POSITIONS.cursorPosition = 0
-  setItemKeyPagePosition()
+  KEYDATA.page = 0
+  KEYDATA.pos = 0
+  setItemKeypage()
   setItemKeySliderPosition()
-  setItemKeyCursorPosition()
+  setItemKeypos()
   setItemKeyDescription()
 }
 const selectKeyItemCancel = () => {
@@ -1013,104 +889,104 @@ const selectKeyItemCancel = () => {
 }
 const selectKeyItemConfirm = () => {}
 const selectKeyItemNavigation = indexShift => {
-  if (KEYITEM_POSITIONS.tweenInProgress) {
+  if (KEYDATA.tweenInProgress) {
     return
   }
   let slide = false
 
   if (indexShift === -1) {
-    if (KEYITEM_POSITIONS.cursorPosition > 0) {
+    if (KEYDATA.pos > 0) {
       // Just move cursor
-      KEYITEM_POSITIONS.cursorPosition--
+      KEYDATA.pos--
     } else {
-      if (KEYITEM_POSITIONS.pagePosition === 0) {
+      if (KEYDATA.page === 0) {
         // Do nothing
       } else {
-        KEYITEM_POSITIONS.cursorPosition++
-        KEYITEM_POSITIONS.pagePosition--
+        KEYDATA.pos++
+        KEYDATA.page--
         slide = true
       }
     }
   }
 
   if (indexShift === -2) {
-    if (KEYITEM_POSITIONS.cursorPosition > 1) {
+    if (KEYDATA.pos > 1) {
       // Just move cursor
-      KEYITEM_POSITIONS.cursorPosition = KEYITEM_POSITIONS.cursorPosition - 2
+      KEYDATA.pos = KEYDATA.pos - 2
     } else {
-      if (KEYITEM_POSITIONS.pagePosition === 0) {
+      if (KEYDATA.page === 0) {
         // Do nothing
       } else {
-        KEYITEM_POSITIONS.pagePosition--
+        KEYDATA.page--
         slide = true
       }
     }
   }
 
   if (indexShift === 1) {
-    if (KEYITEM_POSITIONS.cursorPosition < 19) {
+    if (KEYDATA.pos < 19) {
       // Just move cursor
-      KEYITEM_POSITIONS.cursorPosition++
+      KEYDATA.pos++
     } else {
-      if (KEYITEM_POSITIONS.pagePosition === 22) {
+      if (KEYDATA.page === 22) {
         // Do nothing
       } else {
-        KEYITEM_POSITIONS.cursorPosition--
-        KEYITEM_POSITIONS.pagePosition++
+        KEYDATA.pos--
+        KEYDATA.page++
         slide = true
       }
     }
   }
   if (indexShift === 2) {
-    if (KEYITEM_POSITIONS.cursorPosition < 18) {
+    if (KEYDATA.pos < 18) {
       // Just move cursor
-      KEYITEM_POSITIONS.cursorPosition = KEYITEM_POSITIONS.cursorPosition + 2
+      KEYDATA.pos = KEYDATA.pos + 2
     } else {
-      if (KEYITEM_POSITIONS.pagePosition === 22) {
+      if (KEYDATA.page === 22) {
         // Do nothing
       } else {
-        KEYITEM_POSITIONS.pagePosition++
+        KEYDATA.page++
         slide = true
       }
     }
   }
 
-  console.log('item selectKeyItemNavigation', KEYITEM_POSITIONS, slide)
-  // if pagePositions dont match, slide
+  console.log('item selectKeyItemNavigation', KEYDATA, slide)
+  // if pages dont match, slide
   if (slide) {
     setItemKeySliderPosition()
     const oldY = itemKeyListGroup.position.y
-    const newY = KEYITEM_POSITIONS.pagePosition * KEYITEM_Y_GAP - 67.5
+    const newY = KEYDATA.page * KEYITEM_Y_GAP - 67.5
     tweenItems(
       itemKeyListGroup,
       { y: oldY },
       { y: newY },
-      KEYITEM_POSITIONS,
+      KEYDATA,
       function () {
         console.log('item tween finished selectKeyItemNavigation')
-        setItemKeyPagePosition()
+        setItemKeypage()
       }
     )
   }
 
-  setItemKeyCursorPosition()
+  setItemKeypos()
   setItemKeyDescription()
 }
 const selectKeyItemPageNavigation = up => {
   if (up) {
-    KEYITEM_POSITIONS.pagePosition = KEYITEM_POSITIONS.pagePosition + 10
+    KEYDATA.page = KEYDATA.page + 10
   } else {
-    KEYITEM_POSITIONS.pagePosition = KEYITEM_POSITIONS.pagePosition - 10
+    KEYDATA.page = KEYDATA.page - 10
   }
-  if (KEYITEM_POSITIONS.pagePosition < 0) {
-    KEYITEM_POSITIONS.pagePosition = 0
-  } else if (KEYITEM_POSITIONS.pagePosition >= 22) {
-    KEYITEM_POSITIONS.pagePosition = 22
+  if (KEYDATA.page < 0) {
+    KEYDATA.page = 0
+  } else if (KEYDATA.page >= 22) {
+    KEYDATA.page = 22
   }
 
-  setItemKeyPagePosition()
+  setItemKeypage()
   setItemKeySliderPosition()
-  // setItemKeyCursorPosition()
+  // setItemKeypos()
   setItemKeyDescription()
 }
 const keyPress = async (key, firstPress, state) => {
