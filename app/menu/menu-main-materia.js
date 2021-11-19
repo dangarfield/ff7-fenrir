@@ -366,30 +366,30 @@ const drawExchangeSelectedPointers = () => {
   if (DATA.exchange.selected.type === 'chars') {
     const pageDiff = DATA.exchange.selected.page - DATA.exchange.chars.page
     const pos = (pageDiff * 18) + DATA.exchange.selected.pos
-    console.log('materia drawExchangeSelectedPointers chars', DATA.exchange, pageDiff, pos)
+    // console.log('materia drawExchangeSelectedPointers chars', DATA.exchange, pageDiff, pos)
     if (pos < 0 || pos >= 18 * 4) {
-      console.log('materia drawExchangeSelectedPointers chars no draw')
+      // console.log('materia drawExchangeSelectedPointers chars no draw')
       movePointer(POINTERS.pointer2, 0, 0, true)
     } else {
       const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
-      console.log('materia drawExchangeSelectedPointers chars draw', x, y)
+      // console.log('materia drawExchangeSelectedPointers chars draw', x, y)
       movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
     }
   } else if (DATA.exchange.selected.type === 'list') {
-    console.log('materia drawExchangeSelectedPointers list')
+    // console.log('materia drawExchangeSelectedPointers list')
     const pageDiff = DATA.exchange.selected.page - DATA.exchange.list.page
     const pos = pageDiff + DATA.exchange.selected.pos
-    console.log('materia drawExchangeSelectedPointers list', DATA.exchange, pageDiff, pos)
+    // console.log('materia drawExchangeSelectedPointers list', DATA.exchange, pageDiff, pos)
     if (pos < 0 || pos >= 10) {
-      console.log('materia drawExchangeSelectedPointers list no draw')
+      // console.log('materia drawExchangeSelectedPointers list no draw')
       movePointer(POINTERS.pointer2, 0, 0, true)
     } else {
       const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
-      console.log('materia drawExchangeSelectedPointers list draw', x, y)
+      // console.log('materia drawExchangeSelectedPointers list draw', x, y)
       movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
     }
   } else {
-    console.log('materia drawExchangeSelectedPointers no selected')
+    // console.log('materia drawExchangeSelectedPointers no selected')
     movePointer(POINTERS.pointer2, 0, 0, true)
   }
 
@@ -445,27 +445,27 @@ const tweenExchangeMateriaList = (up, state, cb) => {
 }
 const exchangeNavigation = (vertical, delta) => {
   const currentState = getMenuState()
-  console.log('materia currentState', currentState)
+  // console.log('materia currentState', currentState)
   if (DATA.exchange.type === 'chars') {
     const { x, y, yAdj } = getExchangeCharPositions()
     const maxPage = DATA.exchange.activeCharacters.length - 4
     const maxPos = 18 * 4
     const potential = DATA.exchange.chars.pos + (vertical ? delta * 9 : delta)
-    console.log('materia exchangeNavigation chars', vertical, delta, '-', DATA.exchange.chars.page, DATA.exchange.chars.pos, '->', potential, ':', maxPage, maxPos)
+    // console.log('materia exchangeNavigation chars', vertical, delta, '-', DATA.exchange.chars.page, DATA.exchange.chars.pos, '->', potential, ':', maxPage, maxPos)
 
     // TODO - Not sure, but it might be that a no equippable slot (eg weapon ony has 2 mat slots, if potential  = weaponMateria3, go to item list), test this
     if (DATA.exchange.chars.pos % 9 === 0 && !vertical && delta < 0) {
-      console.log('materia exchangeNavigation chars left on equip type - do nothing')
+      // console.log('materia exchangeNavigation chars left on equip type - do nothing')
     } else if (DATA.exchange.chars.pos % 9 === 8 && !vertical && delta > 0) {
-      console.log('materia exchangeNavigation chars right on last materia - switch to list menu navigation')
+      // console.log('materia exchangeNavigation chars right on last materia - switch to list menu navigation')
       DATA.exchange.type = 'list'
       drawExchangePointers()
       drawExchangeMateriaDetailsAndInfo()
     } else if (potential < 0) {
       if (DATA.exchange.chars.page === 0) {
-        console.log('materia exchangeNavigation chars on first page - do nothing')
+        // console.log('materia exchangeNavigation chars on first page - do nothing')
       } else {
-        console.log('materia exchangeNavigation chars not on first page - PAGE DOWN')
+        // console.log('materia exchangeNavigation chars not on first page - PAGE DOWN')
         drawExchangeCharListOneItem(exchangeCharContentsGroup, -1, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page--
         tweenExchangeCharsList(false, currentState, drawExchangeChars)
@@ -474,9 +474,9 @@ const exchangeNavigation = (vertical, delta) => {
       }
     } else if (potential >= maxPos) {
       if (DATA.exchange.chars.page >= maxPage) {
-        console.log('materia exchangeNavigation chars on last page - do nothing')
+        // console.log('materia exchangeNavigation chars on last page - do nothing')
       } else {
-        console.log('materia exchangeNavigation chars not on last page - PAGE UP')
+        // console.log('materia exchangeNavigation chars not on last page - PAGE UP')
         drawExchangeCharListOneItem(exchangeCharContentsGroup, 4, DATA.exchange.chars.page, x, y, yAdj)
         DATA.exchange.chars.page++
         tweenExchangeCharsList(true, currentState, drawExchangeChars)
@@ -493,20 +493,20 @@ const exchangeNavigation = (vertical, delta) => {
     const maxPage = window.data.savemap.materias.length - 10
     const maxPos = 10
     const potential = DATA.exchange.list.pos + delta
-    console.log('materia exchangeNavigation list', vertical, delta, '-', DATA.exchange.list.page, DATA.exchange.list.pos, '->', potential, ':', maxPage, maxPos)
+    // console.log('materia exchangeNavigation list', vertical, delta, '-', DATA.exchange.list.page, DATA.exchange.list.pos, '->', potential, ':', maxPage, maxPos)
 
     if (!vertical && delta > 0) {
-      console.log('materia exchangeNavigation list right - do nothing')
+      // console.log('materia exchangeNavigation list right - do nothing')
     } else if (!vertical && delta < 0) {
-      console.log('materia exchangeNavigation list left - switch to chars menu navigation')
+      // console.log('materia exchangeNavigation list left - switch to chars menu navigation')
       DATA.exchange.type = 'chars'
       drawExchangePointers()
       drawExchangeMateriaDetailsAndInfo()
     } else if (potential < 0) {
       if (DATA.exchange.list.page === 0) {
-        console.log('materia exchangeNavigation list on first page - do nothing')
+        // console.log('materia exchangeNavigation list on first page - do nothing')
       } else {
-        console.log('materia exchangeNavigation list not on first page - PAGE DOWN')
+        // console.log('materia exchangeNavigation list not on first page - PAGE DOWN')
         drawMateriaListOneItem(exchangeMateriaListContentsGroup, -1, DATA.exchange.list.page, x, y, yAdj)
         DATA.exchange.list.page--
         tweenExchangeMateriaList(false, currentState, drawExchangeMateriaList)
@@ -515,9 +515,9 @@ const exchangeNavigation = (vertical, delta) => {
       }
     } else if (potential >= maxPos) {
       if (DATA.exchange.list.page >= maxPage) {
-        console.log('materia exchangeNavigation list on last page - do nothing')
+        // console.log('materia exchangeNavigation list on last page - do nothing')
       } else {
-        console.log('materia exchangeNavigation list not on last page - PAGE UP')
+        // console.log('materia exchangeNavigation list not on last page - PAGE UP')
         drawMateriaListOneItem(exchangeMateriaListContentsGroup, 10, DATA.exchange.list.page, x, y, yAdj)
         DATA.exchange.list.page++
         tweenExchangeMateriaList(true, currentState, drawExchangeMateriaList)
@@ -525,7 +525,7 @@ const exchangeNavigation = (vertical, delta) => {
         drawExchangeMateriaDetailsAndInfo()
       }
     } else {
-      console.log('materia exchangeNavigation list normal pos based navigation')
+      // console.log('materia exchangeNavigation list normal pos based navigation')
       DATA.exchange.list.pos = potential
       drawExchangePointers()
       drawExchangeMateriaDetailsAndInfo()
@@ -653,6 +653,12 @@ const exchangeSelectCancel = () => {
 const exchangeSelectSelect = () => {
   console.log('materia exchangeSelectSelect', DATA.exchange)
   if (DATA.exchange.selected.type === 'none') {
+    const from = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+    addIndexInformationToSwapMateria(from)
+    if (from.invalidSlot) {
+      console.log('materia exchangeSelectSelect INVALID SLOT')
+      return
+    }
     DATA.exchange.selected.type = DATA.exchange.type
     DATA.exchange.selected.page = DATA.exchange[DATA.exchange.type].page
     DATA.exchange.selected.pos = DATA.exchange[DATA.exchange.type].pos
@@ -661,12 +667,77 @@ const exchangeSelectSelect = () => {
   }
 }
 const exchangeConfirmCancel = () => {
+  console.log('materia exchangeConfirmCancel', DATA.exchange.selected)
   movePointer(POINTERS.pointer2, 0, 0, true)
   DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
   setMenuState('materia-exchange-select')
 }
 const exchangeConfirmSelect = () => {
-  console.log('materia exchangeConfirmSelect', DATA.exchange.selected)
+  const from = DATA.exchange.selected
+  const to = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+  addIndexInformationToSwapMateria(from)
+  addIndexInformationToSwapMateria(to)
+  console.log('materia exchangeConfirmSelect', from, to)
+  if (from.invalidSlot || to.invalidSlot) {
+    console.log('materia exchangeConfirmSelect INVALID slot on one of the selected materia')
+  } else if (from.isEquipment !== to.isEquipment) {
+    console.log('materia exchangeConfirmSelect CANNOT combine equipment row with single materia')
+  } else if (!from.isEquipment) {
+    console.log('materia exchangeConfirmSelect SWAP single materia')
+    swapSingleMateria(from, to)
+  } else {
+    console.log('materia exchangeConfirmSelect SWAP equipment row')
+  }
+}
+const swapSingleMateria = (from, to) => {
+  if (from.type === 'chars') {
+    from.char.materia[from.slotName] = to.materia
+  } else {
+    window.data.savemap.materias[from.index] = to.materia
+  }
+  if (to.type === 'chars') {
+    to.char.materia[to.slotName] = from.materia
+  } else {
+    window.data.savemap.materias[to.index] = from.materia
+  }
+  if (from.type === 'chars' || to.type === 'chars') {
+    drawExchangeChars()
+  }
+  if (from.type === 'list' || to.type === 'list') {
+    drawExchangeMateriaList()
+  }
+
+  if (from.char || to.char) {
+    if (from.char) {
+      recalculateAndApplyHPMP(from.char)
+    }
+    if (to.char) {
+      recalculateAndApplyHPMP(to.char)
+    }
+    if (from.char.id === DATA.char.id || to.char.id === DATA.char.id) {
+      setDataFromPartyMember()
+      drawHeader()
+    }
+  }
+
+  drawExchangeMateriaDetailsAndInfo()
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  setMenuState('materia-exchange-select')
+}
+const addIndexInformationToSwapMateria = (from) => {
+  from.isEquipment = from.type === 'chars' && from.pos % 9 === 0
+  if (from.type === 'chars') {
+    from.char = window.data.savemap.characters[DATA.exchange.activeCharacters[from.page + Math.trunc(from.pos / 18)]]
+    const equipType = from.pos % 18 < 9 ? 'weapon' : 'armor'
+    const slotNumber = from.pos % 18 % 9
+    from.slotName = `${equipType}Materia${slotNumber}`
+    from.invalidSlot = window.data.kernel.allItemData[from.char.equip[equipType].itemId].materiaSlots[slotNumber - 1] === 'None'
+    from.materia = JSON.parse(JSON.stringify(from.char.materia[from.slotName]))
+  } else { // list
+    from.index = from.page + from.pos
+    from.materia = JSON.parse(JSON.stringify(window.data.savemap.materias[from.index]))
+  }
 }
 
 const showExchangeMenu = () => {
