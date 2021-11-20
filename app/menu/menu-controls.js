@@ -11,6 +11,7 @@ import { keyPress as keyPressConfig } from './menu-main-config.js'
 import { keyPress as keyPressPHS } from './menu-main-phs.js'
 import { keyPress as keyPressSave } from './menu-main-save.js'
 import { keyPress as keyPressChar } from './menu-char-name.js'
+import { keyPress as keyPressShop } from './menu-shop.js'
 
 const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
@@ -39,6 +40,8 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
     keyPressSave(key, firstPress, state)
   } else if (state.startsWith('char')) {
     keyPressChar(key, firstPress, state)
+  } else if (state.startsWith('shop')) {
+    keyPressShop(key, firstPress, state)
   } else if (state.startsWith('quit')) {
     // Nothing...
   } else if (state === 'loading') {
