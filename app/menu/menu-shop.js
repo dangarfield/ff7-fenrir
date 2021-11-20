@@ -21,6 +21,7 @@ import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
+import { navigateSelect } from '../world/world-destination-selector.js'
 
 let itemShopDialog
 let infoDialog, infoGroup
@@ -92,6 +93,7 @@ const loadShopMenu = async param => {
   drawItemShop()
   drawInfo()
   drawNav()
+  drawNavPointer()
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('shop-nav')
 }
@@ -142,6 +144,30 @@ const drawNav = () => {
       y - 4,
       0.5
     )
+  }
+}
+const drawNavPointer = () => {
+  const {x, y, xAdj} = getNavPositions()
+  movePointer(POINTERS.pointer1, x + (xAdj * DATA.navPos) - 12, y - 0)
+}
+const navNavigate = (delta) => {
+  DATA.navPos = DATA.navPos + delta
+  if (DATA.navPos >= DATA.nav.length) {
+    DATA.navPos = DATA.nav.length - 1
+  } else if (DATA.navPos < 0) {
+    DATA.navPos = 0
+  }
+  drawNavPointer()
+}
+const navSelect = () => {
+  const menuName = DATA.nav[DATA.navPos]
+  console.log('shop navSelect', DATA, menuName)
+  if (menuName === 'Buy') {
+    // TODO
+  } else if (menuName === 'Sell') {
+    // TODO
+  } else if (menuName === 'Exit') {
+    exitMenu()
   }
 }
 // const drawChar = () => {
@@ -360,23 +386,21 @@ const exitMenu = async () => {
   infoDialog.visible = false
   navDialog.visible = false
 
-  clearInterval(DATA.underscoreInterval)
-  delete DATA.underscore // Failsafe to stop interval from inside
-  console.log('char EXIT')
+  console.log('shop EXIT')
   resolveMenuPromise()
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CHAR', key, firstPress, state)
 
   if (state === 'shop-nav') {
-    if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
-      // navigate(key) // TODO - not sure about navigating in the 'space' sections of the letters, validate with game behaviour
-    } else if (key === KEY.X || key === KEY.START) {
-      // jumpToNavigationSelect()
-    } else if (key === KEY.SQUARE) {
-      // deleteLetter()
+    if (key === KEY.RIGHT) {
+      navNavigate(1)
+    } else if (key === KEY.LEFT) {
+      navNavigate(-1)
+    } else if (key === KEY.X) {
+      navNavigate(3) // Push to far right
     } else if (key === KEY.O) {
-      // selectAction()
+      navSelect()
     }
   }
 }
