@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { setMenuState, getMenuBlackOverlay } from './menu-module.js'
+import { setMenuState, getMenuBlackOverlay, resolveMenuPromise } from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -24,7 +24,10 @@ import { saveSaveMap } from '../data/savemap.js'
 let saveDescription, saveGroups, saveSlotId
 let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog, saveSlotsSavedDialog
 
-const loadSaveMenu = async () => {
+const loadSaveMenu = async (exitMenuOnSaveExit) => {
+  if (exitMenuOnSaveExit) {
+    SAVE_DATA.exitMenuOnSaveExit = exitMenuOnSaveExit
+  }
   saveDescription = createDialogBox({
     id: 7,
     name: 'saveDescription',
@@ -182,18 +185,6 @@ const createSlotDialogHolders = () => {
   window.saveSlotsConfirmDialog = saveSlotsConfirmDialog
   window.saveSlotsSavedDialog = saveSlotsSavedDialog
 }
-const exitMenu = async () => {
-  console.log('exitMenu')
-  setMenuState('loading')
-  await fadeOverlayIn(getMenuBlackOverlay())
-  saveDescription.visible = false
-  saveGroups.visible = false
-  saveSlotId.visible = false
-  saveSlotsGroup.visible = false
-  saveSlotsGroupCover.visible = false
-  saveSlotsConfirmDialog.visible = false
-  fadeInHomeMenu()
-}
 const clearSaveDescription = () => {
   while (saveDescriptionGroup.children.length) {
     saveDescriptionGroup.remove(saveDescriptionGroup.children[0])
@@ -244,7 +235,8 @@ const SAVE_DATA = {
   group: 0,
   groups: [],
   savePreviewDialogs: [],
-  slot: 0
+  slot: 0,
+  exitMenuOnSaveExit: false
 }
 window.SAVE_DATA = SAVE_DATA
 const drawAll = () => {
@@ -684,6 +676,23 @@ const saveConfirmSlotConfirm = async () => {
 const saveConfirmSlotConfirmNavigation = (pos) => {
   movePointer(POINTERS.pointer2, SAVE_SLOT_POSITIONS.confirmPositions[pos].x, SAVE_SLOT_POSITIONS.confirmPositions[pos].y)
   SAVE_SLOT_POSITIONS.confirmPosition = pos
+}
+const exitMenu = async () => {
+  console.log('exitMenu')
+  setMenuState('loading')
+  await fadeOverlayIn(getMenuBlackOverlay())
+  saveDescription.visible = false
+  saveGroups.visible = false
+  saveSlotId.visible = false
+  saveSlotsGroup.visible = false
+  saveSlotsGroupCover.visible = false
+  saveSlotsConfirmDialog.visible = false
+  if (SAVE_DATA.exitMenuOnSaveExit) {
+    console.log('save EXIT save')
+    resolveMenuPromise()
+  } else {
+    fadeInHomeMenu()
+  }
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU SAVE', key, firstPress, state)

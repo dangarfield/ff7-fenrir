@@ -118,19 +118,19 @@ const loadMenuWithWait = (menuCode, param) => {
         loadCreditsMenu()
         break
       case MENU_TYPE.CharacterNameEntry:
-        loadCharNameMenu(param)
+        loadCharNameMenu(param) // Done
         break
       case MENU_TYPE.PartySelect:
-        loadPartySelectMenu(param)
+        loadPartySelectMenu(param) // Done
         break
       case MENU_TYPE.Shop:
         loadShopMenu(param)
         break
       case MENU_TYPE.MainMenu:
-        loadHomeMenu()
+        loadHomeMenu() // Done
         break
       case MENU_TYPE.SaveScreen:
-        loadSaveMenu()
+        loadSaveMenu() // Done
         break
       case MENU_TYPE.ChangeDisc:
         loadChangeDiscMenu(param)

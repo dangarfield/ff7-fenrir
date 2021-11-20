@@ -10,6 +10,7 @@ import { keyPress as keyPressLimit } from './menu-main-limit.js'
 import { keyPress as keyPressConfig } from './menu-main-config.js'
 import { keyPress as keyPressPHS } from './menu-main-phs.js'
 import { keyPress as keyPressSave } from './menu-main-save.js'
+import { keyPress as keyPressChar } from './menu-char-name.js'
 
 const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
@@ -36,6 +37,8 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
     keyPressPHS(key, firstPress, state)
   } else if (state.startsWith('save')) {
     keyPressSave(key, firstPress, state)
+  } else if (state.startsWith('char')) {
+    keyPressChar(key, firstPress, state)
   } else if (state.startsWith('quit')) {
     // Nothing...
   } else if (state === 'loading') {
