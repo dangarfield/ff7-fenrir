@@ -24,8 +24,12 @@ import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
 
 let itemShopDialog
-let infoDialog, infoGroup
+let actionDescriptionDialog, actionDescriptionGroup
 let navDialog
+let itemInfoDialog, itemInfoGroup
+let buyItemListDialog, buyItemListGroup, buyItemListContentsGroup
+let buyCostDialog, buyCostGroup
+let partyEquipDialog, partyEquipGroup
 
 const MODE = {NAV: 'nav', BUY: 'buy', SELL: 'sell'}
 const DATA = {
@@ -41,7 +45,7 @@ const loadShopMenu = async param => {
   // setDataFromCharacter(param)
   console.log('char loadShopMenu', param, DATA)
 
-  itemShopDialog = await createDialogBox({
+  itemShopDialog = createDialogBox({
     id: 15,
     name: 'itemShopDialog',
     w: 82, // 82 // TODO - all widths
@@ -53,9 +57,9 @@ const loadShopMenu = async param => {
   })
   itemShopDialog.visible = true
 
-  infoDialog = await createDialogBox({
+  actionDescriptionDialog = createDialogBox({
     id: 13,
-    name: 'infoDialog',
+    name: 'actionDescriptionDialog',
     w: 242, // TODO - all widths
     h: 25.5,
     x: 0,
@@ -63,10 +67,10 @@ const loadShopMenu = async param => {
     expandInstantly: true,
     noClipping: true
   })
-  infoDialog.visible = true
-  infoGroup = addGroupToDialog(infoDialog, 23)
+  actionDescriptionDialog.visible = true
+  actionDescriptionGroup = addGroupToDialog(actionDescriptionDialog, 23)
 
-  navDialog = await createDialogBox({
+  navDialog = createDialogBox({
     id: 12,
     name: 'navDialog',
     w: 87,
@@ -78,20 +82,61 @@ const loadShopMenu = async param => {
   })
   navDialog.visible = true
 
-  // navDialog = await createDialogBox({
-  //   id: 14,
-  //   name: 'navDialog',
-  //   w: 320,
-  //   h: 25.5,
-  //   x: 0,
-  //   y: 25.5,
-  //   expandInstantly: true,
-  //   noClipping: true
-  // })
-  // navDialog.visible = true
+  itemInfoDialog = createDialogBox({
+    id: 14,
+    name: 'itemInfoDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 25.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // itemInfoDialog.visible = true
+  itemInfoGroup = addGroupToDialog(actionDescriptionDialog, 23)
+
+  buyItemListDialog = createDialogBox({
+    id: 14,
+    name: 'buyItemListDialog',
+    w: 238,
+    h: 100,
+    x: 0,
+    y: 51,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // buyItemListDialog.visible = true
+  buyItemListGroup = addGroupToDialog(buyItemListDialog, 23)
+  buyItemListContentsGroup = addGroupToDialog(buyItemListDialog, 23)
+
+  buyCostDialog = createDialogBox({
+    id: 14,
+    name: 'buyCostDialog',
+    w: 90,
+    h: 100,
+    x: 230,
+    y: 51,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // buyCostDialog.visible = true
+  buyCostGroup = addGroupToDialog(buyCostDialog, 23)
+
+  partyEquipDialog = createDialogBox({
+    id: 14,
+    name: 'partyEquipDialog',
+    w: 320,
+    h: 89,
+    x: 0,
+    y: 151,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // partyEquipDialog.visible = true
+  partyEquipGroup = addGroupToDialog(partyEquipDialog, 23)
 
   drawItemShop()
-  drawInfo()
+  drawActionDescription()
   drawNav()
   drawNavPointer()
   await fadeOverlayOut(getMenuBlackOverlay())
@@ -110,10 +155,10 @@ const drawItemShop = () => {
     0.5
   )
 }
-const drawInfo = () => {
-  removeGroupChildren(infoGroup)
+const drawActionDescription = () => {
+  removeGroupChildren(actionDescriptionGroup)
   addTextToDialog(
-    infoGroup,
+    actionDescriptionGroup,
     'Welcome!',
     `shop-info`,
     LETTER_TYPES.MenuBaseFont,
@@ -163,12 +208,43 @@ const navSelect = () => {
   const menuName = DATA.nav[DATA.navPos]
   console.log('shop navSelect', DATA, menuName)
   if (menuName === 'Buy') {
-    // TODO
+    loadBuyMode()
   } else if (menuName === 'Sell') {
     // TODO
   } else if (menuName === 'Exit') {
     exitMenu()
   }
+}
+
+const loadBuyMode = () => {
+  DATA.mode = MODE.BUY
+  itemInfoDialog.visible = true
+  buyItemListDialog.visible = true
+  buyCostDialog.visible = true
+  partyEquipDialog.visible = true
+  navDialog.visible = false
+  drawBuyPointer()
+  // drawPartyEquipFixedElements()
+  setMenuState('shop-buy-select')
+}
+const drawBuyPointer = () => {
+
+}
+const buyNavigate = (up) => {
+
+}
+const buyCancel = () => {
+  itemInfoDialog.visible = false
+  buyItemListDialog.visible = false
+  buyCostDialog.visible = false
+  partyEquipDialog.visible = false
+  navDialog.visible = true
+  DATA.mode = MODE.NAV
+  drawNavPointer()
+  setMenuState('shop-nav')
+}
+const buySelect = () => {
+
 }
 // const drawChar = () => {
 //   addImageToDialog(
@@ -383,7 +459,7 @@ const exitMenu = async () => {
   setMenuState('loading')
   await fadeOverlayIn(getMenuBlackOverlay())
   itemShopDialog.visible = false
-  infoDialog.visible = false
+  actionDescriptionDialog.visible = false
   navDialog.visible = false
 
   console.log('shop EXIT')
@@ -401,6 +477,16 @@ const keyPress = async (key, firstPress, state) => {
       navNavigate(3) // Push to far right
     } else if (key === KEY.O) {
       navSelect()
+    }
+  } else if (state === 'shop-buy-select') {
+    if (key === KEY.UP) {
+      buyNavigate(1)
+    } else if (key === KEY.DOWN) {
+      buyNavigate(-1)
+    } else if (key === KEY.X) {
+      buyCancel()
+    } else if (key === KEY.O) {
+      buySelect()
     }
   }
 }
