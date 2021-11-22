@@ -58,16 +58,20 @@ const DATA = {
       {type: ITEM_TYPE.ITEM, id: 0, price: 50},
       {type: ITEM_TYPE.ITEM, id: 7, price: 300},
       {type: ITEM_TYPE.ITEM, id: 8, price: 80},
+      // {type: ITEM_TYPE.ITEM, id: 268, price: 80},
+      // {type: ITEM_TYPE.ITEM, id: 143, price: 80},
       {type: ITEM_TYPE.MATERIA, id: 49, price: 600},
       {type: ITEM_TYPE.MATERIA, id: 50, price: 600},
       {type: ITEM_TYPE.MATERIA, id: 52, price: 600},
       {type: ITEM_TYPE.MATERIA, id: 53, price: 750}
+      // {type: ITEM_TYPE.MATERIA, id: 90, price: 750}
     ]
   }
 
 }
 
 const loadCharData = () => {
+  DATA.chars = []
   for (let i = 0; i < 9; i++) {
     const name = getPlayableCharacterName(i)
     const showChar = window.data.savemap.party.phsVisibility[name] === 1
@@ -204,13 +208,28 @@ const drawActionDescription = (text) => {
   addTextToDialog(
     actionDescriptionGroup,
     text,
-    `shop-info`,
+    `shop-action-description`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     22 - 8, // TODO - positions
     16 - 4,
     0.5
   )
+}
+const drawInfoDescription = (text) => {
+  removeGroupChildren(itemInfoGroup)
+  if (text !== undefined) {
+    addTextToDialog(
+      itemInfoGroup,
+      text,
+      `shop-info-description`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      22 - 8, // TODO - positions
+      41 - 4,
+      0.5
+    )
+  }
 }
 const getNavPositions = () => {
   return {
@@ -347,10 +366,123 @@ const drawBuyPointer = () => {
   movePointer(POINTERS.pointer1, x - 14, y + (yAdj * DATA.buy.pos) - 0)
 }
 const updateBuyItemPreviewDetails = () => {
+  removeGroupChildren(buyCostGroup)
 
-}
-const buyPageNavigate = (up) => {
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
+  let description = ''
+  let owned = 0
+  let equipped = 0
 
+  if (item.type === ITEM_TYPE.ITEM) {
+    const itemData = window.data.kernel.allItemData[item.id]
+    description = itemData.description
+    const ownedItemFilter = window.data.savemap.items.filter(i => i.itemId === item.id)
+    if (ownedItemFilter.length > 0) {
+      owned = Math.min(99, ownedItemFilter[0].quantity)
+    }
+    // Equipped
+    for (let i = 0; i < DATA.chars.length; i++) {
+      const char = window.data.savemap.characters[DATA.chars[i].name]
+      if (!DATA.chars[i].showChar) {
+        continue
+      }
+      if (char.equip.weapon.itemId === item.id) {
+        equipped++
+      } else if (char.equip.armor.itemId === item.id) {
+        equipped++
+      } else if (char.equip.accessory.itemId === item.id) {
+        equipped++
+      }
+    }
+  } else if (item.type === ITEM_TYPE.MATERIA) {
+    const materiaData = window.data.kernel.materiaData[item.id]
+    description = materiaData.description
+    owned = window.data.savemap.materias.filter(m => m.id === item.id).length
+    // Equipped
+    for (let i = 0; i < DATA.chars.length; i++) {
+      const char = window.data.savemap.characters[DATA.chars[i].name]
+      if (!DATA.chars[i].showChar) {
+        continue
+      }
+      const materiaKeys = Object.keys(char.materia)
+      for (let j = 0; j < materiaKeys.length; j++) {
+        if (char.materia[materiaKeys[j]].id === item.id) {
+          equipped++
+        }
+      }
+    }
+  }
+
+  // Description
+  drawInfoDescription(description)
+
+  const yAdj = 12
+  // Labels
+  addTextToDialog(
+    buyCostGroup,
+    'Gil', // ('' + item.price).padStart(12, ' '),
+    `shop-cost-info-gil-label`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    245 - 8, // TODO - positions
+    68 + (0 * yAdj) - 4,
+    0.5
+  )
+  addTextToDialog(
+    buyCostGroup,
+    'Owned', // ('' + item.price).padStart(12, ' '),
+    `shop-cost-info-owned-label`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    245 - 8, // TODO - positions
+    68 + (3 * yAdj) - 4,
+    0.5
+  )
+  addTextToDialog(
+    buyCostGroup,
+    'Equipped', // ('' + item.price).padStart(12, ' '),
+    `shop-cost-info-equipped-label`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Cyan,
+    245 - 8, // TODO - positions
+    68 + (5 * yAdj) - 4,
+    0.5
+  )
+
+  // Values
+  addTextToDialog(
+    buyCostGroup,
+    ('' + window.data.savemap.gil).padStart(12, ' '),
+    `shop-cost-info-gil`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    235 - 8, // TODO - positions
+    68 + (1 * yAdj) - 4,
+    0.5
+  )
+  addTextToDialog(
+    buyCostGroup,
+    ('' + owned).padStart(12, ' '),
+    `shop-cost-info-owned`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    235 - 8, // TODO - positions
+    68 + (4 * yAdj) - 4,
+    0.5
+  )
+  addTextToDialog(
+    buyCostGroup,
+    ('' + equipped).padStart(12, ' '),
+    `shop-cost-info-equipped`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    235 - 8, // TODO - positions
+    68 + (6 * yAdj) - 4,
+    0.5
+  )
+
+  // Party Equip
+  // TODO
 }
 const buyCancel = () => {
   itemInfoDialog.visible = false
@@ -360,6 +492,8 @@ const buyCancel = () => {
   navDialog.visible = true
   DATA.mode = MODE.NAV
   drawNavPointer()
+  drawActionDescription(DATA.shopData.text.welcome)
+  drawInfoDescription()
   setMenuState('shop-nav')
 }
 const buySelect = () => {
