@@ -207,4 +207,4 @@ const equipItemOnCharacter = (char, itemToEquip) => {
   // If weapon / armor has been change and materia menu is available, load materia inventory on exitMenu
   return showMateriaMenuOnExit
 }
-export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter }
+export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter, addItemToInventory }

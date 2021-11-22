@@ -26,28 +26,35 @@ import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
-import { getItemIcon } from '../items/items-module.js'
+import { getItemIcon, addItemToInventory } from '../items/items-module.js'
+import { addMateriaToInventory } from '../materia/materia-module.js'
 
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
 let navDialog
 let itemInfoDialog, itemInfoGroup
 let buyItemListDialog, buyItemListGroup, buyItemListContentsGroup
-let buyCostDialog, buyCostGroup
+let buyOwnedDialog, buyOwnedGroup
 let partyEquipDialog, partyEquipGroup
+let buyCostDialog, buyCostGroup
 
 const MODE = {NAV: 'nav', BUY: 'buy', SELL: 'sell'}
 const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
+const STATES = {SHOP_NAV: 'shop-nav', SHOP_BUY_SELECT: 'shop-buy-select', SHOP_BUY_AMOUNT: 'shop-buy-amount'}
 const DATA = {
   nav: ['Buy', 'Sell', 'Exit'],
   mode: MODE.SEL,
   navPos: 0,
   buy: {
     pos: 0,
-    page: 0
+    page: 0,
+    amount: 1
   },
   chars: [], // Populated below
-  shopData: { // TODO - Shop data - https://forums.qhimm.com/index.php?topic=9475.0
+  shopData: {}
+}
+const loadShopData = () => {
+  DATA.shopData = { // TODO - Shop data - https://forums.qhimm.com/index.php?topic=9475.0
     text: {
       shopName: 'Item Shop',
       welcome: 'Welcome!',
@@ -67,9 +74,8 @@ const DATA = {
       // {type: ITEM_TYPE.MATERIA, id: 90, price: 750}
     ]
   }
-
+  setDecriptionOwnedEquippedDetailsToItems()
 }
-
 const loadCharData = () => {
   DATA.chars = []
   for (let i = 0; i < 9; i++) {
@@ -85,7 +91,9 @@ const loadShopMenu = async param => {
   DATA.navPos = 0
   DATA.buy.pos = 0
   DATA.buy.page = 0
+  DATA.buy.amount = 1
   loadCharData()
+  loadShopData()
   // DATA.lettersPos = 0
   // DATA.underscore = null
   // setDataFromCharacter(param)
@@ -156,9 +164,9 @@ const loadShopMenu = async param => {
   buyItemListContentsGroup = addGroupToDialog(buyItemListDialog, 23)
   buyItemListContentsGroup.userData.bg = buyItemListDialog.userData.bg
 
-  buyCostDialog = createDialogBox({
+  buyOwnedDialog = createDialogBox({
     id: 14,
-    name: 'buyCostDialog',
+    name: 'buyOwnedDialog',
     w: 90,
     h: 100,
     x: 230,
@@ -166,8 +174,8 @@ const loadShopMenu = async param => {
     expandInstantly: true,
     noClipping: true
   })
-  // buyCostDialog.visible = true
-  buyCostGroup = addGroupToDialog(buyCostDialog, 23)
+  // buyOwnedDialog.visible = true
+  buyOwnedGroup = addGroupToDialog(buyOwnedDialog, 23)
 
   partyEquipDialog = createDialogBox({
     id: 14,
@@ -182,13 +190,28 @@ const loadShopMenu = async param => {
   // partyEquipDialog.visible = true
   partyEquipGroup = addGroupToDialog(partyEquipDialog, 23)
 
+  buyCostDialog = createDialogBox({
+    id: 9,
+    name: 'buyCostDialog',
+    w: 100,
+    h: 37,
+    x: 141,
+    y: 92,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // buyCostDialog.visible = true
+  buyCostDialog.position.z = 100 - 9
+  buyCostGroup = addGroupToDialog(buyCostDialog, 19)
+
   drawItemShop()
   drawActionDescription(DATA.shopData.text.welcome)
   drawNav()
   drawNavPointer()
   drawPartyEquipFixedElements()
+  drawBuyCostFixedElements()
   await fadeOverlayOut(getMenuBlackOverlay())
-  setMenuState('shop-nav')
+  setMenuState(STATES.SHOP_NAV)
 }
 const drawItemShop = () => {
   // removeGroupChildren(itemShopDialog)
@@ -283,7 +306,7 @@ const loadBuyMode = () => {
   DATA.mode = MODE.BUY
   itemInfoDialog.visible = true
   buyItemListDialog.visible = true
-  buyCostDialog.visible = true
+  buyOwnedDialog.visible = true
   partyEquipDialog.visible = true
   navDialog.visible = false
 
@@ -291,7 +314,7 @@ const loadBuyMode = () => {
   drawBuyItemList()
   drawBuyPointer()
   updateBuyItemPreviewDetails()
-  setMenuState('shop-buy-select')
+  setMenuState(STATES.SHOP_BUY_SELECT)
 }
 const getBuyItemPositions = () => {
   return {
@@ -365,139 +388,92 @@ const drawBuyPointer = () => {
   const { x, y, yAdj } = getBuyItemPositions()
   movePointer(POINTERS.pointer1, x - 14, y + (yAdj * DATA.buy.pos) - 0)
 }
-const updateBuyItemPreviewDetails = () => {
-  removeGroupChildren(buyCostGroup)
+const setDecriptionOwnedEquippedDetailsToItems = () => {
+  for (let i = 0; i < DATA.shopData.items.length; i++) {
+    const item = DATA.shopData.items[i]
+    let description = ''
+    let owned = 0
+    let equipped = 0
 
-  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
-  let description = ''
-  let owned = 0
-  let equipped = 0
-
-  if (item.type === ITEM_TYPE.ITEM) {
-    const itemData = window.data.kernel.allItemData[item.id]
-    description = itemData.description
-    const ownedItemFilter = window.data.savemap.items.filter(i => i.itemId === item.id)
-    if (ownedItemFilter.length > 0) {
-      owned = Math.min(99, ownedItemFilter[0].quantity)
-    }
-    // Equipped
-    for (let i = 0; i < DATA.chars.length; i++) {
-      const char = window.data.savemap.characters[DATA.chars[i].name]
-      if (!DATA.chars[i].showChar) {
-        continue
+    if (item.type === ITEM_TYPE.ITEM) {
+      const itemData = window.data.kernel.allItemData[item.id]
+      description = itemData.description
+      const ownedItemFilter = window.data.savemap.items.filter(i => i.itemId === item.id)
+      if (ownedItemFilter.length > 0) {
+        owned = Math.min(99, ownedItemFilter[0].quantity)
       }
-      if (char.equip.weapon.itemId === item.id) {
-        equipped++
-      } else if (char.equip.armor.itemId === item.id) {
-        equipped++
-      } else if (char.equip.accessory.itemId === item.id) {
-        equipped++
-      }
-    }
-  } else if (item.type === ITEM_TYPE.MATERIA) {
-    const materiaData = window.data.kernel.materiaData[item.id]
-    description = materiaData.description
-    owned = window.data.savemap.materias.filter(m => m.id === item.id).length
-    // Equipped
-    for (let i = 0; i < DATA.chars.length; i++) {
-      const char = window.data.savemap.characters[DATA.chars[i].name]
-      if (!DATA.chars[i].showChar) {
-        continue
-      }
-      const materiaKeys = Object.keys(char.materia)
-      for (let j = 0; j < materiaKeys.length; j++) {
-        if (char.materia[materiaKeys[j]].id === item.id) {
+      // Equipped
+      for (let i = 0; i < DATA.chars.length; i++) {
+        const char = window.data.savemap.characters[DATA.chars[i].name]
+        if (!DATA.chars[i].showChar) {
+          continue
+        }
+        if (char.equip.weapon.itemId === item.id) {
+          equipped++
+        } else if (char.equip.armor.itemId === item.id) {
+          equipped++
+        } else if (char.equip.accessory.itemId === item.id) {
           equipped++
         }
       }
+    } else if (item.type === ITEM_TYPE.MATERIA) {
+      const materiaData = window.data.kernel.materiaData[item.id]
+      description = materiaData.description
+      owned = window.data.savemap.materias.filter(m => m.id === item.id).length
+      // Equipped
+      for (let i = 0; i < DATA.chars.length; i++) {
+        const char = window.data.savemap.characters[DATA.chars[i].name]
+        if (!DATA.chars[i].showChar) {
+          continue
+        }
+        const materiaKeys = Object.keys(char.materia)
+        for (let j = 0; j < materiaKeys.length; j++) {
+          if (char.materia[materiaKeys[j]].id === item.id) {
+            equipped++
+          }
+        }
+      }
     }
+    item.description = description
+    item.owned = owned
+    item.equipped = equipped
   }
+}
+const updateBuyItemPreviewDetails = () => {
+  removeGroupChildren(buyOwnedGroup)
+
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
 
   // Description
-  drawInfoDescription(description)
+  drawInfoDescription(item.description)
 
   const yAdj = 12
-  // Labels
-  addTextToDialog(
-    buyCostGroup,
-    'Gil', // ('' + item.price).padStart(12, ' '),
-    `shop-cost-info-gil-label`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Cyan,
-    245 - 8, // TODO - positions
-    68 + (0 * yAdj) - 4,
-    0.5
-  )
-  addTextToDialog(
-    buyCostGroup,
-    'Owned', // ('' + item.price).padStart(12, ' '),
-    `shop-cost-info-owned-label`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Cyan,
-    245 - 8, // TODO - positions
-    68 + (3 * yAdj) - 4,
-    0.5
-  )
-  addTextToDialog(
-    buyCostGroup,
-    'Equipped', // ('' + item.price).padStart(12, ' '),
-    `shop-cost-info-equipped-label`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.Cyan,
-    245 - 8, // TODO - positions
-    68 + (5 * yAdj) - 4,
-    0.5
-  )
 
-  // Values
-  addTextToDialog(
-    buyCostGroup,
-    ('' + window.data.savemap.gil).padStart(12, ' '),
-    `shop-cost-info-gil`,
-    LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
-    235 - 8, // TODO - positions
-    68 + (1 * yAdj) - 4,
-    0.5
-  )
-  addTextToDialog(
-    buyCostGroup,
-    ('' + owned).padStart(12, ' '),
-    `shop-cost-info-owned`,
-    LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
-    235 - 8, // TODO - positions
-    68 + (4 * yAdj) - 4,
-    0.5
-  )
-  addTextToDialog(
-    buyCostGroup,
-    ('' + equipped).padStart(12, ' '),
-    `shop-cost-info-equipped`,
-    LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
-    235 - 8, // TODO - positions
-    68 + (6 * yAdj) - 4,
-    0.5
-  )
+  const ownedDatas = [
+    ['Gil', `shop-cost-info-gil-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 0],
+    ['Owned', `shop-cost-info-owned-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 3],
+    ['Equipped', `shop-cost-info-equipped-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 5],
+    [('' + window.data.savemap.gil).padStart(12, ' '), `shop-cost-info-gil`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 1],
+    [('' + item.owned).padStart(12, ' '), `shop-cost-info-owned`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 4],
+    [('' + item.equipped).padStart(12, ' '), `shop-cost-info-equipped`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 6]
+  ]
+  for (let i = 0; i < ownedDatas.length; i++) {
+    const ownedData = ownedDatas[i]
+    addTextToDialog(
+      buyOwnedGroup,
+      ownedData[0],
+      ownedData[1],
+      ownedData[2],
+      ownedData[3],
+      ownedData[4] - 8, // TODO - positions
+      68 + (ownedData[5] * yAdj) - 4,
+      0.5
+    )
+    console.log('shop ownedDatas', ownedData)
+  }
 
   // Party Equip
   // TODO
-}
-const buyCancel = () => {
-  itemInfoDialog.visible = false
-  buyItemListDialog.visible = false
-  buyCostDialog.visible = false
-  partyEquipDialog.visible = false
-  navDialog.visible = true
-  DATA.mode = MODE.NAV
-  drawNavPointer()
-  drawActionDescription(DATA.shopData.text.welcome)
-  drawInfoDescription()
-  setMenuState('shop-nav')
-}
-const buySelect = () => {
-
 }
 const getPartyEquipPositions = () => {
   return {
@@ -523,6 +499,103 @@ const drawPartyEquipFixedElements = () => {
     }
   }
 }
+const buyCancel = () => {
+  itemInfoDialog.visible = false
+  buyItemListDialog.visible = false
+  buyOwnedDialog.visible = false
+  partyEquipDialog.visible = false
+  navDialog.visible = true
+  DATA.mode = MODE.NAV
+  drawNavPointer()
+  drawActionDescription(DATA.shopData.text.welcome)
+  drawInfoDescription()
+  setMenuState(STATES.SHOP_NAV)
+}
+const buySelect = () => {
+  DATA.buy.amount = 1
+  drawBuyCost()
+  buyCostDialog.visible = true
+  setMenuState(STATES.SHOP_BUY_AMOUNT)
+}
+const buyAmountChangeAmount = (delta) => {
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
+  const maxAfforable = Math.trunc(window.data.savemap.gil / item.price)
+  const maxPurchasable = 99 - item.owned - item.equipped
+
+  DATA.buy.amount = DATA.buy.amount + delta
+  if (DATA.buy.amount > maxAfforable) {
+    DATA.buy.amount = maxAfforable
+  }
+  if (DATA.buy.amount > maxPurchasable) {
+    DATA.buy.amount = maxPurchasable
+  }
+  if (DATA.buy.amount > 99) { // TODO - Check to see if this is capped at 99 - owned - equipped etc. Eg, cannot have 99 in inventory, or if this is even capped with how much gil you have
+    DATA.buy.amount = 99
+  } else if (DATA.buy.amount < 1) {
+    DATA.buy.amount = 1
+  }
+  drawBuyCost()
+}
+const buyAmountCancel = () => {
+  buyCostDialog.visible = false
+  updateBuyItemPreviewDetails()
+  setMenuState(STATES.SHOP_BUY_SELECT)
+}
+const buyAmountSelect = () => {
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
+  const maxAfforable = Math.trunc(window.data.savemap.gil / item.price)
+  const maxPurchasable = 99 - item.owned - item.equipped
+  const price = item.price
+  if (price > window.data.savemap.gil || DATA.buy.amount > maxAfforable || DATA.buy.amount > maxPurchasable) {
+    // error sound
+  } else {
+    window.data.savemap.gil = window.data.savemap.gil - price
+    if (item.type === ITEM_TYPE.ITEM) {
+      addItemToInventory(item.id, DATA.buy.amount)
+      item.owned = item.owned + DATA.buy.amount
+    } else if (item.type === ITEM_TYPE.MATERIA) {
+      for (let i = 0; i < DATA.buy.amount; i++) {
+        addMateriaToInventory(item.id, 0)
+      }
+      item.owned = item.owned + DATA.buy.amount
+    }
+    buyAmountCancel()
+  }
+}
+const drawBuyCostFixedElements = () => {
+  const texts = ['How many', 'Total']
+  for (let i = 0; i < texts.length; i++) {
+    const text = texts[i]
+    addTextToDialog(
+      buyCostDialog,
+      text,
+      `shop-buy-cost-label-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      148 - 8, // TODO - positions
+      108 + (i * 13) - 4,
+      0.5
+    )
+  }
+}
+const drawBuyCost = () => {
+  removeGroupChildren(buyCostGroup)
+  const price = DATA.shopData.items[DATA.buy.page + DATA.buy.pos].price
+  const texts = [DATA.buy.amount, price * DATA.buy.amount]
+  for (let i = 0; i < texts.length; i++) {
+    const text = texts[i]
+    addTextToDialog(
+      buyCostGroup,
+      ('' + text).padStart(12, ' '),
+      `shop-buy-cost-label-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      161 - 8, // TODO - positions
+      108 + (i * 13) - 4,
+      0.5
+    )
+  }
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -537,7 +610,7 @@ const exitMenu = async () => {
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CHAR', key, firstPress, state)
 
-  if (state === 'shop-nav') {
+  if (state === STATES.SHOP_NAV) {
     if (key === KEY.RIGHT) {
       navNavigate(1)
     } else if (key === KEY.LEFT) {
@@ -547,7 +620,7 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.O) {
       navSelect()
     }
-  } else if (state === 'shop-buy-select') {
+  } else if (state === STATES.SHOP_BUY_SELECT) {
     if (key === KEY.UP) {
       oneColumnVerticalNavigation(-1, buyItemListContentsGroup, 5, DATA.shopData.items.length, DATA.buy, getBuyItemPositions, drawOneBuyItem, drawBuyItemList, drawBuyPointer, updateBuyItemPreviewDetails)
     } else if (key === KEY.DOWN) {
@@ -560,6 +633,20 @@ const keyPress = async (key, firstPress, state) => {
       buyCancel()
     } else if (key === KEY.O) {
       buySelect()
+    }
+  } else if (state === STATES.SHOP_BUY_AMOUNT) {
+    if (key === KEY.UP) {
+      buyAmountChangeAmount(1)
+    } else if (key === KEY.DOWN) {
+      buyAmountChangeAmount(-1)
+    } else if (key === KEY.RIGHT) {
+      buyAmountChangeAmount(10)
+    } else if (key === KEY.LEFT) {
+      buyAmountChangeAmount(-10)
+    } else if (key === KEY.X) {
+      buyAmountCancel()
+    } else if (key === KEY.O) {
+      buyAmountSelect()
     }
   }
 }

@@ -29,7 +29,7 @@ const debugFillMateria = () => {
 }
 window.debugFillMateria = debugFillMateria
 const addMateriaToInventory = (materiaId, ap) => {
-  console.log('addMateriaToInventory', materiaId, ap)
+  console.log('shop addMateriaToInventory', materiaId, ap)
   const materias = window.data.savemap.materias
   for (let i = 0; i < materias.length; i++) {
     const materia = materias[i]
