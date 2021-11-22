@@ -1,4 +1,6 @@
-import { getMenuBlackOverlay, setMenuState, resolveMenuPromise } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState, resolveMenuPromise, getMenuState } from './menu-module.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -17,6 +19,7 @@ import {
   removeGroupChildren,
   createItemListNavigation
 } from './menu-box-helper.js'
+import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation } from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -39,8 +42,10 @@ const DATA = {
   nav: ['Buy', 'Sell', 'Exit'],
   mode: MODE.SEL,
   navPos: 0,
-  buyPos: 0,
-  buyPage: 0,
+  buy: {
+    pos: 0,
+    page: 0
+  },
   chars: [], // Populated below
   shopData: { // TODO - Shop data - https://forums.qhimm.com/index.php?topic=9475.0
     text: {
@@ -74,8 +79,8 @@ const loadCharData = () => {
 const loadShopMenu = async param => {
   DATA.mode = MODE.NAV
   DATA.navPos = 0
-  DATA.buyPos = 0
-  DATA.buyPage = 0
+  DATA.buy.pos = 0
+  DATA.buy.page = 0
   loadCharData()
   // DATA.lettersPos = 0
   // DATA.underscore = null
@@ -266,7 +271,7 @@ const loadBuyMode = () => {
   drawActionDescription(DATA.shopData.text.buy)
   drawBuyItemList()
   drawBuyPointer()
-  updateItemPreviewDetails()
+  updateBuyItemPreviewDetails()
   setMenuState('shop-buy-select')
 }
 const getBuyItemPositions = () => {
@@ -276,69 +281,72 @@ const getBuyItemPositions = () => {
     yAdj: 18
   }
 }
+
+const drawOneBuyItem = (i, page, x, y, yAdj) => {
+  const item = DATA.shopData.items[i + page]
+  let itemName
+  let itemNameOffset
+  let icon
+
+  if (item.type === ITEM_TYPE.ITEM) {
+    const itemData = window.data.kernel.allItemData[item.id]
+    itemName = itemData.name
+    itemNameOffset = 14
+    icon = ['icons-menu', getItemIcon(itemData), 12, 0]
+  } else { // ITEM_TYPE.MATERIA
+    const materiaData = window.data.kernel.materiaData[item.id]
+    itemName = materiaData.name
+    itemNameOffset = 11
+    icon = ['materia', materiaData.type, 11, -0.5]
+  }
+
+  addTextToDialog(
+    buyItemListContentsGroup,
+    itemName,
+    `shop-buy-item-${i}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    itemNameOffset + x - 8, // TODO - positions
+    y + (yAdj * i) - 4,
+    0.5
+  )
+  addImageToDialog(buyItemListContentsGroup,
+    icon[0],
+    icon[1],
+    `shop-buy-item-icon-${i}`,
+    icon[2] + x - 8 + 0.5,
+    y + (yAdj * i) - 4 + icon[3],
+    0.5
+  )
+  addTextToDialog(
+    buyItemListContentsGroup,
+    ('' + item.price).padStart(12, ' '),
+    `shop-buy-item-${i}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    120 + x - 8, // TODO - positions
+    y + (yAdj * i) - 4,
+    0.5
+  )
+}
 const drawBuyItemList = () => {
   removeGroupChildren(buyItemListGroup)
   createItemListNavigation(buyItemListGroup, 240 - 14, 83 + 56, 94, DATA.shopData.items.length, 5)
   buyItemListGroup.userData.slider.userData.moveToPage(0)
+
   removeGroupChildren(buyItemListContentsGroup)
   const { x, y, yAdj } = getBuyItemPositions()
-  for (let i = 0; i < DATA.shopData.items.length; i++) {
-    const item = DATA.shopData.items[i]
-
-    let itemName
-    let itemNameOffset
-    let icon
-
-    if (item.type === ITEM_TYPE.ITEM) {
-      const itemData = window.data.kernel.allItemData[item.id]
-      itemName = itemData.name
-      itemNameOffset = 14
-      icon = ['icons-menu', getItemIcon(itemData), 12, 0]
-    } else { // ITEM_TYPE.MATERIA
-      const materiaData = window.data.kernel.materiaData[item.id]
-      itemName = materiaData.name
-      itemNameOffset = 11
-      icon = ['materia', materiaData.type, 11, -0.5]
-    }
-
-    addTextToDialog(
-      buyItemListContentsGroup,
-      itemName,
-      `shop-buy-item-${i}`,
-      LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
-      itemNameOffset + x - 8, // TODO - positions
-      y + (yAdj * i) - 4,
-      0.5
-    )
-    addImageToDialog(buyItemListContentsGroup,
-      icon[0],
-      icon[1],
-      `shop-buy-item-icon-${i}`,
-      icon[2] + x - 8 + 0.5,
-      y + (yAdj * i) - 4 + icon[3],
-      0.5
-    )
-    addTextToDialog(
-      buyItemListContentsGroup,
-      ('' + item.price).padStart(12, ' '),
-      `shop-buy-item-${i}`,
-      LETTER_TYPES.MenuTextStats,
-      LETTER_COLORS.White,
-      120 + x - 8, // TODO - positions
-      y + (yAdj * i) - 4,
-      0.5
-    )
+  for (let i = 0; i < 5; i++) {
+    drawOneBuyItem(i, DATA.buy.page, x, y, yAdj)
   }
+  buyItemListGroup.userData.slider.userData.moveToPage(DATA.buy.page)
+  buyItemListContentsGroup.position.y = 0
 }
 const drawBuyPointer = () => {
   const { x, y, yAdj } = getBuyItemPositions()
-  movePointer(POINTERS.pointer1, x - 14, y + (yAdj * DATA.buyPos) - 0)
+  movePointer(POINTERS.pointer1, x - 14, y + (yAdj * DATA.buy.pos) - 0)
 }
-const updateItemPreviewDetails = () => {
-
-}
-const buyNavigate = (up) => {
+const updateBuyItemPreviewDetails = () => {
 
 }
 const buyPageNavigate = (up) => {
@@ -407,13 +415,13 @@ const keyPress = async (key, firstPress, state) => {
     }
   } else if (state === 'shop-buy-select') {
     if (key === KEY.UP) {
-      buyNavigate(1)
+      oneColumnVerticalNavigation(-1, buyItemListContentsGroup, 5, DATA.shopData.items.length, DATA.buy, getBuyItemPositions, drawOneBuyItem, drawBuyItemList, drawBuyPointer, updateBuyItemPreviewDetails)
     } else if (key === KEY.DOWN) {
-      buyNavigate(-1)
+      oneColumnVerticalNavigation(1, buyItemListContentsGroup, 5, DATA.shopData.items.length, DATA.buy, getBuyItemPositions, drawOneBuyItem, drawBuyItemList, drawBuyPointer, updateBuyItemPreviewDetails)
     } else if (key === KEY.L1) {
-      buyPageNavigate(1)
+      oneColumnVerticalPageNavigation(false, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup.userData.slider.userData.moveToPage, drawBuyItemList, updateBuyItemPreviewDetails)
     } else if (key === KEY.R1) {
-      buyPageNavigate(-1)
+      oneColumnVerticalPageNavigation(true, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup.userData.slider.userData.moveToPage, drawBuyItemList, updateBuyItemPreviewDetails)
     } else if (key === KEY.X) {
       buyCancel()
     } else if (key === KEY.O) {
