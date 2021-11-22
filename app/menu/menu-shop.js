@@ -14,7 +14,8 @@ import {
   fadeOverlayIn,
   createEquipmentMateriaViewer,
   EQUIPMENT_TYPE,
-  removeGroupChildren
+  removeGroupChildren,
+  createItemListNavigation
 } from './menu-box-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
@@ -22,6 +23,7 @@ import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
+import { getItemIcon } from '../items/items-module.js'
 
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
@@ -32,14 +34,49 @@ let buyCostDialog, buyCostGroup
 let partyEquipDialog, partyEquipGroup
 
 const MODE = {NAV: 'nav', BUY: 'buy', SELL: 'sell'}
+const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
 const DATA = {
   nav: ['Buy', 'Sell', 'Exit'],
   mode: MODE.SEL,
-  navPos: 0
+  navPos: 0,
+  buyPos: 0,
+  buyPage: 0,
+  chars: [], // Populated below
+  shopData: { // TODO - Shop data - https://forums.qhimm.com/index.php?topic=9475.0
+    text: {
+      shopName: 'Item Shop',
+      welcome: 'Welcome!',
+      buy: 'What would you like to buy?',
+      sell: 'What would you like to sell?'
+    },
+    items: [
+      {type: ITEM_TYPE.ITEM, id: 0, price: 50},
+      {type: ITEM_TYPE.ITEM, id: 7, price: 300},
+      {type: ITEM_TYPE.ITEM, id: 8, price: 80},
+      {type: ITEM_TYPE.MATERIA, id: 49, price: 600},
+      {type: ITEM_TYPE.MATERIA, id: 50, price: 600},
+      {type: ITEM_TYPE.MATERIA, id: 52, price: 600},
+      {type: ITEM_TYPE.MATERIA, id: 53, price: 750}
+    ]
+  }
+
+}
+
+const loadCharData = () => {
+  for (let i = 0; i < 9; i++) {
+    const name = getPlayableCharacterName(i)
+    const showChar = window.data.savemap.party.phsVisibility[name] === 1
+    const att = 12 // TBC
+    const def = 12
+    DATA.chars.push({name, showChar, att, def})
+  }
 }
 const loadShopMenu = async param => {
   DATA.mode = MODE.NAV
   DATA.navPos = 0
+  DATA.buyPos = 0
+  DATA.buyPage = 0
+  loadCharData()
   // DATA.lettersPos = 0
   // DATA.underscore = null
   // setDataFromCharacter(param)
@@ -103,11 +140,12 @@ const loadShopMenu = async param => {
     x: 0,
     y: 51,
     expandInstantly: true,
-    noClipping: true
+    noClipping: false
   })
   // buyItemListDialog.visible = true
   buyItemListGroup = addGroupToDialog(buyItemListDialog, 23)
   buyItemListContentsGroup = addGroupToDialog(buyItemListDialog, 23)
+  buyItemListContentsGroup.userData.bg = buyItemListDialog.userData.bg
 
   buyCostDialog = createDialogBox({
     id: 14,
@@ -136,9 +174,10 @@ const loadShopMenu = async param => {
   partyEquipGroup = addGroupToDialog(partyEquipDialog, 23)
 
   drawItemShop()
-  drawActionDescription()
+  drawActionDescription(DATA.shopData.text.welcome)
   drawNav()
   drawNavPointer()
+  drawPartyEquipFixedElements()
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState('shop-nav')
 }
@@ -146,7 +185,7 @@ const drawItemShop = () => {
   // removeGroupChildren(itemShopDialog)
   addTextToDialog(
     itemShopDialog,
-    'Item Shop',
+    DATA.shopData.text.shopName,
     `shop-item-shop-label`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -155,11 +194,11 @@ const drawItemShop = () => {
     0.5
   )
 }
-const drawActionDescription = () => {
+const drawActionDescription = (text) => {
   removeGroupChildren(actionDescriptionGroup)
   addTextToDialog(
     actionDescriptionGroup,
-    'Welcome!',
+    text,
     `shop-info`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -223,14 +262,86 @@ const loadBuyMode = () => {
   buyCostDialog.visible = true
   partyEquipDialog.visible = true
   navDialog.visible = false
+
+  drawActionDescription(DATA.shopData.text.buy)
+  drawBuyItemList()
   drawBuyPointer()
-  // drawPartyEquipFixedElements()
+  updateItemPreviewDetails()
   setMenuState('shop-buy-select')
 }
+const getBuyItemPositions = () => {
+  return {
+    x: 24,
+    y: 68,
+    yAdj: 18
+  }
+}
+const drawBuyItemList = () => {
+  removeGroupChildren(buyItemListGroup)
+  createItemListNavigation(buyItemListGroup, 240 - 14, 83 + 56, 94, DATA.shopData.items.length, 5)
+  buyItemListGroup.userData.slider.userData.moveToPage(0)
+  removeGroupChildren(buyItemListContentsGroup)
+  const { x, y, yAdj } = getBuyItemPositions()
+  for (let i = 0; i < DATA.shopData.items.length; i++) {
+    const item = DATA.shopData.items[i]
+
+    let itemName
+    let itemNameOffset
+    let icon
+
+    if (item.type === ITEM_TYPE.ITEM) {
+      const itemData = window.data.kernel.allItemData[item.id]
+      itemName = itemData.name
+      itemNameOffset = 14
+      icon = ['icons-menu', getItemIcon(itemData), 12, 0]
+    } else { // ITEM_TYPE.MATERIA
+      const materiaData = window.data.kernel.materiaData[item.id]
+      itemName = materiaData.name
+      itemNameOffset = 11
+      icon = ['materia', materiaData.type, 11, -0.5]
+    }
+
+    addTextToDialog(
+      buyItemListContentsGroup,
+      itemName,
+      `shop-buy-item-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      itemNameOffset + x - 8, // TODO - positions
+      y + (yAdj * i) - 4,
+      0.5
+    )
+    addImageToDialog(buyItemListContentsGroup,
+      icon[0],
+      icon[1],
+      `shop-buy-item-icon-${i}`,
+      icon[2] + x - 8 + 0.5,
+      y + (yAdj * i) - 4 + icon[3],
+      0.5
+    )
+    addTextToDialog(
+      buyItemListContentsGroup,
+      ('' + item.price).padStart(12, ' '),
+      `shop-buy-item-${i}`,
+      LETTER_TYPES.MenuTextStats,
+      LETTER_COLORS.White,
+      120 + x - 8, // TODO - positions
+      y + (yAdj * i) - 4,
+      0.5
+    )
+  }
+}
 const drawBuyPointer = () => {
+  const { x, y, yAdj } = getBuyItemPositions()
+  movePointer(POINTERS.pointer1, x - 14, y + (yAdj * DATA.buyPos) - 0)
+}
+const updateItemPreviewDetails = () => {
 
 }
 const buyNavigate = (up) => {
+
+}
+const buyPageNavigate = (up) => {
 
 }
 const buyCancel = () => {
@@ -246,214 +357,30 @@ const buyCancel = () => {
 const buySelect = () => {
 
 }
-// const drawChar = () => {
-//   addImageToDialog(
-//     charDialog,
-//     'profiles',
-//     DATA.charName,
-//     'profile-image',
-//     15.5 + 20,
-//     39.5 + 24,
-//     0.5
-//   )
-
-//   const {x, y, xAdj} = getNamePos()
-//   for (let i = 0; i < 10; i++) {
-//     drawUnderscore(x, y, xAdj, i, charDialog, LETTER_COLORS.White)
-//   }
-// }
-// const getNamePos = () => {
-//   return {
-//     x: 79.5, // TODO - positions
-//     y: 64,
-//     xAdj: 10
-//   }
-// }
-// const drawUnderscore = (x, y, xAdj, i, group, color) => {
-//   return addTextToDialog(
-//     group,
-//     '_', // TODO - replace this with the correct letter
-//     `char-underscore-${i}`,
-//     LETTER_TYPES.MenuBaseFont,
-//     color,
-//     x + (xAdj * i) - 8,
-//     y - 4 + 5,
-//     0.5
-//   )
-// }
-// const startUnderscoreFlashing = () => {
-//   DATA.underscoreInterval = setInterval(function () {
-//     // console.log('char underscore interval start', DATA.underscore)
-//     if (!DATA.hasOwnProperty('underscore')) { // Failsafe
-//       console.log('char underscore clear interval')
-//       clearInterval(DATA.underscoreInterval)
-//     }
-//     if (DATA.underscore && DATA.underscore.hasOwnProperty('visible')) {
-//       DATA.underscore.visible = !DATA.underscore.visible // TODO - This really looks like a tweened fade / blend from grey to yellow
-//     }
-//   }, 75)
-// }
-// const drawName = () => {
-//   removeGroupChildren(charGroup)
-//   const nameSplit = DATA.name.split('')
-//   const {x, y, xAdj} = getNamePos()
-//   for (let i = 0; i < nameSplit.length; i++) {
-//     const letter = nameSplit[i]
-//     addTextToDialog(
-//       charGroup,
-//       letter,
-//       `char-name-letter-${i}`,
-//       LETTER_TYPES.MenuBaseFont,
-//       LETTER_COLORS.White,
-//       x + (xAdj * i) - 8,
-//       y - 4,
-//       0.5
-//     )
-//   }
-
-//   if (nameSplit.length < 10) {
-//     drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, LETTER_COLORS.Gray)
-//     DATA.underscore = drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, LETTER_COLORS.Yellow)
-//   } else {
-//     DATA.underscore = null
-//   }
-// }
-// const getLettersPos = () => {
-//   return {
-//     x: 39, // TODO - positions
-//     y: 115,
-//     xAdj: 17,
-//     yAdj: 17
-//   }
-// }
-// const drawLetters = () => {
-//   const lettersSplit = DATA.letters.split('')
-//   const {x, y, xAdj, yAdj} = getLettersPos()
-//   for (let i = 0; i < lettersSplit.length; i++) {
-//     const letter = lettersSplit[i]
-//     addTextToDialog(
-//       lettersGroup,
-//       letter,
-//       `char-letters-${i}`,
-//       LETTER_TYPES.MenuBaseFont,
-//       LETTER_COLORS.White,
-//       x + (xAdj * (i % 10)) - 8,
-//       y + (yAdj * Math.trunc(i / 10)) - 4,
-//       0.5
-//     )
-//   }
-// }
-
-// const getNavPos = () => {
-//   return {
-//     x: 255, // TODO - positions
-//     y: 175,
-//     yAdj: 17
-//   }
-// }
-// const drawNav = () => {
-//   const {x, y, yAdj} = getNavPos()
-//   for (let i = 0; i < DATA.nav.length; i++) {
-//     const navOption = DATA.nav[i]
-//     addTextToDialog(
-//       navGroup,
-//       navOption,
-//       `char-nav-${i}`,
-//       LETTER_TYPES.MenuBaseFont,
-//       LETTER_COLORS.White,
-//       x - 8,
-//       y + (yAdj * i) - 4,
-//       0.5
-//     )
-//   }
-// }
-// const drawPointer = () => {
-//   if (DATA.mode === MODE.LETTERS) {
-//     const {x, y, xAdj, yAdj} = getLettersPos()
-//     movePointer(POINTERS.pointer1,
-//       x + (xAdj * (DATA.lettersPos % 10)) - 12, // TODO - Adjust
-//       y + (yAdj * Math.trunc(DATA.lettersPos / 10)) - 0
-//     )
-//   } else if (DATA.mode === MODE.NAV) {
-//     const {x, y, yAdj} = getNavPos()
-//     movePointer(POINTERS.pointer1,
-//       x - 12,
-//       y + (yAdj * DATA.navPos) - 0
-//     )
-//   } else {
-//     movePointer(POINTERS.pointer1, 0, 0, true)
-//   }
-// }
-// const navigate = (key) => {
-//   // console.log('char navigate', key, DATA)
-//   if (DATA.mode === MODE.LETTERS) {
-//     if (key === KEY.UP && DATA.lettersPos >= 10) {
-//       DATA.lettersPos = DATA.lettersPos - 10
-//     } else if (key === KEY.DOWN && DATA.lettersPos < 60) {
-//       DATA.lettersPos = DATA.lettersPos + 10
-//     } else if (key === KEY.RIGHT && DATA.lettersPos % 10 !== 9) {
-//       DATA.lettersPos++
-//     } else if (key === KEY.RIGHT && DATA.lettersPos % 10 === 9) {
-//       DATA.mode = MODE.NAV
-//     } else if (key === KEY.LEFT && DATA.lettersPos % 10 !== 0) {
-//       DATA.lettersPos--
-//     }
-//   } else if (DATA.mode === MODE.NAV) {
-//     if (key === KEY.UP && DATA.navPos > 0) {
-//       DATA.navPos--
-//     } else if (key === KEY.DOWN && DATA.navPos < (DATA.nav.length - 1)) {
-//       DATA.navPos++
-//     } else if (key === KEY.LEFT) {
-//       DATA.mode = MODE.LETTERS
-//     }
-//   }
-//   console.log('char navigate', key, DATA)
-//   drawPointer()
-// }
-// const deleteLetter = () => {
-//   if (DATA.name.length > 0) {
-//     DATA.name = DATA.name.substr(0, DATA.name.length - 1)
-//     drawName()
-//   }
-// }
-// const addLetter = (letter) => {
-//   console.log('char addLetter', letter)
-//   if (DATA.name.length < 10) {
-//     DATA.name = DATA.name + letter
-//     drawName()
-//   }
-// }
-// const selectNameAndExit = () => {
-//   console.log('char selectNameAndExit')
-//   DATA.char.name = DATA.name + ''
-//   exitMenu()
-// }
-// const setDefault = () => {
-//   console.log('char setDefault')
-//   DATA.name = DATA.defaultName
-//   drawName()
-// }
-// const selectAction = () => {
-//   if (DATA.mode === MODE.LETTERS) {
-//     // TODO - not sure about selecting the 'space' letters, validate with game behaviour
-//     addLetter(DATA.letters.substr(DATA.lettersPos, 1))
-//   } else if (DATA.mode === MODE.NAV) {
-//     if (DATA.nav[DATA.navPos] === 'Space') {
-//       addLetter(' ')
-//     } else if (DATA.nav[DATA.navPos] === 'Delete') {
-//       deleteLetter()
-//     } else if (DATA.nav[DATA.navPos] === 'Select') {
-//       selectNameAndExit()
-//     } else if (DATA.nav[DATA.navPos] === 'Default') {
-//       setDefault()
-//     }
-//   }
-// }
-// const jumpToNavigationSelect = () => {
-//   DATA.mode = MODE.NAV
-//   DATA.navPos = 2
-//   drawPointer()
-// }
+const getPartyEquipPositions = () => {
+  return {
+    x: 12,
+    y: 153,
+    xAdj: 101,
+    yAdj: 27
+  }
+}
+const drawPartyEquipFixedElements = () => {
+  const { x, y, xAdj, yAdj } = getPartyEquipPositions()
+  for (let i = 0; i < DATA.chars.length; i++) {
+    const char = DATA.chars[i]
+    if (char.showChar) {
+      addImageToDialog(partyEquipDialog, // TODO - There is a background fade effect here also
+        'profiles',
+        char.name,
+        `shop-buy-equip-char-profile-${i}`,
+        x + ((i % 3) * xAdj) + 0 + 12,
+        y + (Math.trunc(i / 3) * yAdj) + 15,
+        0.25
+      )
+    }
+  }
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -483,6 +410,10 @@ const keyPress = async (key, firstPress, state) => {
       buyNavigate(1)
     } else if (key === KEY.DOWN) {
       buyNavigate(-1)
+    } else if (key === KEY.L1) {
+      buyPageNavigate(1)
+    } else if (key === KEY.R1) {
+      buyPageNavigate(-1)
     } else if (key === KEY.X) {
       buyCancel()
     } else if (key === KEY.O) {

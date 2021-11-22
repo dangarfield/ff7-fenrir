@@ -55,6 +55,8 @@ const DATA = {
   underscore: null,
   underscoreInterval: null
 }
+DATA[0x64] = 'Chocobo' // Looks as though 0x64 === chocobo ?
+
 const setDataFromCharacter = (param) => {
   DATA.charName = getPlayableCharacterName(param)
   DATA.char = window.data.savemap.characters[DATA.charName]
