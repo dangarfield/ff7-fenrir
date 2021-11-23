@@ -469,7 +469,6 @@ const updateBuyItemPreviewDetails = () => {
       68 + (ownedData[5] * yAdj) - 4,
       0.5
     )
-    console.log('shop ownedDatas', ownedData)
   }
 
   // Party Equip

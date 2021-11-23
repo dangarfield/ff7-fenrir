@@ -1,11 +1,9 @@
 import { setupInputs } from './interaction/inputs.js'
 import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
+import { loadExeData } from './data/exe-fetch-data.js'
 import { loadMenuTextures } from './data/menu-fetch-data.js'
-import {
-  initLoadingModule,
-  showLoadingScreen
-} from './loading/loading-module.js'
+import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadGame } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
 import { initMenuModule } from './menu/menu-module.js'
@@ -32,6 +30,7 @@ const initManager = async () => {
   initMiniGameModule()
   await initWorldModule()
   await loadKernelData()
+  await loadExeData()
   await loadWindowTextures()
   await loadMenuTextures()
   setDefaultMediaConfig()
