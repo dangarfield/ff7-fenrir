@@ -27,7 +27,10 @@ const LETTER_TYPES = {
   MenuTextStats: 'menu-text-stats',
   BattleBaseFont: 'battle-base-font',
   BattleTextFixed: 'battle-text-fixed',
-  BattleTextStats: 'battle-text-stats'
+  BattleTextStats: 'battle-text-stats',
+  CreditsBaseFont: 'credits-base-font',
+  CreditsBaseUnderlineFont: 'credits-base-underline-font',
+  CreditsBigFont: 'credits-big-font'
 }
 const LETTER_COLORS = {
   White: 'white',
@@ -634,7 +637,7 @@ const getDialogButton = char => {
 }
 const getLetterTexture = (letter, letterType, color) => {
   let textureLetters
-  if (letterType.startsWith('menu') || letterType.startsWith('battle')) {
+  if (letterType.startsWith('menu') || letterType.startsWith('battle') || letterType.startsWith('credits')) {
     textureLetters = getMenuTextures()[letterType]
   } else {
     textureLetters = getMenuTextures()[LETTER_TYPES.MenuTextLargeThin]
