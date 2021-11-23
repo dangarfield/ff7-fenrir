@@ -53,26 +53,16 @@ const DATA = {
   chars: [], // Populated below
   shopData: {}
 }
-const loadShopData = () => {
-  DATA.shopData = { // TODO - Shop data - https://forums.qhimm.com/index.php?topic=9475.0
+const loadShopData = (param) => {
+  const shop = window.data.exe.shopData.shops[param]
+  DATA.shopData = {
+    shopName: shop.name,
     text: {
-      shopName: 'Item Shop',
       welcome: 'Welcome!',
       buy: 'What would you like to buy?',
       sell: 'What would you like to sell?'
     },
-    items: [
-      {type: ITEM_TYPE.ITEM, id: 0, price: 50},
-      {type: ITEM_TYPE.ITEM, id: 7, price: 300},
-      {type: ITEM_TYPE.ITEM, id: 8, price: 80},
-      // {type: ITEM_TYPE.ITEM, id: 268, price: 80},
-      // {type: ITEM_TYPE.ITEM, id: 143, price: 80},
-      {type: ITEM_TYPE.MATERIA, id: 49, price: 600},
-      {type: ITEM_TYPE.MATERIA, id: 50, price: 600},
-      {type: ITEM_TYPE.MATERIA, id: 52, price: 600},
-      {type: ITEM_TYPE.MATERIA, id: 53, price: 750}
-      // {type: ITEM_TYPE.MATERIA, id: 90, price: 750}
-    ]
+    items: shop.items
   }
   setDecriptionOwnedEquippedDetailsToItems()
 }
@@ -93,11 +83,11 @@ const loadShopMenu = async param => {
   DATA.buy.page = 0
   DATA.buy.amount = 1
   loadCharData()
-  loadShopData()
+  loadShopData(param)
   // DATA.lettersPos = 0
   // DATA.underscore = null
   // setDataFromCharacter(param)
-  console.log('char loadShopMenu', param, DATA)
+  console.log('shop loadShopMenu', param, DATA)
 
   itemShopDialog = createDialogBox({
     id: 15,
@@ -217,7 +207,7 @@ const drawItemShop = () => {
   // removeGroupChildren(itemShopDialog)
   addTextToDialog(
     itemShopDialog,
-    DATA.shopData.text.shopName,
+    DATA.shopData.shopName,
     `shop-item-shop-label`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -373,15 +363,19 @@ const drawOneBuyItem = (i, page, x, y, yAdj) => {
 }
 const drawBuyItemList = () => {
   removeGroupChildren(buyItemListGroup)
-  createItemListNavigation(buyItemListGroup, 240 - 14, 83 + 56, 94, DATA.shopData.items.length, 5)
-  buyItemListGroup.userData.slider.userData.moveToPage(0)
+  if (DATA.shopData.items.length > 5) {
+    createItemListNavigation(buyItemListGroup, 240 - 14, 83 + 56, 94, DATA.shopData.items.length, 5)
+    buyItemListGroup.userData.slider.userData.moveToPage(0)
+  }
 
   removeGroupChildren(buyItemListContentsGroup)
   const { x, y, yAdj } = getBuyItemPositions()
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < Math.min(DATA.shopData.items.length, 5); i++) {
     drawOneBuyItem(i, DATA.buy.page, x, y, yAdj)
   }
-  buyItemListGroup.userData.slider.userData.moveToPage(DATA.buy.page)
+  if (DATA.shopData.items.length > 5) {
+    buyItemListGroup.userData.slider.userData.moveToPage(DATA.buy.page)
+  }
   buyItemListContentsGroup.position.y = 0
 }
 const drawBuyPointer = () => {
@@ -625,9 +619,9 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.DOWN) {
       oneColumnVerticalNavigation(1, buyItemListContentsGroup, 5, DATA.shopData.items.length, DATA.buy, getBuyItemPositions, drawOneBuyItem, drawBuyItemList, drawBuyPointer, updateBuyItemPreviewDetails)
     } else if (key === KEY.L1) {
-      oneColumnVerticalPageNavigation(false, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup.userData.slider.userData.moveToPage, drawBuyItemList, updateBuyItemPreviewDetails)
+      oneColumnVerticalPageNavigation(false, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
     } else if (key === KEY.R1) {
-      oneColumnVerticalPageNavigation(true, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup.userData.slider.userData.moveToPage, drawBuyItemList, updateBuyItemPreviewDetails)
+      oneColumnVerticalPageNavigation(true, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
     } else if (key === KEY.X) {
       buyCancel()
     } else if (key === KEY.O) {

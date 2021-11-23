@@ -43,7 +43,7 @@ const oneColumnVerticalNavigation = (delta, group, totalPerPage, totalItems, pag
       tweenOneColumnVerticalNavigation(group, false, getMenuState(), pagePos.page, yAdj, drawAllCB) // Could optimise further
       updateCB()
     }
-  } else if (potential >= totalPerPage) {
+  } else if (potential >= Math.min(totalItems, totalPerPage)) {
     console.log('menu oneColumnVerticalNavigation page - is last page??', pagePos.page, totalPerPage, maxPage)
     if (pagePos.page >= maxPage) {
       console.log('menu oneColumnVerticalNavigation on last page - do nothing')
@@ -61,8 +61,9 @@ const oneColumnVerticalNavigation = (delta, group, totalPerPage, totalItems, pag
     updateCB()
   }
 }
-const oneColumnVerticalPageNavigation = (up, totalPerPage, totalItems, pagePos, moveToPageCB, drawAllCB, updateCB) => {
-  const lastPage = totalItems - totalPerPage
+const oneColumnVerticalPageNavigation = (up, totalPerPage, totalItems, pagePos, group, drawAllCB, updateCB) => {
+  const lastPage = Math.max(0, totalItems - totalPerPage)
+  console.log('shop oneColumnVerticalPageNavigation', lastPage, totalItems, totalPerPage, pagePos.page)
   if (up) {
     pagePos.page = pagePos.page + totalPerPage
     if (pagePos.page > lastPage) {
@@ -75,7 +76,9 @@ const oneColumnVerticalPageNavigation = (up, totalPerPage, totalItems, pagePos, 
     }
   }
   // Update list group positions
-  moveToPageCB(pagePos.page)
+  if (group.userData.slider) {
+    group.userData.slider.userData.moveToPage(pagePos.page)
+  }
   drawAllCB()
   updateCB()
 }

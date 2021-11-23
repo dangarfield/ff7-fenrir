@@ -85,7 +85,7 @@ const initFieldKeypressActions = () => {
 
   getKeyPressEmitter().on('l1', async firstPress => {
     if (areFieldControlsActive && firstPress) {
-      transitionOutAndLoadMenu(MENU_TYPE.Shop, 0)
+      transitionOutAndLoadMenu(MENU_TYPE.Shop, 2)
     }
   })
   getKeyPressEmitter().on('l2', async firstPress => {
