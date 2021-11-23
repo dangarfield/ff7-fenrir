@@ -57,11 +57,12 @@ const loadShopData = (param) => {
   const shop = window.data.exe.shopData.shops[param]
   DATA.shopData = {
     shopName: shop.name,
-    text: {
-      welcome: 'Welcome!',
-      buy: 'What would you like to buy?',
-      sell: 'What would you like to sell?'
-    },
+    text: window.data.exe.shopData.text.normal, // TODO - When to use slang ?
+    // text: {
+    //   welcome: 'Welcome!',
+    //   buy: 'What would you like to buy?',
+    //   sell: 'What would you like to sell?'
+    // },
     items: shop.items
   }
   setDecriptionOwnedEquippedDetailsToItems()
@@ -195,7 +196,7 @@ const loadShopMenu = async param => {
   buyCostGroup = addGroupToDialog(buyCostDialog, 19)
 
   drawItemShop()
-  drawActionDescription(DATA.shopData.text.welcome)
+  drawActionDescription(DATA.shopData.text.hi)
   drawNav()
   drawNavPointer()
   drawPartyEquipFixedElements()
@@ -300,7 +301,7 @@ const loadBuyMode = () => {
   partyEquipDialog.visible = true
   navDialog.visible = false
 
-  drawActionDescription(DATA.shopData.text.buy)
+  drawActionDescription(DATA.shopData.text.whatBuy)
   drawBuyItemList()
   drawBuyPointer()
   updateBuyItemPreviewDetails()
@@ -500,7 +501,7 @@ const buyCancel = () => {
   navDialog.visible = true
   DATA.mode = MODE.NAV
   drawNavPointer()
-  drawActionDescription(DATA.shopData.text.welcome)
+  drawActionDescription(DATA.shopData.text.hi)
   drawInfoDescription()
   setMenuState(STATES.SHOP_NAV)
 }
