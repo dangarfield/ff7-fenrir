@@ -173,12 +173,12 @@ const getNamePos = () => {
 const drawUnderscore = (x, y, xAdj, i, group, color) => {
   return addTextToDialog(
     group,
-    '_', // TODO - replace this with the correct letter
+    '—', // TODO - replace this with the correct letter
     `char-underscore-${i}`,
     LETTER_TYPES.MenuBaseFont,
     color,
     x + (xAdj * i) - 8,
-    y - 4 + 5,
+    y - 4 + 10,
     0.5
   )
 }
@@ -312,7 +312,7 @@ const navigate = (key) => {
   drawPointer()
 }
 const deleteLetter = () => {
-  if (DATA.name.length > 0) {
+  if (DATA.mode === MODE.LETTERS && DATA.name.length > 0) {
     DATA.name = DATA.name.substr(0, DATA.name.length - 1)
     drawName()
   }
@@ -375,9 +375,9 @@ const keyPress = async (key, firstPress, state) => {
   if (state === 'char-name-select') {
     if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
       navigate(key) // TODO - not sure about navigating in the 'space' sections of the letters, validate with game behaviour
-    } else if (key === KEY.X || key === KEY.START) {
+    } else if (key === KEY.START) {
       jumpToNavigationSelect()
-    } else if (key === KEY.SQUARE) {
+    } else if (key === KEY.X) {
       deleteLetter()
     } else if (key === KEY.O) {
       selectAction()

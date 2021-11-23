@@ -25,6 +25,12 @@ const loadMenuTextures = async () => {
     const menu = await menuRes.json()
     const assetTypes = Object.keys(menu)
 
+    const creditsRes = await fetch(
+      `${KUJATA_BASE}/metadata/credits-assets/credits-font.metadata.json`
+    )
+    const credits = await creditsRes.json()
+    const assetTypesCredits = Object.keys(credits)
+
     for (let i = 0; i < assetTypes.length; i++) {
       const assetType = assetTypes[i]
       menuTextures[assetType] = {}
@@ -39,6 +45,24 @@ const loadMenuTextures = async () => {
         menuTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
       }
     }
+
+    // console.log('shop assetTypes', assetTypes, assetTypesCredits, menuTextures)
+    for (let i = 0; i < assetTypesCredits.length; i++) {
+      const assetType = assetTypesCredits[i]
+      menuTextures[assetType] = {}
+      for (let j = 0; j < credits[assetType].length; j++) {
+        const asset = credits[assetType][j]
+
+        // console.log('shop assetTypesCredits', asset)
+        menuTextures[assetType][asset.description] = asset
+        menuTextures[assetType][asset.description].texture = new THREE.TextureLoader(manager).load(
+          `${KUJATA_BASE}/metadata/credits-assets/${assetType}/${asset.description}.png`
+        )
+        menuTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
+        menuTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
+      }
+    }
+    // console.log('shop menuTextures', menuTextures)
   })
 }
 

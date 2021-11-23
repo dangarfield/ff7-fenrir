@@ -58,11 +58,6 @@ const loadShopData = (param) => {
   DATA.shopData = {
     shopName: shop.name,
     text: window.data.exe.shopData.text.normal, // TODO - When to use slang ?
-    // text: {
-    //   welcome: 'Welcome!',
-    //   buy: 'What would you like to buy?',
-    //   sell: 'What would you like to sell?'
-    // },
     items: shop.items
   }
   setDecriptionOwnedEquippedDetailsToItems()
@@ -85,9 +80,6 @@ const loadShopMenu = async param => {
   DATA.buy.amount = 1
   loadCharData()
   loadShopData(param)
-  // DATA.lettersPos = 0
-  // DATA.underscore = null
-  // setDataFromCharacter(param)
   console.log('shop loadShopMenu', param, DATA)
 
   itemShopDialog = createDialogBox({
