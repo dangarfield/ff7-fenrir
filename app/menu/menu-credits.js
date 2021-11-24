@@ -20,6 +20,7 @@ import { sleep } from '../helpers/helpers.js'
 import { loadMovie } from '../media/media-movies.js'
 import { playMusic, loadMusic } from '../media/media-music.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
+import { loadTitleMenu } from './menu-title.js'
 
 let scrollingTextDialog, scrollingTextGroup
 
@@ -138,9 +139,9 @@ const tween500YearsFadeOut = (shape) => {
 const playCreditsSequence = async () => {
   // await beginScrollingCredits(5000)
   playEndingMusic()
-  await beginScrollingCredits(415000)
+  // await beginScrollingCredits(415000)
   await show500YearsMessage()
-  await playEndingVideo()
+  // await playEndingVideo()
   await exitCreditsToTitleScreen()
   console.log('credits ALL FINISHED')
 }
@@ -298,7 +299,7 @@ const exitCreditsToTitleScreen = async () => {
     console.log('credits not showing playEndingVideo')
     return
   }
-  exitMenu() // TODO - change to load title menu
+  exitMenu()
 }
 const exitMenu = async () => {
   console.log('exitMenu')
@@ -315,8 +316,9 @@ const exitMenu = async () => {
 
   scrollingTextDialog.visible = false
 
-  console.log('shop EXIT')
-  resolveMenuPromise()
+  console.log('credits EXIT')
+  // resolveMenuPromise()
+  loadTitleMenu()
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CREDITS', key, firstPress, state)

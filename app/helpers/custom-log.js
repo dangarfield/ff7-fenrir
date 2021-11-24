@@ -9,8 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       // 'movePointer',
-      'credits'
-      // 'music'
+      'credits',
+      'title'
     ],
     log: function () {
       if (limit) {
