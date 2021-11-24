@@ -17,10 +17,11 @@ let musicMetadata = {
 const loadMusicMetadata = async () => {
   if (musicMetadata.metadata === undefined) {
     musicMetadata.metadata = await getMusicMetadata()
-    console.log('musicMetadata.metadata', musicMetadata.metadata)
+    console.log('music musicMetadata.metadata', musicMetadata.metadata)
   }
 }
 const loadMusic = (i, name) => {
+  console.log('music loadMusic', i, name)
   return new Promise(async resolve => {
     musicMetadata.currentFieldList[i] = name
     if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
@@ -115,7 +116,7 @@ const resumeMusic = () => {
 }
 const playMusic = (id, noLoop, fadeInTime) => {
   const name = musicMetadata.currentFieldList[id]
-  console.log('playMusic', id, name, noLoop, fadeInTime)
+  console.log('music playMusic', id, name, noLoop, fadeInTime, musics)
   if (musicMetadata.isMusicLocked) {
     console.log('NOT CHANGING music is locked')
     return

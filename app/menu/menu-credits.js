@@ -18,6 +18,7 @@ import {
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { loadMovie } from '../media/media-movies.js'
+import { playMusic, loadMusic } from '../media/media-music.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 
 let scrollingTextDialog, scrollingTextGroup
@@ -136,11 +137,16 @@ const tween500YearsFadeOut = (shape) => {
 }
 const playCreditsSequence = async () => {
   // await beginScrollingCredits(5000)
+  playEndingMusic()
   await beginScrollingCredits(415000)
   await show500YearsMessage()
   await playEndingVideo()
   await exitCreditsToTitleScreen()
   console.log('credits ALL FINISHED')
+}
+const playEndingMusic = async () => {
+  await loadMusic(100, 'roll')
+  playMusic(100, true, 1000)
 }
 const beginScrollingCredits = async (ms) => {
   if (getMenuState() !== STATES.CREDITS_SHOW) {

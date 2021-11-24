@@ -10,6 +10,7 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       // 'movePointer',
       'credits'
+      // 'music'
     ],
     log: function () {
       if (limit) {
