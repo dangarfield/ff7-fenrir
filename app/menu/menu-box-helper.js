@@ -115,6 +115,24 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(110,4,125)',
     'rgb(110,0,83)',
     'rgb(110,0,35)'
+  ],
+  CREDITS_FADE: [
+    'rgb(255,255,255)',
+    'rgb(0,0,0)',
+    'rgb(255,255,255)',
+    'rgb(0,0,0)'
+  ],
+  CREDITS_BLACK: [
+    'rgb(0,0,0)',
+    'rgb(0,0,0)',
+    'rgb(0,0,0)',
+    'rgb(0,0,0)'
+  ],
+  CREDITS_WHITE: [
+    'rgb(255,255,255)',
+    'rgb(255,255,255)',
+    'rgb(255,255,255)',
+    'rgb(255,255,255)'
   ]
 }
 const createFadeOverlay = () => {
@@ -723,7 +741,8 @@ const addTextToDialog = (
   x,
   y,
   scale,
-  clippingPlanes
+  clippingPlanes,
+  xCentreAlign
 ) => {
   const letters = text.split('')
   const textGroup = new THREE.Group()
@@ -734,6 +753,8 @@ const addTextToDialog = (
     y: y
   }
   let offsetX = 0
+
+  let fullWidth = 0
 
   for (let i = 0; i < letters.length; i++) {
     const letter = letters[i]
@@ -760,9 +781,17 @@ const addTextToDialog = (
       mesh.userData.isText = true
       mesh.position.set(posX, posY, dialogBox.userData.z)
       offsetX = offsetX + textureLetter.w * scale
+      fullWidth = fullWidth + textureLetter.w * scale
       textGroup.add(mesh)
     } else {
       // console.log('letter no char found', letter)
+    }
+  }
+  if (xCentreAlign) {
+    console.log('credits centreMeshes', fullWidth)
+    for (let i = 0; i < textGroup.children.length; i++) {
+      const letterMesh = textGroup.children[i]
+      letterMesh.position.x = letterMesh.position.x - (fullWidth / 2)
     }
   }
   dialogBox.add(textGroup)
@@ -1085,7 +1114,7 @@ const movePointer = (pointer, x, y, hide, flash) => {
     pointer.visible = true
   }
 }
-const addShapeToDialog = async (
+const addShapeToDialog = (
   dialogBox,
   colors,
   id,
