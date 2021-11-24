@@ -139,9 +139,9 @@ const tween500YearsFadeOut = (shape) => {
 const playCreditsSequence = async () => {
   // await beginScrollingCredits(5000)
   playEndingMusic()
-  // await beginScrollingCredits(415000)
+  await beginScrollingCredits(415000)
   await show500YearsMessage()
-  // await playEndingVideo()
+  await playEndingVideo()
   await exitCreditsToTitleScreen()
   console.log('credits ALL FINISHED')
 }
