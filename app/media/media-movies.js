@@ -79,7 +79,7 @@ const loadMovie = i => {
     video.load()
     video.oncanplay = () => {
       console.log(' - loadMovie canplay', name)
-      resolve()
+      resolve(video)
       movies.push({ name, video })
       console.log('movies', movies)
     }

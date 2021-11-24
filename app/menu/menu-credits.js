@@ -1,7 +1,7 @@
 import { getMenuBlackOverlay, setMenuState, resolveMenuPromise, getMenuState } from './menu-module.js'
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
+import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -9,35 +9,24 @@ import {
   addTextToDialog,
   addGroupToDialog,
   addImageToDialog,
-  addLevelToDialog,
   addShapeToDialog,
-  addCharacterSummary,
-  POINTERS,
-  movePointer,
   fadeOverlayOut,
   fadeOverlayIn,
-  createEquipmentMateriaViewer,
-  EQUIPMENT_TYPE,
   removeGroupChildren,
-  createItemListNavigation,
   WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
-import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation } from './menu-navigation-helper.js'
-import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
-import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
-import { MOD } from '../field/field-op-codes-assign.js'
-import { navigateSelect } from '../world/world-destination-selector.js'
-import { getItemIcon, addItemToInventory } from '../items/items-module.js'
-import { addMateriaToInventory } from '../materia/materia-module.js'
+import { loadMovie } from '../media/media-movies.js'
+import { setCurrentDisc } from '../data/savemap-alias.js'
 
 let scrollingTextDialog, scrollingTextGroup
 
-const STATES = {SCROLL: 'credits-scroll'}
+const STATES = {CREDITS_SHOW: 'credits-show'}
 const DATA = {
   lines: [],
   activeTween: null, // TODO - cancel this on exit
+  activeVideo: null, // TODO - cancel this on exit
   y: 0
 }
 const loadCreditsData = () => {
@@ -45,7 +34,6 @@ const loadCreditsData = () => {
 }
 const loadCreditsMenu = async param => {
   loadCreditsData()
-  DATA.currentLine = 0
   DATA.y = 240
   console.log('credits loadCreditsMenu', param, DATA)
   window.DATA = DATA
@@ -67,7 +55,7 @@ const loadCreditsMenu = async param => {
   window.scrollingTextGroup = scrollingTextGroup
 
   await fadeOverlayOut(getMenuBlackOverlay())
-  setMenuState(STATES.SCROLL)
+  setMenuState(STATES.CREDITS_SHOW)
   playCreditsSequence()
 }
 const tweenScrollingCredits = (ms) => {
@@ -80,6 +68,11 @@ const tweenScrollingCredits = (ms) => {
       .onUpdate(function () {
         // console.log('credits tween update', sjjcrollingTextGroup.position.y, from.y)
         scrollingTextGroup.position.y = from.y
+      })
+      .onStop(function () {
+        console.log('credits tween resolve', scrollingTextGroup.position.y)
+        DATA.activeTween = null
+        resolve()
       })
       .onComplete(function () {
         console.log('credits tween resolve', scrollingTextGroup.position.y)
@@ -102,6 +95,11 @@ const tween500YearsFadeIn = (group) => {
         // console.log('credits tween update', sjjcrollingTextGroup.position.y, from.y)
         group.position.x = from.x
       })
+      .onStop(function () {
+        console.log('credits tween500YearsFadeOut resolve')
+        DATA.activeTween = null
+        resolve()
+      })
       .onComplete(function () {
         console.log('credits tween500YearsFaeIn resolve')
         DATA.activeTween = null
@@ -123,6 +121,11 @@ const tween500YearsFadeOut = (shape) => {
         // console.log('credits tween update', sjjcrollingTextGroup.position.y, from.y)
         shape.material.opacity = from.opacity
       })
+      .onStop(function () {
+        console.log('credits tween500YearsFadeOut resolve')
+        DATA.activeTween = null
+        resolve()
+      })
       .onComplete(function () {
         console.log('credits tween500YearsFadeOut resolve')
         DATA.activeTween = null
@@ -132,17 +135,23 @@ const tween500YearsFadeOut = (shape) => {
   })
 }
 const playCreditsSequence = async () => {
-  await beginScrollingCredits(5000)
-  // await beginScrollingCredits(415000)
+  // await beginScrollingCredits(5000)
+  await beginScrollingCredits(415000)
   await show500YearsMessage()
+  await playEndingVideo()
+  await exitCreditsToTitleScreen()
+  console.log('credits ALL FINISHED')
 }
 const beginScrollingCredits = async (ms) => {
+  if (getMenuState() !== STATES.CREDITS_SHOW) {
+    console.log('credits not showing beginScrollingCredits')
+    return
+  }
   for (let i = 0; i < DATA.lines.length; i++) {
     const line = DATA.lines[i]
     let font
     let scale = 0.5
     let color
-    // const line = DATA.lines[DATA.currentLine]
     switch (line.type) {
       case 0: font = LETTER_TYPES.CreditsBigFont; break
       case 1: font = LETTER_TYPES.CreditsBaseUnderlineFont; break
@@ -192,12 +201,15 @@ const beginScrollingCredits = async (ms) => {
     DATA.y = DATA.y + (line.linePadding / 2)
   }
   console.log('credits rendering finished', DATA.y)
-  console.log('credits beginScrollingCredits', DATA.currentLine)
+  console.log('credits beginScrollingCredits: START')
   await tweenScrollingCredits(ms)
-
-  console.log('credits tween finished')
+  console.log('credits beginScrollingCredits: END')
 }
 const show500YearsMessage = async () => {
+  if (getMenuState() !== STATES.CREDITS_SHOW) {
+    console.log('credits not showing show500YearsMessage')
+    return
+  }
   scrollingTextGroup.position.y = 0
   removeGroupChildren(scrollingTextGroup)
 
@@ -219,25 +231,91 @@ const show500YearsMessage = async () => {
   await sleep(3000)
   console.log('credits 500 years pause: END')
   console.log('credits 500 years fade out: START')
+
+  if (getMenuState() !== STATES.CREDITS_SHOW) {
+    console.log('credits not showing show500YearsMessage fade out')
+    return
+  }
   await tween500YearsFadeOut(c500)
   console.log('credits 500 years fade out: END')
 }
+const playVideoAndWaitForEnd = (video) => {
+  return new Promise((resolve, reject) => {
+    DATA.activeVideo = video
+    video.onended = () => {
+      console.log('credits video ended')
+      video.removeAttribute('src')
+      video.load()
+      DATA.activeVideo = null
+      resolve()
+    }
+    video.onpause = () => {
+      console.log('credits video pauses')
+      DATA.activeVideo = null
+      resolve()
+    }
+    video.play()
+  })
+}
+const playEndingVideo = async () => {
+  if (getMenuState() !== STATES.CREDITS_SHOW) {
+    console.log('credits not showing playEndingVideo')
+    return
+  }
+
+  removeGroupChildren(scrollingTextGroup)
+  console.log('credits video loading')
+  setCurrentDisc(3)
+  const video = await loadMovie(26)
+  console.log('credits video loaded', video)
+  const geometry = new THREE.PlaneGeometry(
+    window.config.sizing.width,
+    window.config.sizing.height
+  )
+  const texture = new THREE.VideoTexture(video)
+  texture.minFilter = THREE.NearestFilter
+  texture.magFilter = THREE.NearestFilter
+  texture.format = THREE.RGBFormat
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true
+  })
+  const videoBG = new THREE.Mesh(geometry, material)
+  videoBG.position.x = window.config.sizing.width / 2
+  videoBG.position.y = window.config.sizing.height / 2
+  scrollingTextGroup.add(videoBG)
+  console.log('credits video play')
+  await playVideoAndWaitForEnd(video)
+}
+const exitCreditsToTitleScreen = async () => {
+  if (getMenuState() !== STATES.CREDITS_SHOW) {
+    console.log('credits not showing playEndingVideo')
+    return
+  }
+  exitMenu() // TODO - change to load title menu
+}
 const exitMenu = async () => {
   console.log('exitMenu')
-  // TODO - cancel DATA.activeTween on exit
   setMenuState('loading')
   await fadeOverlayIn(getMenuBlackOverlay())
-  // itemShopDialog.visible = false
-  // actionDescriptionDialog.visible = false
-  // navDialog.visible = false
+
+  if (DATA.activeTween !== null) {
+    DATA.activeTween.stop()
+  }
+  if (DATA.activeVideo !== null) {
+    console.log('credits DATA.activeVideo', DATA.activeVideo)
+    DATA.activeVideo.pause()
+  }
+
+  scrollingTextDialog.visible = false
 
   console.log('shop EXIT')
   resolveMenuPromise()
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU CREDITS', key, firstPress, state)
-  if (state === STATES.SCROLL) {
-    if (key === KEY.X || key) {
+  if (state === STATES.CREDITS_SHOW) {
+    if (key === KEY.X) {
       exitMenu()
     }
   }

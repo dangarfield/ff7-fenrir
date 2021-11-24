@@ -788,7 +788,6 @@ const addTextToDialog = (
     }
   }
   if (xCentreAlign) {
-    console.log('credits centreMeshes', fullWidth)
     for (let i = 0; i < textGroup.children.length; i++) {
       const letterMesh = textGroup.children[i]
       letterMesh.position.x = letterMesh.position.x - (fullWidth / 2)
