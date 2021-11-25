@@ -19,7 +19,7 @@ import {
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { loadMovieByName } from '../media/media-movies.js'
-import { playMusic, loadMusic } from '../media/media-music.js'
+import { playMusic, stopMusic, loadMusic } from '../media/media-music.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 
 let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup
@@ -27,7 +27,7 @@ let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup
 const STATES = {TITLE_SEQUENCE: 'title-sequence'}
 const DATA = {
   activeTween: null,
-  activeMovie: null
+  activeVideo: null
 }
 const loadTitleMenu = async () => {
   console.log('loadTitleMenu')
@@ -48,8 +48,11 @@ const loadTitleMenu = async () => {
   // scrollingTextDialog.position.z = 100 - 9
   bgGroup = addGroupToDialog(titleDialog, 20)
   nameGroup = addGroupToDialog(titleDialog, 19)
-  movieGroup = addGroupToDialog(titleDialog, 18)
-  logoGroup = addGroupToDialog(titleDialog, 17)
+  movieGroup = addGroupToDialog(titleDialog, 21)
+  movieGroup.userData.z = 100 - movieGroup.position.z
+  logoGroup = addGroupToDialog(titleDialog, 9)
+  logoGroup.userData.z = 100 - logoGroup.position.z
+  window.movieGroup = movieGroup
 
   await fadeOverlayOut(getMenuBlackOverlay())
   // showDebugText('Title')
@@ -59,7 +62,6 @@ const loadTitleMenu = async () => {
 
 const loadMedia = async () => {
   await loadMusic(100, 'pre')
-  playMusic(100, true, 1000)
 
   removeGroupChildren(movieGroup)
   console.log('title video loading')
@@ -80,16 +82,18 @@ const loadMedia = async () => {
   const videoBG = new THREE.Mesh(geometry, material)
   videoBG.position.x = window.config.sizing.width / 2
   videoBG.position.y = window.config.sizing.height / 2
+  videoBG.position.z = 100 - movieGroup.position.z
   movieGroup.add(videoBG)
-  console.log('credits video play')
+  console.log('title video play')
+  movieGroup.visible = false
   return video
 }
 const beginTitleSequence = async () => {
   const video = await loadMedia()
 
   await playCreditsLoop(video)
-  // await playExplodeVideoAndWaitForEnd(video)
   // exitMenu()
+  console.log('title beginTitleSequence: END')
 }
 const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
   return new Promise((resolve, reject) => {
@@ -107,10 +111,29 @@ const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
       .onStop(function () {
         console.log('title tweenOpacity stop')
         DATA.activeTween = null
-        resolve()
+        reject(new Error('UserInterruptAction'))
       })
       .onComplete(function () {
         console.log('title tweenOpacity resolve')
+        DATA.activeTween = null
+        resolve()
+      })
+      .start()
+  })
+}
+const tweenSleep = (ms) => {
+  return new Promise((resolve, reject) => {
+    let from = {something: 1}
+    let to = {something: 1}
+    DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, ms)
+      .onStop(function () {
+        console.log('title tweenSleep stop')
+        DATA.activeTween = null
+        reject(new Error('UserInterruptAction'))
+      })
+      .onComplete(function () {
+        console.log('title tweenSleep resolve')
         DATA.activeTween = null
         resolve()
       })
@@ -124,7 +147,7 @@ const tweenCreditsFlyIn = (meshes, ms) => {
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
       .to(to, ms)
       .onUpdate(function () {
-        console.log('title tweenCreditsFlyIn update', meshes[0], meshes[0].userData.position.x, from.distance, '->', meshes[0].userData.position.x + from.distance)
+        // console.log('title tweenCreditsFlyIn update', meshes[0], meshes[0].userData.position.x, from.distance, '->', meshes[0].userData.position.x + from.distance)
         meshes[0].position.x = meshes[0].userData.position.x + from.distance
         meshes[1].position.x = meshes[1].userData.position.x - from.distance
         meshes[2].position.y = meshes[2].userData.position.y + from.distance
@@ -133,7 +156,7 @@ const tweenCreditsFlyIn = (meshes, ms) => {
       .onStop(function () {
         console.log('title tweenCreditsFlyIn stop')
         DATA.activeTween = null
-        resolve()
+        reject(new Error('UserInterruptAction'))
       })
       .onComplete(function () {
         console.log('title tweenCreditsFlyIn resolve')
@@ -147,57 +170,88 @@ const tweenCreditsFlyIn = (meshes, ms) => {
 const playCreditsLoop = async (video) => {
   removeGroupChildren(bgGroup)
 
-  const bgImage = addImageToDialog(bgGroup, 'intro', 'background', 'intro-background', 320 / 2, 240 / 2, 0.5)
-  bgImage.material.opacity = 0
+  try {
+    const bgImage = addImageToDialog(bgGroup, 'intro', 'background', 'intro-background', 320 / 2, 240 / 2, 0.5)
+    bgImage.material.opacity = 0
+    const logoImage = addImageToDialog(logoGroup, 'intro', 'title-logo', 'title-logo', 320 / 2, 180, 0.5, null, null, ALIGN.BOTTOM)
+    logoImage.material.opacity = 0
+    const copyrightImage = addImageToDialog(logoGroup, 'intro', 'title-copyright', 'title-copyright', 320 / 2, 220, 0.5, null, null, ALIGN.BOTTOM)
+    copyrightImage.material.opacity = 0
 
-  // Fade in
-  await tweenOpacity([bgImage], 0, 1, 1000)
+    while (true) {
+      playMusic(100, true, 1000) // TODO - This actually stops and restarts on each loop
+      await tweenSleep(3000)
+      await tweenOpacity([bgImage], 0, 1, 500)
 
-  const titlePositionConfig = [
-    {x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nb', 'nw']}, // tl
-    {x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb']}, // tr
-    {x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw']}, // bl
-    {x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tw', 'tb']} // br
-  ]
-  const titlePositionLookup = [
-    1, 2, 0, 3, //
-    1, 2, 0, 3, //
-    1, 2, 0, 3, //
-    1, 2, 0, 3, //
-    1, 2, 0, // For some reason they missed this position out
-    1, 2, 0, 3, //
-    1, 2, 0, 3, //
-    1, 2
-  ]
-  // Main credit items
-  for (let i = 0; i < 4; i++) {
-    const pos = titlePositionConfig[titlePositionLookup[i]]
-    const x = pos.x
-    const y = pos.y
-    const align = pos.align
-    const titleBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 0.5, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
-    const titleWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
+      const titlePositionConfig = [
+        {x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nw', 'nb']}, // tl
+        {x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb']}, // tr
+        {x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw']}, // bl
+        {x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tb', 'tw']} // br
+      ]
+      const titlePositionLookup = [
+        1, 2, 0, 3, //
+        1, 2, 0, 3, //
+        1, 2, 0, 3, //
+        1, 2, 0, 3, //
+        1, 2, 0, // For some reason they missed this position out
+        1, 2, 0, 3, //
+        1, 2, 0, 3, //
+        1, 2
+      ]
+      // Main credit items
+      for (let i = 0; i < titlePositionLookup.length; i++) {
+        // Loop is about 7 seconds
+        removeGroupChildren(nameGroup)
+        await tweenSleep(1800)
+        const pos = titlePositionConfig[titlePositionLookup[i]]
+        const x = pos.x
+        const y = pos.y
+        const align = pos.align
+        const titleBlack = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 0.5, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
+        const titleWhite = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
 
-    const yGap = titleWhite.geometry.parameters.height
-    console.log('title yGap', yGap)
-    const nameBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 0.5 + yGap, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
-    const nameWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
+        const yGap = titleWhite.geometry.parameters.height
+        console.log('title yGap', yGap)
+        const nameBlack = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 0.5 + yGap, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
+        const nameWhite = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
 
-    titleBlack.userData.position = {x: titleBlack.position.x, y: titleBlack.position.y}
-    titleWhite.userData.position = {x: titleWhite.position.x, y: titleWhite.position.y}
-    nameBlack.userData.position = {x: nameBlack.position.x, y: nameBlack.position.y}
-    nameWhite.userData.position = {x: nameWhite.position.x, y: nameWhite.position.y}
+        titleBlack.userData.position = {x: titleBlack.position.x, y: titleBlack.position.y}
+        titleWhite.userData.position = {x: titleWhite.position.x, y: titleWhite.position.y}
+        nameBlack.userData.position = {x: nameBlack.position.x, y: nameBlack.position.y}
+        nameWhite.userData.position = {x: nameWhite.position.x, y: nameWhite.position.y}
 
-    const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
+        const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
 
-    window[`titleWhite${i}`] = titleWhite
-    window[`titleBlack${i}`] = titleBlack
-    window[`nameWhite${i}`] = nameWhite
-    window[`nameBlack${i}`] = nameBlack
+        window[`titleWhite${i}`] = titleWhite
+        window[`titleBlack${i}`] = titleBlack
+        window[`nameWhite${i}`] = nameWhite
+        window[`nameBlack${i}`] = nameBlack
+        window.THREE = THREE
+        await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 3000)
+        titleBlack.visible = false // TODO - For some reason I can't get THREE.SubtractiveBlending with opacity 0 to tween to invisible
+        nameBlack.visible = false
+        await tweenSleep(1200)
+        await tweenOpacity([titleBlack, titleWhite, nameWhite, nameBlack], 1, 0, 800)
+      }
 
-    await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 1000)
-    await tweenOpacity([titleBlack, titleWhite, nameWhite, nameBlack], 1, 0, 1000)
+      await tweenSleep(500)
+      console.log('title playCreditsLoop video: START')
+      tweenOpacity([logoImage], 0, 1, 2000)
+      await playExplodeVideoAndWaitForEnd(video)
+      bgImage.material.opacity = 0
+
+      console.log('title playCreditsLoop video: END')
+
+      await tweenSleep(3000)
+      await tweenOpacity([copyrightImage], 0, 1, 1000)
+      await tweenSleep(15000)
+      await tweenOpacity([logoImage, copyrightImage], 1, 0, 1000)
+    }
+  } catch (error) {
+    console.log('title CATCH playCreditsLoop', error)
   }
+  console.log('title playCreditsLoop: END')
 }
 const playExplodeVideoAndWaitForEnd = (video) => {
   return new Promise((resolve, reject) => {
@@ -206,24 +260,38 @@ const playExplodeVideoAndWaitForEnd = (video) => {
       resolve()
       return
     }
+    movieGroup.visible = true
+    video.currentTime = 0
     DATA.activeVideo = video
-    video.onended = () => {
-      console.log('credits video ended')
-      video.removeAttribute('src')
-      video.load()
-      DATA.activeVideo = null
-      resolve()
-    }
     video.onpause = () => {
-      console.log('credits video pauses')
+      if (video.readyState !== 4) {
+        return true
+      }
+
+      // Firefox dispatches the pause event but
+      // doesn't set the video to paused
+      setTimeout(() => {
+        if (video.paused) {
+          console.log('title video paused')
+          DATA.activeVideo = null
+          movieGroup.visible = false
+          reject(new Error('UserInterruptAction'))
+        }
+      }, 250)
+    }
+    video.onended = () => {
+      console.log('title video ended')
+      // video.removeAttribute('src')
+      // video.load()
       DATA.activeVideo = null
+      movieGroup.visible = false
       resolve()
     }
     video.play()
   })
 }
 const exitMenu = async () => {
-  console.log('exitMenu')
+  console.log('title exitMenu', DATA.activeTween, DATA.activeVideo)
   setMenuState('loading')
   await fadeOverlayIn(getMenuBlackOverlay())
 
@@ -243,10 +311,10 @@ const exitMenu = async () => {
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU TITLE', key, firstPress, state)
-  if (state === 'title') {
-    // if (key === KEY.X) {
-    //   exitMenu()
-    // }
+  if (state === STATES.TITLE_SEQUENCE) {
+    if (key === KEY.O || key === KEY.X || key === KEY.START) {
+      exitMenu()
+    }
   }
 }
 export { loadTitleMenu, keyPress }
