@@ -115,7 +115,7 @@ const loadMenuWithWait = (menuCode, param) => {
     MENU_PROMISE = resolve
     switch (menuCode) {
       case MENU_TYPE.Credits:
-        loadCreditsMenu()
+        loadCreditsMenu() // Done
         break
       case MENU_TYPE.CharacterNameEntry:
         loadCharNameMenu(param) // Done

@@ -62,8 +62,7 @@ const loadMedia = async () => {
 
   removeGroupChildren(movieGroup)
   console.log('title video loading')
-  // setCurrentDisc(3)
-  const video = await loadMovieByName('Explode') // TODO find 'explode' movie
+  const video = await loadMovieByName('Explode')
   console.log('title video loaded', video)
   const geometry = new THREE.PlaneGeometry(
     window.config.sizing.width,
@@ -87,8 +86,75 @@ const loadMedia = async () => {
 const beginTitleSequence = async () => {
   const video = await loadMedia()
 
-  await playExplodeVideoAndWaitForEnd(video)
-  exitMenu()
+  await playCreditsLoop(video)
+  // await playExplodeVideoAndWaitForEnd(video)
+  // exitMenu()
+}
+const tweenOpacity = (mesh, fromOpacity, toOpacity, ms) => {
+  return new Promise((resolve, reject) => {
+    let from = {opacity: fromOpacity}
+    let to = {opacity: toOpacity}
+    DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, ms)
+      .onUpdate(function () {
+        // console.log('credits tween update', scrollingTextGroup.position.y, from.y)
+        mesh.material.opacity = from.opacity
+      })
+      .onStop(function () {
+        console.log('title tweenOpacity stop', mesh.material.opacity)
+        DATA.activeTween = null
+        resolve()
+      })
+      .onComplete(function () {
+        console.log('title tweenOpacity resolve', mesh.material.opacity)
+        DATA.activeTween = null
+        resolve()
+      })
+      .start()
+  })
+}
+
+const playCreditsLoop = async (video) => {
+  removeGroupChildren(bgGroup)
+
+  const bgImage = addImageToDialog(bgGroup, 'intro', 'background', 'intro-background', 320 / 2, 240 / 2, 0.5)
+  bgImage.material.opacity = 0
+
+  // Fade in
+  await tweenOpacity(bgImage, 0, 1, 1000)
+
+  const titlePos = [
+    {x: 303, y: 24},
+    {x: 80, y: 184},
+    {x: 80, y: 24},
+    {x: 303, y: 184}
+  ]
+  // Main credit items
+  for (let i = 0; i < 4; i++) {
+    const x = titlePos[i % 4].x
+    const y = titlePos[i % 4].y
+    const titleBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 1, 0.5, THREE.SubtractiveBlending)
+    const titleWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending)
+
+    const yGap = titleWhite.geometry.parameters.height
+    console.log('title yGap', yGap)
+    const nameBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 1 + yGap, 0.5, THREE.SubtractiveBlending)
+    const nameWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending)
+
+    if (i % 4 === 0 || i % 4 === 3) {
+      // Right align
+      titleWhite.position.x = titleWhite.position.x - (titleWhite.geometry.parameters.width / 2)
+      nameWhite.position.x = nameWhite.position.x - (nameWhite.geometry.parameters.width / 2)
+
+      titleBlack.position.x = titleBlack.position.x - (titleBlack.geometry.parameters.width / 2)
+      nameBlack.position.x = nameBlack.position.x - (nameBlack.geometry.parameters.width / 2)
+    }
+    window[`titleWhite${i}`] = titleWhite
+    window[`titleBlack${i}`] = titleBlack
+
+    window[`nameWhite${i}`] = nameWhite
+    window[`nameBlack${i}`] = nameBlack
+  }
 }
 const playExplodeVideoAndWaitForEnd = (video) => {
   return new Promise((resolve, reject) => {
