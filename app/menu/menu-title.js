@@ -5,6 +5,7 @@ import { MENU_TWEEN_GROUP, showDebugText } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
+  ALIGN,
   createDialogBox,
   addTextToDialog,
   addGroupToDialog,
@@ -90,7 +91,7 @@ const beginTitleSequence = async () => {
   // await playExplodeVideoAndWaitForEnd(video)
   // exitMenu()
 }
-const tweenOpacity = (mesh, fromOpacity, toOpacity, ms) => {
+const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
   return new Promise((resolve, reject) => {
     let from = {opacity: fromOpacity}
     let to = {opacity: toOpacity}
@@ -98,15 +99,44 @@ const tweenOpacity = (mesh, fromOpacity, toOpacity, ms) => {
       .to(to, ms)
       .onUpdate(function () {
         // console.log('credits tween update', scrollingTextGroup.position.y, from.y)
-        mesh.material.opacity = from.opacity
+        for (let i = 0; i < meshes.length; i++) {
+          const mesh = meshes[i]
+          mesh.material.opacity = from.opacity
+        }
       })
       .onStop(function () {
-        console.log('title tweenOpacity stop', mesh.material.opacity)
+        console.log('title tweenOpacity stop')
         DATA.activeTween = null
         resolve()
       })
       .onComplete(function () {
-        console.log('title tweenOpacity resolve', mesh.material.opacity)
+        console.log('title tweenOpacity resolve')
+        DATA.activeTween = null
+        resolve()
+      })
+      .start()
+  })
+}
+const tweenCreditsFlyIn = (meshes, ms) => {
+  return new Promise((resolve, reject) => {
+    let from = {distance: 320}
+    let to = {distance: 0}
+    DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, ms)
+      .onUpdate(function () {
+        console.log('title tweenCreditsFlyIn update', meshes[0], meshes[0].userData.position.x, from.distance, '->', meshes[0].userData.position.x + from.distance)
+        meshes[0].position.x = meshes[0].userData.position.x + from.distance
+        meshes[1].position.x = meshes[1].userData.position.x - from.distance
+        meshes[2].position.y = meshes[2].userData.position.y + from.distance
+        meshes[3].position.y = meshes[3].userData.position.y - from.distance
+      })
+      .onStop(function () {
+        console.log('title tweenCreditsFlyIn stop')
+        DATA.activeTween = null
+        resolve()
+      })
+      .onComplete(function () {
+        console.log('title tweenCreditsFlyIn resolve')
         DATA.activeTween = null
         resolve()
       })
@@ -121,39 +151,52 @@ const playCreditsLoop = async (video) => {
   bgImage.material.opacity = 0
 
   // Fade in
-  await tweenOpacity(bgImage, 0, 1, 1000)
+  await tweenOpacity([bgImage], 0, 1, 1000)
 
-  const titlePos = [
-    {x: 303, y: 24},
-    {x: 80, y: 184},
-    {x: 80, y: 24},
-    {x: 303, y: 184}
+  const titlePositionConfig = [
+    {x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nb', 'nw']}, // tl
+    {x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb']}, // tr
+    {x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw']}, // bl
+    {x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tw', 'tb']} // br
+  ]
+  const titlePositionLookup = [
+    1, 2, 0, 3, //
+    1, 2, 0, 3, //
+    1, 2, 0, 3, //
+    1, 2, 0, 3, //
+    1, 2, 0, // For some reason they missed this position out
+    1, 2, 0, 3, //
+    1, 2, 0, 3, //
+    1, 2
   ]
   // Main credit items
   for (let i = 0; i < 4; i++) {
-    const x = titlePos[i % 4].x
-    const y = titlePos[i % 4].y
-    const titleBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 1, 0.5, THREE.SubtractiveBlending)
-    const titleWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending)
+    const pos = titlePositionConfig[titlePositionLookup[i]]
+    const x = pos.x
+    const y = pos.y
+    const align = pos.align
+    const titleBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 0.5, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
+    const titleWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
 
     const yGap = titleWhite.geometry.parameters.height
     console.log('title yGap', yGap)
-    const nameBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 1 + yGap, 0.5, THREE.SubtractiveBlending)
-    const nameWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending)
+    const nameBlack = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 0.5 + yGap, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
+    const nameWhite = addImageToDialog(bgGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
 
-    if (i % 4 === 0 || i % 4 === 3) {
-      // Right align
-      titleWhite.position.x = titleWhite.position.x - (titleWhite.geometry.parameters.width / 2)
-      nameWhite.position.x = nameWhite.position.x - (nameWhite.geometry.parameters.width / 2)
+    titleBlack.userData.position = {x: titleBlack.position.x, y: titleBlack.position.y}
+    titleWhite.userData.position = {x: titleWhite.position.x, y: titleWhite.position.y}
+    nameBlack.userData.position = {x: nameBlack.position.x, y: nameBlack.position.y}
+    nameWhite.userData.position = {x: nameWhite.position.x, y: nameWhite.position.y}
 
-      titleBlack.position.x = titleBlack.position.x - (titleBlack.geometry.parameters.width / 2)
-      nameBlack.position.x = nameBlack.position.x - (nameBlack.geometry.parameters.width / 2)
-    }
+    const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
+
     window[`titleWhite${i}`] = titleWhite
     window[`titleBlack${i}`] = titleBlack
-
     window[`nameWhite${i}`] = nameWhite
     window[`nameBlack${i}`] = nameBlack
+
+    await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 1000)
+    await tweenOpacity([titleBlack, titleWhite, nameWhite, nameBlack], 1, 0, 1000)
   }
 }
 const playExplodeVideoAndWaitForEnd = (video) => {

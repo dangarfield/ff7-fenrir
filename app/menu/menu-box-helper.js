@@ -57,7 +57,13 @@ const EQUIPMENT_TYPE = {
   WEAPON: 'WEAPON',
   ARMOR: 'ARMOR'
 }
-
+const ALIGN = {
+  LEFT: 'left',
+  CENTRE: 'centre',
+  RIGHT: 'right',
+  TOP: 'top',
+  BOTTOM: 'bottom'
+}
 const generateGaugeBarsColors1 = c => {
   return ['rgb(0,0,0)', 'rgb(0,0,0)', c, c]
 }
@@ -804,7 +810,7 @@ const addGroupToDialog = (dialog, id) => {
   dialog.add(group)
   return group
 }
-const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending) => {
+const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending, hAlign, vAlign) => {
   const textureLetter = getImageTexture(type, image)
   const mesh = createTextureMesh(
     textureLetter.w * scale,
@@ -821,6 +827,17 @@ const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending) => 
     mesh.material.clippingPlanes = dialogBox.userData.bg.material.clippingPlanes
   }
   mesh.position.set(posX, posY, dialogBox.userData.z)
+
+  if (hAlign && hAlign === ALIGN.LEFT) {
+    mesh.position.x = mesh.position.x + (mesh.geometry.parameters.width / 2)
+  } else if (hAlign && hAlign === ALIGN.RIGHT) {
+    mesh.position.x = mesh.position.x - (mesh.geometry.parameters.width / 2)
+  }
+  if (vAlign && vAlign === ALIGN.TOP) {
+    mesh.position.y = mesh.position.y - (mesh.geometry.parameters.height / 2)
+  } else if (vAlign && vAlign === ALIGN.BOTTOM) {
+    mesh.position.y = mesh.position.y + (mesh.geometry.parameters.height / 2)
+  }
   dialogBox.add(mesh)
   return mesh
 }
@@ -1661,6 +1678,7 @@ const removeGroupChildren = (group) => {
 export {
   LETTER_TYPES,
   LETTER_COLORS,
+  ALIGN,
   WINDOW_COLORS_SUMMARY,
   EQUIPMENT_TYPE,
   createDialogBox,
