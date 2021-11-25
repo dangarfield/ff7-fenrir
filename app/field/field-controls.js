@@ -87,7 +87,7 @@ const initFieldKeypressActions = () => {
     if (areFieldControlsActive && firstPress) {
       // transitionOutAndLoadMenu(MENU_TYPE.Shop, 2)
       // transitionOutAndLoadMenu(MENU_TYPE.CharacterNameEntry, 0)
-      transitionOutAndLoadMenu(MENU_TYPE.Credits)
+      transitionOutAndLoadMenu(MENU_TYPE.Title)
     }
   })
   getKeyPressEmitter().on('l2', async firstPress => {

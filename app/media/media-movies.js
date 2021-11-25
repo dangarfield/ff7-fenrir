@@ -66,6 +66,22 @@ const loadMoviecam = async name => {
     console.log('loadMoviecam moviecam', name, camData, moviecams)
   }
 }
+const loadMovieByName = name => {
+  return new Promise(async resolve => {
+    console.log('loadMovieByName', name)
+    await loadMoviecam(name)
+    const video = document.createElement('video')
+    video.setAttribute('crossorigin', 'anonymous')
+    video.src = getMusicUrl(name)
+    video.load()
+    video.oncanplay = () => {
+      console.log(' - loadMovie canplay', name)
+      resolve(video)
+      movies.push({ name, video })
+      console.log('movies', movies)
+    }
+  })
+}
 const loadMovie = i => {
   // Should really add a download progress loader
   // Although, this is only enough buffered to begin playback
@@ -261,6 +277,7 @@ export {
   playNextMovie,
   stopCurrentMovie,
   loadMovie,
+  loadMovieByName,
   getCurrentMovieFrame,
   isMoviePlaying,
   isMovieLockEnabled,
