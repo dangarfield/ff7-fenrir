@@ -1,7 +1,7 @@
-import { getMenuBlackOverlay, setMenuState, resolveMenuPromise, getMenuState } from './menu-module.js'
+import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'
 import * as THREE from '../../assets/threejs-r118/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { MENU_TWEEN_GROUP, showDebugText } from './menu-scene.js'
+import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -10,28 +10,29 @@ import {
   addTextToDialog,
   addGroupToDialog,
   addImageToDialog,
-  addShapeToDialog,
   fadeOverlayOut,
   fadeOverlayIn,
   removeGroupChildren,
-  WINDOW_COLORS_SUMMARY
+  movePointer,
+  POINTERS
 } from './menu-box-helper.js'
 import { KEY } from '../interaction/inputs.js'
-import { sleep } from '../helpers/helpers.js'
 import { loadMovieByName } from '../media/media-movies.js'
 import { playMusic, stopMusic, loadMusic } from '../media/media-music.js'
-import { setCurrentDisc } from '../data/savemap-alias.js'
+import { loadNewGame, loadGame } from '../data/savemap.js'
 
-let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup
+let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup, gameSelectGroup
 
-const STATES = {TITLE_SEQUENCE: 'title-sequence'}
+const STATES = {TITLE_SEQUENCE: 'title-sequence', TITLE_SELECT: 'title-select'}
 const DATA = {
+  gameSelectPos: 0,
   activeTween: null,
   activeVideo: null
 }
 const loadTitleMenu = async () => {
   console.log('loadTitleMenu')
   console.log('mediaLoaded')
+  DATA.gameSelectPos = 0
   window.DATA = DATA
   titleDialog = createDialogBox({
     id: 10,
@@ -52,7 +53,7 @@ const loadTitleMenu = async () => {
   movieGroup.userData.z = 100 - movieGroup.position.z
   logoGroup = addGroupToDialog(titleDialog, 9)
   logoGroup.userData.z = 100 - logoGroup.position.z
-  window.movieGroup = movieGroup
+  gameSelectGroup = addGroupToDialog(titleDialog, 18)
 
   await fadeOverlayOut(getMenuBlackOverlay())
   // showDebugText('Title')
@@ -220,14 +221,8 @@ const playCreditsLoop = async (video) => {
         titleWhite.userData.position = {x: titleWhite.position.x, y: titleWhite.position.y}
         nameBlack.userData.position = {x: nameBlack.position.x, y: nameBlack.position.y}
         nameWhite.userData.position = {x: nameWhite.position.x, y: nameWhite.position.y}
-
         const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
 
-        window[`titleWhite${i}`] = titleWhite
-        window[`titleBlack${i}`] = titleBlack
-        window[`nameWhite${i}`] = nameWhite
-        window[`nameBlack${i}`] = nameBlack
-        window.THREE = THREE
         await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 3000)
         titleBlack.visible = false // TODO - For some reason I can't get THREE.SubtractiveBlending with opacity 0 to tween to invisible
         nameBlack.visible = false
@@ -240,7 +235,6 @@ const playCreditsLoop = async (video) => {
       tweenOpacity([logoImage], 0, 1, 2000)
       await playExplodeVideoAndWaitForEnd(video)
       bgImage.material.opacity = 0
-
       console.log('title playCreditsLoop video: END')
 
       await tweenSleep(3000)
@@ -290,9 +284,10 @@ const playExplodeVideoAndWaitForEnd = (video) => {
     video.play()
   })
 }
-const exitMenu = async () => {
+const cancelCreditsLoop = async () => {
   console.log('title exitMenu', DATA.activeTween, DATA.activeVideo)
   setMenuState('loading')
+
   await fadeOverlayIn(getMenuBlackOverlay())
 
   if (DATA.activeTween !== null) {
@@ -302,18 +297,67 @@ const exitMenu = async () => {
     console.log('title DATA.activeVideo', DATA.activeVideo)
     DATA.activeVideo.pause()
   }
+  removeGroupChildren(bgGroup)
+  removeGroupChildren(nameGroup)
+  removeGroupChildren(movieGroup)
+  removeGroupChildren(logoGroup)
+  stopMusic(500)
+  showGameSelect()
+}
+const getGameSelectPos = () => {
+  return {
+    x: 125, // TODO - positions from game
+    y: 120,
+    yAdj: 13
+  }
+}
+const showGameSelect = async () => {
+  console.log('title showGameSelect: START')
+  window.buster = addImageToDialog(gameSelectGroup, 'misc', 'Buster', 'buster', 320 / 2, 255, 1, null, null, ALIGN.BOTTOM) // TODO - Is there not a better image of this?
 
-  titleDialog.visible = false
+  const { x, y, yAdj } = getGameSelectPos()
+  addTextToDialog(gameSelectGroup, 'NEW GAME', 'title-new-game', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x - 8, y - 4, 0.5)
+  addTextToDialog(gameSelectGroup, 'Continue?', 'title-continue', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x - 8, y + yAdj - 4, 0.5)
 
-  console.log('title EXIT')
-  // resolveMenuPromise()
-  // loadTitleMenu()
+  await fadeOverlayOut(getMenuBlackOverlay())
+  drawGameSelectPointer()
+  setMenuState(STATES.TITLE_SELECT)
+  console.log('title showGameSelect: READY')
+}
+const drawGameSelectPointer = () => {
+  const { x, y, yAdj } = getGameSelectPos()
+  movePointer(POINTERS.pointer1, x - 15, y + (yAdj * DATA.gameSelectPos) - 2)
+}
+const gameSelectNavigation = (targetPos) => {
+  DATA.gameSelectPos = targetPos
+  drawGameSelectPointer()
+}
+const gameSelectConfirm = async () => {
+  if (DATA.gameSelectPos === 0) {
+    console.log('title BEGIN NEW GAME')
+    setMenuState('loading')
+    await fadeOverlayIn(getMenuBlackOverlay())
+    loadNewGame()
+  } else if (DATA.gameSelectPos === 1) {
+    console.log('title SHOW LOAD GAME MENU')
+    setMenuState('loading')
+    await fadeOverlayIn(getMenuBlackOverlay())
+    loadGame(window.config.save.cardId, window.config.save.slotId) // TODO - Just temp
+  }
 }
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU TITLE', key, firstPress, state)
   if (state === STATES.TITLE_SEQUENCE) {
     if (key === KEY.O || key === KEY.X || key === KEY.START) {
-      exitMenu()
+      cancelCreditsLoop()
+    }
+  } else if (state === STATES.TITLE_SELECT) {
+    if (key === KEY.UP) {
+      gameSelectNavigation(0)
+    } else if (key === KEY.DOWN) {
+      gameSelectNavigation(1)
+    } else if (key === KEY.O) {
+      gameSelectConfirm()
     }
   }
 }

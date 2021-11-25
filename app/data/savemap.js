@@ -251,6 +251,18 @@ const loadGame = async (cardId, slotId) => {
   }
   // Load field - Replace with menu
 }
+const loadNewGame = async () => {
+  await stopAllLoops()
+  initNewSaveMap()
+  const playableCharacterInitData = getPlayableCharacterInitData()
+  console.log('playableCharacterInitData LOAD', playableCharacterInitData)
+  if (playableCharacterInitData.fieldName) {
+    loadField(playableCharacterInitData.fieldName, playableCharacterInitData)
+  } else {
+    loadField('md1stin')
+    // loadField('startmap')
+  }
+}
 export {
   initNewSaveMap,
   loadSaveMap,
@@ -259,5 +271,6 @@ export {
   setBankData,
   resetTempBank,
   loadGame,
+  loadNewGame,
   downloadSaveMaps
 }
