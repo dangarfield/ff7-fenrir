@@ -133,10 +133,10 @@ const loadMenuWithWait = (menuCode, param) => {
         loadSaveMenu() // Done
         break
       case MENU_TYPE.ChangeDisc:
-        loadChangeDiscMenu(param)
+        loadChangeDiscMenu(param) // Done
         break
       case MENU_TYPE.Title:
-        loadTitleMenu(param) // In Progress
+        loadTitleMenu(param) // Done
         break
       case MENU_TYPE.GameOver:
         loadGameOverMenu()
