@@ -11,7 +11,8 @@ window.console = (function (origConsole) {
       // 'movePointer',
       'credits',
       'title',
-      'music'
+      'music',
+      'save'
     ],
     log: function () {
       if (limit) {

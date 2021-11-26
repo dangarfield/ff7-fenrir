@@ -19,20 +19,21 @@ import {
 import { KEY } from '../interaction/inputs.js'
 import { loadMovieByName } from '../media/media-movies.js'
 import { playMusic, stopMusic, loadMusic } from '../media/media-music.js'
-import { loadNewGame, loadGame } from '../data/savemap.js'
+import { loadNewGame } from '../data/savemap.js'
+import { loadSaveMenu } from './menu-main-save.js'
 
 let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup, gameSelectGroup
 
 const STATES = {TITLE_SEQUENCE: 'title-sequence', TITLE_SELECT: 'title-select'}
 const DATA = {
-  gameSelectPos: 0,
+  gameSelectPos: 1,
   activeTween: null,
   activeVideo: null
 }
-const loadTitleMenu = async () => {
+const loadTitleMenu = async (straightToGameSelect) => {
   console.log('loadTitleMenu')
   console.log('mediaLoaded')
-  DATA.gameSelectPos = 0
+  DATA.gameSelectPos = 1
   window.DATA = DATA
   titleDialog = createDialogBox({
     id: 10,
@@ -58,7 +59,11 @@ const loadTitleMenu = async () => {
   await fadeOverlayOut(getMenuBlackOverlay())
   // showDebugText('Title')
   setMenuState(STATES.TITLE_SEQUENCE)
-  beginTitleSequence()
+  if (straightToGameSelect) {
+    showGameSelect()
+  } else {
+    beginTitleSequence()
+  }
 }
 
 const loadMedia = async () => {
@@ -224,10 +229,10 @@ const playCreditsLoop = async (video) => {
         const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
 
         await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 3000)
-        titleBlack.visible = false // TODO - For some reason I can't get THREE.SubtractiveBlending with opacity 0 to tween to invisible
-        nameBlack.visible = false
         await tweenSleep(1200)
         await tweenOpacity([titleBlack, titleWhite, nameWhite, nameBlack], 1, 0, 800)
+        titleBlack.visible = false // TODO - For some reason I can't get THREE.SubtractiveBlending with opacity 0 to tween to be invisible
+        nameBlack.visible = false
       }
 
       await tweenSleep(500)
@@ -342,7 +347,9 @@ const gameSelectConfirm = async () => {
     console.log('title SHOW LOAD GAME MENU')
     setMenuState('loading')
     await fadeOverlayIn(getMenuBlackOverlay())
-    loadGame(window.config.save.cardId, window.config.save.slotId) // TODO - Just temp
+    removeGroupChildren(gameSelectGroup)
+    loadSaveMenu(null, true)
+    // loadGame(window.config.save.cardId, window.config.save.slotId) // TODO - Just temp
   }
 }
 const keyPress = async (key, firstPress, state) => {

@@ -17,16 +17,21 @@ import {
   closeDialog
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
+import { loadTitleMenu } from './menu-title.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
-import { saveSaveMap } from '../data/savemap.js'
+import { loadGame, saveSaveMap } from '../data/savemap.js'
 
 let saveDescription, saveGroups, saveSlotId
 let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog, saveSlotsSavedDialog
 
-const loadSaveMenu = async (exitMenuOnSaveExit) => {
+const loadSaveMenu = async (exitMenuOnSaveExit, isLoadMode) => {
   if (exitMenuOnSaveExit) {
     SAVE_DATA.exitMenuOnSaveExit = exitMenuOnSaveExit
+  }
+  if (isLoadMode) {
+    SAVE_DATA.isLoadMode = isLoadMode
+    // TODO - Does load mode have a menu title in the rop right hand corner? Are the text labels any different?
   }
   saveDescription = createDialogBox({
     id: 7,
@@ -236,10 +241,12 @@ const SAVE_DATA = {
   groups: [],
   savePreviewDialogs: [],
   slot: 0,
-  exitMenuOnSaveExit: false
+  exitMenuOnSaveExit: false,
+  isLoadMode: false
 }
 window.SAVE_DATA = SAVE_DATA
 const drawAll = () => {
+  SAVE_DATA.group = 0
   createGroupSaves()
   drawSaveGroups()
 }
@@ -331,10 +338,10 @@ const loadChooseSaveGroup = () => {
   console.log('save loadChooseSaveGroup END')
 }
 const saveChooseGroupConfirm = () => {
-  // if (SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
-  //   console.log('save no active save in group')
-  //   return
-  // }
+  if (SAVE_DATA.isLoadMode && SAVE_DATA.groups[SAVE_DATA.group].filter(g => g.id === 'None').length === 15) {
+    console.log('save no active save in group')
+    return
+  }
 
   console.log('save saveChooseGroupConfirm 1')
   // Remove existing
@@ -637,6 +644,16 @@ const saveChooseSlotCancel = () => {
   loadChooseSaveGroup()
 }
 const saveChooseSlotSelect = () => {
+  console.log('save saveChooseSlotSelect', SAVE_DATA, SAVE_SLOT_POSITIONS)
+  if (SAVE_DATA.isLoadMode) {
+    if (!SAVE_DATA.groups[SAVE_DATA.group][SAVE_DATA.slot].hasOwnProperty('data')) {
+      console.log('save no active slot to load')
+      return
+    } else {
+      console.log('save load game', SAVE_DATA.group + 1, SAVE_DATA.slot + 1)
+      loadGame(SAVE_DATA.group + 1, SAVE_DATA.slot + 1)
+    }
+  }
   setMenuState('save-choose-slot-confirm')
   saveSlotsConfirmDialog.visible = true
   movePointer(POINTERS.pointer1, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].x, SAVE_SLOT_POSITIONS.cursorPositions[SAVE_SLOT_POSITIONS.cursorPosition].y, false, true)
@@ -690,6 +707,9 @@ const exitMenu = async () => {
   if (SAVE_DATA.exitMenuOnSaveExit) {
     console.log('save EXIT save')
     resolveMenuPromise()
+  } else if (SAVE_DATA.isLoadMode) {
+    console.log('save EXIT to title')
+    loadTitleMenu(true)
   } else {
     fadeInHomeMenu()
   }
