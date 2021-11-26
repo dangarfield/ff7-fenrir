@@ -139,7 +139,7 @@ const loadMenuWithWait = (menuCode, param) => {
         loadTitleMenu(param) // Done
         break
       case MENU_TYPE.GameOver:
-        loadGameOverMenu()
+        loadGameOverMenu() // Done
         break
       // case MENU_TYPE.YuffieSteal: console.log('TODO: YuffieSteal'); break
       // case MENU_TYPE.RemoveCloudMateria: console.log('TODO: RemoveCloudMateria'); break

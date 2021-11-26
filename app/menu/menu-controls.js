@@ -15,6 +15,7 @@ import { keyPress as keyPressShop } from './menu-shop.js'
 import { keyPress as keyPressCredits } from './menu-credits.js'
 import { keyPress as keyPressTitle } from './menu-title.js'
 import { keyPress as keyPressChangeDisc } from './menu-change-disc.js'
+import { keyPress as keyPressGameOver } from './menu-game-over.js'
 
 const areMenuControlsActive = () => {
   return window.anim.activeScene === 'menu'
@@ -51,6 +52,8 @@ const sendKeyPressToMenu = (key, firstPress, state) => {
     keyPressTitle(key, firstPress, state)
   } else if (state.startsWith('disc')) {
     keyPressChangeDisc(key, firstPress, state)
+  } else if (state.startsWith('gameover')) {
+    keyPressGameOver(key, firstPress, state)
   } else if (state.startsWith('quit')) {
     // Nothing...
   } else if (state === 'loading') {

@@ -18,7 +18,7 @@ import {
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { loadMovie } from '../media/media-movies.js'
-import { playMusic, loadMusic } from '../media/media-music.js'
+import { playMusic, loadMusic, stopMusic } from '../media/media-music.js'
 import { setCurrentDisc } from '../data/savemap-alias.js'
 import { loadTitleMenu } from './menu-title.js'
 
@@ -147,7 +147,7 @@ const playCreditsSequence = async () => {
 }
 const playEndingMusic = async () => {
   await loadMusic(100, 'roll')
-  playMusic(100, true, 1000)
+  playMusic(100, false, 1000)
 }
 const beginScrollingCredits = async (ms) => {
   if (getMenuState() !== STATES.CREDITS_SHOW) {
@@ -304,6 +304,7 @@ const exitCreditsToTitleScreen = async () => {
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
+  stopMusic(1000)
   await fadeOverlayIn(getMenuBlackOverlay())
 
   if (DATA.activeTween !== null) {
