@@ -1454,13 +1454,6 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) 
     h
   )
 
-  let materias
-  if (equipmentType === EQUIPMENT_TYPE.WEAPON) {
-    materias = weaponMateriaTypes(char)
-  } else if (equipmentType === EQUIPMENT_TYPE.ARMOR) {
-    materias = armorMateriaTypes(char)
-  }
-
   const slotOffset = 8
   const joinOffset = 7
   const materiaOffset = 0
@@ -1481,11 +1474,20 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) 
     }
   }
 
-  if (materias) {
-    for (let i = 0; i < materias.length; i++) {
-      const materia = materias[i]
-      if (materia !== 'None') {
-        addImageToDialog(dialog, 'materia', materia, `slot-${i}-link`, xStart + slotOffset + materiaOffset + (i * materiaGap), yStart, 0.5, THREE.AdditiveBlending)
+  if (char) {
+    let materias
+    if (equipmentType === EQUIPMENT_TYPE.WEAPON) {
+      materias = weaponMateriaTypes(char)
+    } else if (equipmentType === EQUIPMENT_TYPE.ARMOR) {
+      materias = armorMateriaTypes(char)
+    }
+
+    if (materias) {
+      for (let i = 0; i < materias.length; i++) {
+        const materia = materias[i]
+        if (materia !== 'None') {
+          addImageToDialog(dialog, 'materia', materia, `slot-${i}-link`, xStart + slotOffset + materiaOffset + (i * materiaGap), yStart, 0.5, THREE.AdditiveBlending)
+        }
       }
     }
   }

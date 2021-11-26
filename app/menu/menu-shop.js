@@ -17,7 +17,8 @@ import {
   createEquipmentMateriaViewer,
   EQUIPMENT_TYPE,
   removeGroupChildren,
-  createItemListNavigation
+  createItemListNavigation,
+  ALIGN
 } from './menu-box-helper.js'
 import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation } from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
@@ -28,6 +29,7 @@ import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
 import { getItemIcon, addItemToInventory } from '../items/items-module.js'
 import { addMateriaToInventory } from '../materia/materia-module.js'
+import { getGrowthText } from './menu-main-equip.js'
 
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
@@ -37,6 +39,7 @@ let buyItemListDialog, buyItemListGroup, buyItemListContentsGroup
 let buyOwnedDialog, buyOwnedGroup
 let partyEquipDialog, partyEquipGroup
 let buyCostDialog, buyCostGroup
+let buySlotsDialog, buySlotsGroup
 
 const MODE = {NAV: 'nav', BUY: 'buy', SELL: 'sell'}
 const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
@@ -54,12 +57,16 @@ const DATA = {
   shopData: {}
 }
 const loadShopData = (param) => {
-  const shop = window.data.exe.shopData.shops[param]
+  const shop = JSON.parse(JSON.stringify(window.data.exe.shopData.shops[param])) // Temp
+  // const shop = window.data.exe.shopData.shops[param]
   DATA.shopData = {
     shopName: shop.name,
     text: window.data.exe.shopData.text.normal, // TODO - When to use slang ?
     items: shop.items
   }
+  // Temp
+  DATA.shopData.items.push({type: 'item', id: 0, price: 100})
+  DATA.shopData.items.push({type: 'materia', id: 4, price: 1000})
   setDecriptionOwnedEquippedDetailsToItems()
 }
 const loadCharData = () => {
@@ -67,9 +74,9 @@ const loadCharData = () => {
   for (let i = 0; i < 9; i++) {
     const name = getPlayableCharacterName(i)
     const showChar = window.data.savemap.party.phsVisibility[name] === 1
-    const att = 12 // TBC
-    const def = 12
-    DATA.chars.push({name, showChar, att, def})
+    const atk = window.data.kernel.allItemData[window.data.savemap.characters[name].equip.weapon.itemId].attackStrength
+    const def = window.data.kernel.allItemData[window.data.savemap.characters[name].equip.armor.itemId].defense
+    DATA.chars.push({name, showChar, atk, def})
   }
 }
 const loadShopMenu = async param => {
@@ -78,6 +85,7 @@ const loadShopMenu = async param => {
   DATA.buy.pos = 0
   DATA.buy.page = 0
   DATA.buy.amount = 1
+  window.DATA = DATA
   loadCharData()
   loadShopData(param)
   console.log('shop loadShopMenu', param, DATA)
@@ -173,6 +181,20 @@ const loadShopMenu = async param => {
   // partyEquipDialog.visible = true
   partyEquipGroup = addGroupToDialog(partyEquipDialog, 23)
 
+  buySlotsDialog = createDialogBox({
+    id: 9,
+    name: 'buySlotsDialog',
+    w: 210,
+    h: 47,
+    x: 31,
+    y: 94.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // buySlotsDialog.visible = true
+  buySlotsDialog.position.z = 100 - 9
+  buySlotsGroup = addGroupToDialog(buySlotsDialog, 19)
+
   buyCostDialog = createDialogBox({
     id: 9,
     name: 'buyCostDialog',
@@ -185,14 +207,17 @@ const loadShopMenu = async param => {
   })
   // buyCostDialog.visible = true
   buyCostDialog.position.z = 100 - 9
+  buyCostDialog.userData.slotY = 31.5
   buyCostGroup = addGroupToDialog(buyCostDialog, 19)
 
+  window.buyCostDialog = buyCostDialog
   drawItemShop()
   drawActionDescription(DATA.shopData.text.hi)
   drawNav()
   drawNavPointer()
   drawPartyEquipFixedElements()
   drawBuyCostFixedElements()
+  drawBuySlotFixedElements()
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState(STATES.SHOP_NAV)
 }
@@ -459,7 +484,53 @@ const updateBuyItemPreviewDetails = () => {
   }
 
   // Party Equip
-  // TODO
+  removeGroupChildren(partyEquipGroup)
+  if (item.type === ITEM_TYPE.ITEM) {
+    const { x, y, xAdj, yAdj } = getPartyEquipPositions()
+    const itemData = window.data.kernel.allItemData[item.id]
+    if (itemData.equipableBy) {
+      console.log('shop updateBuyItemPreviewDetails', DATA, item, itemData)
+      for (let i = 0; i < DATA.chars.length; i++) {
+        const char = DATA.chars[i]
+        if (char.showChar && itemData.equipableBy.includes(char.name)) {
+          const currentAtk = char.atk
+          const currentDef = char.def
+          const newAtk = itemData.attackStrength ? itemData.attackStrength : currentAtk
+          const newDef = itemData.defense ? itemData.defense : currentDef
+          console.log('shop show item for', char, 'ATK', currentAtk, '->', newAtk, 'DEF', currentDef, '->', newDef)
+
+          const currentAtkStr = ('' + currentAtk).padStart(3, ' ')
+          const currentDefStr = ('' + currentDef).padStart(3, ' ')
+          const newAtkStr = ('' + newAtk).padStart(3, ' ')
+          const newDefStr = ('' + newDef).padStart(3, ' ')
+
+          let newAtkColor = LETTER_COLORS.White
+          if (newAtk > currentAtk) { newAtkColor = LETTER_COLORS.Yellow }
+          if (newAtk < currentAtk) { newAtkColor = LETTER_COLORS.Red }
+          let newDefColor = LETTER_COLORS.White
+          if (newDef > currentDef) { newDefColor = LETTER_COLORS.Yellow }
+          if (newDef < currentDef) { newDefColor = LETTER_COLORS.Red }
+
+          const rootX = x + ((i % 3) * xAdj) + 0
+          const rootY = y + (Math.trunc(i / 3) * yAdj) + 10
+          const rootYAdj = 12
+          const typeOffset = 18
+          const stat1Offset = 35
+          const arrowOffset = 54
+          const stat2Offset = 62
+          addTextToDialog(partyEquipGroup, 'A', `shop-partyequip-${i}-A`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, rootX + typeOffset, rootY, 0.5)
+          addTextToDialog(partyEquipGroup, currentAtkStr, `shop-partyequip-${i}-atk1`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, rootX + stat1Offset, rootY - 0.5, 0.5)
+          addTextToDialog(partyEquipGroup, '→', `shop-partyequip-${i}-arrow1`, LETTER_TYPES.MenuTextFixed, LETTER_COLORS.Cyan, rootX + arrowOffset, rootY - 0.5, 0.5)
+          addTextToDialog(partyEquipGroup, newAtkStr, `shop-partyequip-${i}-def1`, LETTER_TYPES.MenuTextStats, newAtkColor, rootX + stat2Offset, rootY - 0.5, 0.5)
+
+          addTextToDialog(partyEquipGroup, 'D', `shop-partyequip-${i}-A`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, rootX + typeOffset, rootY + rootYAdj, 0.5)
+          addTextToDialog(partyEquipGroup, currentDefStr, `shop-partyequip-${i}-atk2`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, rootX + stat1Offset, rootY + rootYAdj - 0.5, 0.5)
+          addTextToDialog(partyEquipGroup, '→', `shop-partyequip-${i}-arrow1`, LETTER_TYPES.MenuTextFixed, LETTER_COLORS.Cyan, rootX + arrowOffset, rootY + rootYAdj - 0.5, 0.5)
+          addTextToDialog(partyEquipGroup, newDefStr, `shop-partyequip-${i}-atk2`, LETTER_TYPES.MenuTextStats, newDefColor, rootX + stat2Offset, rootY + rootYAdj - 0.5, 0.5)
+        }
+      }
+    }
+  }
 }
 const getPartyEquipPositions = () => {
   return {
@@ -500,8 +571,31 @@ const buyCancel = () => {
 const buySelect = () => {
   DATA.buy.amount = 1
   drawBuyCost()
-  buyCostDialog.visible = true
-  setMenuState(STATES.SHOP_BUY_AMOUNT)
+
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
+
+  if (item.type === ITEM_TYPE.ITEM) {
+    const itemData = window.data.kernel.allItemData[item.id]
+    if (itemData.type === 'Weapon' || itemData.type === 'Armor') {
+      console.log('shop buySelect weapon/armor', itemData)
+      drawBuySlot()
+      buyCostDialog.position.y = buyCostDialog.userData.slotY
+      buyCostDialog.visible = true
+      buySlotsDialog.visible = true
+      setMenuState(STATES.SHOP_BUY_AMOUNT)
+    } else {
+      console.log('shop buySelect item', itemData)
+      buyCostDialog.position.y = 0
+      buyCostDialog.visible = true
+      setMenuState(STATES.SHOP_BUY_AMOUNT)
+    }
+  } else if (item.type === ITEM_TYPE.MATERIA) {
+    console.log('shop buySelect materia')
+    // TODO - Can you select how materia you buy?
+    buyCostDialog.position.y = 0
+    buyCostDialog.visible = true
+    setMenuState(STATES.SHOP_BUY_AMOUNT)
+  }
 }
 const buyAmountChangeAmount = (delta) => {
   const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
@@ -524,6 +618,7 @@ const buyAmountChangeAmount = (delta) => {
 }
 const buyAmountCancel = () => {
   buyCostDialog.visible = false
+  buySlotsDialog.visible = false
   updateBuyItemPreviewDetails()
   setMenuState(STATES.SHOP_BUY_SELECT)
 }
@@ -564,6 +659,22 @@ const drawBuyCostFixedElements = () => {
     )
   }
 }
+const drawBuySlotFixedElements = () => {
+  const texts = ['Slot', 'Growth']
+  for (let i = 0; i < texts.length; i++) {
+    const text = texts[i]
+    addTextToDialog(
+      buySlotsDialog,
+      text,
+      `shop-buy-cost-label-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Cyan,
+      45 - 8, // TODO - positions
+      114 + (i * 15) - 4,
+      0.5
+    )
+  }
+}
 const drawBuyCost = () => {
   removeGroupChildren(buyCostGroup)
   const price = DATA.shopData.items[DATA.buy.page + DATA.buy.pos].price
@@ -581,6 +692,33 @@ const drawBuyCost = () => {
       0.5
     )
   }
+}
+const drawBuySlot = () => {
+  removeGroupChildren(buySlotsGroup)
+  const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
+  const itemData = window.data.kernel.allItemData[item.id]
+  const slots = itemData.materiaSlots
+  const growthText = getGrowthText(itemData.growthRate)
+
+  console.log('shop growthText', growthText, itemData, itemData.growthRate)
+  createEquipmentMateriaViewer(buySlotsGroup,
+    116,
+    90.5,
+    slots
+  )
+
+  addTextToDialog(
+    buySlotsGroup,
+    growthText,
+    `shop-buy-growth-type`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    170 - 8, // TODO - positions
+    129 - 4,
+    0.5,
+    null,
+    ALIGN.CENTRE
+  )
 }
 const exitMenu = async () => {
   console.log('exitMenu')

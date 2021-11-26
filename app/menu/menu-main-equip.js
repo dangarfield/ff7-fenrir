@@ -706,4 +706,4 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadEquipMenu, keyPress }
+export { loadEquipMenu, keyPress, getGrowthText }

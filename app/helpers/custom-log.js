@@ -8,11 +8,7 @@ window.console = (function (origConsole) {
       'FLOW ERROR',
       'executeOpDEBUG',
       'press MAIN MENU HOME',
-      // 'movePointer',
-      'credits',
-      'title',
-      'music',
-      'save'
+      'shop'
     ],
     log: function () {
       if (limit) {
