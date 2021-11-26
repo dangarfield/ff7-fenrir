@@ -18,7 +18,9 @@ import {
   EQUIPMENT_TYPE,
   removeGroupChildren,
   createItemListNavigation,
-  ALIGN
+  ALIGN,
+  addShapeToDialog,
+  WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
 import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation } from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
@@ -54,7 +56,8 @@ const DATA = {
     amount: 1
   },
   chars: [], // Populated below
-  shopData: {}
+  shopData: {},
+  activeTween: null
 }
 const loadShopData = (param) => {
   const shop = JSON.parse(JSON.stringify(window.data.exe.shopData.shops[param])) // Temp
@@ -542,10 +545,23 @@ const getPartyEquipPositions = () => {
 }
 const drawPartyEquipFixedElements = () => {
   const { x, y, xAdj, yAdj } = getPartyEquipPositions()
+  DATA.profileBGs = []
   for (let i = 0; i < DATA.chars.length; i++) {
     const char = DATA.chars[i]
     if (char.showChar) {
-      addImageToDialog(partyEquipDialog, // TODO - There is a background fade effect here also
+      addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.CREDITS_BLACK, `shop-buy-equip-char-profile-${i}-bg`,
+        x + ((i % 3) * xAdj) + 0 + 12,
+        y + (Math.trunc(i / 3) * yAdj) + 15,
+        21 + 1,
+        24 + 1
+      )
+      DATA.profileBGs.push(addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.CREDITS_WHITE, `shop-buy-equip-char-profile-${i}-bg`,
+        x + ((i % 3) * xAdj) + 0 + 12,
+        y + (Math.trunc(i / 3) * yAdj) + 15,
+        21 + 1,
+        24 + 1
+      ))
+      const profile = addImageToDialog(partyEquipDialog, // TODO - There is a background fade effect here also
         'profiles',
         char.name,
         `shop-buy-equip-char-profile-${i}`,
@@ -553,8 +569,35 @@ const drawPartyEquipFixedElements = () => {
         y + (Math.trunc(i / 3) * yAdj) + 15,
         0.25
       )
+      console.log('shop profile', profile)
     }
   }
+
+  beginProfileBGTween()
+}
+const beginProfileBGTween = () => {
+  let from = {opacity: 0}
+  let to = {opacity: [1, 0]}
+  DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+  // .to(to, 415000)
+    .to(to, 2500)
+    .repeat(Infinity)
+    .onUpdate(function () {
+      // console.log('shop beginProfileBGTween update', from)
+      for (let i = 0; i < DATA.profileBGs.length; i++) {
+        const profileBG = DATA.profileBGs[i]
+        profileBG.material.opacity = from.opacity
+      }
+    })
+    .onStop(function () {
+      console.log('shop beginProfileBGTween resolve')
+      DATA.activeTween = null
+    })
+    .onComplete(function () {
+      console.log('shop beginProfileBGTween complete')
+      DATA.activeTween = null
+    })
+    .start()
 }
 const buyCancel = () => {
   itemInfoDialog.visible = false
@@ -727,6 +770,10 @@ const exitMenu = async () => {
   itemShopDialog.visible = false
   actionDescriptionDialog.visible = false
   navDialog.visible = false
+
+  if (DATA.activeTween !== null) {
+    DATA.activeTween.stop()
+  }
 
   console.log('shop EXIT')
   resolveMenuPromise()
