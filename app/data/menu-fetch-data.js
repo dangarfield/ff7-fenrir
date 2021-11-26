@@ -23,46 +23,37 @@ const loadMenuTextures = async () => {
       `${KUJATA_BASE}/metadata/menu-assets/menu_us.metadata.json`
     )
     const menu = await menuRes.json()
-    const assetTypes = Object.keys(menu)
 
     const creditsRes = await fetch(
       `${KUJATA_BASE}/metadata/credits-assets/credits-font.metadata.json`
     )
     const credits = await creditsRes.json()
-    const assetTypesCredits = Object.keys(credits)
 
-    for (let i = 0; i < assetTypes.length; i++) {
-      const assetType = assetTypes[i]
-      menuTextures[assetType] = {}
-      for (let j = 0; j < menu[assetType].length; j++) {
-        const asset = menu[assetType][j]
+    const discRes = await fetch(
+      `${KUJATA_BASE}/metadata/disc-assets/disc.metadata.json`
+    )
+    const disc = await discRes.json()
 
-        menuTextures[assetType][asset.description] = asset
-        menuTextures[assetType][asset.description].texture = new THREE.TextureLoader(manager).load(
-          `${KUJATA_BASE}/metadata/menu-assets/${assetType}/${asset.description}.png`
-        )
-        menuTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
-        menuTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
+    const textureGroups = [menu, credits, disc]
+    const textureGroupNames = ['menu', 'credits', 'disc']
+    for (let i = 0; i < textureGroups.length; i++) {
+      const textureGroup = textureGroups[i]
+      const textureGroupName = textureGroupNames[i]
+      const assetTypes = Object.keys(textureGroup)
+      for (let j = 0; j < assetTypes.length; j++) {
+        const assetType = assetTypes[j]
+        menuTextures[assetType] = {}
+        for (let k = 0; k < textureGroup[assetType].length; k++) {
+          const asset = textureGroup[assetType][k]
+          menuTextures[assetType][asset.description] = asset
+          menuTextures[assetType][asset.description].texture = new THREE.TextureLoader(manager).load(
+            `${KUJATA_BASE}/metadata/${textureGroupName}-assets/${assetType}/${asset.description}.png`
+          )
+          menuTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
+          menuTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
+        }
       }
     }
-
-    // console.log('shop assetTypes', assetTypes, assetTypesCredits, menuTextures)
-    for (let i = 0; i < assetTypesCredits.length; i++) {
-      const assetType = assetTypesCredits[i]
-      menuTextures[assetType] = {}
-      for (let j = 0; j < credits[assetType].length; j++) {
-        const asset = credits[assetType][j]
-
-        // console.log('shop assetTypesCredits', asset)
-        menuTextures[assetType][asset.description] = asset
-        menuTextures[assetType][asset.description].texture = new THREE.TextureLoader(manager).load(
-          `${KUJATA_BASE}/metadata/credits-assets/${assetType}/${asset.description}.png`
-        )
-        menuTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
-        menuTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
-      }
-    }
-    // console.log('shop menuTextures', menuTextures)
   })
 }
 
