@@ -31,7 +31,7 @@ const DATA = {
   activeVideo: null
 }
 const loadTitleMenu = async (straightToGameSelect) => {
-  console.log('loadTitleMenu')
+  console.log('title loadTitleMenu')
   console.log('mediaLoaded')
   DATA.gameSelectPos = 1
   window.DATA = DATA

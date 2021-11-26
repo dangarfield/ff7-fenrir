@@ -5,9 +5,9 @@ import { loadExeData } from './data/exe-fetch-data.js'
 import { loadCDData } from './data/cd-fetch-data.js'
 import { loadMenuTextures } from './data/menu-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
-import { loadGame } from './data/savemap.js'
+import { loadGame, initNewSaveMap } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
-import { initMenuModule } from './menu/menu-module.js'
+import { initMenuModule, loadMenuWithWait, MENU_TYPE } from './menu/menu-module.js'
 import { initBattleModule } from './battle/battle-module.js'
 import { initBattleSwirlModule } from './battle-swirl/battle-swirl-module.js'
 import { initMiniGameModule } from './minigame/minigame-module.js'
@@ -17,7 +17,7 @@ import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
 
 const initManager = async () => {
   // Generic Game loading
-  anim.container = document.getElementById('container')
+  window.anim.container = document.getElementById('container')
   if (window.config.debug.active) {
     showStats()
   }
@@ -38,7 +38,16 @@ const initManager = async () => {
   setDefaultMediaConfig()
   bindDisplayControls()
   await waitUntilMediaCanPlay()
-  // Default
-  loadGame(window.config.save.cardId, window.config.save.slotId)
+
+  const developerMode = window.location.host.includes('localhost')
+
+  if (developerMode) {
+    // Quick start
+    loadGame(window.config.save.cardId, window.config.save.slotId)
+  } else {
+    // Correct behaviour
+    initNewSaveMap()
+    loadMenuWithWait(MENU_TYPE.Title)
+  }
 }
 initManager()
