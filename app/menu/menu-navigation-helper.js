@@ -20,7 +20,9 @@ const tweenOneColumnVerticalNavigation = (group, up, state, page, yAdj, cb) => {
         subContents.children[i].visible = false
       }
       setMenuState(state)
-      cb()
+      if (cb) {
+        cb()
+      }
     })
     .start()
 }
@@ -55,7 +57,7 @@ const oneColumnVerticalNavigation = (delta, group, totalPerPage, totalItems, pag
       updateCB()
     }
   } else {
-    console.log('menu buyNavigate move pointer only', pagePos.page, pagePos.pos, potential)
+    console.log('menu oneColumnVerticalNavigation move pointer only', pagePos.page, pagePos.pos, potential)
     pagePos.pos = potential
     drawPointerCB()
     updateCB()
@@ -82,7 +84,48 @@ const oneColumnVerticalPageNavigation = (up, totalPerPage, totalItems, pagePos, 
   drawAllCB()
   updateCB()
 }
+const multiColumnVerticalNavigation = (delta, group, totalItems, pagePos, getItemPositionsCB, drawOneCB, drawAllCB, drawPointerCB, updateCB) => {
+  const { x, y, xAdj, yAdj, cols, lines } = getItemPositionsCB()
+  const totalPerPage = cols * lines
+  const maxPage = totalItems - totalPerPage
+  const potential = pagePos.pos + delta
+
+  console.log('menu multiColumnVerticalNavigation', delta, '-', pagePos.page, pagePos.pos, '->', potential, ':', maxPage, totalPerPage)
+
+  if (potential < 0) {
+    if (pagePos.page === 0) {
+      console.log('menu multiColumnVerticalNavigation on first page - do nothing')
+    } else {
+      console.log('menu multiColumnVerticalNavigation not on first page - PAGE DOWN')
+      drawOneCB(-2, pagePos.page, x, y, xAdj, yAdj, cols) // TODO - could be -2,-1, or -1, 0 etc
+      drawOneCB(-1, pagePos.page, x, y, xAdj, yAdj, cols)
+      // drawOneCB(0, pagePos.page, x, y, xAdj, yAdj, cols)
+      pagePos.page--
+      console.log('menu multiColumnVerticalNavigation not on first page - PAGE DOWN tween')
+      tweenOneColumnVerticalNavigation(group, false, getMenuState(), pagePos.page, yAdj, drawAllCB) // Could optimise further
+      updateCB()
+    }
+  } else if (potential >= Math.min(totalItems, totalPerPage)) {
+    console.log('menu multiColumnVerticalNavigation page - is last page??', pagePos.page, totalPerPage, maxPage)
+    if (pagePos.page >= maxPage) {
+      console.log('menu multiColumnVerticalNavigation on last page - do nothing')
+    } else {
+      console.log('menu multiColumnVerticalNavigation not on last page - PAGE UP', delta, pagePos.page)
+      drawOneCB(totalPerPage, pagePos.page, x, y, xAdj, yAdj, cols) // TODO - could be -2,-1, or -1, 0 etc
+      drawOneCB(totalPerPage + 1, pagePos.page, x, y, xAdj, yAdj, cols)
+      pagePos.page++
+      tweenOneColumnVerticalNavigation(group, true, getMenuState(), pagePos.page, yAdj, drawAllCB)
+      updateCB()
+    }
+  } else {
+    console.log('menu multiColumnVerticalNavigation move pointer only', pagePos.page, pagePos.pos, potential)
+    pagePos.pos = potential
+    drawPointerCB()
+    updateCB()
+  }
+}
 export {
   oneColumnVerticalNavigation,
-  oneColumnVerticalPageNavigation
+  oneColumnVerticalPageNavigation,
+  multiColumnVerticalNavigation
 }

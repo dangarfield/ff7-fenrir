@@ -8,7 +8,8 @@ window.console = (function (origConsole) {
       'FLOW ERROR',
       'executeOpDEBUG',
       'press MAIN MENU HOME',
-      'shop'
+      'shop',
+      'menu'
     ],
     log: function () {
       if (limit) {

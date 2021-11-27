@@ -22,7 +22,7 @@ import {
   addShapeToDialog,
   WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
-import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation } from './menu-navigation-helper.js'
+import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation, multiColumnVerticalNavigation } from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -36,21 +36,42 @@ import { getGrowthText } from './menu-main-equip.js'
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
 let navDialog
+let navSellDialog
 let itemInfoDialog, itemInfoGroup
 let buyItemListDialog, buyItemListGroup, buyItemListContentsGroup
+let sellItemListDialog, sellItemListGroup, sellItemListContentsGroup
 let buyOwnedDialog, buyOwnedGroup
 let partyEquipDialog, partyEquipGroup
 let buyCostDialog, buyCostGroup
 let buySlotsDialog, buySlotsGroup
 
-const MODE = {NAV: 'nav', BUY: 'buy', SELL: 'sell'}
+const MODE = {NAV: 'nav', BUY: 'buy', SELL_ITEMS: 'sell-items', SELL_MATERIA: 'sell-materia'}
 const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
-const STATES = {SHOP_NAV: 'shop-nav', SHOP_BUY_SELECT: 'shop-buy-select', SHOP_BUY_AMOUNT: 'shop-buy-amount'}
+const STATES = {
+  SHOP_NAV: 'shop-nav',
+  SHOP_NAV_SELL: 'shop-nav-sell',
+  SHOP_BUY_SELECT: 'shop-buy-select',
+  SHOP_BUY_AMOUNT: 'shop-buy-amount',
+  SHOP_SELL_ITEMS_SELECT: 'shop-sell-items-select',
+  SHOP_SELL_ITEMS_AMOUNT: 'shop-sell-items-amount',
+  SHOP_SELL_MATERIA_SELECT: 'shop-sell-materia-select',
+  SHOP_SELL_MATERIA_AMOUNT: 'shop-sell-materia-amount'
+}
+
+// SELL video - https://youtu.be/-PIG0GVeroQ?t=1083
+
 const DATA = {
-  nav: ['Buy', 'Sell', 'Exit'],
   mode: MODE.SEL,
+  nav: ['Buy', 'Sell', 'Exit'],
   navPos: 0,
+  navSell: ['Item', 'Materia'],
+  navSellPos: 0,
   buy: {
+    pos: 0,
+    page: 0,
+    amount: 1
+  },
+  sell: {
     pos: 0,
     page: 0,
     amount: 1
@@ -66,6 +87,7 @@ const loadShopData = (param) => {
     shopName: shop.name,
     text: window.data.exe.shopData.text.normal, // TODO - When to use slang ?
     items: shop.items
+    // TODO - Also, text.amountBuy is incorrectly mapped to whatSell, need to look at and fix
   }
   // Temp
   DATA.shopData.items.push({type: 'item', id: 0, price: 100})
@@ -85,25 +107,17 @@ const loadCharData = () => {
 const loadShopMenu = async param => {
   DATA.mode = MODE.NAV
   DATA.navPos = 0
+  DATA.navSellPos = 0
   DATA.buy.pos = 0
   DATA.buy.page = 0
   DATA.buy.amount = 1
+  DATA.sell.pos = 0
+  DATA.sell.page = 0
+  DATA.sell.amount = 1
   window.DATA = DATA
   loadCharData()
   loadShopData(param)
   console.log('shop loadShopMenu', param, DATA)
-
-  itemShopDialog = createDialogBox({
-    id: 15,
-    name: 'itemShopDialog',
-    w: 82, // 82 // TODO - all widths
-    h: 25.5, // 25.5
-    x: 238, // 238
-    y: 0,
-    expandInstantly: true,
-    noClipping: true
-  })
-  itemShopDialog.visible = true
 
   actionDescriptionDialog = createDialogBox({
     id: 13,
@@ -118,6 +132,18 @@ const loadShopMenu = async param => {
   actionDescriptionDialog.visible = true
   actionDescriptionGroup = addGroupToDialog(actionDescriptionDialog, 23)
 
+  itemShopDialog = createDialogBox({
+    id: 13,
+    name: 'itemShopDialog',
+    w: 82, // 82 // TODO - all widths
+    h: 25.5, // 25.5
+    x: 238, // 238
+    y: 0,
+    expandInstantly: true,
+    noClipping: true
+  })
+  itemShopDialog.visible = true
+
   navDialog = createDialogBox({
     id: 12,
     name: 'navDialog',
@@ -130,18 +156,17 @@ const loadShopMenu = async param => {
   })
   navDialog.visible = true
 
-  itemInfoDialog = createDialogBox({
-    id: 14,
-    name: 'itemInfoDialog',
-    w: 320,
+  navSellDialog = createDialogBox({
+    id: 12,
+    name: 'navSellDialog',
+    w: 97,
     h: 25.5,
-    x: 0,
-    y: 25.5,
+    x: 140.5,
+    y: 38,
     expandInstantly: true,
     noClipping: true
   })
-  // itemInfoDialog.visible = true
-  itemInfoGroup = addGroupToDialog(actionDescriptionDialog, 23)
+  // navSellDialog.visible = true
 
   buyItemListDialog = createDialogBox({
     id: 14,
@@ -157,6 +182,34 @@ const loadShopMenu = async param => {
   buyItemListGroup = addGroupToDialog(buyItemListDialog, 23)
   buyItemListContentsGroup = addGroupToDialog(buyItemListDialog, 23)
   buyItemListContentsGroup.userData.bg = buyItemListDialog.userData.bg
+
+  sellItemListDialog = createDialogBox({
+    id: 14,
+    name: 'sellItemListDialog',
+    w: 320,
+    h: 192,
+    x: 0,
+    y: 48,
+    expandInstantly: true,
+    noClipping: false
+  })
+  // sellItemListDialog.visible = true
+  sellItemListGroup = addGroupToDialog(sellItemListDialog, 23)
+  sellItemListContentsGroup = addGroupToDialog(sellItemListDialog, 23)
+  sellItemListContentsGroup.userData.bg = sellItemListDialog.userData.bg
+
+  itemInfoDialog = createDialogBox({
+    id: 14,
+    name: 'itemInfoDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 25.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // itemInfoDialog.visible = true
+  itemInfoGroup = addGroupToDialog(itemInfoDialog, 23)
 
   buyOwnedDialog = createDialogBox({
     id: 14,
@@ -218,6 +271,7 @@ const loadShopMenu = async param => {
   drawActionDescription(DATA.shopData.text.hi)
   drawNav()
   drawNavPointer()
+  drawNavSell()
   drawPartyEquipFixedElements()
   drawBuyCostFixedElements()
   drawBuySlotFixedElements()
@@ -232,9 +286,11 @@ const drawItemShop = () => {
     `shop-item-shop-label`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    254 - 8, // TODO - positions
+    279 - 8, // TODO - positions
     16 - 4,
-    0.5
+    0.5,
+    null,
+    ALIGN.CENTRE
   )
 }
 const drawActionDescription = (text) => {
@@ -288,9 +344,46 @@ const drawNav = () => {
     )
   }
 }
+
 const drawNavPointer = () => {
   const {x, y, xAdj} = getNavPositions()
   movePointer(POINTERS.pointer1, x + (xAdj * DATA.navPos) - 12, y - 0)
+}
+const getNavSellPositions = () => {
+  return {
+    x: 147.5,
+    y: 24 + 30,
+    xAdj: 44
+  }
+}
+const drawNavSell = () => {
+  const {x, y, xAdj} = getNavSellPositions()
+  for (let i = 0; i < DATA.navSell.length; i++) {
+    const navItem = DATA.navSell[i]
+    addTextToDialog(
+      navSellDialog,
+      navItem,
+      `shop-nav-sell-${i}`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      x + (xAdj * i) - 8, // TODO - positions
+      y - 4,
+      0.5
+    )
+  }
+}
+const drawNavSellPointer = () => {
+  const {x, y, xAdj} = getNavSellPositions()
+  movePointer(POINTERS.pointer1, x + (xAdj * DATA.navSellPos) - 12, y - 0)
+}
+const navSellNavigate = (delta) => {
+  DATA.navSellPos = DATA.navSellPos + delta
+  if (DATA.navSellPos >= DATA.navSell.length) {
+    DATA.navSellPos = DATA.navSell.length - 1
+  } else if (DATA.navSellPos < 0) {
+    DATA.navSellPos = 0
+  }
+  drawNavSellPointer()
 }
 const navNavigate = (delta) => {
   DATA.navPos = DATA.navPos + delta
@@ -307,12 +400,152 @@ const navSelect = () => {
   if (menuName === 'Buy') {
     loadBuyMode()
   } else if (menuName === 'Sell') {
-    // TODO
+    selectChooseSellType()
   } else if (menuName === 'Exit') {
     exitMenu()
   }
 }
+const selectChooseSellType = () => {
+  movePointer(POINTERS.pointer2, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  drawNavSellPointer()
+  navSellDialog.visible = true
+  setMenuState(STATES.SHOP_NAV_SELL)
+}
+const cancelChooseSellType = () => {
+  drawActionDescription(DATA.shopData.text.hi)
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  drawNavPointer()
+  navSellDialog.visible = false
+  setMenuState(STATES.SHOP_NAV)
+}
 
+const confirmChooseSellType = () => {
+  DATA.sell.pos = 0
+  DATA.sell.page = 0
+  DATA.sell.amount = 1
+
+  movePointer(POINTERS.pointer2, 0, 0, true)
+  navDialog.visible = false
+  navSellDialog.visible = false
+  itemInfoDialog.visible = true
+  sellItemListDialog.visible = true
+  drawActionDescription(DATA.shopData.text.whatSell)
+  DATA.sell = { pos: 0, page: 0, amount: 1 }
+  if (DATA.navSellPos === 0) {
+    loadSellItemsMode()
+  } else if (DATA.navSellPos === 1) {
+    loadSellItemsMode() // TODO
+    // loadSellMateriaMode()
+  }
+}
+const loadSellItemsMode = () => {
+  DATA.mode = MODE.SELL_ITEMS
+
+  drawSellItemsList()
+  drawSellItemsPointer()
+  updateSellItemDescription()
+  setMenuState(STATES.SHOP_SELL_ITEMS_SELECT)
+}
+const updateSellItemDescription = () => {
+  const { cols } = getSellItemsPositions()
+  const item = window.data.savemap.items[(DATA.sell.page * cols) + DATA.sell.pos]
+  if (item.index === 0x7F) {
+    removeGroupChildren(itemInfoGroup)
+  }
+  const itemData = window.data.kernel.allItemData[item.itemId]
+  drawInfoDescription(itemData.description)
+}
+const getSellItemsPositions = () => {
+  return {
+    x: 19,
+    y: 69,
+    xAdj: 145,
+    yAdj: 18,
+    cols: 2,
+    lines: 10
+  }
+}
+const drawSellItemsList = () => {
+  const { x, y, xAdj, yAdj, cols, lines } = getSellItemsPositions()
+
+  removeGroupChildren(sellItemListGroup)
+  if (DATA.shopData.items.length > 5) {
+    createItemListNavigation(sellItemListGroup, 320 - 7, 96, 186, window.data.savemap.items.length, lines)
+    sellItemListGroup.userData.slider.userData.moveToPage(0)
+  }
+
+  removeGroupChildren(sellItemListContentsGroup)
+
+  for (let i = 0; i < lines * cols; i++) { // TODO - 20 items?
+    drawOneSellItem(i, DATA.sell.page, x, y, xAdj, yAdj, cols)
+  }
+  if (window.data.savemap.items.length > lines * cols) {
+    sellItemListGroup.userData.slider.userData.moveToPage(DATA.sell.page)
+  }
+  sellItemListContentsGroup.position.y = 0
+}
+const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
+  const item = window.data.savemap.items[i + (page * cols)]
+
+  const rootX = x + (Math.abs(i % cols) * xAdj)
+  const rootY = y + (Math.floor(i / cols) * yAdj)
+  console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item.name, rootX, rootY)
+
+  if (item.index === 0x7F) {
+    return
+  }
+  const itemData = window.data.kernel.allItemData[item.itemId]
+
+  addImageToDialog(sellItemListContentsGroup,
+    'icons-menu',
+    getItemIcon(itemData),
+    `shop-buy-item-icon-${i}`,
+    rootX + 17 - 8,
+    rootY - 6,
+    0.5
+  )
+  addTextToDialog(
+    sellItemListContentsGroup,
+    itemData.name,
+    `shop-buy-item-${i}`,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    rootX + 18.5 - 8, // TODO - positions
+    rootY - 4,
+    0.5
+  )
+  addTextToDialog(
+    sellItemListContentsGroup,
+    ':',
+    `items-count-colon-${i}`,
+    LETTER_TYPES.MenuTextFixed,
+    LETTER_COLORS.White,
+    rootX + 107.5 - 8,
+    rootY - 3,
+    0.5
+  )
+  addTextToDialog(
+    sellItemListContentsGroup,
+    ('' + Math.min(99, item.quantity)).padStart(12, ' '),
+    `shop-buy-item-${i}`,
+    LETTER_TYPES.MenuTextStats,
+    LETTER_COLORS.White,
+    rootX + 54 - 8, // TODO - positions
+    rootY - 4,
+    0.5
+  )
+}
+const drawSellItemsPointer = () => {
+  console.log('shop drawSellItemsPointer', DATA)
+  const { x, y, xAdj, yAdj, cols } = getSellItemsPositions()
+  const rootX = x + ((DATA.sell.pos % cols) * xAdj)
+  const rootY = y + (Math.floor(DATA.sell.pos / cols) * yAdj)
+  movePointer(POINTERS.pointer1, rootX - 6.5, rootY - 0)
+}
+const loadSellMateriaMode = () => {
+  DATA.mode = MODE.SELL_MATERIA
+  // TODO copy from loadSellItemsMode()
+}
 const loadBuyMode = () => {
   DATA.mode = MODE.BUY
   itemInfoDialog.visible = true
@@ -326,6 +559,14 @@ const loadBuyMode = () => {
   drawBuyPointer()
   updateBuyItemPreviewDetails()
   setMenuState(STATES.SHOP_BUY_SELECT)
+}
+const sellCancel = () => {
+  DATA.mode = MODE.NAV
+  itemInfoDialog.visible = false
+  sellItemListDialog.visible = false
+  navDialog.visible = true
+  // TODO Back to main nav or sell nav?
+  cancelChooseSellType()
 }
 const getBuyItemPositions = () => {
   return {
@@ -791,6 +1032,16 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.O) {
       navSelect()
     }
+  } else if (state === STATES.SHOP_NAV_SELL) {
+    if (key === KEY.RIGHT) {
+      navSellNavigate(1)
+    } else if (key === KEY.LEFT) {
+      navSellNavigate(-1)
+    } else if (key === KEY.X) {
+      cancelChooseSellType(3) // Push to far right
+    } else if (key === KEY.O) {
+      confirmChooseSellType()
+    }
   } else if (state === STATES.SHOP_BUY_SELECT) {
     if (key === KEY.UP) {
       oneColumnVerticalNavigation(-1, buyItemListContentsGroup, 5, DATA.shopData.items.length, DATA.buy, getBuyItemPositions, drawOneBuyItem, drawBuyItemList, drawBuyPointer, updateBuyItemPreviewDetails)
@@ -818,6 +1069,24 @@ const keyPress = async (key, firstPress, state) => {
       buyAmountCancel()
     } else if (key === KEY.O) {
       buyAmountSelect()
+    }
+  } else if (state === STATES.SHOP_SELL_ITEMS_SELECT) {
+    if (key === KEY.LEFT) {
+      multiColumnVerticalNavigation(-1, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawOneSellItem, drawSellItemsList, drawSellItemsPointer, updateSellItemDescription)
+    } else if (key === KEY.RIGHT) {
+      multiColumnVerticalNavigation(1, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawOneSellItem, drawSellItemsList, drawSellItemsPointer, updateSellItemDescription)
+    } else if (key === KEY.UP) {
+      multiColumnVerticalNavigation(-2, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawOneSellItem, drawSellItemsList, drawSellItemsPointer, updateSellItemDescription)
+    } else if (key === KEY.DOWN) {
+      multiColumnVerticalNavigation(2, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawOneSellItem, drawSellItemsList, drawSellItemsPointer, updateSellItemDescription)
+    } else if (key === KEY.L1) {
+      // oneColumnVerticalPageNavigation(false, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
+    } else if (key === KEY.R1) {
+      // oneColumnVerticalPageNavigation(true, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
+    } else if (key === KEY.X) {
+      sellCancel()
+    } else if (key === KEY.O) {
+      // buySelect()
     }
   }
 }
