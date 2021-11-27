@@ -22,7 +22,8 @@ import {
   addShapeToDialog,
   WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
-import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation, multiColumnVerticalNavigation } from './menu-navigation-helper.js'
+import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation,
+  multiColumnVerticalNavigation, multiColumnVerticalPageNavigation } from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -489,7 +490,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
 
   const rootX = x + (Math.abs(i % cols) * xAdj)
   const rootY = y + (Math.floor(i / cols) * yAdj)
-  console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item.name, rootX, rootY)
+  // console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item.name, rootX, rootY)
 
   if (item.index === 0x7F) {
     return
@@ -1080,9 +1081,9 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.DOWN) {
       multiColumnVerticalNavigation(2, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawOneSellItem, drawSellItemsList, drawSellItemsPointer, updateSellItemDescription)
     } else if (key === KEY.L1) {
-      // oneColumnVerticalPageNavigation(false, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
+      multiColumnVerticalPageNavigation(false, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawSellItemsList, updateSellItemDescription)
     } else if (key === KEY.R1) {
-      // oneColumnVerticalPageNavigation(true, 5, DATA.shopData.items.length, DATA.buy, buyItemListGroup, drawBuyItemList, updateBuyItemPreviewDetails)
+      multiColumnVerticalPageNavigation(true, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawSellItemsList, updateSellItemDescription)
     } else if (key === KEY.X) {
       sellCancel()
     } else if (key === KEY.O) {
