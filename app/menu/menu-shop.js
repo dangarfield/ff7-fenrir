@@ -624,12 +624,17 @@ const sellItemsSelect = () => {
   console.log('shop sellSelect', DATA.sell.pos % 2, from, to)
   tweenSellCostDialog(sellCostDialog, from, to, 200, STATES.SHOP_SELL_ITEMS_AMOUNT)
 }
+const getSellItemsAmountPositions = () => {
+  return {
+    x: 8,
+    y: 68,
+    xAdj: 45,
+    xAdj2: 62,
+    yAdj: 13
+  }
+}
 const drawSellItemsAmountFixedElements = () => {
-  const x = 8
-  const y = 68
-  const xAdj = 45
-  const xAdj2 = 62
-  const yAdj = 13
+  const {x, y, xAdj, yAdj} = getSellItemsAmountPositions()
 
   const rows = [
     ['How many', 0, false],
@@ -645,11 +650,7 @@ const drawSellItemsAmountFixedElements = () => {
   }
 }
 const drawSellItemsAmount = () => {
-  const x = 8
-  const y = 68
-  const xAdj = 45
-  const xAdj2 = 62
-  const yAdj = 13
+  const {y, xAdj2, yAdj} = getSellItemsAmountPositions()
 
   const rowsValues = [
     [3, 0],
