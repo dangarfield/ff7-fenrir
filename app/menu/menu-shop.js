@@ -514,7 +514,12 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
   if (item.index === 0x7F) {
     return
   }
+
   const itemData = window.data.kernel.allItemData[item.itemId]
+  let color = LETTER_COLORS.White
+  if (!itemData.restrictions.includes('CanBeSold')) {
+    color = LETTER_COLORS.Gray
+  }
 
   addImageToDialog(sellItemListContentsGroup,
     'icons-menu',
@@ -529,7 +534,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
     itemData.name,
     `shop-buy-item-${i}`,
     LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
+    color,
     rootX + 18.5 - 8, // TODO - positions
     rootY - 4,
     0.5
@@ -539,7 +544,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
     ':',
     `items-count-colon-${i}`,
     LETTER_TYPES.MenuTextFixed,
-    LETTER_COLORS.White,
+    color,
     rootX + 107.5 - 8,
     rootY - 3,
     0.5
@@ -549,7 +554,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
     ('' + Math.min(99, item.quantity)).padStart(12, ' '),
     `shop-buy-item-${i}`,
     LETTER_TYPES.MenuTextStats,
-    LETTER_COLORS.White,
+    color,
     rootX + 54 - 8, // TODO - positions
     rootY - 4,
     0.5
@@ -608,11 +613,17 @@ const sellItemsSelect = () => {
   const { cols } = getSellItemsPositions()
   const item = window.data.savemap.items[DATA.sell.pos + (DATA.sell.page * cols)]
   console.log('shop sellSelect', item)
-  if (item.id === 0x7F) {
+  if (item.index === 0x7F) {
     return
   }
+
+  const itemData = window.data.kernel.allItemData[item.itemId]
+  if (!itemData.restrictions.includes('CanBeSold')) {
+    return
+  }
+  // TODO - Check if item is sellable, also grey out in rendering
   sellCostDialog.position.x = 0
-  drawSellItemsAmount()
+  drawSellItemsAmount(item, itemData)
   const from = {x: sellCostDialog.userData.leftX - 160}
   const to = {x: sellCostDialog.userData.leftX}
   if (DATA.sell.pos % 2 === 0) {
@@ -649,16 +660,42 @@ const drawSellItemsAmountFixedElements = () => {
     addTextToDialog(sellCostDialog, row[0], `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, row[2] ? xAdj : x, y + (row[1] * yAdj))
   }
 }
-const drawSellItemsAmount = () => {
+const drawSellItemsAmount = (item, itemData) => {
+  removeGroupChildren(sellCostGroup)
   const {y, xAdj2, yAdj} = getSellItemsAmountPositions()
 
+  console.log('shop drawSellItemsAmount', item, itemData)
+
+  let owned = 0
+  let equipped = 0
+
+  const ownedItemFilter = window.data.savemap.items.filter(i => i.itemId === item.itemId)
+  if (ownedItemFilter.length > 0) {
+    owned = Math.min(99, ownedItemFilter[0].quantity)
+  }
+  // Equipped
+  for (let i = 0; i < DATA.chars.length; i++) {
+    const char = window.data.savemap.characters[DATA.chars[i].name]
+    if (!DATA.chars[i].showChar) {
+      continue
+    }
+    if (char.equip.weapon.itemId === item.id) {
+      equipped++
+    } else if (char.equip.armor.itemId === item.id) {
+      equipped++
+    } else if (char.equip.accessory.itemId === item.id) {
+      equipped++
+    }
+  }
+
+  const itemPrice = Math.trunc(window.data.exe.shopData.shopItemPrices[item.itemId] * 0.5)
   const rowsValues = [
-    [3, 0],
-    [150, 1],
-    [523, 3],
-    [373, 7],
-    [3, 10],
-    [0, 12]
+    [DATA.sell.amount, 0],
+    [DATA.sell.amount * itemPrice, 1],
+    [window.data.savemap.gil + (DATA.sell.amount * itemPrice), 3],
+    [window.data.savemap.gil, 7],
+    [owned, 10],
+    [equipped, 12]
   ]
   for (let i = 0; i < rowsValues.length; i++) {
     const row = rowsValues[i]
