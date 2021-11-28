@@ -5,6 +5,7 @@ import { getMenuState, setMenuState } from './menu-module.js'
 const tweenOneColumnVerticalNavigation = (group, up, state, page, yAdj, cb) => {
   setMenuState('loading')
   const subContents = group
+  console.log('shop tweenOneColumnVerticalNavigation', group, up, state, page, yAdj, cb)
   for (let i = 0; i < page + 1; i++) {
     subContents.children[i].visible = true
   }
@@ -19,6 +20,31 @@ const tweenOneColumnVerticalNavigation = (group, up, state, page, yAdj, cb) => {
       for (let i = 0; i < page; i++) {
         subContents.children[i].visible = false
       }
+      setMenuState(state)
+      if (cb) {
+        cb()
+      }
+    })
+    .start()
+}
+const tweenMultiColumnVerticalNavigation = (group, up, state, page, yAdj, cb) => {
+  setMenuState('loading')
+  const subContents = group
+  console.log('shop tweenMultiColumnVerticalNavigation', group, up, state, page, yAdj)
+  // for (let i = 0; i < page + 1; i++) {
+  //   subContents.children[i].visible = true
+  // }
+  let from = {y: subContents.position.y}
+  let to = {y: up ? subContents.position.y + yAdj : subContents.position.y - yAdj}
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      subContents.position.y = from.y
+    })
+    .onComplete(function () {
+      // for (let i = 0; i < page; i++) {
+      //   subContents.children[i].visible = false
+      // }
       setMenuState(state)
       if (cb) {
         cb()
@@ -109,7 +135,7 @@ const multiColumnVerticalNavigation = (delta, group, totalItems, pagePos, getIte
       // drawOneCB(0, pagePos.page, x, y, xAdj, yAdj, cols)
       pagePos.page--
       console.log('menu multiColumnVerticalNavigation not on first page - PAGE DOWN tween')
-      tweenOneColumnVerticalNavigation(group, false, getMenuState(), pagePos.page, yAdj, drawAllCB) // Could optimise further
+      tweenMultiColumnVerticalNavigation(group, false, getMenuState(), pagePos.page, yAdj, drawAllCB) // Should optimise further
       updateCB()
     }
   } else if (potential >= Math.min(totalItems, totalPerPage)) {
@@ -127,7 +153,7 @@ const multiColumnVerticalNavigation = (delta, group, totalItems, pagePos, getIte
         pagePos.pos = pagePos.pos - (cols - 1)
         drawPointerCB()
       }
-      tweenOneColumnVerticalNavigation(group, true, getMenuState(), pagePos.page, yAdj, drawAllCB)
+      tweenMultiColumnVerticalNavigation(group, true, getMenuState(), pagePos.page, yAdj, drawAllCB)
       updateCB()
     }
   } else {

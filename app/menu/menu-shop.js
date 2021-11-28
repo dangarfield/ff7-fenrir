@@ -509,7 +509,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
 
   const rootX = x + (Math.abs(i % cols) * xAdj)
   const rootY = y + (Math.floor(i / cols) * yAdj)
-  // console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item.name, rootX, rootY)
+  // console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item, rootX, rootY)
 
   if (item.itemId === 0x7F) {
     return
@@ -679,11 +679,11 @@ const drawSellItemsAmount = (item, itemData) => {
     if (!DATA.chars[i].showChar) {
       continue
     }
-    if (char.equip.weapon.itemId === item.id) {
+    if (char.equip.weapon.itemId === item.itemId) {
       equipped++
-    } else if (char.equip.armor.itemId === item.id) {
+    } else if (char.equip.armor.itemId === item.itemId) {
       equipped++
-    } else if (char.equip.accessory.itemId === item.id) {
+    } else if (char.equip.accessory.itemId === item.itemId) {
       equipped++
     }
   }
