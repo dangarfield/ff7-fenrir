@@ -137,11 +137,13 @@ const removeItemFromInventory = (itemId, quantity) => {
   for (let i = 0; i < window.data.savemap.items.length; i++) {
     const item = window.data.savemap.items[i]
     if (item.itemId === itemId) {
-      item.quantity = item.quantity - quantity
+      item.quantity = Math.min(99, item.quantity) - quantity
       if (item.quantity <= 0) {
+        item.index = 127
         item.itemId = 127
         item.quantity = 127
         item.name = ''
+        item.description = ''
       }
       console.log('equip removeItemFromInventory removed')
     }
@@ -207,4 +209,4 @@ const equipItemOnCharacter = (char, itemToEquip) => {
   // If weapon / armor has been change and materia menu is available, load materia inventory on exitMenu
   return showMateriaMenuOnExit
 }
-export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter, addItemToInventory }
+export { debugFillItems, debugClearItems, getItemIcon, getKeyItems, equipItemOnCharacter, addItemToInventory, removeItemFromInventory }

@@ -30,7 +30,7 @@ import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
-import { getItemIcon, addItemToInventory } from '../items/items-module.js'
+import { getItemIcon, addItemToInventory, removeItemFromInventory } from '../items/items-module.js'
 import { addMateriaToInventory } from '../materia/materia-module.js'
 import { getGrowthText } from './menu-main-equip.js'
 
@@ -469,7 +469,7 @@ const loadSellItemsMode = () => {
 const updateSellItemDescription = () => {
   const { cols } = getSellItemsPositions()
   const item = window.data.savemap.items[(DATA.sell.page * cols) + DATA.sell.pos]
-  if (item.index === 0x7F) {
+  if (item.itemId === 0x7F) {
     removeGroupChildren(itemInfoGroup)
   }
   const itemData = window.data.kernel.allItemData[item.itemId]
@@ -511,7 +511,7 @@ const drawOneSellItem = (i, page, x, y, xAdj, yAdj, cols) => {
   const rootY = y + (Math.floor(i / cols) * yAdj)
   // console.log('shop drawOneSellItem', i, page, x, y, xAdj, yAdj, item.name, rootX, rootY)
 
-  if (item.index === 0x7F) {
+  if (item.itemId === 0x7F) {
     return
   }
 
@@ -613,15 +613,15 @@ const sellItemsSelect = () => {
   const { cols } = getSellItemsPositions()
   const item = window.data.savemap.items[DATA.sell.pos + (DATA.sell.page * cols)]
   console.log('shop sellSelect', item)
-  if (item.index === 0x7F) {
+  if (item.itemId === 0x7F) {
     return
   }
-
   const itemData = window.data.kernel.allItemData[item.itemId]
   if (!itemData.restrictions.includes('CanBeSold')) {
     return
   }
-  // TODO - Check if item is sellable, also grey out in rendering
+  movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  DATA.sell.amount = 1
   sellCostDialog.position.x = 0
   drawSellItemsAmount(item, itemData)
   const from = {x: sellCostDialog.userData.leftX - 160}
@@ -702,11 +702,40 @@ const drawSellItemsAmount = (item, itemData) => {
     addTextToDialog(sellCostGroup, ('' + row[0]).padStart(10, ' '), `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, xAdj2, y + (row[1] * yAdj))
   }
 }
+const sellItemAmountChangeAmount = (delta) => {
+  const { cols } = getSellItemsPositions()
+  const item = window.data.savemap.items[DATA.sell.pos + (DATA.sell.page * cols)]
+
+  const maxSellable = Math.min(99, item.quantity)
+
+  DATA.sell.amount = DATA.sell.amount + delta
+  if (DATA.sell.amount > maxSellable) {
+    DATA.sell.amount = maxSellable
+  }
+  if (DATA.sell.amount < 1) {
+    DATA.sell.amount = 1
+  }
+  const itemData = window.data.kernel.allItemData[item.itemId]
+  drawSellItemsAmount(item, itemData)
+}
 
 const sellItemsAmountCancel = () => {
   sellCostDialog.visible = false
   console.log('shop sellItemsAmountCancel')
+  drawSellItemsPointer()
   setMenuState(STATES.SHOP_SELL_ITEMS_SELECT)
+}
+const sellItemsAmountSelect = () => {
+  const { cols } = getSellItemsPositions()
+  const item = window.data.savemap.items[DATA.sell.pos + (DATA.sell.page * cols)]
+  const itemData = window.data.kernel.allItemData[item.itemId]
+  const itemPrice = Math.trunc(window.data.exe.shopData.shopItemPrices[item.itemId] * 0.5)
+  console.log('shop sellItemsAmountSelect', item, itemData, itemPrice, DATA.sell.amount)
+  // TODO - Decrement / remove items, add gil, trigger sellItemsAmountCancel
+  removeItemFromInventory(item.itemId, DATA.sell.amount)
+  window.data.savemap.gil = window.data.savemap.gil + (itemPrice * DATA.sell.amount)
+  sellItemsAmountCancel()
+  drawSellItemsList()
 }
 const getBuyItemPositions = () => {
   return {
@@ -1230,17 +1259,17 @@ const keyPress = async (key, firstPress, state) => {
     }
   } else if (state === STATES.SHOP_SELL_ITEMS_AMOUNT) {
     if (key === KEY.UP) {
-      // buyAmountChangeAmount(1)
+      sellItemAmountChangeAmount(1)
     } else if (key === KEY.DOWN) {
-      // buyAmountChangeAmount(-1)
+      sellItemAmountChangeAmount(-1)
     } else if (key === KEY.RIGHT) {
-      // buyAmountChangeAmount(10)
+      sellItemAmountChangeAmount(10)
     } else if (key === KEY.LEFT) {
-      // buyAmountChangeAmount(-10)
+      sellItemAmountChangeAmount(-10)
     } else if (key === KEY.X) {
       sellItemsAmountCancel()
     } else if (key === KEY.O) {
-      // buyAmountSelect()
+      sellItemsAmountSelect()
     }
   }
 }
