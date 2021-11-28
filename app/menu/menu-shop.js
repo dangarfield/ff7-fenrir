@@ -41,6 +41,7 @@ let navSellDialog
 let itemInfoDialog, itemInfoGroup
 let buyItemListDialog, buyItemListGroup, buyItemListContentsGroup
 let sellItemListDialog, sellItemListGroup, sellItemListContentsGroup
+let sellCostDialog, sellCostGroup
 let buyOwnedDialog, buyOwnedGroup
 let partyEquipDialog, partyEquipGroup
 let buyCostDialog, buyCostGroup
@@ -195,9 +196,26 @@ const loadShopMenu = async param => {
     noClipping: false
   })
   // sellItemListDialog.visible = true
+
   sellItemListGroup = addGroupToDialog(sellItemListDialog, 23)
   sellItemListContentsGroup = addGroupToDialog(sellItemListDialog, 23)
   sellItemListContentsGroup.userData.bg = sellItemListDialog.userData.bg
+
+  sellCostDialog = createDialogBox({
+    id: 13,
+    name: 'sellCostDialog',
+    w: 150,
+    h: 192,
+    x: 0,
+    y: 48,
+    expandInstantly: true,
+    noClipping: true
+  })
+  sellCostDialog.position.z = 100 - 13
+  // sellItemListDialog.visible = true
+  sellCostDialog.userData.leftX = 0
+  sellCostDialog.userData.rightX = 320 - 150 - 11
+  sellCostGroup = addGroupToDialog(sellCostDialog, 22)
 
   itemInfoDialog = createDialogBox({
     id: 14,
@@ -561,13 +579,86 @@ const loadBuyMode = () => {
   updateBuyItemPreviewDetails()
   setMenuState(STATES.SHOP_BUY_SELECT)
 }
-const sellCancel = () => {
+const sellItemsCancel = () => {
   DATA.mode = MODE.NAV
   itemInfoDialog.visible = false
   sellItemListDialog.visible = false
   navDialog.visible = true
   // TODO Back to main nav or sell nav?
   cancelChooseSellType()
+}
+const tweenSellCostDialog = (group, from, to, ms, state, cb) => {
+  setMenuState('loading')
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, ms)
+    .onUpdate(function () {
+      group.position.x = from.x
+    })
+    .onComplete(function () {
+      setMenuState(state)
+      if (cb) {
+        cb()
+      }
+    })
+    .start()
+}
+const sellItemsSelect = () => {
+  window.sellCostDialog = sellCostDialog
+  const { cols } = getSellItemsPositions()
+  const item = window.data.savemap.items[DATA.sell.pos + (DATA.sell.page * cols)]
+  console.log('shop sellSelect', item)
+  if (item.id === 0x7F) {
+    return
+  }
+  const from = {x: sellCostDialog.userData.leftX - 160}
+  const to = {x: sellCostDialog.userData.leftX}
+  if (DATA.sell.pos % 2 === 0) {
+    from.x = sellCostDialog.userData.rightX + 160
+    to.x = sellCostDialog.userData.rightX
+  }
+  // drawSellItemsAmount()
+  sellCostDialog.visible = true
+
+  console.log('shop sellSelect', DATA.sell.pos % 2, from, to)
+  tweenSellCostDialog(sellCostDialog, from, to, 200, STATES.SHOP_SELL_ITEMS_AMOUNT)
+}
+const drawSellItemsAmount = () => {
+  const x = 40
+  const y = 60
+  const xAdj = 70
+  const xAdj2 = 75
+  const yAdj = 13
+
+  const rows = [
+    ['How many', 0, false],
+    ['How many', 1, false],
+    ['How many', 2, false],
+    ['Gil', 7, true],
+    ['Owned', 10, true],
+    ['Equipped', 12, true]
+  ]
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]
+    addTextToDialog(sellCostGroup, row[0], `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, row[2] ? xAdj : x, y + (row[1] * yAdj))
+  }
+  const rowsValues = [
+    [3, 0],
+    [150, 1],
+    [523, 3],
+    [373, 8],
+    [3, 11],
+    [0, 13]
+  ]
+  for (let i = 0; i < rowsValues.length; i++) {
+    const row = rowsValues[i]
+    addTextToDialog(sellCostGroup, ('' + row[0]).padStart(10, ' '), `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, xAdj2, y + (row[1] * yAdj))
+  }
+}
+
+const sellItemsAmountCancel = () => {
+  sellCostDialog.visible = false
+  console.log('shop sellItemsAmountCancel')
+  setMenuState(STATES.SHOP_SELL_ITEMS_SELECT)
 }
 const getBuyItemPositions = () => {
   return {
@@ -1085,9 +1176,23 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.R1) {
       multiColumnVerticalPageNavigation(true, sellItemListContentsGroup, window.data.savemap.items.length, DATA.sell, getSellItemsPositions, drawSellItemsList, updateSellItemDescription)
     } else if (key === KEY.X) {
-      sellCancel()
+      sellItemsCancel()
     } else if (key === KEY.O) {
-      // buySelect()
+      sellItemsSelect()
+    }
+  } else if (state === STATES.SHOP_SELL_ITEMS_AMOUNT) {
+    if (key === KEY.UP) {
+      // buyAmountChangeAmount(1)
+    } else if (key === KEY.DOWN) {
+      // buyAmountChangeAmount(-1)
+    } else if (key === KEY.RIGHT) {
+      // buyAmountChangeAmount(10)
+    } else if (key === KEY.LEFT) {
+      // buyAmountChangeAmount(-10)
+    } else if (key === KEY.X) {
+      sellItemsAmountCancel()
+    } else if (key === KEY.O) {
+      // buyAmountSelect()
     }
   }
 }
