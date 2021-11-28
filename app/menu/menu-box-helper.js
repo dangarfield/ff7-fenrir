@@ -762,6 +762,9 @@ const addTextToDialog = (
 
   let fullWidth = 0
 
+  if (scale === undefined || scale === null) {
+    scale = 0.5
+  }
   for (let i = 0; i < letters.length; i++) {
     const letter = letters[i]
     const textureLetter = getLetterTexture(letter, letterType, color)

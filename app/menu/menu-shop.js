@@ -212,10 +212,10 @@ const loadShopMenu = async param => {
     noClipping: true
   })
   sellCostDialog.position.z = 100 - 13
+  sellCostGroup = addGroupToDialog(sellCostDialog, 22)
   // sellItemListDialog.visible = true
   sellCostDialog.userData.leftX = 0
   sellCostDialog.userData.rightX = 320 - 150 - 11
-  sellCostGroup = addGroupToDialog(sellCostDialog, 22)
 
   itemInfoDialog = createDialogBox({
     id: 14,
@@ -294,6 +294,7 @@ const loadShopMenu = async param => {
   drawPartyEquipFixedElements()
   drawBuyCostFixedElements()
   drawBuySlotFixedElements()
+  drawSellItemsAmountFixedElements()
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState(STATES.SHOP_NAV)
 }
@@ -610,44 +611,53 @@ const sellItemsSelect = () => {
   if (item.id === 0x7F) {
     return
   }
+  sellCostDialog.position.x = 0
+  drawSellItemsAmount()
   const from = {x: sellCostDialog.userData.leftX - 160}
   const to = {x: sellCostDialog.userData.leftX}
   if (DATA.sell.pos % 2 === 0) {
     from.x = sellCostDialog.userData.rightX + 160
     to.x = sellCostDialog.userData.rightX
   }
-  // drawSellItemsAmount()
   sellCostDialog.visible = true
 
   console.log('shop sellSelect', DATA.sell.pos % 2, from, to)
   tweenSellCostDialog(sellCostDialog, from, to, 200, STATES.SHOP_SELL_ITEMS_AMOUNT)
 }
-const drawSellItemsAmount = () => {
-  const x = 40
-  const y = 60
-  const xAdj = 70
-  const xAdj2 = 75
+const drawSellItemsAmountFixedElements = () => {
+  const x = 8
+  const y = 68
+  const xAdj = 45
+  const xAdj2 = 62
   const yAdj = 13
 
   const rows = [
     ['How many', 0, false],
-    ['How many', 1, false],
-    ['How many', 2, false],
-    ['Gil', 7, true],
-    ['Owned', 10, true],
-    ['Equipped', 12, true]
+    ['Total', 1, false],
+    ['Gil remaining', 2, false],
+    ['Gil', 6, true],
+    ['Owned', 9, true],
+    ['Equipped', 11, true]
   ]
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
-    addTextToDialog(sellCostGroup, row[0], `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, row[2] ? xAdj : x, y + (row[1] * yAdj))
+    addTextToDialog(sellCostDialog, row[0], `shop-sell-item-cost-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, row[2] ? xAdj : x, y + (row[1] * yAdj))
   }
+}
+const drawSellItemsAmount = () => {
+  const x = 8
+  const y = 68
+  const xAdj = 45
+  const xAdj2 = 62
+  const yAdj = 13
+
   const rowsValues = [
     [3, 0],
     [150, 1],
     [523, 3],
-    [373, 8],
-    [3, 11],
-    [0, 13]
+    [373, 7],
+    [3, 10],
+    [0, 12]
   ]
   for (let i = 0; i < rowsValues.length; i++) {
     const row = rowsValues[i]
