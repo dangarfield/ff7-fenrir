@@ -33,6 +33,7 @@ import { navigateSelect } from '../world/world-destination-selector.js'
 import { getItemIcon, addItemToInventory, removeItemFromInventory } from '../items/items-module.js'
 import { addMateriaToInventory } from '../materia/materia-module.js'
 import { getGrowthText } from './menu-main-equip.js'
+import { drawMateriaListOneItem, getSmallMateriaListPositions as getSellMateriaPositions } from './menu-main-materia.js'
 
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
@@ -46,6 +47,10 @@ let buyOwnedDialog, buyOwnedGroup
 let partyEquipDialog, partyEquipGroup
 let buyCostDialog, buyCostGroup
 let buySlotsDialog, buySlotsGroup
+let sellMateriaListDialog, sellMateriaListGroup, sellMateriaListContentsGroup
+let sellMateriaDetailsDialog, sellMateriaDetailsGroup, sellMateriaDetailsEnemySkillGroup
+let sellMateriaInfoDialog, sellMateriaInfoGroup
+let sellMateriaCostDialog, sellMateriaCostGroup
 
 const MODE = {NAV: 'nav', BUY: 'buy', SELL_ITEMS: 'sell-items', SELL_MATERIA: 'sell-materia'}
 const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
@@ -108,6 +113,8 @@ const loadCharData = () => {
   }
 }
 const loadShopMenu = async param => {
+  window.debugPopulateMenuTestData() // temp
+
   DATA.mode = MODE.NAV
   DATA.navPos = 0
   DATA.navSellPos = 0
@@ -287,6 +294,61 @@ const loadShopMenu = async param => {
   buyCostGroup = addGroupToDialog(buyCostDialog, 19)
 
   window.buyCostDialog = buyCostDialog
+
+  sellMateriaListDialog = createDialogBox({
+    id: 23,
+    name: 'sellMateriaListDialog',
+    w: 129.5,
+    h: 144.5,
+    x: 190.5,
+    y: 95.5,
+    expandInstantly: true,
+    noClipping: false
+  })
+  // sellMateriaListDialog.visible = true
+  sellMateriaListGroup = addGroupToDialog(sellMateriaListDialog, 33)
+  sellMateriaListContentsGroup = addGroupToDialog(sellMateriaListDialog, 33)
+
+  sellMateriaDetailsDialog = createDialogBox({
+    id: 22,
+    name: 'sellMateriaDetailsDialog',
+    w: 193.5,
+    h: 144.5,
+    x: 0,
+    y: 95.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // sellMateriaDetailsDialog.visible = true
+  sellMateriaDetailsGroup = addGroupToDialog(sellMateriaDetailsDialog, 32)
+  sellMateriaDetailsEnemySkillGroup = addGroupToDialog(sellMateriaDetailsDialog, 32)
+
+  sellMateriaInfoDialog = createDialogBox({
+    id: 21,
+    name: 'sellMateriaInfoDialog',
+    w: 320,
+    h: 25.5,
+    x: 0,
+    y: 73,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // sellMateriaInfoDialog.visible = true
+  sellMateriaInfoGroup = addGroupToDialog(sellMateriaInfoDialog, 31)
+
+  sellMateriaCostDialog = createDialogBox({
+    id: 25,
+    name: 'sellMateriaCostDialog',
+    w: 320,
+    h: 73 - 25.5,
+    x: 0,
+    y: 25.5,
+    expandInstantly: true,
+    noClipping: true
+  })
+  // sellMateriaCostDialog.visible = true
+  sellMateriaCostGroup = addGroupToDialog(sellMateriaCostDialog, 35)
+
   drawItemShop()
   drawActionDescription(DATA.shopData.text.hi)
   drawNav()
@@ -448,20 +510,21 @@ const confirmChooseSellType = () => {
   movePointer(POINTERS.pointer2, 0, 0, true)
   navDialog.visible = false
   navSellDialog.visible = false
-  itemInfoDialog.visible = true
-  sellItemListDialog.visible = true
   drawActionDescription(DATA.shopData.text.whatSell)
   DATA.sell = { pos: 0, page: 0, amount: 1 }
   if (DATA.navSellPos === 0) {
     loadSellItemsMode()
   } else if (DATA.navSellPos === 1) {
-    loadSellItemsMode() // TODO
-    // loadSellMateriaMode()
+    loadSellMateriaMode()
   }
 }
 const loadSellItemsMode = () => {
   DATA.mode = MODE.SELL_ITEMS
 
+  itemInfoDialog.visible = true
+  sellItemListDialog.visible = true
+
+  drawSellItemsListFixed()
   drawSellItemsList()
   drawSellItemsPointer()
   updateSellItemDescription()
@@ -486,14 +549,16 @@ const getSellItemsPositions = () => {
     lines: 10
   }
 }
-const drawSellItemsList = () => {
-  const { x, y, xAdj, yAdj, cols, lines } = getSellItemsPositions()
-
+const drawSellItemsListFixed = () => {
+  const { lines } = getSellItemsPositions()
   removeGroupChildren(sellItemListGroup)
   if (DATA.shopData.items.length > 5) {
     createItemListNavigation(sellItemListGroup, 320 - 7, 96, 186, window.data.savemap.items.length, lines)
     sellItemListGroup.userData.slider.userData.moveToPage(0)
   }
+}
+const drawSellItemsList = () => {
+  const { x, y, xAdj, yAdj, cols, lines } = getSellItemsPositions()
 
   removeGroupChildren(sellItemListContentsGroup)
 
@@ -570,7 +635,58 @@ const drawSellItemsPointer = () => {
 }
 const loadSellMateriaMode = () => {
   DATA.mode = MODE.SELL_MATERIA
-  // TODO copy from loadSellItemsMode()
+
+  sellMateriaListDialog.visible = true
+  sellMateriaDetailsDialog.visible = true
+  sellMateriaInfoDialog.visible = true
+  sellMateriaCostDialog.visible = true
+
+  drawSellMateriaListFixed()
+  drawSellMateriaList()
+  drawSellMateriaPointer()
+  updateSellMateriaDescription()
+
+  setMenuState(STATES.SHOP_SELL_MATERIA_SELECT)
+}
+const drawSellMateriaListFixed = () => {
+  const { lines } = getSellMateriaPositions()
+  removeGroupChildren(sellMateriaListGroup)
+  createItemListNavigation(sellMateriaListGroup, 313, 104 - 32.25, 138.5, window.data.savemap.materias.length, lines)
+  sellMateriaListGroup.userData.slider.userData.moveToPage(0)
+}
+const drawSellMateriaList = () => {
+  const { x, y, yAdj, lines } = getSellMateriaPositions()
+  console.log('shop drawSellMateriaList', x, y, yAdj, lines)
+  removeGroupChildren(sellMateriaListContentsGroup)
+
+  for (let i = 0; i < lines; i++) {
+    drawMateriaListOneItem(sellMateriaListContentsGroup, i, DATA.sell.page, x, y, yAdj)
+  }
+  if (window.data.savemap.items.length > lines) {
+    sellMateriaListGroup.userData.slider.userData.moveToPage(DATA.sell.page)
+  }
+  sellMateriaListContentsGroup.position.y = 0
+}
+const drawSellMateriaPointer = () => {
+  const { x, y, yAdj } = getSellMateriaPositions()
+  movePointer(POINTERS.pointer1,
+    x - 14, // TODO - get position right
+    y + (DATA.sell.pos * yAdj) + 4
+  )
+}
+const updateSellMateriaDescription = () => {
+  console.log('shop updateSellMateriaDescription')
+}
+const sellMateriaCancel = () => {
+  DATA.mode = MODE.NAV
+  sellMateriaListDialog.visible = false
+  sellMateriaDetailsDialog.visible = false
+  sellMateriaInfoDialog.visible = false
+  sellMateriaCostDialog.visible = false
+
+  navDialog.visible = true
+  // TODO Back to main nav or sell nav?
+  cancelChooseSellType()
 }
 const loadBuyMode = () => {
   DATA.mode = MODE.BUY
@@ -746,7 +862,7 @@ const getBuyItemPositions = () => {
   }
 }
 
-const drawOneBuyItem = (i, page, x, y, yAdj) => {
+const drawOneBuyItem = (group, i, page, x, y, yAdj) => {
   const item = DATA.shopData.items[i + page]
   let itemName
   let itemNameOffset
@@ -765,7 +881,7 @@ const drawOneBuyItem = (i, page, x, y, yAdj) => {
   }
 
   addTextToDialog(
-    buyItemListContentsGroup,
+    group,
     itemName,
     `shop-buy-item-${i}`,
     LETTER_TYPES.MenuBaseFont,
@@ -774,7 +890,7 @@ const drawOneBuyItem = (i, page, x, y, yAdj) => {
     y + (yAdj * i) - 4,
     0.5
   )
-  addImageToDialog(buyItemListContentsGroup,
+  addImageToDialog(group,
     icon[0],
     icon[1],
     `shop-buy-item-icon-${i}`,
@@ -783,7 +899,7 @@ const drawOneBuyItem = (i, page, x, y, yAdj) => {
     0.5
   )
   addTextToDialog(
-    buyItemListContentsGroup,
+    group,
     ('' + item.price).padStart(12, ' '),
     `shop-buy-item-${i}`,
     LETTER_TYPES.MenuTextStats,
@@ -803,7 +919,7 @@ const drawBuyItemList = () => {
   removeGroupChildren(buyItemListContentsGroup)
   const { x, y, yAdj } = getBuyItemPositions()
   for (let i = 0; i < Math.min(DATA.shopData.items.length, 5); i++) {
-    drawOneBuyItem(i, DATA.buy.page, x, y, yAdj)
+    drawOneBuyItem(buyItemListContentsGroup, i, DATA.buy.page, x, y, yAdj)
   }
   if (DATA.shopData.items.length > 5) {
     buyItemListGroup.userData.slider.userData.moveToPage(DATA.buy.page)
@@ -1271,6 +1387,34 @@ const keyPress = async (key, firstPress, state) => {
       sellItemsAmountCancel()
     } else if (key === KEY.O) {
       sellItemsAmountSelect()
+    }
+  } else if (state === STATES.SHOP_SELL_MATERIA_SELECT) {
+    if (key === KEY.UP) {
+      oneColumnVerticalNavigation(-1, sellMateriaListContentsGroup, 10, window.data.savemap.materias.length, DATA.sell, getSellMateriaPositions, drawMateriaListOneItem, drawSellMateriaList, drawSellMateriaPointer, updateSellMateriaDescription)
+    } else if (key === KEY.DOWN) {
+      oneColumnVerticalNavigation(1, sellMateriaListContentsGroup, 10, window.data.savemap.materias.length, DATA.sell, getSellMateriaPositions, drawMateriaListOneItem, drawSellMateriaList, drawSellMateriaPointer, updateSellMateriaDescription)
+    } else if (key === KEY.L1) {
+      oneColumnVerticalPageNavigation(false, 10, window.data.savemap.materias.length, DATA.sell, sellMateriaListGroup, drawSellMateriaList, updateSellMateriaDescription)
+    } else if (key === KEY.R1) {
+      oneColumnVerticalPageNavigation(true, 10, window.data.savemap.materias.length, DATA.sell, sellMateriaListGroup, drawSellMateriaList, updateSellMateriaDescription)
+    } else if (key === KEY.X) {
+      sellMateriaCancel()
+    } else if (key === KEY.O) {
+      // sellMateriaSelect()
+    }
+  } else if (state === STATES.SHOP_SELL_MATERIA_AMOUNT) {
+    if (key === KEY.UP) {
+      // sellItemAmountChangeAmount(1)
+    } else if (key === KEY.DOWN) {
+      // sellItemAmountChangeAmount(-1)
+    } else if (key === KEY.RIGHT) {
+      // sellItemAmountChangeAmount(10)
+    } else if (key === KEY.LEFT) {
+      // sellItemAmountChangeAmount(-10)
+    } else if (key === KEY.X) {
+      // sellItemsAmountCancel()
+    } else if (key === KEY.O) {
+      // sellItemsAmountSelect()
     }
   }
 }

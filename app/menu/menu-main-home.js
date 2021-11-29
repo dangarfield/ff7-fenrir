@@ -90,8 +90,9 @@ const debugPopulateMenuTestData = () => {
   window.debugSetEquipmentAndMateria()
   // console.log('magic debugPopulateMenuTestData', window.data.savemap.characters.Cloud.materia)
 }
+window.debugPopulateMenuTestData = debugPopulateMenuTestData
 const loadHomeMenu = async () => {
-  // debugPopulateMenuTestData() // Temp
+  debugPopulateMenuTestData() // Temp
 
   homeNav = await createDialogBox({
     id: 1,

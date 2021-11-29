@@ -66,7 +66,7 @@ const oneColumnVerticalNavigation = (delta, group, totalPerPage, totalItems, pag
       console.log('menu oneColumnVerticalNavigation on first page - do nothing')
     } else {
       console.log('menu oneColumnVerticalNavigation not on first page - PAGE DOWN')
-      drawOneCB(-1, pagePos.page, x, y, yAdj)
+      drawOneCB(group, -1, pagePos.page, x, y, yAdj)
       pagePos.page--
       tweenOneColumnVerticalNavigation(group, false, getMenuState(), pagePos.page, yAdj, drawAllCB) // Could optimise further
       updateCB()
@@ -77,7 +77,7 @@ const oneColumnVerticalNavigation = (delta, group, totalPerPage, totalItems, pag
       console.log('menu oneColumnVerticalNavigation on last page - do nothing')
     } else {
       console.log('menu oneColumnVerticalNavigation not on last page - PAGE UP', delta, pagePos.page)
-      drawOneCB(totalPerPage, pagePos.page, x, y, yAdj)
+      drawOneCB(group, totalPerPage, pagePos.page, x, y, yAdj)
       pagePos.page++
       tweenOneColumnVerticalNavigation(group, true, getMenuState(), pagePos.page, yAdj, drawAllCB)
       updateCB()

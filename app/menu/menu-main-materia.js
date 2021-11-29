@@ -1411,21 +1411,24 @@ const getExchangeMateriaListPositions = () => {
   return {
     x: 213.5 - 8,
     y: 67 - 4,
-    yAdj: 18
+    yAdj: 18,
+    lines: 10
   }
 }
 const getSmallMateriaListPositions = () => {
   return {
     x: 213.5 - 8,
     y: 115 - 4,
-    yAdj: 13
+    yAdj: 13,
+    lines: 10
   }
 }
 const drawSmallMateriaListSlider = () => {
-  createItemListNavigation(smallMateriaListGroup, 313, 104 - 32, 138.5, window.data.savemap.materias.length, 10)
+  createItemListNavigation(smallMateriaListGroup, 313, 104 - 32.25, 138.5, window.data.savemap.materias.length, 10)
 }
 const drawMateriaListOneItem = (group, i, page, x, y, yAdj) => {
   const materia = window.data.savemap.materias[i + page]
+  console.log('shop drawMateriaListOneItem', group, i, page, x, y, yAdj, materia)
   if (materia.id < 255) {
     const textGroup = addTextToDialog(
       group,
@@ -2549,4 +2552,4 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadMateriaMenu, keyPress }
+export { loadMateriaMenu, keyPress, drawMateriaListOneItem, getSmallMateriaListPositions }
