@@ -25,6 +25,15 @@ import { loadGame, saveSaveMap } from '../data/savemap.js'
 let saveDescription, saveGroups, saveSlotId
 let saveDescriptionGroup, saveSlotIdGroup, saveSlotsGroup, saveSlotsGroupCover, saveSlotsConfirmDialog, saveSlotsSavedDialog
 
+const SAVE_DATA = {
+  group: 0,
+  groups: [],
+  slot: 0,
+  exitMenuOnSaveExit: false,
+  isLoadMode: false
+}
+window.SAVE_DATA = SAVE_DATA
+
 const loadSaveMenu = async (exitMenuOnSaveExit, isLoadMode) => {
   if (exitMenuOnSaveExit) {
     SAVE_DATA.exitMenuOnSaveExit = exitMenuOnSaveExit
@@ -236,15 +245,7 @@ const setSlotId = text => {
     0.5
   )
 }
-const SAVE_DATA = {
-  group: 0,
-  groups: [],
-  savePreviewDialogs: [],
-  slot: 0,
-  exitMenuOnSaveExit: false,
-  isLoadMode: false
-}
-window.SAVE_DATA = SAVE_DATA
+
 const drawAll = () => {
   SAVE_DATA.group = 0
   createGroupSaves()
@@ -345,10 +346,6 @@ const saveChooseGroupConfirm = () => {
 
   console.log('save saveChooseGroupConfirm 1')
   // Remove existing
-  while (SAVE_DATA.savePreviewDialogs.length) {
-    scene.remove(SAVE_DATA.savePreviewDialogs[0])
-    SAVE_DATA.savePreviewDialogs.shift()
-  }
   console.log('save saveChooseGroupConfirm 2')
   while (saveSlotsGroup.length) {
     saveSlotsGroup.remove(saveSlotsGroup[0])
@@ -356,12 +353,7 @@ const saveChooseGroupConfirm = () => {
   console.log('save saveChooseGroupConfirm 3')
 
   // Create dialogs
-  for (let i = 0; i < SAVE_DATA.groups[SAVE_DATA.group].length; i++) {
-    const previewData = SAVE_DATA.groups[SAVE_DATA.group][i]
-    const previewDialog = createSavePreviewDialog(i, previewData)
-    console.log('save', i, previewData, previewDialog)
-    SAVE_DATA.savePreviewDialogs.push(previewDialog)
-  }
+  drawAllSaveSlots()
   SAVE_DATA.slot = 0
   setSaveDescription('Select a save game.')
   setSlotId(('' + SAVE_DATA.slot + 1).padStart(2, '0'))
@@ -376,17 +368,34 @@ const saveChooseGroupConfirm = () => {
   movePointerToSaveSlot(SAVE_SLOT_POSITIONS.cursorPosition)
   setMenuState('save-choose-slot')
 }
-const createSavePreviewDialog = (index, previewData) => {
-  // Note: I don't think we need to use the preview data really, we can just read the main save data
 
-  const yOffset = 22.5 + 68.5 * index
+const drawAllSaveSlots = () => {
+  for (let i = 0; i < SAVE_DATA.groups[SAVE_DATA.group].length; i++) {
+    const previewData = SAVE_DATA.groups[SAVE_DATA.group][i]
+    const previewDialog = drawOneSaveSlot(i, previewData)
+    console.log('save', i, previewData, previewDialog)
+  }
+}
+const getSaveSlotPositions = () => {
+  return {
+    x: 0,
+    y: 22.5,
+    yAdj: 68.5
+  }
+}
+const drawOneSaveSlot = (i, previewData) => {
+  // Note: I don't think we need to use the preview data really, we can just read the main save data
+  const { x, y, yAdj } = getSaveSlotPositions()
+
+  const yOffset = y + (yAdj * i)
+  // const yOffset = 22.5 + 68.5 * index
   const slotPreview = createDialogBox({
     id: 10,
     name: 'slotPreview',
     w: 320,
     h: 68.5,
     x: 0,
-    y: 0 + index * 68.5,
+    y: yOffset - y,
     expandInstantly: true,
     noClipping: true,
     group: saveSlotsGroup
@@ -398,7 +407,7 @@ const createSavePreviewDialog = (index, previewData) => {
     addTextToDialog(
       saveSlotsGroup,
       'EMPTY',
-      `empty-${index}`,
+      `empty-${i}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Yellow,
       34,
@@ -410,7 +419,8 @@ const createSavePreviewDialog = (index, previewData) => {
   }
   const members = previewData.data.party.members
   const char = previewData.data.characters[previewData.data.party.members[0]]
-  console.log('save char', char)
+  const savePreview = previewData.data.savePreview
+  console.log('save char', char, savePreview)
 
   const slotPreviewLocation = createDialogBox({
     id: 10,
@@ -418,7 +428,7 @@ const createSavePreviewDialog = (index, previewData) => {
     w: 150,
     h: 25.5,
     x: 320 - 150,
-    y: 68.5 - 25.5 + index * 68.5,
+    y: 68.5 - 25.5 + i * 68.5,
     expandInstantly: true,
     noClipping: true,
     group: saveSlotsGroup
@@ -429,7 +439,7 @@ const createSavePreviewDialog = (index, previewData) => {
     w: 82,
     h: 38.5,
     x: 320 - 82,
-    y: 68.5 - 38.5 - 25.5 + index * 68.5,
+    y: 68.5 - 38.5 - 25.5 + i * 68.5,
     expandInstantly: true,
     noClipping: true,
     group: saveSlotsGroup
@@ -440,18 +450,18 @@ const createSavePreviewDialog = (index, previewData) => {
   addImageToDialog(
     saveSlotsGroup,
     'profiles',
-    members[0],
+    savePreview.portrait1,
     'profile-image-1',
     picXFixed,
     yOffset + 8,
     0.5
   )
 
-  if (members[1] !== 'None') {
+  if (savePreview.portrait2 !== 'None') {
     addImageToDialog(
       saveSlotsGroup,
       'profiles',
-      members[1],
+      savePreview.portrait2,
       'profile-image-2',
       picXFixed + picXSpacing * 1,
       yOffset + 8,
@@ -459,11 +469,11 @@ const createSavePreviewDialog = (index, previewData) => {
     )
   }
 
-  if (members[2] !== 'None') {
+  if (savePreview.portrait2 !== 'None') {
     addImageToDialog(
       saveSlotsGroup,
       'profiles',
-      members[2],
+      savePreview.portrait3,
       'profile-image-3',
       picXFixed + picXSpacing * 2,
       yOffset + 8,
@@ -472,8 +482,8 @@ const createSavePreviewDialog = (index, previewData) => {
   }
   addTextToDialog(
     saveSlotsGroup,
-    'Ex-SOLDIER',
-    `save-name-${index}`,
+    savePreview.leader,
+    `save-name-${i}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     164,
@@ -483,7 +493,7 @@ const createSavePreviewDialog = (index, previewData) => {
   addTextToDialog(
     saveSlotsGroup,
     'Level',
-    `save-level-label-${index}`,
+    `save-level-label-${i}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
     168,
@@ -492,8 +502,8 @@ const createSavePreviewDialog = (index, previewData) => {
   )
   addTextToDialog(
     saveSlotsGroup,
-    '7  ',
-    `save-level-${index}`,
+    savePreview.level,
+    `save-level-${i}`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     202,
@@ -502,8 +512,8 @@ const createSavePreviewDialog = (index, previewData) => {
   )
   addTextToDialog(
     saveSlotsGroup,
-    'Section 1 Station',
-    `save-location-${index}`,
+    savePreview.location,
+    `save-location-${i}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     168,
@@ -513,7 +523,7 @@ const createSavePreviewDialog = (index, previewData) => {
   addTextToDialog(
     saveSlotsGroup,
     'Time',
-    `save-time-label-${index}`,
+    `save-time-label-${i}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     235,
@@ -523,7 +533,7 @@ const createSavePreviewDialog = (index, previewData) => {
   addTextToDialog(
     saveSlotsGroup,
     'Gil',
-    `save-gil-label-${index}`,
+    `save-gil-label-${i}`,
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     235,
@@ -533,8 +543,8 @@ const createSavePreviewDialog = (index, previewData) => {
   const timeX = 277.5
   addTextToDialog(
     saveSlotsGroup,
-    ('' + 0).padStart(2, '0'),
-    `save-time-hrs-${index}`,
+    ('' + savePreview.time.split(':')[0]).padStart(2, '0'),
+    `save-time-hrs-${i}`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     timeX,
@@ -544,7 +554,7 @@ const createSavePreviewDialog = (index, previewData) => {
   addTextToDialog(
     saveSlotsGroup,
     ':',
-    `save-time-colon-${index}`,
+    `save-time-colon-${i}`,
     LETTER_TYPES.MenuTextFixed,
     LETTER_COLORS.White,
     timeX + 11,
@@ -553,8 +563,8 @@ const createSavePreviewDialog = (index, previewData) => {
   )
   addTextToDialog(
     saveSlotsGroup,
-    ('' + 20).padStart(2, '0'),
-    `save-time-mins-${index}`,
+    ('' + savePreview.time.split(':')[1]).padStart(2, '0'),
+    `save-time-mins-${i}`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     timeX + 17,
@@ -563,8 +573,8 @@ const createSavePreviewDialog = (index, previewData) => {
   )
   addTextToDialog(
     saveSlotsGroup,
-    ('' + 260).padStart(9, ' '),
-    `save-time-mins-${index}`,
+    ('' + savePreview.gil).padStart(9, ' '),
+    `save-gil-${i}`,
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     252.5,
@@ -574,7 +584,6 @@ const createSavePreviewDialog = (index, previewData) => {
   slotPreview.visible = true
   slotPreviewLocation.visible = true
   slotPreviewTime.visible = true
-  return slotPreview
 }
 
 const SAVE_SLOT_POSITIONS = {

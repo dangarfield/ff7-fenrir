@@ -750,7 +750,7 @@ const addTextToDialog = (
   clippingPlanes,
   xCentreAlign
 ) => {
-  const letters = text.split('')
+  const letters = ('' + text).split('')
   const textGroup = new THREE.Group()
   textGroup.userData = {
     id: id,

@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       'shop',
       'menu',
-      'Nav Select'
+      'save'
     ],
     log: function () {
       if (limit) {

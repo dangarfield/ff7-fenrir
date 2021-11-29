@@ -51,7 +51,7 @@ window.config = {
     cardId: 1,
     slotId: 1
   },
-  saveAnywhere: true
+  saveAnywhere: window.developerMode
 }
 
 window.data = {

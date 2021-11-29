@@ -54,7 +54,7 @@ const generateSavePreview = () => {
 }
 const saveSaveMap = (cardId, slotId) => {
   generateSavePreview()
-  console.log('saveSaveMap', cardId, slotId, window.data.savemap)
+  console.log('save saveSaveMap', cardId, slotId, window.data.savemap)
   window.localStorage.setItem(
     `save-${cardId}-${slotId}`,
     JSON.stringify(window.data.savemap)
