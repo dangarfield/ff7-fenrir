@@ -36,6 +36,7 @@ import { loadSaveMenu } from './menu-main-save.js'
 
 import { getCurrentGameTime, getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
+import { loadTitleMenu } from './menu-title.js'
 
 let homeNav,
   homeTime,
@@ -88,7 +89,7 @@ const debugPopulateMenuTestData = () => {
   // console.log('magic debugPopulateMenuTestData', window.data.savemap.characters.Cloud.materia)
 }
 const loadHomeMenu = async () => {
-  debugPopulateMenuTestData() // Temp
+  // debugPopulateMenuTestData() // Temp
 
   homeNav = await createDialogBox({
     id: 1,
@@ -825,13 +826,16 @@ const loadSecondaryMenu = async (type, member) => {
     loadSaveMenu()
   }
 }
-const navSelect = () => {
+const navSelect = async () => {
   const selectedNav = nav.options[nav.current]
   console.log('Nav Select', selectedNav)
   if (selectedNav.type === 'Order') {
     navSelectOrderFromLoad()
   } else if (selectedNav.type === 'Quit') {
     console.log('Nav Select - QUIT - Not implemented')
+    movePointer(POINTERS.pointer1, 0, 0, true)
+    await slideOutMainMenu()
+    loadTitleMenu()
   } else if (navOptionsMembersRequired.includes(selectedNav.type)) {
     console.log('Nav Select member required')
     SELECT_PARTY_MEMBER_POSITIONS.type = selectedNav.type
