@@ -531,6 +531,9 @@ const listPageNavigation = (up) => {
   updateInfoForSelectedSpell()
 }
 const selectType = () => {
+  if (!DATA.menus[DATA.menuCurrent].enabled) {
+    return
+  }
   drawList()
   drawListPointer()
   typeSelectDialog.visible = false

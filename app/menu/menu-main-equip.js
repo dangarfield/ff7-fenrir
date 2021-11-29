@@ -19,7 +19,7 @@ import {
   createEquipmentMateriaViewer,
   createItemListNavigation
 } from './menu-box-helper.js'
-import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
+import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
@@ -132,7 +132,10 @@ const loadEquipMenu = async partyMember => {
   // drawInfo()
   // drawSlots()
 
-  setSelectedNav(3)
+  if (isMateriaMenuAvailable()) {
+    setSelectedNavByName('Equip')
+  }
+
   drawStatsLabels()
   // drawStatsBase()
   // drawStatsSelectedBase()

@@ -6,7 +6,7 @@ import {
   addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
 import { loadEquipMenu } from './menu-main-equip.js'
-import { fadeInHomeMenu, setSelectedNav } from './menu-main-home.js'
+import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
 import { getMenuBlackOverlay, getMenuState, setMenuState } from './menu-module.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 
@@ -231,7 +231,7 @@ const loadMateriaMenu = async partyMember => {
   exchangeMateriaListContentsGroup = addGroupToDialog(exchangeMateriaListDialog, 27)
 
   console.log('materia DATA', DATA)
-  setSelectedNav(2)
+  setSelectedNavByName('Materia')
   drawEnemySkillsGroup()
   drawArrangeMenu()
   drawTrashDialog()

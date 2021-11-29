@@ -786,14 +786,16 @@ const fadeInHomeMenu = async () => {
   const selectedNav = nav.options[nav.current]
   navSlideUp(selectedNav.type)
 }
-const setSelectedNav = (navId) => {
-  nav.current = navId
-
+const setSelectedNavByName = (name) => {
+  console.log('menu setSelectedNavByName', name, homeNav, nav)
   const homeNavGroups = homeNav.children.filter(c => c.type === 'Group')
   for (let i = 0; i < homeNavGroups.length; i++) {
     const childNav = homeNavGroups[i]
-    if (i === navId) {
-      childNav.position.y = navId * 13
+    console.log('menu childnav', childNav.userData.type, name, childNav.userData.type === name)
+    if (childNav.userData.type === name) {
+      nav.current = i
+      console.log('menu childnav YES', childNav.userData.type, nav)
+      childNav.position.y = nav.current * 13
       childNav.visible = true
     } else {
       childNav.position.y = 0
@@ -898,5 +900,5 @@ export {
   updateHomeMenuTime,
   fadeInHomeMenu,
   homeNav,
-  setSelectedNav
+  setSelectedNavByName
 }
