@@ -182,7 +182,7 @@ const playNextMovie = async () => {
       window.currentField.backgroundVideo.visible = true
       setFaderVisible(false)
       console.log(
-        'playNextMovie window.currentField.backgroundVideo',
+        'movie playNextMovie window.currentField.backgroundVideo',
         window.currentField.backgroundVideo,
         nextMovie.cameraData,
         window.currentField.allowVideoCamera
@@ -199,6 +199,7 @@ const playNextMovie = async () => {
       } else if (nextMovie.cameraData === undefined) {
         setVisibilityForAllModels(false)
       }
+      // TODO - Visibility and position still needs to be looked at as it's not right ropest -> gldst etc
 
       // Begin capturing frame
       const fovAdjustment =
@@ -225,7 +226,7 @@ const playNextMovie = async () => {
     // frame 664 roughly equal to 117 seconds
     // Once video has finished
     nextMovie.video.onended = () => {
-      console.log('playNextMovie video.onended', nextMovie.name)
+      console.log('movie playNextMovie video.onended', nextMovie.name, nextMovie)
       nextMovie.isPlaying = false
       // - clear capture frame interval
       clearInterval(frameCaptureInterval)
@@ -238,22 +239,24 @@ const playNextMovie = async () => {
       } else if (nextMovie.cameraData === undefined) {
         setVisibilityForAllModels(true)
       }
+      setVisibilityForAllModels(true)
       // - destroy the objects in the backgroundVideo group
       console.log(
-        'playNextMovie window.currentField.backgroundVideo',
+        'movie playNextMovie window.currentField.backgroundVideo',
         window.currentField.backgroundVideo
       )
-      window.currentField.backgroundVideo.remove(
-        ...window.currentField.backgroundVideo.children
-      )
+      while (window.currentField.backgroundVideo.children.length) {
+        window.currentField.backgroundVideo.remove(window.currentField.backgroundVideo.children[0])
+      }
       console.log(
-        'playNextMovie window.currentField.backgroundVideo',
+        'movie playNextMovie window.currentField.backgroundVideo',
         window.currentField.backgroundVideo
       )
 
       // - make the background layers visible again
       window.currentField.backgroundLayers.visible = true
-      setFaderVisible(true)
+      // setFaderVisible(true) - TODO Previously added to stop last-op-of-field videos showing
+      // the field backgrounds, but it breaks too much, look at a better way
 
       // - Resolve the promise to proceed to the next script
       resolve()

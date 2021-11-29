@@ -304,7 +304,7 @@ const CHMPH = async op => {
   return {}
 }
 const CHMST = async op => {
-  console.log('CHMST', op) //b,a
+  console.log('CHMST', op) // b,a
   const isPlaying = isMusicPlaying()
   setBankData(op.b, op.a, isPlaying)
   await sleep(1000 / 30) // Pause for 1 frame because this is typically in a loop
@@ -353,10 +353,7 @@ const PMVIE = async op => {
 }
 const MOVIE = async op => {
   console.log('MOVIE', op)
-  if (
-    window.location.href.includes('localhost') &&
-    window.currentField.name === 'md1stin'
-  ) {
+  if (window.developerMode && window.currentField.name === 'md1stin') {
     // Disable initial movie for testing purposes
   } else {
     await playNextMovie()
@@ -373,10 +370,7 @@ const BGMOVIE = async op => {
 const MVIEF = async op => {
   console.log('MVIEF', op)
   const frame = getCurrentMovieFrame()
-  if (
-    window.location.href.includes('localhost') &&
-    window.currentField.name === 'md1stin'
-  ) {
+  if (window.developerMode && window.currentField.name === 'md1stin') {
     setBankData(op.b, op.a, 700) // Disable initial movie for testing purposes
   } else {
     setBankData(op.b, op.a, frame) // Execute properly

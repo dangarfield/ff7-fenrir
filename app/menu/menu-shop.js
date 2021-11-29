@@ -60,7 +60,8 @@ const STATES = {
   SHOP_SELL_MATERIA_AMOUNT: 'shop-sell-materia-amount'
 }
 
-// SELL video - https://youtu.be/-PIG0GVeroQ?t=1083
+// Sell items video - https://youtu.be/-PIG0GVeroQ?t=1083
+// Sell materia video - https://www.youtube.com/watch?v=2K_6TZywcwE
 
 const DATA = {
   mode: MODE.SEL,

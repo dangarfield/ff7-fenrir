@@ -39,9 +39,7 @@ const initManager = async () => {
   bindDisplayControls()
   await waitUntilMediaCanPlay()
 
-  const developerMode = window.location.host.includes('localhost')
-
-  if (developerMode) {
+  if (window.developerMode) {
     // Quick start
     loadGame(window.config.save.cardId, window.config.save.slotId)
   } else {

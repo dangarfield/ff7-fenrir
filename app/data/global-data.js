@@ -2,14 +2,16 @@
 
 window.libraries = {
   howler: {
-    Howl: Howl,
-    Howler: Howler
+    Howl: window.Howl,
+    Howler: window.Howler
   },
-  async: async
+  async: window.async
 }
-console.log('window.libraries', Howler)
+console.log('window.libraries', window.Howler)
 
-window.currentField // Contains field data
+window.developerMode = window.location.host.includes('localhost')
+
+window.currentField = {} // Contains field data
 
 window.anim = {
   container: undefined,
