@@ -116,7 +116,7 @@ const processTalkContactTriggersForFrame = () => {
   // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
   // Can player move?
   if (window.currentField.playableCharacterIsInteracting) {
-    return
+
   }
 }
 const processTalkContactTrigger = () => {
@@ -307,10 +307,8 @@ const processLineTriggersForFrame = () => {
       if (canOKLoopBeTriggeredOnMovement(line.userData.entityId)) {
         triggerEntityOKLoop(line.userData.entityId)
       }
-      return
     } else if (getActiveInputs().o) {
       triggerEntityOKLoop(line.userData.entityId)
-      return
     } else {
       // triggerEntityMoveLoops(line.userData.entityId) // Adding this back in for any movement as in ealin_1
       // TODO - Should be looked at later, potentially checking to see if any gateways have been crossed AFTER the event loop has gone round each time
@@ -399,7 +397,8 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
   setPlayableCharacterIsInteracting(true)
   setPlayableCharacterCanMove(false)
   await stopAllLoops()
-  await transitionOut()
+  // await transitionOut() // I believe this fixes the issues when movies play before MAPJUMP
+  // TODO - investigate if there are any MAPJUMPS with a transitionOut fade or if they are all instant
   let characterName = ''
   if (window.currentField.playableCharacter) {
     characterName = window.currentField.playableCharacter.userData.characterName
