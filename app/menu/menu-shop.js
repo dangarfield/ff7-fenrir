@@ -33,7 +33,8 @@ import { navigateSelect } from '../world/world-destination-selector.js'
 import { getItemIcon, addItemToInventory, removeItemFromInventory } from '../items/items-module.js'
 import { addMateriaToInventory } from '../materia/materia-module.js'
 import { getGrowthText } from './menu-main-equip.js'
-import { drawMateriaListOneItem, getSmallMateriaListPositions as getSellMateriaPositions } from './menu-main-materia.js'
+import { drawMateriaListOneItem, getSmallMateriaListPositions as getSellMateriaPositions, drawMateriaDetailsWithGroup } from './menu-main-materia.js'
+import { getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
 
 let itemShopDialog
 let actionDescriptionDialog, actionDescriptionGroup
@@ -48,7 +49,7 @@ let partyEquipDialog, partyEquipGroup
 let buyCostDialog, buyCostGroup
 let buySlotsDialog, buySlotsGroup
 let sellMateriaListDialog, sellMateriaListGroup, sellMateriaListContentsGroup
-let sellMateriaDetailsDialog, sellMateriaDetailsGroup, sellMateriaDetailsEnemySkillGroup
+let sellMateriaDetailsDialog, sellMateriaDetailsGroup, sellMateriaDetailsEnemySkillGroup, sellMateriaDetailsEnemySkillTextContents
 let sellMateriaInfoDialog, sellMateriaInfoGroup
 let sellMateriaCostDialog, sellMateriaCostGroup
 
@@ -86,7 +87,8 @@ const DATA = {
   },
   chars: [], // Populated below
   shopData: {},
-  activeTween: null
+  activeTween: null,
+  tweenEnemySkills: false // TODO - remove on exit
 }
 const loadShopData = (param) => {
   const shop = JSON.parse(JSON.stringify(window.data.exe.shopData.shops[param])) // Temp
@@ -358,6 +360,7 @@ const loadShopMenu = async param => {
   drawBuyCostFixedElements()
   drawBuySlotFixedElements()
   drawSellItemsAmountFixedElements()
+  drawEnemySkillsGroup()
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState(STATES.SHOP_NAV)
 }
@@ -676,6 +679,10 @@ const drawSellMateriaPointer = () => {
 }
 const updateSellMateriaDescription = () => {
   console.log('shop updateSellMateriaDescription')
+
+  const materia = window.data.savemap.materias[DATA.sell.page + DATA.sell.pos]
+
+  drawMateriaDetailsWithGroup(sellMateriaDetailsGroup, materia, sellMateriaDetailsEnemySkillGroup, sellMateriaDetailsEnemySkillTextContents)
 }
 const sellMateriaCancel = () => {
   DATA.mode = MODE.NAV
@@ -1290,6 +1297,152 @@ const drawBuySlot = () => {
     ALIGN.CENTRE
   )
 }
+const drawEnemySkillsGroup = () => {
+  const skills = getEnemySkillFlagsWithSkills(0)
+
+  const enemySkillTextList = createDialogBox({
+    id: 22,
+    name: 'enemySkillTextList',
+    w: 150,
+    h: 80.5,
+    x: 20,
+    y: 152,
+    expandInstantly: true,
+    noClipping: false,
+    group: sellMateriaDetailsEnemySkillGroup
+  })
+  for (let i = 0; i < enemySkillTextList.children.length; i++) {
+    enemySkillTextList.children[i].visible = false
+  }
+  enemySkillTextList.visible = true
+  sellMateriaDetailsEnemySkillTextContents = addGroupToDialog(enemySkillTextList, 32)
+  sellMateriaDetailsEnemySkillTextContents.userData.bg = enemySkillTextList.userData.bg
+
+  addShapeToDialog(
+    sellMateriaDetailsEnemySkillGroup,
+    WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
+    'material-details-enemy-skills-bg',
+    95,
+    192.25,
+    150,
+    80.5
+  )
+
+  for (let i = 0; i < skills.length; i++) {
+    const skill = skills[i]
+    // Stars
+    const starX = 20 + 6
+    const starY = 136 - 6.5
+    const starXAdj = 12.5
+    const starYAdj = 14.5
+
+    const imgActive = addImageToDialog(
+      sellMateriaDetailsEnemySkillGroup,
+      'materia',
+      `Command-star-active-small`,
+      `material-enemy-skill-${skill.index}-active`,
+      starX + ((i % 12) * starXAdj),
+      starY + (Math.trunc(i / 12) * starYAdj),
+      0.5
+    )
+    imgActive.userData.enemySkills = `${skill.index}-active`
+
+    const imgInactive = addImageToDialog(
+      sellMateriaDetailsEnemySkillGroup,
+      'materia',
+      `Command-star-inactive-small`,
+      `material-enemy-skill-${skill.index}-inactive`,
+      starX + ((i % 12) * starXAdj),
+      starY + (Math.trunc(i / 12) * starYAdj),
+      0.5
+    )
+    imgInactive.userData.enemySkills = `${skill.index}-inactive`
+
+    // Text
+    const textX = 24 - 8
+    const textY = 163 - 4
+
+    const textXAdj = 77.5
+    const textYAdj = 13
+    const text2ndGroup = textYAdj * 12
+
+    const textActive1 = addTextToDialog(
+      sellMateriaDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textActive1.userData.enemySkills = `${skill.index}-active`
+
+    const textInactive1 = addTextToDialog(
+      sellMateriaDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Gray,
+      textX + ((i % 2) * textXAdj),
+      textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textInactive1.userData.enemySkills = `${skill.index}-inactive`
+
+    const textActive2 = addTextToDialog(
+      sellMateriaDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      textX + ((i % 2) * textXAdj),
+      text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textActive2.userData.enemySkills = `${skill.index}-active`
+
+    const textInactive2 = addTextToDialog(
+      sellMateriaDetailsEnemySkillTextContents,
+      skill.name,
+      `materia-textActive2details-name`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.Gray,
+      textX + ((i % 2) * textXAdj),
+      text2ndGroup + textY + (Math.trunc(i / 2) * textYAdj),
+      0.5
+    )
+    textInactive2.userData.enemySkills = `${skill.index}-inactive`
+  }
+  // Hack, I really need to look at the z index issues for fadeoverlay
+  for (let i = 0; i < sellMateriaDetailsEnemySkillTextContents.children.length; i++) {
+    const words = sellMateriaDetailsEnemySkillTextContents.children[i]
+    for (let j = 0; j < words.children.length; j++) {
+      const letter = words.children[j]
+      letter.position.z = 39
+    }
+  }
+
+  tweenEnemySkills()
+}
+const tweenEnemySkills = async () => {
+  if (DATA.tweenEnemySkills === false) {
+    const from = { y: 0 }
+    const to = { y: 13 * 12 }
+    DATA.tweenEnemySkills = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+      .to(to, 5000)
+      .repeat(Infinity)
+      .onUpdate(function () {
+        sellMateriaDetailsEnemySkillTextContents.position.y = from.y
+      })
+      .onComplete(function () {
+        console.log('materia - Tween enemy skills: START')
+      })
+      .start()
+  } else {
+    DATA.tweenEnemySkills.start()
+  }
+}
 const exitMenu = async () => {
   console.log('exitMenu')
   setMenuState('loading')
@@ -1298,6 +1451,7 @@ const exitMenu = async () => {
   actionDescriptionDialog.visible = false
   navDialog.visible = false
 
+  DATA.tweenEnemySkills.stop()
   if (DATA.activeTween !== null) {
     DATA.activeTween.stop()
   }

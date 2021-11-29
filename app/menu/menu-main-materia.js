@@ -1626,11 +1626,8 @@ const tweenEnemySkills = async () => {
   }
 }
 const drawMateriaDetails = () => { // TODO - This is generally quite an expensive operation
-  console.log('materia drawMateriaDetails')
   materiaDetailsDialog.visible = true
   smallMateriaListDialog.visible = true
-  removeGroupChildren(materiaDetailsGroup)
-
   let materia
   if (DATA.smallMateriaList.active) {
     materia = window.data.savemap.materias[DATA.smallMateriaList.page + DATA.smallMateriaList.pos]
@@ -1639,8 +1636,21 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
   } else {
     materia = DATA.char.materia[`armorMateria${DATA.mainNavPos % 9}`]
   }
+
+  drawMateriaDetailsWithGroup(materiaDetailsGroup, materia, materiaDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents)
+
+  if (materia.id !== 255) {
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    drawInfo(materiaData.description)
+  }
+}
+const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkillTextContents) => { // TODO - This is generally quite an expensive operation
+  console.log('materia drawMateriaDetails')
+
+  removeGroupChildren(group)
+
   if (materia.id === 255) {
-    materiaDetailsEnemySkillGroup.visible = false
+    enemySkillGroup.visible = false
     return
   }
 
@@ -1649,7 +1659,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
 
   // Name, type, description
   addTextToDialog(
-    materiaDetailsGroup,
+    group,
     materiaData.name,
     `materia-details-name`,
     LETTER_TYPES.MenuBaseFont,
@@ -1658,7 +1668,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     117 - 4,
     0.5
   )
-  addImageToDialog(materiaDetailsGroup,
+  addImageToDialog(group,
     'materia',
     materiaData.type,
     `materia-details-type`,
@@ -1666,7 +1676,6 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     117 - 4 - 0.5,
     0.5
   )
-  drawInfo(materiaData.description)
 
   // Appears to be 3 types
   // 1 - Masters - with nothing else, I think I should better flag these masters in kujata
@@ -1674,20 +1683,20 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
   // 3 - All others with everything
   if (materiaData.attributes.master) {
     console.log('materia MASTER materia, no more details required')
-    materiaDetailsEnemySkillGroup.visible = false
+    enemySkillGroup.visible = false
   } else if (materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
-    materiaDetailsEnemySkillGroup.visible = true
+    enemySkillGroup.visible = true
     const skills = getEnemySkillFlagsWithSkills(materia.ap).map(s => s.enabled ? `${s.index}-active` : `${s.index}-inactive`)
     console.log('materia ENEMY SKILL materia, need to implement', skills)
 
-    const groups = [materiaDetailsEnemySkillGroup, materialsDetailsEnemySkillTextContents]
+    const groups = [enemySkillGroup, enemySkillTextContents]
 
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i]
       for (let j = 0; j < group.children.length; j++) {
         const item = group.children[j]
         if (item.userData.enemySkills) {
-          // console.log('materia enemySkills item', item.userData.enemySkills, skills.includes(item.userData.enemySkills))
+          console.log('materia enemySkills item', item.userData.enemySkills, skills.includes(item.userData.enemySkills))
           if (skills.includes(item.userData.enemySkills)) {
             item.visible = true
           } else {
@@ -1698,11 +1707,11 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     }
   } else {
     console.log('materia standard materia display')
-    materiaDetailsEnemySkillGroup.visible = false
+    enemySkillGroup.visible = false
 
     // Labels
     addTextToDialog(
-      materiaDetailsGroup,
+      group,
       'AP',
       `materia-details-ap-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -1712,7 +1721,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       0.5
     )
     addTextToDialog(
-      materiaDetailsGroup,
+      group,
       'To next level',
       `materia-details-next-level-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -1722,7 +1731,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       0.5
     )
     addTextToDialog(
-      materiaDetailsGroup,
+      group,
       'Ability List',
       `materia-details-next-ability-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -1732,7 +1741,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       0.5
     )
     addTextToDialog(
-      materiaDetailsGroup,
+      group,
       'Equip effects',
       `materia-details-next-effects-label`,
       LETTER_TYPES.MenuBaseFont,
@@ -1750,7 +1759,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
 
     for (let i = 0; i < materiaData.apLevels.length; i++) {
       addImageToDialog(
-        materiaDetailsGroup,
+        group,
         'materia',
         i < currentLevel ? `${materiaData.type}-star-active-small` : `${materiaData.type}-star-inactive-small`,
         `material-details-level-${i}`,
@@ -1764,7 +1773,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
       // Mastered
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         'MASTER',
         `materia-ap-master`,
         LETTER_TYPES.MenuBaseFont,
@@ -1774,7 +1783,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         0.5
       )
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         ('0').padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -1786,7 +1795,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
     } else {
       // Still to develop
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         ('' + materia.ap).padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -1796,7 +1805,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         0.5
       )
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         ('' + (materiaData.apLevels[currentLevel] - materia.ap)).padStart(8, ' '),
         `materia-ap-master`,
         LETTER_TYPES.MenuTextStats,
@@ -1818,7 +1827,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         }
         console.log('materia level', ability.level, currentLevel, ability)
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -1830,7 +1839,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       }
     } else if (materiaData.type === 'Summon') {
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         materiaData.attributes.summon[0].name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -1841,7 +1850,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       )
     } else if (materiaData.type === 'Support') {
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         materiaData.name,
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -1879,7 +1888,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       for (let i = 0; i < abilities.length; i++) {
         const ability = abilities[i]
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           ability.name,
           `materia-details-ability-${i}`,
           LETTER_TYPES.MenuBaseFont,
@@ -1891,7 +1900,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       }
     } else if (materiaData.type === 'Independent') {
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         materiaAbilityText(materiaData.name),
         `materia-details-ability`,
         LETTER_TYPES.MenuBaseFont,
@@ -1907,7 +1916,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         const value = materiaData.attributes.attributes[currentLevel - 1]
         console.log('materia %value', value)
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           '+',
           `materia-details-effect-${i}-sign`,
           LETTER_TYPES.MenuTextFixed,
@@ -1918,7 +1927,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         )
         // value
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           ('' + value).padStart(2, '0'),
           `materia-details-effect-${i}-value`,
           LETTER_TYPES.MenuTextStats,
@@ -1929,7 +1938,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
         )
         // perc
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
@@ -1946,7 +1955,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       const effect = materiaData.equipEffect[i]
       // stat name
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         statDisplayText(effect[0]),
         `materia-details-effect-${i}-label`,
         LETTER_TYPES.MenuBaseFont,
@@ -1958,7 +1967,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
 
       // + / -
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         effect[1] < 0 ? '-' : '+',
         `materia-details-effect-${i}-sign`,
         LETTER_TYPES.MenuTextFixed,
@@ -1969,7 +1978,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       )
       // value
       addTextToDialog(
-        materiaDetailsGroup,
+        group,
         ('' + Math.abs(effect[1])).padStart(2, '0'),
         `materia-details-effect-${i}-value`,
         LETTER_TYPES.MenuTextStats,
@@ -1981,7 +1990,7 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
       // perc
       if (effect[0] === 'HP' || effect[0] === 'MP') {
         addTextToDialog(
-          materiaDetailsGroup,
+          group,
           '%',
           `materia-details-effect-${i}-label`,
           LETTER_TYPES.MenuTextFixed,
@@ -2552,4 +2561,4 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
 }
-export { loadMateriaMenu, keyPress, drawMateriaListOneItem, getSmallMateriaListPositions }
+export { loadMateriaMenu, keyPress, drawMateriaListOneItem, getSmallMateriaListPositions, drawMateriaDetailsWithGroup }

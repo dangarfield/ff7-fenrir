@@ -19,7 +19,7 @@ const debugFillMateria = () => {
   }
   for (let i = 0; i < window.data.kernel.materiaData.length; i++) {
     const materiaData = window.data.kernel.materiaData[i]
-    const maxAP = materiaData.apLevels[materiaData.apLevels.length - 1]
+    const maxAP = materiaData.attributes.skill === 'EnemySkill' ? 0xFFFFFF : materiaData.apLevels[materiaData.apLevels.length - 1]
     if (materiaData.name !== '') {
       setMateriaToInventory((i * 2), materiaData.index, maxAP)
       setMateriaToInventory((i * 2) + 1, materiaData.index, getRandomInt(maxAP))

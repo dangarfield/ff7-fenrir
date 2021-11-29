@@ -10,7 +10,8 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       'shop',
       'menu',
-      'save'
+      'save',
+      'materia'
     ],
     log: function () {
       if (limit) {
