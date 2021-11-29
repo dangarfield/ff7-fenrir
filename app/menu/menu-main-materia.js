@@ -1642,6 +1642,8 @@ const drawMateriaDetails = () => { // TODO - This is generally quite an expensiv
   if (materia.id !== 255) {
     const materiaData = window.data.kernel.materiaData[materia.id]
     drawInfo(materiaData.description)
+  } else {
+    drawInfo('')
   }
 }
 const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkillTextContents) => { // TODO - This is generally quite an expensive operation
@@ -2037,16 +2039,18 @@ const statDisplayText = (stat) => {
 }
 const drawInfo = (text) => {
   removeGroupChildren(infoGroup)
-  addTextToDialog(
-    infoGroup,
-    text,
-    `materia-info`,
-    LETTER_TYPES.MenuBaseFont,
-    LETTER_COLORS.White,
-    13.5 - 8,
-    89.5 - 4,
-    0.5
-  )
+  if (text !== '') {
+    addTextToDialog(
+      infoGroup,
+      text,
+      `materia-info`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      13.5 - 8,
+      89.5 - 4,
+      0.5
+    )
+  }
 }
 const mainNavigation = delta => {
   console.log('materia mainNavigation', delta)

@@ -677,12 +677,42 @@ const drawSellMateriaPointer = () => {
     y + (DATA.sell.pos * yAdj) + 4
   )
 }
+const drawSellMateriaInfo = (text) => {
+  removeGroupChildren(sellMateriaInfoGroup)
+  if (text !== '') {
+    addTextToDialog(
+      sellMateriaInfoGroup,
+      text,
+      `materia-info`,
+      LETTER_TYPES.MenuBaseFont,
+      LETTER_COLORS.White,
+      13.5 - 8,
+      89.5 - 4,
+      0.5
+    )
+  }
+}
 const updateSellMateriaDescription = () => {
   console.log('shop updateSellMateriaDescription')
 
   const materia = window.data.savemap.materias[DATA.sell.page + DATA.sell.pos]
 
+  // Materia details
   drawMateriaDetailsWithGroup(sellMateriaDetailsGroup, materia, sellMateriaDetailsEnemySkillGroup, sellMateriaDetailsEnemySkillTextContents)
+
+  // Materia description
+  if (materia.id !== 255) {
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    drawSellMateriaInfo(materiaData.description)
+  } else {
+    drawSellMateriaInfo('')
+  }
+
+  // Materia cost
+  drawMateriaCost(materia)
+}
+const drawMateriaCost = (materia) => {
+  // TODO - Do this
 }
 const sellMateriaCancel = () => {
   DATA.mode = MODE.NAV
