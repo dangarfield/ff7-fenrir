@@ -9,7 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'shop',
-      'menu'
+      'menu',
+      'Nav Select'
     ],
     log: function () {
       if (limit) {

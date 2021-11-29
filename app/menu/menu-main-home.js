@@ -34,7 +34,7 @@ import { loadConfigMenu } from './menu-main-config.js'
 import { loadPHSMenu } from './menu-main-phs.js'
 import { loadSaveMenu } from './menu-main-save.js'
 
-import { getCurrentGameTime, getMenuVisibility } from '../data/savemap-alias.js'
+import { getCurrentGameTime, getMenuVisibility, isSaveMenuEnabled } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 import { loadTitleMenu } from './menu-title.js'
 
@@ -67,8 +67,10 @@ const navOptionsMembersRequired = [
 ]
 const nav = {
   current: 0,
-  options: []
+  options: [],
+  saveEnabled: false
 }
+
 const debugPopulateMenuTestData = () => {
   // Menu Visibility
   window.setBankData(2, 28, 0b1111111111) // Menu visibility
@@ -135,18 +137,23 @@ const loadHomeMenu = async () => {
 
   // Update menu visibility
   const menuVisibility = getMenuVisibility()
+  nav.saveEnabled = isSaveMenuEnabled()
   for (let i = 0; i < menuVisibility.length; i++) {
     navOptions[i].display = menuVisibility[i]
   }
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
     if (navOption.display) {
+      let color = LETTER_COLORS.White
+      if (navOption.name === 'Save' && !nav.saveEnabled) {
+        color = LETTER_COLORS.Gray
+      }
       addTextToDialog(
         homeNav,
         navOption.name,
         `nav-${navOption.name.toLowerCase()}`,
         LETTER_TYPES.MenuBaseFont,
-        LETTER_COLORS.White,
+        color,
         x,
         y + d * i,
         0.5
@@ -159,7 +166,6 @@ const loadHomeMenu = async () => {
     }
   }
   nav.current = 0
-  window.homeNav = homeNav
 
   homeTime = createDialogBox({
     id: 3,
@@ -840,6 +846,8 @@ const navSelect = async () => {
     console.log('Nav Select member required')
     SELECT_PARTY_MEMBER_POSITIONS.type = selectedNav.type
     navSelectMember()
+  } else if (selectedNav.type === 'Save' && !nav.saveEnabled) {
+    // Don't do anything
   } else {
     console.log('Nav Select Slide Down')
     navSlideDown(selectedNav.type)

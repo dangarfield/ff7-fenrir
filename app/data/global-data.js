@@ -50,7 +50,8 @@ window.config = {
   save: {
     cardId: 1,
     slotId: 1
-  }
+  },
+  saveAnywhere: true
 }
 
 window.data = {

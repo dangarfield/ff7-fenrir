@@ -12,7 +12,7 @@ const processSavemapAlias = (bankRef, index, value) => {
       console.log('save 1,48 (0x0BD4), kernel sets 1,75 bit 8 (0x0BEF) if bit 4 is on')
       getBankData(1, 75)
       let bankVal = getBankData(1, 75)
-      const val = setBitOn(bankVal, 8)
+      const val = setBitOn(bankVal, 7)
       setBankData(1, 75, val)
     }
   } else if (bankRef === 7 && index === 34) {
@@ -20,16 +20,19 @@ const processSavemapAlias = (bankRef, index, value) => {
       console.log('save 7,34 (0x0FC6), kernel sets 1,75 bit 7 (0x0BEF) if bit 2 is on')
       getBankData(1, 75)
       let bankVal = getBankData(1, 75)
-      const val = setBitOn(bankVal, 7)
+      const val = setBitOn(bankVal, 6)
       setBankData(1, 75, val)
     }
   }
 }
 const isMagicMenuSummonEnabled = () => {
-  return bitTest(getBankData(1, 75), 8)
+  return bitTest(getBankData(1, 75), 7)
 }
 const isMagicMenuEnemySkillEnabled = () => {
-  return bitTest(getBankData(1, 75), 7)
+  return bitTest(getBankData(1, 75), 6)
+}
+const isSaveMenuEnabled = () => {
+  return window.config.saveAnywhere ? true : bitTest(getBankData(13, 91), 1)
 }
 const persistFieldPointersActiveForPlayer = active => {
   setBankData(13, 30, active ? 0x02 : 0x00)
@@ -189,5 +192,6 @@ export {
   incrementBattlesEscaped,
   getMenuVisibility,
   isMagicMenuSummonEnabled,
-  isMagicMenuEnemySkillEnabled
+  isMagicMenuEnemySkillEnabled,
+  isSaveMenuEnabled
 }

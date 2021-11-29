@@ -53,8 +53,8 @@ const generateSavePreview = () => {
   savemap.savePreview.location = savemap.location.currentLocation // This is the menu description not the fieldName
 }
 const saveSaveMap = (cardId, slotId) => {
-  console.log('saveSaveMap', cardId, slotId)
   generateSavePreview()
+  console.log('saveSaveMap', cardId, slotId, window.data.savemap)
   window.localStorage.setItem(
     `save-${cardId}-${slotId}`,
     JSON.stringify(window.data.savemap)
