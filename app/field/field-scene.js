@@ -6,7 +6,7 @@ import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
 import { updateFieldPlayerMovement } from './field-movement-player.js'
 import { updateMoveEntityMovement } from './field-movement.js'
-import { getFieldList } from './field-fetch-data.js'
+import { getFieldList, loadFieldData } from './field-fetch-data.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import {
   scene as orthoBackScene,
@@ -24,6 +24,8 @@ import {
 } from './field-backgrounds.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { processLineTriggersForFrame } from './field-actions.js'
+import { getSceneGraph } from '../data/world-fetch-data.js'
+import { getFieldIdForName } from './field-metadata.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -140,7 +142,7 @@ const raycasterFieldRendering = camera => {
   )
   let intersects = window.config.raycast.raycaster.intersectObjects([
     window.currentField.walkmeshMesh
-  ]) //window.currentField.walkmeshMesh//window.currentField.fieldScene.children
+  ]) // window.currentField.walkmeshMesh//window.currentField.fieldScene.children
   // console.log('window.currentField.walkmeshMesh', window.currentField.walkmeshMesh)
   if (intersects.length === 0) {
     window.config.raycast.raycasterHelper.visible = false
@@ -325,9 +327,9 @@ const activateDebugCamera = () => {
     window.currentField.fieldCameraHelper.visible =
       window.config.debug.showDebugCamera
 
-    window.currentField.debugCameraControls.enableZoom = true //window.config.debug.showDebugCamera
-    window.currentField.debugCameraControls.enableRotate = true //window.config.debug.showDebugCamera
-    window.currentField.debugCameraControls.enablePan = true //window.config.debug.showDebugCamera
+    window.currentField.debugCameraControls.enableZoom = true // window.config.debug.showDebugCamera
+    window.currentField.debugCameraControls.enableRotate = true // window.config.debug.showDebugCamera
+    window.currentField.debugCameraControls.enablePan = true // window.config.debug.showDebugCamera
   }
 }
 
@@ -419,9 +421,37 @@ const initFieldDebug = async loadFieldCB => {
   fieldGUI
     .add(window.currentField, 'name', fields)
     .onChange(async val => {
-      console.log('window.currentField.name ->', val)
+      console.log('loadField window.currentField.name ->', val, loadFieldCB)
       await stopAllLoops()
-      loadFieldCB(val)
+
+      // TODO - get playableCharacterInitData from:
+      // field-actions.gatewayTriggered or world-destination-selector.navigateSelect
+
+      const sceneGraph = await getSceneGraph()
+      const fieldId = await getFieldIdForName(val)
+      const potentialFieldTransitionSources = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'gateway') // Just do gateways only
+      // TODO - If no potentialFieldTransitionSources
+      const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSources[0].source].fieldName
+
+      const sourceFieldData = await loadFieldData(sourceFieldName)
+      console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData)
+
+      const gateway = sourceFieldData.triggers.gateways.filter(g => g.fieldId === fieldId)[0]
+
+      const playableCharacterInitData = {
+        triangleId: gateway.destinationVertex.triangleId,
+        position: {
+          x: gateway.destinationVertex.x,
+          y: gateway.destinationVertex.y
+        },
+        direction: gateway.destinationVertex.direction,
+        characterName: window.currentField.playableCharacter.userData.characterName
+      }
+
+      console.log('loadField gateway', gateway, playableCharacterInitData)
+      window.sceneGraph = sceneGraph
+
+      loadFieldCB(val, playableCharacterInitData)
     })
     .listen()
 
@@ -598,17 +628,17 @@ const calculateViewClippingPointFromVector3 = v => {
     2 *
       (window.currentField.metaData.assetDimensions.width / 2 -
         window.config.sizing.width / 2) -
-    (window.currentField.metaData.assetDimensions.width / 2 - cameraRange.right) //8
+    (window.currentField.metaData.assetDimensions.width / 2 - cameraRange.right) // 8
   let maxAdjustedY =
     2 *
       (window.currentField.metaData.assetDimensions.height / 2 -
         window.config.sizing.height / 2) -
     (window.currentField.metaData.assetDimensions.height / 2 -
-      -cameraRange.bottom) //8
+      -cameraRange.bottom) // 8
   let minAdjustedX =
-    window.currentField.metaData.assetDimensions.width / 2 - -cameraRange.left //8
+    window.currentField.metaData.assetDimensions.width / 2 - -cameraRange.left // 8
   let minAdjustedY =
-    window.currentField.metaData.assetDimensions.height / 2 - cameraRange.top //8
+    window.currentField.metaData.assetDimensions.height / 2 - cameraRange.top // 8
   // TODO - Apply camera range to maxAdjustedX
   // adjustedY = Math.max(adjustedY, (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.top)
   // adjustedY = Math.min(adjustedY, (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.bottom + window.config.sizing.height)

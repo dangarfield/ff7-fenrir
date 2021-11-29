@@ -254,14 +254,7 @@ const loadGame = async (cardId, slotId) => {
 const loadNewGame = async () => {
   await stopAllLoops()
   initNewSaveMap()
-  const playableCharacterInitData = getPlayableCharacterInitData()
-  console.log('playableCharacterInitData LOAD', playableCharacterInitData)
-  if (playableCharacterInitData.fieldName) {
-    loadField(playableCharacterInitData.fieldName, playableCharacterInitData)
-  } else {
-    loadField('md1stin')
-    // loadField('startmap')
-  }
+  loadField('md1stin')
 }
 export {
   initNewSaveMap,

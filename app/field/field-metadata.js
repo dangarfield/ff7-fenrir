@@ -28,4 +28,4 @@ const getLastFieldId = async () => {
   return fieldId
 }
 
-export { getLastFieldId, getFieldNameForId }
+export { getLastFieldId, getFieldNameForId, getFieldIdForName }
