@@ -114,7 +114,7 @@ const loadCharData = () => {
   }
 }
 const loadShopMenu = async param => {
-  window.debugPopulateMenuTestData() // temp
+  // window.debugPopulateMenuTestData() // temp
 
   DATA.mode = MODE.NAV
   DATA.navPos = 0
