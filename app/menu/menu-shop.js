@@ -65,6 +65,8 @@ const STATES = {
   SHOP_SELL_MATERIA_SELECT: 'shop-sell-materia-select'
 }
 
+// Note: There seems to be something here that causes a slow down on other menus, more than likely to do with materia menu navigation
+
 // Sell items video - https://youtu.be/-PIG0GVeroQ?t=1083
 // Sell materia video - https://www.youtube.com/watch?v=2K_6TZywcwE
 
@@ -87,7 +89,7 @@ const DATA = {
   chars: [], // Populated below
   shopData: {},
   activeTween: null,
-  tweenEnemySkills: false // TODO - remove on exit
+  tweenEnemySkills: false
 }
 const loadShopData = (param) => {
   const shop = JSON.parse(JSON.stringify(window.data.exe.shopData.shops[param])) // Temp
@@ -96,7 +98,6 @@ const loadShopData = (param) => {
     shopName: shop.name,
     text: window.data.exe.shopData.text.normal, // TODO - When to use slang ?
     items: shop.items
-    // TODO - Also, text.amountBuy is incorrectly mapped to whatSell, need to look at and fix
   }
   // Temp
   // DATA.shopData.items.push({type: 'item', id: 0, price: 100})
@@ -563,7 +564,7 @@ const drawSellItemsList = () => {
 
   removeGroupChildren(sellItemListContentsGroup)
 
-  for (let i = 0; i < lines * cols; i++) { // TODO - 20 items?
+  for (let i = 0; i < lines * cols; i++) {
     drawOneSellItem(i, DATA.sell.page, x, y, xAdj, yAdj, cols)
   }
   if (window.data.savemap.items.length > lines * cols) {
@@ -832,7 +833,6 @@ const sellItemsCancel = () => {
   itemInfoDialog.visible = false
   sellItemListDialog.visible = false
   navDialog.visible = true
-  // TODO Back to main nav or sell nav?
   cancelChooseSellType()
 }
 const tweenSellCostDialog = (group, from, to, ms, state, cb) => {
@@ -1213,7 +1213,7 @@ const drawPartyEquipFixedElements = () => {
         21 + 1,
         24 + 1
       ))
-      const profile = addImageToDialog(partyEquipDialog, // TODO - There is a background fade effect here also
+      const profile = addImageToDialog(partyEquipDialog,
         'profiles',
         char.name,
         `shop-buy-equip-char-profile-${i}`,
@@ -1231,11 +1231,9 @@ const beginProfileBGTween = () => {
   let from = {opacity: 0}
   let to = {opacity: [1, 0]}
   DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-  // .to(to, 415000)
     .to(to, 2500)
     .repeat(Infinity)
     .onUpdate(function () {
-      // console.log('shop beginProfileBGTween update', from)
       for (let i = 0; i < DATA.profileBGs.length; i++) {
         const profileBG = DATA.profileBGs[i]
         profileBG.material.opacity = from.opacity
@@ -1287,7 +1285,7 @@ const buySelect = () => {
     }
   } else if (item.type === ITEM_TYPE.MATERIA) {
     console.log('shop buySelect materia')
-    // TODO - Can you select how materia you buy?
+    // TODO - Can you select how many materia you buy?
     buyCostDialog.position.y = 0
     buyCostDialog.visible = true
     setMenuState(STATES.SHOP_BUY_AMOUNT)
