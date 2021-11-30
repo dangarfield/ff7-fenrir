@@ -709,10 +709,76 @@ const updateSellMateriaDescription = () => {
   }
 
   // Materia cost
+  drawMateriaCostFixed()
   drawMateriaCost(materia)
 }
+const getMateriaCostPositions = () => {
+  return {
+    x1: 13.5 - 8,
+    x1b: 37.5 - 8,
+    x1c: 100 - 8,
+    x2: 111.5 - 8,
+    x3: 250 - 8,
+    x4: 255.5 - 8,
+
+    y1: 40.5 - 4,
+    y1b: 40.5 + 6.5 - 4,
+    y2: 40.5 + 13 - 4,
+    y3: 40.5 + 13 + 13 - 4
+  }
+}
+const drawMateriaCostFixed = () => {
+  // removeGroupChildren(sellMateriaCostDialog)
+
+  const { x1, x1c, x3, y1, y1b, y2, y3 } = getMateriaCostPositions()
+
+  addTextToDialog(sellMateriaCostDialog, 'Price through AP', 'shop-materia-label-1', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x1, y1)
+  addTextToDialog(sellMateriaCostDialog, 'Price for Master', 'shop-materia-label-2', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x1, y2)
+  addTextToDialog(sellMateriaCostDialog, 'Owned', 'shop-materia-label-3', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x1, y3)
+  addTextToDialog(sellMateriaCostDialog, 'Equipped', 'shop-materia-label-4', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x1c, y3)
+  addTextToDialog(sellMateriaCostDialog, 'Gil remaining', 'shop-materia-label-5', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x3, y1b, 0.5, null, ALIGN.RIGHT)
+  addTextToDialog(sellMateriaCostDialog, 'Gil', 'shop-materia-label-6', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x3, y3, 0.5, null, ALIGN.RIGHT)
+}
 const drawMateriaCost = (materia) => {
-  // TODO - Do this
+  removeGroupChildren(sellMateriaCostGroup)
+  const { x2, x1b, x4, y1, y1b, y2, y3 } = getMateriaCostPositions()
+
+  let priceAP = 0
+  let priceMaster = 0
+  let owned = 0
+  let equipped = 0
+  let gil = window.data.savemap.gil
+
+  if (materia.id !== 255) {
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    const apMultiplier = 40 // ?
+    priceAP = materia.ap * apMultiplier
+    priceMaster = materiaData.apLevels[materiaData.apLevels.length - 1] * apMultiplier
+    owned = window.data.savemap.materias.filter(m => m.id === materia.id).length
+
+    for (let i = 0; i < DATA.chars.length; i++) {
+      const char = window.data.savemap.characters[DATA.chars[i].name]
+      if (!DATA.chars[i].showChar) {
+        continue
+      }
+      const materiaKeys = Object.keys(char.materia)
+      for (let j = 0; j < materiaKeys.length; j++) {
+        if (char.materia[materiaKeys[j]].id === materia.id) {
+          equipped++
+        }
+      }
+    }
+  }
+
+  let gilRemaining = gil + priceAP
+
+  addTextToDialog(sellMateriaCostGroup, ('' + priceAP).padStart(9, ' '), 'shop-materia-val-1', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x2, y1)
+  addTextToDialog(sellMateriaCostGroup, ('' + priceMaster).padStart(9, ' '), 'shop-materia-val-2', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x2, y2)
+  addTextToDialog(sellMateriaCostGroup, ('' + owned).padStart(9, ' '), 'shop-materia-val-3', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x1b, y3)
+  addTextToDialog(sellMateriaCostGroup, ('' + equipped).padStart(9, ' '), 'shop-materia-val-4', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x2, y3)
+
+  addTextToDialog(sellMateriaCostGroup, ('' + gilRemaining).padStart(9, ' '), 'shop-materia-val-5', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x4, y1b)
+  addTextToDialog(sellMateriaCostGroup, ('' + gil).padStart(9, ' '), 'shop-materia-val-6', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x4, y3)
 }
 const sellMateriaCancel = () => {
   DATA.mode = MODE.NAV

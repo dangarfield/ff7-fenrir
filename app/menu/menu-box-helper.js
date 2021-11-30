@@ -704,40 +704,6 @@ const getDialogTextures = () => {
     r: textures.borders['border r'].texture
   }
 }
-// const showDialog = async (dialogBox) => {
-//   dialogBox.visible = true
-//   const DIALOG_APPEAR_STEP_TOTAL = 3
-//   const DIALOG_APPEAR_SPEED = 3
-//   for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
-//     await sleep(DIALOG_APPEAR_SPEED)
-//     dialogBox.userData.posAdjustList.map(mesh =>
-//       adjustDialogExpandPos(
-//         mesh,
-//         step,
-//         DIALOG_APPEAR_STEP_TOTAL,
-//         dialogBox.userData.z
-//       )
-//     )
-//     dialogBox.userData.sizeAdjustList.map(mesh =>
-//       adjustDialogExpandSize(
-//         mesh,
-//         step,
-//         DIALOG_APPEAR_STEP_TOTAL,
-//         dialogBox.userData.bgGeo
-//       )
-//     )
-
-//     dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
-//       dialogBox.userData.w,
-//       dialogBox.userData.h,
-//       dialogBox.userData.z,
-//       dialogBox.userData.sizeAdjustList[0],
-//       dialogBox.userData.sizeAdjustList[1],
-//       dialogBox.userData.sizeAdjustList[2],
-//       dialogBox.userData.sizeAdjustList[3]
-//     )
-//   }
-// }
 const addTextToDialog = (
   dialogBox,
   text,
@@ -748,7 +714,7 @@ const addTextToDialog = (
   y,
   scale,
   clippingPlanes,
-  xCentreAlign
+  align
 ) => {
   const letters = ('' + text).split('')
   const textGroup = new THREE.Group()
@@ -796,10 +762,16 @@ const addTextToDialog = (
       // console.log('letter no char found', letter)
     }
   }
-  if (xCentreAlign) {
+  if (align === ALIGN.CENTRE || align === true) {
     for (let i = 0; i < textGroup.children.length; i++) {
       const letterMesh = textGroup.children[i]
       letterMesh.position.x = letterMesh.position.x - (fullWidth / 2)
+    }
+  }
+  if (align === ALIGN.RIGHT) {
+    for (let i = 0; i < textGroup.children.length; i++) {
+      const letterMesh = textGroup.children[i]
+      letterMesh.position.x = letterMesh.position.x - fullWidth
     }
   }
   dialogBox.add(textGroup)
