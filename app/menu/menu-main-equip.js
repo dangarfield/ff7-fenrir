@@ -215,7 +215,7 @@ const drawInfo = (isFromList) => {
   removeGroupChildren(infoGroup)
 
   let description
-  if (isFromList) {
+  if (isFromList && DATA.equipable.length > DATA.page + DATA.pos) {
     console.log('equip', DATA.equipable, DATA.page, DATA.pos)
     description = DATA.equipable[DATA.page + DATA.pos].description
   } else if (DATA.equipType === 0) {
@@ -429,6 +429,9 @@ const drawList = () => {
       }
     }
   }
+  if (DATA.equipable.length === 0) {
+    return
+  }
   // console.log('equip equipable', DATA.equipable)
 
   createItemListNavigation(listGroup, 200 + 113, 85.5 - 6.75, 151.5, DATA.equipable.length, 8)
@@ -500,14 +503,17 @@ const selectTypeNavigation = (up) => {
   drawSlots()
 }
 const selectType = () => {
-  drawSelectTypePointer(true)
-  drawSelectItemPointer()
   drawList()
-  drawInfo(true)
-  drawSlots(true)
-  drawStatsSelected()
-  console.log('equip DATA', DATA.equipable)
-  setMenuState('equip-select-item')
+
+  if (DATA.equipable.length > 0) {
+    drawSelectTypePointer(true)
+    drawSelectItemPointer()
+    drawInfo(true)
+    drawSlots(true)
+    drawStatsSelected()
+    console.log('equip DATA', DATA.equipable)
+    setMenuState('equip-select-item')
+  }
 }
 
 const updatePage = () => {
