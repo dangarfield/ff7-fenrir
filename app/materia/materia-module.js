@@ -46,8 +46,8 @@ const addMateriaToInventory = (materiaId, ap) => {
   // TODO - There are some kernel based callbacks for summon and enemy skills that appear to be hijacking save bank changes, but it'd be better to do them here
   // See savemap alias - save 1,48 (0x0BD4), kernel sets 1,75 bit 8 (0x0BEF) if bit 4 is on etc
 }
-const deleteMateriaFromInventory = materiaId => {
-  console.log('deleteMateriaFromInventory', materiaId)
+const removeMateriaFromInventoryById = materiaId => {
+  console.log('removeMateriaFromInventoryById', materiaId)
   const materias = window.data.savemap.materias
   for (let i = 0; i < materias.length; i++) {
     const materia = materias[i]
@@ -58,6 +58,14 @@ const deleteMateriaFromInventory = materiaId => {
       delete materia.description
     }
   }
+}
+const removeMateriaFromInventory = index => {
+  console.log('removeMateriaFromInventory', index)
+  const materia = window.data.savemap.materias[index]
+  materia.id = 0xff
+  materia.ap = 0xffffff
+  delete materia.name
+  delete materia.description
 }
 
 const yuffieStealMateriaAll = () => {
@@ -154,7 +162,8 @@ const trashMateria = (index) => {
 export {
   debugFillMateria,
   addMateriaToInventory,
-  deleteMateriaFromInventory,
+  removeMateriaFromInventory,
+  removeMateriaFromInventoryById,
   yuffieStealMateriaAll,
   yuffieRestoreMateriaAll,
   unequipAllMateriaCharX,

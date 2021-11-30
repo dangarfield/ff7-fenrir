@@ -31,7 +31,7 @@ import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
 import { navigateSelect } from '../world/world-destination-selector.js'
 import { getItemIcon, addItemToInventory, removeItemFromInventory } from '../items/items-module.js'
-import { addMateriaToInventory } from '../materia/materia-module.js'
+import { addMateriaToInventory, removeMateriaFromInventory } from '../materia/materia-module.js'
 import { getGrowthText } from './menu-main-equip.js'
 import { drawMateriaListOneItem, getSmallMateriaListPositions as getSellMateriaPositions, drawMateriaDetailsWithGroup } from './menu-main-materia.js'
 import { getEnemySkillFlagsWithSkills } from '../battle/battle-stats.js'
@@ -62,8 +62,7 @@ const STATES = {
   SHOP_BUY_AMOUNT: 'shop-buy-amount',
   SHOP_SELL_ITEMS_SELECT: 'shop-sell-items-select',
   SHOP_SELL_ITEMS_AMOUNT: 'shop-sell-items-amount',
-  SHOP_SELL_MATERIA_SELECT: 'shop-sell-materia-select',
-  SHOP_SELL_MATERIA_AMOUNT: 'shop-sell-materia-amount'
+  SHOP_SELL_MATERIA_SELECT: 'shop-sell-materia-select'
 }
 
 // Sell items video - https://youtu.be/-PIG0GVeroQ?t=1083
@@ -761,22 +760,11 @@ const drawMateriaCost = (materia) => {
 
   if (materia.id !== 255) {
     const materiaData = window.data.kernel.materiaData[materia.id]
-
-    /*
-MP Plus     50000     560000      11.2
-HP Plus     50000     560000      11.2
-Speed Plus  100000    1400000     14
-Magic Plus  50000     1400000     28
-Luck Plus   100000    1050000     10.5
-EXP Plus    150000    1
-Gil Plus    150000    1
-*/
-
     const sellPrices = getMateriaSellPrice(materia, materiaData)
     priceAP = sellPrices.priceAP
     priceMaster = sellPrices.priceMaster
     owned = window.data.savemap.materias.filter(m => m.id === materia.id).length
-
+    // Equipped
     for (let i = 0; i < DATA.chars.length; i++) {
       const char = window.data.savemap.characters[DATA.chars[i].name]
       if (!DATA.chars[i].showChar) {
@@ -811,6 +799,20 @@ const sellMateriaCancel = () => {
   navDialog.visible = true
   // TODO Back to main nav or sell nav?
   cancelChooseSellType()
+}
+const sellMateriaSelect = () => {
+  const i = DATA.sell.page + DATA.sell.pos
+  const materia = window.data.savemap.materias[i]
+  console.log('shop sellMateriaSelect', DATA.sell, i, materia)
+  if (materia.id !== 255) {
+    const materiaData = window.data.kernel.materiaData[materia.id]
+    const { priceAP } = getMateriaSellPrice(materia, materiaData)
+    console.log('shop sellMateriaSelect', materia, materiaData, priceAP)
+    removeMateriaFromInventory(i)
+    window.data.savemap.gil = window.data.savemap.gil + priceAP
+    drawSellMateriaList()
+    updateSellMateriaDescription()
+  }
 }
 const loadBuyMode = () => {
   DATA.mode = MODE.BUY
@@ -1671,21 +1673,7 @@ const keyPress = async (key, firstPress, state) => {
     } else if (key === KEY.X) {
       sellMateriaCancel()
     } else if (key === KEY.O) {
-      // sellMateriaSelect()
-    }
-  } else if (state === STATES.SHOP_SELL_MATERIA_AMOUNT) {
-    if (key === KEY.UP) {
-      // sellItemAmountChangeAmount(1)
-    } else if (key === KEY.DOWN) {
-      // sellItemAmountChangeAmount(-1)
-    } else if (key === KEY.RIGHT) {
-      // sellItemAmountChangeAmount(10)
-    } else if (key === KEY.LEFT) {
-      // sellItemAmountChangeAmount(-10)
-    } else if (key === KEY.X) {
-      // sellItemsAmountCancel()
-    } else if (key === KEY.O) {
-      // sellItemsAmountSelect()
+      sellMateriaSelect()
     }
   }
 }

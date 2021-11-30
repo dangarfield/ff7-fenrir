@@ -6,7 +6,7 @@ import {
 import { setBankData, getBankData } from '../data/savemap.js'
 import {
   addMateriaToInventory,
-  deleteMateriaFromInventory
+  removeMateriaFromInventoryById
 } from '../materia/materia-module.js'
 
 const SPTYE = async op => {
@@ -240,7 +240,7 @@ const DMTRA = async op => {
   console.log('DMTRA', op)
   // Only used in blackbg4, I'm just going to delete all instances regardless of ap...
   let materiaId = op.b1 === 0 ? op.t : getBankData(op.b1, op.t)
-  deleteMateriaFromInventory(materiaId)
+  removeMateriaFromInventoryById(materiaId)
   console.log('DMTRA results', window.data.savemap.materias)
   return {}
 }
