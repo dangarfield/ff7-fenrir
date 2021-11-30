@@ -161,7 +161,7 @@ const loadShopMenu = async param => {
     w: 87,
     h: 25.5,
     x: 144.5,
-    y: 8,
+    y: 25.5,
     expandInstantly: true,
     noClipping: true
   })
@@ -173,7 +173,7 @@ const loadShopMenu = async param => {
     w: 97,
     h: 25.5,
     x: 140.5,
-    y: 38,
+    y: 53,
     expandInstantly: true,
     noClipping: true
   })
@@ -409,7 +409,7 @@ const drawInfoDescription = (text) => {
 const getNavPositions = () => {
   return {
     x: 152.5,
-    y: 24,
+    y: 41.5,
     xAdj: 27.5
   }
 }
@@ -436,9 +436,9 @@ const drawNavPointer = () => {
 }
 const getNavSellPositions = () => {
   return {
-    x: 147.5,
-    y: 24 + 30,
-    xAdj: 44
+    x: 150,
+    y: 69,
+    xAdj: 37.5
   }
 }
 const drawNavSell = () => {
@@ -491,7 +491,9 @@ const navSelect = () => {
   }
 }
 const selectChooseSellType = () => {
-  movePointer(POINTERS.pointer2, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
+  const { x, y, xAdj } = getNavPositions()
+  movePointer(POINTERS.pointer2, x + xAdj - 12, y, false, true)
+  drawActionDescription(DATA.shopData.text.whatSell)
   drawNavSellPointer()
   navSellDialog.visible = true
   setMenuState(STATES.SHOP_NAV_SELL)
@@ -797,8 +799,8 @@ const sellMateriaCancel = () => {
   sellMateriaCostDialog.visible = false
 
   navDialog.visible = true
-  // TODO Back to main nav or sell nav?
-  cancelChooseSellType()
+  navSellDialog.visible = true
+  selectChooseSellType()
 }
 const sellMateriaSelect = () => {
   const i = DATA.sell.page + DATA.sell.pos
@@ -1271,6 +1273,7 @@ const buySelect = () => {
   const item = DATA.shopData.items[DATA.buy.page + DATA.buy.pos]
 
   if (item.type === ITEM_TYPE.ITEM) {
+    drawActionDescription(DATA.shopData.text.amountBuy)
     const itemData = window.data.kernel.allItemData[item.id]
     if (itemData.type === 'Weapon' || itemData.type === 'Armor') {
       console.log('shop buySelect weapon/armor', itemData)
@@ -1316,6 +1319,7 @@ const buyAmountCancel = () => {
   buyCostDialog.visible = false
   buySlotsDialog.visible = false
   updateBuyItemPreviewDetails()
+  drawActionDescription(DATA.shopData.text.whatBuy)
   setMenuState(STATES.SHOP_BUY_SELECT)
 }
 const buyAmountSelect = () => {
