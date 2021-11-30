@@ -43,10 +43,41 @@ const LETTER_COLORS = {
   Yellow: 'yellow'
 }
 const GAUGE_COLORS = {
-  LightRed: 'rgb(128,32,32)',
-  Pink: 'rgb(128,32,76)',
-  Red: 'rgb(233,120,21)',
-  Blue: 'rgb(233,112,21)'
+  // https://forums.qhimm.com/index.php?topic=20001.msg279204#msg279204 - But it doesn't look right to me, cant find hex values in exe
+  // Note: These are loose guesses based on visuals only - see addLimitToDialogColorsTest()
+
+  // EXP
+  EXP: 'rgb(128,32,32)', // Orangey
+
+  // Battle Time
+  WAIT_FILL: 'rgb(32,128,92)', // Green
+  WAIT_NON_ACTIVE: 'rgb(128,64,0)', // Yellow
+  WAIT_ACTIVE: 'rgb(128,128,32)', // Orange
+  WAIT_ACTIVE_FADE: 'rgb(0,0,0)', // Orange
+
+  // Limit Normal
+  LIMIT_NORMAL: 'rgb(128,32,92)', // Pink
+  LIMIT_FURY: 'rgb(92,0,0)', // Red
+  LIMIT_SADNESS: 'rgb(0,0,92)', // Blue
+
+  // Limit colors normal - bright pink, orange, light green, light blue
+  LIMIT_NORMAL_1: 'rgb(128,32,128)', // Bright pink
+  LIMIT_NORMAL_2: 'rgb(128,64,32)', // Orange , could be 128,76,0
+  LIMIT_NORMAL_3: 'rgb(64,128,0)', // Light green
+  LIMIT_NORMAL_4: 'rgb(32,128,128)', // Light blue
+
+  // Limit colors hyper - red (hyper color), yellow, dark green, blue/purple
+  LIMIT_FURY_1: 'rgb(92,0,0)', // Red
+  LIMIT_FURY_2: 'rgb(128,128,0)', // Yellow
+  LIMIT_FURY_3: 'rgb(0,92,0)', // Dark Green
+  LIMIT_FURY_4: 'rgb(0,0,92)' // Blue/Purple
+
+  // Limit colors sadness - ?
+  // LIMIT_SADNESS_1: 'rgb(128,32,76)', // ?
+  // LIMIT_SADNESS_2: 'rgb(128,32,76)', // ?
+  // LIMIT_SADNESS_3: 'rgb(128,32,76)', // ?
+  // LIMIT_SADNESS_4: 'rgb(128,32,76)' // ?
+
 }
 const POINTERS = {
   pointer1: null,
@@ -84,14 +115,14 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(0,255,126)',
     'rgb(255,255,255)'
   ],
-  EXP_1: generateGaugeBarsColors1(GAUGE_COLORS.LightRed),
-  EXP_2: generateGaugeBarsColors2(GAUGE_COLORS.LightRed),
-  LIMIT_1: generateGaugeBarsColors1(GAUGE_COLORS.Pink),
-  LIMIT_2: generateGaugeBarsColors2(GAUGE_COLORS.Pink),
-  LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.Red),
-  LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
-  LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
-  LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue),
+  EXP_1: generateGaugeBarsColors1(GAUGE_COLORS.EXP),
+  EXP_2: generateGaugeBarsColors2(GAUGE_COLORS.EXP),
+  LIMIT_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_NORMAL),
+  LIMIT_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_NORMAL),
+  // LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.Red),
+  // LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
+  // LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
+  // LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue),
   ITEM_LIST_SLIDER_BG: [
     'rgb(25,25,75)',
     'rgb(25,25,75)',
@@ -1116,6 +1147,7 @@ const addShapeToDialog = (
   perc,
   blending
 ) => {
+  console.log('limit shape colors', colors)
   if (perc === undefined) {
     perc = 1
   } else if (perc < 0.001) {
@@ -1147,6 +1179,7 @@ const addShapeToDialog = (
 
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
   bg.userData = { id: id }
+
   dialogBox.add(bg)
   return bg
 }
@@ -1538,11 +1571,69 @@ const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   slider.userData.goToValue(defaultValue)
   return slider
 }
+
+const addLimitToDialogColorsTest = (dialog) => {
+  const limitPerc = 1
+
+  const options = [0, 32, 64, 92, 128, 192]
+  const perms = []
+  for (let i = 0; i < options.length; i++) {
+    const o1 = options[i]
+    for (let j = 0; j < options.length; j++) {
+      const o2 = options[j]
+      for (let k = 0; k < options.length; k++) {
+        const o3 = options[k]
+        perms.push(`rgb(${o1},${o2},${o3})`)
+      }
+    }
+  }
+  perms.push('rgb(0,0,0)')
+  perms.push('rgb(0,0,0)')
+  const gaugeKeys = Object.keys(GAUGE_COLORS)
+  for (let i = 0; i < gaugeKeys.length; i++) {
+    const gaugeKey = gaugeKeys[i]
+    perms.push(GAUGE_COLORS[gaugeKey])
+  }
+  for (let i = 0; i < perms.length; i++) {
+    const perm = perms[i]
+    const rows = 25
+    const rootX = 35 + (Math.trunc(i / rows) * 30)
+    const rootY = -10 + ((i % rows) * 8)
+
+    addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', rootX + 0.5, rootY, 0.5)
+    addShapeToDialog(
+      dialog,
+      generateGaugeBarsColors1(perm),
+      'limit-bar-a',
+      rootX,
+      rootY - 2.5,
+      58,
+      3,
+      limitPerc,
+      THREE.AdditiveBlending
+    )
+    addShapeToDialog(
+      dialog,
+      generateGaugeBarsColors2(perm),
+      'limit-bar-b',
+      rootX,
+      rootY + 0.5,
+      58,
+      3,
+      limitPerc,
+      THREE.AdditiveBlending
+    )
+    addTextToDialog(dialog, perm.replace('rgb(', '').replace(')', ''), `perm-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, rootX - 35, rootY, 0.125)
+    console.log('limit perm', i, perm)
+  }
+  dialog.position.z = 100
+  window.limitTest = dialog
+}
 const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
-
+  // TODO - sadness??
   addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', x + 0.5, y, 0.5)
-  addShapeToDialog(
+  const l1 = addShapeToDialog(
     dialog,
     WINDOW_COLORS_SUMMARY.LIMIT_1,
     'limit-bar-a',
@@ -1553,7 +1644,7 @@ const addLimitToDialog = (dialog, x, y, char) => {
     limitPerc,
     THREE.AdditiveBlending
   )
-  addShapeToDialog(
+  const l2 = addShapeToDialog(
     dialog,
     WINDOW_COLORS_SUMMARY.LIMIT_2,
     'limit-bar-b',
@@ -1564,6 +1655,107 @@ const addLimitToDialog = (dialog, x, y, char) => {
     limitPerc,
     THREE.AdditiveBlending
   )
+
+  // Temp limit tween color testing - tween
+  // const to = { r: [], g: [], b: [] }
+  // const colorsToUse = [GAUGE_COLORS.LIMIT_NORMAL_2, GAUGE_COLORS.LIMIT_NORMAL_3, GAUGE_COLORS.LIMIT_NORMAL_4, GAUGE_COLORS.LIMIT_NORMAL_1]
+  // for (let i = 0; i < colorsToUse.length; i++) {
+  //   const colorToUse = new THREE.Color(colorsToUse[i])
+  //   to.r.push(colorToUse.r)
+  //   to.g.push(colorToUse.g)
+  //   to.b.push(colorToUse.b)
+  // }
+  // const from = {
+  //   r: to.r[colorsToUse.length - 1],
+  //   g: to.g[colorsToUse.length - 1],
+  //   b: to.b[colorsToUse.length - 1]
+  // }
+  // console.log('limit tween colors: ', from, to)
+
+  // const l1GeoColorAtt = l1.geometry.getAttribute('color')
+  // l1GeoColorAtt.needsUpdate = true
+  // const l2GeoColorAtt = l2.geometry.getAttribute('color')
+  // l2GeoColorAtt.needsUpdate = true
+  // new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+  //   .to(to, 1000)
+  //   .repeat(Infinity)
+  //   // .easing(TWEEN.Easing.Quadratic.Out)
+  //   .onUpdate(function () {
+  //     console.log('limit color tween: UPDATE', from)
+  //     // fade.material.opacity = from.opacity
+  //     l1GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
+  //     l1GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
+  //     l1GeoColorAtt.needsUpdate = true
+  //     l2GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
+  //     l2GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
+  //     l2GeoColorAtt.needsUpdate = true
+  //   })
+  //   .onComplete(function () {
+  //     console.log('limit color tween: END', from)
+  //     // resolve()
+  //   })
+  //   .start()
+
+  // Temp limit tween color testing 2 - fixed steps
+  const to = {v: 1}
+  const from = {v: 0}
+
+  const c1 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_1)
+  const c2 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_2)
+  const c3 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_3)
+  const c4 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_4)
+  let colorToUse
+
+  const l1GeoColorAtt = l1.geometry.getAttribute('color')
+  l1GeoColorAtt.needsUpdate = true
+  const l2GeoColorAtt = l2.geometry.getAttribute('color')
+  l2GeoColorAtt.needsUpdate = true
+
+  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+    .to(to, 750)
+    .repeat(Infinity)
+    // .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate(function () {
+      // console.log('limit color tween: UPDATE', from)
+
+      let shouldChange = false
+      if (from.v < 0.25) {
+        if (colorToUse !== c1) {
+          colorToUse = c1
+          shouldChange = true
+        }
+      } else if (from.v < 0.5) {
+        if (colorToUse !== c2) {
+          colorToUse = c2
+          shouldChange = true
+        }
+      } else if (from.v < 0.75) {
+        if (colorToUse !== c3) {
+          colorToUse = c3
+          shouldChange = true
+        }
+      } else {
+        if (colorToUse !== c4) {
+          colorToUse = c4
+          shouldChange = true
+        }
+      }
+
+      // fade.material.opacity = from.opacity
+      if (shouldChange) {
+        l1GeoColorAtt.setXYZ(2, colorToUse.r, colorToUse.b, colorToUse.g)
+        l1GeoColorAtt.setXYZ(3, colorToUse.r, colorToUse.b, colorToUse.g)
+        l1GeoColorAtt.needsUpdate = true
+        l2GeoColorAtt.setXYZ(2, colorToUse.r, colorToUse.b, colorToUse.g)
+        l2GeoColorAtt.setXYZ(3, colorToUse.r, colorToUse.b, colorToUse.g)
+        l2GeoColorAtt.needsUpdate = true
+      }
+    })
+    .onComplete(function () {
+      console.log('limit color tween: END', from)
+      // resolve()
+    })
+    .start()
 }
 const addLevelToDialog = (dialog, x, y, char) => {
   const expPerc = char.level.progressBar / 100

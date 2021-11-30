@@ -452,6 +452,7 @@ const getMenuOptions = (char) => {
       }
     }
   }
+  // TODO - Add Limit command is limit is full
   ensureCommandMenuMagicSummonItemOrder(command, hasMagic, hasSummon)
   const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonEnemySkillMenus(char)
   const menu = {command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu}
