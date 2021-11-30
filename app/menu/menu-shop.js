@@ -358,6 +358,7 @@ const loadShopMenu = async param => {
   drawPartyEquipFixedElements()
   drawBuyCostFixedElements()
   drawBuySlotFixedElements()
+  drawSellItemsListFixedElements()
   drawSellItemsAmountFixedElements()
   drawEnemySkillsGroup()
   await fadeOverlayOut(getMenuBlackOverlay())
@@ -528,7 +529,6 @@ const loadSellItemsMode = () => {
   itemInfoDialog.visible = true
   sellItemListDialog.visible = true
 
-  drawSellItemsListFixed()
   drawSellItemsList()
   drawSellItemsPointer()
   updateSellItemDescription()
@@ -553,13 +553,10 @@ const getSellItemsPositions = () => {
     lines: 10
   }
 }
-const drawSellItemsListFixed = () => {
+const drawSellItemsListFixedElements = () => {
   const { lines } = getSellItemsPositions()
-  removeGroupChildren(sellItemListGroup)
-  if (DATA.shopData.items.length > 5) {
-    createItemListNavigation(sellItemListGroup, 320 - 7, 96, 186, window.data.savemap.items.length, lines)
-    sellItemListGroup.userData.slider.userData.moveToPage(0)
-  }
+  createItemListNavigation(sellItemListGroup, 320 - 7, 96, 186, window.data.savemap.items.length, lines)
+  sellItemListGroup.userData.slider.userData.moveToPage(0)
 }
 const drawSellItemsList = () => {
   const { x, y, xAdj, yAdj, cols, lines } = getSellItemsPositions()
