@@ -739,6 +739,16 @@ const drawMateriaCostFixed = () => {
   addTextToDialog(sellMateriaCostDialog, 'Gil remaining', 'shop-materia-label-5', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x3, y1b, 0.5, null, ALIGN.RIGHT)
   addTextToDialog(sellMateriaCostDialog, 'Gil', 'shop-materia-label-6', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, x3, y3, 0.5, null, ALIGN.RIGHT)
 }
+const getMateriaSellPrice = (materia, materiaData) => {
+  const masterMultiplier = window.data.exe.shopData.sellPriceMateriaMasterMultiplier
+  const buyPrice = window.data.exe.shopData.shopMateriaPrices[materia.id]
+  let priceAP = buyPrice === 1 ? 1 : materia.ap
+  const priceMaster = buyPrice === 1 ? 1 : window.data.exe.shopData.shopMateriaPrices[materia.id] * masterMultiplier
+  if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
+    priceAP = priceMaster
+  }
+  return {priceAP, priceMaster}
+}
 const drawMateriaCost = (materia) => {
   removeGroupChildren(sellMateriaCostGroup)
   const { x2, x1b, x4, y1, y1b, y2, y3 } = getMateriaCostPositions()
@@ -762,9 +772,9 @@ EXP Plus    150000    1
 Gil Plus    150000    1
 */
 
-    const apMultiplier = 40 // ?
-    priceAP = materia.ap * apMultiplier
-    priceMaster = materiaData.apLevels[materiaData.apLevels.length - 1] * apMultiplier
+    const sellPrices = getMateriaSellPrice(materia, materiaData)
+    priceAP = sellPrices.priceAP
+    priceMaster = sellPrices.priceMaster
     owned = window.data.savemap.materias.filter(m => m.id === materia.id).length
 
     for (let i = 0; i < DATA.chars.length; i++) {
