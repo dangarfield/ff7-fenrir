@@ -751,6 +751,17 @@ const drawMateriaCost = (materia) => {
 
   if (materia.id !== 255) {
     const materiaData = window.data.kernel.materiaData[materia.id]
+
+    /*
+MP Plus     50000     560000      11.2
+HP Plus     50000     560000      11.2
+Speed Plus  100000    1400000     14
+Magic Plus  50000     1400000     28
+Luck Plus   100000    1050000     10.5
+EXP Plus    150000    1
+Gil Plus    150000    1
+*/
+
     const apMultiplier = 40 // ?
     priceAP = materia.ap * apMultiplier
     priceMaster = materiaData.apLevels[materiaData.apLevels.length - 1] * apMultiplier
