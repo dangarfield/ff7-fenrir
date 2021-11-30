@@ -99,8 +99,8 @@ const loadShopData = (param) => {
     // TODO - Also, text.amountBuy is incorrectly mapped to whatSell, need to look at and fix
   }
   // Temp
-  DATA.shopData.items.push({type: 'item', id: 0, price: 100})
-  DATA.shopData.items.push({type: 'materia', id: 4, price: 1000})
+  // DATA.shopData.items.push({type: 'item', id: 0, price: 100})
+  // DATA.shopData.items.push({type: 'materia', id: 4, price: 1000})
   setDecriptionOwnedEquippedDetailsToItems()
 }
 const loadCharData = () => {
