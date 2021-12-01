@@ -6,7 +6,7 @@ import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
-import { addLimitBarTween } from './menu-limit-tween-helper.js'
+import { addLimitBarTween, addLimitTextTween } from './menu-limit-tween-helper.js'
 const EDGE_SIZE = 8
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -1716,6 +1716,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
   commandDialog.visible = true
   dialog.add(commandDialog)
 
+  let limitGroup = null
   for (let i = 0; i < commands.length; i++) {
     const command = commands[i]
     let yAdjText = yAdjTextCol1
@@ -1725,9 +1726,9 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
       yAdjText = yAdjTextCol2
     }
     if (command.id < 255) {
-      addTextToDialog(
+      const commandText = addTextToDialog(
         commandDialog,
-        command.name,
+        command.limit ? window.data.kernel.commandData[command.limit].name : command.name,
         `menu-cmd-${command.name}`,
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
@@ -1735,7 +1736,14 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
         y + 15.5 - 4 + (13 * (i % 4)),
         0.5
       )
+      if (command.limit) {
+        limitGroup = commandText
+        commandText.userData.limitText = window.data.kernel.commandData[command.limit].name
+      }
     }
+  }
+  if (limitGroup !== null) {
+    addLimitTextTween(limitGroup)
   }
 }
 const updateTexture = (mesh, letter, letterType, color) => {

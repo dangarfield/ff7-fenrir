@@ -97,7 +97,7 @@ const debugPopulateMenuTestData = () => {
 }
 window.debugPopulateMenuTestData = debugPopulateMenuTestData
 const loadHomeMenu = async () => {
-  // debugPopulateMenuTestData() // Temp
+  debugPopulateMenuTestData() // Temp
 
   homeNav = await createDialogBox({
     id: 1,
@@ -868,6 +868,7 @@ const keyPress = async (key, firstPress, state) => {
       console.log('press MAIN MENU HOME EXIT')
       movePointer(POINTERS.pointer1, 0, 0, true)
       await slideOutMainMenu()
+      stopAllLimitBarTweens()
       resolveMenuPromise()
     } else if (key === KEY.O) {
       console.log('press MAIN MENU HOME SELECT')

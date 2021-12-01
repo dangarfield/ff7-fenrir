@@ -9,6 +9,7 @@ import { loadEquipMenu } from './menu-main-equip.js'
 import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
 import { getMenuBlackOverlay, getMenuState, setMenuState } from './menu-module.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
+import { stopAllLimitTextTweens } from './menu-limit-tween-helper.js'
 
 let headerDialog, headerGroup
 let infoDialog, infoGroup
@@ -961,7 +962,8 @@ const drawCheckSelect = () => {
   DATA.check.main = 0
 
   // Update info
-  drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
+  const commandIndex = DATA.battleStats.menu.command[DATA.check.main].limit ? 20 : DATA.battleStats.menu.command[DATA.check.main].id
+  drawInfo(window.data.kernel.commandData[commandIndex].description)
 
   // Show main pointer
   drawCheckMainPointer()
@@ -1047,7 +1049,8 @@ const checkNavigation = (vertical, delta) => {
     }
   } while (DATA.battleStats.menu.command[DATA.check.main].id === 255)
 
-  drawInfo(window.data.kernel.commandData[DATA.battleStats.menu.command[DATA.check.main].id].description)
+  const commandIndex = DATA.battleStats.menu.command[DATA.check.main].limit ? 20 : DATA.battleStats.menu.command[DATA.check.main].id
+  drawInfo(window.data.kernel.commandData[commandIndex].description)
   drawCheckMainPointer()
 }
 const getCheckSubSpellPositions = () => {
@@ -2077,6 +2080,7 @@ const mainNavigation = delta => {
   } else {
     DATA.mainNavPos = potential
   }
+  stopAllLimitTextTweens()
   drawMainNavPointer()
 }
 const mainNavigationSelect = () => {
@@ -2401,6 +2405,7 @@ const switchPartyMember = delta => {
     }
   }
   DATA.partyMember = newMember
+  stopAllLimitTextTweens()
   setDataFromPartyMember()
   drawHeader()
   drawMainNavPointer()
@@ -2416,6 +2421,7 @@ const switchToEquipMenu = async () => {
   smallMateriaListDialog.visible = false
   trashDialog.visible = false
   checkDialog.visible = false
+  stopAllLimitTextTweens()
   loadEquipMenu(DATA.partyMember)
 }
 const exitMenu = async () => {
@@ -2431,6 +2437,7 @@ const exitMenu = async () => {
   smallMateriaListDialog.visible = false
   trashDialog.visible = false
   checkDialog.visible = false
+  stopAllLimitTextTweens()
   fadeInHomeMenu()
 }
 const keyPress = async (key, firstPress, state) => {

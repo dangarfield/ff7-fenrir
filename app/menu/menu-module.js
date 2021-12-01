@@ -20,6 +20,7 @@ import {
   temporarilyHideMateriaCloud,
   reinstateMateriaCloud
 } from '../materia/materia-module.js'
+import { stopAllLimitBarTweens, stopAllLimitTextTweens } from './menu-limit-tween-helper.js'
 
 const MENU_TYPE = {
   Credits: 5,
@@ -191,6 +192,8 @@ const loadTutorial = tutorialId => {
   })
 }
 const resolveMenuPromise = () => {
+  stopAllLimitBarTweens() // Catch all, just in case
+  stopAllLimitTextTweens()
   MENU_PROMISE()
 }
 
