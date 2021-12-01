@@ -125,7 +125,7 @@ const loadMenuWithWait = (menuCode, param) => {
         loadPartySelectMenu(param) // Done
         break
       case MENU_TYPE.Shop:
-        loadShopMenu(param) // In Progress
+        loadShopMenu(param) // Done
         break
       case MENU_TYPE.MainMenu:
         loadHomeMenu() // Done

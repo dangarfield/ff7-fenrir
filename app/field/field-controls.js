@@ -42,7 +42,7 @@ const initFieldKeypressActions = () => {
 
   getKeyPressEmitter().on('r1', firstPress => {
     if (
-      areFieldControlsActive &&
+      areFieldControlsActive() &&
       firstPress &&
       isActionInProgress() === 'talk'
     ) {
@@ -53,7 +53,7 @@ const initFieldKeypressActions = () => {
   })
 
   getKeyPressEmitter().on('triangle', async firstPress => {
-    if (areFieldControlsActive && firstPress && isMenuEnabled()) {
+    if (areFieldControlsActive() && firstPress && isMenuEnabled()) {
       // Also need to check is menu is disabled
       // Toggle position helper visibility
       console.log('triangle', isActionInProgress())
@@ -62,7 +62,7 @@ const initFieldKeypressActions = () => {
   })
   getKeyPressEmitter().on('r2', async firstPress => {
     if (
-      areFieldControlsActive &&
+      areFieldControlsActive() &&
       firstPress &&
       isActionInProgress() === 'menu'
     ) {
@@ -72,38 +72,39 @@ const initFieldKeypressActions = () => {
     }
   })
   getKeyPressEmitter().on('start', firstPress => {
-    if (areFieldControlsActive && firstPress) {
+    if (areFieldControlsActive() && firstPress) {
       // Just debug controls
     }
   })
   getKeyPressEmitter().on('select', firstPress => {
-    if (areFieldControlsActive && firstPress) {
+    if (areFieldControlsActive() && firstPress) {
       // Toggle position helper visibility
       togglePositionHelperVisility()
     }
   })
 
   getKeyPressEmitter().on('l1', async firstPress => {
-    if (areFieldControlsActive && firstPress) {
+    if (areFieldControlsActive() && firstPress) {
+      console.log('controls l1')
       transitionOutAndLoadMenu(MENU_TYPE.Shop, 6)
       // transitionOutAndLoadMenu(MENU_TYPE.CharacterNameEntry, 0)
       // transitionOutAndLoadMenu(MENU_TYPE.GameOver)
     }
   })
   getKeyPressEmitter().on('l2', async firstPress => {
-    if (areFieldControlsActive && firstPress) {
+    if (areFieldControlsActive() && firstPress) {
       await nextPageOrCloseActiveDialogs()
     }
   })
 
   getKeyPressEmitter().on('up', firstPress => {
-    if (areFieldControlsActive && isChoiceActive) {
+    if (areFieldControlsActive() && isChoiceActive) {
       console.log('navigate choice UP')
       navigateChoice(false)
     }
   })
   getKeyPressEmitter().on('down', firstPress => {
-    if (areFieldControlsActive && isChoiceActive) {
+    if (areFieldControlsActive() && isChoiceActive) {
       console.log('navigate choice DOWN')
       navigateChoice(true)
     }
