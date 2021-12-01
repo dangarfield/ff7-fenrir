@@ -147,6 +147,7 @@ const loadHomeMenu = async () => {
   for (let i = 0; i < menuVisibility.length; i++) {
     navOptions[i].display = menuVisibility[i]
   }
+  nav.options = []
   for (let i = 0; i < navOptions.length; i++) {
     const navOption = navOptions[i]
     if (navOption.display) {
