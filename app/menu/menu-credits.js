@@ -223,9 +223,9 @@ const show500YearsMessage = async () => {
   const fadeGroup = addGroupToDialog(scrollingTextGroup, 19)
 
   const c500 = addImageToDialog(scrollingTextGroup, 'end-credits', 'credits-500-years-later', 'credits-500-years-later', 160, 120, 0.5)
-  const shape1 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.CREDITS_WHITE, 'credits-years-cover', 160 - 386, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
+  const shape1 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.WHITE, 'credits-years-cover', 160 - 386, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
   const shape2 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.CREDITS_FADE, 'credits-years-cover', 160 - (386 / 2), 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
-  const shape3 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.CREDITS_BLACK, 'credits-years-cover', 160, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
+  const shape3 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.BLACK, 'credits-years-cover', 160, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
   window.c500 = c500
   window.shape1 = shape1
   window.shape2 = shape2

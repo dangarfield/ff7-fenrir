@@ -14,7 +14,9 @@ import {
   fadeOverlayIn,
   createEquipmentMateriaViewer,
   EQUIPMENT_TYPE,
-  removeGroupChildren
+  removeGroupChildren,
+  addShapeToDialog,
+  WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
@@ -159,8 +161,8 @@ const drawChar = () => {
   )
 
   const {x, y, xAdj} = getNamePos()
-  for (let i = 0; i < 10; i++) {
-    drawUnderscore(x, y, xAdj, i, charDialog, LETTER_COLORS.White)
+  for (let i = 0; i < 9; i++) {
+    drawUnderscore(x, y, xAdj, i, charDialog, WINDOW_COLORS_SUMMARY.WHITE)
   }
 }
 const getNamePos = () => {
@@ -171,16 +173,14 @@ const getNamePos = () => {
   }
 }
 const drawUnderscore = (x, y, xAdj, i, group, color) => {
-  return addTextToDialog(
+  return addShapeToDialog(
     group,
-    '—', // TODO - replace this with the correct letter
-    `char-underscore-${i}`,
-    LETTER_TYPES.MenuBaseFont,
     color,
-    x + (xAdj * i) - 8,
-    y - 4 + 10,
-    0.5
-  )
+    `char-underscore-${i}`,
+    x + (xAdj * i) + 4,
+    y + 5,
+    8,
+    1)
 }
 const startUnderscoreFlashing = () => {
   DATA.underscoreInterval = setInterval(function () {
@@ -212,9 +212,9 @@ const drawName = () => {
     )
   }
 
-  if (nameSplit.length < 10) {
-    drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, LETTER_COLORS.Gray)
-    DATA.underscore = drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, LETTER_COLORS.Yellow)
+  if (nameSplit.length < 9) {
+    drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, WINDOW_COLORS_SUMMARY.GRAY)
+    DATA.underscore = drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, WINDOW_COLORS_SUMMARY.YELLOW)
   } else {
     DATA.underscore = null
   }
@@ -319,7 +319,7 @@ const deleteLetter = () => {
 }
 const addLetter = (letter) => {
   console.log('char addLetter', letter)
-  if (DATA.name.length < 10) {
+  if (DATA.name.length < 9) {
     DATA.name = DATA.name + letter
     drawName()
   }

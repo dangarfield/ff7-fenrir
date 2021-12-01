@@ -1201,13 +1201,13 @@ const drawPartyEquipFixedElements = () => {
   for (let i = 0; i < DATA.chars.length; i++) {
     const char = DATA.chars[i]
     if (char.showChar) {
-      addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.CREDITS_BLACK, `shop-buy-equip-char-profile-${i}-bg`,
+      addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.BLACK, `shop-buy-equip-char-profile-${i}-bg`,
         x + ((i % 3) * xAdj) + 0 + 12,
         y + (Math.trunc(i / 3) * yAdj) + 15,
         21 + 1,
         24 + 1
       )
-      DATA.profileBGs.push(addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.CREDITS_WHITE, `shop-buy-equip-char-profile-${i}-bg`,
+      DATA.profileBGs.push(addShapeToDialog(partyEquipDialog, WINDOW_COLORS_SUMMARY.WHITE, `shop-buy-equip-char-profile-${i}-bg`,
         x + ((i % 3) * xAdj) + 0 + 12,
         y + (Math.trunc(i / 3) * yAdj) + 15,
         21 + 1,

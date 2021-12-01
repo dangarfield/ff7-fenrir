@@ -160,17 +160,29 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(255,255,255)',
     'rgb(0,0,0)'
   ],
-  CREDITS_BLACK: [
+  BLACK: [
     'rgb(0,0,0)',
     'rgb(0,0,0)',
     'rgb(0,0,0)',
     'rgb(0,0,0)'
   ],
-  CREDITS_WHITE: [
+  GRAY: [
+    'rgb(106,106,106)',
+    'rgb(106,106,106)',
+    'rgb(106,106,106)',
+    'rgb(106,106,106)'
+  ],
+  WHITE: [
     'rgb(255,255,255)',
     'rgb(255,255,255)',
     'rgb(255,255,255)',
     'rgb(255,255,255)'
+  ],
+  YELLOW: [
+    'rgb(230,230,0)',
+    'rgb(230,230,0)',
+    'rgb(230,230,0)',
+    'rgb(230,230,0)'
   ]
 }
 const createFadeOverlay = () => {
