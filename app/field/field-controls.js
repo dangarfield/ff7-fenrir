@@ -87,7 +87,7 @@ const initFieldKeypressActions = () => {
     if (areFieldControlsActive() && firstPress) {
       console.log('controls l1')
       // transitionOutAndLoadMenu(MENU_TYPE.Shop, 6)
-      transitionOutAndLoadMenu(MENU_TYPE.CharacterNameEntry, 8)
+      transitionOutAndLoadMenu(MENU_TYPE.CharacterNameEntry, 0x64)
       // transitionOutAndLoadMenu(MENU_TYPE.GameOver)
     }
   })

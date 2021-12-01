@@ -97,7 +97,7 @@ const createReadmeCell = op => {
     }
     return `[![Generic badge](https://img.shields.io/badge/${
       op.name
-    }-${status}-${color}.svg)](https://picklejar76.github.io/kujata-webapp/field-op-code-details/${
+    }-${status}-${color}.svg)](https://dangarfield.github.io/kujata-webapp/field-op-code-details/${
       op.code
     })<br>${op.description}<br>Usage - ${op.usage}<br>[${
       op.name

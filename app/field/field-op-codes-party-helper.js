@@ -10,7 +10,7 @@ const getPlayableCharacterId = c => {
   if (c === 'Cid') return 8
   if (c === 'YoungCloud') return 9
   if (c === 'Sephiroth') return 10
-  if (c === 'Chocobo') return 11
+  if (c === 'Choco') return 11
   return 255
 }
 
@@ -26,7 +26,7 @@ const getPlayableCharacterName = c => {
   if (c === 8) return 'Cid'
   if (c === 9) return 'YoungCloud'
   if (c === 10) return 'Sephiroth'
-  if (c === 11) return 'Chocobo'
+  if (c === 11 || c === 100) return 'Choco'
   return 'None'
 }
 const getSpecialTextName = textId => {

@@ -49,7 +49,7 @@ const setDataFromCharacter = (param) => {
   // TODO - param === 0x64 (100) -> Choco, not sure exactly where to persist this name quite yet, will do later
   DATA.charName = getPlayableCharacterName(param)
   DATA.char = window.data.savemap.characters[DATA.charName]
-  DATA.defaultName = window.data.exe.defaultNames[param]
+  DATA.defaultName = window.data.exe.defaultNames[param === 0x64 ? 9 : param]
   DATA.name = DATA.defaultName + ''
   window.DATA = DATA
 }
@@ -313,7 +313,12 @@ const addLetter = (letter) => {
 }
 const selectNameAndExit = () => {
   console.log('char selectNameAndExit')
-  DATA.char.name = DATA.name + ''
+  if (DATA.char && DATA.char.name) {
+    DATA.char.name = DATA.name + ''
+  } else {
+    console.log('char selectNameAndExit CHOCO', DATA.name) // TODO - Not sure what happens here
+  }
+
   exitMenu()
 }
 const setDefault = () => {
