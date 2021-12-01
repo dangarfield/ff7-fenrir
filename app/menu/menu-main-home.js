@@ -97,7 +97,7 @@ const debugPopulateMenuTestData = () => {
 }
 window.debugPopulateMenuTestData = debugPopulateMenuTestData
 const loadHomeMenu = async () => {
-  debugPopulateMenuTestData() // Temp
+  // debugPopulateMenuTestData() // Temp
 
   homeNav = await createDialogBox({
     id: 1,
