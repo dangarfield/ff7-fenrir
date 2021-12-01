@@ -20,6 +20,7 @@ import {
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { stopAllLimitBarTweens } from './menu-limit-tween-helper.js'
 
 let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
 
@@ -549,6 +550,7 @@ const exitMenu = async () => {
   movePointer(POINTERS.pointer1, 0, 0, true)
   await fadeOverlayIn(getMenuBlackOverlay())
   statusDialog.visible = false
+  stopAllLimitBarTweens()
   fadeInHomeMenu()
 }
 const switchPartyMember = delta => {
@@ -566,6 +568,7 @@ const switchPartyMember = delta => {
     }
   }
   STATUS_DATA.partyMember = newMember
+  stopAllLimitBarTweens()
   populatePagesForCharacter()
   displayPage()
 }

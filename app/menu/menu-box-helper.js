@@ -6,6 +6,7 @@ import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
+import { addLimitBarTween } from './menu-limit-tween-helper.js'
 const EDGE_SIZE = 8
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -1147,7 +1148,7 @@ const addShapeToDialog = (
   perc,
   blending
 ) => {
-  console.log('limit shape colors', colors)
+  // console.log('limit shape colors', colors)
   if (perc === undefined) {
     perc = 1
   } else if (perc < 0.001) {
@@ -1655,107 +1656,10 @@ const addLimitToDialog = (dialog, x, y, char) => {
     limitPerc,
     THREE.AdditiveBlending
   )
-
-  // Temp limit tween color testing - tween
-  // const to = { r: [], g: [], b: [] }
-  // const colorsToUse = [GAUGE_COLORS.LIMIT_NORMAL_2, GAUGE_COLORS.LIMIT_NORMAL_3, GAUGE_COLORS.LIMIT_NORMAL_4, GAUGE_COLORS.LIMIT_NORMAL_1]
-  // for (let i = 0; i < colorsToUse.length; i++) {
-  //   const colorToUse = new THREE.Color(colorsToUse[i])
-  //   to.r.push(colorToUse.r)
-  //   to.g.push(colorToUse.g)
-  //   to.b.push(colorToUse.b)
-  // }
-  // const from = {
-  //   r: to.r[colorsToUse.length - 1],
-  //   g: to.g[colorsToUse.length - 1],
-  //   b: to.b[colorsToUse.length - 1]
-  // }
-  // console.log('limit tween colors: ', from, to)
-
-  // const l1GeoColorAtt = l1.geometry.getAttribute('color')
-  // l1GeoColorAtt.needsUpdate = true
-  // const l2GeoColorAtt = l2.geometry.getAttribute('color')
-  // l2GeoColorAtt.needsUpdate = true
-  // new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-  //   .to(to, 1000)
-  //   .repeat(Infinity)
-  //   // .easing(TWEEN.Easing.Quadratic.Out)
-  //   .onUpdate(function () {
-  //     console.log('limit color tween: UPDATE', from)
-  //     // fade.material.opacity = from.opacity
-  //     l1GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
-  //     l1GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
-  //     l1GeoColorAtt.needsUpdate = true
-  //     l2GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
-  //     l2GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
-  //     l2GeoColorAtt.needsUpdate = true
-  //   })
-  //   .onComplete(function () {
-  //     console.log('limit color tween: END', from)
-  //     // resolve()
-  //   })
-  //   .start()
-
-  // Temp limit tween color testing 2 - fixed steps
-  const to = {v: 1}
-  const from = {v: 0}
-
-  const c1 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_1)
-  const c2 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_2)
-  const c3 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_3)
-  const c4 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_4)
-  let colorToUse
-
-  const l1GeoColorAtt = l1.geometry.getAttribute('color')
-  l1GeoColorAtt.needsUpdate = true
-  const l2GeoColorAtt = l2.geometry.getAttribute('color')
-  l2GeoColorAtt.needsUpdate = true
-
-  new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-    .to(to, 750)
-    .repeat(Infinity)
-    // .easing(TWEEN.Easing.Quadratic.Out)
-    .onUpdate(function () {
-      // console.log('limit color tween: UPDATE', from)
-
-      let shouldChange = false
-      if (from.v < 0.25) {
-        if (colorToUse !== c1) {
-          colorToUse = c1
-          shouldChange = true
-        }
-      } else if (from.v < 0.5) {
-        if (colorToUse !== c2) {
-          colorToUse = c2
-          shouldChange = true
-        }
-      } else if (from.v < 0.75) {
-        if (colorToUse !== c3) {
-          colorToUse = c3
-          shouldChange = true
-        }
-      } else {
-        if (colorToUse !== c4) {
-          colorToUse = c4
-          shouldChange = true
-        }
-      }
-
-      // fade.material.opacity = from.opacity
-      if (shouldChange) {
-        l1GeoColorAtt.setXYZ(2, colorToUse.r, colorToUse.b, colorToUse.g)
-        l1GeoColorAtt.setXYZ(3, colorToUse.r, colorToUse.b, colorToUse.g)
-        l1GeoColorAtt.needsUpdate = true
-        l2GeoColorAtt.setXYZ(2, colorToUse.r, colorToUse.b, colorToUse.g)
-        l2GeoColorAtt.setXYZ(3, colorToUse.r, colorToUse.b, colorToUse.g)
-        l2GeoColorAtt.needsUpdate = true
-      }
-    })
-    .onComplete(function () {
-      console.log('limit color tween: END', from)
-      // resolve()
-    })
-    .start()
+  if (char.limit.bar === 255) {
+    addLimitBarTween(l1)
+    addLimitBarTween(l2)
+  }
 }
 const addLevelToDialog = (dialog, x, y, char) => {
   const expPerc = char.level.progressBar / 100
@@ -1847,6 +1751,7 @@ const removeGroupChildren = (group) => {
 export {
   LETTER_TYPES,
   LETTER_COLORS,
+  GAUGE_COLORS,
   ALIGN,
   WINDOW_COLORS_SUMMARY,
   EQUIPMENT_TYPE,

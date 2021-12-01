@@ -18,6 +18,7 @@ import {
   addLimitToDialog,
   addLevelToDialog
 } from './menu-box-helper.js'
+import { stopAllLimitBarTweens } from './menu-limit-tween-helper.js'
 import {
   getMenuState,
   setMenuState,
@@ -84,6 +85,10 @@ const debugPopulateMenuTestData = () => {
   // Status
   window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
   window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
+
+  // Limit
+  window.data.savemap.characters.Cloud.limit.bar = 255
+  window.data.savemap.characters.Tifa.limit.bar = 255
 
   window.debugFillItems()
   window.debugFillMateria()
@@ -774,6 +779,7 @@ const navSlideDown = async (type, member) => {
   homeTime.visible = false
   homeLocation.visible = false
   homeMain.visible = false
+  stopAllLimitBarTweens()
   loadSecondaryMenu(type, member)
 }
 const navSlideUp = async type => {
@@ -842,6 +848,7 @@ const navSelect = async () => {
     console.log('Nav Select - QUIT - Not implemented')
     movePointer(POINTERS.pointer1, 0, 0, true)
     await slideOutMainMenu()
+    stopAllLimitBarTweens()
     loadTitleMenu()
   } else if (navOptionsMembersRequired.includes(selectedNav.type)) {
     console.log('Nav Select member required')

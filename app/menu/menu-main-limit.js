@@ -19,6 +19,7 @@ import {
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
+import { stopAllLimitBarTweens } from './menu-limit-tween-helper.js'
 
 let limitActions, limitDesc, limitList, limitConfirm, limitConfirmComplete
 let limitActionsGroup, limitDescGroup, limitListGroup
@@ -182,6 +183,7 @@ const LIMIT_DATA = {
 }
 window.LIMIT_DATA = LIMIT_DATA
 const drawAll = partyMember => {
+  stopAllLimitBarTweens()
   // Remove everything that was already drawn
   while (limitActionsGroup.children.length) {
     limitActionsGroup.remove(limitActionsGroup.children[0])
@@ -367,6 +369,7 @@ const exitMenu = async () => {
   limitList.visible = false
   limitConfirm.visible = false
   limitConfirmComplete.visible = false
+  stopAllLimitBarTweens()
   fadeInHomeMenu()
 }
 const clearDescription = () => {
