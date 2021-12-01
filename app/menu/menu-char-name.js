@@ -23,6 +23,7 @@ import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
 import { MOD } from '../field/field-op-codes-assign.js'
+import { setBankData } from '../data/savemap.js'
 
 let infoDialog, infoGroup
 let charDialog, charGroup
@@ -41,7 +42,8 @@ const DATA = {
   navPos: 2,
   defaultName: '',
   underscore: null,
-  underscoreInterval: null
+  underscoreInterval: null,
+  maxChars: 10
 }
 DATA[0x64] = 'Chocobo' // Looks as though 0x64 === chocobo ?
 
@@ -51,6 +53,7 @@ const setDataFromCharacter = (param) => {
   DATA.char = window.data.savemap.characters[DATA.charName]
   DATA.defaultName = window.data.exe.defaultNames[param === 0x64 ? 9 : param]
   DATA.name = DATA.defaultName + ''
+  DATA.maxChars = param === 0x64 ? 6 : 10
   window.DATA = DATA
 }
 const loadCharNameMenu = async param => {
@@ -148,7 +151,7 @@ const drawChar = () => {
   )
 
   const {x, y, xAdj} = getNamePos()
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < DATA.maxChars; i++) {
     drawUnderscore(x, y, xAdj, i, charDialog, WINDOW_COLORS_SUMMARY.WHITE)
   }
 }
@@ -199,7 +202,7 @@ const drawName = () => {
     )
   }
 
-  if (nameSplit.length < 9) {
+  if (nameSplit.length < DATA.maxChars) {
     drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, WINDOW_COLORS_SUMMARY.GRAY)
     DATA.underscore = drawUnderscore(x, y, xAdj, nameSplit.length, charGroup, WINDOW_COLORS_SUMMARY.YELLOW)
   } else {
@@ -306,7 +309,7 @@ const deleteLetter = () => {
 }
 const addLetter = (letter) => {
   console.log('char addLetter', letter)
-  if (DATA.name.length < 9) {
+  if (DATA.name.length < DATA.maxChars) {
     DATA.name = DATA.name + letter
     drawName()
   }
@@ -316,7 +319,12 @@ const selectNameAndExit = () => {
   if (DATA.char && DATA.char.name) {
     DATA.char.name = DATA.name + ''
   } else {
-    console.log('char selectNameAndExit CHOCO', DATA.name) // TODO - Not sure what happens here
+    console.log('char selectNameAndExit CHOCO', DATA.name)
+    // It looks like in the field elmin4_2, the 6 bytes for the chocobo name are stored in Bank[11][0] to Bank[11][5]
+    DATA.name.padEnd(6, ' ').split('').map((v, i) => {
+      console.log('char choco name', i, v)
+      setBankData(11, i, v) // TODO - Should I change this into binary ?
+    })
   }
 
   exitMenu()
