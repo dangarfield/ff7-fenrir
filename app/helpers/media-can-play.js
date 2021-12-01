@@ -1,4 +1,5 @@
 import { getTestSoundUrl } from '../media/media-sound.js'
+import { showClickScreenForMediaText, hideClickScreenForMediaText } from '../loading/loading-module.js'
 
 const Howler = window.libraries.howler.Howler
 const Howl = window.libraries.howler.Howl
@@ -11,10 +12,11 @@ const waitUntilMediaCanPlay = async () => {
       Howler.usingWebAudio,
       Howler.noAudio
     )
-    const newAudioCtx = new AudioContext()
+    const newAudioCtx = new window.AudioContext()
     console.log('newAudioCtx', newAudioCtx)
     if (newAudioCtx.state !== 'running') {
-      // window.alert('Please click on the screen to enable audio and video')
+      console.log('waitUntilMediaCanPlay - Please click on the screen to enable audio and video')
+      showClickScreenForMediaText()
     }
     const sound = new Howl({
       src: [getTestSoundUrl()],
@@ -27,6 +29,7 @@ const waitUntilMediaCanPlay = async () => {
         })
       },
       onplay: function () {
+        hideClickScreenForMediaText()
         console.log('waitUntilMediaCanPlay onplay')
         console.log('waitUntilMediaCanPlay: END')
         resolve()

@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
@@ -7,6 +7,7 @@ let bar
 let text
 let progress = 0
 let font
+let mediaText
 
 const loadFont = async () => {
   return new Promise((resolve, reject) => {
@@ -113,9 +114,31 @@ const setLoadingText = textToSet => {
   text.geometry = createTextGeometry(textToSet)
 }
 
+const showClickScreenForMediaText = () => {
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true
+  })
+  const textGeo = createTextGeometry('Please click on the screen to enable audio and video')
+  mediaText = new THREE.Mesh(textGeo, material)
+  mediaText.position.x = 2
+  mediaText.position.y = 6
+  mediaText.userData.mediaText = 'Click the screen'
+  scene.add(mediaText)
+  console.log('waitUntilMediaCanPlay showClickScreenForMediaText', scene, mediaText)
+}
+
+const hideClickScreenForMediaText = () => {
+  if (mediaText) {
+    scene.remove(mediaText)
+  }
+}
+
 export {
   initLoadingModule,
   showLoadingScreen,
   setLoadingProgress,
-  setLoadingText
+  setLoadingText,
+  showClickScreenForMediaText,
+  hideClickScreenForMediaText
 }
