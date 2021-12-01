@@ -120,10 +120,10 @@ const WINDOW_COLORS_SUMMARY = {
   EXP_2: generateGaugeBarsColors2(GAUGE_COLORS.EXP),
   LIMIT_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_NORMAL),
   LIMIT_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_NORMAL),
-  // LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.Red),
-  // LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.Red),
-  // LIMIT_SAD_1: generateGaugeBarsColors1(GAUGE_COLORS.Blue),
-  // LIMIT_SAD_2: generateGaugeBarsColors2(GAUGE_COLORS.Blue),
+  LIMIT_FURY_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_FURY),
+  LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_FURY),
+  LIMIT_SADNESS_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_SADNESS),
+  LIMIT_SADNESS_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_SADNESS),
   ITEM_LIST_SLIDER_BG: [
     'rgb(25,25,75)',
     'rgb(25,25,75)',
@@ -1634,9 +1634,19 @@ const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
   // TODO - sadness??
   addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', x + 0.5, y, 0.5)
+
+  let color1 = WINDOW_COLORS_SUMMARY.LIMIT_1
+  let color2 = WINDOW_COLORS_SUMMARY.LIMIT_2
+  if (char.status.statusFlags === 'Fury') {
+    color1 = WINDOW_COLORS_SUMMARY.LIMIT_FURY_1
+    color2 = WINDOW_COLORS_SUMMARY.LIMIT_FURY_2
+  } else if (char.status.statusFlags === 'Sadness') {
+    color1 = WINDOW_COLORS_SUMMARY.LIMIT_SADNESS_1
+    color2 = WINDOW_COLORS_SUMMARY.LIMIT_SADNESS_2
+  }
   const l1 = addShapeToDialog(
     dialog,
-    WINDOW_COLORS_SUMMARY.LIMIT_1,
+    color1,
     'limit-bar-a',
     x,
     y - 2.5,
@@ -1647,7 +1657,7 @@ const addLimitToDialog = (dialog, x, y, char) => {
   )
   const l2 = addShapeToDialog(
     dialog,
-    WINDOW_COLORS_SUMMARY.LIMIT_2,
+    color2,
     'limit-bar-b',
     x,
     y + 0.5,
