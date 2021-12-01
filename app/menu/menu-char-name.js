@@ -40,30 +40,17 @@ const DATA = {
   lettersPos: 0,
   navPos: 2,
   defaultName: '',
-  defaultNames: [ // TODO - I'm sure where to get these yet
-    'Cloud',
-    'Barret',
-    'Tifa',
-    'Aeris',
-    'Red XIII',
-    'Yuffie',
-    'Cait Sith',
-    'Vincent',
-    'Cid',
-    'Young Cloud', // Probably don't need these last 3
-    'Sephiroth',
-    'Chocobo'
-  ],
   underscore: null,
   underscoreInterval: null
 }
 DATA[0x64] = 'Chocobo' // Looks as though 0x64 === chocobo ?
 
 const setDataFromCharacter = (param) => {
+  // TODO - param === 0x64 (100) -> Choco, not sure exactly where to persist this name quite yet, will do later
   DATA.charName = getPlayableCharacterName(param)
   DATA.char = window.data.savemap.characters[DATA.charName]
-  DATA.defaultName = DATA.defaultNames[param]
-  DATA.name = DATA.defaultName + '' // TODO - When is this the existing name vs init data (Ex-Soldier) vs default name (Cloud)
+  DATA.defaultName = window.data.exe.defaultNames[param]
+  DATA.name = DATA.defaultName + ''
   window.DATA = DATA
 }
 const loadCharNameMenu = async param => {
