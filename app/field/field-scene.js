@@ -485,7 +485,7 @@ const initFieldDebug = async loadFieldCB => {
           window.currentField.metaData.bgScale
       )
     })
-  fieldGUI.add(window.currentField.metaData, 'cameraUnknown')
+  fieldGUI.add(window.currentField.metaData, 'cameraUnknownString')
   fieldGUI.add(window.currentField.metaData, 'modelScale')
   fieldGUI.add(window.currentField.metaData, 'numModels')
   fieldGUI.add(window.currentField.metaData, 'scaleDownValue').step(0.00001)

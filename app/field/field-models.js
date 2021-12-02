@@ -61,7 +61,7 @@ const getModelScaleDownValue = () => {
       Math.log2(window.currentField.data.model.header.modelScale) * -1 + 19
     )
   }
-  factor = factor * 1.1
+  factor = factor * 1
 
   const scaleDownValue = 1 / factor
   console.log(
@@ -949,6 +949,7 @@ export {
   getModelByPartyMemberId,
   getModelByCurrentPlayableCharacter,
   getModelByCharacterName,
+  getModelScaleDownValue,
   turnModelToFaceEntity,
   turnModelToFacePartyMember,
   turnModelToFaceDirection,

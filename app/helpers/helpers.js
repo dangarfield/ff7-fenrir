@@ -42,5 +42,12 @@ const dec2hex = (dec) => {
   return `0x${parseInt(dec).toString(16)}`
 }
 window.dec2hex = dec2hex
+const dec2hexPairs = (dec) => {
+  let s = parseInt(dec).toString(16)
+  if (s.length % 2) { s = '0' + s }
+  s = s.match(/.{1,2}/g).join(' ')
+  return s
+}
+window.dec2hexPairs = dec2hexPairs
 
-export { sleep, uuid, dec2bin }
+export { sleep, uuid, dec2bin, dec2hexPairs }

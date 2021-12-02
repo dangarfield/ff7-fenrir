@@ -417,7 +417,6 @@ const drawOneSaveSlot = (i, previewData) => {
     slotPreview.visible = true
     return slotPreview
   }
-  const members = previewData.data.party.members
   const char = previewData.data.characters[previewData.data.party.members[0]]
   const savePreview = previewData.data.savePreview
   console.log('save char', char, savePreview)
@@ -469,7 +468,7 @@ const drawOneSaveSlot = (i, previewData) => {
     )
   }
 
-  if (savePreview.portrait2 !== 'None') {
+  if (savePreview.portrait3 !== 'None') {
     addImageToDialog(
       saveSlotsGroup,
       'profiles',

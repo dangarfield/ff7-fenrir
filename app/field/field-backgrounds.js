@@ -1,8 +1,8 @@
 import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { sleep } from '../helpers/helpers.js'
 import { getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
-
+import { getModelScaleDownValue } from './field-models.js'
+import { dec2hexPairs } from '../helpers/helpers.js'
 // window.THREE = THREE // For debug
 
 const changeBackgroundParamState = (param, state, isActive) => {
@@ -20,7 +20,7 @@ const changeBackgroundParamState = (param, state, isActive) => {
 }
 const rollBackgroundParamState = (param, forward) => {
   // Get current active state
-  let currentState = undefined
+  let currentState
   const allBgLayers = window.currentField.backgroundLayers.children
   for (let i = 0; i < allBgLayers.length; i++) {
     const l = allBgLayers[i]
@@ -234,7 +234,7 @@ const drawWalkmesh = () => {
       triangle.vertices[2].z / 4096
     )
     let addLine = function (scene, va, vb, acc) {
-      let lineColor = acc == -1 ? 0x4488cc : 0x888888
+      let lineColor = acc === -1 ? 0x4488cc : 0x888888
       let material1 = new THREE.LineBasicMaterial({ color: lineColor })
       let geometry1 = new THREE.Geometry()
       geometry1.vertices.push(va)
@@ -286,8 +286,7 @@ const drawWalkmesh = () => {
   // geometry.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
   // let material = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
   // window.currentField.walkmeshMesh = new THREE.Mesh(geometry, material)
-  window.currentField.walkmeshMesh.visible =
-    window.config.debug.showWalkmeshMesh
+  window.currentField.walkmeshMesh.visible = window.config.debug.showWalkmeshMesh
   window.currentField.fieldScene.add(window.currentField.walkmeshMesh)
 
   // Draw gateways
@@ -373,22 +372,6 @@ const drawWalkmesh = () => {
   }
 }
 
-const getModelScaleDownValue = () => {
-  let factor =
-    (window.currentField.data.model.header.modelScale - 768) * -1 + 768 // Looks about right now
-  if (window.currentField.data.model.header.modelScale >= 1024) {
-    factor = Math.pow(
-      2,
-      Math.log2(window.currentField.data.model.header.modelScale) * -1 + 19
-    )
-  }
-
-  const scaleDownValue = 1 / factor
-  // console.log('getModelScaleDownValue', factor, scaleDownValue,
-  //   window.currentField.data.model.header.modelScale)
-  return scaleDownValue
-}
-
 const placeBG = async fieldName => {
   let assetDimensions = await getFieldDimensions(fieldName)
   // Create meta-data
@@ -401,6 +384,7 @@ const placeBG = async fieldName => {
       window.currentField.fieldCamera.fov *
       (assetDimensions.height / window.config.sizing.height),
     cameraUnknown: window.currentField.data.cameraSection.cameras[0].unknown,
+    cameraUnknownString: window.currentField.data.cameraSection.cameras[0].unknown + ' - ' + dec2hexPairs(window.currentField.data.cameraSection.cameras[0].unknown),
     modelScale: window.currentField.data.model.header.modelScale,
     scaleDownValue: getModelScaleDownValue(),
     numModels: window.currentField.data.model.header.numModels,
@@ -433,7 +417,7 @@ const placeBG = async fieldName => {
   // Draw backgrounds
   // let lookAtDistance = window.currentField.fieldCamera.position.distanceTo(window.currentField.cameraTarget)
   // console.log('lookAtDistance', lookAtDistance, lookAtDistance * 4096)
-  let intendedDistance = 1
+  // let intendedDistance = 1
   window.currentField.backgroundLayers = new THREE.Group()
   window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 
@@ -444,7 +428,7 @@ const placeBG = async fieldName => {
       processBG(layer, fieldName, manager)
     }
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
-      const progress = itemsLoaded / itemsTotal
+      // const progress = itemsLoaded / itemsTotal
       // console.log('processBG progress', progress)
       // setLoadingProgress(progress)
       // TODO - Should really refactor and include this in the loading progress along with the models etc
