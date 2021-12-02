@@ -23,6 +23,7 @@ import {
 import { getCurrentCountdownClockTime } from '../data/savemap-alias.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 import { setPlayableCharacterIsInteracting } from './field-actions.js'
+import { getBankData } from '../data/savemap.js'
 // Note: Most of this needs refactoring, especially to use tweens from game clock rather than sleep
 
 /* TODO:
@@ -72,6 +73,8 @@ const BUTTON_IMAGES = [
   { text: 'ASSIST', char: '▅' }, // select
   { text: 'START', char: '▶' }
 ]
+
+const COMMAND_COLORS = ['GRAY', 'BLUE', 'RED', 'PURPLE', 'GREEN', 'CYAN', 'YELLOW', 'WHITE']// TODO FLASH, RAINBOW
 
 const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
@@ -432,7 +435,7 @@ const replaceVariables = (text, id) => {
     for (let i = 0; i < params.length; i++) {
       const param = params[i]
       // param[0] replaces first instance of {MEM1}, param[1] replaces the second instance etc
-      text = text.replace('<fe>{MEM1}', param)
+      text = text.replace('{MEM1}', param)
     }
   }
   return text
@@ -743,7 +746,7 @@ const showWindowWithDialog = async (
   // if (dialog.text.includes('{CHOICE}') || showChoicePointers) { isChoiceActive = true }
   if (showChoicePointers) {
     isChoiceActive = true
-  } //TODO - I previously has this to show arrows if there was a CHOICE
+  } // TODO - I previously has this to show arrows if there was a CHOICE
   console.log(
     'showWindowWithDialog',
     dialog,
@@ -801,6 +804,7 @@ const showWindowWithDialog = async (
   // TODO - Pauses, eg {PAUSE} - Need to look into behaviour and how that differs to page
   // Done - Pages, eg {PAGE}
   // Done - Text Variables, eg <fe>{MEM1}
+  // TODO - Lots of <fe> ... 00 to do the bank / inventory variables?
 
   // console.log('Configured text', text)
   let pagesText = text.split(/\{PAGE\}|\{PAUSE\}/g)
@@ -843,42 +847,44 @@ const showWindowWithDialog = async (
       }
       textLine = textLine.replace(/\{CHOICE\}/g, '          ')
 
-      let identifyCommand = false
+      // Identify and replace each {BANK,12,12,12} and replace with tex
+      const bankVariableMatches = textLine.match(/{BANK,\d{1,3},\d{1,3},\d{1,3}}/g)
+      if (bankVariableMatches !== null && bankVariableMatches.length > 0) {
+        for (let i = 0; i < bankVariableMatches.length; i++) {
+          const bankVariableMatch = bankVariableMatches[i]
+          const bankVariables = bankVariableMatch.replace('{BANK,', '').replace('}', '').split(',').map(s => parseInt(s))
+          const bank = bankVariables[0]
+          const index = bankVariables[1]
+          const count = bankVariables[2]
+          let bankVar = ''
+          for (let i = 0; i < count; i++) {
+            bankVar = bankVar + getBankData(bank, index + i) // TODO - get char from bank or int representing char? Currently just char
+          }
+          textLine = textLine.replace(new RegExp(bankVariableMatch, 'g'), bankVar)
+          console.log('dialog bankVariableMatch', bankVariableMatches, bankVariableMatch, bank, index, count, bankVar, textLine)
+        }
+      }
       let identifyCommandParam = false
-      let command = ''
       let commandParam = ''
 
       for (let k = 0; k < textLine.length; k++) {
         const letter = textLine[k]
 
         // Prcess commands
-        if (letter === '<') {
-          identifyCommand = true
-          continue
-        } else if (letter === '>') {
-          identifyCommand = false
-          continue
-        } else if (letter === '{') {
+        if (letter === '{') {
           identifyCommandParam = true
           continue
         } else if (letter === '}') {
           identifyCommandParam = false
           // console.log('commandReady', command, commandParam, command === 'fe')
-          if (command === 'fe') {
+          if (COMMAND_COLORS.includes(commandParam)) {
             color = commandParam.toLowerCase()
-            // console.log('change text color to', color)
+            console.log('dialog change text color to', color)
+            commandParam = ''
+            continue
           }
-          command = ''
-          commandParam = ''
-          continue
         }
 
-        // console.log('letter', '-' + letter + '-', color, identifyCommand, identifyCommandParam, command, commandParam, textLine)
-        if (identifyCommand) {
-          command = command + letter
-          // console.log('identifyCommand', letter, command)
-          continue
-        }
         if (identifyCommandParam) {
           commandParam = commandParam + letter
           // console.log('identifyCommandParam', letter, commandParam)
