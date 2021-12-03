@@ -429,29 +429,78 @@ const initFieldDebug = async loadFieldCB => {
 
       const sceneGraph = await getSceneGraph()
       const fieldId = await getFieldIdForName(val)
-      const potentialFieldTransitionSources = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'gateway') // Just do gateways only
-      // TODO - If no potentialFieldTransitionSources
-      const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSources[0].source].fieldName
+      const potentialFieldTransitionSourcesGateway = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'gateway') // Just do gateways only
+      const potentialFieldTransitionSourcesMapJump = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'MAPJUMP')
 
-      const sourceFieldData = await loadFieldData(sourceFieldName)
-      console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData)
+      if (potentialFieldTransitionSourcesGateway.length > 0) {
+        console.log('loadField get init position from gateway')
+        const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSourcesGateway[0].source].fieldName
 
-      const gateway = sourceFieldData.triggers.gateways.filter(g => g.fieldId === fieldId)[0]
+        const sourceFieldData = await loadFieldData(sourceFieldName)
+        console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData)
 
-      const playableCharacterInitData = {
-        triangleId: gateway.destinationVertex.triangleId,
-        position: {
-          x: gateway.destinationVertex.x,
-          y: gateway.destinationVertex.y
-        },
-        direction: gateway.destinationVertex.direction,
-        characterName: window.currentField.playableCharacter.userData.characterName
+        const gateway = sourceFieldData.triggers.gateways.filter(g => g.fieldId === fieldId)[0]
+
+        const playableCharacterInitData = {
+          triangleId: gateway.destinationVertex.triangleId,
+          position: {
+            x: gateway.destinationVertex.x,
+            y: gateway.destinationVertex.y
+          },
+          direction: gateway.destinationVertex.direction,
+          characterName: window.currentField.playableCharacter.userData.characterName
+        }
+
+        console.log('loadField gateway', gateway, playableCharacterInitData)
+        window.sceneGraph = sceneGraph
+
+        loadFieldCB(val, playableCharacterInitData)
+      } else if (potentialFieldTransitionSourcesMapJump.length > 0) {
+        console.log('loadField get init position from map jump')
+        const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSourcesMapJump[0].source].fieldName
+
+        const sourceFieldData = await loadFieldData(sourceFieldName)
+        console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData, sourceFieldData.script.entities)
+
+        for (let i = 0; i < sourceFieldData.script.entities.length; i++) {
+          const entity = sourceFieldData.script.entities[i]
+          console.log('entity', entity)
+          for (let j = 0; j < entity.scripts.length; j++) {
+            const script = entity.scripts[j]
+            console.log('script', script)
+            for (let k = 0; k < script.ops.length; k++) {
+              const op = script.ops[k]
+              console.log('op', op.op, op)
+              if (op.op === 'MAPJUMP' && op.f === fieldId) {
+                console.log('FOUND JUMP', op)
+              }
+            }
+          }
+        }
+        let playableCharacterInitData
+        sourceFieldData.script.entities.forEach(entity => {
+          entity.scripts.forEach(script => {
+            script.ops.forEach(op => {
+              if (op.op === 'MAPJUMP' && op.f === fieldId) {
+                console.log('loadField FOUND JUMP', op)
+                playableCharacterInitData = {
+                  triangleId: op.i,
+                  position: {
+                    x: op.x,
+                    y: op.y
+                  },
+                  direction: op.direction,
+                  characterName: window.currentField.playableCharacter.userData.characterName
+                }
+              }
+            })
+          })
+        })
+        loadFieldCB(val, playableCharacterInitData)
+      } else {
+        // console.log('loadField get init position from gateway')
+        window.alert('NO POINTS OF ENTRY TO FIELD - Implement WORLD MAP JUMP in field-scene')
       }
-
-      console.log('loadField gateway', gateway, playableCharacterInitData)
-      window.sceneGraph = sceneGraph
-
-      loadFieldCB(val, playableCharacterInitData)
     })
     .listen()
 
