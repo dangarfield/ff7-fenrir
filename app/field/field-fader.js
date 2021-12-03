@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { sleep } from '../helpers/helpers.js'
@@ -400,6 +400,10 @@ const nfadeOperation = async (type, r, g, b, frames) => {
       )
       break
   }
+}
+window.debugHideFades = () => {
+  fadeInstant(2, {r: 0, g: 0, b: 0})
+  transitionIn(true)
 }
 export {
   drawFaders,

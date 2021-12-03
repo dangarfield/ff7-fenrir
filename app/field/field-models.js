@@ -964,3 +964,11 @@ export {
   setupModelSceneGroup,
   setVisibilityForAllModels
 }
+
+/*
+KAWAI testing
+
+// on mdnmkin_1, to get one of the meshes of the box:
+window.currentField.models[8].scene.children[0].children[0].children[0].children[2]
+
+*/

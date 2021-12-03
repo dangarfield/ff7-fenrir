@@ -1,6 +1,6 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
-import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 import { KUJATA_BASE, getWindowTextures } from '../data/kernel-fetch-data.js'
 import {
   setLoadingText,
@@ -141,10 +141,25 @@ const loadFullFieldModel = async modelLoader => {
       JSON.stringify(modelGLTF),
       `${KUJATA_BASE}/data/field/char.lgp/`,
       function (gltf) {
+        addBlendingToMaterials(gltf)
         // console.log("combined gltf:", gltf)
         resolve(gltf)
       }
     )
+  })
+}
+const addBlendingToMaterials = (gltf) => {
+  console.log('addBlendingToMaterials', gltf)
+  gltf.scene.traverse(function (element) {
+    if (element.type === 'Mesh' && element.material && element.material.userData && element.material.userData.BlendType) {
+      console.log('element', element)
+      switch (element.material.userData.BlendType) {
+        case 'AdditiveBlending': element.material.blending = 2; break // This PROBABLY should take into account srcBlend & srcDest
+        case 'SubtractiveBlending': element.material.blending = 3; break // Still a lot to do here, look at fiba -> https://youtu.be/1U39x6jNKoI?t=66
+        case 'MultiplyBlending': element.material.blending = 4; break
+        default: break
+      }
+    }
   })
 }
 const getFieldDimensions = fieldName =>

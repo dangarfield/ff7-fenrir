@@ -7,8 +7,7 @@ window.console = (function (origConsole) {
     terms: [
       'FLOW ERROR',
       'executeOpDEBUG',
-      'press MAIN MENU HOME',
-      'getModelScaleDownValue'
+      'press MAIN MENU HOME'
     ],
     log: function () {
       if (limit) {
