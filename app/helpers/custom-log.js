@@ -7,7 +7,8 @@ window.console = (function (origConsole) {
     terms: [
       'FLOW ERROR',
       'executeOpDEBUG',
-      'press MAIN MENU HOME'
+      'press MAIN MENU HOME',
+      'warn'
     ],
     log: function () {
       if (limit) {
@@ -28,7 +29,9 @@ window.console = (function (origConsole) {
       }
     },
     warn: function () {
-      origConsole.warn.apply(origConsole, arguments)
+      if (arguments[0] !== 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.') {
+        origConsole.warn.apply(origConsole, arguments)
+      }
     },
     error: function () {
       origConsole.error.apply(origConsole, arguments)
