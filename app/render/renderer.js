@@ -1,5 +1,5 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import Stats from '../../assets/threejs-r118/jsm/libs/stats.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import Stats from '../../assets/threejs-r135-dg/examples/jsm/libs/stats.module.js' //'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
 
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim

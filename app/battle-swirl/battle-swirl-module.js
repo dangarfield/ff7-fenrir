@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { loadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
@@ -53,8 +53,7 @@ const tempFadeEffect = () => {
     console.log('tempFadeEffect: START')
     const geometry = new THREE.PlaneBufferGeometry(
       window.config.sizing.width,
-      window.config.sizing.height,
-      0.1
+      window.config.sizing.height
     )
     const material = new THREE.MeshBasicMaterial({
       color: 0xfff000,

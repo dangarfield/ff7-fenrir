@@ -1,4 +1,7 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import { FontLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from '../../assets/threejs-r135-dg/examples/jsm/geometries/TextGeometry.js'
+
 import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
@@ -11,8 +14,8 @@ let mediaText
 
 const loadFont = async () => {
   return new Promise((resolve, reject) => {
-    new THREE.FontLoader().load(
-      '../../assets/threejs-r118/fonts/helvetiker_regular.typeface.json',
+    new FontLoader().load(
+      '../../assets/threejs-r135-dg/examples/fonts/helvetiker_regular.typeface.json',
       font => {
         resolve(font)
       }
@@ -20,7 +23,7 @@ const loadFont = async () => {
   })
 }
 const createTextGeometry = text => {
-  return new THREE.TextGeometry(text, {
+  return new TextGeometry(text, {
     font: font,
     size: 5,
     height: 1,
@@ -42,7 +45,7 @@ const initLoadingModule = async () => {
     10
   )
 
-  const geometry = new THREE.PlaneGeometry(1, 1)
+  const geometry = new THREE.PlaneBufferGeometry(1, 1)
   const material = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true

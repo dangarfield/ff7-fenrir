@@ -1,6 +1,6 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
-import { GUI } from '../../assets/threejs-r118/jsm/libs/dat.gui.module.js'
-import { OrbitControls } from '../../assets/threejs-r118/jsm/controls/OrbitControls.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import { GUI } from '../../assets/threejs-r135-dg/examples/jsm/libs/lil-gui.module.min.js'
+import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
 import { updateArrowPositionHelpers } from './field-position-helpers.js'
@@ -98,7 +98,9 @@ const renderLoop = function () {
 const startFieldRenderLoop = () => {
   if (window.anim.activeScene !== 'field') {
     window.anim.activeScene = 'field'
-    setupRaycasting()
+    if (window.config.raycast.active) {
+      setupRaycasting()
+    }
     renderLoop()
   }
 }
@@ -634,6 +636,7 @@ const initFieldDebug = async loadFieldCB => {
   inputsGUI.add(getActiveInputs(), 'r2').listen()
   inputsGUI.add(getActiveInputs(), 'select').listen()
   inputsGUI.add(getActiveInputs(), 'start').listen()
+  inputsGUI.close()
 
   activateDebugCamera()
   if (!window.config.debug.debugModeNoOpLoops) {

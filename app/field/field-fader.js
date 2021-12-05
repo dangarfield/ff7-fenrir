@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { sleep } from '../helpers/helpers.js'
@@ -46,8 +46,7 @@ const drawFaders = whiteTransition => {
   console.log('drawFaders')
   let transitionFaderGeo = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
-    window.config.sizing.height,
-    0.1
+    window.config.sizing.height
   )
   let transitionFaderMat = new THREE.MeshBasicMaterial({
     color: TRANSITION_COLOR.BLACK,
@@ -55,7 +54,7 @@ const drawFaders = whiteTransition => {
     transparent: true
   })
   transitionFader = new THREE.Mesh(transitionFaderGeo, transitionFaderMat)
-
+  transitionFader.visible = true
   transitionFader.doubleSided = true
   transitionFader.position.set(
     window.config.sizing.width / 2,
@@ -68,8 +67,7 @@ const drawFaders = whiteTransition => {
 
   let fadeFaderGeo = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
-    window.config.sizing.height,
-    0.1
+    window.config.sizing.height
   )
   let fadeFaderMat = new THREE.MeshBasicMaterial({
     color: TRANSITION_COLOR.BLACK,
@@ -78,7 +76,7 @@ const drawFaders = whiteTransition => {
   })
   fadeFaderMat.blending = THREE.AdditiveBlending
   fadeFader = new THREE.Mesh(fadeFaderGeo, fadeFaderMat)
-
+  fadeFader.visible = true
   fadeFader.doubleSided = true
   fadeFader.position.set(
     window.config.sizing.width / 2,

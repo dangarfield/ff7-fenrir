@@ -1,230 +1,246 @@
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <title>
-      Quick testing bed for fades and potentially any shaders if required
+        Quick testing bed for fades and potentially any shaders if required
     </title>
     <style>
-      body {
-        margin: 0;
-      }
+        body {
+            margin: 0;
+        }
 
-      canvas {
-        width: 100%;
-        height: 100%;
-      }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.7.0/Tween.js"></script>
 
     <script>
-      let renderer = new THREE.WebGLRenderer()
-      let scene = new THREE.Scene()
-      let camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      )
-      renderer.setSize(window.innerWidth, window.innerHeight)
-      document.body.appendChild(renderer.domElement)
-      let fdMesh
+        let renderer = new THREE.WebGLRenderer()
+        let scene = new THREE.Scene()
+        let camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        )
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        document.body.appendChild(renderer.domElement)
+        let fdMesh
 
-      let fadeActive = false
-      const waitForFade = async () => {
-        while (fadeActive) {
-          await sleep(1000 / 30)
+        let fadeActive = false
+        const waitForFade = async () => {
+            while (fadeActive) {
+                await sleep(1000 / 30)
+            }
         }
-      }
-      const sleep = ms => {
-        return new Promise(resolve => setTimeout(resolve, ms))
-      }
-      const getColorInverse = (c, multiplier) => {
-        return Math.floor(multiplier * (255 - c))
-      }
-      const toColorString = color => {
-        return `rgb(${color.r},${color.g},${color.b})`
-      }
-      const r = 255
-      const g = 200
-      const b = 200
+        const sleep = ms => {
+            return new Promise(resolve => setTimeout(resolve, ms))
+        }
+        const getColorInverse = (c, multiplier) => {
+            return Math.floor(multiplier * (255 - c))
+        }
+        const toColorString = color => {
+            return `rgb(${color.r},${color.g},${color.b})`
+        }
+        const r = 255
+        const g = 200
+        const b = 200
 
-      const colorStandard = { r, g, b }
-      const colorInverse1 = {
-        r: getColorInverse(r, 1),
-        g: getColorInverse(g, 1),
-        b: getColorInverse(b, 1)
-      }
-      const colorInverse3 = {
-        r: getColorInverse(r, 3),
-        g: getColorInverse(g, 3),
-        b: getColorInverse(b, 3)
-      }
-      const colorInverse4 = {
-        r: getColorInverse(r, 4),
-        g: getColorInverse(g, 4),
-        b: getColorInverse(b, 4)
-      }
-      const colorBlack = { r: 0, g: 0, b: 0 }
-      const colorWhite = { r: 255, g: 255, b: 255 }
+        const colorStandard = {
+            r,
+            g,
+            b
+        }
+        const colorInverse1 = {
+            r: getColorInverse(r, 1),
+            g: getColorInverse(g, 1),
+            b: getColorInverse(b, 1)
+        }
+        const colorInverse3 = {
+            r: getColorInverse(r, 3),
+            g: getColorInverse(g, 3),
+            b: getColorInverse(b, 3)
+        }
+        const colorInverse4 = {
+            r: getColorInverse(r, 4),
+            g: getColorInverse(g, 4),
+            b: getColorInverse(b, 4)
+        }
+        const colorBlack = {
+            r: 0,
+            g: 0,
+            b: 0
+        }
+        const colorWhite = {
+            r: 255,
+            g: 255,
+            b: 255
+        }
 
-      const render = () => {
-        requestAnimationFrame(render)
-        TWEEN.update()
-        renderer.render(scene, camera)
-      }
+        const render = () => {
+            requestAnimationFrame(render)
+            TWEEN.update()
+            renderer.render(scene, camera)
+        }
 
-      const fadeInstant = async (blendingType, colorType) => {
-        console.log('FADE TWEEN: INSTANT', blendingType, colorType)
-        fadeActive = true
-        fdMesh.material.blending = blendingType
-        fdMesh.material.color = new THREE.Color(
-          `rgb(${Math.floor(colorType.r)},${Math.floor(
+        const fadeInstant = async (blendingType, colorType) => {
+            console.log('FADE TWEEN: INSTANT', blendingType, colorType)
+            fadeActive = true
+            fdMesh.material.blending = blendingType
+            fdMesh.material.color = new THREE.Color(
+                `rgb(${Math.floor(colorType.r)},${Math.floor(
             colorType.g
           )},${Math.floor(colorType.b)})`
-        )
-        fadeActive = false
-      }
-      const speedToSeconds = speed => {
-        return 8 / Math.pow(2, Math.log2(speed))
-        /*
-            1  -> 8
-            2  -> 4
-            4  -> 2
-            8  -> 1
-            16 -> 0.5
-            32 -> 0.25
-            */
-      }
-      const fade = (blendingType, from, to, end, speed) => {
-        const delta = { ...from }
-        fadeActive = true
-        return new Promise(async resolve => {
-          let time = speedToSeconds(speed) * 1000
-          console.log('FADE TWEEN: START', blendingType, delta, to, speed, time)
-          fdMesh.material.blending = blendingType
-          new FIELD_TWEEN_GROUP.Tween(delta)
-            .to(to, time)
-            // .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(function () {
-              // if (delta.hasOwnProperty('r')) {
-              // Has to be like this for non THREE.NormalBlending modes
-              fdMesh.material.color = new THREE.Color(
-                `rgb(${Math.floor(delta.r)},${Math.floor(delta.g)},${Math.floor(
+            )
+            fadeActive = false
+        }
+        const speedToSeconds = speed => {
+            return 8 / Math.pow(2, Math.log2(speed))
+            /*
+                1  -> 8
+                2  -> 4
+                4  -> 2
+                8  -> 1
+                16 -> 0.5
+                32 -> 0.25
+                */
+        }
+        const fade = (blendingType, from, to, end, speed) => {
+            const delta = {
+                ...from
+            }
+            fadeActive = true
+            return new Promise(async resolve => {
+                let time = speedToSeconds(speed) * 1000
+                console.log('FADE TWEEN: START', blendingType, delta, to, speed, time)
+                fdMesh.material.blending = blendingType
+                new FIELD_TWEEN_GROUP.Tween(delta)
+                    .to(to, time)
+                    // .easing(TWEEN.Easing.Quadratic.InOut)
+                    .onUpdate(function() {
+                        // if (delta.hasOwnProperty('r')) {
+                        // Has to be like this for non THREE.NormalBlending modes
+                        fdMesh.material.color = new THREE.Color(
+                            `rgb(${Math.floor(delta.r)},${Math.floor(delta.g)},${Math.floor(
                   delta.b
                 )})`
-              )
-              // console.log('FADE TWEEN UPDATE: Color', delta) // fdMesh.material.color
-              // }
-              // if (delta.hasOwnProperty('o')) {
-              //     fdMesh.opacity = delta.o
-              //     console.log('FADE TWEEN UPDATE: Opacity', fdMesh.material.opacity)
-              // }
-            })
-            .onComplete(function () {
-              console.log('FADE TWEEN: END', delta, to, frames, time, end)
-              fdMesh.material.color = new THREE.Color(
-                `rgb(${Math.floor(end.r)},${Math.floor(end.g)},${Math.floor(
+                        )
+                        // console.log('FADE TWEEN UPDATE: Color', delta) // fdMesh.material.color
+                        // }
+                        // if (delta.hasOwnProperty('o')) {
+                        //     fdMesh.opacity = delta.o
+                        //     console.log('FADE TWEEN UPDATE: Opacity', fdMesh.material.opacity)
+                        // }
+                    })
+                    .onComplete(function() {
+                        console.log('FADE TWEEN: END', delta, to, frames, time, end)
+                        fdMesh.material.color = new THREE.Color(
+                            `rgb(${Math.floor(end.r)},${Math.floor(end.g)},${Math.floor(
                   end.b
                 )})`
-              )
-              fadeActive = false
-              resolve()
+                        )
+                        fadeActive = false
+                        resolve()
+                    })
+                    .start()
             })
-            .start()
-        })
-      }
+        }
 
-      const addEntities = async () => {
-        const sizeWidth = 757
-        const sizeHeight = 546
-        const sizeFactor = 100
-        const loader = new THREE.TextureLoader()
-        const bgTex = await loader.load('fade-bg.png')
-        const bgMat = new THREE.MeshBasicMaterial({ map: bgTex })
-        const bgGeo = new THREE.PlaneBufferGeometry(
-          sizeWidth / sizeFactor,
-          sizeHeight / sizeFactor,
-          1
-        )
-        const bgMesh = new THREE.Mesh(bgGeo, bgMat)
-        scene.add(bgMesh)
+        const addEntities = async () => {
+            const sizeWidth = 757
+            const sizeHeight = 546
+            const sizeFactor = 100
+            const loader = new THREE.TextureLoader()
+            const bgTex = await loader.load('fade-bg.png')
+            const bgMat = new THREE.MeshBasicMaterial({
+                map: bgTex
+            })
+            const bgGeo = new THREE.PlaneBufferGeometry(
+                sizeWidth / sizeFactor,
+                sizeHeight / sizeFactor
+            )
+            const bgMesh = new THREE.Mesh(bgGeo, bgMat)
+            scene.add(bgMesh)
 
-        const fdMat = new THREE.MeshBasicMaterial({
-          color: 0x000000,
-          side: THREE.DoubleSide,
-          transparent: true
-        })
-        fdMat.blending = THREE.AdditiveBlending
-        const fdGeo = new THREE.PlaneBufferGeometry(
-          sizeWidth / sizeFactor,
-          sizeHeight / sizeFactor,
-          1
-        )
-        fdMesh = new THREE.Mesh(fdGeo, fdMat)
-        scene.add(fdMesh)
+            const fdMat = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                side: THREE.DoubleSide,
+                transparent: true
+            })
+            fdMat.blending = THREE.AdditiveBlending
+            const fdGeo = new THREE.PlaneBufferGeometry(
+                sizeWidth / sizeFactor,
+                sizeHeight / sizeFactor
+            )
+            fdMesh = new THREE.Mesh(fdGeo, fdMat)
+            scene.add(fdMesh)
 
-        camera.position.z = 5
-        render()
+            camera.position.z = 5
+            render()
 
-        // await sleep(1000)
+            // await sleep(1000)
 
-        // await waitForFade()
-        // fade(THREE.SubtractiveBlending, colorInverse4, colorBlack, colorBlack, 8) // 1 -> colorInverse4 to field subtractive async, hold color
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.SubtractiveBlending, colorInverse4, colorBlack, colorBlack, 8) // 1 -> colorInverse4 to field subtractive async, hold color
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.SubtractiveBlending, colorBlack, colorInverse4, colorInverse4, 8) // 2 -> field to colorInverse4 subtractive async, hold color
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.SubtractiveBlending, colorBlack, colorInverse4, colorInverse4, 8) // 2 -> field to colorInverse4 subtractive async, hold color
+            // await waitForFade()
 
-        // await waitForFade()
-        // // 3 -> Not in use
-        // await waitForFade()
+            // await waitForFade()
+            // // 3 -> Not in use
+            // await waitForFade()
 
-        // await waitForFade()
-        // fadeInstant(THREE.NormalBlending, colorBlack) // 4 -> instant no wait black, hold black
-        // await waitForFade()
+            // await waitForFade()
+            // fadeInstant(THREE.NormalBlending, colorBlack) // 4 -> instant no wait black, hold black
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.AdditiveBlending, colorStandard, colorBlack, colorBlack, 8) // 5 -> colorStandard to field additive
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.AdditiveBlending, colorStandard, colorBlack, colorBlack, 8) // 5 -> colorStandard to field additive
+            // await waitForFade()
 
-        // await waitForFade()
-        // // fadeInstant(THREE.AdditiveBlending, colorStandard)
-        // fade(THREE.AdditiveBlending, colorBlack, colorStandard, colorStandard, 8) // 6 -> field to colorStandard additive, hold color
-        // await waitForFade()
+            // await waitForFade()
+            // // fadeInstant(THREE.AdditiveBlending, colorStandard)
+            // fade(THREE.AdditiveBlending, colorBlack, colorStandard, colorStandard, 8) // 6 -> field to colorStandard additive, hold color
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorBlack, 8) // 7 -> instant but wait colorInverse1 subtractive, clear color at end (but wait for is required hence fade rather than fadeInstant)
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorBlack, 8) // 7 -> instant but wait colorInverse1 subtractive, clear color at end (but wait for is required hence fade rather than fadeInstant)
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorInverse1, 8) // 8 -> instant but wait colorInverse1 subtractive, hold color
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.SubtractiveBlending, colorInverse1, colorInverse1, colorInverse1, 8) // 8 -> instant but wait colorInverse1 subtractive, hold color
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorBlack, 8) // 9 -> instant but wait colorInverse1 additive, clear color
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorBlack, 8) // 9 -> instant but wait colorInverse1 additive, clear color
+            // await waitForFade()
 
-        // await waitForFade()
-        // fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorStandard, 8) // 10 -> instant but wait colorInverse1 additive, clear color
-        // await waitForFade()
+            // await waitForFade()
+            // fade(THREE.AdditiveBlending, colorStandard, colorStandard, colorStandard, 8) // 10 -> instant but wait colorInverse1 additive, clear color
+            // await waitForFade()
 
-        // await sleep(1000)
-        // await waitForFade()
-        // fade(THREE.SubtractiveBlending, colorInverse4, colorBlack, colorBlack, 8) // 1 -> colorInverse4 to field subtractive async, hold color
-        // await waitForFade()
+            // await sleep(1000)
+            // await waitForFade()
+            // fade(THREE.SubtractiveBlending, colorInverse4, colorBlack, colorBlack, 8) // 1 -> colorInverse4 to field subtractive async, hold color
+            // await waitForFade()
 
-        console.log('DONE')
-      }
-      const init = async () => {
-        await addEntities()
-        render()
-      }
-      init()
+            console.log('DONE')
+        }
+        const init = async () => {
+            await addEntities()
+            render()
+        }
+        init()
     </script>
-  </body>
+</body>
+
 </html>

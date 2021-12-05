@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { setLoadingProgress } from '../loading/loading-module.js'
 import { KUJATA_BASE } from '../data/kernel-fetch-data.js'
 

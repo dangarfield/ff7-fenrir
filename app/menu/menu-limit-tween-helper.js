@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import { GAUGE_COLORS, LETTER_COLORS, LETTER_TYPES, getLetterTexture } from './menu-box-helper.js'

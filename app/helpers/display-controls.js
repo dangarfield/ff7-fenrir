@@ -32,7 +32,7 @@ const bindDisplayControls = () => {
   document
     .querySelector('.display-controls .debug')
     .addEventListener('click', () => {
-      const datgui = document.querySelector('.dg.ac')
+      const datgui = document.querySelector('.lil-gui')
       if (!datgui.classList.contains('hide')) {
         datgui.classList.add('hide')
       } else {
@@ -53,7 +53,7 @@ const bindDisplayControls = () => {
       } else {
         loop.classList.remove('hide')
       }
-      const datgui = document.querySelector('.dg.ac')
+      const datgui = document.querySelector('.lil-gui')
       if (!datgui.classList.contains('hide')) {
         datgui.classList.add('hide')
       }

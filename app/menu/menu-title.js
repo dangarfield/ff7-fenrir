@@ -1,5 +1,5 @@
 import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
@@ -73,7 +73,7 @@ const loadMedia = async () => {
   console.log('title video loading')
   const video = await loadMovieByName('Explode')
   console.log('title video loaded', video)
-  const geometry = new THREE.PlaneGeometry(
+  const geometry = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )

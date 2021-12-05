@@ -1,4 +1,6 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import { FontLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from '../../assets/threejs-r135-dg/examples/jsm/geometries/TextGeometry.js'
 import { orthoScene } from './world-scene.js'
 
 import { loadField } from '../field/field-module.js'
@@ -19,8 +21,8 @@ let readyForNavigation = false
 
 const loadFont = async () => {
   return new Promise((resolve, reject) => {
-    new THREE.FontLoader().load(
-      '../../assets/threejs-r118/fonts/helvetiker_regular.typeface.json',
+    new FontLoader().load(
+      '../../assets/threejs-r135-dg/examples/fonts/helvetiker_regular.typeface.json',
       font => {
         resolve(font)
       }

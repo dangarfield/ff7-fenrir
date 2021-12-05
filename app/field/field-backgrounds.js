@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 import { getModelScaleDownValue } from './field-models.js'
@@ -87,7 +87,7 @@ const clearBackgroundDepth = (layerId, z) => {
       distance *
       2
     let vW = vH * window.currentField.fieldCamera.aspect
-    let geometry = new THREE.PlaneGeometry(vW, vH, 0)
+    let geometry = new THREE.PlaneBufferGeometry(vW, vH)
     layer.geometry.dispose()
     layer.geometry = geometry // Requires any 'needUpdate' param?
 
@@ -218,33 +218,51 @@ const drawWalkmesh = () => {
   for (let i = 0; i < numTriangles; i++) {
     let triangle = window.currentField.data.walkmeshSection.triangles[i]
     let accessor = window.currentField.data.walkmeshSection.accessors[i]
-    let v0 = new THREE.Vector3(
+    let walkmeshLinePositions = [[], [], []]
+    walkmeshLinePositions[0].push(
       triangle.vertices[0].x / 4096,
       triangle.vertices[0].y / 4096,
       triangle.vertices[0].z / 4096
     )
-    let v1 = new THREE.Vector3(
+    walkmeshLinePositions[0].push(
       triangle.vertices[1].x / 4096,
       triangle.vertices[1].y / 4096,
       triangle.vertices[1].z / 4096
     )
-    let v2 = new THREE.Vector3(
+
+    walkmeshLinePositions[1].push(
+      triangle.vertices[1].x / 4096,
+      triangle.vertices[1].y / 4096,
+      triangle.vertices[1].z / 4096
+    )
+    walkmeshLinePositions[1].push(
       triangle.vertices[2].x / 4096,
       triangle.vertices[2].y / 4096,
       triangle.vertices[2].z / 4096
     )
-    let addLine = function (scene, va, vb, acc) {
-      let lineColor = acc === -1 ? 0x4488cc : 0x888888
+
+    walkmeshLinePositions[2].push(
+      triangle.vertices[2].x / 4096,
+      triangle.vertices[2].y / 4096,
+      triangle.vertices[2].z / 4096
+    )
+    walkmeshLinePositions[2].push(
+      triangle.vertices[0].x / 4096,
+      triangle.vertices[0].y / 4096,
+      triangle.vertices[0].z / 4096
+    )
+
+    for (let i = 0; i < walkmeshLinePositions.length; i++) {
+      const walkmeshLineGeo = new THREE.BufferGeometry()
+      walkmeshLineGeo.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute(walkmeshLinePositions[i], 3)
+      )
+      let lineColor = accessor[i] === -1 ? 0x4488cc : 0x888888
       let material1 = new THREE.LineBasicMaterial({ color: lineColor })
-      let geometry1 = new THREE.Geometry()
-      geometry1.vertices.push(va)
-      geometry1.vertices.push(vb)
-      let line = new THREE.Line(geometry1, material1)
+      const line = new THREE.Line(walkmeshLineGeo, material1)
       window.currentField.walkmeshLines.add(line)
     }
-    addLine(window.currentField.fieldScene, v0, v1, accessor[0])
-    addLine(window.currentField.fieldScene, v1, v2, accessor[1])
-    addLine(window.currentField.fieldScene, v2, v0, accessor[2])
 
     // positions for mesh buffergeo
     let walkmeshPositions = []
@@ -263,7 +281,7 @@ const drawWalkmesh = () => {
       triangle.vertices[2].y / 4096,
       triangle.vertices[2].z / 4096
     )
-    let walkmeshGeo = new THREE.BufferGeometry()
+    const walkmeshGeo = new THREE.BufferGeometry()
     walkmeshGeo.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(walkmeshPositions, 3)
@@ -299,12 +317,15 @@ const drawWalkmesh = () => {
     let lv1 = gateway.exitLineVertex2
     let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
-    let material1 = new THREE.LineBasicMaterial({ color: 0xff0000 })
-    let geometry1 = new THREE.Geometry()
-    geometry1.vertices.push(v0)
-    geometry1.vertices.push(v1)
-    let line = new THREE.Line(geometry1, material1)
-    window.currentField.gatewayLines.add(line)
+
+    let gatewayPositions = []
+    gatewayPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+    gatewayPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
+    const gatewayPositionsGeo = new THREE.BufferGeometry()
+    gatewayPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(gatewayPositions, 3))
+    let gatewayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 })
+    let gatewayLine = new THREE.Line(gatewayPositionsGeo, gatewayMaterial)
+    window.currentField.gatewayLines.add(gatewayLine)
 
     // Gateway position helpers
     // Not all position helper are the midpoint of the gateway, these are drawn
@@ -334,18 +355,15 @@ const drawWalkmesh = () => {
   for (let trigger of window.currentField.data.triggers.triggers) {
     let lv0 = trigger.cornerVertex1
     let lv1 = trigger.cornerVertex2
-    let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
-    let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
-    let material1 = new THREE.LineBasicMaterial({ color: 0x00ff00 })
-    let geometry1 = new THREE.Geometry()
-    geometry1.vertices.push(v0)
-    geometry1.vertices.push(v1)
-    let line = new THREE.Line(geometry1, material1)
-    line.userData.triggered = false
-    window.currentField.triggerLines.add(line)
-    if (lv0.x !== 0) {
-      // console.log('Door', lv0, v0, '&', lv1, v1)
-    }
+    let triggerMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 })
+
+    let triggerPositions = []
+    triggerPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+    triggerPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
+    const triggerPositionsGeo = new THREE.BufferGeometry()
+    triggerPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(triggerPositions, 3))
+    let triggerLine = new THREE.Line(triggerPositionsGeo, triggerMaterial)
+    window.currentField.triggerLines.add(triggerLine)
   }
   window.currentField.fieldScene.add(window.currentField.triggerLines)
 
@@ -525,8 +543,8 @@ const drawBG = async (
   if (userData.parallaxDirection === 'vertical') {
     vH = vH * userData.parallaxRatio
   }
-  console.log('drawBG', distance, '->', vH, vW, userData, bgImgUrl)
-  let geometry = new THREE.PlaneGeometry(vW, vH, 0)
+  let geometry = new THREE.PlaneBufferGeometry(vW, vH)
+  console.log('drawBG', distance, '->', vH, vW, userData, bgImgUrl, geometry.uuid)
 
   let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
   texture.magFilter = THREE.NearestFilter

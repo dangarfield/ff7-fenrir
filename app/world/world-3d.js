@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { scene } from './world-scene.js'
 
 const showDebugObject = () => {

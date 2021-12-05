@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import {
   getModelByEntityId,
@@ -161,9 +161,10 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
           ) {
             const line = window.currentField.lineLines.children[i]
             if (line.userData.enabled) {
+              const linePos = line.geometry.getAttribute('position')
               const closestPointOnLine = new THREE.Line3(
-                line.geometry.vertices[0],
-                line.geometry.vertices[1]
+                {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
+                {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
               ).closestPointToPoint(targetVector, true, new THREE.Vector3())
               const distance = targetVector.distanceTo(closestPointOnLine)
               const entityId = line.userData.entityId
@@ -480,9 +481,9 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
     )
   let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
   // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
-  let animationId = 2 //window.currentField.playerAnimations.run, is this applied globally?!
+  let animationId = 2 // window.currentField.playerAnimations.run, is this applied globally?!
   if (speed < 1600) {
-    animationId = 1 //window.currentField.playerAnimations.walk
+    animationId = 1 // window.currentField.playerAnimations.walk
   }
   // Ensure correct animation id is allocated, some models dont have all animation types
   while (model.animations.length < animationId) {

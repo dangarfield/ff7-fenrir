@@ -1,6 +1,6 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import { GLTFLoader } from '../../assets/threejs-r118/jsm/loaders/GLTFLoader.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
-import { SkeletonUtils } from '../../assets/threejs-r118/jsm/utils/SkeletonUtils.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import { GLTFLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/GLTFLoader.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { clone } from '../../assets/threejs-r135-dg/examples/jsm/utils/SkeletonUtils.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 import { KUJATA_BASE, getWindowTextures } from '../data/kernel-fetch-data.js'
 import {
   setLoadingText,
@@ -88,7 +88,7 @@ const loadModels = async modelLoaders => {
     gltf.userData['globalLight'] = modelLoader.globalLight
 
     // Do we still need to do clone because multiples of the same model are loaded?
-    gltf.scene = SkeletonUtils.clone(gltf.scene)
+    gltf.scene = clone(gltf.scene)
     gltf.mixer = new THREE.AnimationMixer(gltf.scene)
     bindAnimationCompletion(gltf)
     // gltf.mixer.addEventListener('finished', function (e) {

@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getPointRight, getFieldDialogNumber } from './field-fetch-data.js'

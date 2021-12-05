@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
 
 let scene
 let camera
@@ -18,7 +18,7 @@ const setupOrthoCamera = async () => {
   )
   camera.position.z = 1001
 
-  // const textGeo = new THREE.TextGeometry('ORTHO TEST', {
+  // const textGeo = new TextGeometry('ORTHO TEST', {
   //     font: font,
   //     size: 5,
   //     height: 1,

@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'

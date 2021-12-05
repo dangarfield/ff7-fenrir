@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import {
   setCameraPosition,
@@ -179,8 +179,8 @@ const updateFieldPlayerMovement = delta => {
         currentTriangleId === nextTriangleId
           ? true
           : window.currentField.data.walkmeshSection.accessors[
-              nextTriangleId
-            ].includes(currentTriangleId)
+            nextTriangleId
+          ].includes(currentTriangleId)
       console.log(
         'playerMovement nextTriangle',
         intersects,
@@ -228,9 +228,10 @@ const updateFieldPlayerMovement = delta => {
   // Detect triggers
   for (let i = 0; i < window.currentField.triggerLines.children.length; i++) {
     const triggerLine = window.currentField.triggerLines.children[i]
+    const linePos = triggerLine.geometry.getAttribute('position')
     const closestPointOnLine = new THREE.Line3(
-      triggerLine.geometry.vertices[0],
-      triggerLine.geometry.vertices[1]
+      {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
+      {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
     ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
     const distance = nextPosition.distanceTo(closestPointOnLine)
     if (distance < 0.01) {
@@ -368,11 +369,13 @@ const updateFieldPlayerMovement = delta => {
 
   // Detect gateways
   if (window.currentField.gatewayTriggersEnabled) {
+    // TODO - Last bit for three.js 135 migration
     for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
       const gatewayLine = window.currentField.gatewayLines.children[i]
+      const linePos = gatewayLine.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        gatewayLine.geometry.vertices[0],
-        gatewayLine.geometry.vertices[1]
+        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
+        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
       ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
       const distance = nextPosition.distanceTo(closestPointOnLine)
       if (distance < 0.005) {
@@ -594,20 +597,21 @@ const ladderMovement = speed => {
 
     for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {
       const gatewayLine = window.currentField.gatewayLines.children[i]
+      const linePos = gatewayLine.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        gatewayLine.geometry.vertices[0],
-        gatewayLine.geometry.vertices[1]
+        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
+        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
       ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
       const distance = nextPosition.distanceTo(closestPointOnLine)
       if (distance < 0.005) {
         console.log('gateway hit')
         if (animNo === 2) {
-          // Run
+        // Run
           window.currentField.playableCharacter.mixer.clipAction(
             window.currentField.playableCharacter.animations[2]
           ).paused = true
         } else if (animNo === 1) {
-          // Walk
+        // Walk
           window.currentField.playableCharacter.mixer.clipAction(
             window.currentField.playableCharacter.animations[1]
           ).paused = true

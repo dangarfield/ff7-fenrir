@@ -1,10 +1,10 @@
-import * as THREE from '../../assets/threejs-r118/three.module.js'
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 
 let scene
 let camera
 
 const createVideoBackground = video => {
-  const geometry = new THREE.PlaneGeometry(
+  const geometry = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )
