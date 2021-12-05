@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       'test',
       'drawBG',
-      'background'
+      'lil-gui'
     ],
     log: function () {
       if (limit) {
