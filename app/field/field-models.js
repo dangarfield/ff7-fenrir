@@ -22,6 +22,8 @@ import {
 } from './field-scene.js'
 import { sleep } from '../helpers/helpers.js'
 
+import * as Nodes from '../../assets/threejs-r135-dg/examples/jsm/renderers/nodes/Nodes.js'
+
 let modelGroup
 
 const directionToDegrees = dir => {
@@ -1025,12 +1027,13 @@ window.test = async () => {
   // spotLight.position.set(0, 0, 0) // pos 4
   spotLight.castShadow = false
   spotLight.visible = true
-  spotLight.intensity = 1
-  spotLight.angle = 0.01
-  spotLight.penumbra = 1
+  // spotLight.intensity = 1
+  // spotLight.angle = 0.01
+  // spotLight.penumbra = 1
   // spotLight.distance = 20
   // spotLight.decay = 0.1
 
+  spotLight.layers.set(1)
   // spotLight.layers.enabled(10)
   spotLightGroup.visible = true
   spotLightGroup.add(spotLight)
@@ -1044,14 +1047,26 @@ window.test = async () => {
   const target = new THREE.Mesh(geometry, material)
   // target.position.set(s.getWorldPosition())
 
+  // s.layers.disable(0)
+  // s.layers.enable(1)
+  // spotLight.layers.disable(0)
+  // spotLight.layers.enable(1)
+  // s.layers.set(1)
+
+  s.traverse(el => {
+    if (el.type === 'Mesh') {
+      el.layers.set(1)
+    }
+  })
+
   s.parent.add(target)
   spotLight.target = target
-  const spotPoint = s.getWorldPosition()
-  target.position.setX(spotPoint.x)
-  target.position.setY(spotPoint.y)
-  target.position.setZ(spotPoint.z)
+  // const spotPoint = s.getWorldPosition()
+  // target.position.setX(spotPoint.x)
+  // target.position.setY(spotPoint.y)
+  // target.position.setZ(spotPoint.z)
 
-  console.log('test spotPoint', spotPoint, spotLight, target)
+  console.log('test spotPoint', s, spotLight, target)
 
   const from = {x: 0, y: -r, i: 0}
   const to = {x: [r, 0, -r, 0, r, 0, -r, 0], y: [0, r, 0, -r, 0, r, 0, -r], i: [2, 2, 2, 2, 2, 2, 2, 0]}
@@ -1077,6 +1092,11 @@ window.test = async () => {
         spotLight.rotation.y = spotLight.rotation.y % (2 * Math.PI)
       }
 
+      s.traverse(el => {
+        if (el.type === 'Mesh') {
+          el.layers.set(0)
+        }
+      })
       for (let i = 0; i < s.children.length; i++) {
         const child = s.children[i]
         if (child.name === 'spotlight') {

@@ -229,6 +229,7 @@ const setupFieldCamera = () => {
   window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
   window.currentField.fieldScene.add(window.currentField.fieldCamera)
 
+  window.currentField.fieldCamera.layers.enable(1)
   setupFieldLights()
   return cameraTarget
 }
@@ -302,6 +303,7 @@ const setupFieldLights = () => {
       globalLightIntensity
     )
     window.currentField.fieldScene.add(globalLight)
+    globalLight.layers.enable(1)
     // console.log('lightData globalLight', globalLight, lightData)
 
     for (let i = 1; i <= 3; i++) {
@@ -316,6 +318,7 @@ const setupFieldLights = () => {
         (centre.y + light.y) / 4096,
         (centre.z + light.z) / 4096
       )
+      pointLight.layers.enable(1)
       window.currentField.fieldScene.add(pointLight)
       // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 0.5))
     }
