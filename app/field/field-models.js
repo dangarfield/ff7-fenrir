@@ -20,6 +20,7 @@ import {
   calculateViewClippingPointFromVector3,
   FIELD_TWEEN_GROUP
 } from './field-scene.js'
+import { sleep } from '../helpers/helpers.js'
 
 let modelGroup
 
@@ -414,6 +415,8 @@ const placeModel = (entityId, x, y, z, triangleId) => {
     console.log('setCameraPosition placeModel')
     setCameraPosition(relativeToCamera.x, relativeToCamera.y)
   }
+
+  console.log('placeModel', model.userData.name, model.userData.hrcId, entityId, model)
 }
 const placeModelsDebug = async () => {
   console.log('placeModelsDebug: START')
@@ -686,9 +689,7 @@ const setModelAsLeader = entityId => {
 
     // colne_1 etc doesn't explcitly set the female cloud model as a PC
     // so we need to also set the position, direction & visibility from the current leader if there is one
-    const entityHasPC = window.currentField.data.script.entities[
-      entityId
-    ].scripts[0].ops
+    const entityHasPC = window.currentField.data.script.entities[entityId].scripts[0].ops
       .map(s => s.op)
       .includes('PC')
     if (previousLeader && !entityHasPC) {
@@ -919,13 +920,25 @@ const setLinePosition = (entityId, lv0, lv1) => {
   }
 }
 const animateBoxShine = async (model) => {
+  const currentFieldName = window.currentField.name
+  console.log('animateBoxShine', model)
+  while (window.currentField.name === currentFieldName && model.scene.visible) {
+    // Loop while current field is current field and while model is visible
+    console.log('animateBoxShine LOOP Begin One')
+    await animateBoxShineOne(model)
+    await sleep(1000)
+    console.log('animateBoxShine LOOP End One')
+  }
+  console.log('animateBoxShine LOOP END All')
+}
+const animateBoxShineOne = async (model) => {
   const BOX_SHINE_NAME = 'box-shine'
   return new Promise((resolve, reject) => {
     const s = model.scene
     for (let i = 0; i < s.children.length; i++) {
       const child = s.children[i]
       if (child.name === BOX_SHINE_NAME) {
-      // Don't animate if already being animated
+        // Don't animate if already being animated
         resolve()
         return
       }
@@ -959,17 +972,26 @@ const animateBoxShine = async (model) => {
     const mid = THREE.MathUtils.degToRad(360)
     const from = {rad: 0}
     const to = {rad: THREE.MathUtils.degToRad(720)}
-    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
+    const boxAnimateTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, 1000)
       .onUpdate(function () {
         const x = r * Math.cos(from.rad)
         const y = r * Math.sin(from.rad)
-        spot.position.set(x, 0, y)
         const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1) * 0.35)
         // console.log('test inten', inten, from.rad)
-        spot.intensity = inten
+        if (spot && spot.parent !== null) {
+          spot.position.set(x, 0, y)
+          spot.intensity = inten
+        } else {
+          console.log('test stop')
+          boxAnimateTween.stop()
+        }
+      })
+      .onStop(function () {
+        console.log('test onStopped')
       })
       .onComplete(function () {
+        console.log('test onComplete', spot)
         // console.log('test tween: END')
         if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
           spot.rotation.y = spot.rotation.y % (2 * Math.PI)

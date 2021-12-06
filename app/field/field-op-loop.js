@@ -63,7 +63,7 @@ const executeOp = async (
   // TODO - Check if any 'wait for' actions such as move are waiting.
   // TODO - Really, all move tweens should be paused if a higher priority script is executed
   const entity = window.currentField.data.script.entities[entityId]
-  if (entity.entityName === 'checkun' || entity.entityName === 'kosub') {
+  if (entity.entityName === 'fe0d' || entity.entityName === 'kosub') {
     console.log(
       'executeOpDEBUG',
       entity.entityName,
