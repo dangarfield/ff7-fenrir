@@ -954,19 +954,23 @@ const animateBoxShine = async (model) => {
       }
     })
     spot.target = s
-    const r = 1024 * 50
-    const i = 1
 
-    const from = {x: 0, y: -r, i: 0}
-    const to = {x: [r, 0, -r, 0, r, 0, -r, 0], y: [0, r, 0, -r, 0, r, 0, -r], i: [i, i, i, i, i, i, i, 0]}
+    const r = 1024 * 50
+    const mid = THREE.MathUtils.degToRad(360)
+    const from = {rad: 0}
+    const to = {rad: THREE.MathUtils.degToRad(720)}
     new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-      .to(to, 3000)
+      .to(to, 1000)
       .onUpdate(function () {
-        spot.position.set(from.x, 0, from.y)
-        spot.intensity = from.i
+        const x = r * Math.cos(from.rad)
+        const y = r * Math.sin(from.rad)
+        spot.position.set(x, 0, y)
+        const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1) * 0.35)
+        // console.log('test inten', inten, from.rad)
+        spot.intensity = inten
       })
       .onComplete(function () {
-        console.log('test tween: END')
+        // console.log('test tween: END')
         if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
           spot.rotation.y = spot.rotation.y % (2 * Math.PI)
         }
