@@ -543,7 +543,9 @@ const executeOp = async (
     case 'SPLIT':
       result = await models.SPLIT(entityId, op)
       break
-
+    case 'KAWAI':
+      result = models.KAWAI(entityId, op)
+      break
     case 'PMOVA':
       result = await models.PMOVA(entityId, op)
       break

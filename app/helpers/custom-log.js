@@ -9,7 +9,9 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'test',
-      'animateBoxShine'
+      'animateShine',
+      'KAWAI',
+      'kawaiOpShine'
     ],
     log: function () {
       if (limit) {

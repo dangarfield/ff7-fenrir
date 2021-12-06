@@ -20,7 +20,6 @@ import {
   calculateViewClippingPointFromVector3,
   FIELD_TWEEN_GROUP
 } from './field-scene.js'
-import { sleep } from '../helpers/helpers.js'
 
 let modelGroup
 
@@ -919,100 +918,7 @@ const setLinePosition = (entityId, lv0, lv1) => {
     )
   }
 }
-const animateBoxShine = async (model) => {
-  const currentFieldName = window.currentField.name
-  console.log('animateBoxShine', model)
-  while (window.currentField.name === currentFieldName && model.scene.visible) {
-    // Loop while current field is current field and while model is visible
-    console.log('animateBoxShine LOOP Begin One')
-    await animateBoxShineOne(model)
-    await sleep(1000)
-    console.log('animateBoxShine LOOP End One')
-  }
-  console.log('animateBoxShine LOOP END All')
-}
-const animateBoxShineOne = async (model) => {
-  const BOX_SHINE_NAME = 'box-shine'
-  return new Promise((resolve, reject) => {
-    const s = model.scene
-    for (let i = 0; i < s.children.length; i++) {
-      const child = s.children[i]
-      if (child.name === BOX_SHINE_NAME) {
-        // Don't animate if already being animated
-        resolve()
-        return
-      }
-    }
-    const spotGroup = new THREE.Group()
-    spotGroup.name = BOX_SHINE_NAME
 
-    const spot = new THREE.SpotLight(0xffffff)
-    spot.castShadow = false
-    spot.visible = true
-    spot.layers.set(1)
-    spot.decay = 0.2
-    // spot.distance = 0.5
-    spotGroup.add(spot)
-
-    const spotHelper = new THREE.SpotLightHelper(spot)
-    spotGroup.add(spotHelper)
-
-    s.add(spotGroup)
-
-    s.traverse(el => {
-      if (el.type === 'Mesh' && el.geometry.getAttribute('color') !== undefined) {
-        // Set all meshes (therefore materials that react to light to a temporary non-0 channel)
-        // In the game, this only affects the directly colored materials and not any image based materials
-        el.layers.set(1)
-      }
-    })
-    spot.target = s
-
-    const r = 1024 * 50
-    const mid = THREE.MathUtils.degToRad(360)
-    const from = {rad: 0}
-    const to = {rad: THREE.MathUtils.degToRad(720)}
-    const boxAnimateTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-      .to(to, 1000)
-      .onUpdate(function () {
-        const x = r * Math.cos(from.rad)
-        const y = r * Math.sin(from.rad)
-        const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1) * 0.35)
-        // console.log('test inten', inten, from.rad)
-        if (spot && spot.parent !== null) {
-          spot.position.set(x, 0, y)
-          spot.intensity = inten
-        } else {
-          console.log('test stop')
-          boxAnimateTween.stop()
-        }
-      })
-      .onStop(function () {
-        console.log('test onStopped')
-      })
-      .onComplete(function () {
-        console.log('test onComplete', spot)
-        // console.log('test tween: END')
-        if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
-          spot.rotation.y = spot.rotation.y % (2 * Math.PI)
-        }
-        spotHelper.update()
-        s.traverse(el => {
-          if (el.type === 'Mesh') {
-            el.layers.set(0)
-          }
-        })
-        for (let i = 0; i < s.children.length; i++) {
-          const child = s.children[i]
-          if (child.name === BOX_SHINE_NAME) {
-            s.remove(child)
-          }
-        }
-        resolve()
-      })
-      .start()
-  })
-}
 export {
   directionToDegrees,
   degreesToDirection,
@@ -1051,10 +957,4 @@ export {
   setLinePosition,
   setupModelSceneGroup,
   setVisibilityForAllModels
-}
-
-window.test = async () => {
-  console.log('test SHINE start')
-  await animateBoxShine(window.currentField.models[8])
-  console.log('test SHINE end')
 }

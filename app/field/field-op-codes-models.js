@@ -4,6 +4,7 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
+import { kawaiOpShine } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -494,6 +495,17 @@ const SPLIT = async (entityId, op) => {
   )
   return {}
 }
+const KAWAI = async (entityId, op) => {
+  console.log('KAWAI', entityId, op, op.s, op.s === 13)
+
+  // TODO - Many more KAWAI sub op codes
+  switch (op.s) {
+    case 13: kawaiOpShine(entityId, op); break
+
+    default: break
+  }
+  return {}
+}
 
 setTimeout(async () => {
   console.log('ANIM: STARTED')
@@ -604,6 +616,7 @@ setTimeout(async () => {
 export {
   JOIN,
   SPLIT,
+  KAWAI,
   PMOVA,
   SLIP,
   UC,
