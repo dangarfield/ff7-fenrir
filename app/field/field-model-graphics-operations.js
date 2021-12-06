@@ -14,11 +14,11 @@ const kawaiOpShine = (entityId, op) => {
   }
 
   if (op.vars[0] === 0) {
-    stopShine(model) // Assumed reset
+    stopShine(model) // Assumed initiate
   } else if (op.vars[0] === 1) {
     animateShine(model)
   } else if (op.vars[0] === 2) {
-    animateShine(model) // TODO Not sure about the difference, need to have a look in game
+    stopShine(model) // Assumed stop
   }
 }
 

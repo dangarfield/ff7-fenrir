@@ -9,7 +9,6 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'test',
-      'animateShine',
       'KAWAI',
       'kawaiOpShine'
     ],
