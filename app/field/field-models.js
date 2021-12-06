@@ -20,9 +20,6 @@ import {
   calculateViewClippingPointFromVector3,
   FIELD_TWEEN_GROUP
 } from './field-scene.js'
-import { sleep } from '../helpers/helpers.js'
-
-import * as Nodes from '../../assets/threejs-r135-dg/examples/jsm/renderers/nodes/Nodes.js'
 
 let modelGroup
 
@@ -921,6 +918,75 @@ const setLinePosition = (entityId, lv0, lv1) => {
     )
   }
 }
+const animateBoxShine = async (model) => {
+  const BOX_SHINE_NAME = 'box-shine'
+  return new Promise((resolve, reject) => {
+    const s = model.scene
+    for (let i = 0; i < s.children.length; i++) {
+      const child = s.children[i]
+      if (child.name === BOX_SHINE_NAME) {
+      // Don't animate if already being animated
+        resolve()
+        return
+      }
+    }
+    const spotGroup = new THREE.Group()
+    spotGroup.name = BOX_SHINE_NAME
+
+    const spot = new THREE.SpotLight(0xffffff)
+    spot.castShadow = false
+    spot.visible = true
+    spot.layers.set(1)
+    spot.decay = 0.2
+    // spot.distance = 0.5
+    spotGroup.add(spot)
+
+    const spotHelper = new THREE.SpotLightHelper(spot)
+    spotGroup.add(spotHelper)
+
+    s.add(spotGroup)
+
+    s.traverse(el => {
+      if (el.type === 'Mesh' && el.geometry.getAttribute('color') !== undefined) {
+        // Set all meshes (therefore materials that react to light to a temporary non-0 channel)
+        // In the game, this only affects the directly colored materials and not any image based materials
+        el.layers.set(1)
+      }
+    })
+    spot.target = s
+    const r = 1024 * 50
+    const i = 1
+
+    const from = {x: 0, y: -r, i: 0}
+    const to = {x: [r, 0, -r, 0, r, 0, -r, 0], y: [0, r, 0, -r, 0, r, 0, -r], i: [i, i, i, i, i, i, i, 0]}
+    new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
+      .to(to, 3000)
+      .onUpdate(function () {
+        spot.position.set(from.x, 0, from.y)
+        spot.intensity = from.i
+      })
+      .onComplete(function () {
+        console.log('test tween: END')
+        if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
+          spot.rotation.y = spot.rotation.y % (2 * Math.PI)
+        }
+        spotHelper.update()
+        s.traverse(el => {
+          if (el.type === 'Mesh') {
+            el.layers.set(0)
+          }
+        })
+        for (let i = 0; i < s.children.length; i++) {
+          const child = s.children[i]
+          if (child.name === BOX_SHINE_NAME) {
+            s.remove(child)
+          }
+        }
+        resolve()
+      })
+      .start()
+  })
+}
 export {
   directionToDegrees,
   degreesToDirection,
@@ -961,150 +1027,8 @@ export {
   setVisibilityForAllModels
 }
 
-/*
-KAWAI testing
-
-// on mdnmkin_1, to get one of the meshes of the box:
-window.currentField.models[8].scene.children[0].children[0].children[0].children[2]
-
-*/
 window.test = async () => {
-  const s = window.currentField.models[8].scene
-  // s.userData.meshesWithColor = []
-  // s.traverse(el => {
-  //   if (el.type === 'Mesh') {
-  //     const colorAttr = el.geometry.getAttribute('color')
-  //     if (colorAttr !== undefined) {
-  //       el.geometry.userData = {originalColors: colorAttr.clone()}
-  //       el.material.clearcoat = 1
-  //       s.userData.meshesWithColor.push(el)
-  //     }
-  //   }
-  // })
-  // for (let i = 0; i < 6; i++) {
-  //   for (let j = 0; j < s.userData.meshesWithColor.length; j++) {
-  //     const mesh = s.userData.meshesWithColor[j]
-  //     const colorAttrOrig = mesh.geometry.userData.originalColors
-  //     const colorAttr = mesh.geometry.getAttribute('color')
-  //     for (let k = 0; k < colorAttr.count; k++) {
-  //       if (i % 3 === k % 3) {
-  //         colorAttr.setXYZ(k, 1, 1, 1) // rgb(a)
-  //         console.log('test setXYZ', i, j, k, 'YES')
-  //       } else {
-  //         colorAttr.setXYZ(k, colorAttrOrig.getX(k), colorAttrOrig.getY(k), colorAttrOrig.getZ(k)) // get orig colors
-  //         console.log('test setXYZ', i, j, k, 'NO')
-  //       }
-  //       colorAttr.needsUpdate = true
-  //     }
-  //   }
-  //   await sleep(100)
-  //   for (let j = 0; j < s.userData.meshesWithColor.length; j++) {
-  //     const mesh = s.userData.meshesWithColor[j]
-  //     const colorAttrOrig = mesh.geometry.userData.originalColors
-  //     const colorAttr = mesh.geometry.getAttribute('color')
-  //     for (let k = 0; k < colorAttr.count; k++) {
-  //       colorAttr.setXYZ(k, colorAttrOrig.getX(k), colorAttrOrig.getY(k), colorAttrOrig.getZ(k)) // get orig colors
-  //       colorAttr.needsUpdate = true
-  //     }
-  //   }
-  // }
-  for (let i = 0; i < s.children.length; i++) {
-    const child = s.children[i]
-    if (child.name === 'spotlight') {
-      s.remove(child)
-    }
-  }
-  const spotLightGroup = new THREE.Group()
-  spotLightGroup.name = 'spotlight'
-  const spotLight = new THREE.SpotLight(0xffffff)
-  const r = 1024 * 50
-  // spotLight.position.set(r, 0, 0) // pos 0
-
-  // spotLight.rotateY(THREE.MathUtils.degToRad(90)) // pos 0
-  // spotLight.position.set(0, 0, r) // pos 1
-  // spotLight.position.set(-dist, 0, 0) // pos 2
-  // spotLight.position.set(0, 0, -r) // pos 3
-  // spotLight.position.set(0, 0, 0) // pos 4
-  spotLight.castShadow = false
-  spotLight.visible = true
-  // spotLight.intensity = 1
-  // spotLight.angle = 0.01
-  // spotLight.penumbra = 1
-  // spotLight.distance = 20
-  // spotLight.decay = 0.1
-
-  spotLight.layers.set(1)
-  // spotLight.layers.enabled(10)
-  spotLightGroup.visible = true
-  spotLightGroup.add(spotLight)
-
-  const spotLightHelper = new THREE.SpotLightHelper(spotLight)
-  spotLightGroup.add(spotLightHelper)
-
-  s.add(spotLightGroup)
-  const geometry = new THREE.BoxGeometry(1 / 80, 1 / 80, 1 / 80)
-  const material = new THREE.MeshBasicMaterial({color: 0x00ff00})
-  const target = new THREE.Mesh(geometry, material)
-  // target.position.set(s.getWorldPosition())
-
-  // s.layers.disable(0)
-  // s.layers.enable(1)
-  // spotLight.layers.disable(0)
-  // spotLight.layers.enable(1)
-  // s.layers.set(1)
-
-  s.traverse(el => {
-    if (el.type === 'Mesh') {
-      el.layers.set(1)
-    }
-  })
-
-  s.parent.add(target)
-  spotLight.target = target
-  // const spotPoint = s.getWorldPosition()
-  // target.position.setX(spotPoint.x)
-  // target.position.setY(spotPoint.y)
-  // target.position.setZ(spotPoint.z)
-
-  console.log('test spotPoint', s, spotLight, target)
-
-  const from = {x: 0, y: -r, i: 0}
-  const to = {x: [r, 0, -r, 0, r, 0, -r, 0], y: [0, r, 0, -r, 0, r, 0, -r], i: [2, 2, 2, 2, 2, 2, 2, 0]}
-  // new TWEEN.Tween(spotLightGroup.rotation, FIELD_TWEEN_GROUP)
-  // .to({ y: '-' + Math.PI }, 2000)
-  new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-    .to(to, 1000)
-    .onUpdate(function () {
-      spotLight.position.set(from.x, 0, from.y)
-      spotLight.intensity = from.i
-      spotLightHelper.update()
-      // spotLight.lookAt(target)
-      // console.log('turnModel: TWEEN', from)
-      // model.scene.children[0].rotation.y = from.y
-      // if (from.r) {
-      //     // Has to be like this for non THREE.NormalBlending modes
-      //     mesh.material.color = new THREE.Color(`rgb(${Math.floor(from.r)},${Math.floor(from.g)},${Math.floor(from.b)})`)
-      // }
-    })
-    .onComplete(function () {
-      console.log('test tween: END')
-      if (Math.abs(spotLight.rotation.y) >= 2 * Math.PI) {
-        spotLight.rotation.y = spotLight.rotation.y % (2 * Math.PI)
-      }
-
-      s.traverse(el => {
-        if (el.type === 'Mesh') {
-          el.layers.set(0)
-        }
-      })
-      for (let i = 0; i < s.children.length; i++) {
-        const child = s.children[i]
-        if (child.name === 'spotlight') {
-          s.remove(child)
-        }
-      }
-    })
-    .start()
-
-  console.log('test s', s)
+  console.log('test SHINE start')
+  await animateBoxShine(window.currentField.models[8])
+  console.log('test SHINE end')
 }
