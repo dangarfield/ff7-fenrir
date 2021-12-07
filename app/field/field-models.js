@@ -864,6 +864,8 @@ const registerLine = (entityId, lv0, lv1) => {
   const linePositionsGeo = new THREE.BufferGeometry()
   linePositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3))
   let lineLine = new THREE.Line(linePositionsGeo, lineMaterial)
+  lineLine.userData.entityId = entityId
+  lineLine.userData.enabled = true
   window.currentField.lineLines.add(lineLine)
   // console.log('registerLine line', line)
 }

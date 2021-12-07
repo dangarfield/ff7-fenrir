@@ -215,9 +215,10 @@ const processLineTriggersForFrame = () => {
   for (let i = 0; i < window.currentField.lineLines.children.length; i++) {
     const line = window.currentField.lineLines.children[i]
     if (line.userData.enabled) {
+      const linePos = line.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        line.geometry.vertices[0],
-        line.geometry.vertices[1]
+        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
+        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
       ).closestPointToPoint(position, true, new THREE.Vector3())
       const distance = position.distanceTo(closestPointOnLine)
       console.log('processLineTriggersForFrame', line.userData, distance)
