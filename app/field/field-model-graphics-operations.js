@@ -116,66 +116,70 @@ const animateShineOne = async (model, ms, lateral) => {
   return new Promise((resolve, reject) => {
     const s = model.scene
     const spot = model.scene.userData.shineSpot
-    spot.intensity = 0
-    const r = 1024 * 50
-    const mid = THREE.MathUtils.degToRad(180)
-    const rad90 = THREE.MathUtils.degToRad(90)
-    const from = {rad: 0}
-    const to = {rad: THREE.MathUtils.degToRad(360)}
-    s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-      .to(to, ms)
-      .onUpdate(function () {
+    if (!spot) {
+      resolve()
+    } else {
+      spot.intensity = 0
+      const r = 1024 * 50
+      const mid = THREE.MathUtils.degToRad(180)
+      const rad90 = THREE.MathUtils.degToRad(90)
+      const from = {rad: 0}
+      const to = {rad: THREE.MathUtils.degToRad(360)}
+      s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
+        .to(to, ms)
+        .onUpdate(function () {
         // TODO: This is just an initial 2d loop around a point, in reality, the tween points should be figured out
-        const x = r * Math.cos(from.rad - rad90)
-        const y = r * Math.sin(from.rad - rad90)
-        const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1)) * 2
-        // console.log('animateShine inten', inten, from.rad)
-        if (spot && spot.parent !== null) {
-          if (lateral) {
-            spot.position.set(x, y, 0)
+          const x = r * Math.cos(from.rad - rad90)
+          const y = r * Math.sin(from.rad - rad90)
+          const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1)) * 2
+          // console.log('animateShine inten', inten, from.rad)
+          if (spot && spot.parent !== null) {
+            if (lateral) {
+              spot.position.set(x, y, 0)
+            } else {
+              spot.position.set(-x, 0, y)
+            }
+            spot.intensity = inten
           } else {
-            spot.position.set(-x, 0, y)
+            console.log('animateShine stop')
+            s.userData.shineTween.stop()
           }
-          spot.intensity = inten
-        } else {
-          console.log('animateShine stop')
-          s.userData.shineTween.stop()
-        }
-        if (model.scene.userData.shineSpotHelper) {
-          model.scene.userData.spotHelper.update()
-        }
-      })
-      .onStop(function () {
-        console.log('animateShine onStopped')
-        if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
-          spot.rotation.y = spot.rotation.y % (2 * Math.PI)
-        }
-        spot.intensity = 0
-        for (let i = 0; i < s.children.length; i++) {
-          const child = s.children[i]
-          if (child.name === BOX_SHINE_NAME) {
-            s.remove(child)
+          if (model.scene.userData.shineSpotHelper) {
+            model.scene.userData.spotHelper.update()
           }
-        }
-        resolve()
-      })
-      .onComplete(function () {
-        console.log('animateShine onComplete', spot)
-        // console.log('animateShine tween: END')
-        if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
-          spot.rotation.y = spot.rotation.y % (2 * Math.PI)
-        }
-        spot.intensity = 0
-        for (let i = 0; i < s.children.length; i++) {
-          const child = s.children[i]
-          if (child.name === BOX_SHINE_NAME) {
-            child.visible = false
+        })
+        .onStop(function () {
+          console.log('animateShine onStopped')
+          if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
+            spot.rotation.y = spot.rotation.y % (2 * Math.PI)
+          }
+          spot.intensity = 0
+          for (let i = 0; i < s.children.length; i++) {
+            const child = s.children[i]
+            if (child.name === BOX_SHINE_NAME) {
+              s.remove(child)
+            }
+          }
+          resolve()
+        })
+        .onComplete(function () {
+          console.log('animateShine onComplete', spot)
+          // console.log('animateShine tween: END')
+          if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
+            spot.rotation.y = spot.rotation.y % (2 * Math.PI)
+          }
+          spot.intensity = 0
+          for (let i = 0; i < s.children.length; i++) {
+            const child = s.children[i]
+            if (child.name === BOX_SHINE_NAME) {
+              child.visible = false
             // s.remove(child)
+            }
           }
-        }
-        resolve()
-      })
-      .start()
+          resolve()
+        })
+        .start()
+    }
   })
 }
 
