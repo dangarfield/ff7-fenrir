@@ -43,9 +43,13 @@ const animateShine = async (model) => {
   while (window.currentField.name === currentFieldName && model.scene.visible && model.scene.userData.shine) {
     // Loop while current field is current field and while model is visible
     console.log('animateShine LOOP Begin One')
-    await animateShineOne(model)
-    await sleep(500)
-    await animateShineOne(model)
+    await animateShineOne(model, 200)
+    await animateShineOne(model, 200, true)
+    await animateShineOne(model, 350)
+    await sleep(300)
+    await animateShineOne(model, 200)
+    await animateShineOne(model, 200, true)
+    await animateShineOne(model, 350)
     await sleep(3500)
     console.log('animateShine LOOP End One')
   }
@@ -71,6 +75,10 @@ const stopShine = (model) => {
     delete model.scene.userData.shineSpotGroup
     delete model.scene.userData.shineSpot
   }
+  if (model.scene.userData.shineSpotHelper) {
+    model.scene.userData.shineSpotHelper.parent.remove(model.scene.userData.shineSpotHelper)
+    delete model.scene.userData.shineSpotHelper
+  }
 }
 
 const addShineSpotLight = (model) => {
@@ -86,18 +94,11 @@ const addShineSpotLight = (model) => {
   shineSpot.target = model.scene
   shineSpotGroup.add(shineSpot)
 
-  // const spotHelper = new THREE.SpotLightHelper(spot)
-  // spotGroup.add(spotHelper)
+  //   const shineSpotHelper = new THREE.SpotLightHelper(shineSpot)
+  //   shineSpotGroup.add(shineSpotHelper)
+  //   model.scene.userData.spotHelper = shineSpotHelper
 
   model.scene.add(shineSpotGroup)
-
-  // s.traverse(el => {
-  //   if (el.type === 'Mesh' && el.geometry.getAttribute('color') !== undefined) {
-  //     // Set all meshes (therefore materials that react to light to a temporary non-0 channel)
-  //     // In the game, this only affects the directly colored materials and not any image based materials
-  //     el.layers.set(1)
-  //   }
-  // })
   model.scene.userData.shineSpot = shineSpot
   model.scene.userData.shineSpotGroup = shineSpotGroup
 }
@@ -110,7 +111,7 @@ const addShineAmbientLight = (model) => {
 }
 window.stopShine = stopShine
 
-const animateShineOne = async (model) => {
+const animateShineOne = async (model, ms, lateral) => {
   const BOX_SHINE_NAME = 'box-shine'
   return new Promise((resolve, reject) => {
     const s = model.scene
@@ -122,21 +123,27 @@ const animateShineOne = async (model) => {
     const from = {rad: 0}
     const to = {rad: THREE.MathUtils.degToRad(360)}
     s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-      .to(to, 500)
+      .to(to, ms)
       .onUpdate(function () {
         // TODO: This is just an initial 2d loop around a point, in reality, the tween points should be figured out
         const x = r * Math.cos(from.rad - rad90)
         const y = r * Math.sin(from.rad - rad90)
         const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1)) * 2
-        console.log('animateShine inten', inten, from.rad)
+        // console.log('animateShine inten', inten, from.rad)
         if (spot && spot.parent !== null) {
-          spot.position.set(x, 0, y)
+          if (lateral) {
+            spot.position.set(x, y, 0)
+          } else {
+            spot.position.set(-x, 0, y)
+          }
           spot.intensity = inten
         } else {
           console.log('animateShine stop')
           s.userData.shineTween.stop()
         }
-        // spotHelper.update()
+        if (model.scene.userData.shineSpotHelper) {
+          model.scene.userData.spotHelper.update()
+        }
       })
       .onStop(function () {
         console.log('animateShine onStopped')
