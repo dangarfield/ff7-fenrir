@@ -4,7 +4,7 @@ import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getModelByEntityId } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 
-const kawaiOpShine = (entityId, op) => {
+const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
   const model = getModelByEntityId(entityId)
   console.log('kawaiOpShine model', model)
@@ -12,86 +12,123 @@ const kawaiOpShine = (entityId, op) => {
   if (model === undefined) {
     return
   }
-
+  // I'm not entirely sure why, but 0,0 is called before 1, but when just adding either of them individually in
+  // the game, it appears to make no dfference and just dispalys the shine as usual
   if (op.vars[0] === 0) {
-    stopShine(model) // Assumed initiate
+    // stopShine(model) // Assumed initiate
   } else if (op.vars[0] === 1) {
     animateShine(model)
   } else if (op.vars[0] === 2) {
-    stopShine(model) // Assumed stop
+    stopShine(model) // Stop shine and make darker (PC)
   }
 }
 
 const animateShine = async (model) => {
   const currentFieldName = window.currentField.name
   console.log('animateShine', model)
+
+  if (!model.scene.userData.shineSpotGroup) {
+    addShineSpotLight(model)
+  }
+  if (!model.scene.userData.shine) {
+    addShineAmbientLight(model)
+  }
+
+  model.scene.traverse(el => {
+    if (el.type === 'Mesh') {
+      el.layers.set(1)
+    }
+  })
   model.scene.userData.shine = true
   while (window.currentField.name === currentFieldName && model.scene.visible && model.scene.userData.shine) {
     // Loop while current field is current field and while model is visible
     console.log('animateShine LOOP Begin One')
     await animateShineOne(model)
-    await sleep(2000)
+    await sleep(500)
+    await animateShineOne(model)
+    await sleep(3500)
     console.log('animateShine LOOP End One')
   }
   console.log('animateShine LOOP END All')
 }
 const stopShine = (model) => {
+  model.scene.traverse(el => {
+    if (el.type === 'Mesh') {
+      el.layers.set(0)
+    }
+  })
   if (model.scene.userData.shineTween) {
     model.scene.userData.shineTween.stop()
-    model.scene.userData.shine = false
+    delete model.scene.userData.shine
+    delete model.scene.userData.shineTween
+  }
+  if (model.scene.userData.shineAmbientLight) {
+    model.scene.userData.shineAmbientLight.parent.remove(model.scene.userData.shineAmbientLight)
+    delete model.scene.userData.shineAmbientLight
+  }
+  if (model.scene.userData.shineSpotGroup) {
+    model.scene.userData.shineSpotGroup.parent.remove(model.scene.userData.shineSpotGroup)
+    delete model.scene.userData.shineSpotGroup
+    delete model.scene.userData.shineSpot
   }
 }
 
+const addShineSpotLight = (model) => {
+  const shineSpotGroup = new THREE.Group()
+  shineSpotGroup.name = 'shineSpotGroup'
+
+  const shineSpot = new THREE.SpotLight(0xffffff)
+  shineSpot.castShadow = false
+  shineSpot.intensity = 0
+  shineSpot.layers.set(1)
+  shineSpot.decay = 1 // This can probably be done much better
+  shineSpot.distance = 75
+  shineSpot.target = model.scene
+  shineSpotGroup.add(shineSpot)
+
+  // const spotHelper = new THREE.SpotLightHelper(spot)
+  // spotGroup.add(spotHelper)
+
+  model.scene.add(shineSpotGroup)
+
+  // s.traverse(el => {
+  //   if (el.type === 'Mesh' && el.geometry.getAttribute('color') !== undefined) {
+  //     // Set all meshes (therefore materials that react to light to a temporary non-0 channel)
+  //     // In the game, this only affects the directly colored materials and not any image based materials
+  //     el.layers.set(1)
+  //   }
+  // })
+  model.scene.userData.shineSpot = shineSpot
+  model.scene.userData.shineSpotGroup = shineSpotGroup
+}
+const addShineAmbientLight = (model) => {
+  const shineAmbientLight = new THREE.AmbientLight(new THREE.Color(`rgb(255,255,255)`), 1)
+  shineAmbientLight.layers.disable(0)
+  shineAmbientLight.layers.enable(1)
+  model.scene.add(shineAmbientLight)
+  model.scene.userData.shineAmbientLight = shineAmbientLight
+}
 window.stopShine = stopShine
+
 const animateShineOne = async (model) => {
   const BOX_SHINE_NAME = 'box-shine'
   return new Promise((resolve, reject) => {
     const s = model.scene
-    for (let i = 0; i < s.children.length; i++) {
-      const child = s.children[i]
-      if (child.name === BOX_SHINE_NAME) {
-        // Don't animate if already being animated
-        resolve()
-        return
-      }
-    }
-    const spotGroup = new THREE.Group()
-    spotGroup.name = BOX_SHINE_NAME
-
-    const spot = new THREE.SpotLight(0xffffff)
-    spot.castShadow = false
-    spot.visible = true
-    spot.layers.set(1)
-    spot.decay = 1 // This can probably be done much better
-    spot.distance = 75
-    spotGroup.add(spot)
-
-    // const spotHelper = new THREE.SpotLightHelper(spot)
-    // spotGroup.add(spotHelper)
-
-    s.add(spotGroup)
-
-    s.traverse(el => {
-      if (el.type === 'Mesh' && el.geometry.getAttribute('color') !== undefined) {
-        // Set all meshes (therefore materials that react to light to a temporary non-0 channel)
-        // In the game, this only affects the directly colored materials and not any image based materials
-        el.layers.set(1)
-      }
-    })
-    spot.target = s
-
+    const spot = model.scene.userData.shineSpot
+    spot.intensity = 0
     const r = 1024 * 50
-    const mid = THREE.MathUtils.degToRad(360)
+    const mid = THREE.MathUtils.degToRad(180)
     const rad90 = THREE.MathUtils.degToRad(90)
     const from = {rad: 0}
-    const to = {rad: THREE.MathUtils.degToRad(720)}
+    const to = {rad: THREE.MathUtils.degToRad(360)}
     s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
-      .to(to, 750)
+      .to(to, 500)
       .onUpdate(function () {
+        // TODO: This is just an initial 2d loop around a point, in reality, the tween points should be figured out
         const x = r * Math.cos(from.rad - rad90)
         const y = r * Math.sin(from.rad - rad90)
-        const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1) * 0.35) * 2
-        // console.log('animateShine inten', inten, from.rad)
+        const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1)) * 2
+        console.log('animateShine inten', inten, from.rad)
         if (spot && spot.parent !== null) {
           spot.position.set(x, 0, y)
           spot.intensity = inten
@@ -106,11 +143,7 @@ const animateShineOne = async (model) => {
         if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
           spot.rotation.y = spot.rotation.y % (2 * Math.PI)
         }
-        s.traverse(el => {
-          if (el.type === 'Mesh') {
-            el.layers.set(0)
-          }
-        })
+        spot.intensity = 0
         for (let i = 0; i < s.children.length; i++) {
           const child = s.children[i]
           if (child.name === BOX_SHINE_NAME) {
@@ -125,15 +158,12 @@ const animateShineOne = async (model) => {
         if (Math.abs(spot.rotation.y) >= 2 * Math.PI) {
           spot.rotation.y = spot.rotation.y % (2 * Math.PI)
         }
-        s.traverse(el => {
-          if (el.type === 'Mesh') {
-            el.layers.set(0)
-          }
-        })
+        spot.intensity = 0
         for (let i = 0; i < s.children.length; i++) {
           const child = s.children[i]
           if (child.name === BOX_SHINE_NAME) {
-            s.remove(child)
+            child.visible = false
+            // s.remove(child)
           }
         }
         resolve()

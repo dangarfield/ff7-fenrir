@@ -10,7 +10,8 @@ window.console = (function (origConsole) {
       'press MAIN MENU HOME',
       'test',
       'KAWAI',
-      'kawaiOpShine'
+      'kawaiOpShine',
+      'animateShine'
     ],
     log: function () {
       if (limit) {

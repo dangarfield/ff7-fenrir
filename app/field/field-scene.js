@@ -302,6 +302,7 @@ const setupFieldLights = () => {
       ),
       globalLightIntensity
     )
+    window.currentField.centrePoint = centre
     window.currentField.fieldScene.add(globalLight)
     globalLight.layers.enable(1)
     // console.log('lightData globalLight', globalLight, lightData)
