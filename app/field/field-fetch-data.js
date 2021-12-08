@@ -7,6 +7,7 @@ import {
   setLoadingProgress
 } from '../loading/loading-module.js'
 import { bindAnimationCompletion } from '../field/field-animations.js'
+import { bindBlinkOperations } from './field-model-graphics-operations.js'
 
 const textureLoader = new THREE.TextureLoader()
 
@@ -207,6 +208,7 @@ const addBlinkingToModel = async (hrc, gltf) => {
         element.material.map = element.material.userData.blink.closed
         element.material.map = element.material.userData.blink.open
 
+        bindBlinkOperations(element.material)
         // console.log('addBlinkingToModel texture', texture, element.material.userData.blink.open, element.material.userData.blink.closed, element.material.map)
       }
     })

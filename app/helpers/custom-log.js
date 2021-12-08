@@ -11,7 +11,8 @@ window.console = (function (origConsole) {
       'test',
       'KAWAI',
       'kawaiOpBlink',
-      'addBlinkingToModel'
+      'addBlinkingToModel',
+      'bindBlinkOperations'
     ],
     log: function () {
       if (limit) {

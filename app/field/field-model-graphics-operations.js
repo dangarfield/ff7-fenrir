@@ -8,11 +8,16 @@ const kawaiOpBlink = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
   console.log('kawaiOpBlink model', model, op)
 
+  const blinkMaterials = []
   model.scene.traverse(el => {
-    if (el.isMesh) {
+    if (el.isMesh && el.material && el.material.userData && el.material.userData.blink) {
       console.log('kawaiOpBlink el', el, el.material)
+      blinkMaterials.push(el.material)
     }
   })
+
+  // TODO - Consider other BLINK op code
+  // TODO - Think about random blinking (sleep / tween etc)
 
   const eyes1 = op.vars[0]
   const eyes2 = op.vars[1]
@@ -22,10 +27,13 @@ const kawaiOpBlink = async (entityId, op) => {
   // By default, eyes blink every X seconds + random
   if (eyes1 === 0 || eyes2 === 0) {
     // Set eyes open, Random blinking disabled
+    blinkMaterials.forEach(m => { m.userData.blink.executeOpen() })
   } else if (eyes1 === 1 && eyes2 === 1) {
     // blink instantly, Set eyes open, Random blinking enabled
+    blinkMaterials.forEach(m => { m.userData.blink.executeBlink() })
   } else if (eyes1 === 2 && eyes2 === 2) {
     // Eyes closed, Random blinking disabled
+    blinkMaterials.forEach(m => { m.userData.blink.executeClose() })
   } else if (eyes1 === 3 && eyes2 === 3) { // Only aeris
     // Random blinking disabled ?
     // TODO - Unsure
@@ -41,6 +49,31 @@ const kawaiOpBlink = async (entityId, op) => {
   } else if (mouth === 2) { // Only cid
     // TODO - Unsure
   }
+}
+
+const bindBlinkOperations = (material) => {
+  console.log('bindBlinkOperations', material, material.userData)
+
+  material.userData.blink.executeOpen = function () {
+    console.log('bindBlinkOperations executeOpen', material)
+    material.map = material.userData.blink.open
+  }
+  material.userData.blink.executeClose = function () {
+    console.log('bindBlinkOperations executeClose', material)
+    material.map = material.userData.blink.closed
+  }
+  material.userData.blink.executeBlink = function () {
+    console.log('bindBlinkOperations executeClose', material)
+    material.map = material.userData.blink.closed
+    setTimeout(function () {
+      material.userData.blink.executeOpen()
+    }, 50)
+  }
+
+//   setTimeout(function () {
+//     console.log('bindBlinkOperations timeout')
+//     material.userData.blink.executeBlink()
+//   }, 5000)
 }
 const kawaiOpTrnsp = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
@@ -300,6 +333,7 @@ const animateShineOne = async (model, ms, lateral) => {
 
 export {
   kawaiOpBlink,
+  bindBlinkOperations,
   kawaiOpTrnsp,
   kawaiOpShine
 }
