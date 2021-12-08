@@ -9,7 +9,8 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'test',
-      'KAWAI'
+      'KAWAI',
+      'kawaiOpBlink'
     ],
     log: function () {
       if (limit) {

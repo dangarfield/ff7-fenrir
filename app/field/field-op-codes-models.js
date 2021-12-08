@@ -4,7 +4,7 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { kawaiOpShine } from './field-model-graphics-operations.js'
+import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -500,6 +500,8 @@ const KAWAI = async (entityId, op) => {
 
   // TODO - Many more KAWAI sub op codes
   switch (op.s) {
+    case 0: kawaiOpBlink(entityId, op); break
+    case 1: kawaiOpTrnsp(entityId, op); break
     case 13: kawaiOpShine(entityId, op); break
 
     default: break

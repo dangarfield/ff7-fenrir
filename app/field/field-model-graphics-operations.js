@@ -4,6 +4,116 @@ import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getModelByEntityId } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 
+const kawaiOpBlink = async (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpBlink model', model, op)
+
+  const eyes1 = op.vars[0]
+  const eyes2 = op.vars[1]
+  const mouth = op.vars[2]
+  // const object = op.vars[3] // Ignore this
+
+  // By default, eyes blink every X seconds + random
+  if (eyes1 === 0 || eyes2 === 0) {
+    // Set eyes open, Random blinking disabled
+  } else if (eyes1 === 1 && eyes2 === 1) {
+    // blink instantly, Set eyes open, Random blinking enabled
+  } else if (eyes1 === 2 && eyes2 === 2) {
+    // Eyes closed, Random blinking disabled
+  } else if (eyes1 === 3 && eyes2 === 3) { // Only aeris
+    // Random blinking disabled ?
+    // TODO - Unsure
+  } else if (eyes1 === 4 && eyes2 === 4) { // Only barret
+    // Random blinking disabled ?
+    // TODO - Unsure
+  }
+
+  if (mouth === 0) {
+    // Default closed mouth
+  } else if (mouth === 1) { // Only tifa
+    // TODO - Unsure
+  } else if (mouth === 2) { // Only cid
+    // TODO - Unsure
+  }
+}
+const kawaiOpTrnsp = async (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpTrnsp model', model, op)
+  if (op.vars[0] === 0) {
+    makeDarker(entityId)
+  } else if (op.vars[0] === 1) {
+    makeSemiTransparent(entityId)
+  }
+}
+const makeSemiTransparent = (entityId) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpTrnsp makeSemiTransparent', entityId, model.scene)
+  const opacity = 0.6
+  model.scene.traverse(el => {
+    if (el.isMesh) {
+      el.material.transparent = true
+      ensureOrigColorSet(el)
+      const origColorAttr = el.geometry.userData.origColor
+      const colorAttr = el.geometry.getAttribute('color')
+      console.log('kawaiOpTrnsp makeSemiTransparent mesh', el.material, origColorAttr, colorAttr)
+      if (colorAttr) {
+        el.material.format = THREE.RGBAFormat
+        for (let i = 0; i < colorAttr.count; i++) {
+          console.log('kawaiOpTrnsp makeSemiTransparent meshv color op', i)
+          const r = origColorAttr.getX(i)
+          const g = origColorAttr.getY(i)
+          const b = origColorAttr.getZ(i)
+          //   const a = origColorAttr.getW(i)
+          colorAttr.setXYZW(i, r, g, b, opacity)
+        }
+        colorAttr.needsUpdate = true
+      } else {
+        el.material.opacity = opacity
+      }
+      el.material.needsUpdate = true
+    }
+  })
+}
+
+const makeDarker = (entityId) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpTrnsp makeDarker', entityId, model.scene)
+  const darken = 0.5
+  model.scene.traverse(el => {
+    if (el.isMesh) {
+      el.material.transparent = true
+      ensureOrigColorSet(el)
+      const origColorAttr = el.geometry.userData.origColor
+      const colorAttr = el.geometry.getAttribute('color')
+      console.log('kawaiOpTrnsp makeDarker mesh', el.material, colorAttr)
+      // MeshStandardMaterial roughness 0.5 makes this look pretty bad, consider changing the roughness
+      if (colorAttr) {
+        for (let i = 0; i < colorAttr.count; i++) {
+          const r = colorAttr.getX(i) * darken
+          const g = colorAttr.getY(i) * darken
+          const b = colorAttr.getZ(i) * darken
+          const a = origColorAttr.getW(i)
+          console.log('kawaiOpTrnsp makeDarker mesh color op', i, r, g, b, a)
+          colorAttr.setXYZW(i, r, g, b, a)
+        }
+        colorAttr.needsUpdate = true
+      } else {
+        el.material.opacity = 1
+      }
+      el.material.needsUpdate = true
+    }
+  })
+}
+
+window.makeDarker = makeDarker
+const ensureOrigColorSet = (mesh) => {
+  if (!mesh.geometry.userData.origColor) {
+    const orig = mesh.geometry.getAttribute('color')
+    if (orig) {
+      mesh.geometry.userData.origColor = orig.clone()
+    }
+  }
+}
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
   const model = getModelByEntityId(entityId)
@@ -128,7 +238,6 @@ const animateShineOne = async (model, ms, lateral) => {
       s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
         .to(to, ms)
         .onUpdate(function () {
-        // TODO: This is just an initial 2d loop around a point, in reality, the tween points should be figured out
           const x = r * Math.cos(from.rad - rad90)
           const y = r * Math.sin(from.rad - rad90)
           const inten = Math.min(1, (mid + Math.abs(from.rad - mid) * -1)) * 2
@@ -184,6 +293,8 @@ const animateShineOne = async (model, ms, lateral) => {
 }
 
 export {
+  kawaiOpBlink,
+  kawaiOpTrnsp,
   kawaiOpShine
 }
 window.test = async () => {

@@ -28,7 +28,7 @@ const beginLimitBarTween = () => {
   // console.log('limit tween colors: ', from, to)
 
   // const l1GeoColorAtt = l1.geometry.getAttribute('color')
-  // l1GeoColorAtt.needsUpdate = true
+  // v
   // const l2GeoColorAtt = l2.geometry.getAttribute('color')
   // l2GeoColorAtt.needsUpdate = true
   // new TWEEN.Tween(from, MENU_TWEEN_GROUP)
