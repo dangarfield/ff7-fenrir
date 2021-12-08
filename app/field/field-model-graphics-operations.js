@@ -8,6 +8,12 @@ const kawaiOpBlink = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
   console.log('kawaiOpBlink model', model, op)
 
+  model.scene.traverse(el => {
+    if (el.isMesh) {
+      console.log('kawaiOpBlink el', el, el.material)
+    }
+  })
+
   const eyes1 = op.vars[0]
   const eyes2 = op.vars[1]
   const mouth = op.vars[2]

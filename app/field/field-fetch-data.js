@@ -8,6 +8,8 @@ import {
 } from '../loading/loading-module.js'
 import { bindAnimationCompletion } from '../field/field-animations.js'
 
+const textureLoader = new THREE.TextureLoader()
+
 let chapters
 const getFieldList = async () => {
   if (chapters === undefined) {
@@ -140,8 +142,9 @@ const loadFullFieldModel = async modelLoader => {
     loader.parse(
       JSON.stringify(modelGLTF),
       `${KUJATA_BASE}/data/field/char.lgp/`,
-      function (gltf) {
+      async function (gltf) {
         addBlendingToMaterials(gltf)
+        await addBlinkingToModel(modelLoader.hrcId.replace('.HRC', ''), gltf)
         // console.log("combined gltf:", gltf)
         resolve(gltf)
       }
@@ -161,6 +164,54 @@ const addBlendingToMaterials = (gltf) => {
       }
     }
   })
+}
+const getTexture = (url) => {
+  return new Promise((resolve, reject) => {
+    textureLoader.load(url,
+      function (texture) {
+        texture.flipY = false
+        resolve(texture)
+      }
+    )
+  })
+}
+const addBlinkingToModel = async (hrc, gltf) => {
+  const blinkData = window.data.exe.blinkData[hrc]
+  if (blinkData) {
+    const blinkTextures = []
+    if (blinkData.leftEye) {
+      blinkTextures.push(blinkData.leftEye)
+      if (blinkData.rightEye) {
+        blinkTextures.push(blinkData.rightEye)
+      }
+    }
+    let textureCount = 0
+    // console.log('addBlinkingToModel', hrc, blinkData, blinkTextures, gltf)
+
+    gltf.scene.traverse(async function (element) {
+      if (element.type === 'Mesh' && element.material.map && blinkTextures.length > textureCount) {
+        const textureUrl = `${KUJATA_BASE}/data/field/flevel.lgp/textures/${blinkTextures[textureCount]}.tex.png`
+        // console.log('addBlinkingToModel element', element, blinkTextures[textureCount], textureUrl, blinkTextures.length, textureCount + 1, blinkTextures.length > textureCount + 1)
+        textureCount++
+        const texture = await getTexture(textureUrl)
+        // console.log('addBlinkingToModel texture', texture)
+        element.material.userData.blink = {
+          open: element.material.map, // Not sure if this is right
+          closed: texture
+        }
+        element.material.userData.blink.open.image = element.material.map.image
+        element.material.userData.blink.closed.image = texture.image
+
+        // element.material.map.image = element.material.userData.blink.closed.image
+        element.material.map = element.material.userData.blink.open
+        element.material.map = element.material.userData.blink.closed
+        element.material.map = element.material.userData.blink.open
+
+        // console.log('addBlinkingToModel texture', texture, element.material.userData.blink.open, element.material.userData.blink.closed, element.material.map)
+      }
+    })
+    // console.log('addBlinkingToModel END', hrc)
+  }
 }
 const getFieldDimensions = fieldName =>
   new Promise(resolve => {

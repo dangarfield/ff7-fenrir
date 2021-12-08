@@ -5,12 +5,13 @@ window.console = (function (origConsole) {
   const limit = true
   return {
     terms: [
-      'FLOW ERROR',
+      // 'FLOW ERROR',
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'test',
       'KAWAI',
-      'kawaiOpBlink'
+      'kawaiOpBlink',
+      'addBlinkingToModel'
     ],
     log: function () {
       if (limit) {
