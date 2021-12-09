@@ -7,6 +7,7 @@ import {
   setLoadingProgress
 } from '../loading/loading-module.js'
 import { bindAnimationCompletion } from '../field/field-animations.js'
+import { getRandomBlinkTime } from '../field/field-model-graphics-operations.js'
 
 const textureLoader = new THREE.TextureLoader()
 
@@ -166,7 +167,7 @@ const getTexture = (url, cb) => {
 }
 const addBlinkingToModel = async (hrc, gltf) => {
   const blinkData = window.data.exe.blinkData[hrc]
-  if (blinkData && hrc === 'AAAA') { // TODO - testing - take this out
+  if (blinkData) { // TODO - Is this just these 10 models, or can any model blink, eg that use any of the eye textures on these 10 models
     const blinkTextures = []
     if (blinkData.leftEye) {
       blinkTextures.push(blinkData.leftEye)
@@ -208,7 +209,7 @@ const addBlinkingToModel = async (hrc, gltf) => {
         // bindBlinkOperations(material)
         console.log('addBlinkingToModel texture', texture, material.userData.blink.open, material.userData.blink.closed, material.map)
       }
-      gltf.scene.userData.blink = true
+      gltf.scene.userData.blink = getRandomBlinkTime()
     }
     console.log('addBlinkingToModel END', hrc, gltf, gltf.scene.userData.blink)
   }

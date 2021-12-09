@@ -9,11 +9,7 @@ window.console = (function (origConsole) {
       'executeOpDEBUG',
       'press MAIN MENU HOME',
       'test',
-      'KAWAI',
-      'kawaiOpBlink',
-      'addBlinkingToModel',
-      'bindBlinkOperations',
-      'activateRandomBlinkForFieldCharacters'
+      'KAWAI'
     ],
     log: function () {
       if (limit) {

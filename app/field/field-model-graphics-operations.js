@@ -12,16 +12,7 @@ const kawaiOpBlink = async (entityId, op) => {
   if (blink === undefined) {
     return
   }
-  if (!model.scene.userData.blinkMaterials) {
-    const blinkMaterials = []
-    model.scene.traverse(el => {
-      if (el.isMesh && el.material && el.material.userData && el.material.userData.blink) {
-        blinkMaterials.push(el.material)
-      }
-    })
-    model.scene.userData.blinkMaterials = blinkMaterials
-    console.log('kawaiOpBlink model SET blinkMaterials')
-  }
+  ensureBlinkMaterialsIsSet(model)
 
   console.log('kawaiOpBlink model blinkMaterials', model.scene.userData.blinkMaterials)
 
@@ -40,11 +31,11 @@ const kawaiOpBlink = async (entityId, op) => {
     model.scene.userData.blink = false
   } else if (eyes1 === 1 && eyes2 === 1) {
     // blink instantly, Set eyes open, Random blinking enabled
-    blinkClose(model.scene.userData.blinkMaterials)
-    model.scene.userData.blink = true
+    blinkOnce(model.scene.userData.blinkMaterials)
+    model.scene.userData.blink = getRandomBlinkTime()
   } else if (eyes1 === 2 && eyes2 === 2) {
     // Eyes closed, Random blinking disabled
-    blinkOnce(model.scene.userData.blinkMaterials)
+    blinkClose(model.scene.userData.blinkMaterials)
     model.scene.userData.blink = false
   } else if (eyes1 === 3 && eyes2 === 3) { // Only aeris
     // Random blinking disabled ?
@@ -62,18 +53,42 @@ const kawaiOpBlink = async (entityId, op) => {
     // TODO - Unsure
   }
 }
+const enableBlink = async (entityId) => {
+  console.log('BLINK enableBlink', entityId)
+  const model = getModelByEntityId(entityId)
+  ensureBlinkMaterialsIsSet(model)
+  model.scene.userData.blink = getRandomBlinkTime()
+}
+const disableBlink = async (entityId) => {
+  console.log('BLINK disableBlink', entityId)
+  const model = getModelByEntityId(entityId)
+  ensureBlinkMaterialsIsSet(model)
+  model.scene.userData.blink = false
+}
+const ensureBlinkMaterialsIsSet = (model) => {
+  if (!model.scene.userData.blinkMaterials) {
+    const blinkMaterials = []
+    model.scene.traverse(el => {
+      if (el.isMesh && el.material && el.material.userData && el.material.userData.blink) {
+        blinkMaterials.push(el.material)
+      }
+    })
+    model.scene.userData.blinkMaterials = blinkMaterials
+    // console.log('blink model SET blinkMaterials')
+  }
+}
 const blinkOpen = (materials) => {
-  console.log('kawaiOpBlink blinkOpen', materials)
+//   console.log('blink blinkOpen', materials)
   materials.forEach(m => {
-    console.log('kawaiOpBlink blinkOpen', m, m.map.uuid, m.userData.blink.open.uuid)
+    // console.log('blink blinkOpen', m, m.map.uuid, m.userData.blink.open.uuid)
     m.map = m.userData.blink.open
     m.needsUpdate = true
   })
 }
 const blinkClose = (materials) => {
-  console.log('kawaiOpBlink blinkClose', materials)
+//   console.log('blink blinkClose', materials)
   materials.forEach(m => {
-    console.log('kawaiOpBlink blinkClose', m, m.map.uuid, m.userData.blink.closed.uuid)
+    // console.log('blink blinkClose', m, m.map.uuid, m.userData.blink.closed.uuid)
     m.map = m.userData.blink.closed
     m.needsUpdate = true
   })
@@ -84,9 +99,28 @@ const blinkOnce = (materials) => {
     blinkOpen(materials)
   }, 40)
 }
+const getRandomBlinkTime = () => {
+  const min = 2
+  const max = 4
+  return ~~(Math.random() * (max - min + 1)) + min // In the game it looks like 2.5 seconds
+}
 
 const activateRandomBlinkForFieldCharacters = () => {
-  console.log('activateRandomBlinkForFieldCharacters')
+//   console.log('activateRandomBlinkForFieldCharacters')
+  for (let i = 0; i < window.currentField.models.length; i++) {
+    const model = window.currentField.models[i]
+    // if (model.scene.visible) {
+    if (model.scene.userData.blink === 0) {
+    //   console.log('activateRandomBlinkForFieldCharacters blink char', model.userData.name, model.scene.userData.blink)
+      ensureBlinkMaterialsIsSet(model)
+      blinkOnce(model.scene.userData.blinkMaterials)
+      model.scene.userData.blink = getRandomBlinkTime()
+    } else if (model.scene.userData.blink > 0) {
+    //   console.log('activateRandomBlinkForFieldCharacters blink COUNTDOWN', model.userData.name, model.scene.userData.blink)
+      model.scene.userData.blink--
+    }
+    // }
+  }
 }
 const kawaiOpTrnsp = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
@@ -347,6 +381,9 @@ const animateShineOne = async (model, ms, lateral) => {
 export {
   kawaiOpBlink,
   activateRandomBlinkForFieldCharacters,
+  getRandomBlinkTime,
+  enableBlink,
+  disableBlink,
   kawaiOpTrnsp,
   kawaiOpShine
 }

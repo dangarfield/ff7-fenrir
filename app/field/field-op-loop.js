@@ -543,6 +543,9 @@ const executeOp = async (
     case 'SPLIT':
       result = await models.SPLIT(entityId, op)
       break
+    case 'BLINK':
+      result = await models.BLINK(entityId, op)
+      break
     case 'KAWAI':
       result = models.KAWAI(entityId, op)
       break

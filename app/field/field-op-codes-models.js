@@ -4,7 +4,7 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink } from './field-model-graphics-operations.js'
+import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -495,6 +495,15 @@ const SPLIT = async (entityId, op) => {
   )
   return {}
 }
+const BLINK = async (entityId, op) => {
+  console.log('BLINK', entityId, op)
+  if (op.s === 0) {
+    enableBlink(entityId)
+  } else if (op.s === 1) {
+    disableBlink(entityId)
+  }
+  return {}
+}
 const KAWAI = async (entityId, op) => {
   console.log('KAWAI', entityId, op, op.s, op.s === 13)
 
@@ -618,6 +627,7 @@ setTimeout(async () => {
 export {
   JOIN,
   SPLIT,
+  BLINK,
   KAWAI,
   PMOVA,
   SLIP,
