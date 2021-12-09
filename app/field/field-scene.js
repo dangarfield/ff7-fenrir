@@ -229,7 +229,7 @@ const setupFieldCamera = () => {
   window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
   window.currentField.fieldScene.add(window.currentField.fieldCamera)
 
-  window.currentField.fieldCamera.layers.enable(1)
+  window.currentField.fieldCamera.layers.enableAll()
   setupFieldLights()
   return cameraTarget
 }
@@ -291,41 +291,80 @@ const setupFieldLights = () => {
   const lightData = getLightData()
   if (lightData) {
     // console.log('lightData', lightData)
-    const centre = getSceneCentrePoint()
     // console.log('lightData getSceneCentrePoint', centre)
-    const globalLightIntensity = 1 // TODO - Adjust intensities
-    const pointLightIntensity = 1
 
-    const globalLight = new THREE.AmbientLight(
-      new THREE.Color(
-        `rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`
-      ),
-      globalLightIntensity
-    )
-    window.currentField.centrePoint = centre
-    window.currentField.fieldScene.add(globalLight)
-    globalLight.layers.enable(1)
-    // console.log('lightData globalLight', globalLight, lightData)
+    const lightLayer = 0
+    window.currentField.centrePoint = getSceneCentrePoint()
+    window.currentField.lights = {lightData, globalLight: null, pointLights: []}
 
-    for (let i = 1; i <= 3; i++) {
-      const light = lightData[`light${i}`]
-      const pointLight = new THREE.PointLight(
-        new THREE.Color(`rgb(${light.r},${light.g},${light.b})`),
-        pointLightIntensity,
-        100
-      )
-      pointLight.position.set(
-        (centre.x + light.x) / 4096,
-        (centre.y + light.y) / 4096,
-        (centre.z + light.z) / 4096
-      )
-      pointLight.layers.enable(1)
-      window.currentField.fieldScene.add(pointLight)
-      // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 0.5))
-    }
+    createGlobalLight(1)
+    createPointLights(lightLayer, 1)
   }
 }
+const ensureFieldLightData = (lightLayer) => {
+  console.log('light 1')
+  if (lightLayer !== undefined && window.currentField.lights.pointLights[lightLayer] === undefined) {
+    window.currentField.lights.pointLights[lightLayer] = []
+    console.log('light 3', window.currentField.lights)
+  }
+}
+const createGlobalLight = (intensity) => {
+  // if (window.currentField.lights.globalLight) {
+  //   window.currentField.lights.globalLight.parent.remove(window.currentField.lights.globalLight)
+  //   delete window.currentField.lights.globalLight
+  // }
+  const lightData = window.currentField.lights.lightData
+  console.log('light createGlobalLight lightData', lightData)
 
+  const globalLight = new THREE.AmbientLight(
+    new THREE.Color(
+      `rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`
+    ),
+    intensity
+  )
+  // globalLight.layers.enableAll()
+  globalLight.layers.set(0)
+  window.currentField.fieldScene.add(globalLight)
+  window.currentField.lights.globalLight = globalLight
+}
+const createPointLights = (lightLayer, intensity) => {
+  ensureFieldLightData(lightLayer)
+  if (window.currentField.lights.pointLights[lightLayer]) {
+    for (let i = 0; i < window.currentField.lights.pointLights[lightLayer].length; i++) {
+      const pointLight = window.currentField.lights.pointLights[lightLayer][i]
+      pointLight.visible = false
+      console.log('light removing point light', pointLight)
+      pointLight.parent.remove(pointLight)
+    }
+    window.currentField.lights.pointLights[lightLayer] = []
+  }
+  if (intensity === 0) {
+    return
+  }
+  const lightData = window.currentField.lights.lightData
+  for (let i = 1; i <= 3; i++) {
+    const light = lightData[`light${i}`]
+    const pointLight = new THREE.PointLight(
+      new THREE.Color(`rgb(${light.r},${light.g},${light.b})`),
+      intensity,
+      100
+    )
+    pointLight.position.set(
+      (window.currentField.centrePoint.x + light.x) / 4096,
+      (window.currentField.centrePoint.y + light.y) / 4096,
+      (window.currentField.centrePoint.z + light.z) / 4096
+    )
+    if (lightLayer === 0) {
+      pointLight.layers.enableAll()
+    } else {
+      pointLight.layers.set(lightLayer)
+    }
+
+    window.currentField.fieldScene.add(pointLight)
+    window.currentField.lights.pointLights[lightLayer].push(pointLight)
+  }
+  console.log('light createPointLights lightData', lightLayer, lightData, intensity, window.currentField.lights.pointLights[lightLayer][0].intensity)
+}
 const activateDebugCamera = () => {
   if (window.currentField.debugCamera) {
     window.currentField.debugCamera.visible =
@@ -829,5 +868,6 @@ export {
   setCameraPosition,
   setCameraShakePosition,
   updateVideoCameraPosition,
+  createPointLights,
   FIELD_TWEEN_GROUP
 }

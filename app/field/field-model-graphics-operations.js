@@ -192,6 +192,7 @@ const makeDarker = (entityId) => {
 }
 
 window.makeDarker = makeDarker
+
 const ensureOrigColorSet = (mesh) => {
   if (!mesh.geometry.userData.origColor) {
     const orig = mesh.geometry.getAttribute('color')
@@ -199,6 +200,64 @@ const ensureOrigColorSet = (mesh) => {
       mesh.geometry.userData.origColor = orig.clone()
     }
   }
+}
+
+const kawaiOpAmbient = async (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpAmbient', entityId, op, model)
+
+  const r = op.vars[0]
+  const g = op.vars[2]
+  const b = op.vars[4]
+  const darken = op.vars[1] === 255 && op.vars[3] === 255 && op.vars[5] === 255
+  const flag = op.vars[6]
+
+  const lightLayer = 2
+  // TODO - Strange bug, layered lighting appears to still light up other mesh not enabled on that layer...
+
+  console.log('kawaiOpAmbient lights', window.currentField.lights.pointLights)
+
+  console.log('kawaiOpAmbient op', r, g, b, darken, flag)
+
+  // If there are any zero values within aRGB eg [0,2,4] it's fine.
+  // If there are any zero values within bRGB eg [1,3,5], it darkens the light each time, but bRGB is always 0,0,0 or 255,255,255 in op codes
+
+  const rNorm = r / 255
+  const gNorm = g / 255
+  const bNorm = b / 255
+  model.scene.traverse(el => {
+    if (el.type === 'Mesh' && el.geometry && el.geometry.attributes && el.geometry.attributes.color) {
+      ensureOrigColorSet(el)
+      el.layers.set(lightLayer)
+      console.log('kawaiOpAmbient mesh', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+      const origColorAttr = el.geometry.userData.origColor
+      const colorAttr = el.geometry.getAttribute('color')
+      console.log('kawaiOpTrnsp makeSemiTransparent mesh', el.material, origColorAttr, colorAttr)
+
+      el.material.format = THREE.RGBAFormat
+      for (let i = 0; i < colorAttr.count; i++) {
+        console.log('kawaiOpTrnsp makeSemiTransparent meshv color op', i)
+        const r = origColorAttr.getX(i)
+        const g = origColorAttr.getY(i)
+        const b = origColorAttr.getZ(i)
+        //   const a = origColorAttr.getW(i)
+        if (!darken) {
+          colorAttr.setXYZ(i, Math.min(1, r + rNorm), Math.min(1, g + gNorm), Math.min(1, b + bNorm))
+        }
+        // colorAttr.setXYZ(i, Math.max(0, rNorm - r), Math.min(0, gNorm - g), Math.min(0, bNorm - b))
+      }
+      colorAttr.needsUpdate = true
+
+      el.material.needsUpdate = true
+    }
+  })
+  // window.currentField.models[7].scene.traverse(el => {
+  //   if (el.type === 'Mesh') {
+  //   el.layers.set(lightLayer)
+  // console.log('kawaiOpAmbient mesh2', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+  //   el.material.needsUpdate = true
+  //   }
+  // })
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
@@ -233,6 +292,7 @@ const animateShine = async (model) => {
   model.scene.traverse(el => {
     if (el.type === 'Mesh') {
       el.layers.set(1)
+      el.material.needsUpdate = true
     }
   })
   model.scene.userData.shine = true
@@ -298,6 +358,7 @@ const addShineSpotLight = (model) => {
   model.scene.userData.shineSpot = shineSpot
   model.scene.userData.shineSpotGroup = shineSpotGroup
 }
+
 const addShineAmbientLight = (model) => {
   const shineAmbientLight = new THREE.AmbientLight(new THREE.Color(`rgb(255,255,255)`), 1)
   shineAmbientLight.layers.disable(0)
@@ -305,6 +366,42 @@ const addShineAmbientLight = (model) => {
   model.scene.add(shineAmbientLight)
   model.scene.userData.shineAmbientLight = shineAmbientLight
 }
+// const addAmbientGlobalLight = (model) => {
+//   const lightData = getLightData()
+//   const ambientLight = new THREE.AmbientLight(new THREE.Color(
+//     `rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`), 1)
+//   ambientLight.layers.set(1)
+//   model.scene.add(ambientLight)
+//   model.scene.userData.ambientLight = ambientLight
+// }
+// const addAmbientPointLight = (model) => {
+//   const lightData = getLightData()
+//   window.currentField.ambientPointLights = []
+//   for (let i = 1; i <= 3; i++) {
+//     const light = lightData[`light${i}`]
+//     const pointLight = new THREE.PointLight(
+//       new THREE.Color(`rgb(${light.r},${light.g},${light.b})`),
+//       1,
+//       100
+//     )
+//     pointLight.position.set(
+//       (window.currentField.centrePoint.x + light.x) / 4096,
+//       (window.currentField.centrePoint.y + light.y) / 4096,
+//       (window.currentField.centrePoint.z + light.z) / 4096
+//     )
+//     // pointLight.layers.enable(1)
+//     pointLight.layers.set(1)
+//     model.scene.parent.add(pointLight)
+//     window.currentField.ambientPointLights.push(pointLight)
+//     // window.currentField.fieldScene.add(new THREE.PointLightHelper(pointLight, 0.5))
+//   }
+
+// //   const lightData = getLightData()
+// //   const ambientLight = new THREE.AmbientLight(new THREE.Color(
+// //     `rgb(${lightData.globalLight.r},${lightData.globalLight.g},${lightData.globalLight.b})`), 1)
+// //   ambientLight.layers.set(1)
+// //   model.scene.add(ambientLight)
+// }
 window.stopShine = stopShine
 
 const animateShineOne = async (model, ms, lateral) => {
@@ -385,6 +482,7 @@ export {
   enableBlink,
   disableBlink,
   kawaiOpTrnsp,
+  kawaiOpAmbient,
   kawaiOpShine
 }
 window.test = async () => {

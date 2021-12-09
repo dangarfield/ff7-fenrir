@@ -6,10 +6,13 @@ window.console = (function (origConsole) {
   return {
     terms: [
       // 'FLOW ERROR',
-      'executeOpDEBUG',
-      'press MAIN MENU HOME',
-      'test',
-      'KAWAI'
+      // 'executeOpDEBUG',
+      // 'press MAIN MENU HOME',
+      // 'test',
+      // 'KAWAI',
+      'kawaiOpAmbient',
+      // 'light'
+      'three'
     ],
     log: function () {
       if (limit) {

@@ -19202,7 +19202,7 @@ function WebGLPrograms( renderer, cubemaps, cubeuvmaps, extensions, capabilities
 			customProgramCacheKey: material.customProgramCacheKey()
 
 		};
-
+		// console.log('three numPointLights', lights.pointAffectedLayers, parameters.numPointLights, object.uuid, object)
 		return parameters;
 
 	}
@@ -20005,7 +20005,7 @@ function WebGLLights( extensions, capabilities ) {
 				state.pointAffectedLayers[ pointLength ] = affectedLayers;
 				state.point[ pointLength ] = uniforms;
 				addLightToLightConfig( affectedLayers, state.config, 4, light.castShadow );
-
+				// console.log('three isPointLight', light.uuid, affectedLayers)
 				pointLength ++;
 
 			} else if ( light.isHemisphereLight ) {
