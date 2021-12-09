@@ -213,14 +213,16 @@ const kawaiOpAmbient = async (entityId, op) => {
   const flag = op.vars[6]
 
   const lightLayer = 2
-  // TODO - Strange bug, layered lighting appears to still light up other mesh not enabled on that layer...
-
   console.log('kawaiOpAmbient lights', window.currentField.lights.pointLights)
 
   console.log('kawaiOpAmbient op', r, g, b, darken, flag)
 
   // If there are any zero values within aRGB eg [0,2,4] it's fine.
   // If there are any zero values within bRGB eg [1,3,5], it darkens the light each time, but bRGB is always 0,0,0 or 255,255,255 in op codes
+
+  // TODO - I 'think' ambient lighting (global light) should be disabled here, or at least some lighting, not 100% sure
+  // TODO - Also, the darken colors also shoud apply to textures too
+  // TODO - The roughness 0.5 looks horrible, I change it to 1 here, but probably need to re-look at all of those gltf import settings
 
   const rNorm = r / 255
   const gNorm = g / 255
@@ -236,28 +238,30 @@ const kawaiOpAmbient = async (entityId, op) => {
 
       el.material.format = THREE.RGBAFormat
       for (let i = 0; i < colorAttr.count; i++) {
-        console.log('kawaiOpTrnsp makeSemiTransparent meshv color op', i)
-        const r = origColorAttr.getX(i)
-        const g = origColorAttr.getY(i)
-        const b = origColorAttr.getZ(i)
-        //   const a = origColorAttr.getW(i)
-        if (!darken) {
-          colorAttr.setXYZ(i, Math.min(1, r + rNorm), Math.min(1, g + gNorm), Math.min(1, b + bNorm))
+        const colors = [origColorAttr.getX(i), origColorAttr.getY(i), origColorAttr.getZ(i)]
+        const normColors = [rNorm, gNorm, bNorm]
+
+        const newCs = []
+        for (let i = 0; i < colors.length; i++) {
+          const c = colors[i]
+          const normC = normColors[i]
+          const newC = darken
+            ? Math.max(0, c - (1 - normC))
+            : Math.min(1, c + normC)
+          newCs.push(newC)
         }
-        // colorAttr.setXYZ(i, Math.max(0, rNorm - r), Math.min(0, gNorm - g), Math.min(0, bNorm - b))
+
+        // console.log('kawaiOpAmbient makeSemiTransparent mesh color op', i,
+        //   colors.map(c => Math.floor(c * 255)).join('_'),
+        //   normColors.map(c => Math.floor(c * 255)).join('_'), '->',
+        //   newCs.map(c => Math.floor(c * 255)).join('_'))
+        colorAttr.setXYZ(i, newCs[0], newCs[1], newCs[2])
       }
       colorAttr.needsUpdate = true
-
+      el.material.roughness = 1
       el.material.needsUpdate = true
     }
   })
-  // window.currentField.models[7].scene.traverse(el => {
-  //   if (el.type === 'Mesh') {
-  //   el.layers.set(lightLayer)
-  // console.log('kawaiOpAmbient mesh2', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
-  //   el.material.needsUpdate = true
-  //   }
-  // })
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
