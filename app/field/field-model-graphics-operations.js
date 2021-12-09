@@ -6,15 +6,24 @@ import { sleep } from '../helpers/helpers.js'
 
 const kawaiOpBlink = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
-  console.log('kawaiOpBlink model', model, op)
+  console.log('kawaiOpBlink model', model, op, model.scene.userData.blink)
 
-  const blinkMaterials = []
-  model.scene.traverse(el => {
-    if (el.isMesh && el.material && el.material.userData && el.material.userData.blink) {
-      console.log('kawaiOpBlink el', el, el.material)
-      blinkMaterials.push(el.material)
-    }
-  })
+  const blink = model.scene.userData.blink
+  if (blink === undefined) {
+    return
+  }
+  if (!model.scene.userData.blinkMaterials) {
+    const blinkMaterials = []
+    model.scene.traverse(el => {
+      if (el.isMesh && el.material && el.material.userData && el.material.userData.blink) {
+        blinkMaterials.push(el.material)
+      }
+    })
+    model.scene.userData.blinkMaterials = blinkMaterials
+    console.log('kawaiOpBlink model SET blinkMaterials')
+  }
+
+  console.log('kawaiOpBlink model blinkMaterials', model.scene.userData.blinkMaterials)
 
   // TODO - Consider other BLINK op code
   // TODO - Think about random blinking (sleep / tween etc)
@@ -27,13 +36,16 @@ const kawaiOpBlink = async (entityId, op) => {
   // By default, eyes blink every X seconds + random
   if (eyes1 === 0 || eyes2 === 0) {
     // Set eyes open, Random blinking disabled
-    blinkMaterials.forEach(m => { m.userData.blink.executeOpen() })
+    blinkOpen(model.scene.userData.blinkMaterials)
+    model.scene.userData.blink = false
   } else if (eyes1 === 1 && eyes2 === 1) {
     // blink instantly, Set eyes open, Random blinking enabled
-    blinkMaterials.forEach(m => { m.userData.blink.executeBlink() })
+    blinkClose(model.scene.userData.blinkMaterials)
+    model.scene.userData.blink = true
   } else if (eyes1 === 2 && eyes2 === 2) {
     // Eyes closed, Random blinking disabled
-    blinkMaterials.forEach(m => { m.userData.blink.executeClose() })
+    blinkOnce(model.scene.userData.blinkMaterials)
+    model.scene.userData.blink = false
   } else if (eyes1 === 3 && eyes2 === 3) { // Only aeris
     // Random blinking disabled ?
     // TODO - Unsure
@@ -50,30 +62,31 @@ const kawaiOpBlink = async (entityId, op) => {
     // TODO - Unsure
   }
 }
+const blinkOpen = (materials) => {
+  console.log('kawaiOpBlink blinkOpen', materials)
+  materials.forEach(m => {
+    console.log('kawaiOpBlink blinkOpen', m, m.map.uuid, m.userData.blink.open.uuid)
+    m.map = m.userData.blink.open
+    m.needsUpdate = true
+  })
+}
+const blinkClose = (materials) => {
+  console.log('kawaiOpBlink blinkClose', materials)
+  materials.forEach(m => {
+    console.log('kawaiOpBlink blinkClose', m, m.map.uuid, m.userData.blink.closed.uuid)
+    m.map = m.userData.blink.closed
+    m.needsUpdate = true
+  })
+}
+const blinkOnce = (materials) => {
+  blinkClose(materials)
+  setTimeout(function () {
+    blinkOpen(materials)
+  }, 40)
+}
 
-const bindBlinkOperations = (material) => {
-  console.log('bindBlinkOperations', material, material.userData)
-
-  material.userData.blink.executeOpen = function () {
-    console.log('bindBlinkOperations executeOpen', material)
-    material.map = material.userData.blink.open
-  }
-  material.userData.blink.executeClose = function () {
-    console.log('bindBlinkOperations executeClose', material)
-    material.map = material.userData.blink.closed
-  }
-  material.userData.blink.executeBlink = function () {
-    console.log('bindBlinkOperations executeClose', material)
-    material.map = material.userData.blink.closed
-    setTimeout(function () {
-      material.userData.blink.executeOpen()
-    }, 50)
-  }
-
-//   setTimeout(function () {
-//     console.log('bindBlinkOperations timeout')
-//     material.userData.blink.executeBlink()
-//   }, 5000)
+const activateRandomBlinkForFieldCharacters = () => {
+  console.log('activateRandomBlinkForFieldCharacters')
 }
 const kawaiOpTrnsp = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
@@ -333,7 +346,7 @@ const animateShineOne = async (model, ms, lateral) => {
 
 export {
   kawaiOpBlink,
-  bindBlinkOperations,
+  activateRandomBlinkForFieldCharacters,
   kawaiOpTrnsp,
   kawaiOpShine
 }

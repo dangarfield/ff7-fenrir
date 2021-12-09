@@ -7,7 +7,6 @@ import {
   setLoadingProgress
 } from '../loading/loading-module.js'
 import { bindAnimationCompletion } from '../field/field-animations.js'
-import { bindBlinkOperations } from './field-model-graphics-operations.js'
 
 const textureLoader = new THREE.TextureLoader()
 
@@ -78,7 +77,7 @@ const createCombinedGLTF = (modelGLTF, animGLTF) => {
   return gltf1
 }
 const loadModels = async modelLoaders => {
-  const t1 = new Date()
+  // const t1 = new Date()
   let fieldModels = []
 
   setLoadingText('Loading...')
@@ -94,17 +93,6 @@ const loadModels = async modelLoaders => {
     gltf.scene = clone(gltf.scene)
     gltf.mixer = new THREE.AnimationMixer(gltf.scene)
     bindAnimationCompletion(gltf)
-    // gltf.mixer.addEventListener('finished', function (e) {
-    //     console.log('playAnimation finished mixer', e, e.target, e.target.promise)
-    //     if (e.target.promise && e.target.promise.animationUuid === e.action._clip.uuid && e.target.promise.mixerUuid === e.target._root.uuid) {
-    //         console.log('playAnimation finished mixer match', e.target.promise)
-    //         if (!e.target.promise.holdLastFrame) {
-    //             console.log('playAnimation finished stand')
-    //             e.target.promise.standAction.play()
-    //         }
-    //         e.target.promise.resolve()
-    //     }
-    // })
     gltf.scene.userData.closeToTalk = false
     gltf.scene.userData.closeToCollide = false
     // console.log('Loaded GLTF', gltf, modelLoader)
@@ -115,7 +103,7 @@ const loadModels = async modelLoaders => {
     const progress = (i + 1) / modelLoaders.length
     setLoadingProgress(progress)
   }
-  const t2 = new Date()
+  // const t2 = new Date()
   // console.log('loadModels time', t2.getTime() - t1.getTime(), 'ms')
   return fieldModels
 }
@@ -166,7 +154,7 @@ const addBlendingToMaterials = (gltf) => {
     }
   })
 }
-const getTexture = (url) => {
+const getTexture = (url, cb) => {
   return new Promise((resolve, reject) => {
     textureLoader.load(url,
       function (texture) {
@@ -178,7 +166,7 @@ const getTexture = (url) => {
 }
 const addBlinkingToModel = async (hrc, gltf) => {
   const blinkData = window.data.exe.blinkData[hrc]
-  if (blinkData) {
+  if (blinkData && hrc === 'AAAA') { // TODO - testing - take this out
     const blinkTextures = []
     if (blinkData.leftEye) {
       blinkTextures.push(blinkData.leftEye)
@@ -189,36 +177,46 @@ const addBlinkingToModel = async (hrc, gltf) => {
     let textureCount = 0
     // console.log('addBlinkingToModel', hrc, blinkData, blinkTextures, gltf)
 
+    const blinkMaterials = []
     gltf.scene.traverse(async function (element) {
       if (element.type === 'Mesh' && element.material.map && blinkTextures.length > textureCount) {
         const textureUrl = `${KUJATA_BASE}/data/field/flevel.lgp/textures/${blinkTextures[textureCount]}.tex.png`
-        // console.log('addBlinkingToModel element', element, blinkTextures[textureCount], textureUrl, blinkTextures.length, textureCount + 1, blinkTextures.length > textureCount + 1)
+        console.log('addBlinkingToModel element', element, blinkTextures[textureCount], textureUrl, element.material)
+        element.material.userData.blink = {textureUrl}
         textureCount++
-        const texture = await getTexture(textureUrl)
-        // console.log('addBlinkingToModel texture', texture)
-        element.material.userData.blink = {
-          open: element.material.map, // Not sure if this is right
-          closed: texture
-        }
-        element.material.userData.blink.open.image = element.material.map.image
-        element.material.userData.blink.closed.image = texture.image
-
-        // element.material.map.image = element.material.userData.blink.closed.image
-        element.material.map = element.material.userData.blink.open
-        element.material.map = element.material.userData.blink.closed
-        element.material.map = element.material.userData.blink.open
-
-        bindBlinkOperations(element.material)
-        // console.log('addBlinkingToModel texture', texture, element.material.userData.blink.open, element.material.userData.blink.closed, element.material.map)
+        blinkMaterials.push(element.material)
       }
     })
-    // console.log('addBlinkingToModel END', hrc)
+    if (blinkMaterials.length > 0) {
+      for (let i = 0; i < blinkMaterials.length; i++) {
+        const material = blinkMaterials[i]
+
+        const texture = await getTexture(material.userData.blink.textureUrl)
+        console.log('addBlinkingToModel texture', texture)
+        material.userData.blink = {
+          open: material.map, // Not sure if this is right
+          closed: texture
+        }
+        material.userData.blink.open.image = material.map.image
+        material.userData.blink.closed.image = texture.image
+
+        // element.material.map.image = element.material.userData.blink.closed.image
+        // material.map = material.userData.blink.open
+        // material.map = material.userData.blink.closed
+        // material.map = material.userData.blink.open
+
+        // bindBlinkOperations(material)
+        console.log('addBlinkingToModel texture', texture, material.userData.blink.open, material.userData.blink.closed, material.map)
+      }
+      gltf.scene.userData.blink = true
+    }
+    console.log('addBlinkingToModel END', hrc, gltf, gltf.scene.userData.blink)
   }
 }
 const getFieldDimensions = fieldName =>
   new Promise(resolve => {
     let url = `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${fieldName}.png`
-    const img = new Image()
+    const img = new window.Image()
     img.onload = () => {
       const { naturalWidth: width, naturalHeight: height } = img
       resolve({ width, height })

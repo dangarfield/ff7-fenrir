@@ -1,12 +1,16 @@
 import { decrementCountdownClockAndUpdateDisplay } from '../field/field-dialog.js'
 import { incrementGameTime } from '../data/savemap-alias.js'
 import { updateHomeMenuTime } from '../menu/menu-main-home.js'
+import { activateRandomBlinkForFieldCharacters } from '../field/field-model-graphics-operations.js'
 let deltaTotal = 0
 let deltaSecond = 0
 const executeOnceASecond = () => {
   decrementCountdownClockAndUpdateDisplay()
   incrementGameTime()
   updateHomeMenuTime()
+  if (window.anim.activeScene === 'field') {
+    activateRandomBlinkForFieldCharacters()
+  }
 }
 const updateOnceASecond = () => {
   const delta = window.anim.gametimeClock.getDelta()
