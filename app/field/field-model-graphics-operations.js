@@ -221,45 +221,63 @@ const kawaiOpAmbient = async (entityId, op) => {
   // If there are any zero values within bRGB eg [1,3,5], it darkens the light each time, but bRGB is always 0,0,0 or 255,255,255 in op codes
 
   // TODO - I 'think' ambient lighting (global light) should be disabled here, or at least some lighting, not 100% sure
-  // TODO - Also, the darken colors also shoud apply to textures too
   // TODO - The roughness 0.5 looks horrible, I change it to 1 here, but probably need to re-look at all of those gltf import settings
 
   const rNorm = r / 255
   const gNorm = g / 255
   const bNorm = b / 255
   model.scene.traverse(el => {
-    if (el.type === 'Mesh' && el.geometry && el.geometry.attributes && el.geometry.attributes.color) {
-      ensureOrigColorSet(el)
-      el.layers.set(lightLayer)
-      console.log('kawaiOpAmbient mesh', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
-      const origColorAttr = el.geometry.userData.origColor
-      const colorAttr = el.geometry.getAttribute('color')
-      console.log('kawaiOpTrnsp makeSemiTransparent mesh', el.material, origColorAttr, colorAttr)
+    if (el.type === 'Mesh') {
+      if (el.geometry && el.geometry.attributes && el.geometry.attributes.color) {
+        ensureOrigColorSet(el)
+        el.layers.set(lightLayer)
+        console.log('kawaiOpAmbient mesh color', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+        const origColorAttr = el.geometry.userData.origColor
+        const colorAttr = el.geometry.getAttribute('color')
+        console.log('kawaiOpTrnsp makeSemiTransparent mesh', el.material, origColorAttr, colorAttr)
 
-      el.material.format = THREE.RGBAFormat
-      for (let i = 0; i < colorAttr.count; i++) {
-        const colors = [origColorAttr.getX(i), origColorAttr.getY(i), origColorAttr.getZ(i)]
-        const normColors = [rNorm, gNorm, bNorm]
+        el.material.format = THREE.RGBAFormat
+        for (let i = 0; i < colorAttr.count; i++) {
+          const colors = [origColorAttr.getX(i), origColorAttr.getY(i), origColorAttr.getZ(i)]
+          const normColors = [rNorm, gNorm, bNorm]
 
-        const newCs = []
-        for (let i = 0; i < colors.length; i++) {
-          const c = colors[i]
-          const normC = normColors[i]
-          const newC = darken
-            ? Math.max(0, c - (1 - normC))
-            : Math.min(1, c + normC)
-          newCs.push(newC)
+          const newCs = []
+          for (let i = 0; i < colors.length; i++) {
+            const c = colors[i]
+            const normC = normColors[i]
+            const newC = darken
+              ? Math.max(0, c - (1 - normC))
+              : Math.min(1, c + normC)
+            newCs.push(newC)
+          }
+
+          // console.log('kawaiOpAmbient makeSemiTransparent mesh color op', i,
+          //   colors.map(c => Math.floor(c * 255)).join('_'),
+          //   normColors.map(c => Math.floor(c * 255)).join('_'), '->',
+          //   newCs.map(c => Math.floor(c * 255)).join('_'))
+          colorAttr.setXYZ(i, newCs[0], newCs[1], newCs[2])
         }
-
-        // console.log('kawaiOpAmbient makeSemiTransparent mesh color op', i,
-        //   colors.map(c => Math.floor(c * 255)).join('_'),
-        //   normColors.map(c => Math.floor(c * 255)).join('_'), '->',
-        //   newCs.map(c => Math.floor(c * 255)).join('_'))
-        colorAttr.setXYZ(i, newCs[0], newCs[1], newCs[2])
+        colorAttr.needsUpdate = true
+        el.material.roughness = 1
+        el.material.needsUpdate = true
+      } else {
+        console.log('kawaiOpAmbient mesh texture', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+        if (darken) {
+          // Darken colors also shoud apply to textures too
+          el.material.color.r = rNorm
+          el.material.color.g = gNorm
+          el.material.color.b = bNorm
+          // el.material.blending = THREE.CustomBlending
+          // el.material.blendEquation = THREE.AddEquation
+          // el.material.blendSrc = THREE.SrcColorFactor
+          // el.material.blendDst = THREE.DstColorFactor
+        } else {
+          // Textures not affected unless dark
+          el.material.color.r = 1
+          el.material.color.g = 1
+          el.material.color.b = 1
+        }
       }
-      colorAttr.needsUpdate = true
-      el.material.roughness = 1
-      el.material.needsUpdate = true
     }
   })
 }
