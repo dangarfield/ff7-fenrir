@@ -497,6 +497,10 @@ const animateShineOne = async (model, ms, lateral) => {
   })
 }
 
+const kawaiOpLight = (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpLight model', model, op)
+}
 export {
   kawaiOpBlink,
   activateRandomBlinkForFieldCharacters,
@@ -505,7 +509,8 @@ export {
   disableBlink,
   kawaiOpTrnsp,
   kawaiOpAmbient,
-  kawaiOpShine
+  kawaiOpShine,
+  kawaiOpLight
 }
 window.test = async () => {
   console.log('test SHINE start')

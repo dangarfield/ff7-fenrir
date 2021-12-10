@@ -4,7 +4,7 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient } from './field-model-graphics-operations.js'
+import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpLight } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -512,6 +512,11 @@ const KAWAI = async (entityId, op) => {
     case 0: kawaiOpBlink(entityId, op); break
     case 1: kawaiOpTrnsp(entityId, op); break
     case 2: kawaiOpAmbient(entityId, op); break
+    // 3 - Not used
+    // 4 - only blackbg1, but doesn't appear to do anything
+    // 5 - Not used
+    case 6: kawaiOpLight(entityId, op); break
+
     case 13: kawaiOpShine(entityId, op); break
 
     default: break
