@@ -523,6 +523,12 @@ const KAWAI = async (entityId, op) => {
   }
   return {}
 }
+const KAWIW = async (entityId, op) => {
+  console.log('KAWIW', entityId, op)
+  // Note: All KAWAI anims are happening straight away async, I don't think we need this here because
+  // we don't need to activate the change as it's instant. Might revisit
+  return {}
+}
 
 setTimeout(async () => {
   console.log('ANIM: STARTED')
@@ -635,6 +641,7 @@ export {
   SPLIT,
   BLINK,
   KAWAI,
+  KAWIW,
   PMOVA,
   SLIP,
   UC,

@@ -63,7 +63,7 @@ const executeOp = async (
   // TODO - Check if any 'wait for' actions such as move are waiting.
   // TODO - Really, all move tweens should be paused if a higher priority script is executed
   const entity = window.currentField.data.script.entities[entityId]
-  if (entity.entityName === 'fe0d' || entity.entityName === 'kosub') {
+  if (entity.entityName === 'directd' || entity.entityName === 'cho') {
     console.log(
       'executeOpDEBUG',
       entity.entityName,
@@ -548,6 +548,9 @@ const executeOp = async (
       break
     case 'KAWAI':
       result = models.KAWAI(entityId, op)
+      break
+    case 'KAWIW':
+      result = models.KAWIW(entityId, op)
       break
     case 'PMOVA':
       result = await models.PMOVA(entityId, op)
