@@ -105,7 +105,7 @@ const getModelByCurrentPlayableCharacter = () => {
   )[0]
 }
 const getModelByPartyMemberId = partyMemberId => {
-  const characterName = window.data.savemap.party.members[partyMemberId]
+  const characterName = window.data.savemap.party.members[partyMemberId - 1] // partyMemberId is 1-3
   console.log('getModelByPartyMemberId', partyMemberId, characterName)
   return getModelByCharacterName(characterName)
 }

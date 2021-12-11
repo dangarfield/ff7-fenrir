@@ -78,8 +78,8 @@ const REQEW = async (fieldName, entityId, scriptType, op) => {
   return {}
 }
 const PREQ = async (fieldName, entityId, scriptType, op) => {
-  console.log('PREQ', fieldName, entityId, scriptType, op)
   const model = getModelByPartyMemberId(op.e)
+  console.log('PREQ', fieldName, entityId, scriptType, op, window.data.savemap.party.members, model)
   const entity =
     window.currentField.data.script.entities[model.userData.entityId]
   const script = entity.scripts.filter(s => s.index === op.f)[0]
@@ -220,7 +220,7 @@ const IFUWL = async (ops, op) => {
 const WAIT = async op => {
   console.log('WAIT', op)
   // Should really compare clock deltas in rendering loop, but this is easiest for a start
-  const waitMs = Math.round((1000 / 30) * op.a) //30 fps
+  const waitMs = Math.round((1000 / 30) * op.a) // 30 fps
   await sleep(waitMs)
   return {}
 }

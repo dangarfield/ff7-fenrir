@@ -517,7 +517,9 @@ const KAWAI = async (entityId, op) => {
     // 5 - Not used
     case 6: kawaiOpLight(entityId, op); break
     // 7 - Used by rollers in kuro_3, but doesn't appear to do anything if removed... Not sure about the colours
-
+    // 8 - Looks like it's a version of 9, there is color applied to the object materials that are underneath the walkmesh coords -
+    //    blackbg1, blue_2, can't really reproduce though, maybe a PC bug?
+    // 9
     case 13: kawaiOpShine(entityId, op); break
 
     default: break
