@@ -895,28 +895,26 @@ const setLinePosition = (entityId, lv0, lv1) => {
   const lines = window.currentField.lineLines.children.filter(
     l => l.userData.entityId === entityId
   )
-  console.log('lines', lines)
+  console.log('setLinePosition lines', lines)
   if (lines.length > 0) {
     // Wiki - If two or more lines are defined in one entity, SLINE only updates the first LINE definition.
     const line = lines[0]
+
+    const linePos = line.geometry.getAttribute('position')
     console.log(
-      'line',
+      'setLinePosition line PRE',
       line,
-      line.geometry.vertices[0],
-      line.geometry.vertices[1]
+      linePos.getX(0), linePos.getY(0), linePos.getZ(0),
+      linePos.getX(1), linePos.getY(1), linePos.getZ(1)
     )
+    linePos.setXYZ(0, lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+    linePos.setXYZ(1, lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     line.geometry.verticesNeedUpdate = true
-    line.geometry.vertices[0].x = lv0.x / 4096
-    line.geometry.vertices[0].y = lv0.y / 4096
-    line.geometry.vertices[0].z = lv0.z / 4096
-    line.geometry.vertices[1].x = lv1.x / 4096
-    line.geometry.vertices[1].y = lv1.y / 4096
-    line.geometry.vertices[1].z = lv1.z / 4096
     console.log(
-      'line',
+      'setLinePosition line POST',
       line,
-      line.geometry.vertices[0],
-      line.geometry.vertices[1]
+      linePos.getX(0), linePos.getY(0), linePos.getZ(0),
+      linePos.getX(1), linePos.getY(1), linePos.getZ(1)
     )
   }
 }

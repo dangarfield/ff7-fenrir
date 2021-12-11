@@ -516,6 +516,7 @@ const KAWAI = async (entityId, op) => {
     // 4 - only blackbg1, but doesn't appear to do anything
     // 5 - Not used
     case 6: kawaiOpLight(entityId, op); break
+    // 7 - Used by rollers in kuro_3, but doesn't appear to do anything if removed... Not sure about the colours
 
     case 13: kawaiOpShine(entityId, op); break
 
