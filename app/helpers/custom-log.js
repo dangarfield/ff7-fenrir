@@ -10,9 +10,8 @@ window.console = (function (origConsole) {
       // 'printedCompare',
       // 'press MAIN MENU HOME',
       // 'test',
-      // 'KAWAI',
+      'KAWAI',
       'kawaiOpLight'
-      // 'light'
     ],
     log: function () {
       if (limit) {
