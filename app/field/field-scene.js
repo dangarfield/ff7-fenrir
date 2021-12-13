@@ -653,7 +653,7 @@ const initFieldDebug = async loadFieldCB => {
     )
     arrowHelpers.map(a => (a.visible = window.config.debug.showModelHelpers))
     console.log('window.currentField.fieldScene.children', arrowHelpers)
-    // window.currentField.backgroundLayers.visible = window.config.debug.showModelHelpers
+    window.currentField.backgroundLayers.visible = window.config.debug.showModelHelpers
   })
   debugGUI.add(window.config.debug, 'showAxes').onChange(() => {
     window.anim.axesHelper.visible = window.config.debug.showAxes

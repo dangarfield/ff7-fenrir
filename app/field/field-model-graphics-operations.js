@@ -125,11 +125,10 @@ const activateRandomBlinkForFieldCharacters = () => {
 const kawaiOpTrnsp = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
   console.log('kawaiOpTrnsp model', model, op)
-  if (op.vars[0] === 0) {
-    makeDarker(entityId)
-  } else if (op.vars[0] === 1) {
-    makeSemiTransparent(entityId)
+  if (op.vars[0] === 1) {
+    return
   }
+  makeSemiTransparent(entityId)
 }
 const makeSemiTransparent = (entityId) => {
   const model = getModelByEntityId(entityId)
@@ -229,6 +228,63 @@ const kawaiOpAmbient = async (entityId, op) => {
   // TODO - The roughness 0.5 looks horrible, I change it to 1 here, but probably need to re-look at all of those gltf import settings
 
   applyColorsToModelMeshes(model, lightLayer, rNorm, gNorm, bNorm, rDarken, gDarken, bDarken)
+}
+const kawaiOpSplash = async (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpSplash', entityId, op, model)
+  if (model === undefined) {
+    return
+  }
+  if (op.vars[0] === 1) {
+    return
+  }
+  // 0,0,     - Activate flag
+  // 162,255, - ?
+  // 32,0,    - ?
+  // 32,0,    - ?
+  // 64,0,    - z depth
+  // 1        - ?
+
+  const depth = 32 / 4096
+  model.scene.userData.splash = true
+  model.scene.userData.splashDepth = depth
+
+  // Set plane along y = whatever
+  const splashPlane = new THREE.Plane(
+    new THREE.Vector3(
+      0, 0, 0
+    ), -depth
+  )
+  // splashPlane.translate(new THREE.Vector3(0, depth, 0))
+  console.log('kawaiOpSplash depth', depth, depth * 4096)
+  const helper = new THREE.PlaneHelper(splashPlane, 1, 0xffff00)
+  window.currentField.fieldScene.add(helper)
+
+  // Add the plane to userData
+  model.scene.userData.splashPlane = splashPlane
+
+  // const vertices = []
+
+  // for (let i = 0; i < 10000; i++) {
+  //   const x = THREE.MathUtils.randFloatSpread(2000)
+  //   const y = THREE.MathUtils.randFloatSpread(2000)
+  //   const z = THREE.MathUtils.randFloatSpread(2000)
+
+  //   vertices.push(x, y, z)
+  // }
+
+  // const geometry = new THREE.BufferGeometry()
+  // geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
+
+  // const material = new THREE.PointsMaterial({ color: 0xff00ff })
+
+  // const points = new THREE.Points(geometry, material)
+  // material.size = 0.01
+  // model.scene.add(points)
+  // model.scene.userData.splashPoints = points
+  // During movement, see if the plane intersects any of the faces of the model's meshes and get the closest point of intersection to the camera
+
+  // Show the splash image (rotate each of them)
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
@@ -530,6 +586,7 @@ export {
   disableBlink,
   kawaiOpTrnsp,
   kawaiOpAmbient,
+  kawaiOpSplash,
   kawaiOpShine,
   kawaiOpLight
 }

@@ -65,7 +65,7 @@ const compareFromBankData = (ops, op) => {
   const rightCompare = op.b2 === 0 ? op.v : getBankData(op.b2, op.v)
   const result = executeCompare(leftCompare, op.c, rightCompare)
   const printedCompare = printCompare(leftCompare, op.c, rightCompare)
-  if (op.b1 === 1 && (op.a === 57 || op.a === 9)) {
+  if (op.b1 === 3 && (op.a === 224 || op.a === 9)) {
     console.log(
       ' printedCompare',
       `Var[${op.b1}][${op.a}]`,

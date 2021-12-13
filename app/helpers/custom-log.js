@@ -7,11 +7,13 @@ window.console = (function (origConsole) {
     terms: [
       // 'FLOW ERROR',
       'executeOpDEBUG',
-      // 'printedCompare',
+      'printedCompare',
       // 'press MAIN MENU HOME',
       // 'test',
       'KAWAI',
-      'kawaiOpLight'
+      'kawaiOpSplash',
+      'applySplash',
+      'removeSplash'
     ],
     log: function () {
       if (limit) {

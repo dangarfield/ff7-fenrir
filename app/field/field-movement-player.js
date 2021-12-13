@@ -19,15 +19,18 @@ const updateFieldPlayerMovement = delta => {
   // console.log('movementDirection', delta)
   // Get active player
   if (!window.currentField.playableCharacter) {
+    removeSplash(window.currentField.playableCharacter)
     return
   }
 
   // console.log('updateFieldPlayerMovement', delta, winplayableCharacterCanMovedow.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
   // Can player move?
   if (!window.currentField.playableCharacterCanMove) {
+    removeSplash(window.currentField.playableCharacter)
     return
   }
   if (window.currentField.playableCharacterIsInteracting) {
+    removeSplash(window.currentField.playableCharacter)
     return
   }
 
@@ -35,6 +38,7 @@ const updateFieldPlayerMovement = delta => {
   let animNo = 2 // run
 
   if (window.currentField.playableCharacter.userData.ladder) {
+    removeSplash(window.currentField.playableCharacter)
     return ladderMovement(speed)
   }
   if (window.config.debug.runByDefault) {
@@ -85,6 +89,7 @@ const updateFieldPlayerMovement = delta => {
     window.currentField.playableCharacter.mixer
       .clipAction(window.currentField.playableCharacter.animations[0])
       .play() // stand window.anim
+    removeSplash(window.currentField.playableCharacter)
     return
   }
 
@@ -222,6 +227,7 @@ const updateFieldPlayerMovement = delta => {
       180 - originalDirection
     )
     window.currentField.playableCharacter.mixer.stopAllAction()
+    removeSplash(window.currentField.playableCharacter)
     return
   }
 
@@ -261,6 +267,7 @@ const updateFieldPlayerMovement = delta => {
           window.currentField.playableCharacter.scene.userData.originalDirection
       )
       window.currentField.playableCharacter.mixer.stopAllAction()
+      removeSplash(window.currentField.playableCharacter)
       return
     }
   }
@@ -356,6 +363,7 @@ const updateFieldPlayerMovement = delta => {
       // console.log('playerMovement CLOSE DIRECTION entity dir', entityDir)
       // console.log('playerMovement CLOSE DIRECTION next to entity dir diff', directionDiff)
       if (directionDiff < 1) {
+        removeSplash(window.currentField.playableCharacter)
         return
       }
     } else {
@@ -393,6 +401,7 @@ const updateFieldPlayerMovement = delta => {
         }
         // Should probably also pause ALL animations including screen background loops like in the game
         gatewayTriggered(i)
+        removeSplash(window.currentField.playableCharacter)
         return
       }
     }
@@ -452,6 +461,7 @@ const updateFieldPlayerMovement = delta => {
   window.currentField.playableCharacter.scene.position.y = nextPosition.y
   window.currentField.playableCharacter.scene.position.z = nextPosition.z
 
+  applySplash(window.currentField.playableCharacter)
   // Update camera position if camera is following user
   console.log(
     'setCameraPosition player movement',
@@ -485,6 +495,141 @@ const updateFieldPlayerMovement = delta => {
   //     camDistance * 1000)
 
   updateCursorPositionHelpers()
+}
+function setPointOfIntersection (pointsOfIntersection, line, plane) {
+  let pointOfIntersection = plane.intersectLine(
+    line,
+    new THREE.Vector3()
+  )
+  const dgMatch = ((line.start.z > -plane.constant) && (-plane.constant > line.end.z)) ||
+  ((line.end.z > -plane.constant) && (-plane.constant > line.start.z))
+  if (dgMatch) {
+    pointOfIntersection = line.start
+    const diff = line.start.z - -plane.constant
+    const dist = line.start.z - line.end.z
+    const diffFactor = diff / dist
+    pointOfIntersection = new THREE.Vector3().lerpVectors(line.start, line.end, diffFactor)
+    console.log('applySplash pointOfIntersection', pointOfIntersection, line.start.z, line.end.z, -plane.constant, dgMatch, 'diff', dist, diff, diffFactor)
+  }
+
+  // const rounded = roundVector(2, pointOfIntersection)
+  if (pointOfIntersection) {
+    pointsOfIntersection.push(pointOfIntersection.clone())
+    console.log('applySplash INTERSECTION!', line, plane)
+  }
+}
+
+const applySplash = (model) => {
+  if (model.scene.userData.splash) {
+  // During movement, see if the plane intersects any of the faces of the model's meshes and get the closest point of intersection to the camera
+    console.log('applySplash START')
+
+    const modelPosX = model.scene.position.x + model.scene.children[0].position.x
+    const modelPosY = model.scene.position.y + model.scene.children[0].position.y
+    const modelPosZ = model.scene.position.z + model.scene.children[0].position.z
+
+    const depth = -model.scene.userData.splashDepth
+
+    const pointsOfIntersection = []
+
+    let a = new THREE.Vector3()
+    let b = new THREE.Vector3()
+    let c = new THREE.Vector3()
+    let lineAB = new THREE.Line3()
+    let lineBC = new THREE.Line3()
+    let lineCA = new THREE.Line3()
+
+    model.scene.traverse(el => {
+      if (el.isMesh && el.name.includes('r_hand')) {
+        const meshPointsOfIntersection = []
+        for (let i = 0; i < el.geometry.index.count; i += 3) {
+          el.localToWorld(
+            a.copy(
+              new THREE.Vector3().fromBufferAttribute(
+                el.geometry.attributes.position,
+                el.geometry.index.array[i]
+              )
+            ).add(new THREE.Vector3(0, 0, 0.1))
+          )
+          el.localToWorld(
+            b.copy(
+              new THREE.Vector3().fromBufferAttribute(
+                el.geometry.attributes.position,
+                el.geometry.index.array[i + 1]
+              )
+            )
+          )
+          el.localToWorld(
+            c.copy(
+              new THREE.Vector3().fromBufferAttribute(
+                el.geometry.attributes.position,
+                el.geometry.index.array[i + 2]
+              )
+            )
+          )
+
+          lineAB = new THREE.Line3(a, b)
+          lineBC = new THREE.Line3(b, c)
+          lineCA = new THREE.Line3(c, a)
+          setPointOfIntersection(meshPointsOfIntersection, lineAB, model.scene.userData.splashPlane)
+          setPointOfIntersection(meshPointsOfIntersection, lineBC, model.scene.userData.splashPlane)
+          setPointOfIntersection(meshPointsOfIntersection, lineCA, model.scene.userData.splashPlane)
+          if (el.name.includes('r_hand')) {
+            const material = new THREE.LineBasicMaterial({ color: 0x0000ff })
+            const points = []
+            points.push(a)
+            points.push(b)
+            points.push(c)
+            const geometry = new THREE.BufferGeometry().setFromPoints(points)
+            const line = new THREE.Line(geometry, material)
+
+            window.currentField.fieldScene.add(line)
+
+            // console.log('applySplash', el.name, a, b, c, pointsOfIntersection)
+          }
+        }
+
+        if (meshPointsOfIntersection.length > 0) {
+          const pointDist = meshPointsOfIntersection.map(v => ({ v: v, d: v.distanceToSquared(window.currentField.fieldCamera.position) }))
+          pointDist.sort((a, b) => a.d - b.d)
+          console.log('applySplash meshPointsOfIntersection', pointDist)
+          pointsOfIntersection.push(pointDist[0].v) // TODO - Attenuate points so that they are all a fixed distance from camera, eg 0.1 away from model
+        }
+      }
+    })
+
+    const pointsMaterial = new THREE.PointsMaterial({
+      size: 0.001,
+      color: 0xffff00
+    })
+    const points = new THREE.Points(
+      new THREE.BufferGeometry().setFromPoints(pointsOfIntersection),
+      pointsMaterial
+    )
+    window.currentField.fieldScene.add(points)
+    // if (pointsVertices.length > 0) {
+    //   model.scene.userData.splashPoints.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pointsVertices, 3))
+    //   model.scene.userData.splashPoints.geometry.attributes.position.needsUpdate = true
+    // }
+
+    // const intersectPoint = new THREE.Vector3()
+    // const splashIntersect = model.scene.userData.splashPlane.intersectsBox(box, intersectPoint)
+    // console.log('applySplash END', splashIntersect, intersectPoint, box.intersectsPlane(model.scene.userData.splashPlane), model.scene.userData.splashPlane, box)
+    console.log('applySplash END')
+  // Show the splash image (rotate each of them)
+
+    // const z = model.scene.position.z * 4096
+    // if (z >= 0) {
+    //   removeSplash(model)
+    // } else {
+    //   console.log('applySplash', z)
+    // }
+  }
+}
+const removeSplash = (model) => {
+  if (model && model.scene && model.scene.userData.splash) {
+    // console.log('removeSplash')
+  }
 }
 const getNextPositionRaycast = nextPosition => {
   const rayOffset = 0.05

@@ -4,7 +4,8 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpLight } from './field-model-graphics-operations.js'
+import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpSplash,
+  kawaiOpLight } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -519,7 +520,8 @@ const KAWAI = async (entityId, op) => {
     // 7 - Used by rollers in kuro_3, but doesn't appear to do anything if removed... Not sure about the colours
     // 8 - Looks like it's a version of 9, there is color applied to the object materials that are underneath the walkmesh coords -
     //    blackbg1, blue_2, can't really reproduce though, maybe a PC bug?
-    // 9
+    // 9 - Looks like, get the z position of the model being called upon, the penultimate argument is the -z value. Then add a water graphic every time the character moves at the z = 0 position of the intersecing meshes if the charc is below z=0
+    case 9: kawaiOpSplash(entityId, op); break
     case 13: kawaiOpShine(entityId, op); break
 
     default: break
