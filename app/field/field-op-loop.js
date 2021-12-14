@@ -984,7 +984,7 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
 
     if (result.exit) {
       console.log(' - executeScriptLoop: EXIT', fieldName, entityId, loop)
-      break
+      break // For REQEW this should really be continue
     }
     if (result.flow) {
       flowActionCount++

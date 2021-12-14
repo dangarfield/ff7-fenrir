@@ -287,10 +287,36 @@ const kawaiOpSBObj = async (entityId, op) => {
   // eg, 1,9,0 = las4_4 hide Cloud's sword
   // eg, 1,9,1 = las4_4 show Cloud's sword
 
+  // op.vars[0]         - How many mesh enabled/disabled pairs are set
+  // op.vars[1,3,5] etc - The bone identifier
+  // op.vars[2,4,6] etc - 0,1, hide / show bone
+
+  const count = op.vars[0]
+
+  const instructions = []
+  for (let i = 0; i < count; i++) {
+    instructions.push({
+      boneRef: op.vars[1 + (i * 2)],
+      active: op.vars[2 + (i * 2)] === 1
+    })
+  }
   model.scene.traverse(el => {
-    console.log('kawaiOpSBObj el', el)
-    if (el.name.startsWith('bhjcbhjeMesh_1')) {
-      el.visible = false
+    console.log('kawaiOpSBObj el', el, instructions)
+
+    if (el.userData.childBoneRefs && el.userData.childBoneRefs.length > 0) {
+      for (let i = 0; i < instructions.length; i++) {
+        const instruction = instructions[i]
+        for (let j = 0; j < el.userData.childBoneRefs.length; j++) {
+          const childBoneRef = el.userData.childBoneRefs[j]
+
+          // Note: The current GLTF loader does not add extras from primitives into userData
+          // So instead, I've added them in the parent and we look at the children nodes
+          if (instruction.boneRef === childBoneRef) {
+            el.children[j].visible = instruction.active
+            console.log('kawaiOpSBObj', instruction, childBoneRef, instruction.active, el.children[j])
+          }
+        }
+      }
     }
   })
 }
@@ -304,6 +330,8 @@ const kawaiOpShine = async (entityId, op) => {
   }
   // I'm not entirely sure why, but 0,0 is called before 1, but when just adding either of them individually in
   // the game, it appears to make no dfference and just dispalys the shine as usual
+
+  // TODO - In line with other kawai ops, vars[0] === 1 is probably activation, and 0 is setup / prep. Not sure about 2
   if (op.vars[0] === 0) {
     // stopShine(model) // Assumed initiate
   } else if (op.vars[0] === 1) {

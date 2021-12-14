@@ -75,6 +75,7 @@ const REQEW = async (fieldName, entityId, scriptType, op) => {
   }
   // No need to check it is running
   await executeScriptLoop(fieldName, entity.entityId, script, op.p) // Sync
+  // console.log('REQEW RETURNED', fieldName, entityId, scriptType, op)
   return {}
 }
 const PREQ = async (fieldName, entityId, scriptType, op) => {
