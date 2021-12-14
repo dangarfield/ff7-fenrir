@@ -4,6 +4,7 @@ import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getModelByEntityId } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 import { getFieldTextures } from '../data/field-fetch-data.js'
+import { speedToSeconds } from './field-fader.js'
 
 const kawaiOpBlink = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
@@ -543,10 +544,10 @@ const kawaiOpLight = (entityId, op) => {
   console.log('kawaiOpLight model', model, op)
 
   // 0, 0,                - Activation
-  // 0, 0, 80, 0, 80, 0,  - When this is set, it changes the color over time ???, ignore for now
+  // 0, 0, 80, 0, 80, 0,  - When this is set, it is the initial color that seems to flash briefly, before reverting to initial color, we'll ignore. Textures seem to be set differently
   // 0, 0, 80, 0, 80, 0,  - Colors with darken (r, rDark, g, gDark, b, bDark)
-  // 1, 0, 1,  0,  1, 0,  - Not sure, no difference is made when changing these, first part is 0,1,2,4,8,254, second is 0,255
-  // 1                    - Not sure, no difference is made, mostly 1, sometime 0
+  // 1, 0, 1,  0,  1, 0,  - This is the speed of the color change
+  // 1                    - Not sure, no difference is made, mostly 1, maybe something about it being an instant change vs tween, ignore for now
 
   const activate = op.vars[0] === 1
   if (activate) {
@@ -554,9 +555,7 @@ const kawaiOpLight = (entityId, op) => {
     // For the time being, we'll just acivate automatically and ignore this activation command
     return
   }
-  const lightLayer = 2
 
-  // op.vars[1], always 0, probably part of a 2 byte check for activate
   const rNorm = op.vars[8] / 255
   const gNorm = op.vars[10] / 255
   const bNorm = op.vars[12] / 255
@@ -564,55 +563,75 @@ const kawaiOpLight = (entityId, op) => {
   const gDarken = op.vars[11] === 255
   const bDarken = op.vars[13] === 255
 
-  applyColorsToModelMeshes(model, lightLayer, rNorm, gNorm, bNorm, rDarken, gDarken, bDarken)
+  const speed = op.vars[14]
+  const ms = speedToSeconds(speed) * 1000 // About right, might be half that
+  const lightLayer = 2
+  applyColorsToModelMeshes(model, lightLayer, rNorm, gNorm, bNorm, rDarken, gDarken, bDarken, ms)
 }
 
-const applyColorsToModelMeshes = (model, lightLayer, rNorm, gNorm, bNorm, rDarken, gDarken, bDarken) => {
+const applyColorsToModelMeshes = (model, lightLayer, rNorm, gNorm, bNorm, rDarken, gDarken, bDarken, ms) => {
+  const meshList = []
   model.scene.traverse(el => {
     if (el.type === 'Mesh') {
-      if (el.geometry && el.geometry.attributes && el.geometry.attributes.color) {
-        ensureOrigColorSet(el)
-        el.layers.set(lightLayer)
-        console.log('applyColorsToModelMeshes mesh color', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
-        const origColorAttr = el.geometry.userData.origColor
-        const colorAttr = el.geometry.getAttribute('color')
-        console.log('applyColorsToModelMeshes makeColored mesh', el.material, origColorAttr, colorAttr)
-
-        el.material.format = THREE.RGBAFormat
-        for (let i = 0; i < colorAttr.count; i++) {
-          const colors = [origColorAttr.getX(i), origColorAttr.getY(i), origColorAttr.getZ(i)]
-          const normColors = [rNorm, gNorm, bNorm]
-          const darkenColors = [rDarken, gDarken, bDarken]
-
-          const newCs = []
-          for (let i = 0; i < colors.length; i++) {
-            const c = colors[i]
-            const normC = normColors[i]
-            const newC = darkenColors[i]
-              ? Math.max(0, c - (1 - normC))
-              : Math.min(1, c + normC)
-            newCs.push(newC)
-          }
-
-          // console.log('applyColorsToModelMeshes makeSemiTransparent mesh color op', i,
-          //   colors.map(c => Math.floor(c * 255)).join('_'),
-          //   normColors.map(c => Math.floor(c * 255)).join('_'), '->',
-          //   newCs.map(c => Math.floor(c * 255)).join('_'))
-          colorAttr.setXYZ(i, newCs[0], newCs[1], newCs[2])
-        }
-        colorAttr.needsUpdate = true
-        el.material.roughness = 1
-        el.material.needsUpdate = true
-      } else {
-        console.log('applyColorsToModelMeshes mesh texture', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
-        // Darken colors also shoud apply to textures too
-        // Textures not affected unless dark
-        rDarken ? el.material.color.r = rNorm : el.material.color.r = 1
-        gDarken ? el.material.color.g = gNorm : el.material.color.g = 1
-        bDarken ? el.material.color.b = bNorm : el.material.color.b = 1
-      }
+      meshList.push(el)
     }
   })
+  const from = {rNorm: 0, gNorm: 0, bNorm: 0}
+  // const from = {rNorm, gNorm, bNorm}
+  const to = {rNorm, gNorm, bNorm}
+  new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
+    .to(to, ms)
+    .onUpdate(function () {
+      console.log('applyColorsToModelMeshes onUpdate', from)
+      for (let i = 0; i < meshList.length; i++) {
+        const el = meshList[i]
+        if (el.geometry && el.geometry.attributes && el.geometry.attributes.color) {
+          ensureOrigColorSet(el)
+          el.layers.set(lightLayer)
+          // console.log('applyColorsToModelMeshes mesh color', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+          const origColorAttr = el.geometry.userData.origColor
+          const colorAttr = el.geometry.getAttribute('color')
+          // console.log('applyColorsToModelMeshes makeColored mesh', el.material, origColorAttr, colorAttr)
+
+          el.material.format = THREE.RGBAFormat
+          for (let j = 0; j < colorAttr.count; j++) {
+            const colors = [origColorAttr.getX(j), origColorAttr.getY(j), origColorAttr.getZ(j)]
+            const normColors = [from.rNorm, from.gNorm, from.bNorm]
+            const darkenColors = [rDarken, gDarken, bDarken]
+
+            const newCs = []
+            for (let k = 0; k < colors.length; k++) {
+              const c = colors[k]
+              const normC = normColors[k]
+              const newC = darkenColors[k]
+                ? Math.max(0, c - (1 - normC))
+                : Math.min(1, c + normC)
+              newCs.push(newC)
+            }
+
+            // console.log('applyColorsToModelMeshes makeSemiTransparent mesh color op', i,
+            //   colors.map(c => Math.floor(c * 255)).join('_'),
+            //   normColors.map(c => Math.floor(c * 255)).join('_'), '->',
+            //   newCs.map(c => Math.floor(c * 255)).join('_'))
+            colorAttr.setXYZ(j, newCs[0], newCs[1], newCs[2])
+          }
+          colorAttr.needsUpdate = true
+          el.material.roughness = 1
+          el.material.needsUpdate = true
+        } else {
+          // console.log('applyColorsToModelMeshes mesh texture', el, el.material.uuid, el.layers, el.layers.isEnabled(0), el.layers.isEnabled(lightLayer))
+          // Darken colors also shoud apply to textures too
+          // Textures not affected unless dark
+          rDarken ? el.material.color.r = from.rNorm : el.material.color.r = 1
+          gDarken ? el.material.color.g = from.gNorm : el.material.color.g = 1
+          bDarken ? el.material.color.b = from.bNorm : el.material.color.b = 1
+        }
+      }
+    })
+    .onComplete(function () {
+      console.log('applyColorsToModelMeshes onComplete')
+    })
+    .start()
 }
 export {
   kawaiOpBlink,

@@ -414,5 +414,6 @@ export {
   setTransitionFaderColor,
   getTransitionFaderColor,
   TRANSITION_COLOR,
-  setFaderVisible
+  setFaderVisible,
+  speedToSeconds
 }
