@@ -996,60 +996,61 @@ const navigateChoice = navigateDown => {
 const closeDialog = async (dialog, choiceResult) => {
   console.log('closeDialog', dialog, choiceResult)
   const dialogBox = dialog.group
-  if (dialogBox) {
-    for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
-      dialogBox.userData.posAdjustList.map(mesh =>
-        adjustDialogExpandPos(
-          mesh,
-          step,
-          DIALOG_APPEAR_STEP_TOTAL,
-          dialogBox.userData.z
-        )
+  if (!dialogBox) {
+    return
+  }
+  for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
+    dialogBox.userData.posAdjustList.map(mesh =>
+      adjustDialogExpandPos(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.z
       )
-      dialogBox.userData.sizeAdjustList.map(mesh =>
-        adjustDialogExpandSize(
-          mesh,
-          step,
-          DIALOG_APPEAR_STEP_TOTAL,
-          dialogBox.userData.bgGeo
-        )
+    )
+    dialogBox.userData.sizeAdjustList.map(mesh =>
+      adjustDialogExpandSize(
+        mesh,
+        step,
+        DIALOG_APPEAR_STEP_TOTAL,
+        dialogBox.userData.bgGeo
       )
-      const clippingPlanes = createClippingPlanes(
-        dialogBox.userData.w,
-        dialogBox.userData.h,
-        dialogBox.userData.z,
-        dialogBox.userData.sizeAdjustList[0],
-        dialogBox.userData.sizeAdjustList[1],
-        dialogBox.userData.sizeAdjustList[2],
-        dialogBox.userData.sizeAdjustList[3]
-      )
+    )
+    const clippingPlanes = createClippingPlanes(
+      dialogBox.userData.w,
+      dialogBox.userData.h,
+      dialogBox.userData.z,
+      dialogBox.userData.sizeAdjustList[0],
+      dialogBox.userData.sizeAdjustList[1],
+      dialogBox.userData.sizeAdjustList[2],
+      dialogBox.userData.sizeAdjustList[3]
+    )
 
-      dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
-      for (let i = 0; i < dialogBox.children.length; i++) {
-        if (
-          dialogBox.children[i].userData.isText ||
+    dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
+    for (let i = 0; i < dialogBox.children.length; i++) {
+      if (
+        dialogBox.children[i].userData.isText ||
           dialogBox.children[i].userData.isPointer
-        ) {
-          dialogBox.children[i].material.clippingPlanes = clippingPlanes
-        }
+      ) {
+        dialogBox.children[i].material.clippingPlanes = clippingPlanes
       }
-      await sleep(DIALOG_APPEAR_SPEED)
     }
-    dialogBox.userData.state = 'closed'
-    scene.remove(dialogBox)
-    if (choiceResult !== undefined) {
-      isChoiceActive = false
-      playCommonSound(COMMON_SOUNDS.OPTION)
-      console.log(
-        'closeDialog resolveCallback choiceResult',
-        dialog,
-        choiceResult
-      )
-      dialog.resolveCallback(choiceResult)
-    } else {
-      console.log('closeDialog resolveCallback', dialog)
-      dialog.resolveCallback()
-    }
+    await sleep(DIALOG_APPEAR_SPEED)
+  }
+  dialogBox.userData.state = 'closed'
+  scene.remove(dialogBox)
+  if (choiceResult !== undefined) {
+    isChoiceActive = false
+    playCommonSound(COMMON_SOUNDS.OPTION)
+    console.log(
+      'closeDialog resolveCallback choiceResult',
+      dialog,
+      choiceResult
+    )
+    dialog.resolveCallback(choiceResult)
+  } else {
+    console.log('closeDialog resolveCallback', dialog)
+    dialog.resolveCallback()
   }
 
   dialogBox.userData.state = 'closed'

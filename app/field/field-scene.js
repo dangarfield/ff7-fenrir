@@ -220,6 +220,7 @@ const setupFieldCamera = () => {
     tz + camAxisZz
   )
 
+  window.currentField.fieldCamera.layers.enableAll()
   setupFieldDebugCamera()
   setupFieldVideoCamera()
   window.currentField.fieldCameraHelper = new THREE.CameraHelper(
@@ -229,7 +230,6 @@ const setupFieldCamera = () => {
   window.currentField.fieldScene.add(window.currentField.fieldCameraHelper)
   window.currentField.fieldScene.add(window.currentField.fieldCamera)
 
-  window.currentField.fieldCamera.layers.enableAll()
   setupFieldLights()
   return cameraTarget
 }

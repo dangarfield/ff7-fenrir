@@ -508,7 +508,6 @@ const BLINK = async (entityId, op) => {
 const KAWAI = async (entityId, op) => {
   console.log('KAWAI', entityId, op, op.s, op.s === 13)
 
-  // TODO - Many more KAWAI sub op codes
   switch (op.s) {
     case 0: kawaiOpBlink(entityId, op); break
     case 1: kawaiOpTrnsp(entityId, op); break
@@ -523,7 +522,10 @@ const KAWAI = async (entityId, op) => {
     // 9 - Looks like, get the z position of the model being called upon, the penultimate argument is the -z value. Then add a water graphic every time the character moves at the z = 0 position of the intersecing meshes if the charc is below z=0
     case 9: kawaiOpSplash(entityId, op); break
     case 10: kawaiOpSBObj(entityId, op); break
+    // 11 - Doesn't really seem to actually do anything noticabled. crater_2, las2_2, las2_3
+    // 12 - Again, I really can't see what it actually does
     case 13: kawaiOpShine(entityId, op); break
+    // 255 - Seems to reset things, but not sure as to what exactly, TODO
 
     default: break
   }
