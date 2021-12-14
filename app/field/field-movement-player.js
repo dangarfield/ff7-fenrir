@@ -14,6 +14,8 @@ import {
   updateSavemapLocationFieldPosition,
   updateSavemapLocationFieldLeader
 } from '../data/savemap-alias.js'
+import { getFieldTextures } from '../data/field-fetch-data.js'
+import { getModelScaleDownValue } from './field-models.js'
 
 const updateFieldPlayerMovement = delta => {
   // console.log('movementDirection', delta)
@@ -411,48 +413,24 @@ const updateFieldPlayerMovement = delta => {
   if (animNo === 2) {
     // Run
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.stand
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.stand])
       .stop() // Probably a more efficient way to change these animations
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.walk
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.walk])
       .stop()
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.run
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.run])
       .play()
   } else if (animNo === 1) {
     // Walk
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.stand
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.stand])
       .stop()
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.run
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.run])
       .stop()
     window.currentField.playableCharacter.mixer
-      .clipAction(
-        window.currentField.playableCharacter.animations[
-          window.currentField.playerAnimations.walk
-        ]
-      )
+      .clipAction(window.currentField.playableCharacter.animations[window.currentField.playerAnimations.walk])
       .play()
   }
 
@@ -518,17 +496,20 @@ function setPointOfIntersection (pointsOfIntersection, line, plane) {
     console.log('applySplash INTERSECTION!', line, plane)
   }
 }
+const randomRange = (min, max) => {
+  return ~~(Math.random() * (max - min + 1)) + min
+}
 
 const applySplash = (model) => {
+  // TODO - This doesn't seem very fast, as in, the sprite seems to follow after the movement, need to improve but can't see any update callbacks for animation
   if (model.scene.userData.splash) {
   // During movement, see if the plane intersects any of the faces of the model's meshes and get the closest point of intersection to the camera
     console.log('applySplash START')
-
-    const modelPosX = model.scene.position.x + model.scene.children[0].position.x
-    const modelPosY = model.scene.position.y + model.scene.children[0].position.y
-    const modelPosZ = model.scene.position.z + model.scene.children[0].position.z
-
-    const depth = -model.scene.userData.splashDepth
+    for (let i = 0; i < model.scene.userData.splashSprites.length; i++) {
+      const splashSprite = model.scene.userData.splashSprites[i]
+      splashSprite.parent.remove(splashSprite)
+    }
+    model.scene.userData.splashSprites = []
 
     const pointsOfIntersection = []
 
@@ -540,7 +521,7 @@ const applySplash = (model) => {
     let lineCA = new THREE.Line3()
 
     model.scene.traverse(el => {
-      if (el.isMesh && el.name.includes('r_hand')) {
+      if (el.isMesh) { // && el.name.includes('r_hand')) {
         const meshPointsOfIntersection = []
         for (let i = 0; i < el.geometry.index.count; i += 3) {
           el.localToWorld(
@@ -574,19 +555,17 @@ const applySplash = (model) => {
           setPointOfIntersection(meshPointsOfIntersection, lineAB, model.scene.userData.splashPlane)
           setPointOfIntersection(meshPointsOfIntersection, lineBC, model.scene.userData.splashPlane)
           setPointOfIntersection(meshPointsOfIntersection, lineCA, model.scene.userData.splashPlane)
-          if (el.name.includes('r_hand')) {
-            const material = new THREE.LineBasicMaterial({ color: 0x0000ff })
-            const points = []
-            points.push(a)
-            points.push(b)
-            points.push(c)
-            const geometry = new THREE.BufferGeometry().setFromPoints(points)
-            const line = new THREE.Line(geometry, material)
-
-            window.currentField.fieldScene.add(line)
-
-            // console.log('applySplash', el.name, a, b, c, pointsOfIntersection)
-          }
+          // if (el.name.includes('r_hand')) {
+          //   const material = new THREE.LineBasicMaterial({ color: 0x0000ff })
+          //   const points = []
+          //   points.push(a)
+          //   points.push(b)
+          //   points.push(c)
+          //   const geometry = new THREE.BufferGeometry().setFromPoints(points)
+          //   const line = new THREE.Line(geometry, material)
+          //   window.currentField.fieldScene.add(line)
+          //   // console.log('applySplash', el.name, a, b, c, pointsOfIntersection)
+          // }
         }
 
         if (meshPointsOfIntersection.length > 0) {
@@ -598,15 +577,40 @@ const applySplash = (model) => {
       }
     })
 
-    const pointsMaterial = new THREE.PointsMaterial({
-      size: 0.001,
-      color: 0xffff00
-    })
-    const points = new THREE.Points(
-      new THREE.BufferGeometry().setFromPoints(pointsOfIntersection),
-      pointsMaterial
-    )
-    window.currentField.fieldScene.add(points)
+    // const pointsMaterial = new THREE.PointsMaterial({
+    //   size: 0.001,
+    //   color: 0xffff00
+    // })
+    // const points = new THREE.Points(
+    //   new THREE.BufferGeometry().setFromPoints(pointsOfIntersection),
+    //   pointsMaterial
+    // )
+    // window.currentField.fieldScene.add(points)
+
+    const scaleDownValue = 10 * getModelScaleDownValue()
+    const imageId = `sibuki${randomRange(1, 4)}`
+    for (let i = 0; i < pointsOfIntersection.length; i++) {
+      const pointOfIntersection = pointsOfIntersection[i]
+
+      var spriteTexture = getFieldTextures()['field'][imageId].texture
+      var spriteMaterial = new THREE.SpriteMaterial({ map: spriteTexture })
+      var sprite = new THREE.Sprite(spriteMaterial)
+      sprite.userData.type = 'animated'
+      // sprite.userData.textures = spriteTextures
+      sprite.userData.index = 0
+      sprite.userData.frameCount = 0
+      // Not able to get the scale of the arrows sprites right at this point
+      sprite.position.set(
+        pointOfIntersection.x,
+        pointOfIntersection.y,
+        pointOfIntersection.z
+      )
+      // console.log('scale', sprite.getWorldScale(new THREE.Vector3()))
+      // console.log('sprite', sprite)
+      sprite.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
+      window.currentField.fieldScene.add(sprite)
+      model.scene.userData.splashSprites.push(sprite)
+    }
     // if (pointsVertices.length > 0) {
     //   model.scene.userData.splashPoints.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pointsVertices, 3))
     //   model.scene.userData.splashPoints.geometry.attributes.position.needsUpdate = true
@@ -629,6 +633,11 @@ const applySplash = (model) => {
 const removeSplash = (model) => {
   if (model && model.scene && model.scene.userData.splash) {
     // console.log('removeSplash')
+    for (let i = 0; i < model.scene.userData.splashSprites.length; i++) {
+      const splashSprite = model.scene.userData.splashSprites[i]
+      splashSprite.parent.remove(splashSprite)
+    }
+    model.scene.userData.splashSprites = []
   }
 }
 const getNextPositionRaycast = nextPosition => {

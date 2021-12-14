@@ -4,6 +4,7 @@ import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { loadExeData } from './data/exe-fetch-data.js'
 import { loadCDData } from './data/cd-fetch-data.js'
 import { loadMenuTextures } from './data/menu-fetch-data.js'
+import { loadFieldTextures } from './data/field-fetch-data.js'
 import { initLoadingModule, showLoadingScreen } from './loading/loading-module.js'
 import { loadGame, initNewSaveMap } from './data/savemap.js'
 import { setDefaultMediaConfig } from './media/media-module.js'
@@ -31,6 +32,7 @@ const initManager = async () => {
   await loadCDData()
   await loadWindowTextures()
   await loadMenuTextures()
+  await loadFieldTextures()
   initMenuModule()
   initBattleSwirlModule()
   initBattleModule()

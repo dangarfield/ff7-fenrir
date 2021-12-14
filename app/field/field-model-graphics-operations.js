@@ -245,7 +245,7 @@ const kawaiOpSplash = async (entityId, op) => {
   // 64,0,    - z depth
   // 1        - ?
 
-  const depth = 32 / 4096
+  const depth = 64 / 4096
   model.scene.userData.splash = true
   model.scene.userData.splashDepth = depth
 
@@ -253,38 +253,16 @@ const kawaiOpSplash = async (entityId, op) => {
   const splashPlane = new THREE.Plane(
     new THREE.Vector3(
       0, 0, 0
-    ), -depth
+    ), depth
   )
   // splashPlane.translate(new THREE.Vector3(0, depth, 0))
   console.log('kawaiOpSplash depth', depth, depth * 4096)
-  const helper = new THREE.PlaneHelper(splashPlane, 1, 0xffff00)
-  window.currentField.fieldScene.add(helper)
+  // const helper = new THREE.PlaneHelper(splashPlane, 1, 0xffff00)
+  // window.currentField.fieldScene.add(helper)
 
   // Add the plane to userData
   model.scene.userData.splashPlane = splashPlane
-
-  // const vertices = []
-
-  // for (let i = 0; i < 10000; i++) {
-  //   const x = THREE.MathUtils.randFloatSpread(2000)
-  //   const y = THREE.MathUtils.randFloatSpread(2000)
-  //   const z = THREE.MathUtils.randFloatSpread(2000)
-
-  //   vertices.push(x, y, z)
-  // }
-
-  // const geometry = new THREE.BufferGeometry()
-  // geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
-
-  // const material = new THREE.PointsMaterial({ color: 0xff00ff })
-
-  // const points = new THREE.Points(geometry, material)
-  // material.size = 0.01
-  // model.scene.add(points)
-  // model.scene.userData.splashPoints = points
-  // During movement, see if the plane intersects any of the faces of the model's meshes and get the closest point of intersection to the camera
-
-  // Show the splash image (rotate each of them)
+  model.scene.userData.splashSprites = []
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
