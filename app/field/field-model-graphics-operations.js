@@ -240,9 +240,9 @@ const kawaiOpSplash = async (entityId, op) => {
     return
   }
   // 0,0,     - Activate flag
-  // 162,255, - ?
-  // 32,0,    - ?
-  // 32,0,    - ?
+  // 162,255, - ? overlay colors r
+  // 32,0,    - ? overlay colors g
+  // 32,0,    - ? overlay colors b
   // 64,0,    - z depth
   // 1        - ?
 
@@ -279,6 +279,20 @@ const kawaiOpSplash = async (entityId, op) => {
   //   splashMaterial.combine = THREE.MultiplyOperation
   //   console.log('KAWAI', 'splashMaterial.combine', splashMaterial.combine)
   // }
+}
+const kawaiOpSBObj = async (entityId, op) => {
+  const model = getModelByEntityId(entityId)
+  console.log('kawaiOpSBObj', entityId, op, model)
+  // This looks like (according to las4_4 that it can hide / show manipulate the meshes that a character has)
+  // eg, 1,9,0 = las4_4 hide Cloud's sword
+  // eg, 1,9,1 = las4_4 show Cloud's sword
+
+  model.scene.traverse(el => {
+    console.log('kawaiOpSBObj el', el)
+    if (el.name.startsWith('bhjcbhjeMesh_1')) {
+      el.visible = false
+    }
+  })
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)
@@ -581,6 +595,7 @@ export {
   kawaiOpTrnsp,
   kawaiOpAmbient,
   kawaiOpSplash,
+  kawaiOpSBObj,
   kawaiOpShine,
   kawaiOpLight
 }

@@ -5,7 +5,7 @@ import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
 import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpSplash,
-  kawaiOpLight } from './field-model-graphics-operations.js'
+  kawaiOpSBObj, kawaiOpLight } from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {
@@ -522,6 +522,7 @@ const KAWAI = async (entityId, op) => {
     //    blackbg1, blue_2, can't really reproduce though, maybe a PC bug?
     // 9 - Looks like, get the z position of the model being called upon, the penultimate argument is the -z value. Then add a water graphic every time the character moves at the z = 0 position of the intersecing meshes if the charc is below z=0
     case 9: kawaiOpSplash(entityId, op); break
+    case 10: kawaiOpSBObj(entityId, op); break
     case 13: kawaiOpShine(entityId, op); break
 
     default: break
