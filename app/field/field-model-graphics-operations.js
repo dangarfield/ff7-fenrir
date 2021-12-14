@@ -3,6 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getModelByEntityId } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
+import { getFieldTextures } from '../data/field-fetch-data.js'
 
 const kawaiOpBlink = async (entityId, op) => {
   const model = getModelByEntityId(entityId)
@@ -245,7 +246,7 @@ const kawaiOpSplash = async (entityId, op) => {
   // 64,0,    - z depth
   // 1        - ?
 
-  const depth = 64 / 4096
+  const depth = op.vars[8] / 4096
   model.scene.userData.splash = true
   model.scene.userData.splashDepth = depth
 
@@ -263,6 +264,21 @@ const kawaiOpSplash = async (entityId, op) => {
   // Add the plane to userData
   model.scene.userData.splashPlane = splashPlane
   model.scene.userData.splashSprites = []
+  model.scene.userData.splashMaterials = [
+    new THREE.SpriteMaterial({ map: getFieldTextures().field.sibuki1.texture }),
+    new THREE.SpriteMaterial({ map: getFieldTextures().field.sibuki2.texture }),
+    new THREE.SpriteMaterial({ map: getFieldTextures().field.sibuki3.texture }),
+    new THREE.SpriteMaterial({ map: getFieldTextures().field.sibuki4.texture })
+  ]
+  // TODO - Coloring required, but can't do that with a SpriteMaterial, need to improve another day
+  // for (let i = 0; i < model.scene.userData.splashMaterials.length; i++) {
+  //   const splashMaterial = model.scene.userData.splashMaterials[i]
+  //   splashMaterial.color.r = 0
+  //   splashMaterial.color.g = 32 / 255
+  //   splashMaterial.color.b = 32 / 255
+  //   splashMaterial.combine = THREE.MultiplyOperation
+  //   console.log('KAWAI', 'splashMaterial.combine', splashMaterial.combine)
+  // }
 }
 const kawaiOpShine = async (entityId, op) => {
   console.log('kawaiOpShine', entityId, op)

@@ -588,13 +588,11 @@ const applySplash = (model) => {
     // window.currentField.fieldScene.add(points)
 
     const scaleDownValue = 10 * getModelScaleDownValue()
-    const imageId = `sibuki${randomRange(1, 4)}`
+    const imageId = randomRange(0, 3)
+    const splashMaterial = model.scene.userData.splashMaterials[imageId]
     for (let i = 0; i < pointsOfIntersection.length; i++) {
       const pointOfIntersection = pointsOfIntersection[i]
-
-      var spriteTexture = getFieldTextures()['field'][imageId].texture
-      var spriteMaterial = new THREE.SpriteMaterial({ map: spriteTexture })
-      var sprite = new THREE.Sprite(spriteMaterial)
+      var sprite = new THREE.Sprite(splashMaterial)
       sprite.userData.type = 'animated'
       // sprite.userData.textures = spriteTextures
       sprite.userData.index = 0
