@@ -525,7 +525,7 @@ const KAWAI = async (entityId, op) => {
     // 11 - Doesn't really seem to actually do anything noticabled. crater_2, las2_2, las2_3
     // 12 - Again, I really can't see what it actually does
     case 13: kawaiOpShine(entityId, op); break
-    // 255 - Seems to reset things, but not sure as to what exactly, TODO
+    // 255 - Seems to reset things, but not sure as to what exactly, not kawaiOpLight
 
     default: break
   }
