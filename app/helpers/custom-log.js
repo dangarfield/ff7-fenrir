@@ -10,10 +10,10 @@ window.console = (function (origConsole) {
       'printedCompare',
       // 'press MAIN MENU HOME',
       // 'test',
-      'KAWAI',
-      'kawaiOpSplash',
-      'applySplash',
-      'removeSplash'
+      'KAWAI'
+      // 'kawaiOpSplash',
+      // 'applySplash',
+      // 'removeSplash'
     ],
     log: function () {
       if (limit) {

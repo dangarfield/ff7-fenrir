@@ -881,5 +881,7 @@ const getClosestTriangleId = (model, position) => {
 export {
   updateFieldPlayerMovement,
   updateCurrentTriangleId,
-  getNextPositionRaycast
+  getNextPositionRaycast,
+  applySplash,
+  removeSplash
 }

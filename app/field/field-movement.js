@@ -3,7 +3,6 @@ import TWEEN from '../../assets/tween.esm.js'
 import {
   getModelByEntityId,
   getModelByPartyMemberId,
-  getModelByCurrentPlayableCharacter,
   getModelByCharacterName,
   getDegreesFromTwoPoints,
   turnModelToFaceEntity,
@@ -12,8 +11,7 @@ import {
   setModelTalkEnabled,
   setModelVisibility,
   placeModel,
-  setModelDirection,
-  directionToDegrees
+  setModelDirection
 } from './field-models.js'
 import { sleep } from '../helpers/helpers.js'
 import {
@@ -24,7 +22,7 @@ import {
 import { updateCursorPositionHelpers } from './field-position-helpers.js'
 import {
   updateCurrentTriangleId,
-  getNextPositionRaycast
+  getNextPositionRaycast, removeSplash, applySplash
 } from './field-movement-player.js'
 import { isMoviePlaying } from '../media/media-movies.js'
 
@@ -167,7 +165,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
                 {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
               ).closestPointToPoint(targetVector, true, new THREE.Vector3())
               const distance = targetVector.distanceTo(closestPointOnLine)
-              const entityId = line.userData.entityId
+              // const entityId = line.userData.entityId
 
               console.log('moveEntityJump: land', line.userData)
               if (distance < 0.01) {
@@ -214,8 +212,10 @@ const updateMoveEntityMovement = delta => {
   if (window.currentField.models) {
     for (let i = 0; i < window.currentField.models.length; i++) {
       const model = window.currentField.models[i]
+
       // if (model.userData.moveEntity && model.userData.entityName === 'ba') {
       if (model.userData.moveEntity) {
+        removeSplash(model)
         const direction = getDegreesFromTwoPoints(model.scene.position, {
           x: model.userData.moveEntity.to.x,
           y: model.userData.moveEntity.to.y
@@ -378,7 +378,7 @@ const updateMoveEntityMovement = delta => {
         model.scene.position.x = nextPosition.x
         model.scene.position.y = nextPosition.y
         model.scene.position.z = nextPosition.z
-
+        applySplash(model)
         // Camera follow
         if (
           (window.currentField.fieldCameraFollowPlayer &&
@@ -453,6 +453,7 @@ const updateMoveEntityMovement = delta => {
           action.loop = THREE.LoopRepeat
           action.play()
         }
+        applySplash(model)
       }
     }
   }
