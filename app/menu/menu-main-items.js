@@ -863,8 +863,8 @@ const setItemKeyDescription = () => {
     'item-desciption',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
-    0,
-    0,
+    5.5,
+    38,
     0.5
   )
 }

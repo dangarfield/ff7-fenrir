@@ -18,9 +18,6 @@ const kawaiOpBlink = async (entityId, op) => {
 
   console.log('kawaiOpBlink model blinkMaterials', model.scene.userData.blinkMaterials)
 
-  // TODO - Consider other BLINK op code
-  // TODO - Think about random blinking (sleep / tween etc)
-
   const eyes1 = op.vars[0]
   const eyes2 = op.vars[1]
   const mouth = op.vars[2]

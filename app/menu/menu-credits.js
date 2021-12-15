@@ -27,8 +27,8 @@ let scrollingTextDialog, scrollingTextGroup
 const STATES = {CREDITS_SHOW: 'credits-show'}
 const DATA = {
   lines: [],
-  activeTween: null, // TODO - cancel this on exit
-  activeVideo: null, // TODO - cancel this on exit
+  activeTween: null,
+  activeVideo: null,
   y: 0
 }
 const loadCreditsData = () => {

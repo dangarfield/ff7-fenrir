@@ -348,8 +348,6 @@ const drawStatsLabels = () => {
       0.5
     )
   }
-
-  // TODO - arrows
 }
 const drawStatsBase = () => {
   removeGroupChildren(statsBaseGroup)
@@ -610,7 +608,6 @@ const selectItem = () => {
     DATA.showMateriaMenuOnExit = true
   }
   console.log('equip selectItem showMateriaMenuOnExit', showMateriaMenuOnExit)
-  // TODO - Switch to materia menu on exitMenu if materia has been removed
   DATA.battleStats = getBattleStatsForChar(DATA.char)
   drawStatsBase()
   drawHeader()
@@ -636,7 +633,7 @@ const exitMenu = async () => {
   statsDialog.visible = false
   listDialog.visible = false
 
-  if (DATA.showMateriaMenuOnExit && isMateriaMenuAvailable()) { // TODO - Materia menu has to be enabled too
+  if (DATA.showMateriaMenuOnExit && isMateriaMenuAvailable()) {
     console.log('equip SHOW MATERIA MENU')
     // fadeInHomeMenu() // Just temp
     loadMateriaMenu(DATA.partyMember)
