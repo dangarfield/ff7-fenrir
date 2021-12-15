@@ -4,6 +4,8 @@ import { loadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 
+// Example interesting shader - https://masatomakino.github.io/threejs-shader-materials/demo/ -> demoSwirl.html
+
 let scene
 let camera
 
