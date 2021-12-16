@@ -539,6 +539,9 @@ const processPalettes = () => {
     console.log('palettes - processing', i, texture)
   }
 }
+
+// https://wikisquare-ffdream-com.translate.goog/ff7/technique/field/bg?_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en-GB
+
 const fieldVertexShader = () => {
   return `
 varying vec2 vUv;
@@ -550,11 +553,25 @@ void main() {
 }`
 }
 
+// TODO - Add this logic in the shader
+// if (paletteItem.isBlack && flevel.palette.pages[tile.paletteId] && flevel.palette.pages[tile.paletteId][0]) {
+//   const paletteFirstColor = Object.assign({}, flevel.palette.pages[tile.paletteId][0])
+//   paletteFirstColor.isBlack = isBlack(paletteFirstColor)
+//   paletteFirstColor.type = 'first'
+//   paletteItem = paletteFirstColor
+// }
+// if (ignoreFirstPixel) {
+//   if (shallPrintDebug(posX, posY, setBlackBackground)) {
+//     console.log('ignoreFirstPixel', paletteItem)
+//   }
+//   paletteItem.noRender = 1 // eg, don't render show
+// }
 const fieldFragmentShader = () => {
   return `
 uniform int w;
 uniform int h;
 uniform int paletteSize;
+uniform int useFirstPixel;
 uniform sampler2D palette;
 uniform sampler2D pixels;
 varying vec2 vUv;
@@ -563,8 +580,11 @@ vec4 getPixelColorFromPalette (int pixelIndex, int w, int h, vec2 xyPos, sampler
   vec4 pixelColor = texture2D(pixels, vec2(1.0 / float(w) * float(xyPos.x),1.0 / float(h) * float(xyPos.y)));
   float paletteIndex = pixelColor.x * 255.0;
   vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
-  if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
+  if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
+  } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
+    //color.a = 0.0;
+    color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
   }
   return color;
 }
@@ -620,6 +640,9 @@ const drawBG = async (
       },
       h: {
         value: window.currentField.metaData.assetDimensions.height
+      },
+      useFirstPixel: {
+        value: window.currentField.data.background.palette.ignoreFirstPixel[userData.paletteId]
       },
       paletteSize: {
         value: 256
