@@ -227,6 +227,12 @@ const getFieldDimensions = fieldName =>
 const getFieldBGLayerUrl = (fieldName, fileName) => {
   return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/${fileName}`
 }
+const getFieldBGPixelLayerUrl = (fieldName, fileName) => {
+  return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/pixels/${fileName}`
+}
+const getFieldBGTileUrl = (fieldName, fileName, tileIndex) => {
+  return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/tiles/${fileName.replace('.png', '')}-${tileIndex}.png`
+}
 
 const getAnimatedArrowPositionHelperTextures = type => {
   if (type === 2) {
@@ -281,6 +287,8 @@ export {
   loadModels,
   getFieldDimensions,
   getFieldBGLayerUrl,
+  getFieldBGPixelLayerUrl,
+  getFieldBGTileUrl,
   getAnimatedArrowPositionHelperTextures,
   getCursorPositionHelperTexture,
   getDialogTextures,

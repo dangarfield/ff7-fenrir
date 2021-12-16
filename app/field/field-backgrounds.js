@@ -1,9 +1,11 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { getFieldDimensions, getFieldBGLayerUrl } from './field-fetch-data.js'
+import { getFieldDimensions, getFieldBGLayerUrl, getFieldBGPixelLayerUrl, getFieldBGTileUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 import { getModelScaleDownValue } from './field-models.js'
 import { dec2hexPairs } from '../helpers/helpers.js'
 // window.THREE = THREE // For debug
+
+const USE_CUSTOM_SHADER = true
 
 const changeBackgroundParamState = (param, state, isActive) => {
   // console.log('changeBackgroundParamState', param, state, isActive)
@@ -441,9 +443,10 @@ const placeBG = async fieldName => {
 
   return new Promise(async (resolve, reject) => {
     const manager = new THREE.LoadingManager()
-    for (let i = 0; i < window.currentField.backgroundData.length; i++) {
-      const layer = window.currentField.backgroundData[i]
-      processBG(layer, fieldName, manager)
+    createPalettes(fieldName)
+    for (let i = 0; i < window.currentField.backgroundData.layers.length; i++) {
+      const layerData = window.currentField.backgroundData.layers[i]
+      processBG(layerData, fieldName, manager)
     }
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
       // const progress = itemsLoaded / itemsTotal
@@ -458,76 +461,84 @@ const placeBG = async fieldName => {
   })
 }
 
-const processBG = (layer, fieldName, manager) => {
-  if (layer.depth === 0) {
-    layer.depth = 1
+const processBG = (layerData, fieldName, manager) => {
+  if (layerData.depth === 0) {
+    layerData.depth = 1
   }
-  if (layer.z <= 10) {
+  if (layerData.z <= 10) {
     // z = doesn't show, just set it slightly higher for now
-    layer.z = layer.z + 10
+    layerData.z = layerData.z + 10
   }
-  if (layer.layerID === 3) {
+  if (layerData.layerID === 3) {
     // Always in front
-    layer.z = 9
+    layerData.z = 9
   }
-  if (layer.layerID === 2) {
+  if (layerData.layerID === 2) {
     // Always behind
-    layer.z = 5000
+    layerData.z = 5000
   }
-  if (layer.layerID === 0) {
+  if (layerData.layerID === 0) {
     // Seems to be before layerID 1 (variable z's)
     // layer.z = 10
   }
   // If layer containers a param, make sure it sits infront of its default background - Not entirely sure if this is right, need to check with different triggers and switches
-  if (layer.param > 0) {
-    layer.z = layer.z - 1
+  if (layerData.param > 0) {
+    layerData.z = layerData.z - 1
   }
-  let visible = layer.param === 0 // By default hide all non zero params, field op codes will how them
+  let visible = layerData.param === 0 // By default hide all non zero params, field op codes will how them
 
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-  const bgDistance = layer.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  const bgDistance = layerData.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
-    z: layer.z,
-    param: layer.param,
-    state: layer.state,
-    typeTrans: layer.typeTrans,
-    layerId: layer.layerID
+    z: layerData.z,
+    param: layerData.param,
+    state: layerData.state,
+    typeTrans: layerData.typeTrans,
+    layerId: layerData.layerID,
+    paletteId: layerData.paletteId
   }
-  if (layer.parallaxDirection !== undefined) {
-    userData.parallaxDirection = layer.parallaxDirection
-    userData.parallaxRatio = layer.parallaxRatio
+  if (layerData.parallaxDirection !== undefined) {
+    userData.parallaxDirection = layerData.parallaxDirection
+    userData.parallaxRatio = layerData.parallaxRatio
   }
   let bgVector = new THREE.Vector3().lerpVectors(
     window.currentField.fieldCamera.position,
     window.currentField.cameraTarget,
     bgDistance
   )
-  let url = getFieldBGLayerUrl(fieldName, layer.fileName)
   drawBG(
+    fieldName,
     bgVector.x,
     bgVector.y,
     bgVector.z,
     bgDistance,
-    url,
     window.currentField.backgroundLayers,
     visible,
     userData,
-    manager
+    manager,
+    layerData
   )
 }
 
+const createPalettes = (fieldName) => {
+  for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
+    console.log('palettes', i)
+  }
+}
+
 const drawBG = async (
+  fieldName,
   x,
   y,
   z,
   distance,
-  bgImgUrl,
-  group,
+  backgroundLayersGroup,
   visible,
   userData,
-  manager
+  manager,
+  layerData
 ) => {
   let vH =
     Math.tan(
@@ -544,15 +555,30 @@ const drawBG = async (
     vH = vH * userData.parallaxRatio
   }
   let geometry = new THREE.PlaneBufferGeometry(vW, vH)
-  console.log('drawBG', distance, '->', vH, vW, userData, bgImgUrl, geometry.uuid)
+  console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
 
-  let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
-  texture.magFilter = THREE.NearestFilter
-  // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-  let material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true
-  })
+  let material
+  if (USE_CUSTOM_SHADER) {
+    const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
+    let texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
+    texture.magFilter = THREE.NearestFilter
+    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true
+    })
+  } else {
+    const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
+
+    let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
+    texture.magFilter = THREE.NearestFilter
+    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+    material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true
+    })
+  }
+
   let plane = new THREE.Mesh(geometry, material)
   plane.position.set(x, y, z)
   plane.lookAt(window.currentField.fieldCamera.position)
@@ -573,7 +599,7 @@ const drawBG = async (
     plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
   }
 
-  group.add(plane)
+  backgroundLayersGroup.add(plane)
   if (userData.layerId === 2) {
     initLayer2Parallax(plane)
   }

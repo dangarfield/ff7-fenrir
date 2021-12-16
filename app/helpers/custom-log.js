@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
       'printedCompare',
       // 'press MAIN MENU HOME',
       // 'test',
-      'KAWAI'
+      'palettes'
     ],
     log: function () {
       if (limit) {
