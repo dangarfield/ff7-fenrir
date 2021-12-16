@@ -1,11 +1,11 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { getFieldDimensions, getFieldBGLayerUrl, getFieldBGPixelLayerUrl, getFieldBGTileUrl } from './field-fetch-data.js'
+import { getFieldDimensions, getFieldBGLayerUrl, getFieldBGPixelLayerUrl, getFieldBGPaletteUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 import { getModelScaleDownValue } from './field-models.js'
 import { dec2hexPairs } from '../helpers/helpers.js'
 // window.THREE = THREE // For debug
 
-const USE_CUSTOM_SHADER = true
+const USE_CUSTOM_SHADER = false
 
 const changeBackgroundParamState = (param, state, isActive) => {
   // console.log('changeBackgroundParamState', param, state, isActive)
@@ -442,8 +442,9 @@ const placeBG = async fieldName => {
   window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 
   return new Promise(async (resolve, reject) => {
+    console.log('processBG Loading start')
     const manager = new THREE.LoadingManager()
-    createPalettes(fieldName)
+    loadPalettes(fieldName, manager)
     for (let i = 0; i < window.currentField.backgroundData.layers.length; i++) {
       const layerData = window.currentField.backgroundData.layers[i]
       processBG(layerData, fieldName, manager)
@@ -456,6 +457,7 @@ const placeBG = async fieldName => {
     }
     manager.onLoad = function () {
       console.log('processBG Loading complete')
+      processPalettes()
       resolve()
     }
   })
@@ -522,10 +524,59 @@ const processBG = (layerData, fieldName, manager) => {
   )
 }
 
-const createPalettes = (fieldName) => {
+const loadPalettes = (fieldName, manager) => {
+  window.currentField.backgroundData.palettes = {textures: [], data: []}
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
-    console.log('palettes', i)
+    const bgPaletteUrl = getFieldBGPaletteUrl(fieldName, i)
+    console.log('palettes', i, bgPaletteUrl)
+    let texture = new THREE.TextureLoader(manager).load(bgPaletteUrl)
+    window.currentField.backgroundData.palettes.textures.push(texture)
   }
+}
+const processPalettes = () => {
+  for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
+    const texture = window.currentField.backgroundData.palettes.textures[i]
+    console.log('palettes - processing', i, texture)
+  }
+}
+const fieldVertexShader = () => {
+  return `
+varying vec2 vUv;
+
+void main() {
+  vUv = uv;
+  vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * modelViewPosition;
+}`
+}
+
+const fieldFragmentShader = () => {
+  return `
+uniform int w;
+uniform int h;
+uniform int paletteSize;
+uniform sampler2D palette;
+uniform sampler2D pixels;
+varying vec2 vUv;
+
+vec4 getPixelColorFromPalette (int pixelIndex, int w, int h, vec2 xyPos, sampler2D pixels, sampler2D palette, int paletteSize) {
+  vec4 pixelColor = texture2D(pixels, vec2(1.0 / float(w) * float(xyPos.x),1.0 / float(h) * float(xyPos.y)));
+  float paletteIndex = pixelColor.x * 255.0;
+  vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
+  if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
+    color.a = 0.0;
+  }
+  return color;
+}
+
+void main() {
+  float wF = float(w);
+  float hF = float(h);
+
+  vec2 xyPos = floor(vec2(vUv.x * wF,  vUv.y * hF));
+  int pixelIndex = int((wF * xyPos.y) + (xyPos.x));
+  gl_FragColor = getPixelColorFromPalette( pixelIndex, w, h, xyPos, pixels, palette, paletteSize );
+}`
 }
 
 const drawBG = async (
@@ -562,17 +613,41 @@ const drawBG = async (
     const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
     let texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
     texture.magFilter = THREE.NearestFilter
-    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
-    material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true
+
+    const uniforms = {
+      w: {
+        value: window.currentField.metaData.assetDimensions.width
+      },
+      h: {
+        value: window.currentField.metaData.assetDimensions.height
+      },
+      paletteSize: {
+        value: 256
+      },
+      palette: {
+        value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
+      },
+      pixels: {
+        value: texture
+      }
+    }
+
+    material = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      fragmentShader: fieldFragmentShader(),
+      vertexShader: fieldVertexShader()
     })
+    material.transparent = true
+    // material = new THREE.MeshBasicMaterial({
+    //   map: texture,
+    //   transparent: true
+    // })
   } else {
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
     let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
     texture.magFilter = THREE.NearestFilter
-    // let planeMaterial = new THREE.MeshLambertMaterial({ map: texture })
+
     material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true

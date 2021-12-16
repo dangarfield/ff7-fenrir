@@ -10,6 +10,7 @@ window.console = (function (origConsole) {
       'printedCompare',
       // 'press MAIN MENU HOME',
       // 'test',
+      'processBG',
       'palettes'
     ],
     log: function () {

@@ -230,8 +230,8 @@ const getFieldBGLayerUrl = (fieldName, fileName) => {
 const getFieldBGPixelLayerUrl = (fieldName, fileName) => {
   return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/pixels/${fileName}`
 }
-const getFieldBGTileUrl = (fieldName, fileName, tileIndex) => {
-  return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/tiles/${fileName.replace('.png', '')}-${tileIndex}.png`
+const getFieldBGPaletteUrl = (fieldName, paletteIndex) => {
+  return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/palettes/${fieldName}-${paletteIndex}.png`
 }
 
 const getAnimatedArrowPositionHelperTextures = type => {
@@ -288,7 +288,7 @@ export {
   getFieldDimensions,
   getFieldBGLayerUrl,
   getFieldBGPixelLayerUrl,
-  getFieldBGTileUrl,
+  getFieldBGPaletteUrl,
   getAnimatedArrowPositionHelperTextures,
   getCursorPositionHelperTexture,
   getDialogTextures,
