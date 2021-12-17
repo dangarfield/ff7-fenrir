@@ -11,7 +11,8 @@ window.console = (function (origConsole) {
       // 'press MAIN MENU HOME',
       // 'test',
       'processBG',
-      'palettes'
+      'palettes',
+      'drawBG'
     ],
     log: function () {
       if (limit) {

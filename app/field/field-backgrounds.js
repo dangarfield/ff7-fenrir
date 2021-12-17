@@ -5,7 +5,7 @@ import { getModelScaleDownValue } from './field-models.js'
 import { dec2hexPairs } from '../helpers/helpers.js'
 // window.THREE = THREE // For debug
 
-const USE_CUSTOM_SHADER = false
+const USE_CUSTOM_SHADER = window.location.search.includes('shader')
 
 const changeBackgroundParamState = (param, state, isActive) => {
   // console.log('changeBackgroundParamState', param, state, isActive)
@@ -445,6 +445,7 @@ const placeBG = async fieldName => {
     console.log('processBG Loading start')
     const manager = new THREE.LoadingManager()
     loadPalettes(fieldName, manager)
+    processPalettes()
     for (let i = 0; i < window.currentField.backgroundData.layers.length; i++) {
       const layerData = window.currentField.backgroundData.layers[i]
       processBG(layerData, fieldName, manager)
@@ -457,7 +458,6 @@ const placeBG = async fieldName => {
     }
     manager.onLoad = function () {
       console.log('processBG Loading complete')
-      processPalettes()
       resolve()
     }
   })
@@ -487,10 +487,10 @@ const processBG = (layerData, fieldName, manager) => {
   if (layerData.param > 0) {
     layerData.z = layerData.z - 1
   }
-  let visible = layerData.param === 0 // By default hide all non zero params, field op codes will how them
+  let visible = layerData.param === 0 // By default hide all non zero params, field op codes will show them
 
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-  const bgDistance = layerData.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
@@ -525,7 +525,7 @@ const processBG = (layerData, fieldName, manager) => {
 }
 
 const loadPalettes = (fieldName, manager) => {
-  window.currentField.backgroundData.palettes = {textures: [], data: []}
+  window.currentField.backgroundData.palettes = {textures: [], textureList: [], data: []}
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const bgPaletteUrl = getFieldBGPaletteUrl(fieldName, i)
     console.log('palettes', i, bgPaletteUrl)
@@ -534,9 +534,19 @@ const loadPalettes = (fieldName, manager) => {
   }
 }
 const processPalettes = () => {
+  // for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
+  //   const texture = window.currentField.backgroundData.palettes.textures[i]
+  //   console.log('palettes - processing', i, texture)
+  // }
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
-    const texture = window.currentField.backgroundData.palettes.textures[i]
-    console.log('palettes - processing', i, texture)
+    const paletteInfos = window.currentField.data.palette.pages[i]
+    const paletteData = []
+    for (let j = 0; j < paletteInfos.length; j++) {
+      const paletteInfo = paletteInfos[j]
+      // console.log('palettes - processing', i, j)
+      paletteData.push(new THREE.Vector4(paletteInfo.r / 255, paletteInfo.g / 255, paletteInfo.b / 255, paletteInfo.a / 255))
+    }
+    window.currentField.backgroundData.palettes.textureList[i] = paletteData
   }
 }
 
@@ -568,34 +578,37 @@ void main() {
 // }
 const fieldFragmentShader = () => {
   return `
-uniform int w;
-uniform int h;
 uniform int paletteSize;
 uniform int useFirstPixel;
 uniform sampler2D palette;
 uniform sampler2D pixels;
+uniform vec4[256] paletteList;
 varying vec2 vUv;
 
-vec4 getPixelColorFromPalette (int pixelIndex, int w, int h, vec2 xyPos, sampler2D pixels, sampler2D palette, int paletteSize) {
-  vec4 pixelColor = texture2D(pixels, vec2(1.0 / float(w) * float(xyPos.x),1.0 / float(h) * float(xyPos.y)));
+vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, int paletteSize, vec4[256] paletteList) {
+  vec4 pixelColor = texture2D(pixels, vUv);
   float paletteIndex = pixelColor.x * 255.0;
-  vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
+  // vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0.5));
+  vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+  //vec4 color = paletteList[int(paletteIndex)];
+  //vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
+  //vec4 color = texture(palette, uv2);
+
+
   if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
   } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
     //color.a = 0.0;
-    color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
+    color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
   }
   return color;
 }
 
 void main() {
-  float wF = float(w);
-  float hF = float(h);
 
-  vec2 xyPos = floor(vec2(vUv.x * wF,  vUv.y * hF));
-  int pixelIndex = int((wF * xyPos.y) + (xyPos.x));
-  gl_FragColor = getPixelColorFromPalette( pixelIndex, w, h, xyPos, pixels, palette, paletteSize );
+  //gl_FragColor = texture2D(palette, vUv);
+
+  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, paletteList );
 }`
 }
 
@@ -625,6 +638,9 @@ const drawBG = async (
   if (userData.parallaxDirection === 'vertical') {
     vH = vH * userData.parallaxRatio
   }
+  if (userData.z !== 1124) {
+    // return
+  }
   let geometry = new THREE.PlaneBufferGeometry(vW, vH)
   console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
 
@@ -647,6 +663,9 @@ const drawBG = async (
       paletteSize: {
         value: 256
       },
+      paletteList: {
+        value: window.currentField.backgroundData.palettes.textureList[userData.paletteId]
+      },
       palette: {
         value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
       },
@@ -654,7 +673,7 @@ const drawBG = async (
         value: texture
       }
     }
-
+    console.log('palettes uniforms', uniforms)
     material = new THREE.ShaderMaterial({
       uniforms: uniforms,
       fragmentShader: fieldFragmentShader(),
@@ -697,6 +716,11 @@ const drawBG = async (
     plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
   }
 
+  // if (userData.layerId === 1) {
+  //   plane.visible = false
+  // } else {
+  //   plane.visible = true
+  // }
   backgroundLayersGroup.add(plane)
   if (userData.layerId === 2) {
     initLayer2Parallax(plane)
