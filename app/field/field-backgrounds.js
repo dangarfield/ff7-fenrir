@@ -611,6 +611,11 @@ void main() {
 }`
 }
 
+// https://dangarfield.github.io/kujata-webapp/scene-details/md1_2
+// https://dangarfield.github.io/kujata-webapp/field-op-code-details/eb
+// https://dangarfield.github.io/kujata-webapp/field-op-code-details/ec
+// https://dangarfield.github.io/kujata-webapp/field-op-code-details/e9
+
 const drawBG = async (
   fieldName,
   x,
@@ -725,7 +730,42 @@ const drawBG = async (
     initLayer2Parallax(plane)
   }
 }
-
+const ensureTempPalette = () => {
+  if (!window.data.TEMP_PALETTE) {
+    window.data.TEMP_PALETTE = []
+  }
+}
+const storePalette = (paletteId, tempPaletteId, start, size) => {
+  ensureTempPalette()
+  const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
+  window.data.TEMP_PALETTE[tempPaletteId] = []
+  let tempIndex = 0
+  for (let i = start; i < start + size; i++) {
+    window.data.TEMP_PALETTE[tempPaletteId][tempIndex] = paletteData[i]
+    tempIndex++
+  }
+  console.log('storePalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE)
+}
+const loadPalette = (paletteId, tempPaletteId, start, size) => {
+  ensureTempPalette()
+  // tempPaletteId = tempPaletteId - 10 // temp
+  console.log('loadPalette', paletteId, tempPaletteId, start, size, window.data.TEMP_PALETTE[tempPaletteId])
+  const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
+  for (let tempIndex = 0; tempIndex < size; tempIndex++) {
+    paletteData[start + tempIndex] = window.data.TEMP_PALETTE[tempPaletteId][tempIndex]
+  }
+  console.log('loadPalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE[tempPaletteId][0])
+  // Also apply the uniforms palette changes to the layers that have the paletteId
+}
+const addPalette = (sourceTempPaletteId, targetTempPaletteId, r, g, b, size) => {
+  console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
+  window.data.TEMP_PALETTE[targetTempPaletteId] = []
+  for (let i = 0; i < window.data.TEMP_PALETTE[sourceTempPaletteId].length; i++) {
+    const source = window.data.TEMP_PALETTE[sourceTempPaletteId][i]
+    const target = new THREE.Vector4(source.x + r / 255, source.y + g / 255, source.z + b / 255, source.w) // TODO - Add ??? This is not right
+    window.data.TEMP_PALETTE[targetTempPaletteId][i] = target
+  }
+}
 export {
   changeBackgroundParamState,
   rollBackgroundParamState,
@@ -735,5 +775,8 @@ export {
   updateBackgroundScolling,
   drawWalkmesh,
   placeBG,
-  updateLayer2Parallax
+  updateLayer2Parallax,
+  storePalette,
+  loadPalette,
+  addPalette
 }

@@ -12,7 +12,10 @@ window.console = (function (origConsole) {
       // 'test',
       'processBG',
       'palettes',
-      'drawBG'
+      'drawBG',
+      'storePalette',
+      'loadPalette',
+      'addPalette'
     ],
     log: function () {
       if (limit) {

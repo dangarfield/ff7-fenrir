@@ -763,6 +763,16 @@ const executeOp = async (
       result = await background.BGCLR(op)
       break
 
+    case 'STPLS':
+      result = await background.STPLS(op)
+      break
+    case 'LDPLS':
+      result = await background.LDPLS(op)
+      break
+    case 'ADPAL':
+      result = await background.ADPAL(op)
+      break
+
     // Camera, Audio and Video
 
     case 'NFADE':
