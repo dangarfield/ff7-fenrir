@@ -763,11 +763,18 @@ const executeOp = async (
       result = await background.BGCLR(op)
       break
 
+      // TODO - ordering
     case 'STPLS':
       result = await background.STPLS(op)
       break
+    case 'STPAL':
+      result = await background.STPAL(op)
+      break
     case 'LDPLS':
       result = await background.LDPLS(op)
+      break
+    case 'LDPAL':
+      result = await background.LDPAL(op)
       break
     case 'ADPAL':
       result = await background.ADPAL(op)

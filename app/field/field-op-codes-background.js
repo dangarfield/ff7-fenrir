@@ -55,14 +55,29 @@ const BGSCR = async op => {
   scrollBackground(op.l, x, y)
   return {}
 }
+// TODO - ordering
 const STPLS = async (op) => {
   console.log('STPLS', op)
   storePalette(op.p, op.t, op.start, op.size)
   return {}
 }
+const STPAL = async (op) => {
+  console.log('STPAL', op)
+  const p = op.b1 === 0 ? op.p : getBankData(op.b1, op.p)
+  const t = op.b2 === 0 ? op.t : getBankData(op.b2, op.t)
+  storePalette(p, t, 0, op.size)
+  return {}
+}
 const LDPLS = async (op) => {
   console.log('LDPLS', op)
   loadPalette(op.p, op.t, op.start, op.size)
+  return {}
+}
+const LDPAL = async (op) => {
+  console.log('LDPAL', op)
+  const p = op.b1 === 0 ? op.p : getBankData(op.b1, op.p)
+  const t = op.b2 === 0 ? op.t : getBankData(op.b2, op.t)
+  loadPalette(p, t, 0, op.size)
   return {}
 }
 const ADPAL = async (op) => {
@@ -72,9 +87,7 @@ const ADPAL = async (op) => {
   const b = op.b3 === 0 ? op.b : getBankData(op.b3, op.b)
   const g = op.b4 === 0 ? op.g : getBankData(op.b4, op.g)
   const r = op.b5 === 0 ? op.r : getBankData(op.b5, op.r)
-
   const size = op.size
-
   addPalette(s, t, r, g, b, size)
   return {}
 }
@@ -102,4 +115,4 @@ const ADPAL = async (op) => {
 // }, 10000)
 
 export { BGPDH, BGSCR, BGON, BGOFF, BGROL, BGROL2, BGCLR,
-  STPLS, LDPLS, ADPAL }
+  STPLS, STPAL, LDPLS, LDPAL, ADPAL }

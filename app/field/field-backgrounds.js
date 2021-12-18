@@ -525,7 +525,7 @@ const processBG = (layerData, fieldName, manager) => {
 }
 
 const loadPalettes = (fieldName, manager) => {
-  window.currentField.backgroundData.palettes = {textures: [], textureList: [], data: []}
+  window.currentField.backgroundData.palettes = {textures: [], textureList: [], data: [], dataTextures: []}
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const bgPaletteUrl = getFieldBGPaletteUrl(fieldName, i)
     console.log('palettes', i, bgPaletteUrl)
@@ -541,12 +541,19 @@ const processPalettes = () => {
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const paletteInfos = window.currentField.data.palette.pages[i]
     const paletteData = []
+    const data = new Uint8Array(4 * 256)
     for (let j = 0; j < paletteInfos.length; j++) {
       const paletteInfo = paletteInfos[j]
       // console.log('palettes - processing', i, j)
       paletteData.push(new THREE.Vector4(paletteInfo.r / 255, paletteInfo.g / 255, paletteInfo.b / 255, paletteInfo.a / 255))
+      data[j * 4 + 0] = paletteInfo.r
+      data[j * 4 + 1] = paletteInfo.g
+      data[j * 4 + 2] = paletteInfo.b
+      data[j * 4 + 3] = paletteInfo.a
     }
+    const paletteTexture = new THREE.DataTexture(data, 256, 1, THREE.RGBAFormat)
     window.currentField.backgroundData.palettes.textureList[i] = paletteData
+    window.currentField.backgroundData.palettes.dataTextures[i] = paletteTexture
   }
 }
 
@@ -671,7 +678,7 @@ const drawBG = async (
         value: window.currentField.backgroundData.palettes.textureList[userData.paletteId]
       },
       palette: {
-        value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
+        value: window.currentField.backgroundData.palettes.textures[userData.paletteId] // TODO: dataTextures does not work yet...
       },
       pixels: {
         value: texture
@@ -735,6 +742,14 @@ const ensureTempPalette = () => {
     window.data.TEMP_PALETTE = []
   }
 }
+const updateLayersWithPaletteChange = (paletteId) => {
+  const layers = window.currentField.backgroundLayers.children.filter(c => c.userData.paletteId === 11)
+  for (let i = 0; i < layers.length; i++) {
+    const layer = layers[i]
+    const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
+    // TODO - complete this once dataTextures are working
+  }
+}
 const storePalette = (paletteId, tempPaletteId, start, size) => {
   ensureTempPalette()
   const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
@@ -749,16 +764,17 @@ const storePalette = (paletteId, tempPaletteId, start, size) => {
 const loadPalette = (paletteId, tempPaletteId, start, size) => {
   ensureTempPalette()
   // tempPaletteId = tempPaletteId - 10 // temp
-  console.log('loadPalette', paletteId, tempPaletteId, start, size, window.data.TEMP_PALETTE[tempPaletteId])
+  // console.log('loadPalette', paletteId, tempPaletteId, start, size, window.data.TEMP_PALETTE[tempPaletteId])
   const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
   for (let tempIndex = 0; tempIndex < size; tempIndex++) {
     paletteData[start + tempIndex] = window.data.TEMP_PALETTE[tempPaletteId][tempIndex]
   }
-  console.log('loadPalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE[tempPaletteId][0])
+  updateLayersWithPaletteChange(paletteId)
+  // console.log('loadPalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE[tempPaletteId][0])
   // Also apply the uniforms palette changes to the layers that have the paletteId
 }
 const addPalette = (sourceTempPaletteId, targetTempPaletteId, r, g, b, size) => {
-  console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
+  // console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
   window.data.TEMP_PALETTE[targetTempPaletteId] = []
   for (let i = 0; i < window.data.TEMP_PALETTE[sourceTempPaletteId].length; i++) {
     const source = window.data.TEMP_PALETTE[sourceTempPaletteId][i]
