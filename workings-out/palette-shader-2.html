@@ -28,7 +28,12 @@
         w: 512,
         h: 512,
         paletteSize: 3,
+        fieldUrl: 'http://localhost:3001/kujata-data/data/field/flevel.lgp/md1_2.json',
+        field: {},
+        bgUrl: 'http://localhost:3001/kujata-data/metadata/background-layers/md1_2/md1_2.json',
+        bg: {},
         pixelURL: 'http://localhost:3001/kujata-data/metadata/background-layers/md1_2/pixels/md1_2-4095-0-0-0-0-4.png',
+        pixelTexture: {},
         pixels: [0, 1, 2, 0,
             1, 2, 0, 1,
             2, 0, 1, 2
@@ -56,60 +61,41 @@ void main() {
 
     function fragmentShader() {
         return `
-uniform int w;
-uniform int h;
 uniform int paletteSize;
+uniform int useFirstPixel;
 uniform sampler2D palette;
 uniform sampler2D pixels;
+uniform vec4[256] paletteList;
 varying vec2 vUv;
 
-vec4 getPixelColorFromPalette (int pixelIndex, int w, int h, vec2 xyPos, sampler2D pixels, sampler2D palette, int paletteSize) {
-		vec4 pixelColor = texture2D(pixels, vec2(1.0 / float(w) * float(xyPos.x),1.0 / float(h) * float(xyPos.y)));
-		float paletteIndex = pixelColor.x * 255.0;
-		vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0));
-		return color;
+vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
+vec4 pixelColor = texture2D(pixels, vUv);
+float paletteIndex = pixelColor.x * 255.0;
+// vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0.5));
+vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+//vec4 color = paletteList[int(paletteIndex)];
+//vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
+//vec4 color = texture(palette, uv2);
+
+
+if (useFirstPixel == 1 && paletteIndex == 0.0) {
+color.a = 0.0;
+} else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
+color = texture2D(palette, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
+}
+return color;
 }
 
 void main() {
-    float wF = float(w);
-    float hF = float(h);
 
-    vec2 xyPos = floor(vec2(vUv.x * wF, vUv.y * hF));
-    int pixelIndex = int((wF * xyPos.y) + (xyPos.x));
-    gl_FragColor = getPixelColorFromPalette( pixelIndex, w, h, xyPos, pixels, palette, paletteSize );
+//gl_FragColor = texture2D(palette, vUv);
+
+gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, paletteList, useFirstPixel );
 }`
     }
 
     // Useful texture2d convert - https://godotshaders.com/shader/palette-shader-lospec-compatible/
     const generateShaderUniformsFromPalette = () => {
-
-        // for (let i = 0; i < data.palettes.length; i++) {
-        //     const paletteData = new Uint8Array(4 * 3)
-        //     for (let j = 0; j < data.paletteSize; j++) {
-        //         const color = new THREE.Color(data.palettes[i][j])
-        //         paletteData[j * 4 + 0] = Math.floor(color.r * 255)
-        //         paletteData[j * 4 + 1] = Math.floor(color.g * 255)
-        //         paletteData[j * 4 + 2] = Math.floor(color.b * 255)
-        //         paletteData[j * 4 + 3] = 255
-        //     }
-        //     const paletteTexture = new THREE.DataTexture(paletteData, data.paletteSize, 1, THREE.RGBAFormat)
-        //     data.paletteTextures.push(paletteTexture)
-
-        //     const textureDebug = Array(data.paletteSize).fill(null).map(() => [])
-        //     for (var entry of paletteTexture.image.data.entries()) {
-        //         textureDebug[Math.floor(entry[0] / 4)].push(entry[1])
-        //     }
-        //     console.log('textureDebug', textureDebug)
-        // }
-
-        // const pixelData = new Uint8Array(3 * data.pixels.length)
-        // for (let i = 0; i < data.pixels.length; i++) {
-        //     pixelData[i * 3 + 0] = data.pixels[i]
-        //     pixelData[i * 3 + 1] = 0
-        //     pixelData[i * 3 + 2] = 0
-        // }
-        // const pixelTexture = new THREE.DataTexture(pixelData, data.w, data.h, THREE.RGBFormat)
-
         const uniforms = {
             w: {
                 value: 512
@@ -122,8 +108,8 @@ void main() {
                 value: 256
             },
             palette: {
-                value: data.paletteTextures[0]
-                // value: data.paletteTexture
+                // value: data.paletteTexture[0]
+                value: data.paletteTexture
             },
             pixels: {
                 // value: pixelTexture
@@ -140,7 +126,16 @@ void main() {
         const geometry = new THREE.PlaneGeometry(data.w, data.h)
         // geometry.setAttribute('pixels', new THREE.BufferAttribute(new Int8Array(data.pixels), 3))
 
-        const uniforms = generateShaderUniformsFromPalette()
+// uniform int paletteSize;
+// uniform int useFirstPixel;
+// uniform sampler2D palette;
+// uniform sampler2D pixels;
+        const uniforms = {
+        paletteSize: { value: 256},
+        useFirstPixel: { value: 1},
+        palette: { value: 256},
+        pixels: { value: 256},
+        }
         console.log('uniforms', uniforms)
         let material = new THREE.ShaderMaterial({
             uniforms: uniforms,
@@ -148,8 +143,10 @@ void main() {
             vertexShader: vertexShader()
         })
         // console.log('data.pixelTexture', data.pixelTexture)
-        // const material = new THREE.MeshBasicMaterial({
-        //     map: data.pixelTexture
+        // material = new THREE.MeshBasicMaterial({
+        //     // map: data.pixelTexture
+        //     // map: data.paletteTexture
+        //     map: data.paletteDataTexture
         //     // color: 'red'
         // })
         material.transparent = true
@@ -189,109 +186,94 @@ void main() {
     //         setShaderPlaneColorsFromPalette()
     //     })
     // }
-    const addExamplePlane = () => {
-        examplePlane = new THREE.Group()
-
-        const geometry = new THREE.PlaneGeometry(1, 1)
-
-        for (let pixelId = 0; pixelId < data.w * data.h; pixelId++) {
-            const material = new THREE.MeshBasicMaterial({
-                color: 'black'
-            })
-            const mesh = new THREE.Mesh(geometry, material)
-            mesh.position.x = pixelId % data.w
-            mesh.position.y = -Math.floor(pixelId / data.w)
-            examplePlane.add(mesh)
-            // console.log('pixelId', pixelId, Math.floor(pixelId / data.w), pixelId % data.w)
-        }
-        examplePlane.position.x = -data.w
-        examplePlane.position.y = 1
-        scene.add(examplePlane)
-        setExamplePlaneColorsFromPalette()
-    }
-    const setExamplePlaneColorsFromPalette = () => {
-        for (let pixelId = 0; pixelId < data.w * data.h; pixelId++) {
-            const paletteIndex = data.pixels[pixelId]
-            const color = new THREE.Color(data.palettes[data.palette][paletteIndex])
-            examplePlane.children[pixelId].material.color = color
-        }
-    }
 
     const loadPixels = async () => {
-        return new Promise(async (resolve, reject) => {
-
-            const iLoader = new THREE.ImageLoader()
-            const pixelImage = await iLoader.load(data.pixelURL,
-                function (image) {
-                    var canvas = document.createElement('canvas');
-                    var context = canvas.getContext('2d');
-                    context.drawImage(image, 0, 0);
-                    const paletteData = new Uint8Array(4 * 512 * 512)
-                    for (let x = 0; x < 512; x++) {
-                        for (let y = 0; y < 512; y++) {
-                            const pixelData=context.getImageData(x, y, 1, 1).data
-
-                            if(pixelData[0] > 0) {
-                                // console.log('pixelData', x,y, pixelData)
-                            }
-                            const step = (x * 512 * 4) + (y * 4)
-
-
-                            paletteData[step + 0] = pixelData[0]
-                            paletteData[step + 1] = 0x0
-                            paletteData[step + 2] = 0x0
-                            paletteData[step + 3] = 0xFF //pixelData[0] > 0 ? 0xFF : 0x0
-                            // paletteData[i * 4 + 1] = 0//pixelData[1]
-                            // paletteData[i * 4 + 2] = 0//pixelData[2]
-                            // paletteData[i * 4 + 3] = 0xFF
-                        }
-
-                    }
-                    const paletteTexture = new THREE.DataTexture(paletteData, 512,512, THREE.RGBAFormat)
-                    data.pixelTexture = paletteTexture
-                    console.log('data.pixels', data.pixelTexture)
-                    resolve()
-                },
-                undefined,
-                function() {
-                    console.error('error')
-                }
-            )
-
-        })
-
+        data.pixelTexture = new THREE.TextureLoader().load(data.pixelURL)
     }
 
     const loadPalette = async () => {
-        return new Promise(async (resolve, reject) => {
-            const iLoader = new THREE.ImageLoader()
-            const paletteImage = await iLoader.load(data.paletteURL,
-                function (image) {
-                    var canvas = document.createElement('canvas');
-                    var context = canvas.getContext('2d');
-                    context.drawImage(image, 0, 0);
-                    const paletteData = new Uint8Array(4 * 256)
-                    for (let i = 0; i < 256; i++) {
-                        const pixelData=context.getImageData(i, 0, 1, 1).data
-                        // console.log('pixelData', i, pixelData)
-                        paletteData[i * 4 + 0] = pixelData[0]
-                        paletteData[i * 4 + 1] = pixelData[1]
-                        paletteData[i * 4 + 2] = pixelData[2]
-                        paletteData[i * 4 + 3] = pixelData[3]
-                    }
-                    const paletteTexture = new THREE.DataTexture(paletteData, 256, 1, THREE.RGBAFormat)
-                    data.paletteTextures.push(paletteTexture)
-                    console.log('data.paletteTextures', data.paletteTextures)
-                    resolve()
-                },
-                undefined,
-                function() {
-                    console.error('error')
-                }
-            )
+        data.paletteTexture = new THREE.TextureLoader().load(data.paletteURL)
+        const paletteInfos = data.field.palette.pages[4]
 
-        })
+        const paletteData = new Uint8Array(4 * paletteInfos.length)
+        for (let i = 0; i < paletteInfos.length; i++) {
+            const paletteInfo = paletteInfos[i]
+            paletteData[(i*4) + 0 ] = paletteInfo.r
+            paletteData[(i*4) + 1 ] = paletteInfo.g
+            paletteData[(i*4) + 2 ] = paletteInfo.b
+            paletteData[(i*4) + 3 ] = paletteInfo.a
+        }
+        data.paletteDataTexture = new THREE.DataTexture(paletteData, paletteInfos.length, 1)
 
+        console.log('loadPalette', paletteInfos[1], paletteData[5],paletteData[6],paletteData[7],paletteData[8], data.paletteDataTexture)
+    }
+    const loadData = async () => {
+        const fieldRes = await fetch(data.fieldUrl)
+        data.field = await fieldRes.json()
+        const bgRes = await fetch(data.bgUrl)
+        data.bg = await bgRes.json()
+    }
+    const loadLayers = async () => {
+        data.layerDatas = []
+        for (let i = 0; i < data.bg.layers.length; i++) {
+            const layer = data.bg.layers[i]
+            // console.log('layer', layer)
+            const layerData = {}
+            layerData.pixelUrl = layer.fileName
+            layerData.pixelTexture = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/pixels/${layerData.pixelUrl}`)
+            layerData.paletteId = layer.paletteId
+            data.layerDatas[i] = layerData
+        }
+
+        data.paletteDataTextures = []
+        data.paletteTextures = []
+        for (let i = 0; i < data.field.palette.pages.length; i++) {
+            const paletteInfos = data.field.palette.pages[i];
+            const d = new Uint8Array(4 * paletteInfos.length)
+            for (let i = 0; i < paletteInfos.length; i++) {
+                const paletteInfo = paletteInfos[i]
+                d[(i*4) + 0 ] = paletteInfo.r
+                d[(i*4) + 1 ] = paletteInfo.g
+                d[(i*4) + 2 ] = paletteInfo.b
+                d[(i*4) + 3 ] = paletteInfo.a
+            }
+            data.paletteDataTextures[i] = new THREE.DataTexture(d, paletteInfos.length, 1)
+            data.paletteTextures[i] = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/palettes/md1_2-${i}.png`)
+        }
+
+    }
+    const drawLayers = () => {
+        for (let i = 0; i < data.layerDatas.length; i++) {
+            const layerData = data.layerDatas[i];
+
+            const geometry = new THREE.PlaneGeometry(data.w, data.h)
+            // geometry.setAttribute('pixels', new THREE.BufferAttribute(new Int8Array(data.pixels), 3))
+            const uniforms = {
+                paletteSize: { value: 256},
+                useFirstPixel: { value: data.field.background.palette.ignoreFirstPixel[layerData.paletteId]},
+                palette: { value: data.paletteDataTextures[layerData.paletteId]},
+                pixels: { value: layerData.pixelTexture},
+            }
+
+            console.log('uniforms', uniforms)
+            let material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                fragmentShader: fragmentShader(),
+                vertexShader: vertexShader()
+            })
+            // console.log('data.pixelTexture', data.pixelTexture)
+            // material = new THREE.MeshBasicMaterial({
+            // // map: data.pixelTexture
+            // // map: data.paletteTexture
+            // map: data.paletteDataTexture
+            // // color: 'red'
+            // })
+            material.transparent = true
+            const shaderPlane = new THREE.Mesh(geometry, material)
+            // shaderPlane.position.x = data.w - (data.w / 2)
+            scene.add(shaderPlane)
+
+        }
     }
     const renderLoop = () => {
         requestAnimationFrame(renderLoop)
@@ -300,11 +282,16 @@ void main() {
     const init = async () => {
         setupScene()
         //setupGUI()
+        await loadData()
         await loadPixels()
         await loadPalette()
+
+        await loadLayers()
+        await drawLayers()
         // addExamplePlane()
         console.log('post load')
-        addShaderPlane()
+        // addShaderPlane()
+console.log('data', data)
         renderLoop()
     }
     init()
