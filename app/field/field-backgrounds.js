@@ -660,6 +660,7 @@ const drawBG = async (
     const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
     let texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
     texture.magFilter = THREE.NearestFilter
+    // texture.minFilter = THREE.LinearFilter
 
     const uniforms = {
       w: {
@@ -678,13 +679,13 @@ const drawBG = async (
         value: window.currentField.backgroundData.palettes.textureList[userData.paletteId]
       },
       palette: {
-        value: window.currentField.backgroundData.palettes.textures[userData.paletteId] // TODO: dataTextures does not work yet...
+        value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
       },
       pixels: {
         value: texture
       }
     }
-    console.log('palettes uniforms', uniforms)
+    // console.log('palettes uniforms', uniforms)
     material = new THREE.ShaderMaterial({
       uniforms: uniforms,
       fragmentShader: fieldFragmentShader(),
@@ -699,7 +700,8 @@ const drawBG = async (
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
     let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
-    texture.magFilter = THREE.NearestFilter
+    // texture.magFilter = THREE.NearestFilter
+    // texture.minFilter = THREE.LinearFilter
 
     material = new THREE.MeshBasicMaterial({
       map: texture,

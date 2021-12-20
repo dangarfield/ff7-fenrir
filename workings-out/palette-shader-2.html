@@ -45,7 +45,10 @@
             [0xF1FAEE, 0xA8DADC, 0x457B9D]
         ],
         paletteTextures: [],
-        palette: 0
+        palette: 0,
+        zoom: 400,
+        x:0,
+        y:0
     }
 
     function vertexShader() {
@@ -162,8 +165,11 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
 
     const setupScene = () => {
         scene = new THREE.Scene()
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-        camera.position.z = 400
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5500)
+        const width = 400
+        const height = 400
+        camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 5500 )
+        camera.position.z = 200
 
         renderer = new THREE.WebGLRenderer({
             // alpha: true,
@@ -179,17 +185,20 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
             renderer.setSize(window.innerWidth, window.innerHeight)
         }, false)
     }
-    // const setupGUI = () => {
-    //     const gui = new GUI()
-    //     gui.add(data, 'palette', {
-    //         'Palette 0': 0,
-    //         'Palette 1': 1,
-    //         'Palette 2': 2
-    //     }).onChange(value => {
-    //         setExamplePlaneColorsFromPalette()
-    //         setShaderPlaneColorsFromPalette()
-    //     })
-    // }
+    const setupGUI = () => {
+        const gui = new GUI()
+        // gui.add(data, 'palette', {
+        //     'Palette 0': 0,
+        //     'Palette 1': 1,
+        //     'Palette 2': 2
+        // }).onChange(value => {
+        //     setExamplePlaneColorsFromPalette()
+        //     setShaderPlaneColorsFromPalette()
+        // })
+        gui.add(data, 'zoom', 100, 400).onChange(value => camera.position.z = value)
+        gui.add(data, 'x', -150, 150).onChange(value => camera.position.x = value)
+        gui.add(data, 'y', -150, 150).onChange(value => camera.position.y = value)
+    }
 
     const loadPixels = async () => {
         data.pixelTexture = new THREE.TextureLoader().load(data.pixelURL)
@@ -216,20 +225,27 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
         data.field = await fieldRes.json()
         const bgRes = await fetch(data.bgUrl)
         data.bg = await bgRes.json()
+        data.bg.layers = data.bg.layers.sort((a,b) => (b.z -a.z))
     }
     const loadLayers = async () => {
         data.layerDatas = []
         for (let i = 0; i < data.bg.layers.length; i++) {
             const layer = data.bg.layers[i]
-            // console.log('layer', layer)
+            console.log('layer', layer)
             const layerData = {}
             layerData.pixelUrl = layer.fileName
             layerData.pixelTexture = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/pixels/${layerData.pixelUrl}`)
             layerData.pixelTexture.magFilter = THREE.NearestFilter
+            layerData.pixelTexture.minFilter = THREE.LinearFilter;
+            // layerData.pixelTexture.minFilter = THREE.NearestFilter;
+
             layerData.imageTexture = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/${layerData.pixelUrl}`)
             layerData.imageTexture.magFilter = THREE.NearestFilter
+            layerData.imageTexture.minFilter = THREE.LinearFilter;
+            // layerData.imageTexture.minFilter = THREE.NearestFilter;
             layerData.paletteId = layer.paletteId
             layerData.typeTrans = layer.typeTrans
+            layerData.z = layer.z
             data.layerDatas[i] = layerData
         }
 
@@ -257,7 +273,6 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
         for (let i = 0; i < data.layerDatas.length; i++) {
             const layerData = data.layerDatas[i];
 
-            const geometry = new THREE.PlaneGeometry(data.w, data.h)
             // geometry.setAttribute('pixels', new THREE.BufferAttribute(new Int8Array(data.pixels), 3))
             const uniforms = {
                 paletteSize: { value: 256},
@@ -266,7 +281,7 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
                 pixels: { value: layerData.pixelTexture},
             }
 
-            console.log('uniforms', uniforms)
+            // console.log('uniforms', uniforms)
             let material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
                 fragmentShader: fragmentShader(),
@@ -283,6 +298,8 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
             //     transparent: true
             // })
 
+            const geometry = new THREE.PlaneGeometry(data.w, data.h)
+
             const plane = new THREE.Mesh(geometry, material)
             // shaderPlane.position.x = data.w - (data.w / 2)
 
@@ -294,6 +311,8 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
                 plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
             }
 
+
+            plane.position.setZ(-layerData.z)
             scene.add(plane)
 
         }
@@ -304,7 +323,6 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
     }
     const init = async () => {
         setupScene()
-        //setupGUI()
         await loadData()
         await loadPixels()
         await loadPalette()
@@ -314,6 +332,7 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
         // addExamplePlane()
         console.log('post load')
         // addShaderPlane()
+        setupGUI()
 console.log('data', data)
         renderLoop()
     }
