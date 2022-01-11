@@ -700,8 +700,8 @@ const drawBG = async (
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
     let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
-    // texture.magFilter = THREE.NearestFilter
-    // texture.minFilter = THREE.LinearFilter
+    texture.magFilter = THREE.NearestFilter
+    texture.minFilter = THREE.LinearFilter
 
     material = new THREE.MeshBasicMaterial({
       map: texture,
@@ -769,7 +769,10 @@ const loadPalette = (paletteId, tempPaletteId, start, size) => {
   // console.log('loadPalette', paletteId, tempPaletteId, start, size, window.data.TEMP_PALETTE[tempPaletteId])
   const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
   for (let tempIndex = 0; tempIndex < size; tempIndex++) {
-    paletteData[start + tempIndex] = window.data.TEMP_PALETTE[tempPaletteId][tempIndex]
+    // console.log('loadPalette', tempPaletteId, tempIndex, window.data.TEMP_PALETTE[tempPaletteId])
+    if (window.data.TEMP_PALETTE[tempPaletteId]) {
+      paletteData[start + tempIndex] = window.data.TEMP_PALETTE[tempPaletteId][tempIndex]
+    }
   }
   updateLayersWithPaletteChange(paletteId)
   // console.log('loadPalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE[tempPaletteId][0])
