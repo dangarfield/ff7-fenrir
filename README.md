@@ -47,7 +47,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Fix all remaining background imagery bugs (dark spots - DONE, layer 2/3 - DONE, blending/typeTrans - DONE with 1 bug)
 - :white_check_mark: Add keyboard instruction image
 - :white_check_mark: Begin kernel initial and save data information
-- :black_square_button: Do something about lazing loading windowTextures...
+- :white_check_mark: Do something about lazing loading windowTextures...
 - :white_check_mark: Begin properly implementing field op codes - 93% complete. 1 -> I can do later. 3 -> Character graphics ops, undocumented / graphics model changes. 2 -> Undocumented / unknown. 12 -> Paletting, eg different approach required, eg custom shader
 - :white_check_mark: Update savemap with all non op-code data, movements, directions, game time, steps etc
 - :white_check_mark: Implement proper save, import, export mechanism
@@ -63,7 +63,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Save model doesn't rotate
 - :black_square_button: Many broken field models and animations. Mostly seem to be inanimate objects, bydd (gold chest) - Investigate in kujata.
 - :black_square_button: rootmap models aren't correct
-- :black_square_button: Gold chest seems to have a shine (?) animation permanently, but not in the op codes
+- :white_check_mark: Gold chest seems to have a shine (?) animation permanently, but not in the op codes
 - :white_check_mark: Add directional lighting to each model as per flevel, rather than general downlight. Implemented roughly, but there is a bug for per model lighting based on threejs limitations
 - :white_check_mark: Sound loops metadata needs to be extracted properly
 - :white_check_mark: Adjust ray casting so it is not the centre point, eg, no side-to-side movement on 'thin' walkmesh corridors
@@ -99,7 +99,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: Ensure talk, collision & other entity scripts can only execute one at a time
 - :black_square_button: Should check all if not at least which scroll commands are instant no wait (1 frame exec, command continues to execute in subsequent frames, field command stacks continue), instant with wait (async), sync
 - :black_square_button: Need to check that JUMP animations are not broken
-- :black_square_button: Ensure PHS menu action at the end of midgar ensures that there are at least 3 people in the group
+- :white_check_mark: Ensure PHS menu action at the end of midgar ensures that there are at least 3 people in the group
 - :black_square_button: Camera movement op codes are not 100% perfect
 - :black_square_button: Borderless texts show line below characters
 - :black_square_button: Multi line text writes all, rather that just what is visible
@@ -108,13 +108,13 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Fades aren't perfect - Should be good now, wiki updated with findingsdd
 - :black_square_button: Field pointer sizes are wrong
 - :black_square_button: Many gateway pointers are missing
-- :black_square_button: Implement KAWAI graphic effects
+- :white_check_mark: Implement KAWAI graphic effects
 - :black_square_button: Offsets are not 100% - mds7_w2 -> save, pillar_3, mtnvl3
 - :black_square_button: Have assumed all movies are disc1, need to improve
 - :black_square_button: ASK pointer shadow is too dark
 - :black_square_button: BUG: blin66_5 cloud anim not running
 - :black_square_button: Implement remaining difficult op codes
-- :black_square_button: Add blinking eyes
+- :white_check_mark: Add blinking eyes
 
 ### OP Code Completion Status
 
