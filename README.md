@@ -31,7 +31,7 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :white_check_mark: Control character on screen
 - :white_check_mark: Crop, zoom and centering for non-default viewport fields (320x240)
 - :white_check_mark: Viewport follows character on screen
-- :white_check_mark: Triggers & gateways have collisions and behaviours
+- :white_check_mark: Triggers and gateways have collisions and behaviours
 - :white_check_mark: Model collision detection and talking area collision
 - :white_check_mark: Refactor into cleaner code
 - :white_check_mark: Implement remaining trigger behaviours
