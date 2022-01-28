@@ -8,8 +8,6 @@ window.console = (function (origConsole) {
       // 'FLOW ERROR',
       'executeOpDEBUG',
       'printedCompare',
-      // 'press MAIN MENU HOME',
-      // 'test',
       'processBG',
       'palettes',
       'drawBG',
