@@ -493,7 +493,7 @@ const processBG = (layerData, fieldName, manager) => {
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
-  const bgDistance = layerData.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance) // - (layerData.paletteId / 1000) // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
@@ -600,10 +600,9 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, in
   float paletteIndex = pixelColor.x * 255.0;
   // vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0.5));
   vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
-  //vec4 color = paletteList[int(paletteIndex)];
-  //vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
-  //vec4 color = texture(palette, uv2);
-
+  // vec4 color = paletteList[int(paletteIndex)];
+  // vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
+  // vec4 color = texture(palette, uv2);
 
   if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;

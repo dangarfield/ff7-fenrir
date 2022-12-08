@@ -40,14 +40,14 @@ const renderLoop = function () {
     console.log('Stopping field renderLoop')
     return
   }
-  requestAnimationFrame(renderLoop)
-  let delta = window.anim.clock.getDelta()
+  window.requestAnimationFrame(renderLoop)
+  const delta = window.anim.clock.getDelta()
   if (window.currentField.debugCameraControls) {
     window.currentField.debugCameraControls.update(delta)
   }
   if (window.currentField.models) {
     for (let i = 0; i < window.currentField.models.length; i++) {
-      let model = window.currentField.models[i]
+      const model = window.currentField.models[i]
       model.mixer.update(delta) // Render character window.animations
     }
   }
@@ -107,17 +107,17 @@ const startFieldRenderLoop = () => {
 
 const setupRaycasting = async () => {
   if (window.config.raycast.active) {
-    raycaster = new THREE.Raycaster()
-    mouse = new THREE.Vector2()
-    let geometry = new THREE.SphereGeometry(0.002, 32, 32)
-    let material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    // raycaster = new THREE.Raycaster()
+    // mouse = new THREE.Vector2()
+    const geometry = new THREE.SphereGeometry(0.002, 32, 32)
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 })
     window.config.raycast.raycasterHelper = new THREE.Mesh(geometry, material)
     window.config.raycast.raycasterHelper.visible = false
     window.currentField.fieldScene.add(window.config.raycast.raycasterHelper)
     window.addEventListener(
       'mousemove',
       function (event) {
-        let canvasBounds = window.anim.renderer
+        const canvasBounds = window.anim.renderer
           .getContext()
           .canvas.getBoundingClientRect()
         window.config.raycast.mouse.x =
@@ -142,7 +142,7 @@ const raycasterFieldRendering = camera => {
     window.config.raycast.mouse,
     camera
   )
-  let intersects = window.config.raycast.raycaster.intersectObjects([
+  const intersects = window.config.raycast.raycaster.intersectObjects([
     window.currentField.walkmeshMesh
   ]) // window.currentField.walkmeshMesh//window.currentField.fieldScene.children
   // console.log('window.currentField.walkmeshMesh', window.currentField.walkmeshMesh)
@@ -295,7 +295,7 @@ const setupFieldLights = () => {
 
     const lightLayer = 0
     window.currentField.centrePoint = getSceneCentrePoint()
-    window.currentField.lights = {lightData, globalLight: null, pointLights: []}
+    window.currentField.lights = { lightData, globalLight: null, pointLights: [] }
 
     createGlobalLight(1)
     createPointLights(lightLayer, 1)
@@ -460,9 +460,9 @@ const initFieldDebug = async loadFieldCB => {
   }
   window.anim.gui = new GUI({ width: 250, hideable: false })
 
-  let fieldGUI = window.anim.gui.addFolder('Field Data')
+  const fieldGUI = window.anim.gui.addFolder('Field Data')
   // if (window.currentField === undefined) { window.currentField = { name: 'cosin4' } } // Just set this like this, it will be overridden on init
-  let fields = await getFieldList()
+  const fields = await getFieldList()
   fieldGUI
     .add(window.currentField, 'name', fields)
     .onChange(async val => {
@@ -604,7 +604,7 @@ const initFieldDebug = async loadFieldCB => {
     )
   fieldGUI.open()
 
-  let debugGUI = window.anim.gui.addFolder('Debug')
+  const debugGUI = window.anim.gui.addFolder('Debug')
   // debugGUI.add(window.config.sizing, 'factor').min(1).max(3).step(1).onChange((val) => {
   //     console.log('window.config.sizing.factor', window.config.sizing.factor, window.currentField.name)
   //     initField(window.currentField.name)
@@ -664,7 +664,7 @@ const initFieldDebug = async loadFieldCB => {
   })
   debugGUI.open()
 
-  let inputsGUI = window.anim.gui.addFolder('Inputs')
+  const inputsGUI = window.anim.gui.addFolder('Inputs')
   inputsGUI.add(getActiveInputs(), 'up').listen()
   inputsGUI.add(getActiveInputs(), 'right').listen()
   inputsGUI.add(getActiveInputs(), 'down').listen()
@@ -700,7 +700,7 @@ const setupViewClipping = async () => {
   // console.log('window.currentField.metaData', window.currentField.metaData)
 }
 const calculateViewClippingPointFromVector3 = v => {
-  let relativeToCamera = new THREE.Vector3(v.x, v.y, v.z).project(
+  const relativeToCamera = new THREE.Vector3(v.x, v.y, v.z).project(
     window.currentField.debugCamera
   ) // Debug camera has whole view
   relativeToCamera.x =
@@ -717,22 +717,22 @@ const calculateViewClippingPointFromVector3 = v => {
   const cameraRange = window.currentField.data.triggers.header.cameraRange
 
   // If the character is near the edge of the screen, calculate the correct x, y for the viewport
-  let adjustedX = relativeToCamera.x - window.config.sizing.width / 2
-  let adjustedY = relativeToCamera.y - window.config.sizing.height / 2
-  let maxAdjustedX =
+  const adjustedX = relativeToCamera.x - window.config.sizing.width / 2
+  const adjustedY = relativeToCamera.y - window.config.sizing.height / 2
+  const maxAdjustedX =
     2 *
       (window.currentField.metaData.assetDimensions.width / 2 -
         window.config.sizing.width / 2) -
     (window.currentField.metaData.assetDimensions.width / 2 - cameraRange.right) // 8
-  let maxAdjustedY =
+  const maxAdjustedY =
     2 *
       (window.currentField.metaData.assetDimensions.height / 2 -
         window.config.sizing.height / 2) -
     (window.currentField.metaData.assetDimensions.height / 2 -
       -cameraRange.bottom) // 8
-  let minAdjustedX =
+  const minAdjustedX =
     window.currentField.metaData.assetDimensions.width / 2 - -cameraRange.left // 8
-  let minAdjustedY =
+  const minAdjustedY =
     window.currentField.metaData.assetDimensions.height / 2 - cameraRange.top // 8
   // TODO - Apply camera range to maxAdjustedX
   // adjustedY = Math.max(adjustedY, (window.currentField.metaData.assetDimensions.height / 2) - cameraRange.top)
@@ -774,13 +774,20 @@ const calculateViewClippingPointFromVector3 = v => {
 
   return relativeToCamera
 }
+const roundHalf = (num) => {
+  return Math.round(num * 2) / 2
+}
+
 const adjustViewClipping = (x, y) => {
+  x = roundHalf(x) // To fix customer shader stuttering
+  y = roundHalf(y)
+  console.log('adjustViewClipping initial', x, y)
   // console.log('x', x, '->', adjustedX, 'y', y, '->', adjustedY)
 
   window.currentField.metaData.fieldCoordinates.x = x
   window.currentField.metaData.fieldCoordinates.y = y
-  let adjustedX = x - window.config.sizing.width / 2
-  let adjustedY = y - window.config.sizing.height / 2
+  const adjustedX = x - window.config.sizing.width / 2
+  const adjustedY = y - window.config.sizing.height / 2
 
   // Note: Logic to get the edge of scene screen offsets have been moved to calculateViewClippingPointFromVector3(...)
   // console.log('adjustViewClipping', 'x', x, '->', adjustedX, 'y', y, '->', adjustedY)
@@ -795,11 +802,11 @@ const adjustViewClipping = (x, y) => {
     window.config.sizing.width * window.config.sizing.factor,
     window.config.sizing.height * window.config.sizing.factor
   )
-  let maxAdjustedX =
+  const maxAdjustedX =
     2 *
     (window.currentField.metaData.assetDimensions.width / 2 -
       window.config.sizing.width / 2)
-  let maxAdjustedY =
+  const maxAdjustedY =
     2 *
     (window.currentField.metaData.assetDimensions.height / 2 -
       window.config.sizing.height / 2)
@@ -820,6 +827,7 @@ const adjustViewClipping = (x, y) => {
   // updateLayer2Parallax(window.config.sizing.width + 160, adjustedX, window.config.sizing.height, adjustedY)
   updateLayer2Parallax(maxAdjustedX, adjustedX, maxAdjustedY, adjustedY)
 }
+window.adjustViewClipping = adjustViewClipping
 const setCameraPosition = (x, y) => {
   console.log('setCameraPosition', x, y)
   window.currentField.fieldCameraPosition.next.x = x
@@ -830,6 +838,7 @@ const setCameraShakePosition = (x, y) => {
   window.currentField.fieldCameraPosition.shake.next.x = x
   window.currentField.fieldCameraPosition.shake.next.y = y
 }
+
 const updateCameraPosition = () => {
   if (
     window.currentField.fieldCameraPosition.current.x !==
@@ -858,6 +867,7 @@ const updateCameraPosition = () => {
     )
   }
 }
+window.updateCameraPosition = updateCameraPosition
 export {
   startFieldRenderLoop,
   setupFieldCamera,
