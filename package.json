@@ -8,8 +8,9 @@
     "unlgp-char": "cd .\\workings-out\\unlgp\\unlgp-char.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\char.lgp",
     "unlgp-movies": "cd .\\workings-out\\unlgp\\unlgp-moviecam.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe 'D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\movies\\moviecam.lgp'",
     "unlgp-menu": "cd .\\workings-out\\unlgp\\unlgp-menu_us.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe 'D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\menu\\menu_us.lgp'",
-    "dev": "http-server -p 3000 -s --cors -c-1",
-    "dev-k": "http-server -p 3001 -s --cors -1000000"
+    "dev":"run-p dev:**",
+    "dev:fenrir": "http-server -p 3000 -s --cors -c-1",
+    "dev:kujata": "http-server -p 3001 -s --cors -1000000"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "fs-extra": "^9.1.0",
     "http-server": "^14.0.0",
     "lodash": "^4.17.21",
+    "npm-run-all": "^4.1.5",
     "prettier-standard": "^13.0.6"
   }
 }
