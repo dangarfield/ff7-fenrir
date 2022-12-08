@@ -1,8 +1,7 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { FontLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry } from '../../assets/threejs-r135-dg/examples/jsm/geometries/TextGeometry.js'
 import { orthoScene } from './world-scene.js'
 
+import { loadFont } from '../helpers/font-helper.js'
 import { loadField } from '../field/field-module.js'
 import {
   getWorldToFieldTransitionData,
@@ -19,16 +18,6 @@ const WHITE = new THREE.Color(0xffffff)
 const GREY = new THREE.Color(0x333333)
 let readyForNavigation = false
 
-const loadFont = async () => {
-  return new Promise((resolve, reject) => {
-    new FontLoader().load(
-      '../../assets/threejs-r135-dg/examples/fonts/helvetiker_regular.typeface.json',
-      font => {
-        resolve(font)
-      }
-    )
-  })
-}
 const loadMetadata = async () => {
   const transitionData = await getWorldToFieldTransitionData()
   const sceneGraph = await getSceneGraph()
@@ -38,7 +27,7 @@ const loadMetadata = async () => {
   for (let i = 0; i < wmIds.length; i++) {
     const wmId = wmIds[i]
     metadata.push({
-      wmId: wmId,
+      wmId,
       section: 'sectionA',
       data: transitionData[wmId].sectionA,
       fieldId: transitionData[wmId].sectionA.fieldId,
@@ -52,7 +41,7 @@ const loadMetadata = async () => {
     })
     if (transitionData[wmId].sectionB.fieldId > 0) {
       metadata.push({
-        wmId: wmId,
+        wmId,
         section: 'sectionB',
         data: transitionData[wmId].sectionB,
         fieldId: transitionData[wmId].sectionB.fieldId,
@@ -62,9 +51,9 @@ const loadMetadata = async () => {
           (sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapNames
             .length > 0
             ? sceneGraph.nodes[transitionData[wmId].sectionB.fieldId]
-                .mapNames[0]
+              .mapNames[0]
             : sceneGraph.nodes[transitionData[wmId].sectionB.fieldId]
-                .fieldName) + ' B'
+              .fieldName) + ' B'
       })
     }
   }
@@ -72,7 +61,7 @@ const loadMetadata = async () => {
 
 const addDestinationText = (text, row, col) => {
   const textGeo = new THREE.TextBufferGeometry(text, {
-    font: font,
+    font,
     size: 5,
     height: 1,
     curveSegments: 10,

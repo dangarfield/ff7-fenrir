@@ -13,7 +13,8 @@ window.console = (function (origConsole) {
       'drawBG',
       'storePalette',
       'loadPalette',
-      'addPalette'
+      'addPalette',
+      'font'
     ],
     log: function () {
       if (limit) {
