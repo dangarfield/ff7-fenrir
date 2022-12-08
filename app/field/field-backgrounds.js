@@ -33,7 +33,7 @@ const rollBackgroundParamState = (param, forward) => {
   }
   // Loop round and diactivation currentState, activate currentSate+-1
   if (currentState !== undefined) {
-    let desiredState = forward ? currentState + 1 : currentState - 1
+    const desiredState = forward ? currentState + 1 : currentState - 1
     console.log(
       'rollBackgroundParamState',
       param,
@@ -73,14 +73,14 @@ const clearBackgroundDepth = (layerId, z) => {
 
     // Calculate distance
     const distance = layer.userData.z / window.currentField.metaData.bgZDistance
-    let bgVector = new THREE.Vector3().lerpVectors(
+    const bgVector = new THREE.Vector3().lerpVectors(
       window.currentField.fieldCamera.position,
       window.currentField.cameraTarget,
       distance
     )
 
     // Apply sizing adjustment
-    let vH =
+    const vH =
       Math.tan(
         THREE.Math.degToRad(
           window.currentField.fieldCamera.getEffectiveFOV() / 2
@@ -88,8 +88,8 @@ const clearBackgroundDepth = (layerId, z) => {
       ) *
       distance *
       2
-    let vW = vH * window.currentField.fieldCamera.aspect
-    let geometry = new THREE.PlaneBufferGeometry(vW, vH)
+    const vW = vH * window.currentField.fieldCamera.aspect
+    const geometry = new THREE.PlaneBufferGeometry(vW, vH)
     layer.geometry.dispose()
     layer.geometry = geometry // Requires any 'needUpdate' param?
 
@@ -211,16 +211,16 @@ const updateLayer2Parallax = (
 }
 const drawWalkmesh = () => {
   // Draw triangles for walkmesh
-  let triangles = window.currentField.data.walkmeshSection.triangles
-  let numTriangles = triangles.length
+  const triangles = window.currentField.data.walkmeshSection.triangles
+  const numTriangles = triangles.length
 
   window.currentField.walkmeshLines = new THREE.Group()
   window.currentField.walkmeshMesh = new THREE.Group()
 
   for (let i = 0; i < numTriangles; i++) {
-    let triangle = window.currentField.data.walkmeshSection.triangles[i]
-    let accessor = window.currentField.data.walkmeshSection.accessors[i]
-    let walkmeshLinePositions = [[], [], []]
+    const triangle = window.currentField.data.walkmeshSection.triangles[i]
+    const accessor = window.currentField.data.walkmeshSection.accessors[i]
+    const walkmeshLinePositions = [[], [], []]
     walkmeshLinePositions[0].push(
       triangle.vertices[0].x / 4096,
       triangle.vertices[0].y / 4096,
@@ -260,14 +260,14 @@ const drawWalkmesh = () => {
         'position',
         new THREE.Float32BufferAttribute(walkmeshLinePositions[i], 3)
       )
-      let lineColor = accessor[i] === -1 ? 0x4488cc : 0x888888
-      let material1 = new THREE.LineBasicMaterial({ color: lineColor })
+      const lineColor = accessor[i] === -1 ? 0x4488cc : 0x888888
+      const material1 = new THREE.LineBasicMaterial({ color: lineColor })
       const line = new THREE.Line(walkmeshLineGeo, material1)
       window.currentField.walkmeshLines.add(line)
     }
 
     // positions for mesh buffergeo
-    let walkmeshPositions = []
+    const walkmeshPositions = []
     walkmeshPositions.push(
       triangle.vertices[0].x / 4096,
       triangle.vertices[0].y / 4096,
@@ -315,18 +315,18 @@ const drawWalkmesh = () => {
   window.currentField.gatewayLines = new THREE.Group()
   for (let i = 0; i < window.currentField.data.triggers.gateways.length; i++) {
     const gateway = window.currentField.data.triggers.gateways[i]
-    let lv0 = gateway.exitLineVertex1
-    let lv1 = gateway.exitLineVertex2
-    let v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
-    let v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
+    const lv0 = gateway.exitLineVertex1
+    const lv1 = gateway.exitLineVertex2
+    const v0 = new THREE.Vector3(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
+    const v1 = new THREE.Vector3(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
 
-    let gatewayPositions = []
+    const gatewayPositions = []
     gatewayPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     gatewayPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     const gatewayPositionsGeo = new THREE.BufferGeometry()
     gatewayPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(gatewayPositions, 3))
-    let gatewayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 })
-    let gatewayLine = new THREE.Line(gatewayPositionsGeo, gatewayMaterial)
+    const gatewayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 })
+    const gatewayLine = new THREE.Line(gatewayPositionsGeo, gatewayMaterial)
     window.currentField.gatewayLines.add(gatewayLine)
 
     // Gateway position helpers
@@ -354,17 +354,17 @@ const drawWalkmesh = () => {
       )
   )
   // for some reason there are a lots of 0,0,0 triggers, remove them for now
-  for (let trigger of window.currentField.data.triggers.triggers) {
-    let lv0 = trigger.cornerVertex1
-    let lv1 = trigger.cornerVertex2
-    let triggerMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 })
+  for (const trigger of window.currentField.data.triggers.triggers) {
+    const lv0 = trigger.cornerVertex1
+    const lv1 = trigger.cornerVertex2
+    const triggerMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 })
 
-    let triggerPositions = []
+    const triggerPositions = []
     triggerPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     triggerPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     const triggerPositionsGeo = new THREE.BufferGeometry()
     triggerPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(triggerPositions, 3))
-    let triggerLine = new THREE.Line(triggerPositionsGeo, triggerMaterial)
+    const triggerLine = new THREE.Line(triggerPositionsGeo, triggerMaterial)
     window.currentField.triggerLines.add(triggerLine)
   }
   window.currentField.fieldScene.add(window.currentField.triggerLines)
@@ -393,10 +393,10 @@ const drawWalkmesh = () => {
 }
 
 const placeBG = async fieldName => {
-  let assetDimensions = await getFieldDimensions(fieldName)
+  const assetDimensions = await getFieldDimensions(fieldName)
   // Create meta-data
   window.currentField.metaData = {
-    assetDimensions: assetDimensions,
+    assetDimensions,
     width: assetDimensions.width / window.config.sizing.width,
     height: assetDimensions.height / window.config.sizing.height,
     bgScale: 1, // assetDimensions.height / window.config.sizing.height,
@@ -441,7 +441,7 @@ const placeBG = async fieldName => {
   window.currentField.backgroundLayers = new THREE.Group()
   window.currentField.fieldScene.add(window.currentField.backgroundLayers)
 
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     console.log('processBG Loading start')
     const manager = new THREE.LoadingManager()
     loadPalettes(fieldName, manager)
@@ -487,10 +487,13 @@ const processBG = (layerData, fieldName, manager) => {
   if (layerData.param > 0) {
     layerData.z = layerData.z - 1
   }
-  let visible = layerData.param === 0 // By default hide all non zero params, field op codes will show them
+  const visible = layerData.param === 0 // By default hide all non zero params, field op codes will show them
 
+  // For some reason I added this when implementing the custom shader, but it breaks things, reverting
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
-  const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  // const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  // const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
+  const bgDistance = layerData.z / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
@@ -505,7 +508,7 @@ const processBG = (layerData, fieldName, manager) => {
     userData.parallaxDirection = layerData.parallaxDirection
     userData.parallaxRatio = layerData.parallaxRatio
   }
-  let bgVector = new THREE.Vector3().lerpVectors(
+  const bgVector = new THREE.Vector3().lerpVectors(
     window.currentField.fieldCamera.position,
     window.currentField.cameraTarget,
     bgDistance
@@ -525,11 +528,11 @@ const processBG = (layerData, fieldName, manager) => {
 }
 
 const loadPalettes = (fieldName, manager) => {
-  window.currentField.backgroundData.palettes = {textures: [], textureList: [], data: [], dataTextures: []}
+  window.currentField.backgroundData.palettes = { textures: [], textureList: [], data: [], dataTextures: [] }
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const bgPaletteUrl = getFieldBGPaletteUrl(fieldName, i)
     console.log('palettes', i, bgPaletteUrl)
-    let texture = new THREE.TextureLoader(manager).load(bgPaletteUrl)
+    const texture = new THREE.TextureLoader(manager).load(bgPaletteUrl)
     window.currentField.backgroundData.palettes.textures.push(texture)
   }
 }
@@ -652,13 +655,13 @@ const drawBG = async (
   if (userData.z !== 1124) {
     // return
   }
-  let geometry = new THREE.PlaneBufferGeometry(vW, vH)
+  const geometry = new THREE.PlaneBufferGeometry(vW, vH)
   console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
 
   let material
   if (USE_CUSTOM_SHADER) {
     const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
-    let texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
+    const texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
     texture.magFilter = THREE.NearestFilter
     // texture.minFilter = THREE.LinearFilter
 
@@ -687,7 +690,7 @@ const drawBG = async (
     }
     // console.log('palettes uniforms', uniforms)
     material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
+      uniforms,
       fragmentShader: fieldFragmentShader(),
       vertexShader: fieldVertexShader()
     })
@@ -699,7 +702,7 @@ const drawBG = async (
   } else {
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
-    let texture = new THREE.TextureLoader(manager).load(bgImgUrl)
+    const texture = new THREE.TextureLoader(manager).load(bgImgUrl)
     texture.magFilter = THREE.NearestFilter
     texture.minFilter = THREE.LinearFilter
 
@@ -709,7 +712,7 @@ const drawBG = async (
     })
   }
 
-  let plane = new THREE.Mesh(geometry, material)
+  const plane = new THREE.Mesh(geometry, material)
   plane.position.set(x, y, z)
   plane.lookAt(window.currentField.fieldCamera.position)
   plane.setRotationFromEuler(window.currentField.fieldCamera.rotation)
