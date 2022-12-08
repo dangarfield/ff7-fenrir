@@ -383,7 +383,7 @@ const executeOp = async (
       result = assign.COS(op)
       break
 
-    // Windowing and Menu
+      // Windowing and Menu
 
     case 'TUTOR':
       result = await windowMenu.TUTOR(op)
@@ -535,7 +535,7 @@ const executeOp = async (
       result = await party.MMBUK(op)
       break
 
-    // Field Models and Animation
+      // Field Models and Animation
 
     case 'JOIN':
       result = await models.JOIN(entityId, op)
@@ -780,7 +780,7 @@ const executeOp = async (
       result = await background.ADPAL(op)
       break
 
-    // Camera, Audio and Video
+      // Camera, Audio and Video
 
     case 'NFADE':
       result = await cameraMedia.NFADE(op)
@@ -933,7 +933,7 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
   entity.current.push({
     scriptType: loop.scriptType,
     scriptId: loop.index,
-    priority: priority,
+    priority,
     currentOpIndex: 0
   })
   entity.current.sort((a, b) => a.priority - b.priority)
@@ -968,7 +968,7 @@ const executeScriptLoop = async (fieldName, entityId, loop, priority) => {
       // break
     }
 
-    let op = ops[currentOpIndex]
+    const op = ops[currentOpIndex]
     const result = await executeOp(
       fieldName,
       entityId,
@@ -1083,7 +1083,7 @@ const initEntityMain = async (fieldName, entity) => {
 const initialiseOpLoops = async () => {
   console.log('initialiseOpLoops: START')
   CURRENT_FIELD = window.currentField.name
-  let entities = window.currentField.data.script.entities
+  const entities = window.currentField.data.script.entities
   await positionPlayableCharacterFromTransition()
   // entities = entities.filter(e => !(e.entityName.includes('ELEC') || e.entityName.includes('TURI') || e.entityName.includes('LIGHT'))) // Debug
   for (let i = 0; i < entities.length; i++) {
@@ -1234,7 +1234,7 @@ const triggerEntityGoAwayLoop = async entityId => {
 }
 
 const debugLogOpCodeCompletionForField = async () => {
-  const completedCodesRes = await fetch(`/workings-out/op-codes-completed.json`)
+  const completedCodesRes = await fetch('workings-out/op-codes-completed.json')
   const completedCodes = await completedCodesRes.json()
 
   const done = []
