@@ -24,166 +24,84 @@
     let examplePlane
     let shaderPlane
 
+    const BASE_KUJATA_URL = 'http://localhost:3001'
     const data = {
         w: 512,
         h: 512,
         paletteSize: 3,
-        fieldUrl: 'http://localhost:3001/kujata-data/data/field/flevel.lgp/md1_2.json',
-        field: {},
-        bgUrl: 'http://localhost:3001/kujata-data/metadata/background-layers/md1_2/md1_2.json',
-        bg: {},
-        pixelURL: 'http://localhost:3001/kujata-data/metadata/background-layers/md1_2/pixels/md1_2-4095-0-0-0-0-4.png',
-        pixelTexture: {},
-        pixels: [0, 1, 2, 0,
-            1, 2, 0, 1,
-            2, 0, 1, 2
-        ],
-        paletteURL: 'http://localhost:3001/kujata-data/metadata/background-layers/md1_2/palettes/md1_2-4.png',
-        palettes: [
-            [0xFF9900, 0x00FF99, 0x9900FF],
-            [0x111111, 0x888888, 0xFFFFFF],
-            [0xF1FAEE, 0xA8DADC, 0x457B9D]
-        ],
-        paletteTextures: [],
-        palette: 0,
+        fieldUrl: `${BASE_KUJATA_URL}/kujata-data/data/field/flevel.lgp/md1_2.json`,
+        bgUrl: `${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/md1_2.json`,
+        pixelURL: `${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/pixels/md1_2-4095-0-0-0-0-4.png`,
+        paletteURL: `${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/palettes/md1_2-4.png`,
         zoom: 400,
-        x:0,
-        y:0
+        x: 0,
+        y: 0
     }
+    window.data = data
 
-    function vertexShader() {
+    const fieldVertexShader = () => {
         return `
 varying vec2 vUv;
 
 void main() {
-    vUv = uv;
-    vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_Position = projectionMatrix * modelViewPosition;
+  vUv = uv;
+  vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * modelViewPosition;
 }`
     }
 
-    function fragmentShader() {
+    const fieldFragmentShader = () => {
         return `
 uniform int paletteSize;
 uniform int useFirstPixel;
 uniform sampler2D palette;
+uniform sampler2D paletteData;
 uniform sampler2D pixels;
 uniform vec4[256] paletteList;
 varying vec2 vUv;
 
-vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
-vec4 pixelColor = texture2D(pixels, vUv);
-float paletteIndex = pixelColor.x * 255.0;
-// vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0.5));
-vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
-//vec4 color = paletteList[int(paletteIndex)];
-//vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
-//vec4 color = texture(palette, uv2);
+vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sampler2D paletteData, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
+  vec4 pixelColor = texture2D(pixels, vUv);
+  float paletteIndex = pixelColor.x * 255.0;
+  
+  // Works with the whole texture - eg palette (THREE.Texture)
+  // vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+
+  // Works with the data texture - eg palette (THREE.DataTexture)
+  vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
 
 
-if (useFirstPixel == 1 && paletteIndex == 0.0) {
-color.a = 0.0;
-} else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
-color = texture2D(palette, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
-}
-return color;
+  if (useFirstPixel == 1 && paletteIndex == 0.0) {
+    color.a = 0.0;
+  } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
+    color = texture2D(palette, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
+  }
+  return color;
 }
 
 void main() {
-
-//gl_FragColor = texture2D(palette, vUv);
-
-gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, paletteList, useFirstPixel );
+  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel );
 }`
     }
-
-    // Useful texture2d convert - https://godotshaders.com/shader/palette-shader-lospec-compatible/
-    const generateShaderUniformsFromPalette = () => {
-        const uniforms = {
-            w: {
-                value: 512
-            },
-            h: {
-                value: 512
-            },
-            paletteSize: {
-                // value: data.paletteSize
-                value: 256
-            },
-            palette: {
-                // value: data.paletteTexture[0]
-                value: data.paletteTexture
-            },
-            pixels: {
-                // value: pixelTexture
-                value: data.pixelTexture
-            }
-        }
-
-// data.pixelTexture = pixelTexture
-// data.paletteTexture = paletteTexture
-
-        return uniforms
-    }
-    const addShaderPlane = () => {
-        const geometry = new THREE.PlaneGeometry(data.w, data.h)
-        // geometry.setAttribute('pixels', new THREE.BufferAttribute(new Int8Array(data.pixels), 3))
-
-// uniform int paletteSize;
-// uniform int useFirstPixel;
-// uniform sampler2D palette;
-// uniform sampler2D pixels;
-        const uniforms = {
-        paletteSize: { value: 256},
-        useFirstPixel: { value: 1},
-        palette: { value: 256},
-        pixels: { value: 256},
-        }
-        console.log('uniforms', uniforms)
-        let material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            fragmentShader: fragmentShader(),
-            vertexShader: vertexShader()
-        })
-        // console.log('data.pixelTexture', data.pixelTexture)
-        // material = new THREE.MeshBasicMaterial({
-        //     // map: data.pixelTexture
-        //     // map: data.paletteTexture
-        //     map: data.paletteDataTexture
-        //     // color: 'red'
-        // })
-        material.transparent = true
-        shaderPlane = new THREE.Mesh(geometry, material)
-        // shaderPlane.position.x = data.w - (data.w / 2)
-        scene.add(shaderPlane)
-    }
-    // const setShaderPlaneColorsFromPalette = () => {
-    //     shaderPlane.material.uniforms.palette = {
-    //         value: data.paletteTextures[data.palette]
-    //     }
-    // }
 
     const setupScene = () => {
         scene = new THREE.Scene()
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5500)
-        const width = 400
-        const height = 400
-        camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 5500 )
-        camera.position.z = 200
+        const width = 512 / 2
+        const height = 512 / 2
+        camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 5500)
 
+        camera.position.z = 200
+        camera.position.x = data.x = -127
+        camera.position.y = data.y = -42
         renderer = new THREE.WebGLRenderer({
             // alpha: true,
             antialias: true
         })
-        renderer.setSize(window.innerWidth, window.innerHeight)
-        renderer.setPixelRatio(window.devicePixelRatio)
+        renderer.setSize(1024, 1024)
+        // renderer.setPixelRatio(1024)
 
         document.body.appendChild(renderer.domElement)
-        window.addEventListener('resize', function() {
-            camera.aspect = window.innerWidth / window.innerHeight
-            camera.updateProjectionMatrix()
-            renderer.setSize(window.innerWidth, window.innerHeight)
-        }, false)
     }
     const setupGUI = () => {
         const gui = new GUI()
@@ -196,36 +114,17 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
         //     setShaderPlaneColorsFromPalette()
         // })
         gui.add(data, 'zoom', 100, 400).onChange(value => camera.position.z = value)
-        gui.add(data, 'x', -150, 150).onChange(value => camera.position.x = value)
-        gui.add(data, 'y', -150, 150).onChange(value => camera.position.y = value)
+        gui.add(data, 'x', -127, 127).step(1).onChange(value => camera.position.x = value)
+        gui.add(data, 'y', -127, 127).step(1).onChange(value => camera.position.y = value)
     }
 
-    const loadPixels = async () => {
-        data.pixelTexture = new THREE.TextureLoader().load(data.pixelURL)
-    }
 
-    const loadPalette = async () => {
-        data.paletteTexture = new THREE.TextureLoader().load(data.paletteURL)
-        const paletteInfos = data.field.palette.pages[4]
-
-        const paletteData = new Uint8Array(4 * paletteInfos.length)
-        for (let i = 0; i < paletteInfos.length; i++) {
-            const paletteInfo = paletteInfos[i]
-            paletteData[(i*4) + 0 ] = paletteInfo.r
-            paletteData[(i*4) + 1 ] = paletteInfo.g
-            paletteData[(i*4) + 2 ] = paletteInfo.b
-            paletteData[(i*4) + 3 ] = paletteInfo.a
-        }
-        data.paletteDataTexture = new THREE.DataTexture(paletteData, paletteInfos.length, 1)
-
-        console.log('loadPalette', paletteInfos[1], paletteData[5],paletteData[6],paletteData[7],paletteData[8], data.paletteDataTexture)
-    }
     const loadData = async () => {
         const fieldRes = await fetch(data.fieldUrl)
         data.field = await fieldRes.json()
         const bgRes = await fetch(data.bgUrl)
         data.bg = await bgRes.json()
-        data.bg.layers = data.bg.layers.sort((a,b) => (b.z -a.z))
+        data.bg.layers = data.bg.layers.sort((a, b) => (b.z - a.z))
     }
     const loadLayers = async () => {
         data.layerDatas = []
@@ -234,12 +133,12 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
             console.log('layer', layer)
             const layerData = {}
             layerData.pixelUrl = layer.fileName
-            layerData.pixelTexture = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/pixels/${layerData.pixelUrl}`)
+            layerData.pixelTexture = new THREE.TextureLoader().load(`${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/pixels/${layerData.pixelUrl}`)
             layerData.pixelTexture.magFilter = THREE.NearestFilter
             layerData.pixelTexture.minFilter = THREE.LinearFilter;
             // layerData.pixelTexture.minFilter = THREE.NearestFilter;
 
-            layerData.imageTexture = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/${layerData.pixelUrl}`)
+            layerData.imageTexture = new THREE.TextureLoader().load(`${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/${layerData.pixelUrl}`)
             layerData.imageTexture.magFilter = THREE.NearestFilter
             layerData.imageTexture.minFilter = THREE.LinearFilter;
             // layerData.imageTexture.minFilter = THREE.NearestFilter;
@@ -256,55 +155,87 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
             const d = new Uint8Array(4 * paletteInfos.length)
             for (let i = 0; i < paletteInfos.length; i++) {
                 const paletteInfo = paletteInfos[i]
-                d[(i*4) + 0 ] = paletteInfo.r
-                d[(i*4) + 1 ] = paletteInfo.g
-                d[(i*4) + 2 ] = paletteInfo.b
-                d[(i*4) + 3 ] = paletteInfo.a
+                d[(i * 4) + 0] = paletteInfo.r
+                d[(i * 4) + 1] = paletteInfo.g
+                d[(i * 4) + 2] = paletteInfo.b
+                d[(i * 4) + 3] = paletteInfo.a
             }
-            data.paletteDataTextures[i] = new THREE.DataTexture(d, paletteInfos.length, 1)
-            data.paletteTextures[i] = new THREE.TextureLoader().load(`http://localhost:3001/kujata-data/metadata/background-layers/md1_2/palettes/md1_2-${i}.png`)
+            data.paletteDataTextures[i] = new THREE.DataTexture(d, paletteInfos.length, 1, THREE.RGBAFormat)
+            data.paletteDataTextures[i].needsUpdate = true;
+
+            console.log('paletteDataTextures', i, d, data.paletteDataTextures[i])
+            data.paletteTextures[i] = new THREE.TextureLoader().load(`${BASE_KUJATA_URL}/kujata-data/metadata/background-layers/md1_2/palettes/md1_2-${i}.png`)
 
             data.paletteDataTextures[i].magFilter = THREE.NearestFilter
             data.paletteTextures[i].magFilter = THREE.NearestFilter
         }
+        let up = true
+        let c = 0
+        setInterval(() => {
+            const i = 14
+            if (up) {
+                c++
+                if (c >= 255) up = false
+            } else {
+                c--
+                if (c <= 0) up = true
+            }
+            // const r = Math.random() * 256 | 0
+            // const g = Math.random() * 256 | 0
+            // const b = Math.random() * 256 | 0
+            const d = data.paletteDataTextures[i].source.data.data
+            for (const k of d.keys()) {
+                const u = k % 4
+                // console.log('k', k, u)
+                if (u === 0) {
+                    d[k] = c
+                } else if (u === 1) {
+                    d[k] = c
+                } else if (u === 2) {
+                    d[k] = c
+                }
+            }
+            data.paletteDataTextures[i].needsUpdate = true
+            console.log('updated d', d, c)
+        }, 5)
 
     }
+    const generateShaderUniformsFromPalette = (layerData) => {
+
+
+        console.log('generateShaderUniformsFromPalette', uniforms)
+        return uniforms
+    }
+
     const drawLayers = () => {
         for (let i = 0; i < data.layerDatas.length; i++) {
             const layerData = data.layerDatas[i];
-
+            console.log('layerData', layerData)
             // geometry.setAttribute('pixels', new THREE.BufferAttribute(new Int8Array(data.pixels), 3))
             const uniforms = {
-                paletteSize: { value: 256},
-                useFirstPixel: { value: data.field.background.palette.ignoreFirstPixel[layerData.paletteId]},
-                palette: { value: data.paletteDataTextures[layerData.paletteId]},
-                pixels: { value: layerData.pixelTexture},
+                paletteSize: { value: 256 },
+                useFirstPixel: { value: data.field.background.palette.ignoreFirstPixel[layerData.paletteId] },
+                palette: { value: data.paletteTextures[layerData.paletteId] },
+                paletteData: { value: data.paletteDataTextures[layerData.paletteId] },
+                // pixels: { value: data.paletteDataTextures[layerData.paletteId] },
+                // pixels: { value: data.paletteTextures[layerData.paletteId] },
+                pixels: { value: layerData.pixelTexture }
             }
 
-            // console.log('uniforms', uniforms)
+            console.log('uniforms', uniforms)
             let material = new THREE.ShaderMaterial({
                 uniforms: uniforms,
-                fragmentShader: fragmentShader(),
-                vertexShader: vertexShader(),
-                transparent: true
+                fragmentShader: fieldFragmentShader(),
+                vertexShader: fieldVertexShader()
             })
-
-            // console.log('data.pixelTexture', data.pixelTexture)
-            // material = new THREE.MeshBasicMaterial({
-            //     // map: data.paletteDataTextures[layerData.paletteId],
-            //     // map: data.paletteTextures[layerData.paletteId],
-            //     map: layerData.pixelTexture,
-            //     // map: layerData.imageTexture,
-            //     transparent: true
-            // })
+            material.transparent = true
 
             const geometry = new THREE.PlaneGeometry(data.w, data.h)
 
             const plane = new THREE.Mesh(geometry, material)
-            // shaderPlane.position.x = data.w - (data.w / 2)
 
             if (layerData.typeTrans === 1) {
-                 plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
+                plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
             } else if (layerData.typeTrans === 2) {
                 plane.material.blending = THREE.SubtractiveBlending // Not right at all. // jtempl, trnad_1, bugin1a
             } else if (layerData.typeTrans === 3) {
@@ -324,14 +255,10 @@ gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, pale
     const init = async () => {
         setupScene()
         await loadData()
-        await loadPixels()
-        await loadPalette()
 
         await loadLayers()
         await drawLayers()
-        // addExamplePlane()
         console.log('post load')
-        // addShaderPlane()
         setupGUI()
         console.log('data', data)
         renderLoop()

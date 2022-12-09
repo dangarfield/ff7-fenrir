@@ -555,9 +555,40 @@ const processPalettes = () => {
       data[j * 4 + 3] = paletteInfo.a
     }
     const paletteTexture = new THREE.DataTexture(data, 256, 1, THREE.RGBAFormat)
+    paletteTexture.needsUpdate = true
     window.currentField.backgroundData.palettes.textureList[i] = paletteData
     window.currentField.backgroundData.palettes.dataTextures[i] = paletteTexture
   }
+
+  // let up = true
+  // let c = 0
+  // setInterval(() => {
+  //   const i = 14
+  //   if (up) {
+  //     c++
+  //     if (c >= 255) up = false
+  //   } else {
+  //     c--
+  //     if (c <= 0) up = true
+  //   }
+  //   // const r = Math.random() * 256 | 0
+  //   // const g = Math.random() * 256 | 0
+  //   // const b = Math.random() * 256 | 0
+  //   const d = window.currentField.backgroundData.palettes.dataTextures[i].image.data
+  //   for (const k of d.keys()) {
+  //     const u = k % 4
+  //     // console.log('k', k, u)
+  //     if (u === 0) {
+  //       d[k] = c
+  //     } else if (u === 1) {
+  //       d[k] = c
+  //     } else if (u === 2) {
+  //       d[k] = c
+  //     }
+  //   }
+  //   window.currentField.backgroundData.palettes.dataTextures[i].needsUpdate = true
+  //   console.log('updated d', d, c)
+  // }, 5)
 }
 
 // https://wikisquare-ffdream-com.translate.goog/ff7/technique/field/bg?_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en-GB
@@ -573,36 +604,21 @@ void main() {
 }`
 }
 
-// TODO - Add this logic in the shader
-// if (paletteItem.isBlack && flevel.palette.pages[tile.paletteId] && flevel.palette.pages[tile.paletteId][0]) {
-//   const paletteFirstColor = Object.assign({}, flevel.palette.pages[tile.paletteId][0])
-//   paletteFirstColor.isBlack = isBlack(paletteFirstColor)
-//   paletteFirstColor.type = 'first'
-//   paletteItem = paletteFirstColor
-// }
-// if (ignoreFirstPixel) {
-//   if (shallPrintDebug(posX, posY, setBlackBackground)) {
-//     console.log('ignoreFirstPixel', paletteItem)
-//   }
-//   paletteItem.noRender = 1 // eg, don't render show
-// }
 const fieldFragmentShader = () => {
   return `
 uniform int paletteSize;
 uniform int useFirstPixel;
 uniform sampler2D palette;
+uniform sampler2D paletteData;
 uniform sampler2D pixels;
 uniform vec4[256] paletteList;
 varying vec2 vUv;
 
-vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
+vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sampler2D paletteData, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
   vec4 pixelColor = texture2D(pixels, vUv);
   float paletteIndex = pixelColor.x * 255.0;
-  // vec4 color = texture2D(palette, vec2(1.0 / float(paletteSize) * paletteIndex,0.5));
-  vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
-  // vec4 color = paletteList[int(paletteIndex)];
-  // vec2 uv2 = (vec2(paletteIndex, 0) + .5) / vec2(paletteSize, 1);
-  // vec4 color = texture(palette, uv2);
+  // vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+  vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
 
   if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
@@ -616,7 +632,7 @@ void main() {
 
   //gl_FragColor = texture2D(palette, vUv);
 
-  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteSize, paletteList, useFirstPixel );
+  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel );
 }`
 }
 
@@ -665,12 +681,6 @@ const drawBG = async (
     // texture.minFilter = THREE.LinearFilter
 
     const uniforms = {
-      w: {
-        value: window.currentField.metaData.assetDimensions.width
-      },
-      h: {
-        value: window.currentField.metaData.assetDimensions.height
-      },
       useFirstPixel: {
         value: window.currentField.data.background.palette.ignoreFirstPixel[userData.paletteId]
       },
@@ -683,6 +693,9 @@ const drawBG = async (
       palette: {
         value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
       },
+      paletteData: {
+        value: window.currentField.backgroundData.palettes.dataTextures[userData.paletteId]
+      },
       pixels: {
         value: texture
       }
@@ -694,10 +707,6 @@ const drawBG = async (
       vertexShader: fieldVertexShader()
     })
     material.transparent = true
-    // material = new THREE.MeshBasicMaterial({
-    //   map: texture,
-    //   transparent: true
-    // })
   } else {
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
@@ -718,9 +727,12 @@ const drawBG = async (
   plane.visible = visible
   plane.userData = userData
 
+  console.log('blending', layerData.fileName, userData.typeTrans, userData.paletteId)
+
   if (userData.typeTrans === 1) {
     // console.log('typeTrans', userData.typeTrans, bgImgUrl)
     plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
+
     // plane.visible = false
   } else if (userData.typeTrans === 2) {
     // console.log('typeTrans', userData.typeTrans, bgImgUrl)
