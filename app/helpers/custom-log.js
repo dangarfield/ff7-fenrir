@@ -15,7 +15,8 @@ window.console = (function (origConsole) {
       // 'loadPalette',
       // 'addPalette',
       'palettes',
-      'blending'
+      'blending',
+      'updated'
     ],
     log: function () {
       if (limit) {

@@ -560,35 +560,36 @@ const processPalettes = () => {
     window.currentField.backgroundData.palettes.dataTextures[i] = paletteTexture
   }
 
-  // let up = true
-  // let c = 0
-  // setInterval(() => {
-  //   const i = 14
-  //   if (up) {
-  //     c++
-  //     if (c >= 255) up = false
-  //   } else {
-  //     c--
-  //     if (c <= 0) up = true
-  //   }
-  //   // const r = Math.random() * 256 | 0
-  //   // const g = Math.random() * 256 | 0
-  //   // const b = Math.random() * 256 | 0
-  //   const d = window.currentField.backgroundData.palettes.dataTextures[i].image.data
-  //   for (const k of d.keys()) {
-  //     const u = k % 4
-  //     // console.log('k', k, u)
-  //     if (u === 0) {
-  //       d[k] = c
-  //     } else if (u === 1) {
-  //       d[k] = c
-  //     } else if (u === 2) {
-  //       d[k] = c
-  //     }
-  //   }
-  //   window.currentField.backgroundData.palettes.dataTextures[i].needsUpdate = true
-  //   console.log('updated d', d, c)
-  // }, 5)
+  // Test to amend paletteData
+//   let up = true
+//   let c = 0
+//   setInterval(() => {
+//     const i = 14
+//     if (up) {
+//       c++
+//       if (c >= 16) up = false
+//     } else {
+//       c--
+//       if (c <= 0) up = true
+//     }
+//     // const r = Math.random() * 256 | 0
+//     // const g = Math.random() * 256 | 0
+//     // const b = Math.random() * 256 | 0
+//     const d = window.currentField.backgroundData.palettes.dataTextures[i].image.data
+//     for (const k of d.keys()) {
+//       const u = k % 4
+//       // console.log('k', k, u)
+//       if (u === 0 || u === 1 || u === 2) {
+//         if (up && d[k] < 255) {
+//           d[k]++
+//         } else if (!up && d[k] > 0) {
+//           d[k]--
+//         }
+//       }
+//     }
+//     window.currentField.backgroundData.palettes.dataTextures[i].needsUpdate = true
+//     // console.log('updated d', d, c)
+//   }, 20)
 }
 
 // https://wikisquare-ffdream-com.translate.goog/ff7/technique/field/bg?_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en-GB
@@ -727,12 +728,9 @@ const drawBG = async (
   plane.visible = visible
   plane.userData = userData
 
-  console.log('blending', layerData.fileName, userData.typeTrans, userData.paletteId)
-
   if (userData.typeTrans === 1) {
     // console.log('typeTrans', userData.typeTrans, bgImgUrl)
     plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
-
     // plane.visible = false
   } else if (userData.typeTrans === 2) {
     // console.log('typeTrans', userData.typeTrans, bgImgUrl)

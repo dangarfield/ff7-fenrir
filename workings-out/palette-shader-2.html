@@ -175,7 +175,7 @@ void main() {
             const i = 14
             if (up) {
                 c++
-                if (c >= 255) up = false
+                if (c >= 16) up = false
             } else {
                 c--
                 if (c <= 0) up = true
@@ -187,17 +187,17 @@ void main() {
             for (const k of d.keys()) {
                 const u = k % 4
                 // console.log('k', k, u)
-                if (u === 0) {
-                    d[k] = c
-                } else if (u === 1) {
-                    d[k] = c
-                } else if (u === 2) {
-                    d[k] = c
+                if (u === 0 || u === 1 || u === 2) {
+                    if (up && d[k] < 255) {
+                        d[k]++
+                    } else if (!up && d[k] > 0) {
+                        d[k]--
+                    }
                 }
             }
             data.paletteDataTextures[i].needsUpdate = true
-            console.log('updated d', d, c)
-        }, 5)
+            // console.log('updated d', d, c)
+        }, 20)
 
     }
     const generateShaderUniformsFromPalette = (layerData) => {
@@ -236,16 +236,19 @@ void main() {
 
             if (layerData.typeTrans === 1) {
                 plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1
+                plane.material.needsUpdate = true
             } else if (layerData.typeTrans === 2) {
                 plane.material.blending = THREE.SubtractiveBlending // Not right at all. // jtempl, trnad_1, bugin1a
+                plane.material.needsUpdate = true
             } else if (layerData.typeTrans === 3) {
                 plane.material.blending = THREE.AdditiveBlending // md1_2, mds5_1 // 25% of colours are cut in bg image already
+                plane.material.needsUpdate = true
             }
 
 
             plane.position.setZ(-layerData.z)
             scene.add(plane)
-
+            layerData.plane = plane
         }
     }
     const renderLoop = () => {
