@@ -128,6 +128,8 @@ const executeOp = async (
   //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
   //     return { exit: true }
   // }
+  // await sleep(1000) // Debug for slow stepping
+
   sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1, priority)
   let result = {}
   switch (op.op) {
@@ -1083,9 +1085,16 @@ const initEntityMain = async (fieldName, entity) => {
 const initialiseOpLoops = async () => {
   console.log('initialiseOpLoops: START')
   CURRENT_FIELD = window.currentField.name
-  const entities = window.currentField.data.script.entities
   await positionPlayableCharacterFromTransition()
-  // entities = entities.filter(e => !(e.entityName.includes('ELEC') || e.entityName.includes('TURI') || e.entityName.includes('LIGHT'))) // Debug
+  const entities = window.currentField.data.script.entities
+  // .filter(e => (
+  //   e.entityName.includes('dirs') ||
+  //   e.entityName.includes('cls') ||
+  //   // e.entityName.includes('light') ||
+  //   e.entityName === 'light0'
+  //   // e.entityName === 'light1'
+  //   // e.entityName === 'warning'
+  // )) // Debug
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
     await initEntityInit(window.currentField.name, entity) // All complete sync in order

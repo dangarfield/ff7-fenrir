@@ -6,17 +6,11 @@ window.console = (function (origConsole) {
   return {
     terms: [
       // 'FLOW ERROR',
-      'executeOpDEBUG',
-      'printedCompare',
-      'processBG',
-      'palettes',
-      'drawBG',
+      // 'executeOpDEBUG',
+      // 'executeOp',
       // 'storePalette',
-      // 'loadPalette',
       // 'addPalette',
-      'palettes',
-      'blending',
-      'updated'
+      'loadPalette'
     ],
     log: function () {
       if (limit) {

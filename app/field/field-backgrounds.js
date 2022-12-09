@@ -544,7 +544,7 @@ const processPalettes = () => {
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const paletteInfos = window.currentField.data.palette.pages[i]
     const paletteData = []
-    const data = new Uint8Array(4 * 256)
+    const data = new Uint8ClampedArray(4 * 256)
     for (let j = 0; j < paletteInfos.length; j++) {
       const paletteInfo = paletteInfos[j]
       // console.log('palettes - processing', i, j)
@@ -624,7 +624,8 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
   if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
   } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
-    color = texture2D(palette, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
+    // Something wrong with this in md1_2 light0 palette actions
+    color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
   }
   return color;
 }
@@ -752,52 +753,72 @@ const drawBG = async (
   }
 }
 const ensureTempPalette = () => {
-  if (!window.data.TEMP_PALETTE) {
+  if (!window.data.TEMP_PALETTE) { // TODO, need to ensure this cleared on each field?
     window.data.TEMP_PALETTE = []
-  }
-}
-const updateLayersWithPaletteChange = (paletteId) => {
-  const layers = window.currentField.backgroundLayers.children.filter(c => c.userData.paletteId === 11)
-  for (let i = 0; i < layers.length; i++) {
-    const layer = layers[i]
-    const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
-    // TODO - complete this once dataTextures are working
   }
 }
 const storePalette = (paletteId, tempPaletteId, start, size) => {
   ensureTempPalette()
-  const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
-  window.data.TEMP_PALETTE[tempPaletteId] = []
-  let tempIndex = 0
+  size = 32
+  const paletteData = window.currentField.backgroundData.palettes.dataTextures[paletteId].image.data
+
+  const tempPaletteData = new Uint8ClampedArray(4 * size)
+  let j = 0
   for (let i = start; i < start + size; i++) {
-    window.data.TEMP_PALETTE[tempPaletteId][tempIndex] = paletteData[i]
-    tempIndex++
+    // console.log('palettes - processing', i, j)
+    tempPaletteData[j * 4 + 0] = paletteData[i * 4 + 0]
+    tempPaletteData[j * 4 + 1] = paletteData[i * 4 + 1]
+    tempPaletteData[j * 4 + 2] = paletteData[i * 4 + 2]
+    tempPaletteData[j * 4 + 3] = paletteData[i * 4 + 3]
+    j++
   }
+  window.data.TEMP_PALETTE[tempPaletteId] = tempPaletteData
   console.log('storePalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE)
 }
 const loadPalette = (paletteId, tempPaletteId, start, size) => {
   ensureTempPalette()
+  size = 32 // TODO - Need to see if this is still needed, it was just for a test
+  // try {
   // tempPaletteId = tempPaletteId - 10 // temp
-  // console.log('loadPalette', paletteId, tempPaletteId, start, size, window.data.TEMP_PALETTE[tempPaletteId])
-  const paletteData = window.currentField.backgroundData.palettes.textureList[paletteId]
-  for (let tempIndex = 0; tempIndex < size; tempIndex++) {
-    // console.log('loadPalette', tempPaletteId, tempIndex, window.data.TEMP_PALETTE[tempPaletteId])
-    if (window.data.TEMP_PALETTE[tempPaletteId]) {
-      paletteData[start + tempIndex] = window.data.TEMP_PALETTE[tempPaletteId][tempIndex]
-    }
+  console.log('loadPalette', paletteId, tempPaletteId, start, size, window.currentField.backgroundData.palettes.dataTextures[paletteId])
+  const paletteData = window.currentField.backgroundData.palettes.dataTextures[paletteId].image.data
+
+  const tempPaletteData = window.data.TEMP_PALETTE[tempPaletteId]
+  let j = 0
+  for (let i = start; i < start + size; i++) {
+    console.log('loadPalette - processing', paletteId, tempPaletteId, tempPaletteData)
+    paletteData[i * 4 + 0] = tempPaletteData[j * 4 + 0] // TODO: Is the start relative to the temp or main palette?
+    paletteData[i * 4 + 1] = tempPaletteData[j * 4 + 1]
+    paletteData[i * 4 + 2] = tempPaletteData[j * 4 + 2]
+    paletteData[i * 4 + 3] = tempPaletteData[j * 4 + 3]
+    j++
   }
-  updateLayersWithPaletteChange(paletteId)
-  // console.log('loadPalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE[tempPaletteId][0])
-  // Also apply the uniforms palette changes to the layers that have the paletteId
+  console.log('loadPalette res', paletteData)
+  window.currentField.backgroundData.palettes.dataTextures[paletteId].needsUpdate = true
+  // } catch (error) {
+
+  // }
 }
-const addPalette = (sourceTempPaletteId, targetTempPaletteId, r, g, b, size) => {
-  // console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
-  window.data.TEMP_PALETTE[targetTempPaletteId] = []
-  for (let i = 0; i < window.data.TEMP_PALETTE[sourceTempPaletteId].length; i++) {
-    const source = window.data.TEMP_PALETTE[sourceTempPaletteId][i]
-    const target = new THREE.Vector4(source.x + r / 255, source.y + g / 255, source.z + b / 255, source.w) // TODO - Add ??? This is not right
-    window.data.TEMP_PALETTE[targetTempPaletteId][i] = target
+const addPalette = (sourceTempPaletteId, targetTempPaletteId, r, g, b, start, size) => {
+  ensureTempPalette()
+  size = 32
+  console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
+  const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
+  const targetTempPaletteData = new Uint8ClampedArray(4 * size)
+  let j = 0
+  for (let i = start; i < start + size; i++) {
+    targetTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 8) // Is rgb order correct?
+    targetTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 8)
+    targetTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 8)
+    targetTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
+
+    if (sourceTempPaletteData[i * 4 + 0] > targetTempPaletteData[j * 4 + 0]) {
+      console.log('here', targetTempPaletteData[i * 4 + 0], sourceTempPaletteData[j * 4 + 0])
+    }
+    j++
   }
+  window.data.TEMP_PALETTE[targetTempPaletteId] = targetTempPaletteData
+  console.log('addPalette RES', sourceTempPaletteData, targetTempPaletteData, window.data.TEMP_PALETTE)
 }
 export {
   changeBackgroundParamState,
