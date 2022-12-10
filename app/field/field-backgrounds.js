@@ -631,9 +631,6 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
 }
 
 void main() {
-
-  //gl_FragColor = texture2D(palette, vUv);
-
   gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel );
 }`
 }
@@ -757,69 +754,83 @@ const ensureTempPalette = () => {
     window.data.TEMP_PALETTE = []
   }
 }
-const storePalette = (paletteId, tempPaletteId, start, size) => {
+const storePalette = (sourcePaletteId, destinationTempPaletteId, start, size) => {
   ensureTempPalette()
-  size = 32
-  const paletteData = window.currentField.backgroundData.palettes.dataTextures[paletteId].image.data
+  // size = 32
+  const sourcePaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
 
-  const tempPaletteData = new Uint8ClampedArray(4 * size)
+  const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
   for (let i = start; i < start + size; i++) {
     // console.log('palettes - processing', i, j)
-    tempPaletteData[j * 4 + 0] = paletteData[i * 4 + 0]
-    tempPaletteData[j * 4 + 1] = paletteData[i * 4 + 1]
-    tempPaletteData[j * 4 + 2] = paletteData[i * 4 + 2]
-    tempPaletteData[j * 4 + 3] = paletteData[i * 4 + 3]
+    destinationTempPaletteData[j * 4 + 0] = sourcePaletteData[i * 4 + 0]
+    destinationTempPaletteData[j * 4 + 1] = sourcePaletteData[i * 4 + 1]
+    destinationTempPaletteData[j * 4 + 2] = sourcePaletteData[i * 4 + 2]
+    destinationTempPaletteData[j * 4 + 3] = sourcePaletteData[i * 4 + 3]
     j++
   }
-  window.data.TEMP_PALETTE[tempPaletteId] = tempPaletteData
-  console.log('storePalette', paletteId, tempPaletteId, start, size, paletteData, window.data.TEMP_PALETTE)
+  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
+  console.log('storePalette', sourcePaletteId, destinationTempPaletteId, start, size, sourcePaletteData, window.data.TEMP_PALETTE)
 }
-const loadPalette = (paletteId, tempPaletteId, start, size) => {
+const loadPalette = (sourceTempPaletteId, destinationPaletteId, start, size) => {
   ensureTempPalette()
-  size = 32 // TODO - Need to see if this is still needed, it was just for a test
-  // try {
+  // size = 32 // TODO - Need to see if this is still needed, it was just for a test
+  try {
   // tempPaletteId = tempPaletteId - 10 // temp
-  console.log('loadPalette', paletteId, tempPaletteId, start, size, window.currentField.backgroundData.palettes.dataTextures[paletteId])
-  const paletteData = window.currentField.backgroundData.palettes.dataTextures[paletteId].image.data
+    console.log('loadPalette', sourceTempPaletteId, destinationPaletteId, start, size, window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId])
+    const destinationPaletteData = window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId].image.data
 
-  const tempPaletteData = window.data.TEMP_PALETTE[tempPaletteId]
-  let j = 0
-  for (let i = start; i < start + size; i++) {
-    console.log('loadPalette - processing', paletteId, tempPaletteId, tempPaletteData)
-    paletteData[i * 4 + 0] = tempPaletteData[j * 4 + 0] // TODO: Is the start relative to the temp or main palette?
-    paletteData[i * 4 + 1] = tempPaletteData[j * 4 + 1]
-    paletteData[i * 4 + 2] = tempPaletteData[j * 4 + 2]
-    paletteData[i * 4 + 3] = tempPaletteData[j * 4 + 3]
-    j++
-  }
-  console.log('loadPalette res', paletteData)
-  window.currentField.backgroundData.palettes.dataTextures[paletteId].needsUpdate = true
-  // } catch (error) {
-
-  // }
-}
-const addPalette = (sourceTempPaletteId, targetTempPaletteId, r, g, b, start, size) => {
-  ensureTempPalette()
-  size = 32
-  console.log('addPalette', sourceTempPaletteId, targetTempPaletteId, r, g, b, size)
-  const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
-  const targetTempPaletteData = new Uint8ClampedArray(4 * size)
-  let j = 0
-  for (let i = start; i < start + size; i++) {
-    targetTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 8) // Is rgb order correct?
-    targetTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 8)
-    targetTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 8)
-    targetTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
-
-    if (sourceTempPaletteData[i * 4 + 0] > targetTempPaletteData[j * 4 + 0]) {
-      console.log('here', targetTempPaletteData[i * 4 + 0], sourceTempPaletteData[j * 4 + 0])
+    const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
+    let j = 0
+    for (let i = start; i < start + size; i++) {
+      console.log('loadPalette - processing', destinationPaletteId, sourceTempPaletteId, sourceTempPaletteData)
+      destinationPaletteData[i * 4 + 0] = sourceTempPaletteData[j * 4 + 0] // TODO: Is the start relative to the temp or main palette?
+      destinationPaletteData[i * 4 + 1] = sourceTempPaletteData[j * 4 + 1]
+      destinationPaletteData[i * 4 + 2] = sourceTempPaletteData[j * 4 + 2]
+      destinationPaletteData[i * 4 + 3] = sourceTempPaletteData[j * 4 + 3]
+      j++
     }
+    console.log('loadPalette res', destinationPaletteData)
+    window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId].needsUpdate = true
+  } catch (error) {
+    console.log('loadPalette error', error)
+  }
+}
+const addPalette = (sourceTempPaletteId, destinationTempPaletteId, r, g, b, start, size) => {
+  ensureTempPalette()
+  // size = 32
+  console.log('addPalette', sourceTempPaletteId, destinationTempPaletteId, r, g, b, size)
+  const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
+  const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
+  let j = 0
+  for (let i = start; i < start + size; i++) {
+    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 8) // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 8)
+    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 8)
+    destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
     j++
   }
-  window.data.TEMP_PALETTE[targetTempPaletteId] = targetTempPaletteData
-  console.log('addPalette RES', sourceTempPaletteData, targetTempPaletteData, window.data.TEMP_PALETTE)
+  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
+  console.log('addPalette RES', sourceTempPaletteData, destinationTempPaletteData, window.data.TEMP_PALETTE)
 }
+const multiplyPalette = (sourcePaletteId, destinationTempPaletteId, r, g, b, start, size) => {
+  ensureTempPalette()
+  // size = 32
+  console.log('multiplyPalette', sourcePaletteId, destinationTempPaletteId, r, g, b, size)
+  const sourceTempPaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
+  const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
+  let j = 0
+  for (let i = start; i < start + size; i++) {
+    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] * (r / 8) // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] * (g / 8)
+    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] * (b / 8)
+    destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
+    j++
+  }
+  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
+  console.log('multiplyPalette RES', sourceTempPaletteData, destinationTempPaletteData, window.data.TEMP_PALETTE)
+}
+
 export {
   changeBackgroundParamState,
   rollBackgroundParamState,
@@ -832,5 +843,6 @@ export {
   updateLayer2Parallax,
   storePalette,
   loadPalette,
-  addPalette
+  addPalette,
+  multiplyPalette
 }

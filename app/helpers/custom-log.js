@@ -10,7 +10,8 @@ window.console = (function (origConsole) {
       // 'executeOp',
       // 'storePalette',
       // 'addPalette',
-      'loadPalette'
+      'loadPalette',
+      'multiplyPalette'
     ],
     log: function () {
       if (limit) {

@@ -6,7 +6,8 @@ import {
   rollBackgroundParamState,
   storePalette,
   loadPalette,
-  addPalette
+  addPalette,
+  multiplyPalette
 } from './field-backgrounds.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData } from '../data/savemap.js'
@@ -56,39 +57,67 @@ const BGSCR = async op => {
   return {}
 }
 // TODO - ordering
-const STPLS = async (op) => {
+const STPLS = async (op) => { // LOOKS GOOD
   console.log('STPLS', op)
-  storePalette(op.p, op.t, op.start, op.size + 1)
+  storePalette(op.s, op.d, op.start, op.size + 1)
   return {}
 }
-const STPAL = async (op) => {
+const STPAL = async (op) => { // LOOKS GOOD
   console.log('STPAL', op)
-  const p = op.b1 === 0 ? op.p : getBankData(op.b1, op.p)
-  const t = op.b2 === 0 ? op.t : getBankData(op.b2, op.t)
-  storePalette(p, t, 0, op.size + 1)
+  const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
+  const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
+  storePalette(s, d, 0, op.size + 1)
   return {}
 }
-const LDPLS = async (op) => {
+const LDPLS = async (op) => { // LOOKS GOOD
   console.log('LDPLS', op)
-  loadPalette(op.p, op.t, op.start, op.size + 1)
+  loadPalette(op.s, op.d, op.start, op.size + 1)
   return {}
 }
-const LDPAL = async (op) => {
+const LDPAL = async (op) => { // LOOKS GOOD
   console.log('LDPAL', op)
-  const p = op.b1 === 0 ? op.p : getBankData(op.b1, op.p)
-  const t = op.b2 === 0 ? op.t : getBankData(op.b2, op.t)
-  loadPalette(p, t, 0, op.size + 1)
+  const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
+  const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
+  loadPalette(s, d, 0, op.size + 1)
   return {}
 }
-const ADPAL = async (op) => {
+const ADPAL = async (op) => { // Seems Good
   console.log('ADPAL', op)
   const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
-  const t = op.b2 === 0 ? op.t : getBankData(op.b2, op.t)
+  const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
   const b = op.b3 === 0 ? op.b : getBankData(op.b3, op.b)
   const g = op.b4 === 0 ? op.g : getBankData(op.b4, op.g)
   const r = op.b5 === 0 ? op.r : getBankData(op.b5, op.r)
   const size = op.size
-  addPalette(s, t, 255 - r, 255 - g, 255 - b, 0, size + 1) // 255-???
+  addPalette(s, d, 255 - r, 255 - g, 255 - b, 0, size + 1) // 255-???
+  return {}
+}
+const ADPAL2 = async (op) => { // Seems Good
+  console.log('ADPAL2', op)
+  const b = op.b2 === 0 ? op.b : getBankData(op.b2, op.b)
+  const g = op.b3 === 0 ? op.g : getBankData(op.b3, op.g)
+  const r = op.b4 === 0 ? op.r : getBankData(op.b4, op.r)
+  const size = op.size
+  addPalette(op.s, op.d, 255 - r, 255 - g, 255 - b, op.start, size + 1) // 255-???
+  return {}
+}
+
+const MPPAL2 = async (op) => {
+  console.log('MPPAL2', op)
+  const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
+  const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
+  const b = op.b3 === 0 ? op.b : getBankData(op.b3, op.b)
+  const g = op.b4 === 0 ? op.g : getBankData(op.b4, op.g)
+  const r = op.b5 === 0 ? op.r : getBankData(op.b5, op.r)
+  const size = op.size
+  multiplyPalette(s, d, 255 - r, 255 - g, 255 - b, 0, size + 1) // 255-???
+  return {}
+}
+const CPPAL = async (op) => {
+  console.log('CPPAL', op)
+  const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
+  const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
+  loadPalette(s, d, 0, op.size + 1) // Is this the same?!
   return {}
 }
 // setTimeout(async () => {
@@ -116,5 +145,5 @@ const ADPAL = async (op) => {
 
 export {
   BGPDH, BGSCR, BGON, BGOFF, BGROL, BGROL2, BGCLR,
-  STPLS, STPAL, LDPLS, LDPAL, ADPAL
+  STPLS, STPAL, LDPLS, LDPAL, ADPAL, MPPAL2, CPPAL, ADPAL2
 }

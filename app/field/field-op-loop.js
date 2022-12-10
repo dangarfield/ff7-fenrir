@@ -128,7 +128,8 @@ const executeOp = async (
   //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
   //     return { exit: true }
   // }
-  // await sleep(1000) // Debug for slow stepping
+
+  // await sleep(250) // Debug for slow stepping
 
   sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1, priority)
   let result = {}
@@ -781,6 +782,15 @@ const executeOp = async (
     case 'ADPAL':
       result = await background.ADPAL(op)
       break
+    case 'ADPAL2':
+      result = await background.ADPAL2(op)
+      break
+    case 'MPPAL2':
+      result = await background.MPPAL2(op)
+      break
+    case 'CPPAL':
+      result = await background.CPPAL(op)
+      break
 
       // Camera, Audio and Video
 
@@ -1088,13 +1098,16 @@ const initialiseOpLoops = async () => {
   await positionPlayableCharacterFromTransition()
   const entities = window.currentField.data.script.entities
   // .filter(e => (
-  //   e.entityName.includes('dirs') ||
-  //   e.entityName.includes('cls') ||
-  //   // e.entityName.includes('light') ||
-  //   e.entityName === 'light0'
-  //   // e.entityName === 'light1'
-  //   // e.entityName === 'warning'
+  //   //   e.entityName.includes('dirs') ||
+  //   //   e.entityName.includes('cls') ||
+  //   //   // e.entityName.includes('light') ||
+  //   // e.entityName === 'light0' ||
+  //   //   e.entityName === 'light1'
+  //   e.entityName === 'warning' ||
+  //   e.entityName === 'zizizi' ||
+  //   e.entityName === 'light'
   // )) // Debug
+  // .filter(e => e.entityName === 'warning')
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
     await initEntityInit(window.currentField.name, entity) // All complete sync in order
