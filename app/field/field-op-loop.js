@@ -785,6 +785,9 @@ const executeOp = async (
     case 'ADPAL2':
       result = await background.ADPAL2(op)
       break
+    case 'MPPAL':
+      result = await background.MPPAL(op)
+      break
     case 'MPPAL2':
       result = await background.MPPAL2(op)
       break
@@ -1105,7 +1108,8 @@ const initialiseOpLoops = async () => {
   //   //   e.entityName === 'light1'
   //   e.entityName === 'warning' ||
   //   e.entityName === 'zizizi' ||
-  //   e.entityName === 'light'
+  //   e.entityName === 'light' ||
+  //   e.entityName === 'light2'
   // )) // Debug
   // .filter(e => e.entityName === 'warning')
   for (let i = 0; i < entities.length; i++) {

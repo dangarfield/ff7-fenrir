@@ -102,6 +102,16 @@ const ADPAL2 = async (op) => { // Seems Good
   return {}
 }
 
+const MPPAL = async (op) => { // Seems Good
+  console.log('MPPAL', op)
+  const b = op.b2 === 0 ? op.b : getBankData(op.b2, op.b)
+  const g = op.b3 === 0 ? op.g : getBankData(op.b3, op.g)
+  const r = op.b4 === 0 ? op.r : getBankData(op.b4, op.r)
+  const start = op.b1 === 0 ? op.start : getBankData(op.b5, op.start)
+  const size = op.b5 === 0 ? op.size : getBankData(op.b5, op.size)
+  multiplyPalette(op.s, op.d, r, g, b, start, size + 1) // 255-???
+  return {}
+}
 const MPPAL2 = async (op) => { // Seems Good
   console.log('MPPAL2', op)
   const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
@@ -145,5 +155,5 @@ const CPPAL = async (op) => {
 
 export {
   BGPDH, BGSCR, BGON, BGOFF, BGROL, BGROL2, BGCLR,
-  STPLS, STPAL, LDPLS, LDPAL, ADPAL, MPPAL2, CPPAL, ADPAL2
+  STPLS, STPAL, LDPLS, LDPAL, ADPAL, MPPAL2, CPPAL, ADPAL2, MPPAL
 }
