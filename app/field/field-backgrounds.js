@@ -817,13 +817,14 @@ const multiplyPalette = (sourcePaletteId, destinationTempPaletteId, r, g, b, sta
   ensureTempPalette()
   // size = 32
   console.log('multiplyPalette', sourcePaletteId, destinationTempPaletteId, r, g, b, size)
-  const sourceTempPaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
+  // const sourceTempPaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
+  const sourceTempPaletteData = window.data.TEMP_PALETTE[sourcePaletteId]
   const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
   for (let i = start; i < start + size; i++) {
-    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] * (r / 8) // Is rgb order correct?
-    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] * (g / 8)
-    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] * (b / 8)
+    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 1) // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 1)
+    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 1)
     destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
     j++
   }

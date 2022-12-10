@@ -102,7 +102,7 @@ const ADPAL2 = async (op) => { // Seems Good
   return {}
 }
 
-const MPPAL2 = async (op) => {
+const MPPAL2 = async (op) => { // Seems Good
   console.log('MPPAL2', op)
   const s = op.b1 === 0 ? op.s : getBankData(op.b1, op.s)
   const d = op.b2 === 0 ? op.d : getBankData(op.b2, op.d)
@@ -110,7 +110,7 @@ const MPPAL2 = async (op) => {
   const g = op.b4 === 0 ? op.g : getBankData(op.b4, op.g)
   const r = op.b5 === 0 ? op.r : getBankData(op.b5, op.r)
   const size = op.size
-  multiplyPalette(s, d, 255 - r, 255 - g, 255 - b, 0, size + 1) // 255-???
+  multiplyPalette(s, d, r, g, b, 0, size + 1) // 255-???
   return {}
 }
 const CPPAL = async (op) => {
