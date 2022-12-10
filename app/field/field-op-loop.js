@@ -1111,7 +1111,7 @@ const initialiseOpLoops = async () => {
   //   e.entityName === 'light' ||
   //   e.entityName === 'light2'
   // )) // Debug
-  // .filter(e => e.entityName === 'warning')
+  // .filter(e => e.entityName === 'light0')
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
     await initEntityInit(window.currentField.name, entity) // All complete sync in order

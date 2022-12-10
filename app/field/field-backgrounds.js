@@ -609,13 +609,14 @@ const fieldFragmentShader = () => {
   return `
 uniform int paletteSize;
 uniform int useFirstPixel;
+uniform bool useBlack;
 uniform sampler2D palette;
 uniform sampler2D paletteData;
 uniform sampler2D pixels;
 uniform vec4[256] paletteList;
 varying vec2 vUv;
 
-vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sampler2D paletteData, int paletteSize, vec4[256] paletteList, int useFirstPixel) {
+vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sampler2D paletteData, int paletteSize, vec4[256] paletteList, int useFirstPixel, bool unknown7) {
   vec4 pixelColor = texture2D(pixels, vUv);
   float paletteIndex = pixelColor.x * 255.0;
   // vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
@@ -623,15 +624,14 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
 
   if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
-  } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0) {
-    // Something wrong with this in md1_2 light0 palette actions
+  } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
     color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
   }
   return color;
 }
 
 void main() {
-  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel );
+  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel, useBlack );
 }`
 }
 
@@ -685,6 +685,9 @@ const drawBG = async (
       },
       paletteSize: {
         value: 256
+      },
+      useBlack: {
+        value: layerData.useBlack === true
       },
       paletteList: {
         value: window.currentField.backgroundData.palettes.textureList[userData.paletteId]
