@@ -1072,7 +1072,7 @@ const waitForOffset = async entityId => {
 }
 
 const joinLeader = async speed => {
-  const leaderModel = getModelByPartyMemberId(0)
+  const leaderModel = getModelByPartyMemberId(1) // 1-3, not 0
   const targetX = leaderModel.scene.position.x
   const targetY = leaderModel.scene.position.y
   const joinerNames = window.data.savemap.party.members.filter(
@@ -1108,7 +1108,7 @@ const joinLeader = async speed => {
 const splitPartyFromLeader = async (char1, char2, speed) => {
   console.log('splitPartyFromLeader', char1, char2, speed)
 
-  const leaderModel = getModelByPartyMemberId(0)
+  const leaderModel = getModelByPartyMemberId(1) // 1-3, not 0
   const targetX = leaderModel.scene.position.x
   const targetY = leaderModel.scene.position.y
   const targetZ = leaderModel.scene.position.z
