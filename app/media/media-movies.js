@@ -13,9 +13,9 @@ import { setVisibilityForAllModels } from '../field/field-models.js'
 
 let movieMetadata
 let moviecamMetadata
-let movies = []
-let moviecams = []
-let nextMovie = {
+const movies = []
+const moviecams = []
+const nextMovie = {
   name: '',
   cameraData: undefined,
   frame: 0,

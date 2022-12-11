@@ -138,7 +138,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
         model.scene.position.y = fromXY.y
         // TODO - Update camera position
         if (model.userData.isPlayableCharacter) {
-          let relativeToCamera = calculateViewClippingPointFromVector3(
+          const relativeToCamera = calculateViewClippingPointFromVector3(
             window.currentField.playableCharacter.scene.position
           )
           console.log('setCameraPosition moveEntityJump')
@@ -161,8 +161,8 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
             if (line.userData.enabled) {
               const linePos = line.geometry.getAttribute('position')
               const closestPointOnLine = new THREE.Line3(
-                {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
-                {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
+                { x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0) },
+                { x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1) }
               ).closestPointToPoint(targetVector, true, new THREE.Vector3())
               const distance = targetVector.distanceTo(closestPointOnLine)
               // const entityId = line.userData.entityId
@@ -264,8 +264,8 @@ const updateMoveEntityMovement = delta => {
 
         for (let i = 0; i < directions.length; i++) {
           const potentialDirection = directions[i]
-          let directionRadians = THREE.Math.degToRad(180 - potentialDirection)
-          let directionVector = new THREE.Vector3(
+          const directionRadians = THREE.Math.degToRad(180 - potentialDirection)
+          const directionVector = new THREE.Vector3(
             Math.sin(directionRadians),
             Math.cos(directionRadians),
             0
@@ -282,7 +282,7 @@ const updateMoveEntityMovement = delta => {
             speed
           )
 
-          let movementRay = new THREE.Raycaster()
+          const movementRay = new THREE.Raycaster()
 
           const rayO = new THREE.Vector3(
             nextPosition.x,
@@ -292,7 +292,7 @@ const updateMoveEntityMovement = delta => {
           const rayD = new THREE.Vector3(0, 0, -1).normalize()
           movementRay.set(rayO, rayD)
           movementRay.far = RAY_HEIGHT * 2
-          let intersects = movementRay.intersectObjects(
+          const intersects = movementRay.intersectObjects(
             window.currentField.walkmeshMesh.children
           )
           console.log(
@@ -480,7 +480,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
       Math.pow(model.scene.position.x - x, 2) +
         Math.pow(model.scene.position.y - y, 2)
     )
-  let speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
+  const speed = model.userData.movementSpeed // This 'seems' ok, at least for modelScale 512 fields
   // TODO - Work out speedInFrames -> speed for JOIN and LEAVE
   let animationId = 2 // window.currentField.playerAnimations.run, is this applied globally?!
   if (speed < 1600) {
@@ -494,7 +494,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
 
   return new Promise(async resolve => {
     model.userData.moveEntity = {
-      to: { x: x, y: y },
+      to: { x, y },
       rotate,
       animate,
       speed,
@@ -541,8 +541,8 @@ const moveEntityOld = async (
     model.scene.position.y
   )
   const directionDegrees = getDegreesFromTwoPoints(model.scene.position, {
-    x: x,
-    y: y
+    x,
+    y
   })
 
   // console.log('directionDegrees', directionDegrees, window.currentField.data.triggers.header.controlDirectionDegrees,
@@ -550,7 +550,7 @@ const moveEntityOld = async (
   // )
 
   const from = { x: model.scene.position.x, y: model.scene.position.y }
-  const to = { x: x, y: y }
+  const to = { x, y }
   const distance =
     4096 * Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
   const speed =
@@ -627,13 +627,13 @@ const moveEntityOld = async (
     const moveTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP).to(to, time)
     moveTween.onUpdate(function () {
       // Find the z position
-      let movementRay = new THREE.Raycaster()
+      const movementRay = new THREE.Raycaster()
       const rayO = new THREE.Vector3(from.x, from.y, lastZ + 0.01)
       const rayD = new THREE.Vector3(0, 0, -1).normalize()
       movementRay.set(rayO, rayD)
       movementRay.far = 0.02
 
-      let intersects = movementRay.intersectObjects(
+      const intersects = movementRay.intersectObjects(
         window.currentField.walkmeshMesh.children
       )
       // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
@@ -878,7 +878,7 @@ const moveEntityLadderNPC = async (
     (1 / window.currentField.data.model.header.modelScale) *
     1024 *
     2 // TODO - Look at this properly, not sure of the scale here
-  let time = distance * speed
+  const time = distance * speed
   // TODO - The speed is very wrong
   console.log(
     'moveEntityLadderNPC ready',

@@ -24,7 +24,7 @@ import { loadTitleMenu } from './menu-title.js'
 
 let scrollingTextDialog, scrollingTextGroup
 
-const STATES = {CREDITS_SHOW: 'credits-show'}
+const STATES = { CREDITS_SHOW: 'credits-show' }
 const DATA = {
   lines: [],
   activeTween: null,
@@ -62,8 +62,8 @@ const loadCreditsMenu = async param => {
 }
 const tweenScrollingCredits = (ms) => {
   return new Promise((resolve, reject) => {
-    let from = {y: scrollingTextGroup.position.y}
-    let to = {y: DATA.y - 240 - 120}
+    const from = { y: scrollingTextGroup.position.y }
+    const to = { y: DATA.y - 240 - 120 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     // .to(to, 415000)
       .to(to, ms)
@@ -86,8 +86,8 @@ const tweenScrollingCredits = (ms) => {
 }
 const tween500YearsFadeIn = (group) => {
   return new Promise((resolve, reject) => {
-    let from = {x: 0}
-    let to = {x: 386}
+    const from = { x: 0 }
+    const to = { x: 386 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     // .to(to, 415000)
       .to(to, 3000)
@@ -112,8 +112,8 @@ const tween500YearsFadeIn = (group) => {
 }
 const tween500YearsFadeOut = (shape) => {
   return new Promise((resolve, reject) => {
-    let from = {opacity: 1}
-    let to = {opacity: 0}
+    const from = { opacity: 1 }
+    const to = { opacity: 0 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     // .to(to, 415000)
       .to(to, 1000)

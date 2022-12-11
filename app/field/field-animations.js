@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { sleep, uuid } from '../helpers/helpers.js'
-import { getModelByEntityId, getDegreesFromTwoPoints } from './field-models.js'
+import { uuid } from '../helpers/helpers.js'
+import { getModelByEntityId } from './field-models.js'
 
 const playAnimationOnceSyncReset = async (entityId, animationId, speed) => {
   await playAnimation(entityId, animationId, speed, false, THREE.LoopOnce)
@@ -24,7 +24,6 @@ const playAnimationPartialOnceSyncReset = async (
 }
 const playAnimationOnceAsyncReset = async (entityId, animationId, speed) => {
   playAnimation(entityId, animationId, speed, false, THREE.LoopOnce)
-  return
 }
 const playAnimationPartialOnceAsyncReset = async (
   entityId,
@@ -42,7 +41,6 @@ const playAnimationPartialOnceAsyncReset = async (
     startFrame,
     endFrame
   )
-  return
 }
 const playAnimationOnceSyncHoldLastFrame = async (
   entityId,
@@ -74,7 +72,6 @@ const playAnimationOnceAsyncHoldLastFrame = async (
   speed
 ) => {
   playAnimation(entityId, animationId, speed, true, THREE.LoopOnce)
-  return
 }
 const playAnimationPartialOnceAsyncHoldLastFrame = async (
   entityId,
@@ -92,7 +89,6 @@ const playAnimationPartialOnceAsyncHoldLastFrame = async (
     startFrame,
     endFrame
   )
-  return
 }
 
 const playAnimationLoopedAsync = async (entityId, animationId, speed) => {
@@ -107,7 +103,7 @@ const playAnimation = async (
   startFrame,
   endFrame
 ) => {
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     try {
       const model = getModelByEntityId(entityId)
       const animationTimeScale = (model.userData.animationSpeed / 16) * speed
@@ -126,7 +122,7 @@ const playAnimation = async (
       )
 
       // Store current playing animation for !holdLastFrame
-      const previousAnimationId = model.userData.lastAnimationId
+      // const previousAnimationId = model.userData.lastAnimationId
       model.userData.lastAnimationId = animationId
       // TODO - Implement this properly - Look at:
       //   trackin -> cefiros -> main
@@ -153,7 +149,7 @@ const playAnimation = async (
       if (action.promises === undefined) {
         action.promises = []
       }
-      const promise = { id: uuid(), resolve: resolve }
+      const promise = { id: uuid(), resolve }
       action.promises.push(promise)
       action.userData = {
         entityName: model.userData.entityName,
@@ -197,7 +193,6 @@ const playAnimation = async (
     } catch (error) {
       console.log(
         'playAnimation error',
-        model.userData.entityName,
         entityId,
         animationId,
         error
@@ -205,30 +200,30 @@ const playAnimation = async (
     }
   })
 }
-const waitForAnimationPromiseToBeResolved = async (
-  model,
-  entityId,
-  animationId
-) => {
-  while (true) {
-    await sleep((1000 / 30) * 2)
-    console.log(
-      'playAnimation promise waitForAnimationPromiseToBeResolved',
-      entityId,
-      animationId,
-      model.mixer.promise
-    )
-    if (model.mixer.promise === undefined) {
-      console.log(
-        'playAnimation promise waitForAnimationPromiseToBeResolved RESOLVED',
-        entityId,
-        animationId,
-        model.mixer.promise
-      )
-      return
-    }
-  }
-}
+// const waitForAnimationPromiseToBeResolved = async (
+//   model,
+//   entityId,
+//   animationId
+// ) => {
+//   while (true) {
+//     await sleep((1000 / 30) * 2)
+//     console.log(
+//       'playAnimation promise waitForAnimationPromiseToBeResolved',
+//       entityId,
+//       animationId,
+//       model.mixer.promise
+//     )
+//     if (model.mixer.promise === undefined) {
+//       console.log(
+//         'playAnimation promise waitForAnimationPromiseToBeResolved RESOLVED',
+//         entityId,
+//         animationId,
+//         model.mixer.promise
+//       )
+//       return
+//     }
+//   }
+// }
 const bindAnimationCompletion = model => {
   // Note: Some anims dont finish if others are running?? - mrkt4 cloud Script 6 ANIME1
   model.mixer.addEventListener('finished', async e => {
@@ -260,7 +255,7 @@ const bindAnimationCompletion = model => {
   })
 }
 const waitForAnimationToFinish = async entityId => {
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     console.log('waitForAnimationToFinish', entityId)
     const model = getModelByEntityId(entityId)
     let anyAnimationsRunning = false

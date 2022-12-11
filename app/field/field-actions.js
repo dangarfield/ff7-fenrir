@@ -52,10 +52,10 @@ const clearActionInProgress = () => {
 }
 
 const triggerTriggered = (i, isOn) => {
-  let trigger = window.currentField.data.triggers.triggers[i]
+  const trigger = window.currentField.data.triggers.triggers[i]
   console.log('triggerTriggered', i, isOn, trigger)
   // TODO Implement sounds too
-  let paramBGs = window.currentField.backgroundLayers.children.filter(
+  const paramBGs = window.currentField.backgroundLayers.children.filter(
     bg => bg.userData.param === trigger.bgGroupId_param
   )
   // 0 - OnTrigger - ON
@@ -108,17 +108,15 @@ const triggerTriggered = (i, isOn) => {
   // soundId: 2 -> door -> 122.ogg
   // soundId: 3 -> swish
 }
-const processTalkContactTriggersForFrame = () => {
-  if (!window.currentField.playableCharacter) {
-    return
-  }
-
-  // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
-  // Can player move?
-  if (window.currentField.playableCharacterIsInteracting) {
-
-  }
-}
+// const processTalkContactTriggersForFrame = () => {
+//   if (!window.currentField.playableCharacter) {
+//     return
+//   }
+//   // console.log('asd', delta, window.currentField.playableCharacterCanMove, window.currentField.playableCharacterIsInteracting)
+//   // Can player move?
+//   if (window.currentField.playableCharacterIsInteracting) {
+//   }
+// }
 const processTalkContactTrigger = () => {
   if (!window.currentField.playableCharacter) {
     return
@@ -126,11 +124,11 @@ const processTalkContactTrigger = () => {
   // TODO - There should probably be another mechanism of seeing if the player is allowed to talk
   // It COULD be whether they are allowed to move or not, but this breaks on ealin_2
   if (window.currentField.playableCharacterIsInteracting) {
-    console.log(`Talk distance PLAYER IS INTERACTING`)
+    console.log('Talk distance PLAYER IS INTERACTING')
     return
   }
   if (!window.currentField.playableCharacterCanMove) {
-    console.log(`Talk distance PLAYER CANNOT MOVE`)
+    console.log('Talk distance PLAYER CANNOT MOVE')
     return
   }
 
@@ -217,8 +215,8 @@ const processLineTriggersForFrame = () => {
     if (line.userData.enabled) {
       const linePos = line.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
-        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
+        { x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0) },
+        { x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1) }
       ).closestPointToPoint(position, true, new THREE.Vector3())
       const distance = position.distanceTo(closestPointOnLine)
       console.log('processLineTriggersForFrame', line.userData, distance)
@@ -405,9 +403,9 @@ const jumpToMap = async (fieldId, x, y, triangleId, direction) => {
     characterName = window.currentField.playableCharacter.userData.characterName
   }
   const playableCharacterInitData = {
-    triangleId: triangleId,
-    position: { x: x, y: y },
-    direction: direction,
+    triangleId,
+    position: { x, y },
+    direction,
     characterName
   }
   if (getTransitionFaderColor() === TRANSITION_COLOR.WHITE) {
@@ -420,7 +418,7 @@ const jumpToMapFromMiniGame = async (fieldId, x, y, z) => {
   console.log('jumpToMapFromMinigame', fieldId, fieldName, x, y, z)
 
   const playableCharacterInitData = {
-    position: { x: x, y: y, z: z },
+    position: { x, y, z },
     direction: 0,
     characterName: window.currentField.playableCharacter.userData.characterName
   }

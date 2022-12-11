@@ -4,8 +4,10 @@ import * as fieldMovement from './field-movement.js'
 import { getPlayableCharacterName } from './field-op-codes-party-helper.js'
 import { sleep } from '../helpers/helpers.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpSplash,
-  kawaiOpSBObj, kawaiOpLight } from './field-model-graphics-operations.js'
+import {
+  kawaiOpShine, kawaiOpTrnsp, kawaiOpBlink, enableBlink, disableBlink, kawaiOpAmbient, kawaiOpSplash,
+  kawaiOpSBObj, kawaiOpLight
+} from './field-model-graphics-operations.js'
 
 // General placement and init
 const CHAR = async (entityId, op) => {

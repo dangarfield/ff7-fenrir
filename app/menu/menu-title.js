@@ -24,7 +24,7 @@ import { loadSaveMenu } from './menu-main-save.js'
 
 let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup, gameSelectGroup
 
-const STATES = {TITLE_SEQUENCE: 'title-sequence', TITLE_SELECT: 'title-select'}
+const STATES = { TITLE_SEQUENCE: 'title-sequence', TITLE_SELECT: 'title-select' }
 const DATA = {
   gameSelectPos: 1,
   activeTween: null,
@@ -103,8 +103,8 @@ const beginTitleSequence = async () => {
 }
 const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
   return new Promise((resolve, reject) => {
-    let from = {opacity: fromOpacity}
-    let to = {opacity: toOpacity}
+    const from = { opacity: fromOpacity }
+    const to = { opacity: toOpacity }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
       .to(to, ms)
       .onUpdate(function () {
@@ -129,8 +129,8 @@ const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
 }
 const tweenSleep = (ms) => {
   return new Promise((resolve, reject) => {
-    let from = {something: 1}
-    let to = {something: 1}
+    const from = { something: 1 }
+    const to = { something: 1 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
       .to(to, ms)
       .onStop(function () {
@@ -148,8 +148,8 @@ const tweenSleep = (ms) => {
 }
 const tweenCreditsFlyIn = (meshes, ms) => {
   return new Promise((resolve, reject) => {
-    let from = {distance: 320}
-    let to = {distance: 0}
+    const from = { distance: 320 }
+    const to = { distance: 0 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
       .to(to, ms)
       .onUpdate(function () {
@@ -190,10 +190,10 @@ const playCreditsLoop = async (video) => {
       await tweenOpacity([bgImage], 0, 1, 500)
 
       const titlePositionConfig = [
-        {x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nw', 'nb']}, // tl
-        {x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb']}, // tr
-        {x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw']}, // bl
-        {x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tb', 'tw']} // br
+        { x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nw', 'nb'] }, // tl
+        { x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb'] }, // tr
+        { x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw'] }, // bl
+        { x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tb', 'tw'] } // br
       ]
       const titlePositionLookup = [
         1, 2, 0, 3, //
@@ -222,10 +222,10 @@ const playCreditsLoop = async (video) => {
         const nameBlack = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 0.5 + yGap, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
         const nameWhite = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
 
-        titleBlack.userData.position = {x: titleBlack.position.x, y: titleBlack.position.y}
-        titleWhite.userData.position = {x: titleWhite.position.x, y: titleWhite.position.y}
-        nameBlack.userData.position = {x: nameBlack.position.x, y: nameBlack.position.y}
-        nameWhite.userData.position = {x: nameWhite.position.x, y: nameWhite.position.y}
+        titleBlack.userData.position = { x: titleBlack.position.x, y: titleBlack.position.y }
+        titleWhite.userData.position = { x: titleWhite.position.x, y: titleWhite.position.y }
+        nameBlack.userData.position = { x: nameBlack.position.x, y: nameBlack.position.y }
+        nameWhite.userData.position = { x: nameWhite.position.x, y: nameWhite.position.y }
         const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
 
         await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 3000)

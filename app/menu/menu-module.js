@@ -201,7 +201,7 @@ const initMenuModule = () => {
   setupMenuCamera()
   initMenuKeypressActions()
   window.currentMenu = {
-    scene: scene
+    scene
   }
   initCommonMenuItems()
 }

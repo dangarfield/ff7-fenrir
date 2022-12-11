@@ -379,7 +379,7 @@ const drawItems = () => {
   itemContentsGroup.position.y = 0
 }
 const drawItemsPointer = (POS) => {
-  const {x, y, yAdj} = getItemPositions()
+  const { x, y, yAdj } = getItemPositions()
   movePointer(
     POINTERS.pointer2,
     x - 17, // TODO - positions
@@ -392,7 +392,7 @@ const drawItemsSelectedPointer = () => {
   if (pos < 0 || pos >= 10) {
     movePointer(POINTERS.pointer3, 0, 0, true)
   } else {
-    const {x, y, yAdj} = getItemPositions()
+    const { x, y, yAdj } = getItemPositions()
     movePointer(
       POINTERS.pointer3,
       x - 17 - 2, // TODO - positions
@@ -453,8 +453,8 @@ const tweenItemList = (up, state, POS, cb) => {
   for (let i = 0; i < POS.page + 1; i++) {
     subContents.children[i].visible = true
   }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + 18.5 : subContents.position.y - 18.5}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + 18.5 : subContents.position.y - 18.5 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {

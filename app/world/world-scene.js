@@ -18,7 +18,7 @@ const renderLoop = () => {
 
   if (window.anim.renderer) {
     // console.log('render')
-    let activeCamera = fixedCamera
+    const activeCamera = fixedCamera
 
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, fixedCamera)

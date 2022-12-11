@@ -55,7 +55,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
 
   window.currentField = {
     name: fieldName,
-    lastFieldName: lastFieldName,
+    lastFieldName,
     data: undefined,
     backgroundData: undefined,
     metaData: undefined,
@@ -88,7 +88,7 @@ const loadField = async (fieldName, playableCharacterInitData) => {
     backgroundVideo: undefined,
     positionHelpers: undefined,
     cameraTarget: undefined,
-    playableCharacterInitData: playableCharacterInitData,
+    playableCharacterInitData,
     media: undefined,
     menuEnabled: true,
     gatewayTriggersEnabled: true,

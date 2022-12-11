@@ -47,17 +47,17 @@ let homeNav,
   char2Group,
   char3Group
 const navOptions = [
-  {name: 'Item', display: true},
-  {name: 'Magic', display: true},
-  {name: 'Materia', display: true},
-  {name: 'Equip', display: true},
-  {name: 'Status', display: true},
-  {name: 'Order', display: true},
-  {name: 'Limit', display: true},
-  {name: 'Config', display: true},
-  {name: 'PHS', display: true},
-  {name: 'Save', display: true},
-  {name: 'Quit', display: true}
+  { name: 'Item', display: true },
+  { name: 'Magic', display: true },
+  { name: 'Materia', display: true },
+  { name: 'Equip', display: true },
+  { name: 'Status', display: true },
+  { name: 'Order', display: true },
+  { name: 'Limit', display: true },
+  { name: 'Config', display: true },
+  { name: 'PHS', display: true },
+  { name: 'Save', display: true },
+  { name: 'Quit', display: true }
 ]
 const navOptionsMembersRequired = [
   'Magic',
@@ -79,8 +79,8 @@ const debugPopulateMenuTestData = () => {
 
   // Party
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
-  window.data.savemap.party.phsLocked = { 'Cloud': 1, 'Barret': 0, 'Tifa': 0, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 0, 'Vincent': 0, 'Cid': 1 }
-  window.data.savemap.party.phsVisibility = { 'Cloud': 1, 'Barret': 1, 'Tifa': 1, 'Aeris': 0, 'RedXIII': 1, 'Yuffie': 0, 'CaitSith': 1, 'Vincent': 1, 'Cid': 0 }
+  window.data.savemap.party.phsLocked = { Cloud: 1, Barret: 0, Tifa: 0, Aeris: 0, RedXIII: 1, Yuffie: 0, CaitSith: 0, Vincent: 0, Cid: 1 }
+  window.data.savemap.party.phsVisibility = { Cloud: 1, Barret: 1, Tifa: 1, Aeris: 0, RedXIII: 1, Yuffie: 0, CaitSith: 1, Vincent: 1, Cid: 0 }
 
   // Status
   window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'

@@ -4,8 +4,8 @@ import { getConfig } from './media-module.js'
 
 const Howl = window.libraries.howler.Howl
 
-let musics = []
-let musicMetadata = {
+const musics = []
+const musicMetadata = {
   currentFieldList: [],
   currentFieldMusic: null,
   currentBattleMusic: null,
@@ -30,7 +30,7 @@ const loadMusic = (i, name) => {
     }
     const mediaItem = {
       url: getMusicUrl(name),
-      name: name,
+      name,
       metadata: musicMetadata.metadata.filter(m => m.name === name)[0],
       firstPlay: true
     }

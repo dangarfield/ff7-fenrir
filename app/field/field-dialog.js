@@ -60,7 +60,7 @@ const getDialog = id => {
   console.log('getDialog: NEW', id)
   if (dialogs[id] === undefined) {
     const dialog = {
-      id: id,
+      id,
       x: 5, // Default values ?!
       y: 5, // Default values ?!
       w: 304, // Default values ?!
@@ -82,7 +82,7 @@ const getDialog = id => {
   }
 }
 const createWindow = (id, x, y, w, h) => {
-  let updateMethod = 'NEW'
+  const updateMethod = 'NEW'
   const dialog = getDialog(id)
   dialog.x = x
   dialog.y = y

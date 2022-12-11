@@ -29,9 +29,9 @@ const DATA = {
   char: {},
   battleStats: {},
   menus: [
-    {type: 'Magic', enabled: true, page: 0, pos: 0, cols: 3, state: 'magic-magic'},
-    {type: 'Summon', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-summon'},
-    {type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskills'}
+    { type: 'Magic', enabled: true, page: 0, pos: 0, cols: 3, state: 'magic-magic' },
+    { type: 'Summon', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-summon' },
+    { type: 'Enemy-Skill', enabled: false, page: 0, pos: 0, cols: 2, state: 'magic-enemyskills' }
   ],
   menuCurrent: 0,
   applyCurrent: 0,
@@ -256,11 +256,11 @@ const getThreeRowTextPosition = (i) => {
 const drawListPointer = () => {
   const menu = DATA.menus[DATA.menuCurrent]
   if (menu.type === 'Magic') {
-    const {x, y} = getThreeRowTextPosition(menu.pos)
+    const { x, y } = getThreeRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5, y + 5.5)
   }
   if (menu.type === 'Summon' || menu.type === 'Enemy-Skill') {
-    const {x, y} = getTwoRowTextPosition(menu.pos)
+    const { x, y } = getTwoRowTextPosition(menu.pos)
     movePointer(POINTERS.pointer1, x - 10.5 + 5, y + 5.5)
   }
   movePointer(POINTERS.pointer2, 0, 0, true)
@@ -273,7 +273,7 @@ const drawList = () => {
   const menu = DATA.menus[DATA.menuCurrent]
   for (let i = 0; i < menu.spells.length; i++) {
     const spell = menu.spells[i]
-    const {x, y} = getTextRowPosition(i, menu.cols)
+    const { x, y } = getTextRowPosition(i, menu.cols)
     if (spell.enabled) {
       let color = LETTER_COLORS.White
       if (menu.type === 'Magic' && !ALLOWABLE_MENU_MAGIC.includes(spell.index)) {
@@ -319,7 +319,7 @@ const drawMP = (mp) => {
   addTextToDialog(
     mpGroup,
     ('' + mp).padStart(3, '0'),
-    `magic-mp`,
+    'magic-mp',
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     261,
@@ -333,7 +333,7 @@ const drawAbilities = (abilities) => {
   addTextToDialog(
     abilityGroup,
     'Added-Ability',
-    `magic-ability-label`,
+    'magic-ability-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
     113.5 - 8,
@@ -400,7 +400,7 @@ const drawAbilities = (abilities) => {
     addTextToDialog(
       abilityGroup,
       'Nothing.',
-      `magic-ability-nothing-label`,
+      'magic-ability-nothing-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       128.5 - 8,
@@ -417,7 +417,7 @@ const drawInfo = (info) => {
   addTextToDialog(
     mpGroup,
     info,
-    `magic-info`,
+    'magic-info',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     13.5 - 8,
@@ -456,8 +456,8 @@ const tweenMagicList = (up, state, cb) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     listGroupContents.children[i].visible = true
   }
-  let from = {y: listGroupContents.position.y}
-  let to = {y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18}
+  const from = { y: listGroupContents.position.y }
+  const to = { y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -561,7 +561,7 @@ const drawApplyMagic = (spell) => {
   addTextToDialog(
     applyNameGroup,
     centrePaddedString(spell.name, 8), // Should really be horizontally centered, but this good enough
-    `magic-apply-magic-label`,
+    'magic-apply-magic-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     180.5 - 8,

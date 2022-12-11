@@ -4,9 +4,9 @@ import { getConfig } from './media-module.js'
 const Howl = window.libraries.howler.Howl
 
 let soundMetadata
-let sounds = []
+const sounds = []
 
-let COMMON_SOUNDS = {
+const COMMON_SOUNDS = {
   OPTION: 1,
   SELECT: 2,
   ERROR: 3,
@@ -41,10 +41,10 @@ const loadSound = id => {
   }
   const mediaItem = {
     url: getSoundUrl(id),
-    id: id,
+    id,
     loop: soundMetadata.filter(s => s.name === id)[0].loop
   }
-  let howlParams = { src: [mediaItem.url] }
+  const howlParams = { src: [mediaItem.url] }
   if (mediaItem.loop) {
     howlParams.sprite = {}
     howlParams.sprite[`${id}Loop`] = [100, 200]

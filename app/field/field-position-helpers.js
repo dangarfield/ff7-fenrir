@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import {
   getAnimatedArrowPositionHelperTextures,
   getCursorPositionHelperTexture
@@ -16,7 +16,7 @@ const updateArrowPositionHelpers = () => {
     window.currentField.positionHelpers &&
     window.currentField.positionHelpers.children
   ) {
-    let animatedIds = []
+    const animatedIds = []
     let cursorId
     for (
       let i = 0;
@@ -150,9 +150,9 @@ const drawArrowPositionHelper = (helperPosition, type) => {
   const scale = 0.01 * ratio
   // console.log('drawArrowPositionHelper', distance, intendedDistance, ratio, distance * ratio, '->', finalDistance, scale)
 
-  var spriteTextures = getAnimatedArrowPositionHelperTextures(type)
-  var spriteMaterial = new THREE.SpriteMaterial({ map: spriteTextures[0] })
-  var sprite = new THREE.Sprite(spriteMaterial)
+  const spriteTextures = getAnimatedArrowPositionHelperTextures(type)
+  const spriteMaterial = new THREE.SpriteMaterial({ map: spriteTextures[0] })
+  const sprite = new THREE.Sprite(spriteMaterial)
   sprite.userData.type = 'animated'
   sprite.userData.textures = spriteTextures
   sprite.userData.index = 0
@@ -169,9 +169,9 @@ const drawArrowPositionHelper = (helperPosition, type) => {
   window.currentField.positionHelpers.add(sprite)
 }
 const drawCursorPositionHelper = () => {
-  var spriteTexture = getCursorPositionHelperTexture()
-  var spriteMaterial = new THREE.SpriteMaterial({ map: spriteTexture })
-  var sprite = new THREE.Sprite(spriteMaterial)
+  const spriteTexture = getCursorPositionHelperTexture()
+  const spriteMaterial = new THREE.SpriteMaterial({ map: spriteTexture })
+  const sprite = new THREE.Sprite(spriteMaterial)
   sprite.center = new THREE.Vector2(0, 0)
   sprite.userData.type = 'cursor'
   // Not able to get the scale of the arrows sprites right at this point
@@ -184,7 +184,7 @@ const drawCursorPositionHelper = () => {
 
 const updatePositionHelperVisility = () => {
   // TODO - This sets both the pointer and the green / red arrows. But I believe this should be separately controlled
-  let fieldPointersActive = areFieldPointersActive()
+  const fieldPointersActive = areFieldPointersActive()
   console.log(
     'updatePositionHelperVisility',
     fieldPointersActive,
@@ -213,7 +213,7 @@ const setFieldPointersEnabled = active => {
 }
 
 const togglePositionHelperVisility = () => {
-  let fieldPointersActive = areFieldPointersActive()
+  const fieldPointersActive = areFieldPointersActive()
   console.log('setFieldPointersActive', !fieldPointersActive)
   setFieldPointersActiveForPlayer(!fieldPointersActive)
 

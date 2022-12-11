@@ -22,8 +22,10 @@ import {
   addShapeToDialog,
   WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
-import { oneColumnVerticalNavigation, oneColumnVerticalPageNavigation,
-  multiColumnVerticalNavigation, multiColumnVerticalPageNavigation } from './menu-navigation-helper.js'
+import {
+  oneColumnVerticalNavigation, oneColumnVerticalPageNavigation,
+  multiColumnVerticalNavigation, multiColumnVerticalPageNavigation
+} from './menu-navigation-helper.js'
 import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
@@ -53,8 +55,8 @@ let sellMateriaDetailsDialog, sellMateriaDetailsGroup, sellMateriaDetailsEnemySk
 let sellMateriaInfoDialog, sellMateriaInfoGroup
 let sellMateriaCostDialog, sellMateriaCostGroup
 
-const MODE = {NAV: 'nav', BUY: 'buy', SELL_ITEMS: 'sell-items', SELL_MATERIA: 'sell-materia'}
-const ITEM_TYPE = {ITEM: 'item', MATERIA: 'materia'}
+const MODE = { NAV: 'nav', BUY: 'buy', SELL_ITEMS: 'sell-items', SELL_MATERIA: 'sell-materia' }
+const ITEM_TYPE = { ITEM: 'item', MATERIA: 'materia' }
 const STATES = {
   SHOP_NAV: 'shop-nav',
   SHOP_NAV_SELL: 'shop-nav-sell',
@@ -111,7 +113,7 @@ const loadCharData = () => {
     const showChar = window.data.savemap.party.phsVisibility[name] === 1
     const atk = window.data.kernel.allItemData[window.data.savemap.characters[name].equip.weapon.itemId].attackStrength
     const def = window.data.kernel.allItemData[window.data.savemap.characters[name].equip.armor.itemId].defense
-    DATA.chars.push({name, showChar, atk, def})
+    DATA.chars.push({ name, showChar, atk, def })
   }
 }
 const loadShopMenu = async param => {
@@ -370,7 +372,7 @@ const drawItemShop = () => {
   addTextToDialog(
     itemShopDialog,
     DATA.shopData.shopName,
-    `shop-item-shop-label`,
+    'shop-item-shop-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     279 - 8, // TODO - positions
@@ -385,7 +387,7 @@ const drawActionDescription = (text) => {
   addTextToDialog(
     actionDescriptionGroup,
     text,
-    `shop-action-description`,
+    'shop-action-description',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     22 - 8, // TODO - positions
@@ -399,7 +401,7 @@ const drawInfoDescription = (text) => {
     addTextToDialog(
       itemInfoGroup,
       text,
-      `shop-info-description`,
+      'shop-info-description',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       22 - 8, // TODO - positions
@@ -416,7 +418,7 @@ const getNavPositions = () => {
   }
 }
 const drawNav = () => {
-  const {x, y, xAdj} = getNavPositions()
+  const { x, y, xAdj } = getNavPositions()
   for (let i = 0; i < DATA.nav.length; i++) {
     const navItem = DATA.nav[i]
     addTextToDialog(
@@ -433,7 +435,7 @@ const drawNav = () => {
 }
 
 const drawNavPointer = () => {
-  const {x, y, xAdj} = getNavPositions()
+  const { x, y, xAdj } = getNavPositions()
   movePointer(POINTERS.pointer1, x + (xAdj * DATA.navPos) - 12, y - 0)
 }
 const getNavSellPositions = () => {
@@ -444,7 +446,7 @@ const getNavSellPositions = () => {
   }
 }
 const drawNavSell = () => {
-  const {x, y, xAdj} = getNavSellPositions()
+  const { x, y, xAdj } = getNavSellPositions()
   for (let i = 0; i < DATA.navSell.length; i++) {
     const navItem = DATA.navSell[i]
     addTextToDialog(
@@ -460,7 +462,7 @@ const drawNavSell = () => {
   }
 }
 const drawNavSellPointer = () => {
-  const {x, y, xAdj} = getNavSellPositions()
+  const { x, y, xAdj } = getNavSellPositions()
   movePointer(POINTERS.pointer1, x + (xAdj * DATA.navSellPos) - 12, y - 0)
 }
 const navSellNavigate = (delta) => {
@@ -682,7 +684,7 @@ const drawSellMateriaInfo = (text) => {
     addTextToDialog(
       sellMateriaInfoGroup,
       text,
-      `materia-info`,
+      'materia-info',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       13.5 - 8,
@@ -746,7 +748,7 @@ const getMateriaSellPrice = (materia, materiaData) => {
   if (materia.ap >= materiaData.apLevels[materiaData.apLevels.length - 1]) {
     priceAP = priceMaster
   }
-  return {priceAP, priceMaster}
+  return { priceAP, priceMaster }
 }
 const drawMateriaCost = (materia) => {
   removeGroupChildren(sellMateriaCostGroup)
@@ -756,7 +758,7 @@ const drawMateriaCost = (materia) => {
   let priceMaster = 0
   let owned = 0
   let equipped = 0
-  let gil = window.data.savemap.gil
+  const gil = window.data.savemap.gil
 
   if (materia.id !== 255) {
     const materiaData = window.data.kernel.materiaData[materia.id]
@@ -779,7 +781,7 @@ const drawMateriaCost = (materia) => {
     }
   }
 
-  let gilRemaining = gil + priceAP
+  const gilRemaining = gil + priceAP
 
   addTextToDialog(sellMateriaCostGroup, ('' + priceAP).padStart(9, ' '), 'shop-materia-val-1', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x2, y1)
   addTextToDialog(sellMateriaCostGroup, ('' + priceMaster).padStart(9, ' '), 'shop-materia-val-2', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, x2, y2)
@@ -866,8 +868,8 @@ const sellItemsSelect = () => {
   DATA.sell.amount = 1
   sellCostDialog.position.x = 0
   drawSellItemsAmount(item, itemData)
-  const from = {x: sellCostDialog.userData.leftX - 160}
-  const to = {x: sellCostDialog.userData.leftX}
+  const from = { x: sellCostDialog.userData.leftX - 160 }
+  const to = { x: sellCostDialog.userData.leftX }
   if (DATA.sell.pos % 2 === 0) {
     from.x = sellCostDialog.userData.rightX + 160
     to.x = sellCostDialog.userData.rightX
@@ -887,7 +889,7 @@ const getSellItemsAmountPositions = () => {
   }
 }
 const drawSellItemsAmountFixedElements = () => {
-  const {x, y, xAdj, yAdj} = getSellItemsAmountPositions()
+  const { x, y, xAdj, yAdj } = getSellItemsAmountPositions()
 
   const rows = [
     ['How many', 0, false],
@@ -904,7 +906,7 @@ const drawSellItemsAmountFixedElements = () => {
 }
 const drawSellItemsAmount = (item, itemData) => {
   removeGroupChildren(sellCostGroup)
-  const {y, xAdj2, yAdj} = getSellItemsAmountPositions()
+  const { y, xAdj2, yAdj } = getSellItemsAmountPositions()
 
   console.log('shop drawSellItemsAmount', item, itemData)
 
@@ -1117,12 +1119,12 @@ const updateBuyItemPreviewDetails = () => {
   const yAdj = 12
 
   const ownedDatas = [
-    ['Gil', `shop-cost-info-gil-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 0],
-    ['Owned', `shop-cost-info-owned-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 3],
-    ['Equipped', `shop-cost-info-equipped-label`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 5],
-    [('' + window.data.savemap.gil).padStart(12, ' '), `shop-cost-info-gil`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 1],
-    [('' + item.owned).padStart(12, ' '), `shop-cost-info-owned`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 4],
-    [('' + item.equipped).padStart(12, ' '), `shop-cost-info-equipped`, LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 6]
+    ['Gil', 'shop-cost-info-gil-label', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 0],
+    ['Owned', 'shop-cost-info-owned-label', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 3],
+    ['Equipped', 'shop-cost-info-equipped-label', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.Cyan, 245, 5],
+    [('' + window.data.savemap.gil).padStart(12, ' '), 'shop-cost-info-gil', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 1],
+    [('' + item.owned).padStart(12, ' '), 'shop-cost-info-owned', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 4],
+    [('' + item.equipped).padStart(12, ' '), 'shop-cost-info-equipped', LETTER_TYPES.MenuTextStats, LETTER_COLORS.White, 235, 6]
   ]
   for (let i = 0; i < ownedDatas.length; i++) {
     const ownedData = ownedDatas[i]
@@ -1228,8 +1230,8 @@ const drawPartyEquipFixedElements = () => {
   beginProfileBGTween()
 }
 const beginProfileBGTween = () => {
-  let from = {opacity: 0}
-  let to = {opacity: [1, 0]}
+  const from = { opacity: 0 }
+  const to = { opacity: [1, 0] }
   DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 2500)
     .repeat(Infinity)
@@ -1405,7 +1407,7 @@ const drawBuySlot = () => {
   addTextToDialog(
     buySlotsGroup,
     growthText,
-    `shop-buy-growth-type`,
+    'shop-buy-growth-type',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     170 - 8, // TODO - positions
@@ -1457,7 +1459,7 @@ const drawEnemySkillsGroup = () => {
     const imgActive = addImageToDialog(
       sellMateriaDetailsEnemySkillGroup,
       'materia',
-      `Command-star-active-small`,
+      'Command-star-active-small',
       `material-enemy-skill-${skill.index}-active`,
       starX + ((i % 12) * starXAdj),
       starY + (Math.trunc(i / 12) * starYAdj),
@@ -1468,7 +1470,7 @@ const drawEnemySkillsGroup = () => {
     const imgInactive = addImageToDialog(
       sellMateriaDetailsEnemySkillGroup,
       'materia',
-      `Command-star-inactive-small`,
+      'Command-star-inactive-small',
       `material-enemy-skill-${skill.index}-inactive`,
       starX + ((i % 12) * starXAdj),
       starY + (Math.trunc(i / 12) * starYAdj),
@@ -1487,7 +1489,7 @@ const drawEnemySkillsGroup = () => {
     const textActive1 = addTextToDialog(
       sellMateriaDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       textX + ((i % 2) * textXAdj),
@@ -1499,7 +1501,7 @@ const drawEnemySkillsGroup = () => {
     const textInactive1 = addTextToDialog(
       sellMateriaDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Gray,
       textX + ((i % 2) * textXAdj),
@@ -1511,7 +1513,7 @@ const drawEnemySkillsGroup = () => {
     const textActive2 = addTextToDialog(
       sellMateriaDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       textX + ((i % 2) * textXAdj),
@@ -1523,7 +1525,7 @@ const drawEnemySkillsGroup = () => {
     const textInactive2 = addTextToDialog(
       sellMateriaDetailsEnemySkillTextContents,
       skill.name,
-      `materia-textActive2details-name`,
+      'materia-textActive2details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Gray,
       textX + ((i % 2) * textXAdj),

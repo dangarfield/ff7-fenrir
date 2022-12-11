@@ -153,7 +153,7 @@ const STITM = async op => {
   // For now, use both, but will change in future
   // Should really move all of this to items-module.js
 
-  let itemsOfType = window.data.savemap.items
+  const itemsOfType = window.data.savemap.items
   let index
   let kernelDataType
   if (itemId < 128) {
@@ -230,8 +230,8 @@ const CKITM = async op => {
 const SMTRA = async op => {
   console.log('SMTRA', op)
   // Actual calculation is fairly lengthy for ap calculation, but it is one of 2 values as outputted in kujata-data
-  let materiaId = op.b1 === 0 ? op.t : getBankData(op.b1, op.t)
-  let ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
+  const materiaId = op.b1 === 0 ? op.t : getBankData(op.b1, op.t)
+  const ap = op.apByte1 + 256 * op.apByte2 + 65536 * op.apByte3 // Either 0x00 or 0xFFFFFF
   addMateriaToInventory(materiaId, ap)
   console.log('SMTRA results', window.data.savemap.materias)
   return {}
@@ -239,7 +239,7 @@ const SMTRA = async op => {
 const DMTRA = async op => {
   console.log('DMTRA', op)
   // Only used in blackbg4, I'm just going to delete all instances regardless of ap...
-  let materiaId = op.b1 === 0 ? op.t : getBankData(op.b1, op.t)
+  const materiaId = op.b1 === 0 ? op.t : getBankData(op.b1, op.t)
   removeMateriaFromInventoryById(materiaId)
   console.log('DMTRA results', window.data.savemap.materias)
   return {}

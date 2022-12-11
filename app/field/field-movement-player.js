@@ -125,8 +125,8 @@ const updateFieldPlayerMovement = delta => {
   for (let i = 0; i < directions.length; i++) {
     const potentialDirection = directions[i]
     // Set player in direction
-    let directionRadians = THREE.Math.degToRad(potentialDirection)
-    let directionVector = new THREE.Vector3(
+    const directionRadians = THREE.Math.degToRad(potentialDirection)
+    const directionVector = new THREE.Vector3(
       Math.sin(directionRadians),
       Math.cos(directionRadians),
       0
@@ -144,7 +144,7 @@ const updateFieldPlayerMovement = delta => {
     // Adjust for climbing slopes and walking off walkmesh
     // Create a ray at next position (higher z, but pointing down) to find correct z position
     // TODO - Need to deal with transitioning from a non-adjacent triangle, eg, just to different areas
-    let playerMovementRay = new THREE.Raycaster()
+    const playerMovementRay = new THREE.Raycaster()
 
     const rayO = new THREE.Vector3(
       nextPositionForRaycast.x,
@@ -154,7 +154,7 @@ const updateFieldPlayerMovement = delta => {
     const rayD = new THREE.Vector3(0, 0, -1).normalize()
     playerMovementRay.set(rayO, rayD)
     playerMovementRay.far = RAY_HEIGHT * 2
-    let intersects = playerMovementRay.intersectObjects(
+    const intersects = playerMovementRay.intersectObjects(
       window.currentField.walkmeshMesh.children
     )
     // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
@@ -238,8 +238,8 @@ const updateFieldPlayerMovement = delta => {
     const triggerLine = window.currentField.triggerLines.children[i]
     const linePos = triggerLine.geometry.getAttribute('position')
     const closestPointOnLine = new THREE.Line3(
-      {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
-      {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
+      { x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0) },
+      { x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1) }
     ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
     const distance = nextPosition.distanceTo(closestPointOnLine)
     if (distance < 0.01) {
@@ -384,8 +384,8 @@ const updateFieldPlayerMovement = delta => {
       const gatewayLine = window.currentField.gatewayLines.children[i]
       const linePos = gatewayLine.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
-        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
+        { x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0) },
+        { x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1) }
       ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
       const distance = nextPosition.distanceTo(closestPointOnLine)
       if (distance < 0.005) {
@@ -464,7 +464,7 @@ const updateFieldPlayerMovement = delta => {
   // Maybe should change this to distance to the normal of the camera position -> camera target line ?
   // Looks ok so far, but there are a few maps with clipping that should therefore switch
   // to an orthogonal camera
-  let camDistance = window.currentField.playableCharacter.scene.position.distanceTo(
+  const camDistance = window.currentField.playableCharacter.scene.position.distanceTo(
     window.currentField.fieldCamera.position
   )
   // console.log(
@@ -513,9 +513,9 @@ const applySplash = (model) => {
 
     const pointsOfIntersection = []
 
-    let a = new THREE.Vector3()
-    let b = new THREE.Vector3()
-    let c = new THREE.Vector3()
+    const a = new THREE.Vector3()
+    const b = new THREE.Vector3()
+    const c = new THREE.Vector3()
     let lineAB = new THREE.Line3()
     let lineBC = new THREE.Line3()
     let lineCA = new THREE.Line3()
@@ -569,7 +569,7 @@ const applySplash = (model) => {
         }
 
         if (meshPointsOfIntersection.length > 0) {
-          const pointDist = meshPointsOfIntersection.map(v => ({ v: v, d: v.distanceToSquared(window.currentField.fieldCamera.position) }))
+          const pointDist = meshPointsOfIntersection.map(v => ({ v, d: v.distanceToSquared(window.currentField.fieldCamera.position) }))
           pointDist.sort((a, b) => a.d - b.d)
           console.log('applySplash meshPointsOfIntersection', pointDist)
           pointsOfIntersection.push(pointDist[0].v) // TODO - Attenuate points so that they are all a fixed distance from camera, eg 0.1 away from model
@@ -592,7 +592,7 @@ const applySplash = (model) => {
     const splashMaterial = model.scene.userData.splashMaterials[imageId]
     for (let i = 0; i < pointsOfIntersection.length; i++) {
       const pointOfIntersection = pointsOfIntersection[i]
-      var sprite = new THREE.Sprite(splashMaterial)
+      const sprite = new THREE.Sprite(splashMaterial)
       sprite.userData.type = 'animated'
       // sprite.userData.textures = spriteTextures
       sprite.userData.index = 0
@@ -618,7 +618,7 @@ const applySplash = (model) => {
     // const splashIntersect = model.scene.userData.splashPlane.intersectsBox(box, intersectPoint)
     // console.log('applySplash END', splashIntersect, intersectPoint, box.intersectsPlane(model.scene.userData.splashPlane), model.scene.userData.splashPlane, box)
     console.log('applySplash END')
-  // Show the splash image (rotate each of them)
+    // Show the splash image (rotate each of them)
 
     // const z = model.scene.position.z * 4096
     // if (z >= 0) {
@@ -640,7 +640,7 @@ const removeSplash = (model) => {
 }
 const getNextPositionRaycast = nextPosition => {
   const rayOffset = 0.05
-  let movementRay = new THREE.Raycaster()
+  const movementRay = new THREE.Raycaster()
   const rayO = new THREE.Vector3(
     nextPosition.x,
     nextPosition.y,
@@ -649,7 +649,7 @@ const getNextPositionRaycast = nextPosition => {
   const rayD = new THREE.Vector3(0, 0, -1).normalize()
   movementRay.set(rayO, rayD)
   movementRay.far = rayOffset * 2
-  let intersects = movementRay.intersectObjects(
+  const intersects = movementRay.intersectObjects(
     window.currentField.walkmeshMesh.children
   )
 
@@ -751,8 +751,8 @@ const ladderMovement = speed => {
       const gatewayLine = window.currentField.gatewayLines.children[i]
       const linePos = gatewayLine.geometry.getAttribute('position')
       const closestPointOnLine = new THREE.Line3(
-        {x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0)},
-        {x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1)}
+        { x: linePos.getX(0), y: linePos.getY(0), z: linePos.getZ(0) },
+        { x: linePos.getX(1), y: linePos.getY(1), z: linePos.getZ(1) }
       ).closestPointToPoint(nextPosition, true, new THREE.Vector3())
       const distance = nextPosition.distanceTo(closestPointOnLine)
       if (distance < 0.005) {
@@ -790,7 +790,7 @@ const ladderMovement = speed => {
 }
 
 const updateCurrentTriangleId = (model, nextPosition) => {
-  let playerMovementRay = new THREE.Raycaster()
+  const playerMovementRay = new THREE.Raycaster()
   const rayO = new THREE.Vector3(
     nextPosition.x,
     nextPosition.y,
@@ -799,7 +799,7 @@ const updateCurrentTriangleId = (model, nextPosition) => {
   const rayD = new THREE.Vector3(0, 0, -1).normalize()
   playerMovementRay.set(rayO, rayD)
   playerMovementRay.far = 0.02
-  let intersects = playerMovementRay.intersectObjects(
+  const intersects = playerMovementRay.intersectObjects(
     window.currentField.walkmeshMesh.children
   )
   console.log(

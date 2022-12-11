@@ -588,7 +588,7 @@ const drawOneSaveSlot = (i, previewData) => {
 const SAVE_SLOT_POSITIONS = {
   slotPositions: new Array(15).fill(null).map((v, i) => { return { x: 0, y: -25.5 + 68.5 * i } }),
   cursorPositions: new Array(3).fill(null).map((v, i) => { return { x: 14, y: 68 + 68.5 * i } }),
-  confirmPositions: [{x: 104, y: 125}, {x: 104, y: 138}],
+  confirmPositions: [{ x: 104, y: 125 }, { x: 104, y: 138 }],
   pagePosition: 0,
   cursorPosition: 0,
   confirmPosition: 0,

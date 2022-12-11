@@ -30,7 +30,7 @@ let charDialog, charGroup
 let navDialog, navGroup
 let lettersDialog, lettersGroup
 
-const MODE = {LETTERS: 'letters', NAV: 'nav'}
+const MODE = { LETTERS: 'letters', NAV: 'nav' }
 const DATA = {
   charName: '',
   char: {},
@@ -131,7 +131,7 @@ const drawInfo = () => {
   addTextToDialog(
     infoGroup,
     'Please enter a name.',
-    `char-enter-name-label`,
+    'char-enter-name-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     22 - 8, // TODO - positions
@@ -150,7 +150,7 @@ const drawChar = () => {
     0.5
   )
 
-  const {x, y, xAdj} = getNamePos()
+  const { x, y, xAdj } = getNamePos()
   for (let i = 0; i < DATA.maxChars; i++) {
     drawUnderscore(x, y, xAdj, i, charDialog, WINDOW_COLORS_SUMMARY.WHITE)
   }
@@ -187,7 +187,7 @@ const startUnderscoreFlashing = () => {
 const drawName = () => {
   removeGroupChildren(charGroup)
   const nameSplit = DATA.name.split('')
-  const {x, y, xAdj} = getNamePos()
+  const { x, y, xAdj } = getNamePos()
   for (let i = 0; i < nameSplit.length; i++) {
     const letter = nameSplit[i]
     addTextToDialog(
@@ -219,7 +219,7 @@ const getLettersPos = () => {
 }
 const drawLetters = () => {
   const lettersSplit = DATA.letters.split('')
-  const {x, y, xAdj, yAdj} = getLettersPos()
+  const { x, y, xAdj, yAdj } = getLettersPos()
   for (let i = 0; i < lettersSplit.length; i++) {
     const letter = lettersSplit[i]
     addTextToDialog(
@@ -243,7 +243,7 @@ const getNavPos = () => {
   }
 }
 const drawNav = () => {
-  const {x, y, yAdj} = getNavPos()
+  const { x, y, yAdj } = getNavPos()
   for (let i = 0; i < DATA.nav.length; i++) {
     const navOption = DATA.nav[i]
     addTextToDialog(
@@ -260,13 +260,13 @@ const drawNav = () => {
 }
 const drawPointer = () => {
   if (DATA.mode === MODE.LETTERS) {
-    const {x, y, xAdj, yAdj} = getLettersPos()
+    const { x, y, xAdj, yAdj } = getLettersPos()
     movePointer(POINTERS.pointer1,
       x + (xAdj * (DATA.lettersPos % 10)) - 12, // TODO - Adjust
       y + (yAdj * Math.trunc(DATA.lettersPos / 10)) - 0
     )
   } else if (DATA.mode === MODE.NAV) {
-    const {x, y, yAdj} = getNavPos()
+    const { x, y, yAdj } = getNavPos()
     movePointer(POINTERS.pointer1,
       x - 12,
       y + (yAdj * DATA.navPos) - 0

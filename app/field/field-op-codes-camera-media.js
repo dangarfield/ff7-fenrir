@@ -76,7 +76,7 @@ const SCRLC = async op => {
   } else if (op.p4 === 3) {
     tweenType = TweenType.Smooth
   }
-  let relativeToCamera = calculateViewClippingPointFromVector3(
+  const relativeToCamera = calculateViewClippingPointFromVector3(
     window.currentField.playableCharacter.scene.position
   )
   console.log('SCRLC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
@@ -132,7 +132,7 @@ const SCRCC = async op => {
   // Scroll to leader
   console.log('SCRCC', op)
   removeFollowMeFromAllModels()
-  let relativeToCamera = calculateViewClippingPointFromVector3(
+  const relativeToCamera = calculateViewClippingPointFromVector3(
     window.currentField.playableCharacter.scene.position
   )
   console.log('SCRCC smooth?', op, getCurrentCameraPosition(), relativeToCamera)
@@ -229,7 +229,7 @@ const SCRLP = async op => {
   console.log('entities', entities)
   if (entities.length > 0 && memberName !== undefined) {
     const entity = entities[0]
-    let relativeToCamera = calculateViewClippingPointFromVector3(
+    const relativeToCamera = calculateViewClippingPointFromVector3(
       entity.scene.position
     )
     console.log(

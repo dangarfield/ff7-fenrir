@@ -425,8 +425,8 @@ const placeModelsDebug = async () => {
     const entity = window.currentField.data.script.entities[i]
 
     const allOps = []
-    for (let script of entity.scripts) {
-      for (let op of script.ops) {
+    for (const script of entity.scripts) {
+      for (const op of script.ops) {
         allOps.push(op)
       }
     }
@@ -775,7 +775,7 @@ const turnModelToFaceDirection = async (
   steps,
   stepType
 ) => {
-  let degrees = directionToDegrees(direction)
+  const degrees = directionToDegrees(direction)
   await turnModel(entityId, degrees, whichWayId, steps, stepType)
 }
 const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
@@ -835,7 +835,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
       easingType = TWEEN.Easing.Quadratic.InOut
     }
     // console.log('easingType', easingType)
-    let time = 350 // Not sure about the speed yet, md8_2, cloud turns with anim AQBF which is 15 frames, but timing videos, it seems like 350-400ms
+    const time = 350 // Not sure about the speed yet, md8_2, cloud turns with anim AQBF which is 15 frames, but timing videos, it seems like 350-400ms
     new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .easing(easingType)
@@ -857,13 +857,13 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
 
 const registerLine = (entityId, lv0, lv1) => {
   console.log('registerLine', entityId, lv0, lv1)
-  let lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff })
-  let linePositions = []
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff })
+  const linePositions = []
   linePositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
   linePositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
   const linePositionsGeo = new THREE.BufferGeometry()
   linePositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3))
-  let lineLine = new THREE.Line(linePositionsGeo, lineMaterial)
+  const lineLine = new THREE.Line(linePositionsGeo, lineMaterial)
   lineLine.userData.entityId = entityId
   lineLine.userData.enabled = true
   window.currentField.lineLines.add(lineLine)

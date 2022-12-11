@@ -48,7 +48,7 @@ Potential bugs / todo:
 - Haven't looked at battle music, pausing and restarting field after battle etc
 - Is battle music always in position 1 (0,1,2 etc...) unless set with BMUSC
 */
-let config = {} // set on field selection and global init with setDefaultConfig
+const config = {} // set on field selection and global init with setDefaultConfig
 
 // Loading & Config
 const getConfig = () => {
@@ -380,7 +380,7 @@ const executeAkaoOperation = (akaoOp, p1, p2, p3, p4, p5) => {
 
     case 200: // 0xC8
       // Music balance [param1=balance]
-      //TODO - Some pans are 16843, 28672,32767,12288, looks like master voluem fade in / out to me
+      // TODO - Some pans are 16843, 28672,32767,12288, looks like master voluem fade in / out to me
       if (p1 < 128) {
         setMusicPan(p1 / 64 - 1)
       } else {

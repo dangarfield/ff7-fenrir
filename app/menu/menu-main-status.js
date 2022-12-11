@@ -141,7 +141,7 @@ const addPartyMemberHeader = (char, partyMember) => {
   // EXP
   addTextToDialog(
     headerGroup,
-    `EXP:`,
+    'EXP:',
     'status-exp-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -152,7 +152,7 @@ const addPartyMemberHeader = (char, partyMember) => {
   addTextToDialog(
     headerGroup,
     ('' + char.level.currentEXP).padStart(14, ' '),
-    `status-exp`,
+    'status-exp',
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     128.5 + 8,
@@ -173,7 +173,7 @@ const addPartyMemberHeader = (char, partyMember) => {
   // Next level
   addTextToDialog(
     headerGroup,
-    `next level:`,
+    'next level:',
     'status-next-level-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -184,7 +184,7 @@ const addPartyMemberHeader = (char, partyMember) => {
   addTextToDialog(
     headerGroup,
     ('' + char.level.nextLevelEXP).padStart(14, ' '),
-    `status-exp-next`,
+    'status-exp-next',
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     161 + 8,
@@ -205,7 +205,7 @@ const addPartyMemberHeader = (char, partyMember) => {
   // Limit
   addTextToDialog(
     headerGroup,
-    `Limit level:`,
+    'Limit level:',
     'status-limit-level-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
@@ -333,7 +333,7 @@ const addPartyMemberElements = (char, battleStats) => {
 
   addTextToDialog(
     elementGroup,
-    `Element`,
+    'Element',
     'status-element-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -343,7 +343,7 @@ const addPartyMemberElements = (char, battleStats) => {
   )
   addTextToDialog(
     elementGroup,
-    `Attack`,
+    'Attack',
     'status-element-attack-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -353,7 +353,7 @@ const addPartyMemberElements = (char, battleStats) => {
   )
   addTextToDialog(
     elementGroup,
-    `Halve`,
+    'Halve',
     'status-element-halve-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -363,7 +363,7 @@ const addPartyMemberElements = (char, battleStats) => {
   )
   addTextToDialog(
     elementGroup,
-    `Invalid`,
+    'Invalid',
     'status-element-invalid-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -373,7 +373,7 @@ const addPartyMemberElements = (char, battleStats) => {
   )
   addTextToDialog(
     elementGroup,
-    `Absorb`,
+    'Absorb',
     'status-element-absorb-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -451,7 +451,7 @@ const addPartyMemberStatus = (char, battleStats) => {
 
   addTextToDialog(
     statusEffectsGroup,
-    `Effect`,
+    'Effect',
     'status-status-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -461,7 +461,7 @@ const addPartyMemberStatus = (char, battleStats) => {
   )
   addTextToDialog(
     statusEffectsGroup,
-    `Attack`,
+    'Attack',
     'status-status-attack-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
@@ -471,7 +471,7 @@ const addPartyMemberStatus = (char, battleStats) => {
   )
   addTextToDialog(
     statusEffectsGroup,
-    `Defend`,
+    'Defend',
     'status-status-defend-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,

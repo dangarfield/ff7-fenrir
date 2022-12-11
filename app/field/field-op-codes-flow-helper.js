@@ -107,8 +107,8 @@ const KEYS = {
   left: 32768 // Left
 }
 const getKeysFromBytes = val => {
-  let enums = []
-  for (var prop in KEYS) {
+  const enums = []
+  for (const prop in KEYS) {
     if ((val & KEYS[prop]) === KEYS[prop]) {
       // Bitwise matching
       enums.push(prop)

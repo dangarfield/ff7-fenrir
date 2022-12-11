@@ -1,11 +1,11 @@
 import {
   setCameraPosition,
   calculateViewClippingPointFromVector3
+  , FIELD_TWEEN_GROUP
 } from './field-scene.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { CURRENT_FIELD } from './field-op-loop.js'
 import { sleep } from '../helpers/helpers.js'
-import { FIELD_TWEEN_GROUP } from './field-scene.js'
 const TweenType = {
   Instant: 'Instant',
   Linear: 'Linear',
@@ -14,7 +14,7 @@ const TweenType = {
 
 const SHAKE_TWEEN_GROUP = (window.SHAKE_TWEEN_GROUP = new TWEEN.Group())
 let shakeConfig = {}
-let shakeQueue = []
+const shakeQueue = []
 
 const getCurrentCameraPosition = () => {
   return {
@@ -139,7 +139,7 @@ const executeShake = async config => {
 const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
   return new Promise(async resolve => {
     window.currentField.isScrolling = true
-    let time = Math.floor((frames * 1000) / 30)
+    const time = Math.floor((frames * 1000) / 30)
     console.log('tweenCameraPosition', from, to, frames, time, tweenType)
     if (tweenType === TweenType.Instant) {
       console.log('setCameraPosition tweenCameraPosition')
@@ -147,7 +147,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
       window.currentField.isScrolling = false
       resolve()
     } else {
-      let easing =
+      const easing =
         tweenType === TweenType.Linear
           ? TWEEN.Easing.Linear.None
           : TWEEN.Easing.Quadratic.InOut
@@ -158,7 +158,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
           console.log('setCameraPosition tweenCameraPosition')
           setCameraPosition(from.x, from.y)
           if (entityToFollow) {
-            let relativeToCameraUpdate = calculateViewClippingPointFromVector3(
+            const relativeToCameraUpdate = calculateViewClippingPointFromVector3(
               entityToFollow.scene.position
             )
             to.x = relativeToCameraUpdate.x
@@ -177,7 +177,7 @@ const tweenCameraPosition = (from, to, tweenType, frames, entityToFollow) => {
 }
 const moveCameraToLeader = async instant => {
   // Scroll to leader
-  let relativeToCamera = calculateViewClippingPointFromVector3(
+  const relativeToCamera = calculateViewClippingPointFromVector3(
     window.currentField.playableCharacter.scene.position
   )
   console.log(
@@ -206,7 +206,7 @@ const scrollToEntity = async (entityId, tweenType, speed) => {
     const model = models[0]
     // entityId is the array position according to the flevel.script.models[]
 
-    let relativeToCamera = calculateViewClippingPointFromVector3(
+    const relativeToCamera = calculateViewClippingPointFromVector3(
       model.scene.position
     )
     console.log(
@@ -251,7 +251,7 @@ const scrollToEntity = async (entityId, tweenType, speed) => {
       //     oldPosition.x !== model.scene.position.x,
       //     oldPosition.y !== model.scene.position.y,
       //     oldPosition.z !== model.scene.position.z)
-      let relativeToCameraUpdate = calculateViewClippingPointFromVector3(
+      const relativeToCameraUpdate = calculateViewClippingPointFromVector3(
         model.scene.position
       )
       console.log('setCameraPosition SCRLA end')

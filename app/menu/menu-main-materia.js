@@ -32,27 +32,28 @@ const DATA = {
   arrangePos: 0,
   trashMode: false,
   trashConfirmPos: 0,
-  smallMateriaList: {active: false, pos: 0, page: 0},
+  smallMateriaList: { active: false, pos: 0, page: 0 },
   tweenEnemySkills: false,
-  check: { main: 0,
+  check: {
+    main: 0,
     sub: {
       type: '',
       pos: 0,
       page: 0,
       config: {
-        magic: {cols: 3},
-        summon: {cols: 1},
-        enemySkills: {cols: 2}
+        magic: { cols: 3 },
+        summon: { cols: 1 },
+        enemySkills: { cols: 2 }
       },
       spells: []
     }
   },
   exchange: {
     activeCharacters: [],
-    selected: {type: 'none', page: 0, pos: 0},
+    selected: { type: 'none', page: 0, pos: 0 },
     type: 'chars',
-    chars: {page: 0, pos: 0},
-    list: {page: 0, pos: 0}
+    chars: { page: 0, pos: 0 },
+    list: { page: 0, pos: 0 }
   }
 }
 const setDataFromPartyMember = () => {
@@ -269,7 +270,7 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
     y: y + (i * yAdj),
     expandInstantly: true,
     noClipping: true,
-    group: group
+    group
   })
   // charDialog.position.z = 16
   // charDialog.userData.z = 100 - 16
@@ -361,10 +362,10 @@ const getExchangePointerCoords = (type, pos) => {
       y: y + (pos * yAdj) + 4
     }
   }
-  return {x: 0, y: 0}
+  return { x: 0, y: 0 }
 }
 const drawExchangePointers = () => {
-  const {x, y} = getExchangePointerCoords()
+  const { x, y } = getExchangePointerCoords()
   movePointer(POINTERS.pointer1, x, y)
   drawExchangeSelectedPointers()
 }
@@ -377,7 +378,7 @@ const drawExchangeSelectedPointers = () => {
       // console.log('materia drawExchangeSelectedPointers chars no draw')
       movePointer(POINTERS.pointer2, 0, 0, true)
     } else {
-      const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
+      const { x, y } = getExchangePointerCoords(DATA.exchange.selected.type, pos)
       // console.log('materia drawExchangeSelectedPointers chars draw', x, y)
       movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
     }
@@ -390,7 +391,7 @@ const drawExchangeSelectedPointers = () => {
       // console.log('materia drawExchangeSelectedPointers list no draw')
       movePointer(POINTERS.pointer2, 0, 0, true)
     } else {
-      const {x, y} = getExchangePointerCoords(DATA.exchange.selected.type, pos)
+      const { x, y } = getExchangePointerCoords(DATA.exchange.selected.type, pos)
       // console.log('materia drawExchangeSelectedPointers list draw', x, y)
       movePointer(POINTERS.pointer2, x - 4, y - 2, false, true)
     }
@@ -411,8 +412,8 @@ const tweenExchangeCharsList = (up, state, cb) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     subContents.children[i].visible = true
   }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + 47.25 : subContents.position.y - 47.25}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + 47.25 : subContents.position.y - 47.25 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -433,8 +434,8 @@ const tweenExchangeMateriaList = (up, state, cb) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     subContents.children[i].visible = true
   }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + 18 : subContents.position.y - 18}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + 18 : subContents.position.y - 18 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -607,7 +608,7 @@ const drawExchangeMateriaDetails = (materia, materiaData) => {
   addTextToDialog(
     exchangeInfoGroup,
     materiaData.name,
-    `materia-exchange-details-name`,
+    'materia-exchange-details-name',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     31 - 8, // TODO - positions
@@ -617,7 +618,7 @@ const drawExchangeMateriaDetails = (materia, materiaData) => {
   addImageToDialog(exchangeInfoGroup,
     'materia',
     materiaData.type,
-    `materia-details-type`,
+    'materia-details-type',
     31 - 8 + 0.5,
     y - 4 - 1.5,
     0.5
@@ -643,7 +644,7 @@ const drawExchangeInfo = (text) => {
   addTextToDialog(
     exchangeInfoGroup,
     text,
-    `materia-exchange-info`,
+    'materia-exchange-info',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     10 - 8, // TODO - positions
@@ -659,7 +660,7 @@ const exchangeSelectCancel = () => {
 const exchangeSelectSelect = () => {
   console.log('materia exchangeSelectSelect', DATA.exchange)
   if (DATA.exchange.selected.type === 'none') {
-    const from = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+    const from = { type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos }
     addIndexInformationToSwapMateria(from)
     if (from.invalidSlot) {
       console.log('materia exchangeSelectSelect INVALID SLOT')
@@ -674,7 +675,7 @@ const exchangeSelectSelect = () => {
 }
 const exchangeRemoveMateriaFromSlot = () => {
   if (DATA.exchange.type === 'chars') {
-    const from = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+    const from = { type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos }
     addIndexInformationToSwapMateria(from)
     console.log('materia exchangeRemoveMateriaFromSlot', from)
     if (from.invalidSlot || from.materia.id === 0xFF) {
@@ -696,12 +697,12 @@ const exchangeRemoveMateriaFromSlot = () => {
 const exchangeConfirmCancel = () => {
   console.log('materia exchangeConfirmCancel', DATA.exchange.selected)
   movePointer(POINTERS.pointer2, 0, 0, true)
-  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  DATA.exchange.selected = { type: 'none', page: 0, pos: 0 }
   setMenuState('materia-exchange-select')
 }
 const exchangeConfirmSelect = () => {
   const from = DATA.exchange.selected
-  const to = {type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos}
+  const to = { type: DATA.exchange.type, page: DATA.exchange[DATA.exchange.type].page, pos: DATA.exchange[DATA.exchange.type].pos }
   addIndexInformationToSwapMateria(from)
   addIndexInformationToSwapMateria(to)
   console.log('materia exchangeConfirmSelect', from, to)
@@ -736,7 +737,7 @@ const swapEquipmentRow = (from, to) => {
 
   drawExchangeMateriaDetailsAndInfo()
   movePointer(POINTERS.pointer2, 0, 0, true)
-  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  DATA.exchange.selected = { type: 'none', page: 0, pos: 0 }
   setMenuState('materia-exchange-select')
 }
 const swapSingleMateria = (from, to) => {
@@ -772,7 +773,7 @@ const swapSingleMateria = (from, to) => {
 
   drawExchangeMateriaDetailsAndInfo()
   movePointer(POINTERS.pointer2, 0, 0, true)
-  DATA.exchange.selected = {type: 'none', page: 0, pos: 0}
+  DATA.exchange.selected = { type: 'none', page: 0, pos: 0 }
   setMenuState('materia-exchange-select')
 }
 const addIndexInformationToSwapMateria = (from) => {
@@ -1017,8 +1018,8 @@ const checkNavigation = (vertical, delta) => {
     if (vertical) {
     // vertical movement
 
-    // group commands into groups of 4
-    // select group which the DATA.check.main is in
+      // group commands into groups of 4
+      // select group which the DATA.check.main is in
       const startPos = Math.trunc(DATA.check.main / 4) * 4
       const commandSubset = DATA.battleStats.menu.command.slice(startPos, startPos + 4)
       let offset = DATA.check.main % 4 + delta
@@ -1033,8 +1034,8 @@ const checkNavigation = (vertical, delta) => {
     } else {
     // horizontal movement
 
-    // group every 4th command
-    // select group which the DATA.check.main is in
+      // group every 4th command
+      // select group which the DATA.check.main is in
       const startPos = DATA.check.main % 4
       const commandSubset = DATA.battleStats.menu.command.filter((c, i) => i % 4 === DATA.check.main % 4)
       let offset = (Math.trunc(DATA.check.main / 4)) + delta
@@ -1056,19 +1057,22 @@ const checkNavigation = (vertical, delta) => {
 const getCheckSubSpellPositions = () => {
   const cols = DATA.check.sub.config[DATA.check.sub.type].cols
   if (cols === 3) {
-    return { x: 41 - 8,
+    return {
+      x: 41 - 8,
       y: 188 - 4,
       xAdj: 65,
       yAdj: 17
     }
   } else if (cols === 2) {
-    return { x: 55 - 8, // TODO - Get the right offsets
+    return {
+      x: 55 - 8, // TODO - Get the right offsets
       y: 188 - 4,
       xAdj: 90, // - Get the right offsets
       yAdj: 17
     }
   } else {
-    return { x: 70 - 8, // - Get the right offsets
+    return {
+      x: 70 - 8, // - Get the right offsets
       y: 188 - 4,
       xAdj: 65, // - Get the right offsets
       yAdj: 17
@@ -1125,8 +1129,8 @@ const drawCheckSubDialogs = () => {
   )
   addTextToDialog(
     subCastingDialog,
-    `   /`,
-    `materia-check-sub-mp-cost`,
+    '   /',
+    'materia-check-sub-mp-cost',
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     241.5 - 8,
@@ -1137,7 +1141,7 @@ const drawCheckSubDialogs = () => {
   addTextToDialog(
     subCastingDialog,
     ('' + (DATA.battleStats.mp.current > 999 ? 999 : DATA.battleStats.mp.current)).padStart(3, ' '),
-    `materia-check-sub-mp-current`,
+    'materia-check-sub-mp-current',
     LETTER_TYPES.MenuTextStats,
     LETTER_COLORS.White,
     264.5 - 8,
@@ -1151,7 +1155,7 @@ const drawCheckSubCommand = () => {
   const cols = DATA.check.sub.config[DATA.check.sub.type].cols
   createItemListNavigation(checkSubGroup.userData.subDialog, 225.5, 174.5 - 136, 54, DATA.check.sub.spells.length / cols, 3)
   checkSubGroup.userData.subDialog.userData.slider.userData.moveToPage(DATA.check.sub.page)
-  const {x, y, xAdj, yAdj} = getCheckSubSpellPositions()
+  const { x, y, xAdj, yAdj } = getCheckSubSpellPositions()
 
   for (let i = 0; i < DATA.check.sub.spells.length; i++) {
     const spell = DATA.check.sub.spells[i]
@@ -1185,7 +1189,7 @@ const drawCheckSubCommand = () => {
 const drawCheckSubPointer = () => {
   const cols = DATA.check.sub.config[DATA.check.sub.type].cols
   // if (DATA.check.sub.type === 'magic') {
-  const {x, y, xAdj, yAdj} = getCheckSubSpellPositions()
+  const { x, y, xAdj, yAdj } = getCheckSubSpellPositions()
   movePointer(POINTERS.pointer2,
     x + ((DATA.check.sub.pos % cols) * xAdj) - 2,
     y + (Math.trunc(DATA.check.sub.pos / cols) * yAdj) + 4
@@ -1213,7 +1217,7 @@ const drawCheckSubCastingInfo = () => {
     addTextToDialog(
       checkSubGroup.userData.subCasting,
       ('' + mpCost).padStart(3, ' '),
-      `materia-check-sub-mp-cost`,
+      'materia-check-sub-mp-cost',
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       241.5 - 8,
@@ -1269,7 +1273,7 @@ const drawCheckSubCastingInfo = () => {
           checkSubGroup.userData.subCasting,
           'labels',
           'infinity',
-          `materia-check-sub-ability-uses-times-label`,
+          'materia-check-sub-ability-uses-times-label',
           x + 36.5 - 10, // TODO - Positioning
           y + (1 * 12) - 4,
           0.5
@@ -1278,7 +1282,7 @@ const drawCheckSubCastingInfo = () => {
         addTextToDialog(
           checkSubGroup.userData.subCasting,
           ('' + spell.uses).padStart(3, ' '),
-          `materia-check-sub-ability-uses-times`,
+          'materia-check-sub-ability-uses-times',
           LETTER_TYPES.MenuTextStats,
           LETTER_COLORS.White,
           x + 6, // TODO - Positioning
@@ -1291,7 +1295,7 @@ const drawCheckSubCastingInfo = () => {
         checkSubGroup.userData.subCasting,
         'labels',
         'times',
-        `materia-check-sub-ability-uses-times-label`,
+        'materia-check-sub-ability-uses-times-label',
         x + 36.5, // TODO - Positioning
         y + (1 * 12) - 4,
         0.5
@@ -1307,8 +1311,8 @@ const tweenCheckSubList = (up, state, cb) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     subContents.children[i].visible = true
   }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + 17 : subContents.position.y - 17}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + 17 : subContents.position.y - 17 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -1519,7 +1523,7 @@ const drawEnemySkillsGroup = () => {
     const imgActive = addImageToDialog(
       materiaDetailsEnemySkillGroup,
       'materia',
-      `Command-star-active-small`,
+      'Command-star-active-small',
       `material-enemy-skill-${skill.index}-active`,
       starX + ((i % 12) * starXAdj),
       starY + (Math.trunc(i / 12) * starYAdj),
@@ -1530,7 +1534,7 @@ const drawEnemySkillsGroup = () => {
     const imgInactive = addImageToDialog(
       materiaDetailsEnemySkillGroup,
       'materia',
-      `Command-star-inactive-small`,
+      'Command-star-inactive-small',
       `material-enemy-skill-${skill.index}-inactive`,
       starX + ((i % 12) * starXAdj),
       starY + (Math.trunc(i / 12) * starYAdj),
@@ -1549,7 +1553,7 @@ const drawEnemySkillsGroup = () => {
     const textActive1 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       textX + ((i % 2) * textXAdj),
@@ -1561,7 +1565,7 @@ const drawEnemySkillsGroup = () => {
     const textInactive1 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Gray,
       textX + ((i % 2) * textXAdj),
@@ -1573,7 +1577,7 @@ const drawEnemySkillsGroup = () => {
     const textActive2 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
       skill.name,
-      `materia-details-name`,
+      'materia-details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       textX + ((i % 2) * textXAdj),
@@ -1585,7 +1589,7 @@ const drawEnemySkillsGroup = () => {
     const textInactive2 = addTextToDialog(
       materialsDetailsEnemySkillTextContents,
       skill.name,
-      `materia-textActive2details-name`,
+      'materia-textActive2details-name',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Gray,
       textX + ((i % 2) * textXAdj),
@@ -1666,7 +1670,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
   addTextToDialog(
     group,
     materiaData.name,
-    `materia-details-name`,
+    'materia-details-name',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     20 - 8,
@@ -1676,7 +1680,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
   addImageToDialog(group,
     'materia',
     materiaData.type,
-    `materia-details-type`,
+    'materia-details-type',
     20 - 8 + 0.5,
     117 - 4 - 0.5,
     0.5
@@ -1718,7 +1722,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
     addTextToDialog(
       group,
       'AP',
-      `materia-details-ap-label`,
+      'materia-details-ap-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       103.5 - 8,
@@ -1728,7 +1732,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
     addTextToDialog(
       group,
       'To next level',
-      `materia-details-next-level-label`,
+      'materia-details-next-level-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       54 - 8,
@@ -1738,7 +1742,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
     addTextToDialog(
       group,
       'Ability List',
-      `materia-details-next-ability-label`,
+      'materia-details-next-ability-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       4 - 8,
@@ -1748,7 +1752,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
     addTextToDialog(
       group,
       'Equip effects',
-      `materia-details-next-effects-label`,
+      'materia-details-next-effects-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       93.5 - 8,
@@ -1780,7 +1784,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         'MASTER',
-        `materia-ap-master`,
+        'materia-ap-master',
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
         125 - 8,
@@ -1790,7 +1794,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         ('0').padStart(8, ' '),
-        `materia-ap-master`,
+        'materia-ap-master',
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
@@ -1802,7 +1806,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         ('' + materia.ap).padStart(8, ' '),
-        `materia-ap-master`,
+        'materia-ap-master',
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
@@ -1812,7 +1816,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         ('' + (materiaData.apLevels[currentLevel] - materia.ap)).padStart(8, ' '),
-        `materia-ap-master`,
+        'materia-ap-master',
         LETTER_TYPES.MenuTextStats,
         LETTER_COLORS.White,
         120.5 - 8,
@@ -1846,7 +1850,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         materiaData.attributes.summon[0].name,
-        `materia-details-ability`,
+        'materia-details-ability',
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
         20 - 8,
@@ -1857,7 +1861,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         materiaData.name,
-        `materia-details-ability`,
+        'materia-details-ability',
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
         20 - 8,
@@ -1874,9 +1878,9 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       for (let i = 0; i < attributeSelector.length; i++) {
         const ability = attributeSelector[i]
         if (i + 1 <= currentLevel) {
-          abilities.push({name: ability.name, active: true})
+          abilities.push({ name: ability.name, active: true })
         } else {
-          abilities.push({name: ability.name, active: false})
+          abilities.push({ name: ability.name, active: false })
         }
       }
       // Only allow the last active (learned) ability to show. eg, Mug not Steal
@@ -1907,7 +1911,7 @@ const drawMateriaDetailsWithGroup = (group, materia, enemySkillGroup, enemySkill
       addTextToDialog(
         group,
         materiaAbilityText(materiaData.name),
-        `materia-details-ability`,
+        'materia-details-ability',
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
         20 - 8,
@@ -2046,7 +2050,7 @@ const drawInfo = (text) => {
     addTextToDialog(
       infoGroup,
       text,
-      `materia-info`,
+      'materia-info',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       13.5 - 8,
@@ -2173,7 +2177,7 @@ const drawTrashDialog = () => {
   addTextToDialog(
     trashDialog,
     'Are you sure you want to trash?', // TODO - confirm text wording and positions, if yes or no first
-    `materia-trash-label-1`,
+    'materia-trash-label-1',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     52.5 - 8,
@@ -2183,7 +2187,7 @@ const drawTrashDialog = () => {
   addTextToDialog(
     trashDialog,
     'Yes',
-    `materia-trash-label-2`,
+    'materia-trash-label-2',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     75 + 12 - 8,
@@ -2193,7 +2197,7 @@ const drawTrashDialog = () => {
   addTextToDialog(
     trashDialog,
     'No',
-    `materia-trash-label-3`,
+    'materia-trash-label-3',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     75 + 12 - 8,
@@ -2318,8 +2322,8 @@ const tweenSmallMateriaList = (up, state, cb) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     subContents.children[i].visible = true
   }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + 13 : subContents.position.y - 13}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + 13 : subContents.position.y - 13 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {

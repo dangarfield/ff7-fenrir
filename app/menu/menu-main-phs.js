@@ -305,7 +305,7 @@ const drawEquipment = (charName) => {
     // EXP
     addTextToDialog(
       equipmentGroup,
-      `EXP:`,
+      'EXP:',
       'status-exp-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
@@ -316,7 +316,7 @@ const drawEquipment = (charName) => {
     addTextToDialog(
       equipmentGroup,
       ('' + char.level.currentEXP).padStart(14, ' '),
-      `status-exp`,
+      'status-exp',
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       192 + 8,
@@ -337,7 +337,7 @@ const drawEquipment = (charName) => {
     // Next level
     addTextToDialog(
       equipmentGroup,
-      `next level:`,
+      'next level:',
       'status-next-level-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
@@ -348,7 +348,7 @@ const drawEquipment = (charName) => {
     addTextToDialog(
       equipmentGroup,
       ('' + char.level.nextLevelEXP).padStart(14, ' '),
-      `status-exp-next`,
+      'status-exp-next',
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       192 + 8,
@@ -414,7 +414,7 @@ const drawEquipment = (charName) => {
 }
 
 const calcPointerPos = () => {
-  const pos = {x: 0, y: 0}
+  const pos = { x: 0, y: 0 }
   if (data.sourceParty) {
     pos.x = 20 - 10
     pos.y = 61 + 7 + (data.partyCurrent * 68.5)
@@ -425,11 +425,11 @@ const calcPointerPos = () => {
   return pos
 }
 const placeSelectPointer = () => {
-  const {x, y} = calcPointerPos()
+  const { x, y } = calcPointerPos()
   movePointer(POINTERS.pointer1, x, y)
 }
 const placeSelectedPointer = () => {
-  const {x, y} = calcPointerPos()
+  const { x, y } = calcPointerPos()
   movePointer(POINTERS.pointer2, x - 2.5, y - 3.5, false, true)
 }
 const hideSelectPointer = () => {
@@ -479,7 +479,7 @@ const navigate = (key) => {
 }
 const selectA = () => {
   const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
-  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName}
+  const potential = { sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName }
 
   if (window.data.savemap.party.phsLocked[charName]) {
     // Cannot select, play sound
@@ -498,7 +498,7 @@ const cancelSelectA = () => {
 }
 const selectB = () => {
   const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
-  const potential = {sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName}
+  const potential = { sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName }
   if (window.data.savemap.party.phsLocked[charName]) {
     // Cannot select, play sound
     console.log('phs Cannot select as player is locked')

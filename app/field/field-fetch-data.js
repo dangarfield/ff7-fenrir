@@ -18,7 +18,7 @@ const getFieldList = async () => {
     chapters = await chaptersRes.json()
   }
   // console.log('chapters', chapters)
-  let fields = {}
+  const fields = {}
   for (let i = 0; i < chapters.length; i++) {
     const chapter = chapters[i]
     // console.log('chapter', chapter)
@@ -48,27 +48,27 @@ const loadFieldBackground = async fieldName => {
 const createCombinedGLTF = (modelGLTF, animGLTF) => {
   // console.log("modelGLTF:", modelGLTF);
   // console.log("animGLTF:", animGLTF);
-  let gltf1 = JSON.parse(JSON.stringify(modelGLTF)) // clone
-  let gltf2 = JSON.parse(JSON.stringify(animGLTF)) // clone
-  let numModelBuffers = gltf1.buffers.length
-  let numModelBufferViews = gltf1.bufferViews.length
-  let numModelAccessors = gltf1.accessors.length
+  const gltf1 = JSON.parse(JSON.stringify(modelGLTF)) // clone
+  const gltf2 = JSON.parse(JSON.stringify(animGLTF)) // clone
+  const numModelBuffers = gltf1.buffers.length
+  const numModelBufferViews = gltf1.bufferViews.length
+  const numModelAccessors = gltf1.accessors.length
   if (!gltf1.animations) {
     gltf1.animations = []
   }
-  for (let buffer of gltf2.buffers) {
+  for (const buffer of gltf2.buffers) {
     gltf1.buffers.push(buffer)
   }
-  for (let bufferView of gltf2.bufferViews) {
+  for (const bufferView of gltf2.bufferViews) {
     bufferView.buffer += numModelBuffers
     gltf1.bufferViews.push(bufferView)
   }
-  for (let accessor of gltf2.accessors) {
+  for (const accessor of gltf2.accessors) {
     accessor.bufferView += numModelBufferViews
     gltf1.accessors.push(accessor)
   }
-  for (let animation of gltf2.animations) {
-    for (let sampler of animation.samplers) {
+  for (const animation of gltf2.animations) {
+    for (const sampler of animation.samplers) {
       sampler.input += numModelAccessors
       sampler.output += numModelAccessors
     }
@@ -79,16 +79,16 @@ const createCombinedGLTF = (modelGLTF, animGLTF) => {
 }
 const loadModels = async modelLoaders => {
   // const t1 = new Date()
-  let fieldModels = []
+  const fieldModels = []
 
   setLoadingText('Loading...')
   for (let i = 0; i < modelLoaders.length; i++) {
     const modelLoader = modelLoaders[i]
     // Should probably make these fetches in parallel, another TODO
-    let gltf = await loadFullFieldModel(modelLoader)
-    gltf.userData['name'] = modelLoader.name
-    gltf.userData['hrcId'] = modelLoader.hrcId
-    gltf.userData['globalLight'] = modelLoader.globalLight
+    const gltf = await loadFullFieldModel(modelLoader)
+    gltf.userData.name = modelLoader.name
+    gltf.userData.hrcId = modelLoader.hrcId
+    gltf.userData.globalLight = modelLoader.globalLight
 
     // Do we still need to do clone because multiples of the same model are loaded?
     gltf.scene = clone(gltf.scene)
@@ -120,15 +120,15 @@ const loadFullFieldModel = async modelLoader => {
     const animId = modelLoader.animations[i]
       .toLowerCase()
       .substring(0, modelLoader.animations[i].indexOf('.'))
-    let animRes = await fetch(
+    const animRes = await fetch(
       `${KUJATA_BASE}/data/field/char.lgp/${animId}.a.gltf`,
       { cache: 'force-cache' }
     )
-    let animGLTF = await animRes.json()
+    const animGLTF = await animRes.json()
     modelGLTF = createCombinedGLTF(modelGLTF, animGLTF)
   }
   return new Promise((resolve, reject) => {
-    let loader = new GLTFLoader()
+    const loader = new GLTFLoader()
     loader.parse(
       JSON.stringify(modelGLTF),
       `${KUJATA_BASE}/data/field/char.lgp/`,
@@ -183,7 +183,7 @@ const addBlinkingToModel = async (hrc, gltf) => {
       if (element.type === 'Mesh' && element.material.map && blinkTextures.length > textureCount) {
         const textureUrl = `${KUJATA_BASE}/data/field/flevel.lgp/textures/${blinkTextures[textureCount]}.tex.png`
         console.log('addBlinkingToModel element', element, blinkTextures[textureCount], textureUrl, element.material)
-        element.material.userData.blink = {textureUrl}
+        element.material.userData.blink = { textureUrl }
         textureCount++
         blinkMaterials.push(element.material)
       }
@@ -216,7 +216,7 @@ const addBlinkingToModel = async (hrc, gltf) => {
 }
 const getFieldDimensions = fieldName =>
   new Promise(resolve => {
-    let url = `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${fieldName}.png`
+    const url = `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${fieldName}.png`
     const img = new window.Image()
     img.onload = () => {
       const { naturalWidth: width, naturalHeight: height } = img
@@ -273,7 +273,7 @@ const getPointRight = () => {
   return getWindowTextures()['battle-menu']['point - right']
 }
 const getFieldDialogNumber = number => {
-  return getWindowTextures()['clock'][`clock ${number}`]
+  return getWindowTextures().clock[`clock ${number}`]
 }
 const getFieldMapList = async () => {
   const res = await fetch(`${KUJATA_BASE}/data/field/flevel.lgp/maplist.json`)

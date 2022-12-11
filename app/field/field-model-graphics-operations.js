@@ -421,7 +421,7 @@ const addShineSpotLight = (model) => {
 }
 
 const addShineAmbientLight = (model) => {
-  const shineAmbientLight = new THREE.AmbientLight(new THREE.Color(`rgb(255,255,255)`), 1)
+  const shineAmbientLight = new THREE.AmbientLight(new THREE.Color('rgb(255,255,255)'), 1)
   shineAmbientLight.layers.disable(0)
   shineAmbientLight.layers.enable(1)
   model.scene.add(shineAmbientLight)
@@ -477,8 +477,8 @@ const animateShineOne = async (model, ms, lateral) => {
       const r = 1024 * 50
       const mid = THREE.MathUtils.degToRad(180)
       const rad90 = THREE.MathUtils.degToRad(90)
-      const from = {rad: 0}
-      const to = {rad: THREE.MathUtils.degToRad(360)}
+      const from = { rad: 0 }
+      const to = { rad: THREE.MathUtils.degToRad(360) }
       s.userData.shineTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
         .to(to, ms)
         .onUpdate(function () {
@@ -573,9 +573,9 @@ const applyColorsToModelMeshes = (model, lightLayer, rNorm, gNorm, bNorm, rDarke
       meshList.push(el)
     }
   })
-  const from = {rNorm: 0, gNorm: 0, bNorm: 0}
+  const from = { rNorm: 0, gNorm: 0, bNorm: 0 }
   // const from = {rNorm, gNorm, bNorm}
-  const to = {rNorm, gNorm, bNorm}
+  const to = { rNorm, gNorm, bNorm }
   new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
     .to(to, ms)
     .onUpdate(function () {

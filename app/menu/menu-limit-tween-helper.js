@@ -52,8 +52,8 @@ const beginLimitBarTween = () => {
   //   .start()
 
   // Temp limit tween color testing 2 - fixed steps
-  const to = {v: 1}
-  const from = {v: 0}
+  const to = { v: 1 }
+  const from = { v: 0 }
 
   const c1 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_1)
   const c2 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_2)
@@ -116,8 +116,8 @@ const beginLimitBarTween = () => {
 }
 
 const beginLimitTextTween = () => {
-  const to = {v: 8}
-  const from = {v: 0}
+  const to = { v: 8 }
+  const from = { v: 0 }
 
   for (let i = 0; i < LIMIT_TWEEN_DATA.limitTextTweens.length; i++) {
     const group = LIMIT_TWEEN_DATA.limitTextTweens[i]

@@ -230,7 +230,7 @@ const drawInfo = (isFromList) => {
     addTextToDialog(
       infoGroup,
       description,
-      `equip-info`,
+      'equip-info',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       12 - 8,
@@ -278,7 +278,7 @@ const drawSlots = (isFromList) => {
     addTextToDialog(
       slotsGroup,
       'Slot',
-      `equip-slot-label`,
+      'equip-slot-label',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       13.5 - 8,
@@ -288,7 +288,7 @@ const drawSlots = (isFromList) => {
     addTextToDialog(
       slotsGroup,
       'Growth',
-      `equip-info`,
+      'equip-info',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       13.5 - 8,
@@ -298,7 +298,7 @@ const drawSlots = (isFromList) => {
     addTextToDialog(
       slotsGroup,
       growth,
-      `equip-info`,
+      'equip-info',
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       104 - 8,
@@ -372,11 +372,11 @@ const drawStatsSelected = () => {
   const charClone = JSON.parse(JSON.stringify(DATA.char))
   const equip = DATA.equipable[DATA.page + DATA.pos]
   if (DATA.equipType === 0) {
-    charClone.equip.weapon = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+    charClone.equip.weapon = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
   } else if (DATA.equipType === 1) {
-    charClone.equip.armor = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+    charClone.equip.armor = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
   } else if (DATA.equipType === 2) {
-    charClone.equip.accessory = {index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description}
+    charClone.equip.accessory = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
   }
 
   // Note: This appears to be more accurate that the game displays in the menu
@@ -586,8 +586,8 @@ const tweenItemList = (up) => {
   for (let i = 0; i < DATA.page + 1; i++) {
     listGroupContents.children[i].visible = true
   }
-  let from = {y: listGroupContents.position.y}
-  let to = {y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18}
+  const from = { y: listGroupContents.position.y }
+  const to = { y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18 }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {

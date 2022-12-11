@@ -44,11 +44,11 @@ const setFaderVisible = isVisible => {
 }
 const drawFaders = whiteTransition => {
   console.log('drawFaders')
-  let transitionFaderGeo = new THREE.PlaneBufferGeometry(
+  const transitionFaderGeo = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )
-  let transitionFaderMat = new THREE.MeshBasicMaterial({
+  const transitionFaderMat = new THREE.MeshBasicMaterial({
     color: TRANSITION_COLOR.BLACK,
     side: THREE.DoubleSide,
     transparent: true
@@ -65,11 +65,11 @@ const drawFaders = whiteTransition => {
   // window.currentField.transitionFader = transitionFader
   orthoFrontScene.add(transitionFader)
 
-  let fadeFaderGeo = new THREE.PlaneBufferGeometry(
+  const fadeFaderGeo = new THREE.PlaneBufferGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )
-  let fadeFaderMat = new THREE.MeshBasicMaterial({
+  const fadeFaderMat = new THREE.MeshBasicMaterial({
     color: TRANSITION_COLOR.BLACK,
     side: THREE.DoubleSide,
     transparent: true
@@ -94,7 +94,7 @@ const drawFaders = whiteTransition => {
 
 const fadeTransition = (from, to, frames) => {
   return new Promise(async resolve => {
-    let time = Math.floor((frames * 1000) / 30)
+    const time = Math.floor((frames * 1000) / 30)
     console.log('fadeTransition: START', from, to, frames, time)
     new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
@@ -258,7 +258,7 @@ const speedToSeconds = speed => {
     16 -> 0.5
     32 -> 0.25
     */
-  let seconds = 8 / Math.pow(2, Math.log2(speed))
+  const seconds = 8 / Math.pow(2, Math.log2(speed))
   return Math.max(seconds, 1 / 30) // Ensure at least 1 frame long
 }
 const fadeOperation = async (type, r, g, b, speed) => {
@@ -276,7 +276,7 @@ const fadeOperation = async (type, r, g, b, speed) => {
   }
   const colorBlack = { r: 0, g: 0, b: 0 }
 
-  let timeMs = speedToSeconds(speed) * 1000
+  const timeMs = speedToSeconds(speed) * 1000
 
   stopInProgressFades()
 
@@ -371,7 +371,7 @@ const nfadeOperation = async (type, r, g, b, frames) => {
   const colorStandard = { r, g, b }
   const colorBlack = { r: 0, g: 0, b: 0 }
 
-  let timeMs = frames * (1000 / 30)
+  const timeMs = frames * (1000 / 30)
 
   stopInProgressFades()
 
@@ -400,7 +400,7 @@ const nfadeOperation = async (type, r, g, b, frames) => {
   }
 }
 window.debugHideFades = () => {
-  fadeInstant(2, {r: 0, g: 0, b: 0})
+  fadeInstant(2, { r: 0, g: 0, b: 0 })
   transitionIn(true)
 }
 export {

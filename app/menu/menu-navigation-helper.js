@@ -9,8 +9,8 @@ const tweenOneColumnVerticalNavigation = (group, up, state, page, yAdj, cb) => {
   // for (let i = 0; i < page + 1; i++) {
   //   subContents.children[i].visible = true
   // }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + yAdj : subContents.position.y - yAdj}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + yAdj : subContents.position.y - yAdj }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -34,8 +34,8 @@ const tweenMultiColumnVerticalNavigation = (group, up, state, page, yAdj, cb) =>
   // for (let i = 0; i < page + 1; i++) {
   //   subContents.children[i].visible = true
   // }
-  let from = {y: subContents.position.y}
-  let to = {y: up ? subContents.position.y + yAdj : subContents.position.y - yAdj}
+  const from = { y: subContents.position.y }
+  const to = { y: up ? subContents.position.y + yAdj : subContents.position.y - yAdj }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {

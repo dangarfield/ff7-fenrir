@@ -12,12 +12,12 @@ const renderInitialState = data => {
   console.log('renderInitialState', data)
 
   let cumulativeTotal = 0
-  let totalLines = data
+  const totalLines = data
     .map(d => d.scripts.length)
     .reduce((acc, s) => acc + s + 1, 0)
   // console.log('visualiser', data, data.length, totalLines)
 
-  let html = `<div class="entities">`
+  let html = '<div class="entities">'
   let entitiesCol1 = '<div class="entities-1">'
   let entitiesCol2 = '<div class="entities-2">'
 
@@ -41,11 +41,11 @@ const renderInitialState = data => {
       entitiesCol2 += html
     }
   }
-  entitiesCol1 += `</div>`
-  entitiesCol2 += `</div>`
+  entitiesCol1 += '</div>'
+  entitiesCol2 += '</div>'
   html += entitiesCol1
   html += entitiesCol2
-  html += `</div>`
+  html += '</div>'
 
   const existingVisualisers = document.getElementsByClassName(
     'field-op-loop-visualiser'

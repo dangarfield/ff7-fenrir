@@ -46,7 +46,7 @@ let isChoiceActive = false
 const EDGE_SIZE = 8
 const LINE_HEIGHT = 16
 
-let CHARACTER_NAMES = [
+const CHARACTER_NAMES = [
   { id: 'CLOUD', name: 'Cloud' },
   { id: 'BARRET', name: 'Barret' },
   { id: 'TIFA', name: 'Tifa' },
@@ -119,7 +119,7 @@ const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
   }
 }
 const createClippingPlanes = (w, h, z, t, b, l, r) => {
-  let bgClipPlanes = []
+  const bgClipPlanes = []
   const bgClipDatas = [
     {
       w: w + EDGE_SIZE,
@@ -218,12 +218,12 @@ const createDialogBox = async dialog => {
   bg.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2,
-    z: z
+    z
   }
   bg.userData.posExpand = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2,
-    z: z
+    z
   }
   bg.position.set(bg.userData.posSmall.x, bg.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -239,12 +239,12 @@ const createDialogBox = async dialog => {
   tl.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   tl.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   tl.position.set(tl.userData.posSmall.x, tl.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -256,12 +256,12 @@ const createDialogBox = async dialog => {
   tr.userData.posSmall = {
     x: x + w / 2 + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   tr.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w - EDGE_SIZE,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   tr.position.set(tr.userData.posSmall.x, tr.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -273,12 +273,12 @@ const createDialogBox = async dialog => {
   bl.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 - EDGE_SIZE / 2,
-    z: z
+    z
   }
   bl.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   bl.position.set(bl.userData.posSmall.x, bl.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -295,7 +295,7 @@ const createDialogBox = async dialog => {
   br.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w - EDGE_SIZE,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   br.position.set(br.userData.posSmall.x, br.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -309,12 +309,12 @@ const createDialogBox = async dialog => {
   l.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   l.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   l.position.set(l.userData.posSmall.x, l.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -347,12 +347,12 @@ const createDialogBox = async dialog => {
   t.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   t.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   t.position.set(t.userData.posSmall.x, t.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -366,12 +366,12 @@ const createDialogBox = async dialog => {
   b.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2 - EDGE_SIZE / 2,
-    z: z
+    z
   }
   b.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   b.position.set(b.userData.posSmall.x, b.userData.posSmall.y, z)
   if (isNoBackgroundBorder) {
@@ -429,7 +429,7 @@ const replaceButtonImages = text => {
   return text
 }
 const replaceVariables = (text, id) => {
-  let params = getTextParams()[id]
+  const params = getTextParams()[id]
   if (params !== undefined) {
     console.log('replaceVariables', text, params)
     for (let i = 0; i < params.length; i++) {
@@ -637,8 +637,8 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
   // Show text
   const pages = dialogBox.userData.pages
   const currentPage = dialogBox.userData.currentPage
-  let letters = pages[currentPage].letters
-  let choiceLines = pages[currentPage].choiceLines
+  const letters = pages[currentPage].letters
+  const choiceLines = pages[currentPage].choiceLines
   let speedUpHoldLetter = -1
   for (let i = 0; i < letters.length; i++) {
     dialogBox.add(letters[i])
@@ -667,7 +667,7 @@ const showDialogPageText = async (dialogBox, showChoicePointers) => {
       pointRight.texture
     )
 
-    let pointerPositions = []
+    const pointerPositions = []
     for (let i = 0; i < choiceLines.length; i++) {
       const choiceLine = choiceLines[i]
       pointerPositions.push({
@@ -807,19 +807,19 @@ const showWindowWithDialog = async (
   // TODO - Lots of <fe> ... 00 to do the bank / inventory variables?
 
   // console.log('Configured text', text)
-  let pagesText = text.split(/\{PAGE\}|\{PAUSE\}/g)
+  const pagesText = text.split(/\{PAGE\}|\{PAUSE\}/g)
 
   const pages = []
   for (let i = 0; i < pagesText.length; i++) {
     const pageText = pagesText[i]
 
-    let choiceLines = []
+    const choiceLines = []
     const letters = []
     let offsetX = 0
     let offsetY = 0
 
-    let doesThePageHaveChoiceElements = pageText.includes('{CHOICE}')
-    let textLines = pageText.split('<br/>')
+    const doesThePageHaveChoiceElements = pageText.includes('{CHOICE}')
+    const textLines = pageText.split('<br/>')
     const dialogSpaceLines = Math.floor((dialog.h - 9) / 16)
     const overflow = dialogSpaceLines < textLines.length
     if (overflow) {

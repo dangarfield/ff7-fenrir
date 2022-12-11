@@ -6,8 +6,8 @@ const getMateriaData = () => {
 
 const setMateriaToInventory = (position, id, ap) => {
   const materia = {
-    id: id,
-    ap: ap,
+    id,
+    ap,
     name: getMateriaData()[id].name,
     description: getMateriaData()[id].description
   }

@@ -3,14 +3,14 @@ const sleep = ms => {
 }
 const uuid = () => {
   // from https://github.com/TylerGarlick/simple-uuid/blob/master/lib/uuid-node.js
-  let lut = []
+  const lut = []
   for (let i = 0; i < 256; i++) {
     lut[i] = (i < 16 ? '0' : '') + i.toString(16)
   }
-  let d0 = (Math.random() * 0xffffffff) | 0
-  let d1 = (Math.random() * 0xffffffff) | 0
-  let d2 = (Math.random() * 0xffffffff) | 0
-  let d3 = (Math.random() * 0xffffffff) | 0
+  const d0 = (Math.random() * 0xffffffff) | 0
+  const d1 = (Math.random() * 0xffffffff) | 0
+  const d2 = (Math.random() * 0xffffffff) | 0
+  const d3 = (Math.random() * 0xffffffff) | 0
   return (
     lut[d0 & 0xff] +
     lut[(d0 >> 8) & 0xff] +

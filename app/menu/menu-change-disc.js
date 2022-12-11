@@ -50,8 +50,8 @@ const drawDiscImages = (discNo) => {
 
   addTextToDialog(
     discGroup,
-    `Press 〇 to continue`,
-    `disc-text-label`,
+    'Press 〇 to continue',
+    'disc-text-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.White,
     160 - 8,

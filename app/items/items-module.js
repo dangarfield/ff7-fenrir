@@ -3,8 +3,8 @@ import { unequipMateria } from '../materia/materia-module.js'
 
 const setItemToInventory = (position, itemId, quantity) => {
   const item = {
-    itemId: itemId,
-    quantity: quantity,
+    itemId,
+    quantity,
     name: window.data.kernel.allItemData[itemId].name
   }
   window.data.savemap.items[position] = item

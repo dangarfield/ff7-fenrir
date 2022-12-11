@@ -270,12 +270,12 @@ const createDialogBox = dialog => {
   bg.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2,
-    z: z
+    z
   }
   bg.userData.posExpand = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2,
-    z: z
+    z
   }
   bg.position.set(bg.userData.posSmall.x, bg.userData.posSmall.y, z)
   // if (isNoBackgroundBorder) {
@@ -291,12 +291,12 @@ const createDialogBox = dialog => {
   tl.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   tl.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   tl.position.set(tl.userData.posSmall.x, tl.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -308,12 +308,12 @@ const createDialogBox = dialog => {
   tr.userData.posSmall = {
     x: x + w / 2 + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   tr.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w - EDGE_SIZE,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   tr.position.set(tr.userData.posSmall.x, tr.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -325,12 +325,12 @@ const createDialogBox = dialog => {
   bl.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - h / 2 - EDGE_SIZE / 2,
-    z: z
+    z
   }
   bl.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   bl.position.set(bl.userData.posSmall.x, bl.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -347,7 +347,7 @@ const createDialogBox = dialog => {
   br.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w - EDGE_SIZE,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   br.position.set(br.userData.posSmall.x, br.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -361,12 +361,12 @@ const createDialogBox = dialog => {
   l.userData.posSmall = {
     x: x + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   l.userData.posExpand = {
     x: x + EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   l.position.set(l.userData.posSmall.x, l.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -399,12 +399,12 @@ const createDialogBox = dialog => {
   t.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2 + EDGE_SIZE / 2,
-    z: z
+    z
   }
   t.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2,
-    z: z
+    z
   }
   t.position.set(t.userData.posSmall.x, t.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -418,12 +418,12 @@ const createDialogBox = dialog => {
   b.userData.posSmall = {
     x: x + w / 2,
     y: window.config.sizing.height - y - h / 2 - EDGE_SIZE / 2,
-    z: z
+    z
   }
   b.userData.posExpand = {
     x: x + EDGE_SIZE / 2 + w / 2 - EDGE_SIZE / 2,
     y: window.config.sizing.height - y - EDGE_SIZE / 2 - h + EDGE_SIZE,
-    z: z
+    z
   }
   b.position.set(b.userData.posSmall.x, b.userData.posSmall.y, z)
   //   if (isNoBackgroundBorder) {
@@ -763,10 +763,10 @@ const addTextToDialog = (
   const letters = ('' + text).split('')
   const textGroup = new THREE.Group()
   textGroup.userData = {
-    id: id,
+    id,
     type: text,
-    x: x,
-    y: y
+    x,
+    y
   }
   let offsetX = 0
 
@@ -823,7 +823,7 @@ const addTextToDialog = (
 }
 const addGroupToDialog = (dialog, id) => {
   const group = new THREE.Group()
-  group.userData = { id: id, z: 100 - id }
+  group.userData = { id, z: 100 - id }
   group.position.z = id - 3
   group.visible = true
   dialog.add(group)
@@ -1191,7 +1191,7 @@ const addShapeToDialog = (
   }
 
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
-  bg.userData = { id: id }
+  bg.userData = { id }
 
   dialogBox.add(bg)
   return bg
@@ -1730,8 +1730,8 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
     name: 'commandDialog',
     w: width,
     h: 60,
-    x: x,
-    y: y,
+    x,
+    y,
     expandInstantly: true,
     noClipping: true
   })
