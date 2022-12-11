@@ -11,7 +11,7 @@ const processSavemapAlias = (bankRef, index, value) => {
     if (bitTest(value, 4)) {
       console.log('save 1,48 (0x0BD4), kernel sets 1,75 bit 8 (0x0BEF) if bit 4 is on')
       getBankData(1, 75)
-      let bankVal = getBankData(1, 75)
+      const bankVal = getBankData(1, 75)
       const val = setBitOn(bankVal, 7)
       setBankData(1, 75, val)
     }
@@ -19,7 +19,7 @@ const processSavemapAlias = (bankRef, index, value) => {
     if (bitTest(value, 2)) {
       console.log('save 7,34 (0x0FC6), kernel sets 1,75 bit 7 (0x0BEF) if bit 2 is on')
       getBankData(1, 75)
-      let bankVal = getBankData(1, 75)
+      const bankVal = getBankData(1, 75)
       const val = setBitOn(bankVal, 6)
       setBankData(1, 75, val)
     }

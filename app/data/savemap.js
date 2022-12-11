@@ -163,13 +163,13 @@ const identifyBank = bankRef => {
 // So if you write to var [1][10] you are ALSO writing to [2][10] (Bank 1, Byte 10).
 // And if you write to var [2][10] you are ALSO writing to [1][10] and [1][11] (Bank 1, Bytes 10 and 11).
 
-const UInt8 = function (value) {
-  return value & 0xff
-}
-const Int8 = function (value) {
-  var ref = UInt8(value)
-  return ref > 0x7f ? ref - 0x100 : ref
-}
+// const UInt8 = function (value) {
+//   return value & 0xff
+// }
+// const Int8 = function (value) {
+//   const ref = UInt8(value)
+//   return ref > 0x7f ? ref - 0x100 : ref
+// }
 
 const getValueFromBank = (bankRef, bank, type, index) => {
   if ((bankRef === 5 && index === 18) || (bankRef === 6 && index === 9)) {

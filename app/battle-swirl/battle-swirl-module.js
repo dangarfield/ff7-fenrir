@@ -14,7 +14,7 @@ const renderLoop = function () {
     console.log('Stopping battle-swirl renderLoop')
     return
   }
-  requestAnimationFrame(renderLoop)
+  window.requestAnimationFrame(renderLoop)
   updateOnceASecond()
   TWEEN.update()
   window.anim.renderer.clear()
@@ -70,10 +70,10 @@ const tempFadeEffect = () => {
     )
     scene.add(mesh)
 
-    let from = { r: 0xff, g: 0xf0, b: 0x00 }
-    let to = { r: 0x00, g: 0x0f, b: 0xff }
+    const from = { r: 0xff, g: 0xf0, b: 0x00 }
+    const to = { r: 0x00, g: 0x0f, b: 0xff }
 
-    let time = 1600
+    const time = 1600
     new TWEEN.Tween(from)
       .to(to, time)
       // .easing(TWEEN.Easing.Quadratic.InOut)

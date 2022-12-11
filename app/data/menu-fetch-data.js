@@ -7,7 +7,21 @@ const getMenuTextures = (window.getMenuTextures = () => {
   return menuTextures
 })
 const loadMenuTextures = async () => {
-  return new Promise(async (resolve, reject) => {
+  const menuRes = await fetch(
+      `${KUJATA_BASE}/metadata/menu-assets/menu_us.metadata.json`
+  )
+  const menu = await menuRes.json()
+
+  const creditsRes = await fetch(
+      `${KUJATA_BASE}/metadata/credits-assets/credits-font.metadata.json`
+  )
+  const credits = await creditsRes.json()
+
+  const discRes = await fetch(
+      `${KUJATA_BASE}/metadata/disc-assets/disc.metadata.json`
+  )
+  const disc = await discRes.json()
+  return new Promise((resolve, reject) => {
     const manager = new THREE.LoadingManager()
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
       const progress = itemsLoaded / itemsTotal
@@ -18,21 +32,6 @@ const loadMenuTextures = async () => {
       window.menuTextures = menuTextures
       resolve()
     }
-
-    const menuRes = await fetch(
-      `${KUJATA_BASE}/metadata/menu-assets/menu_us.metadata.json`
-    )
-    const menu = await menuRes.json()
-
-    const creditsRes = await fetch(
-      `${KUJATA_BASE}/metadata/credits-assets/credits-font.metadata.json`
-    )
-    const credits = await creditsRes.json()
-
-    const discRes = await fetch(
-      `${KUJATA_BASE}/metadata/disc-assets/disc.metadata.json`
-    )
-    const disc = await discRes.json()
 
     const textureGroups = [menu, credits, disc]
     const textureGroupNames = ['menu', 'credits', 'disc']

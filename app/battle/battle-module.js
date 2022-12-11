@@ -31,7 +31,7 @@ const loadBattle = async (battleId, options) => {
   // Temp
   await loadTempBattle2d(battleId)
   await loadTempBattle3d()
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     BATTLE_PROMISE = resolve
   })
 }

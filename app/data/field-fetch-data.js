@@ -7,7 +7,11 @@ const getFieldTextures = (window.getFieldTextures = () => {
   return fieldTextures
 })
 const loadFieldTextures = async () => {
-  return new Promise(async (resolve, reject) => {
+  const fieldRes = await fetch(
+      `${KUJATA_BASE}/metadata/field-assets/flevel.metadata.json`
+  )
+  const field = await fieldRes.json()
+  return new Promise((resolve, reject) => {
     const manager = new THREE.LoadingManager()
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
       const progress = itemsLoaded / itemsTotal
@@ -18,11 +22,6 @@ const loadFieldTextures = async () => {
       window.fieldTextures = fieldTextures
       resolve()
     }
-
-    const fieldRes = await fetch(
-      `${KUJATA_BASE}/metadata/field-assets/flevel.metadata.json`
-    )
-    const field = await fieldRes.json()
 
     const textureGroups = [field]
     const textureGroupNames = ['field']

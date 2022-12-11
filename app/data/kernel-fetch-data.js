@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' //'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { setLoadingProgress } from '../loading/loading-module.js'
 const KUJATA_BASE = window.location.host.includes('localhost')
   ? 'http://localhost:3001/kujata-data'
@@ -9,7 +9,13 @@ const getWindowTextures = (window.getWindowTextures = () => {
   return windowTextures
 })
 const loadWindowTextures = async () => {
-  return new Promise(async (resolve, reject) => {
+  const windowBinRes = await fetch(
+      `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
+  )
+  const windowBin = await windowBinRes.json()
+  const assetTypes = Object.keys(windowBin)
+
+  return new Promise((resolve, reject) => {
     const manager = new THREE.LoadingManager()
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
       const progress = itemsLoaded / itemsTotal
@@ -19,12 +25,6 @@ const loadWindowTextures = async () => {
       console.log('loadWindowTextures Loading complete', windowTextures)
       resolve()
     }
-
-    const windowBinRes = await fetch(
-      `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
-    )
-    const windowBin = await windowBinRes.json()
-    const assetTypes = Object.keys(windowBin)
 
     for (let i = 0; i < assetTypes.length; i++) {
       const assetType = assetTypes[i]
