@@ -123,13 +123,13 @@ const executeOp = async (
   }
   entity.current[0].currentOpIndex = currentOpIndex
 
-  // if (entityId === 10 && scriptType === 'Script 4') { // Debug
-  //     console.log('Loop stopping', entityId, scriptType)
-  //     sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
-  //     return { exit: true }
+  // if (entityId === 9 && scriptType === 'Script 1' && op.op === 'LDPAL') { // Debug
+  //   console.log('debug light', op.op, op.byteIndex, getBankData(5, 24))
+  // sendOpFlowEvent(entityId, scriptType, LoopVisualiserIcons.KILL, currentOpIndex + 1, priority)
+  // return { exit: true }
   // }
 
-  // await sleep(250) // Debug for slow stepping
+  // await sleep(100) // Debug for slow stepping
 
   sendOpFlowEvent(entityId, scriptType, op.op, currentOpIndex + 1, priority)
   let result = {}
@@ -1101,15 +1101,15 @@ const initialiseOpLoops = async () => {
   await positionPlayableCharacterFromTransition()
   const entities = window.currentField.data.script.entities
   // .filter(e => (
-  //   //   e.entityName.includes('dirs') ||
-  //   //   e.entityName.includes('cls') ||
-  //   //   // e.entityName.includes('light') ||
-  //   // e.entityName === 'light0' ||
-  //   //   e.entityName === 'light1'
+  // //   e.entityName.includes('dirs') ||
+  // //   e.entityName.includes('cls') ||
+  // //   // e.entityName.includes('light') ||
+  // // e.entityName === 'light0' ||
+  // //   e.entityName === 'light1'
   //   e.entityName === 'warning' ||
-  //   e.entityName === 'zizizi' ||
-  //   e.entityName === 'light' ||
-  //   e.entityName === 'light2'
+  // e.entityName === 'zizizi' ||
+  // e.entityName === 'light'
+  // // e.entityName === 'light2'
   // )) // Debug
   // .filter(e => e.entityName === 'light0')
   for (let i = 0; i < entities.length; i++) {

@@ -493,7 +493,7 @@ const processBG = (layerData, fieldName, manager) => {
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
-  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance) // - (layerData.paletteId / 1000) // First attempt at ratios, not quite right but ok
+  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance) + (layerData.paletteId / 1000000) // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
@@ -502,7 +502,8 @@ const processBG = (layerData, fieldName, manager) => {
     state: layerData.state,
     typeTrans: layerData.typeTrans,
     layerId: layerData.layerID,
-    paletteId: layerData.paletteId
+    paletteId: layerData.paletteId,
+    bgDistance
   }
   if (layerData.parallaxDirection !== undefined) {
     userData.parallaxDirection = layerData.parallaxDirection
@@ -622,7 +623,9 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
   // vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
   vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
 
-  if (useFirstPixel == 1 && paletteIndex == 0.0) {
+  if (pixelColor.a == 0.0) {
+    color.a = 0.0;
+  } else if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
   } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
     color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
@@ -631,7 +634,7 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
 }
 
 void main() {
-  gl_FragColor = getPixelColorFromPalette( vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel, useBlack );
+  gl_FragColor = getPixelColorFromPalette(vUv, pixels, palette, paletteData, paletteSize, paletteList, useFirstPixel, useBlack);
 }`
 }
 
