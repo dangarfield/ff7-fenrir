@@ -8,10 +8,7 @@ window.console = (function (origConsole) {
       // 'FLOW ERROR',
       // 'executeOpDEBUG',
       // 'executeOp',
-      // 'storePalette',
-      // 'addPalette',
-      // 'loadPalette',
-      // 'multiplyPalette'
+      // 'joinLeader'
     ],
     log: function () {
       if (limit) {

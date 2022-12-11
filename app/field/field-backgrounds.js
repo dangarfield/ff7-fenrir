@@ -493,7 +493,7 @@ const processBG = (layerData, fieldName, manager) => {
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
-  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance) + (layerData.paletteId / 1000000) // First attempt at ratios, not quite right but ok
+  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance)// - (layerData.paletteId / 1000000) // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
