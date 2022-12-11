@@ -825,14 +825,15 @@ const multiplyPalette = (sourcePaletteId, destinationTempPaletteId, r, g, b, sta
   const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
   for (let i = start; i < start + size; i++) {
-    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 1) // Is rgb order correct?
-    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 1)
-    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 1)
+    // Note, this is still not really right, it should almost be negative OR positive, md1_2, lights
+    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] + ((r - 128) * 1) // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] + ((g - 128) * 1)
+    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] + ((b - 128) * 1)
     destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
     j++
   }
   window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
-  console.log('multiplyPalette RES', sourceTempPaletteData, destinationTempPaletteData, window.data.TEMP_PALETTE)
+  console.log('multiplyPalette RES', sourceTempPaletteData, destinationTempPaletteData, r, g, b)
 }
 
 export {
