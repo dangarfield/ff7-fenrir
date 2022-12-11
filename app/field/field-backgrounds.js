@@ -5,7 +5,7 @@ import { getModelScaleDownValue } from './field-models.js'
 import { dec2hexPairs } from '../helpers/helpers.js'
 // window.THREE = THREE // For debug
 
-const USE_CUSTOM_SHADER = window.location.search.includes('shader')
+const NO_CUSTOM_SHADER = window.location.search.includes('noshader')
 
 const changeBackgroundParamState = (param, state, isActive) => {
   // console.log('changeBackgroundParamState', param, state, isActive)
@@ -676,7 +676,7 @@ const drawBG = async (
   console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
 
   let material
-  if (USE_CUSTOM_SHADER) {
+  if (!NO_CUSTOM_SHADER) {
     const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
     const texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
     texture.magFilter = THREE.NearestFilter
