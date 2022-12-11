@@ -127,7 +127,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
   const fromZ2 = { z: targetZ + heightAdjustment }
   const toZ2 = { z: targetZ }
 
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     // A little messy, but I couldn't get different interpolations of different values working
     // This will do for the time being
     new TWEEN.Tween(fromXY, FIELD_TWEEN_GROUP)
@@ -408,7 +408,7 @@ const updateMoveEntityMovement = delta => {
               )
           )
         console.log('moveEntity distance', model.userData.entityName, distance)
-        if (distance < 5) {
+        if (distance < 8) { // Adðjust to 8 to fix jessie in nmkin_1
           console.log(
             'moveEntity updateMoveEntityMovement: END',
             model.userData.entityName
@@ -492,7 +492,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
   }
   model.mixer.stopAllAction() // Stop all existing actions
 
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     model.userData.moveEntity = {
       to: { x, y },
       rotate,
@@ -511,205 +511,205 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
   })
 }
 // No longer used, will keep it here temporarily until I fix JOIN and LEAVE speed
-const moveEntityOld = async (
-  entityId,
-  x,
-  y,
-  rotate,
-  animate,
-  desiredSpeed,
-  desiredFrames,
-  enforceWalkmesh
-) => {
-  const model = getModelByEntityId(entityId)
-  console.log(
-    'moveEntity: START',
-    model.userData.entityName,
-    entityId,
-    x,
-    y,
-    rotate,
-    animate,
-    model.userData.movementSpeed,
-    window.currentField.data.model.header.modelScale,
-    model
-  )
+// const moveEntityOld = async (
+//   entityId,
+//   x,
+//   y,
+//   rotate,
+//   animate,
+//   desiredSpeed,
+//   desiredFrames,
+//   enforceWalkmesh
+// ) => {
+//   const model = getModelByEntityId(entityId)
+//   console.log(
+//     'moveEntity: START',
+//     model.userData.entityName,
+//     entityId,
+//     x,
+//     y,
+//     rotate,
+//     animate,
+//     model.userData.movementSpeed,
+//     window.currentField.data.model.header.modelScale,
+//     model
+//   )
 
-  console.log(
-    'current position',
-    model.scene.position.x,
-    model.scene.position.y
-  )
-  const directionDegrees = getDegreesFromTwoPoints(model.scene.position, {
-    x,
-    y
-  })
+//   console.log(
+//     'current position',
+//     model.scene.position.x,
+//     model.scene.position.y
+//   )
+//   const directionDegrees = getDegreesFromTwoPoints(model.scene.position, {
+//     x,
+//     y
+//   })
 
-  // console.log('directionDegrees', directionDegrees, window.currentField.data.triggers.header.controlDirectionDegrees,
-  //     // 180 + (directionDegrees * -1)
-  // )
+//   // console.log('directionDegrees', directionDegrees, window.currentField.data.triggers.header.controlDirectionDegrees,
+//   //     // 180 + (directionDegrees * -1)
+//   // )
 
-  const from = { x: model.scene.position.x, y: model.scene.position.y }
-  const to = { x, y }
-  const distance =
-    4096 * Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
-  const speed =
-    (model.userData.movementSpeed / 8.6428) *
-    (window.currentField.data.model.header.modelScale / 512) // This 'seems' ok, at least for modelScale 512 fields
-  let time = (distance / speed) * 1000
-  console.log('moveEntity distance', distance)
-  console.log('speed', speed)
-  console.log(
-    'workings out',
-    entityId,
-    model.userData.entityName,
-    '-',
-    model.userData.movementSpeed,
-    window.currentField.data.model.header.modelScale,
-    'dst',
-    distance,
-    speed,
-    time
-  )
-  console.log('time', time)
-  // at 512 & 2048 - speed = 8192
+//   const from = { x: model.scene.position.x, y: model.scene.position.y }
+//   const to = { x, y }
+//   const distance =
+//     4096 * Math.sqrt(Math.pow(from.x - to.x, 2) + Math.pow(from.y - to.y, 2))
+//   const speed =
+//     (model.userData.movementSpeed / 8.6428) *
+//     (window.currentField.data.model.header.modelScale / 512) // This 'seems' ok, at least for modelScale 512 fields
+//   let time = (distance / speed) * 1000
+//   console.log('moveEntity distance', distance)
+//   console.log('speed', speed)
+//   console.log(
+//     'workings out',
+//     entityId,
+//     model.userData.entityName,
+//     '-',
+//     model.userData.movementSpeed,
+//     window.currentField.data.model.header.modelScale,
+//     'dst',
+//     distance,
+//     speed,
+//     time
+//   )
+//   console.log('time', time)
+//   // at 512 & 2048 - speed = 8192
 
-  let animationId = window.currentField.playerAnimations.run
-  // if ((desiredSpeed && desiredSpeed >= 30)) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
-  if (
-    (desiredSpeed && desiredSpeed >= 30) ||
-    model.userData.movementSpeed < 1600
-  ) {
-    // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
-    // time = 1000 / 30 * desiredSpeed
-    animationId = window.currentField.playerAnimations.walk
-  }
+//   let animationId = window.currentField.playerAnimations.run
+//   // if ((desiredSpeed && desiredSpeed >= 30)) { // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
+//   if (
+//     (desiredSpeed && desiredSpeed >= 30) ||
+//     model.userData.movementSpeed < 1600
+//   ) {
+//     // TODO - Set with 'JOIN' and 'SPLIT', need to look at again
+//     // time = 1000 / 30 * desiredSpeed
+//     animationId = window.currentField.playerAnimations.walk
+//   }
 
-  if (desiredFrames !== undefined) {
-    // Desired frames sets the absolute time of the movement
-    const distancePerFrame = distance / desiredFrames
-    console.log(
-      'moveEntity desired frames',
-      desiredFrames,
-      distance,
-      '->',
-      distancePerFrame
-    )
-    if (distancePerFrame >= 10) {
-      animationId = window.currentField.playerAnimations.run
-    } else {
-      animationId = window.currentField.playerAnimations.walk
-    }
-    time = (desiredFrames / 30) * 1000
-  }
+//   if (desiredFrames !== undefined) {
+//     // Desired frames sets the absolute time of the movement
+//     const distancePerFrame = distance / desiredFrames
+//     console.log(
+//       'moveEntity desired frames',
+//       desiredFrames,
+//       distance,
+//       '->',
+//       distancePerFrame
+//     )
+//     if (distancePerFrame >= 10) {
+//       animationId = window.currentField.playerAnimations.run
+//     } else {
+//       animationId = window.currentField.playerAnimations.walk
+//     }
+//     time = (desiredFrames / 30) * 1000
+//   }
 
-  // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
-  if (rotate && model.userData.rotationEnabled) {
-    model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees)
-  }
-  if (animate && model.animations[animationId]) {
-    // console.log('stopAllAction C', model.userData.entityName)
-    model.mixer.stopAllAction()
-    const action = model.mixer.clipAction(model.animations[animationId])
-    action.setLoop(THREE.LoopRepeat)
-    action.userData = {
-      entityName: model.userData.entityName,
-      entityId,
-      animationId,
-      type: 'movement'
-    }
-    action.play()
-  }
-  let lastZ = model.scene.position.z
+//   // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
+//   if (rotate && model.userData.rotationEnabled) {
+//     model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees)
+//   }
+//   if (animate && model.animations[animationId]) {
+//     // console.log('stopAllAction C', model.userData.entityName)
+//     model.mixer.stopAllAction()
+//     const action = model.mixer.clipAction(model.animations[animationId])
+//     action.setLoop(THREE.LoopRepeat)
+//     action.userData = {
+//       entityName: model.userData.entityName,
+//       entityId,
+//       animationId,
+//       type: 'movement'
+//     }
+//     action.play()
+//   }
+//   let lastZ = model.scene.position.z
 
-  console.log('moveEntity READY', entityId, from, to, lastZ, distance, time)
-  return new Promise(async resolve => {
-    const moveTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP).to(to, time)
-    moveTween.onUpdate(function () {
-      // Find the z position
-      const movementRay = new THREE.Raycaster()
-      const rayO = new THREE.Vector3(from.x, from.y, lastZ + 0.01)
-      const rayD = new THREE.Vector3(0, 0, -1).normalize()
-      movementRay.set(rayO, rayD)
-      movementRay.far = 0.02
+//   console.log('moveEntity READY', entityId, from, to, lastZ, distance, time)
+//   return new Promise(async resolve => {
+//     const moveTween = new TWEEN.Tween(from, FIELD_TWEEN_GROUP).to(to, time)
+//     moveTween.onUpdate(function () {
+//       // Find the z position
+//       const movementRay = new THREE.Raycaster()
+//       const rayO = new THREE.Vector3(from.x, from.y, lastZ + 0.01)
+//       const rayD = new THREE.Vector3(0, 0, -1).normalize()
+//       movementRay.set(rayO, rayD)
+//       movementRay.far = 0.02
 
-      const intersects = movementRay.intersectObjects(
-        window.currentField.walkmeshMesh.children
-      )
-      // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
-      // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
-      if (window.config.debug.showMovementHelpers) {
-        window.currentField.movementHelpers.add(
-          new THREE.ArrowHelper(
-            movementRay.ray.direction,
-            movementRay.ray.origin,
-            movementRay.far,
-            0x229922
-          )
-        ) // For debugging walkmesh raycaster
-      }
-      if (intersects.length === 0) {
-        console.log('moveEntity: no intersects')
-        // TWEEN.remove(moveTween)
-        if (enforceWalkmesh !== undefined && enforceWalkmesh) {
-          moveTween.stop()
-        }
-      } else {
-        console.log('moveEntity: intersects')
-        const point = intersects[0].point
-        lastZ = point.z
-        model.scene.userData.triangleId =
-          intersects[0].object.userData.triangleId
+//       const intersects = movementRay.intersectObjects(
+//         window.currentField.walkmeshMesh.children
+//       )
+//       // console.log('move UPDATE', entityId, intersects, from, to, lastZ)
+//       // console.log('ray intersects', nextPosition, rayO, rayD, intersects)
+//       if (window.config.debug.showMovementHelpers) {
+//         window.currentField.movementHelpers.add(
+//           new THREE.ArrowHelper(
+//             movementRay.ray.direction,
+//             movementRay.ray.origin,
+//             movementRay.far,
+//             0x229922
+//           )
+//         ) // For debugging walkmesh raycaster
+//       }
+//       if (intersects.length === 0) {
+//         console.log('moveEntity: no intersects')
+//         // TWEEN.remove(moveTween)
+//         if (enforceWalkmesh !== undefined && enforceWalkmesh) {
+//           moveTween.stop()
+//         }
+//       } else {
+//         console.log('moveEntity: intersects')
+//         const point = intersects[0].point
+//         lastZ = point.z
+//         model.scene.userData.triangleId =
+//           intersects[0].object.userData.triangleId
 
-        // Update the model position
-        model.scene.position.x = from.x
-        model.scene.position.y = from.y
-        model.scene.position.z = lastZ
+//         // Update the model position
+//         model.scene.position.x = from.x
+//         model.scene.position.y = from.y
+//         model.scene.position.z = lastZ
 
-        // Camera follow
-        if (
-          model.scene.uuid ===
-            window.currentField.playableCharacter.scene.uuid &&
-          window.currentField.fieldCameraFollowPlayer
-        ) {
-          // Update camera position if this is the main character
-          const relativeToCamera = calculateViewClippingPointFromVector3(
-            model.scene.position
-          )
-          console.log('setCameraPosition moveEntity')
-          setCameraPosition(relativeToCamera.x, relativeToCamera.y)
-        }
-      }
-    })
-    moveTween.onStop(async () => {
-      console.log('moveEntity: END (COMPLETE)', entityId, from, to, lastZ)
-      if (animate) {
-        // console.log('stopAllAction D', model.userData.entityName)
-        model.mixer.stopAllAction()
-      }
-      if (model.userData.isPlayableCharacter) {
-        updateCurrentTriangleId(model, model.scene.position)
-      }
-      await sleep(1000 / 30)
-      // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
-      resolve()
-    })
-    moveTween.onComplete(async () => {
-      console.log('moveEntity: END (STOP)', entityId, from, to, lastZ)
-      if (animate) {
-        // console.log('stopAllAction D', model.userData.entityName)
-        model.mixer.stopAllAction()
-      }
-      if (model.userData.isPlayableCharacter) {
-        updateCurrentTriangleId(model, model.scene.position)
-      }
-      await sleep(1000 / 30)
-      // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
-      resolve()
-    })
-    moveTween.start()
-  })
-}
+//         // Camera follow
+//         if (
+//           model.scene.uuid ===
+//             window.currentField.playableCharacter.scene.uuid &&
+//           window.currentField.fieldCameraFollowPlayer
+//         ) {
+//           // Update camera position if this is the main character
+//           const relativeToCamera = calculateViewClippingPointFromVector3(
+//             model.scene.position
+//           )
+//           console.log('setCameraPosition moveEntity')
+//           setCameraPosition(relativeToCamera.x, relativeToCamera.y)
+//         }
+//       }
+//     })
+//     moveTween.onStop(async () => {
+//       console.log('moveEntity: END (COMPLETE)', entityId, from, to, lastZ)
+//       if (animate) {
+//         // console.log('stopAllAction D', model.userData.entityName)
+//         model.mixer.stopAllAction()
+//       }
+//       if (model.userData.isPlayableCharacter) {
+//         updateCurrentTriangleId(model, model.scene.position)
+//       }
+//       await sleep(1000 / 30)
+//       // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
+//       resolve()
+//     })
+//     moveTween.onComplete(async () => {
+//       console.log('moveEntity: END (STOP)', entityId, from, to, lastZ)
+//       if (animate) {
+//         // console.log('stopAllAction D', model.userData.entityName)
+//         model.mixer.stopAllAction()
+//       }
+//       if (model.userData.isPlayableCharacter) {
+//         updateCurrentTriangleId(model, model.scene.position)
+//       }
+//       await sleep(1000 / 30)
+//       // model.mixer.clipAction(window.currentField.playerAnimations.walk).play()
+//       resolve()
+//     })
+//     moveTween.start()
+//   })
+// }
 const moveEntityLadder = async (
   entityId,
   x,
@@ -779,7 +779,7 @@ const moveEntityLadderPlayableCharacter = async (
     speed,
     model
   )
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     // console.log('stopAllAction E', model.userData.entityName)
     model.mixer.stopAllAction()
     setModelDirection(entityId, direction)
@@ -889,7 +889,7 @@ const moveEntityLadderNPC = async (
     speed,
     time
   )
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .onUpdate(function () {
@@ -1041,7 +1041,7 @@ const offsetEntity = (window.offsetEntity = async (
     time = time * 2 // Slows to 15fps with movies
   }
   console.log('offsetEntity: Time ', time)
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     new TWEEN.Tween(from, FIELD_TWEEN_GROUP)
       .to(to, time)
       .easing(easingType)
