@@ -8,7 +8,7 @@ const showStats = () => {
   window.anim.stats = new Stats()
   window.anim.stats.dom.style.cssText =
     'position:fixed;top:0;right:270px;cursor:pointer;opacity:0.9;z-index:10000'
-  document.querySelector('.stats').appendChild(anim.stats.dom)
+  document.querySelector('.stats').appendChild(window.anim.stats.dom)
 }
 
 const initRenderer = () => {
@@ -21,11 +21,13 @@ const initRenderer = () => {
     antialias: true
   })
   window.anim.renderer.setSize(
-    config.sizing.width * config.sizing.factor,
-    config.sizing.height * config.sizing.factor
+    window.config.sizing.width * window.config.sizing.factor,
+    window.config.sizing.height * window.config.sizing.factor
   )
   window.anim.renderer.autoClear = false
   window.anim.renderer.localClippingEnabled = true
+  // TODO - All field model colours look strange now, need to fix after
+  window.anim.renderer.outputEncoding = THREE.sRGBEncoding
   // window.anim.renderer.setPixelRatio(config.sizing.width / config.sizing.height) // Set pixel ratio helps with antialias, but messing the background alignment up
   // console.log('pixelRatio', window.anim.renderer.getPixelRatio())
   window.anim.container.appendChild(window.anim.renderer.domElement)

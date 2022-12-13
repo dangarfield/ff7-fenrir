@@ -1,14 +1,23 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+// import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { scene } from './battle-scene.js'
+import { loadSceneModel } from '../data/scene-fetch-data.js'
 
-const showDebugObject = () => {
-  const geometry = new THREE.BoxGeometry()
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-  const cube = new THREE.Mesh(geometry, material)
-  scene.add(cube)
+const importModels = async (battleConfig) => {
+  const locationModel = await loadSceneModel(battleConfig.setup.locationCode)
+  console.log('battle locationModel', locationModel)
+  battleConfig.models = {
+    location: locationModel
+  }
+
+  scene.add(locationModel.scene)
+  for (const enemy of battleConfig.enemies) {
+    const enemyModel = await loadSceneModel(enemy.enemyCode)
+    scene.add(enemyModel.scene)
+    enemyModel.scene.position.x = enemy.position.x
+    enemyModel.scene.position.y = enemy.position.y
+    enemyModel.scene.position.z = enemy.position.z
+    console.log('battle', 'enemy', enemyModel.scene)
+  }
 }
 
-const loadTempBattle3d = async () => {
-  showDebugObject()
-}
-export { loadTempBattle3d }
+export { importModels }

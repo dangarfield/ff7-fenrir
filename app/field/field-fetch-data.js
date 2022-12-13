@@ -294,5 +294,6 @@ export {
   getDialogTextures,
   getPointRight,
   getFieldDialogNumber,
-  getFieldMapList
+  getFieldMapList,
+  addBlendingToMaterials
 }

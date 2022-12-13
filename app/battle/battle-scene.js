@@ -1,12 +1,14 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
 let orthoScene
 let fixedCamera
-let movingCamera
+let battleCamera
 let debugCamera
 let orthoCamera
+let debugControls
 
 const renderLoop = () => {
   if (window.anim.activeScene !== 'battle') {
@@ -20,8 +22,15 @@ const renderLoop = () => {
     // console.log('render')
     // const activeCamera = fixedCamera
 
+    const delta = window.anim.clock.getDelta()
+
+    if (debugControls) {
+      console.log('batte debugControls', debugControls)
+      debugControls.update(delta)
+    }
+
     window.anim.renderer.clear()
-    window.anim.renderer.render(scene, fixedCamera)
+    window.anim.renderer.render(scene, debugCamera)
 
     window.anim.renderer.clearDepth()
     window.anim.renderer.render(orthoScene, orthoCamera)
@@ -41,41 +50,47 @@ const setupScenes = () => {
   scene = new THREE.Scene()
   orthoScene = new THREE.Scene()
 
-  const light = new THREE.DirectionalLight(0xffffff)
-  light.position.set(0, 0, 50).normalize()
-  scene.add(light)
-  const ambientLight = new THREE.AmbientLight(0x404040)
+  window.battleScene = scene
+  // const light = new THREE.DirectionalLight(0xffffff)
+  // light.position.set(0, 0, 50).normalize()
+  // scene.add(light)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 12)
   scene.add(ambientLight)
 
   fixedCamera = new THREE.PerspectiveCamera(
     100,
     window.config.sizing.width / window.config.sizing.height,
-    0.001,
-    1000
+    0.1,
+    100000
   )
   fixedCamera.position.x = 5
   fixedCamera.position.y = 5
   fixedCamera.position.z = 5
 
-  movingCamera = new THREE.PerspectiveCamera(
-    100,
+  battleCamera = new THREE.PerspectiveCamera(
+    50,
     window.config.sizing.width / window.config.sizing.height,
-    0.001,
-    1000
+    0.1,
+    100000
   )
-  movingCamera.position.x = 10
-  movingCamera.position.y = 20
-  movingCamera.position.z = 30
+  battleCamera.position.x = 10
+  battleCamera.position.y = 20
+  battleCamera.position.z = 30
 
   debugCamera = new THREE.PerspectiveCamera(
     100,
     window.config.sizing.width / window.config.sizing.height,
-    0.001,
-    1000
+    0.1,
+    100000
   )
-  debugCamera.position.x = 10
-  debugCamera.position.y = 20
-  debugCamera.position.z = 30
+  debugCamera.position.x = -10
+  debugCamera.position.y = 1000
+  debugCamera.position.z = 80
+  window.battleDebugCamera = debugCamera
+
+  debugControls = new OrbitControls(debugCamera, window.anim.renderer.domElement)
+  debugControls.target = new THREE.Vector3(0, 1000, 0)
+  debugControls.update()
 
   orthoCamera = new THREE.OrthographicCamera(
     0,
@@ -86,13 +101,27 @@ const setupScenes = () => {
     1001
   )
   orthoCamera.position.z = 1001
+
+  // scene.background = new THREE.Color(0xBBDDFF) // 0x505050
+  scene.add(battleCamera)
+  // add lights
+  // const addDirectionalLight = function (x, y, z) {
+  //   const light = new THREE.DirectionalLight(0xc0c0c0)
+  //   light.position.set(x, y, z).normalize()
+  //   scene.add(light)
+  // }
+  // addDirectionalLight(4, 2, 3)
+  // addDirectionalLight(4, 2, 3)
+  // addDirectionalLight(0, -2, -3)
+  // const ambientLight = new THREE.AmbientLight(0x404040); // 0x404040 = soft white light
+  // scene.add(ambientLight);
 }
 
 export {
   scene,
   orthoScene,
   fixedCamera,
-  movingCamera,
+  battleCamera,
   orthoCamera,
   setupScenes,
   startBattleRenderingLoop

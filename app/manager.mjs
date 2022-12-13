@@ -2,6 +2,7 @@ import { setupInputs } from './interaction/inputs.js'
 import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { loadExeData } from './data/exe-fetch-data.js'
+import { loadSceneData } from './data/scene-fetch-data.js'
 import { loadCDData } from './data/cd-fetch-data.js'
 import { loadMenuTextures } from './data/menu-fetch-data.js'
 import { loadFieldTextures } from './data/field-fetch-data.js'
@@ -29,6 +30,7 @@ const initManager = async () => {
   await initWorldModule()
   await loadKernelData()
   await loadExeData()
+  await loadSceneData()
   await loadCDData()
   await loadWindowTextures()
   await loadMenuTextures()

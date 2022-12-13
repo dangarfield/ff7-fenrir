@@ -16,9 +16,7 @@ import {
   transitionOutAndLoadMenu,
   transitionOutAndLoadTutorial
 } from './field-actions.js'
-import { SOUND } from './field-op-codes-camera-media.js'
 import { getBankData, setBankData } from '../data/savemap.js'
-import { sleep } from '../helpers/helpers.js'
 import { setMenuEnabled } from './field-module.js'
 
 const WINDOW = async op => {
@@ -180,82 +178,6 @@ const TUTOR = async op => {
   await transitionOutAndLoadTutorial(op.t)
   return {}
 }
-
-setTimeout(async () => {
-  await SOUND({ i: 1, d: 64 })
-  // await MENU({ t: 9, b: 0, p: 1 })
-
-  // await MENU2({ s: 1 })
-  // await sleep(3000)
-  // await MENU2({ s: 0 })
-  // await WMODE({ w: 0, m: 1, p: 0 })
-  // await WINDOW({ n: 0, x: 56, y: 45, w: 191, h: 25 })
-  // await MESSAGE({ n: 0, d: 82 })
-  // await WINDOW({ n: 2, x: 155, y: 8, w: 233, h: 41 })
-  // await MESSAGE({ n: 2, d: 32 })
-  // await WINDOW({ n: 2, x: 120, y: 8, w: 268, h: 41 })
-  // await MESSAGE({ n: 2, d: 33 })
-  // await WMODE({ w: 1, m: 2, p: 1 })
-
-  // await WINDOW({ n: 2, x: 60, y: 145, w: 209, h: 73 })
-  // await ASK({ w: 2, d: 2, f: 0, l: 1, ba: 2, a: 3 })
-  // const currentChoice = await showWindowWithDialog(2, '{Cloud}<br/>“…”<br/>{CHOICE}Don\'t see many flowers around here<br/>{CHOICE}Never mind')
-
-  // await sleep(3000)
-  // await WCLSE({ w: 1 })
-  // console.log('WINDOW ENDED 1')
-  // // await MPARA({ w: 2, b: 0, i: 0, v: 'booya' })
-  // // await MPRA2({ w: 2, b: 0, i: 1, v: 'booya2' })
-  // await WINDOW({ n: 2, x: 10, y: 10, w: 239, h: 217 })
-  // // await WMODE({ w: 2, m: 0, p: 1 })
-  // await WMODE({ w: 2, m: 2, p: 0 })
-  // await MESSAGE({ n: 2, d: 30 })
-
-  // await WMODE({ w: 3, m: 1, p: 0 })
-  // await WINDOW({ n: 3, x: 40, y: 20, w: 133, h: 41 })
-  // await MESSAGE({ n: 3, d: 30 })
-
-  // await WREST({ w: 1 })
-  // await WMOVE({ w: 1, x: 50, y: 50 })
-  // await WSIZW({ i: 1, x: 10, y: 10, w: 239, h: 217 })
-  // await WMODE({ w: 1, m: 1, p: 1 })
-  // await MPARA({ w: 1, b: 0, i: 0, v: 'booya' })
-  // await MPRA2({ w: 1, b: 0, i: 1, v: 'booya2' })
-  // await WSPCL({ w: 1, t: 2, x: 30, y: 30 })
-  // // await STTIM({ b1: 0, b2: 0, b3: 0, h: 1, m: 2, s: 3 })
-  // await WINDOW({ n: 1, x: 10, y: 10, w: 239, h: 217 })
-  // await WNUMB({ w: 1, b1: 0, b2: 0, nLow: 1234, nHigh: 5678, c: 7 })
-  // await MESSAGE({ n: 1, d: 1 })
-  // await MPNAM({ dialogId: 0 })
-
-  // await WSPCL({ w: 0, t: 2, x: 10, y: 10 })
-  // await WSPCL({ w: 1, t: 2, x: 10, y: 10 })
-
-  // setBankData(6, 20, 10)
-  // await WNUMB({ w: 0, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 3 })
-  // await WNUMB({ w: 1, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 5 })
-
-  // await WINDOW({ n: 0, x: 141, y: 0, w: 102, h: 57 })
-  // await WINDOW({ n: 1, x: 131, y: 70, w: 122, h: 57 })
-
-  // await WMODE({ w: 0, m: 0, p: 1 })
-  // await WMODE({ w: 1, m: 0, p: 1 })
-
-  // await MESSAGE({ n: 0, d: 29 })
-  // await MESSAGE({ n: 1, d: 30 })
-
-  // setBankData(6, 20, 20)
-  // await WNUMB({ w: 0, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 3 })
-  // await WNUMB({ w: 1, b1: 6, b2: 0, nLow: 20, nHigh: 0, c: 5 })
-
-  // await STTIM({ b1: 0, b2: 0, b3: 0, h: 0, m: 0, s: 10 })
-  // await WMODE({ w: 3, m: 1, p: 1 })
-  // await WINDOW({ n: 3, x: 10, y: 10, w: 160, h: 70 })
-  // await WSPCL({ w: 3, t: 1, x: 10, y: 10 })
-  // await MESSAGE({ n: 3, d: 25 })
-
-  console.log('WINDOW ENDED 2')
-}, 10000)
 
 export {
   TUTOR,
