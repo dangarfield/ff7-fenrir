@@ -25,6 +25,11 @@ import TWEEN from '../../assets/tween.esm.js'
 
 let CURRENT_FIELD = 'None'
 
+let FIELD_LOOP_ACTIVE = true
+
+const isFieldLoopActive = () => FIELD_LOOP_ACTIVE
+const setFieldLoopActive = (newValue) => { FIELD_LOOP_ACTIVE = newValue }
+
 const executeOp = async (
   fieldName,
   entityId,
@@ -35,6 +40,11 @@ const executeOp = async (
   currentOpIndex,
   priority
 ) => {
+  while (!isFieldLoopActive()) {
+    // Rudimentary pause, should probably be better to do this as a callback
+    // console.log('renderLoop pause')
+    await sleep(1000 / 30)
+  }
   console.log(
     '   - executeOp: START',
     fieldName,
@@ -1121,7 +1131,7 @@ const initialiseOpLoops = async () => {
     initEntityMain(window.currentField.name, entity) // All running async
   }
 
-  // control.BATTLE({ b: 0, n: 300 })
+  control.BATTLE({ b: 0, n: 300 })
   console.log('initialiseOpLoops: END')
 }
 
@@ -1302,5 +1312,7 @@ export {
   triggerEntityOKLoop,
   canOKLoopBeTriggeredOnMovement,
   debugLogOpCodeCompletionForField,
-  CURRENT_FIELD
+  CURRENT_FIELD,
+  isFieldLoopActive,
+  setFieldLoopActive
 }

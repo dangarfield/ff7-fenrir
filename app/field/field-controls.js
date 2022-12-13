@@ -3,7 +3,8 @@ import { togglePositionHelperVisility } from './field-position-helpers.js'
 import {
   isActionInProgress,
   transitionOutAndLoadMenu,
-  processTalkContactTrigger
+  processTalkContactTrigger,
+  togglePauseField
 } from './field-actions.js'
 import {
   nextPageOrCloseActiveDialogs,
@@ -73,7 +74,8 @@ const initFieldKeypressActions = () => {
   })
   getKeyPressEmitter().on('start', firstPress => {
     if (areFieldControlsActive() && firstPress) {
-      // Just debug controls
+      // For testing, can remove later
+      togglePauseField()
     }
   })
   getKeyPressEmitter().on('select', firstPress => {

@@ -35,7 +35,7 @@ import { getFieldIdForName } from './field-metadata.js'
 const FIELD_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
 
 const renderLoop = function () {
-  // console.log('renderLoop frame')
+  // console.log('renderLoop field')
   if (window.anim.activeScene !== 'field') {
     console.log('Stopping field renderLoop')
     return

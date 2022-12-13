@@ -32,7 +32,9 @@ import {
   triggerEntityGoAwayLoop,
   triggerEntityOKLoop,
   triggerEntityCollisionLoop,
-  canOKLoopBeTriggeredOnMovement
+  canOKLoopBeTriggeredOnMovement,
+  isFieldLoopActive,
+  setFieldLoopActive
 } from './field-op-loop.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { SHAKE_TWEEN_GROUP } from './field-op-codes-camera-media-helper.js'
@@ -356,11 +358,20 @@ const transitionOutAndLoadTutorial = async tutorialId => {
   await unfreezeField()
 }
 const unfreezeField = async () => {
+  setFieldLoopActive(true)
   startFieldRenderLoop()
   clearActionInProgress()
   window.anim.clock.start()
   setPlayableCharacterIsInteracting(false)
   await transitionIn()
+}
+const togglePauseField = async () => {
+  if (isFieldLoopActive()) {
+    stopFieldSceneAnimating()
+    setPlayableCharacterIsInteracting(true)
+  } else {
+    await unfreezeField()
+  }
 }
 const gatewayTriggered = async i => {
   const gateway = window.currentField.data.triggers.gateways[i]
@@ -453,6 +464,7 @@ const triggerBattleWithSwirl = async battleId => {
   unfreezeField()
 }
 const stopFieldSceneAnimating = () => {
+  setFieldLoopActive(false)
   window.anim.clock.stop()
   TWEEN.removeAll()
   SHAKE_TWEEN_GROUP.removeAll()
@@ -474,5 +486,6 @@ export {
   jumpToMapFromMiniGame,
   jumpToMiniGame,
   processLineTriggersForFrame,
-  processTalkContactTrigger
+  processTalkContactTrigger,
+  togglePauseField
 }
