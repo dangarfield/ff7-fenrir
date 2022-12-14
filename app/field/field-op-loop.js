@@ -1131,7 +1131,7 @@ const initialiseOpLoops = async () => {
     initEntityMain(window.currentField.name, entity) // All running async
   }
 
-  control.BATTLE({ b: 0, n: 703 })
+  control.BATTLE({ b: 0, n: 300 })
   console.log('initialiseOpLoops: END')
 }
 

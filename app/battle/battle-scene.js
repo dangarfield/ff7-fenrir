@@ -1,14 +1,24 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import TWEEN from '../../assets/tween.esm.js'
 import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 
 let scene
+let sceneGroup
 let orthoScene
 let fixedCamera
 let battleCamera
 let debugCamera
 let orthoCamera
 let debugControls
+
+const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
+
+const tweenSleep = (ms) => {
+  return new Promise(resolve => {
+    new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP).to({ x: 1 }, ms).onComplete(function () { resolve() }).start()
+  })
+}
 
 const renderLoop = () => {
   if (window.anim.activeScene !== 'battle') {
@@ -29,6 +39,13 @@ const renderLoop = () => {
       debugControls.update(delta)
     }
 
+    if (window.currentBattle.models) {
+      for (const model of window.currentBattle.models) {
+        if (model.mixer) model.mixer.update(delta)
+        if (model.userData.updateShadowPosition) model.userData.updateShadowPosition()
+      }
+    }
+    BATTLE_TWEEN_GROUP.update()
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, debugCamera)
 
@@ -48,6 +65,8 @@ const startBattleRenderingLoop = () => {
 
 const setupScenes = () => {
   scene = new THREE.Scene()
+  sceneGroup = new THREE.Group()
+  scene.add(sceneGroup)
   orthoScene = new THREE.Scene()
 
   window.battleScene = scene
@@ -70,7 +89,7 @@ const setupScenes = () => {
   battleCamera = new THREE.PerspectiveCamera(
     50,
     window.config.sizing.width / window.config.sizing.height,
-    0.1,
+    0.01,
     100000
   )
   battleCamera.position.x = 10
@@ -78,19 +97,20 @@ const setupScenes = () => {
   battleCamera.position.z = 30
 
   debugCamera = new THREE.PerspectiveCamera(
-    100,
+    27,
     window.config.sizing.width / window.config.sizing.height,
-    0.1,
+    1,
     100000
   )
-  debugCamera.position.x = -10
-  debugCamera.position.y = 1000
-  debugCamera.position.z = 80
+  debugCamera.position.x = 5520// 3000
+  debugCamera.position.y = 2184// 1200
+  debugCamera.position.z = 7411// -400
   window.battleDebugCamera = debugCamera
 
   debugControls = new OrbitControls(debugCamera, window.anim.renderer.domElement)
   debugControls.target = new THREE.Vector3(0, 1000, 0)
   debugControls.update()
+  debugCamera.controls = debugControls
 
   orthoCamera = new THREE.OrthographicCamera(
     0,
@@ -119,10 +139,13 @@ const setupScenes = () => {
 
 export {
   scene,
+  sceneGroup,
   orthoScene,
   fixedCamera,
   battleCamera,
   orthoCamera,
   setupScenes,
-  startBattleRenderingLoop
+  startBattleRenderingLoop,
+  BATTLE_TWEEN_GROUP,
+  tweenSleep
 }

@@ -1,13 +1,13 @@
 import {
   setupScenes,
   startBattleRenderingLoop,
-  scene,
-  orthoScene
+  sceneGroup
 } from './battle-scene.js'
 import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
 import { getBattleConfig } from './battle-setup.js'
+import { initBattleStack } from './battle.stack.js'
 
 let BATTLE_PROMISE
 
@@ -21,21 +21,23 @@ const initBattleModule = () => {
   initBattleKeypressActions()
 }
 
-const cleanScene = () => {
-  while (scene.children.length) {
-    scene.remove(scene.children[0])
+const cleanSceneGroup = () => {
+  while (sceneGroup.children.length) {
+    sceneGroup.remove(sceneGroup.children[0])
   }
-  while (orthoScene.children.length) {
-    orthoScene.remove(orthoScene.children[0])
-  }
+  // while (orthoScene.children.length) {
+  //   orthoScene.remove(orthoScene.children[0])
+  // }
 }
 const preLoadBattle = async (battleId, options) => {
   console.log('battle preload: START')
-  const battleConfig = getBattleConfig(battleId) // TODO, add from random / world map etc
+  cleanSceneGroup()
+  window.currentBattle = getBattleConfig(battleId) // TODO, add from random / world map etc
   console.log('loadBattle', battleId, options)
-  // cleanScene()
-  await importModels(battleConfig)
-  await loadTempBattle2d(`${battleConfig.sceneId} - ${battleConfig.formationId}`)
+  await importModels()
+  await loadTempBattle2d(`${window.currentBattle.sceneId} - ${window.currentBattle.formationId}`)
+
+  initBattleStack()
   console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {

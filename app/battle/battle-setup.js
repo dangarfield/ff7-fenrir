@@ -10,6 +10,20 @@ const enemyIdToEnemyCode = (i) => {
   const id3 = id - (id2 * 26)
   return String.fromCharCode(id2 + 97) + String.fromCharCode(id3 + 97) + 'aa'
 }
+const characterNameToModelCode = (name) => {
+  let modelName = 'CLOUD'
+  if (name === 'Cloud') modelName = 'CLOUD'
+  if (name === 'Barret') modelName = 'BARRETT'
+  if (name === 'Tifa') modelName = 'TIFA'
+  if (name === 'Aeris') modelName = 'EARITH'
+  if (name === 'RedXIII') modelName = 'RED13'
+  if (name === 'Yuffie') modelName = 'YUFI'
+  if (name === 'Cid') modelName = 'CID1'
+  if (name === 'CaitSith') modelName = 'KETCY'
+  if (name === 'Vincent') modelName = 'VINSENT'
+  // TODO - Othe chars, special frog, vincent limits, sephiroth, weapons, multiple barret?
+  return window.data.exe.battleCharacterModels.find(m => m.name === modelName).hrc
+}
 const getBattleConfig = (battleId) => {
   const sceneId = Math.floor(battleId / 4)
   const formationId = battleId % 4
@@ -31,6 +45,14 @@ const getBattleConfig = (battleId) => {
     })
   }
   battleData.setup.locationCode = locationIdToLocationCode(battleData.setup.locationId)
+
+  // TODO - Temp Cloud only
+  const party = window.data.savemap.party.members.filter(m => m !== 'None').filter(m => m === 'Cloud').map(m => {
+    const char = { ...window.data.savemap.characters[m] }
+    char.modelCode = characterNameToModelCode(m)
+    return char
+  })
+  battleData.party = party
 
   console.log('battleData', battleData)
   return battleData
