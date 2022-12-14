@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { loadBattle } from '../battle/battle-module.js'
+import { loadBattle, preLoadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 
@@ -96,7 +96,9 @@ const tempFadeEffect = () => {
   })
 }
 const doSwirl = async () => {
+  console.log('battle doSwirl: START')
   await tempFadeEffect()
+  console.log('battle doSwirl: END')
 }
 const loadBattleWithSwirl = async (battleId, options) => {
   console.log('loadBattleWithSwirl', battleId, options)
@@ -105,7 +107,12 @@ const loadBattleWithSwirl = async (battleId, options) => {
   // Temp
   playCommonSound(COMMON_SOUNDS.BATTLE_SWIRL)
 
-  await doSwirl()
+  console.log('battle loadBattleWithSwirl: START')
+  await Promise.all([
+    preLoadBattle(battleId, options),
+    doSwirl()
+  ])
+  console.log('battle loadBattleWithSwirl: END')
   await loadBattle(battleId, options)
 }
 export { initBattleSwirlModule, loadBattleWithSwirl }

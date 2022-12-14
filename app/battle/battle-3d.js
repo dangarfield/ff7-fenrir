@@ -3,6 +3,7 @@ import { scene } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
 
 const importModels = async (battleConfig) => {
+  // TODO - Load these in parallel
   const locationModel = await loadSceneModel(battleConfig.setup.locationCode)
   console.log('battle locationModel', locationModel)
   battleConfig.models = {

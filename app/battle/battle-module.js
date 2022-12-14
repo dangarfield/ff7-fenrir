@@ -29,14 +29,18 @@ const cleanScene = () => {
     orthoScene.remove(orthoScene.children[0])
   }
 }
-
-const loadBattle = async (battleId, options) => {
+const preLoadBattle = async (battleId, options) => {
+  console.log('battle preload: START')
   const battleConfig = getBattleConfig(battleId) // TODO, add from random / world map etc
   console.log('loadBattle', battleId, options)
   // cleanScene()
-  startBattleRenderingLoop()
   await importModels(battleConfig)
   await loadTempBattle2d(`${battleConfig.sceneId} - ${battleConfig.formationId}`)
+  console.log('battle preload: END')
+}
+const loadBattle = async (battleId, options) => {
+  console.log('battle loadBattle: START')
+  startBattleRenderingLoop()
   return new Promise(resolve => {
     BATTLE_PROMISE = resolve
   })
@@ -47,4 +51,4 @@ const resolveBattlePromise = () => {
     BATTLE_PROMISE()
   }
 }
-export { initBattleModule, loadBattle, resolveBattlePromise }
+export { initBattleModule, loadBattle, resolveBattlePromise, preLoadBattle }

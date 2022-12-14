@@ -13,7 +13,7 @@ const enemyIdToEnemyCode = (i) => {
 const getBattleConfig = (battleId) => {
   const sceneId = Math.floor(battleId / 4)
   const formationId = battleId % 4
-  const scene = window.data.sceneData.find(s => s.sceneId === 75)
+  const scene = window.data.sceneData.find(s => s.sceneId === sceneId)
   const battleData = {
     sceneId,
     formationId,

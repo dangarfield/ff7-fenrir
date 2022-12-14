@@ -375,6 +375,12 @@ const activateDebugCamera = () => {
     window.currentField.debugCameraControls.enableZoom = true // window.config.debug.showDebugCamera
     window.currentField.debugCameraControls.enableRotate = true // window.config.debug.showDebugCamera
     window.currentField.debugCameraControls.enablePan = true // window.config.debug.showDebugCamera
+    window.currentField.debugCameraControls.enabled = true
+  }
+  if (window.config.debug.showDebugCamera) {
+    window.currentField.debugCameraControls.enabled = true
+  } else {
+    window.currentField.debugCameraControls.enabled = false
   }
 }
 
