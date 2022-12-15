@@ -7,7 +7,7 @@ import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
 import { getBattleConfig } from './battle-setup.js'
-import { initBattleStack } from './battle.stack.js'
+import { initBattleStack } from './battle-stack.js'
 
 let BATTLE_PROMISE
 

@@ -38,6 +38,7 @@ const loadModelWithAnimationBindings = async (code) => {
       action.loop = THREE.LoopOnce
       action.promise = resolve
       action.model = model
+      action.clampWhenFinished = true
       delete action.nextAnim
       let playInstant = true
       if (options) {

@@ -27,13 +27,13 @@ const characterNameToModelCode = (name) => {
 const getBattleConfig = (battleId) => {
   const sceneId = Math.floor(battleId / 4)
   const formationId = battleId % 4
-  const scene = window.data.sceneData.find(s => s.sceneId === sceneId)
+  const scene = { ...window.data.sceneData.find(s => s.sceneId === sceneId) }
   const battleData = {
     sceneId,
     formationId,
     scene, // temp - remove after
-    setup: scene.battleSetup[formationId],
-    enemies: scene.battleFormations[formationId].filter(e => e.enemyId < 0xFFFF).map(e => {
+    setup: { ...scene.battleSetup[formationId] },
+    enemies: [...scene.battleFormations[formationId]].filter(e => e.enemyId < 0xFFFF).map(e => {
       for (const i of [1, 2, 3]) {
         console.log('battleData is', i, `enemyId${i}`, scene[`enemyId${i}`], e.enemyId)
         if (scene[`enemyId${i}`] === e.enemyId) {

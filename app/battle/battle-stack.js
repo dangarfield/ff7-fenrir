@@ -4,7 +4,7 @@ import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 const moveEntity = (model, from, to) => {
   // TODO - Rotation too?
   return new Promise(resolve => {
-    const time = 500
+    const time = 500 / 5 // ??
     const fromClone = { ...from }
     fromClone.z = fromClone.z - 600
     const toClone = { ...to }
@@ -28,9 +28,6 @@ const moveEntity = (model, from, to) => {
 
 const battleAttackSequence = async (fromEntity, toEntity) => {
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
-
-  //   fromEntity.model.userData.playAnimation(7)
-
   await moveEntity(fromEntity.model, fromEntity.model.userData.defaultPosition, toEntity.model.userData.defaultPosition)
   await Promise.all([
     toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
