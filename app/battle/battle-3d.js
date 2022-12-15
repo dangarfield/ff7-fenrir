@@ -8,28 +8,23 @@ const loadModelWithAnimationBindings = async (code) => {
   const model = await loadSceneModel(code)
   model.mixer = new THREE.AnimationMixer(model.scene)
   model.mixer.addEventListener('finished', async e => {
-    console.log(
-      'battle finished mixer',
-      e,
-      e.action.model,
-      e.action.nextAnim
-    )
+    // console.log('battle finished mixer', e, e.action.model, e.action.nextAnim)
     if (e.action.promise) {
       e.action.promise()
       delete e.action.promise
     }
     if (e.action.model && Object.hasOwn(e.action, 'nextAnim')) {
-      console.log('battle autoplay nextAnim', e.action.nextAnim)
+      // console.log('battle autoplay nextAnim', e.action.nextAnim)
       e.action.model.userData.playAnimation(e.action.nextAnim)
       delete e.action.nextAnim
     }
   })
   model.userData.playAnimation = (i) => {
-    console.log('battle playAnimation', i)
+    // console.log('battle playAnimation', i)
     const action = model.mixer.clipAction(model.animations[i])
     action.timeScale = tempSlow
     model.mixer.stopAllAction()
-    action.play()
+    action.reset().play()
   }
   model.userData.playAnimationOnce = (i, options) => {
     return new Promise(resolve => {
@@ -44,21 +39,21 @@ const loadModelWithAnimationBindings = async (code) => {
       if (options) {
         if (Object.hasOwn(options, 'delay')) {
           playInstant = false
-          console.log('battle DELAY:START')
+          // console.log('battle DELAY:START')
           tweenSleep(options.delay / tempSlow).then(() => {
-            console.log('battle DELAY:END')
+            // console.log('battle DELAY:END')
             model.mixer.stopAllAction()
-            action.play()
+            action.reset().play()
           })
         }
         if (Object.hasOwn(options, 'nextAnim')) {
-          console.log('battle set nextAnim', options.nextAnim)
+          // console.log('battle set nextAnim', options.nextAnim)
           action.nextAnim = options.nextAnim
         }
       }
       if (playInstant) {
         model.mixer.stopAllAction()
-        action.play()
+        action.reset().play()
       }
     })
   }
@@ -72,7 +67,7 @@ const addShadow = (model) => {
     box.geometry.boundingBox.max.z - box.geometry.boundingBox.min.z
   ) / 2
   // sceneGroup.add(box)
-  console.log('battle shadow size', box, box.geometry.boundingBox, radius)
+  // console.log('battle shadow size', box, box.geometry.boundingBox, radius)
   const geometry = new THREE.CircleGeometry(radius, 32)
   const material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 })
   const shadow = new THREE.Mesh(geometry, material)
@@ -90,7 +85,7 @@ const importModels = async () => {
   const modelsToFind = [battleConfig.setup.locationCode, ...battleConfig.enemies.map(e => e.enemyCode), ...battleConfig.party.map(m => m.modelCode)]
   const modelsFound = await Promise.all(modelsToFind.map(code => loadModelWithAnimationBindings(code)))
   const locationModel = modelsFound.shift()
-  console.log('battle locationModel', locationModel)
+  // console.log('battle locationModel', locationModel)
   battleConfig.models = [locationModel]
 
   sceneGroup.add(locationModel.scene)
@@ -115,7 +110,7 @@ const importModels = async () => {
     model.scene.position.y = model.userData.defaultPosition.y
     model.scene.position.z = model.userData.defaultPosition.z
     model.scene.rotation.y = Math.PI
-    console.log('battle', 'enemy', model.scene, enemy.position)
+    // console.log('battle', 'enemy', model.scene, enemy.position)
     model.userData.playAnimation(0)
     addShadow(model)
   }
@@ -144,7 +139,7 @@ const importModels = async () => {
     model.scene.position.x = model.userData.defaultPosition.x
     model.scene.position.y = model.userData.defaultPosition.y
     model.scene.position.z = model.userData.defaultPosition.z
-    console.log('battle', 'member', model, model.position)
+    // console.log('battle', 'member', model, model.position)
     if (i === 0) window.bm = model
     model.userData.playAnimation(0)
     addShadow(model)
@@ -152,7 +147,7 @@ const importModels = async () => {
 
   // Set default camera
 
-  console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
+  // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
   window.battleDebugCamera.position.x = battleConfig.scene.cameraPlacement['0'].camera1.pos.x
   window.battleDebugCamera.position.y = -battleConfig.scene.cameraPlacement['0'].camera1.pos.y
   window.battleDebugCamera.position.z = -battleConfig.scene.cameraPlacement['0'].camera1.pos.z
@@ -161,4 +156,4 @@ const importModels = async () => {
   window.battleDebugCamera.controls.target.z = -battleConfig.scene.cameraPlacement['0'].camera1.dir.z
 }
 
-export { importModels }
+export { importModels, tempSlow }

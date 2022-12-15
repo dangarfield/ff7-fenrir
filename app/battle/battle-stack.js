@@ -1,50 +1,25 @@
-import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
+import { initTestBattleSequence } from './battle-actions.js'
+import { tweenSleep } from './battle-scene.js'
+import * as stackOps from './battle-stack-ops.js'
 
-const moveEntity = (model, from, to) => {
-  // TODO - Rotation too?
-  return new Promise(resolve => {
-    const time = 500 / 5 // ??
-    const fromClone = { ...from }
-    fromClone.z = fromClone.z - 600
-    const toClone = { ...to }
-    toClone.z = toClone.z + 1200
+const executeOp = async (op) => {
+  if (op.op === 'PUSH') { await stackOps.PUSH(op) }
+  if (op.op === 'PSHA') { await stackOps.PSHA(op) }
 
-    console.log('battle moveEntity', from, to, fromClone, toClone)
-    new TWEEN.Tween(fromClone, BATTLE_TWEEN_GROUP)
-      .to(toClone, time)
-      .onUpdate(function () {
-        console.log('battle move', fromClone, to)
-        model.scene.position.x = fromClone.x
-        model.scene.position.z = fromClone.z
-      })
-      .onComplete(function () {
-        console.log('battle move complete', from)
-        resolve()
-      })
-      .start()
-  })
+  if (op.op === 'RBYT') { await stackOps.RBYT(op) }
 }
-
-const battleAttackSequence = async (fromEntity, toEntity) => {
-  await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
-  await moveEntity(fromEntity.model, fromEntity.model.userData.defaultPosition, toEntity.model.userData.defaultPosition)
-  await Promise.all([
-    toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
-    fromEntity.model.userData.playAnimationOnce(8)
-  ])
-
-  fromEntity.model.scene.position.x = fromEntity.model.userData.defaultPosition.x
-  fromEntity.model.scene.position.z = fromEntity.model.userData.defaultPosition.z
-
-  await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
+const walkThroughEnemy1StackExample = async () => {
+  const script = window.currentBattle.scene.enemyScript1.main.script
+  for (const op of script) {
+    console.log('battle stack queue', 'op', op)
+    await executeOp(op)
+    await tweenSleep(1000)
+  }
 }
-
 const initBattleStack = async () => {
-  const battleConfig = window.currentBattle
-
-  await tweenSleep(1000)
-  battleAttackSequence(battleConfig.enemies[0], battleConfig.party[0])
+  stackOps.resetStack()
+  await walkThroughEnemy1StackExample()
+  // await initTestBattleSequence()
 }
 
 export { initBattleStack }

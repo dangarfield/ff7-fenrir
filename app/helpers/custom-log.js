@@ -10,7 +10,8 @@ window.console = (function (origConsole) {
       // 'executeOp',
       // 'joinLeader'
       'loadBattle',
-      'battle'
+      'battle',
+      'battleOP'
     ],
     log: function () {
       if (limit) {

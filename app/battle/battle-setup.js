@@ -35,7 +35,7 @@ const getBattleConfig = (battleId) => {
     setup: { ...scene.battleSetup[formationId] },
     enemies: [...scene.battleFormations[formationId]].filter(e => e.enemyId < 0xFFFF).map(e => {
       for (const i of [1, 2, 3]) {
-        console.log('battleData is', i, `enemyId${i}`, scene[`enemyId${i}`], e.enemyId)
+        // console.log('battleData is', i, `enemyId${i}`, scene[`enemyId${i}`], e.enemyId)
         if (scene[`enemyId${i}`] === e.enemyId) {
           e.enemyData = { ...scene[`enemyData${i}`] }
           e.enemyCode = enemyIdToEnemyCode(e.enemyId)
@@ -54,7 +54,7 @@ const getBattleConfig = (battleId) => {
   })
   battleData.party = party
 
-  console.log('battleData', battleData)
+  console.log('battle battleData', battleData)
   return battleData
 }
 

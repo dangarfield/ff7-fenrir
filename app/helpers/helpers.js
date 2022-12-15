@@ -38,8 +38,9 @@ const dec2bin = (dec) => {
   return (dec >>> 0).toString(2)
 }
 window.dec2bin = dec2bin
-const dec2hex = (dec) => {
-  return `0x${parseInt(dec).toString(16)}`
+const dec2hex = (dec, padding, rawWithSpaces) => {
+  const h = parseInt(dec).toString(16)
+  return `${!rawWithSpaces ? '0x' : ''}${padding ? h.padStart(padding, '0') : h}`
 }
 window.dec2hex = dec2hex
 const dec2hexPairs = (dec) => {
@@ -50,4 +51,4 @@ const dec2hexPairs = (dec) => {
 }
 window.dec2hexPairs = dec2hexPairs
 
-export { sleep, uuid, dec2bin, dec2hexPairs }
+export { sleep, uuid, dec2bin, dec2hex, dec2hexPairs }

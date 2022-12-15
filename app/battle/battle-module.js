@@ -30,18 +30,18 @@ const cleanSceneGroup = () => {
   // }
 }
 const preLoadBattle = async (battleId, options) => {
-  console.log('battle preload: START')
+  // console.log('battle preload: START')
   cleanSceneGroup()
   window.currentBattle = getBattleConfig(battleId) // TODO, add from random / world map etc
-  console.log('loadBattle', battleId, options)
+  // console.log('loadBattle', battleId, options)
   await importModels()
   await loadTempBattle2d(`${window.currentBattle.sceneId} - ${window.currentBattle.formationId}`)
 
   initBattleStack()
-  console.log('battle preload: END')
+  // console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {
-  console.log('battle loadBattle: START')
+  // console.log('battle loadBattle: START')
   startBattleRenderingLoop()
   return new Promise(resolve => {
     BATTLE_PROMISE = resolve
