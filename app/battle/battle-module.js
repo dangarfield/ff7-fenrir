@@ -7,7 +7,8 @@ import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
 import { getBattleConfig } from './battle-setup.js'
-import { initBattleStack } from './battle-stack.js'
+import { initBattleStackForActor } from './battle-stack.js'
+import { initAllVariables } from './battle-memory.js'
 
 let BATTLE_PROMISE
 
@@ -37,7 +38,8 @@ const preLoadBattle = async (battleId, options) => {
   await importModels()
   await loadTempBattle2d(`${window.currentBattle.sceneId} - ${window.currentBattle.formationId}`)
 
-  initBattleStack()
+  initAllVariables()
+  initBattleStackForActor(0) // TODO
   // console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {
