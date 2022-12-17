@@ -32,7 +32,7 @@ const renderLoop = function () {
     console.log('Stopping menu renderLoop')
     return
   }
-  requestAnimationFrame(renderLoop)
+  window.requestAnimationFrame(renderLoop)
   updateOnceASecond()
   MENU_TWEEN_GROUP.update()
   window.anim.renderer.clear()

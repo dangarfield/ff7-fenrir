@@ -1,5 +1,8 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive, applyMPTurbo, recalculateAndApplyHPMP } from '../battle/battle-stats.js'
+import {
+  currentMateriaLevel, getBattleStatsForChar, getEnemySkillFlagsWithSkills, isMPTurboActive,
+  applyMPTurbo, recalculateAndApplyHPMP, getArmorDataFromItemId, getWeaponDataFromItemId
+} from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 import { unequipMateria, arrangeMateria, trashMateria } from '../materia/materia-module.js'
 import {
@@ -281,8 +284,8 @@ const drawExchangeCharListOneItem = (group, i, page, x, y, yAdj) => {
   const rowAdj = 13
 
   const equips = [
-    ['Wpn.', window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots, EQUIPMENT_TYPE.WEAPON],
-    ['Arm.', window.data.kernel.armorData[char.equip.armor.index].materiaSlots, EQUIPMENT_TYPE.ARMOR]
+    ['Wpn.', getWeaponDataFromItemId(char.equip.weapon.itemId).materiaSlots, EQUIPMENT_TYPE.WEAPON],
+    ['Arm.', getArmorDataFromItemId(char.equip.armor.itemId).materiaSlots, EQUIPMENT_TYPE.ARMOR]
   ]
   addTextToDialog(
     charDialog,
@@ -870,8 +873,8 @@ const drawHeader = () => {
 
   // Equips
   const equips = [
-    ['Wpn.', DATA.char.equip.weapon.name, window.data.kernel.weaponData[DATA.char.equip.weapon.index].materiaSlots, EQUIPMENT_TYPE.WEAPON, 'Check'],
-    ['Arm.', DATA.char.equip.armor.name, window.data.kernel.armorData[DATA.char.equip.armor.index].materiaSlots, EQUIPMENT_TYPE.ARMOR, 'Arrange']
+    ['Wpn.', DATA.char.equip.weapon.name, getWeaponDataFromItemId(DATA.char.equip.weapon.itemId).materiaSlots, EQUIPMENT_TYPE.WEAPON, 'Check'],
+    ['Arm.', DATA.char.equip.armor.name, getArmorDataFromItemId(DATA.char.equip.armor.itemId).materiaSlots, EQUIPMENT_TYPE.ARMOR, 'Arrange']
   ]
   const yAdj = 26.5
 

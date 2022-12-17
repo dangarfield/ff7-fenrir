@@ -19,7 +19,7 @@ import {
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
-import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, getArmorDataFromItemId, getWeaponDataFromItemId } from '../battle/battle-stats.js'
 import { stopAllLimitBarTweens, stopAllLimitTextTweens } from './menu-limit-tween-helper.js'
 
 let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
@@ -314,14 +314,14 @@ const addPartyMemberStats = (char, battleStats) => {
   createEquipmentMateriaViewer(statsGroup,
     178.5,
     159,
-    window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
+    getWeaponDataFromItemId(char.equip.weapon.itemId).materiaSlots,
     char, EQUIPMENT_TYPE.WEAPON
 
   )
   createEquipmentMateriaViewer(statsGroup,
     178.5,
     159 + 32,
-    window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
+    getArmorDataFromItemId(char.equip.armor.itemId).materiaSlots,
     char, EQUIPMENT_TYPE.ARMOR
   )
 }

@@ -283,9 +283,9 @@ const recalculateAndApplyHPMPToAll = () => {
   }
 }
 const recalculateAndApplyHPMP = (char) => {
-  const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
-  const armorData = window.data.kernel.armorData[char.equip.armor.index]
-  const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
+  const weaponData = getWeaponDataFromItemId[char.equip.weapon.itemId]
+  const armorData = getArmorDataFromItemId(char.equip.armor.itemId)
+  const accessoryData = getAccessoryDataFromItemId(char.equip.accessory.itemId)
   const equippedItems = [weaponData, armorData, accessoryData]
   const statBonuses = groupStatBonuses(equippedItems, char.materia)
 
@@ -782,9 +782,9 @@ const calculateStatValue = (base, bonus, stat, statBonuses) => {
 }
 const getBattleStatsForChar = (char) => {
   // Temp equipment and materia override for testing
-  const weaponData = window.data.kernel.weaponData[char.equip.weapon.index]
-  const armorData = window.data.kernel.armorData[char.equip.armor.index]
-  const accessoryData = window.data.kernel.accessoryData[char.equip.accessory.index]
+  const weaponData = getWeaponDataFromItemId(char.equip.weapon.itemId)
+  const armorData = getArmorDataFromItemId(char.equip.armor.itemId)
+  const accessoryData = getAccessoryDataFromItemId(char.equip.accessory.itemId)
   const equippedItems = [weaponData, armorData, accessoryData]
   const equippedMateria = []
   for (const materiaSlot in char.materia) {
@@ -893,6 +893,15 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
+const getWeaponDataFromItemId = (itemId) => {
+  return window.data.kernel.weaponData.find(i => i.itemId === itemId)
+}
+const getArmorDataFromItemId = (itemId) => {
+  return window.data.kernel.armorData.find(i => i.itemId === itemId)
+}
+const getAccessoryDataFromItemId = (itemId) => {
+  return window.data.kernel.accessoryData.find(i => i.itemId === itemId)
+}
 export {
   recalculateAndApplyHPMPToAll,
   recalculateAndApplyHPMP,
@@ -900,5 +909,8 @@ export {
   currentMateriaLevel,
   getEnemySkillFlagsWithSkills,
   isMPTurboActive,
-  applyMPTurbo
+  applyMPTurbo,
+  getWeaponDataFromItemId,
+  getArmorDataFromItemId,
+  getAccessoryDataFromItemId
 }

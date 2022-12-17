@@ -20,7 +20,7 @@ import {
   createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
-import { getBattleStatsForChar } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, getWeaponDataFromItemId, getArmorDataFromItemId, getAccessoryDataFromItemId } from '../battle/battle-stats.js'
 import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
@@ -265,11 +265,11 @@ const drawSlots = (isFromList) => {
       growth = getGrowthText(equip.growthRate)
     }
   } else if (DATA.equipType === 0) {
-    const equip = window.data.kernel.weaponData[DATA.char.equip.weapon.index]
+    const equip = getWeaponDataFromItemId[DATA.char.equip.weapon.itemId]
     slots = equip.materiaSlots
     growth = getGrowthText(equip.growthRate)
   } else if (DATA.equipType === 1) {
-    const equip = window.data.kernel.armorData[DATA.char.equip.armor.index]
+    const equip = getArmorDataFromItemId(DATA.char.equip.armor.itemId)
     slots = equip.materiaSlots
     growth = getGrowthText(equip.growthRate)
   }

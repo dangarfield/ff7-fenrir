@@ -540,111 +540,111 @@ const KAWIW = async (entityId, op) => {
   return {}
 }
 
-setTimeout(async () => {
-  console.log('ANIM: STARTED')
+// setTimeout(async () => {
+//   console.log('ANIM: STARTED')
 
-  // await ANIME1('av_m', { a: 3, s: 1 })
+// await ANIME1('av_m', { a: 3, s: 1 })
 
-  // await SPLIT(3, {
-  //     "bx1": 0,
-  //     "by1": 0,
-  //     "bd1": 0,
-  //     "bx2": 0,
-  //     "by2": 0,
-  //     "bd2": 0,
-  //     "x1": -66,
-  //     "y1": -865,
-  //     "d1": 0,
-  //     "x2": -58,
-  //     "y2": -1341,
-  //     "d2": 128,
-  //     "s": 30,
-  // })
-  // await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
-  // await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
-  // window.data.savemap.party.members = ['Cloud', 'Barret', 'None']
-  // await JOIN(12, { s: 30 })
+// await SPLIT(3, {
+//     "bx1": 0,
+//     "by1": 0,
+//     "bd1": 0,
+//     "bx2": 0,
+//     "by2": 0,
+//     "bd2": 0,
+//     "x1": -66,
+//     "y1": -865,
+//     "d1": 0,
+//     "x2": -58,
+//     "y2": -1341,
+//     "d2": 128,
+//     "s": 30,
+// })
+// await LINE(12, { x1: -896, y1: 2166, z1: -274, x2: -512, y2: 2166, z2: -274 })
+// await LINE(13, { x1: -1601, y1: 1440, z1: -273, x2: -1797, y2: 4400, z2: -273 })
+// window.data.savemap.party.members = ['Cloud', 'Barret', 'None']
+// await JOIN(12, { s: 30 })
 
-  // await LINON('evb', { s: 1 })
-  // await sleep(2000)
-  // await SLINE('evb', {
-  //     x1: -910, y1: 1166, z1: -274, x2: -512, y2: 2166, z2: -274,
-  //     bx1: 0, by1: 0, bz1: 0, bx2: 0, by2: 0, bz2: 0
-  // })
-  // await LINE('KDLINE', { x1: 186, y1: -117, z1: -624, x2: 118, y2: -174, z2: -624 })
+// await LINON('evb', { s: 1 })
+// await sleep(2000)
+// await SLINE('evb', {
+//     x1: -910, y1: 1166, z1: -274, x2: -512, y2: 2166, z2: -274,
+//     bx1: 0, by1: 0, bz1: 0, bx2: 0, by2: 0, bz2: 0
+// })
+// await LINE('KDLINE', { x1: 186, y1: -117, z1: -624, x2: 118, y2: -174, z2: -624 })
 
-  // await DIR(1, { b: 0, d: 255 / 4 * 3 })
+// await DIR(1, { b: 0, d: 255 / 4 * 3 })
 
-  // await MOVE(2, { b1: 0, b2: 0, x: 3607, y: 27712 })
-  // await MOVE(2, { b1: 0, b2: 0, x: 3836, y: 29295 })
-  // await MOVE(2, { b1: 0, b2: 0, x: 3578, y: 29360 })
+// await MOVE(2, { b1: 0, b2: 0, x: 3607, y: 27712 })
+// await MOVE(2, { b1: 0, b2: 0, x: 3836, y: 29295 })
+// await MOVE(2, { b1: 0, b2: 0, x: 3578, y: 29360 })
 
-  // await MSPED('ba', { b: 0, s: 2560 })
-  // await MOVE('ba', { b1: 0, b2: 0, x: 1526, y: 1302 })
-  // await MOVE('ba', { b1: 0, b2: 0, x: 1126, y: 1872 })
-  // await MOVE('ba', { b1: 0, b2: 0, x: 1355, y: 3376 })
+// await MSPED('ba', { b: 0, s: 2560 })
+// await MOVE('ba', { b1: 0, b2: 0, x: 1526, y: 1302 })
+// await MOVE('ba', { b1: 0, b2: 0, x: 1126, y: 1872 })
+// await MOVE('ba', { b1: 0, b2: 0, x: 1355, y: 3376 })
 
-  // await OFST('drL', { b1: 0, b2: 0, b3: 0, b4: 0, x: -202, y: 0, z: 0, s: 500, t: 1 })
-  // await OFST('drR', { b1: 0, b2: 0, b3: 0, b4: 0, x: 184, y: 0, z: 0, s: 500, t: 1 })
-  // console.log('triggered')
-  // await OFSTW('drL')
-  // await OFSTW('drR')
-  // console.log('complete')
-  // await VISI('av_m', { s: 1 })
-  // await FCFIX('av_m', { e: 1 })
-  // await ANIME1('av_m', { a: 3, s: 1 })
-  // await sleep(1000 / 30 * 8)
-  // await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
-  // await sleep(1000 / 30 * 10)
-  // await ANIME1('av_m', { a: 4, s: 1 })
-  // await DIR('av_m', { b: 0, d: 104 })
-  // await sleep(1000 / 30 * 100)
-  // // // Do the rest
-  // await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
-  // await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
-  // await MOVA('av_m', { e: 1 })
+// await OFST('drL', { b1: 0, b2: 0, b3: 0, b4: 0, x: -202, y: 0, z: 0, s: 500, t: 1 })
+// await OFST('drR', { b1: 0, b2: 0, b3: 0, b4: 0, x: 184, y: 0, z: 0, s: 500, t: 1 })
+// console.log('triggered')
+// await OFSTW('drL')
+// await OFSTW('drR')
+// console.log('complete')
+// await VISI('av_m', { s: 1 })
+// await FCFIX('av_m', { e: 1 })
+// await ANIME1('av_m', { a: 3, s: 1 })
+// await sleep(1000 / 30 * 8)
+// await TURNGEN('av_m', { b: 0, r: 232, d: 2, s: 10, t: 1 })
+// await sleep(1000 / 30 * 10)
+// await ANIME1('av_m', { a: 4, s: 1 })
+// await DIR('av_m', { b: 0, d: 104 })
+// await sleep(1000 / 30 * 100)
+// // // Do the rest
+// await MOVE('av_m', { b1: 0, b2: 0, x: 3836, y: 29295 })
+// await MOVE('av_m', { b1: 0, b2: 0, x: 3578, y: 29360 })
+// await MOVA('av_m', { e: 1 })
 
-  // window.data.savemap.party.members = ['Cloud', 'None', 'None']
-  // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
-  // await DIR('cl', { b: 0, d: 128 })
-  // await VISI('cl', { s: 1 })
+// window.data.savemap.party.members = ['Cloud', 'None', 'None']
+// await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
+// await DIR('cl', { b: 0, d: 128 })
+// await VISI('cl', { s: 1 })
 
-  // await GETDIR('av_m', { e: 1, b: 6, a: 1 })
-  // await GETDIR('av_m', { e: 6, b: 6, a: 3 })
-  // await PGTDR('av_m', { p: 0, b: 6, d: 5 })
+// await GETDIR('av_m', { e: 1, b: 6, a: 1 })
+// await GETDIR('av_m', { e: 6, b: 6, a: 3 })
+// await PGTDR('av_m', { p: 0, b: 6, d: 5 })
 
-  // // await PMOVA('av_m', { p: 0 })
-  // // await PDIRA('av_m', { c: 12 })
-  // // await DIRA('av_m', { e: 2 })
-  // await PTURA('av_m', { p: 0, a: 2, s: 2 })
-  // await sleep(1000)
-  // await TURA('av_m', { g: 2, d: 2, s: 2 })
+// // await PMOVA('av_m', { p: 0 })
+// // await PDIRA('av_m', { c: 12 })
+// // await DIRA('av_m', { e: 2 })
+// await PTURA('av_m', { p: 0, a: 2, s: 2 })
+// await sleep(1000)
+// await TURA('av_m', { g: 2, d: 2, s: 2 })
 
-  // await ANIM_2(9, { a: 5, s: 1 })
-  // await ANIMW('av_m')
-  // await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
-  // await sleep(1000)
-  // await ANIMB('av_m', {})
-  // await ANIMW('av_m', {})
+// await ANIM_2(9, { a: 5, s: 1 })
+// await ANIMW('av_m')
+// await CANM_2('av_m', { a: 4, s: 1, f: 10, l: 30 })
+// await sleep(1000)
+// await ANIMB('av_m', {})
+// await ANIMW('av_m', {})
 
-  // window.data.savemap.party.members = ['Cloud', 'None', 'None']
+// window.data.savemap.party.members = ['Cloud', 'None', 'None']
 
-  // await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
-  // await DIR('cl', { b: 0, d: 128 })
-  // await VISI('cl', { s: 1 })
-  // await UC('cl', { s: 0 })
-  // await CC('cl', { e: 1 })
-  // await IDLCK('cl', { i: 21, s: 1 })
-  // console.log('ANIM: ENDED')
-  // setInterval(async () => {
-  // console.log('5,18 -> ', window.getBankData(5, 18), '6,9 -> ', window.getBankData(6, 9))
-  //     await GETAI('cl', { b: 6, a: 4, e: 1 })
-  //     await GETAXY('cl', { bx: 6, x: 1, by: 6, y: 3, e: 1 })
-  //     await AXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, a: 1 })
-  //     await PXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, p: 0 })
-  // }, 1000);
-  // console.log('triangleTarget', getBankData(6, 9))
-}, 11000)
+// await XYZI('cl', { b1: 0, b2: 0, b3: 0, b4: 0, x: 3655, y: 27432, z: 310, i: 25 })
+// await DIR('cl', { b: 0, d: 128 })
+// await VISI('cl', { s: 1 })
+// await UC('cl', { s: 0 })
+// await CC('cl', { e: 1 })
+// await IDLCK('cl', { i: 21, s: 1 })
+// console.log('ANIM: ENDED')
+// setInterval(async () => {
+// console.log('5,18 -> ', window.getBankData(5, 18), '6,9 -> ', window.getBankData(6, 9))
+//     await GETAI('cl', { b: 6, a: 4, e: 1 })
+//     await GETAXY('cl', { bx: 6, x: 1, by: 6, y: 3, e: 1 })
+//     await AXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, a: 1 })
+//     await PXYZI('cl', { b1: 6, x: 5, b2: 6, y: 7, b3: 6, z: 9, b4: 6, i: 11, p: 0 })
+// }, 1000);
+// console.log('triangleTarget', getBankData(6, 9))
+// }, 11000)
 
 export {
   JOIN,

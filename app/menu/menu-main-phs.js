@@ -19,6 +19,7 @@ import {
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
+import { getArmorDataFromItemId, getWeaponDataFromItemId } from '../battle/battle-stats.js'
 
 let titleDialog, headerDialog, partyDialog, membersDialog, equipmentDialog, charPreviewDialog
 let titleGroup, headerGroup, partyGroup, membersGroup, equipmentGroup, charPreviewGroup
@@ -401,13 +402,13 @@ const drawEquipment = (charName) => {
     createEquipmentMateriaViewer(equipmentGroup,
       197,
       157,
-      window.data.kernel.weaponData[char.equip.weapon.index].materiaSlots,
+      getWeaponDataFromItemId(char.equip.weapon.itemId).materiaSlots,
       char, EQUIPMENT_TYPE.WEAPON
     )
     createEquipmentMateriaViewer(equipmentGroup,
       197,
       157 + 32,
-      window.data.kernel.armorData[char.equip.armor.index].materiaSlots,
+      getArmorDataFromItemId(char.equip.armor.itemId).materiaSlots,
       char, EQUIPMENT_TYPE.ARMOR
     )
   }
