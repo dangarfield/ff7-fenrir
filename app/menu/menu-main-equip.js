@@ -20,7 +20,7 @@ import {
   createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
-import { getBattleStatsForChar, getWeaponDataFromItemId, getArmorDataFromItemId, getAccessoryDataFromItemId } from '../battle/battle-stats.js'
+import { getBattleStatsForChar, getWeaponDataFromItemId, getArmorDataFromItemId } from '../battle/battle-stats.js'
 import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
@@ -181,9 +181,9 @@ const drawHeader = () => {
   )
   // Equips
   const equips = [
-    ['Wpn.', DATA.char.equip.weapon.index < 255 ? DATA.char.equip.weapon.name : ''],
-    ['Arm.', DATA.char.equip.armor.index < 255 ? DATA.char.equip.armor.name : ''],
-    ['Acc.', DATA.char.equip.accessory.index < 255 ? DATA.char.equip.accessory.name : '']
+    ['Wpn.', DATA.char.equip.weapon.name ? DATA.char.equip.weapon.name : ''],
+    ['Arm.', DATA.char.equip.armor.name ? DATA.char.equip.armor.name : ''],
+    ['Acc.', DATA.char.equip.accessory.name ? DATA.char.equip.accessory.name : '']
   ]
 
   for (let i = 0; i < equips.length; i++) {
@@ -265,7 +265,8 @@ const drawSlots = (isFromList) => {
       growth = getGrowthText(equip.growthRate)
     }
   } else if (DATA.equipType === 0) {
-    const equip = getWeaponDataFromItemId[DATA.char.equip.weapon.itemId]
+    // const equip = getWeaponDataFromItemId[DATA.char.equip.weapon.itemId] // This doesn't work?!?! WHY?!?!
+    const equip = window.data.kernel.weaponData.find(i => i.itemId === DATA.char.equip.weapon.itemId)
     slots = equip.materiaSlots
     growth = getGrowthText(equip.growthRate)
   } else if (DATA.equipType === 1) {

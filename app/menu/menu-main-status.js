@@ -281,9 +281,9 @@ const addPartyMemberStats = (char, battleStats) => {
 
   // Equips
   const equips = [
-    ['Wpn :', char.equip.weapon.index < 255 ? char.equip.weapon.name : ''],
-    ['Arm :', char.equip.armor.index < 255 ? char.equip.armor.name : ''],
-    ['Acc :', char.equip.accessory.index < 255 ? char.equip.accessory.name : '']
+    ['Wpn :', char.equip.weapon.name ? char.equip.weapon.name : ''],
+    ['Arm :', char.equip.armor.name ? char.equip.armor.name : ''],
+    ['Acc :', char.equip.accessory.name ? char.equip.accessory.name : '']
   ]
 
   for (let i = 0; i < equips.length; i++) {

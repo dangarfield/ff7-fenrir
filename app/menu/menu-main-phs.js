@@ -369,9 +369,9 @@ const drawEquipment = (charName) => {
 
     // Equips
     const equips = [
-      ['Wpn.', char.equip.weapon.index < 255 ? char.equip.weapon.name : ''],
-      ['Arm.', char.equip.armor.index < 255 ? char.equip.armor.name : ''],
-      ['Acc.', char.equip.accessory.index < 255 ? char.equip.accessory.name : '']
+      ['Wpn.', char.equip.weapon.name ? char.equip.weapon.name : ''],
+      ['Arm.', char.equip.armor.name ? char.equip.armor.name : ''],
+      ['Acc.', char.equip.accessory.name ? char.equip.accessory.name : '']
     ]
 
     for (let i = 0; i < equips.length; i++) {
@@ -600,7 +600,7 @@ const exitMenu = async () => {
 const keyPress = async (key, firstPress, state) => {
   console.log('press MAIN MENU PHS', key, firstPress, state)
   if (state === 'phs') {
-
+    //
   }
   if (state === 'phs-select-a') {
     if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
