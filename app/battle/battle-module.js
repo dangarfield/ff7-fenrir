@@ -6,7 +6,7 @@ import {
 import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
-import { getBattleConfig } from './battle-setup.js'
+import { setupBattle } from './battle-setup.js'
 import { initBattleStackForActor } from './battle-stack.js'
 import { initAllVariables } from './battle-memory.js'
 
@@ -33,10 +33,10 @@ const cleanSceneGroup = () => {
 const preLoadBattle = async (battleId, options) => {
   // console.log('battle preload: START')
   cleanSceneGroup()
-  window.currentBattle = getBattleConfig(battleId) // TODO, add from random / world map etc
+  const currentBattle = setupBattle(battleId) // TODO, add from random / world map etc
   // console.log('loadBattle', battleId, options)
-  await importModels()
-  await loadTempBattle2d(`${window.currentBattle.sceneId} - ${window.currentBattle.formationId}`)
+  await importModels(currentBattle)
+  await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
 
   initAllVariables()
   initBattleStackForActor(0) // TODO

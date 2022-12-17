@@ -44,10 +44,10 @@ const battleAttackSequence = async (fromEntity, toEntity) => {
 const initTestBattleSequence = async () => {
   const battleConfig = window.currentBattle
   await tweenSleep(1000)
-  await battleAttackSequence(battleConfig.enemies[0], battleConfig.party[0])
-  await battleAttackSequence(battleConfig.enemies[0], battleConfig.party[0])
-  await battleAttackSequence(battleConfig.enemies[0], battleConfig.party[0])
-  await battleAttackSequence(battleConfig.enemies[0], battleConfig.party[0])
+  await battleAttackSequence(battleConfig.actors[4], battleConfig.actors[0])
+  await battleAttackSequence(battleConfig.actors[5], battleConfig.actors[0])
+  await battleAttackSequence(battleConfig.actors[4], battleConfig.actors[1])
+  await battleAttackSequence(battleConfig.actors[5], battleConfig.actors[1])
 }
 
 export {

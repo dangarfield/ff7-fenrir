@@ -79,81 +79,66 @@ const addShadow = (model) => {
   }
   model.scene.children[0].add(shadow)
 }
-
-const importModels = async () => {
-  const battleConfig = window.currentBattle
-  const modelsToFind = [battleConfig.setup.locationCode, ...battleConfig.enemies.map(e => e.enemyCode), ...battleConfig.party.map(m => m.modelCode)]
+const memberPositions = {
+  x: {
+    1: [0],
+    2: [-800, 800],
+    3: [-1500, 0, 1500]
+  },
+  row: [-1600, -2100]
+}
+const importModels = async (currentBattle) => {
+  const modelsToFind = [currentBattle.setup.locationCode, ...currentBattle.actors.filter(a => a.modelCode).map(a => a.modelCode)]
   const modelsFound = await Promise.all(modelsToFind.map(code => loadModelWithAnimationBindings(code)))
   const locationModel = modelsFound.shift()
+  locationModel.name = 'location'
   // console.log('battle locationModel', locationModel)
-  battleConfig.models = [locationModel]
+  currentBattle.models = [locationModel]
 
   sceneGroup.add(locationModel.scene)
-  for (const enemy of battleConfig.enemies) {
+
+  for (const [i, actor] of currentBattle.actors.entries()) {
+    if (!actor.active) continue
     const model = modelsFound.shift()
-    model.name = enemy
-    // There is position in the animations too, but not always the same amount, test with this for a start
+    model.name = actor.data.name
     model.initialY = model.animations[0].tracks[0].values[1]
-    battleConfig.models.push(model)
+    currentBattle.models.push(model)
     sceneGroup.add(model.scene)
-
-    enemy.model = model
-
-    model.userData.defaultPosition = {
-      x: enemy.position.x,
-      y: enemy.position.y - model.initialY,
-      z: -enemy.position.z // TODO - Row
+    actor.model = model
+    if (actor.type === 'player') {
+      model.userData.defaultPosition = {
+        x: memberPositions.x['3'][i],
+        y: -model.initialY,
+        z: memberPositions.row[0] // TODO - Row
+      }
+    } else {
+      model.userData.defaultPosition = {
+        x: actor.initialData.position.x,
+        y: actor.initialData.position.y - model.initialY,
+        z: -actor.initialData.position.z // TODO - Row
+      }
+      model.scene.rotation.y = Math.PI
     }
-    // model.userData.
 
     model.scene.position.x = model.userData.defaultPosition.x
     model.scene.position.y = model.userData.defaultPosition.y
     model.scene.position.z = model.userData.defaultPosition.z
-    model.scene.rotation.y = Math.PI
-    // console.log('battle', 'enemy', model.scene, enemy.position)
+
     model.userData.playAnimation(0)
     addShadow(model)
-  }
 
-  const memberPositions = {
-    x: {
-      1: [0],
-      2: [-800, 800],
-      3: [-1500, 0, 1500]
-    },
-    row: [-1600, -2100]
-  }
-  for (const [i, member] of battleConfig.party.entries()) {
-    const model = modelsFound.shift()
-    model.name = member
-    model.initialY = model.animations[0].tracks[0].values[1]
-    battleConfig.models.push(model)
-    sceneGroup.add(model.scene)
-    member.model = model
-
-    model.userData.defaultPosition = {
-      x: memberPositions.x[battleConfig.party.length][i],
-      y: -model.initialY,
-      z: memberPositions.row[0] // TODO - Row
-    }
-    model.scene.position.x = model.userData.defaultPosition.x
-    model.scene.position.y = model.userData.defaultPosition.y
-    model.scene.position.z = model.userData.defaultPosition.z
-    // console.log('battle', 'member', model, model.position)
     if (i === 0) window.bm = model
-    model.userData.playAnimation(0)
-    addShadow(model)
   }
 
   // Set default camera
 
   // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
-  window.battleDebugCamera.position.x = battleConfig.scene.cameraPlacement['0'].camera1.pos.x
-  window.battleDebugCamera.position.y = -battleConfig.scene.cameraPlacement['0'].camera1.pos.y
-  window.battleDebugCamera.position.z = -battleConfig.scene.cameraPlacement['0'].camera1.pos.z
-  window.battleDebugCamera.controls.target.x = battleConfig.scene.cameraPlacement['0'].camera1.dir.x
-  window.battleDebugCamera.controls.target.y = -battleConfig.scene.cameraPlacement['0'].camera1.dir.y
-  window.battleDebugCamera.controls.target.z = -battleConfig.scene.cameraPlacement['0'].camera1.dir.z
+  window.battleDebugCamera.position.x = currentBattle.scene.cameraPlacement['0'].camera1.pos.x
+  window.battleDebugCamera.position.y = -currentBattle.scene.cameraPlacement['0'].camera1.pos.y
+  window.battleDebugCamera.position.z = -currentBattle.scene.cameraPlacement['0'].camera1.pos.z
+  window.battleDebugCamera.controls.target.x = currentBattle.scene.cameraPlacement['0'].camera1.dir.x
+  window.battleDebugCamera.controls.target.y = -currentBattle.scene.cameraPlacement['0'].camera1.dir.y
+  window.battleDebugCamera.controls.target.z = -currentBattle.scene.cameraPlacement['0'].camera1.dir.z
 }
 
 export { importModels, tempSlow }

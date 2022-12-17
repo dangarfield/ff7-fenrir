@@ -8,6 +8,8 @@ import {
   setActorValue,
   logMemory as logMemoryMemory
 } from './battle-memory.js'
+import { currentBattle } from './battle-setup.js'
+
 const TYPES = { VALUE: 'value', ADDRESS: 'address', MULTI: 'multi' }
 const LENGTH = { BIT: 'bit', BYTE: 'byte', BYTE2: 'byte2', BYTE4: 'byte4' }
 const stack = []
@@ -401,7 +403,7 @@ const MPCT = async (op) => { // 86
   if (attackId <= 0x7F) {
     mp = window.data.kernel.attackData[attackId].mp
   } else {
-    mp = window.currentBattle.scene.attackData.find(a => a.id === attackId).mp
+    mp = currentBattle.attackData.find(a => a.id === attackId).mp
   }
   // TODO Should this take into consideration MP reduce / boosting factors for the actors, I assume so
   stack.push({ t: TYPES.VALUE, l: LENGTH.BYTE2, v: mp, vhex: dec2hex(mp, 4, true) })

@@ -30,7 +30,7 @@ const initBattleStackForActor = async (index) => {
   stackOps.setCurrentActorIndex(0)
   stackOps.resetStack()
   await walkThroughEnemy1StackExample()
-  // await initTestBattleSequence()
+  await initTestBattleSequence()
 }
 
 export { initBattleStackForActor }
