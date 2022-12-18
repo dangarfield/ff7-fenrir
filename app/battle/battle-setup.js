@@ -1,3 +1,5 @@
+import { getBattleStatsForChar } from './battle-stats.js'
+
 let currentBattle = {}
 
 const locationIdToLocationCode = (i) => {
@@ -26,11 +28,84 @@ const characterNameToModelCode = (name) => {
   // TODO - Othe chars, special frog, vincent limits, sephiroth, weapons, multiple barret?
   return window.data.exe.battleCharacterModels.find(m => m.name === modelName).hrc
 }
+const calculateATBInitial = (currentBattle) => {
+  // Calcuate Initial ATB Values
+  // https://forums.qhimm.com/index.php?topic=7853.0
+  const battleLayoutType = currentBattle.setup.battleLayoutType
+  const actors = currentBattle.actors
+  actors.forEach(a => {
+    if (a.active) {
+      a.atbRandom = Math.floor(Math.random() * 0xFFFF)
+    }
+  })
+  const maxRandom = Math.max(...actors.filter(a => a.active).map(a => a.atbRandom))
+
+  if (battleLayoutType === 'Preemptive' || battleLayoutType === 'SideAttack1') {
+    // Player advantage
+    actors.forEach(a => {
+      if (a.type === 'player') {
+        a.atb = { initial: 0xFFFE }
+      } else {
+        a.atb = { initial: Math.floor(a.atbRandom / 8) }
+      }
+      delete a.atbRandom
+    })
+  } else if (battleLayoutType === 'BackAttack' || battleLayoutType === 'PincerAttack') {
+    // Enemy advantage
+    actors.forEach(a => {
+      if (a.type === 'player') {
+        a.atb = { initial: 0x0 }
+      } else {
+        a.atb = { initial: Math.min(0xFFFE, a.atbRandom + 0xF000) }
+      }
+      delete a.atbRandom
+    })
+  } else {
+    // battleLayoutType === 'Normal' || battleLayoutType === 'SideAttack2' // Normal Attack
+    // battleLayoutType === 'SideAttack3' || battleLayoutType === 'SideAttack4' || battleLayoutType === 'NormalLockFrontRow'  // Unknown, ignore now
+
+    // Normal
+    actors.forEach(a => {
+      if (a.active) {
+        a.atb = { initial: Math.max(0, a.atbRandom + 0xe000 - maxRandom) }
+        delete a.atbRandom
+      }
+    })
+    console.log('actors', actors)
+  }
+
+  // Calcuate ATB Increment Values
+  const numInParty = currentBattle.actors.filter(a => a.type === 'player').length
+  const partyDexterty = 100// currentBattle.actors.filter(a => a.type === 'player').map(a => a.data.stats.dexterity).reduce((tot, a) => tot + a, 0)
+  currentBattle.setup.atb = {
+    battleSpeed: 0x10000 / (((window.data.savemap.config.battleSpeed * 0x1e0 / 0x100) + 0x78) * 2),
+    maxRandom,
+    numInParty,
+    partyDexterty
+  }
+  for (const actor of actors) {
+    if (!actor.active) continue
+    calculateATBIncrementValue(currentBattle, actor)
+  }
+}
+const calculateATBIncrementValue = (currentBattle, actor) => {
+  const actorSpeedModifier = 2 // [1-slow|2-normal|4-haste]
+  const dexterityWithBonuses = actor.type === 'player'
+    ? 50 + 0x32 // actor.battleStats.dexterity + 0x32 // player
+    : actor.data.dexterity // enemy
+
+  const incrementValue = currentBattle.setup.atb.battleSpeed * actorSpeedModifier * dexterityWithBonuses /
+  (((currentBattle.setup.atb.partyDexterty - 1 + currentBattle.setup.atb.numInParty) / currentBattle.setup.atb.numInParty + 32)) // this 32?!
+
+  actor.atb.incrementValue = incrementValue
+
+  // const battleSpeed = asds
+}
 const setupBattle = (battleId) => {
   const sceneId = Math.floor(battleId / 4)
   const formationId = battleId % 4
   const scene = { ...window.data.sceneData.find(s => s.sceneId === sceneId) }
-  const battleData = {
+  currentBattle = {
     sceneId,
     formationId,
     scene, // temp - remove after
@@ -41,21 +116,25 @@ const setupBattle = (battleId) => {
   // window.data.savemap.party.members[1] = 'None' // Temp
   for (const partyMember of window.data.savemap.party.members) {
     if (partyMember === 'None') {
-      battleData.actors.push({ active: false })
+      currentBattle.actors.push({ active: false })
     } else {
-      battleData.actors.push({
+      const data = { ...window.data.savemap.characters[partyMember] }
+      const battleStats = getBattleStatsForChar(data)
+
+      currentBattle.actors.push({
         active: true,
-        data: { ...window.data.savemap.characters[partyMember] },
+        data,
+        battleStats,
         modelCode: characterNameToModelCode(partyMember),
         type: 'player'
       })
     }
   }
-  battleData.actors.push({ active: false }) // Battle Actor that hod formation AI
+  currentBattle.actors.push({ active: false }) // Battle Actor that hod formation AI
 
   for (const enemy of scene.battleFormations[formationId]) {
     if (enemy.enemyId === 0xFFFF) {
-      battleData.actors.push({ active: false })
+      currentBattle.actors.push({ active: false })
     } else {
       let enemyData
       let script
@@ -71,7 +150,7 @@ const setupBattle = (battleId) => {
         enemyData = { ...scene.enemyData3 }
         script = { ...scene.enemyScript1 }
       }
-      battleData.actors.push({
+      currentBattle.actors.push({
         active: true,
         initialData: enemy,
         data: enemyData,
@@ -82,12 +161,13 @@ const setupBattle = (battleId) => {
     }
   }
 
-  battleData.setup.locationCode = locationIdToLocationCode(battleData.setup.locationId)
+  currentBattle.setup.locationCode = locationIdToLocationCode(currentBattle.setup.locationId)
 
-  currentBattle = battleData
-  window.currentBattle = battleData
-  console.log('battle battleData', battleData)
-  return battleData
+  calculateATBInitial(currentBattle)
+
+  window.currentBattle = currentBattle
+  console.log('battle currentBattle', currentBattle)
+  return currentBattle
 }
 
 export { setupBattle, currentBattle }
