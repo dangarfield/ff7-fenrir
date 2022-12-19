@@ -10,11 +10,10 @@ import {
 } from './battle-memory.js'
 import { currentBattle } from './battle-setup.js'
 import { placeholderBattleAttackSequence } from './battle-actions.js'
+import { executeAllPreActionSetupScripts } from './battle-stack.js'
 
 const TYPES = { VALUE: 'value', ADDRESS: 'address', MULTI: 'multi' }
 const LENGTH = { BIT: 'bit', BYTE: 'byte', BYTE2: 'byte2', BYTE4: 'byte4' }
-const stack = []
-let currentActorIndex = 0
 
 /*
 https://pastebin.com/raw/mjfRFNsZ
@@ -28,13 +27,7 @@ https://faqs.neoseeker.com/Games/PS4/final_fantasy_vii_dynamixdj.txt
 */
 
 // Utils
-const setCurrentActorIndex = (newIndex) => {
-  currentActorIndex = newIndex
-}
-const resetStack = () => {
-  stack.length = 0
-}
-const logStack = () => {
+const logStack = (stack) => {
   console.log('battleOP STACK', stack.map(s => JSON.stringify(s)))
 }
 const logMemory = () => logMemoryMemory()
@@ -87,7 +80,7 @@ const testArray12Bits = [
 ]
 
 // 0x: LOAD VALUES
-const PSHA = async (op) => { // 00, 01, 02, 03
+const PSHA = async (stack, op, currentActorIndex) => { // 00, 01, 02, 03
   console.log('battleOP PSHA', op)
   const l = getLengthFromOpType(op.type)
   const address = op.arg
@@ -108,7 +101,7 @@ const PSHA = async (op) => { // 00, 01, 02, 03
 }
 
 // 1x: LOAD ADDRESSES
-const PUSH = async (op) => { // 10, 11, 12, 13
+const PUSH = async (stack, op) => { // 10, 11, 12, 13
   console.log('battleOP PUSH', op)
   const l = getLengthFromOpType(op.type)
   stack.push({ t: TYPES.ADDRESS, l, v: op.arg, vhex: dec2hex(op.arg, 4, true) })
@@ -116,35 +109,35 @@ const PUSH = async (op) => { // 10, 11, 12, 13
 }
 
 // 3x: OPERATORS // TODO - what happens with different lengths here? If 2x is present etc
-const ADD = async (op) => { // 30
+const ADD = async (stack, op) => { // 30
   console.log('battleOP ADD', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v + y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const SUB = async (op) => { // 31
+const SUB = async (stack, op) => { // 31
   console.log('battleOP SUB', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v - y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const MUL = async (op) => { // 32
+const MUL = async (stack, op) => { // 32
   console.log('battleOP MUL', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v * y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const DIV = async (op) => { // 33
+const DIV = async (stack, op) => { // 33
   console.log('battleOP MUL', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v * y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const MOD = async (op) => { // 34
+const MOD = async (stack, op) => { // 34
   console.log('battleOP MOD', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v % y.v
@@ -152,21 +145,21 @@ const MOD = async (op) => { // 34
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const BAND = async (op) => { // 35
+const BAND = async (stack, op) => { // 35
   console.log('battleOP BAND', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v & y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const BOR = async (op) => { // 36
+const BOR = async (stack, op) => { // 36
   console.log('battleOP BOR', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v | y.v
   stack.push({ t: getBiggestType(x, y), l: getBiggestLength(x, y), v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const BNOT = async (op) => { // 37
+const BNOT = async (stack, op) => { // 37
   console.log('battleOP BNOT', op)
   const x = stack.pop()
   const z = ~x.v
@@ -179,42 +172,42 @@ const BNOT = async (op) => { // 37
 //  the variables that passed the comparison (yes, I'm aware that objects are identified with '2x'-Vars, but this is
 //  precisely what it appears to do... it doesn't matter much in the end though, as you'll see....)
 
-const EQU = async (op) => { // 40
+const EQU = async (stack, op) => { // 40
   console.log('battleOP EQU', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v == y.v // eslint-disable-line eqeqeq
   stack.push({ t: x.t, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const NEQU = async (op) => { // 41
+const NEQU = async (stack, op) => { // 41
   console.log('battleOP NEQU', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v != y.v // eslint-disable-line eqeqeq
   stack.push({ t: x.t, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const GEQU = async (op) => { // 42
+const GEQU = async (stack, op) => { // 42
   console.log('battleOP GEQU', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v >= y.v // eslint-disable-line eqeqeq
   stack.push({ t: x.t, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const LEQU = async (op) => { // 43
+const LEQU = async (stack, op) => { // 43
   console.log('battleOP LEQU', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v <= y.v // eslint-disable-line eqeqeq
   stack.push({ t: x.t, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const GRTN = async (op) => { // 44
+const GRTN = async (stack, op) => { // 44
   console.log('battleOP GRTN', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v > y.v // eslint-disable-line eqeqeq
   stack.push({ t: x.t, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const LSTN = async (op) => { // 45
+const LSTN = async (stack, op) => { // 45
   console.log('battleOP GRTN', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v < y.v // eslint-disable-line eqeqeq
@@ -223,21 +216,21 @@ const LSTN = async (op) => { // 45
 }
 
 // 5x: LOGICAL OPERATORS
-const AND = async (op) => { // 50
+const AND = async (stack, op) => { // 50
   console.log('battleOP AND', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v != 0 && y.v != 0 ? 0b1 : 0b0 // eslint-disable-line eqeqeq
   stack.push({ t: TYPES.VALUE, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const OR = async (op) => { // 51
+const OR = async (stack, op) => { // 51
   console.log('battleOP OR', op)
   const y = stack.pop(); const x = stack.pop()
   const z = x.v != 0 || y.v != 0 ? 0b1 : 0b0 // eslint-disable-line eqeqeq
   stack.push({ t: TYPES.VALUE, l: LENGTH.BIT, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const NOT = async (op) => { // 52
+const NOT = async (stack, op) => { // 52
   console.log('battleOP NOT', op)
   const x = stack.pop()
   const z = x.v == 0 ? 0b1 : 0b0 // eslint-disable-line eqeqeq
@@ -246,7 +239,7 @@ const NOT = async (op) => { // 52
 }
 
 // 6x: CONSTANTS
-const PUSHV = async (op) => { // 60, 61, 62
+const PUSHV = async (stack, op) => { // 60, 61, 62
   console.log('battleOP PUSHV', op)
   let l = LENGTH.BYTE
   if (op.length == 2) l = LENGTH.BYTE2 // eslint-disable-line eqeqeq
@@ -257,7 +250,7 @@ const PUSHV = async (op) => { // 60, 61, 62
 }
 
 // 7x: JUMPS
-const JMP0 = async (op) => { // 70
+const JMP0 = async (stack, op) => { // 70
   console.log('battleOP JMP0', op)
   const x = stack.pop()
   if (x.v == 0) { // eslint-disable-line eqeqeq
@@ -269,7 +262,7 @@ const JMP0 = async (op) => { // 70
     return {}
   }
 }
-const JNEQ = async (op) => { // 71
+const JNEQ = async (stack, op) => { // 71
   console.log('battleOP JNEQ', op)
   const x = stack.pop()
   const [y] = stack.slice(-1)
@@ -285,22 +278,22 @@ const JNEQ = async (op) => { // 71
     return {}
   }
 }
-const JUMP = async (op) => { // 72
+const JUMP = async (stack, op) => { // 72
   console.log('battleOP JUMP', op)
   console.log('battleOP JUMP - Jumping', op)
   // TODO - Manage Jumps - return will be {next: arg}
   return { next: op.arg }
 }
-const END = async (op) => { // 73
+const END = async (stack, op) => { // 73
   console.log('battleOP END', op)
   return { exit: true }
 }
-const POP = async (op) => { // 74
+const POP = async (stack, op) => { // 74
   console.log('battleOP POP', op)
   stack.pop()
   return {}
 }
-const LINK = async (op) => { // 75
+const LINK = async (stack, op) => { // 75
   console.log('battleOP LINK', op)
   stack.pop()
   // TODO - will store the value of that Var as a byte into [008F4E3D]
@@ -309,7 +302,7 @@ const LINK = async (op) => { // 75
 
 // 8x: MATH LOGIC
 // TODO - Need to adjust is any values are of 2x
-const MASK = async (op) => { // 80
+const MASK = async (stack, op) => { // 80
   console.log('battleOP MASK', op)
   // Absolutely *NOTHING* happens (not even popping variables off) if 'y' is a '1x'-type Var
   const [potential] = stack.slice(-1) // Is this y or x ??
@@ -322,13 +315,13 @@ const MASK = async (op) => { // 80
   stack.push({ t: y.t, l: y.l, v: z, vhex: dec2hex(z, 6, true) })
   return {}
 }
-const RWRD = async (op) => { // 81
+const RWRD = async (stack, op) => { // 81
   console.log('battleOP RWRD', op)
   const random = Math.floor(Math.random() * (0xFFFF + 1))
   stack.push({ t: TYPES.VALUE, l: LENGTH.BYTE2, v: random, vhex: dec2hex(random, 4, true) })
   return {}
 }
-const RBYT = async (op) => { // 82
+const RBYT = async (stack, op) => { // 82
   const v = stack.pop().v
   const onBits = []
   for (const testBit of testArray12Bits) {
@@ -340,7 +333,7 @@ const RBYT = async (op) => { // 82
   stack.push({ t: TYPES.VALUE, l: LENGTH.BYTE2, v: random, vhex: dec2hex(random, 4, true) })
   return {}
 }
-const CNTB = async (op) => { // 83
+const CNTB = async (stack, op) => { // 83
   console.log('battleOP CNTB', op)
   const x = stack.pop()
   if (x.t === TYPES.VALUE || x.t === TYPES.ADDRESS) {
@@ -372,7 +365,7 @@ const CNTB = async (op) => { // 83
   return {}
 }
 
-const HMSK = async (op) => { // 84
+const HMSK = async (stack, op) => { // 84
   console.log('battleOP HMSK', op)
   const x = stack.pop()
   // TODO: Is this using x's mask?!
@@ -386,7 +379,7 @@ const HMSK = async (op) => { // 84
   return {}
 }
 
-const LMSK = async (op) => { // 85
+const LMSK = async (stack, op) => { // 85
   console.log('battleOP LMSK', op)
   const x = stack.pop()
   // TODO: Is this using x's mask?!
@@ -400,7 +393,7 @@ const LMSK = async (op) => { // 85
   return {}
 }
 
-const MPCT = async (op) => { // 86
+const MPCT = async (stack, op) => { // 86
   console.log('battleOP MPCT', op)
   const attackId = stack.pop().v
   let mp
@@ -414,7 +407,7 @@ const MPCT = async (op) => { // 86
   return {}
 }
 
-const TBIT = async (op) => { // 87
+const TBIT = async (stack, op) => { // 87
   console.log('battleOP TBIT', op)
   const x = stack.pop()
   const bit = parseInt('1' + Array(x.v).fill('0').join(''), 2)
@@ -423,7 +416,7 @@ const TBIT = async (op) => { // 87
 }
 
 // 9x: COMMANDS
-const STRA = async (op) => { // 90
+const STRA = async (stack, op, currentActorIndex) => { // 90
   console.log('battleOP STRA', op)
   const y = stack.pop(); const x = stack.pop()
   console.log('battleOP STRA', 'x', x.v, 'y', y.v)
@@ -442,31 +435,31 @@ const STRA = async (op) => { // 90
   }
   return {}
 }
-const POPX = async (op) => { // 91
+const POPX = async (stack, op) => { // 91
   console.log('battleOp POPX', op)
   stack.pop()
   return {}
 }
-const ATTK = async (op) => { // 92
+const ATTK = async (stack, op, currentActorIndex) => { // 92
   console.log('battleOp ATTK', op)
   const y = stack.pop(); const x = stack.pop()
   const attackId = y.v
   const attackModifier = x.v
   console.log('battleOP TRIGGERED ATTACK: START', currentActorIndex, attackId, attackModifier)
   // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
-
+  await executeAllPreActionSetupScripts() // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
   await placeholderBattleAttackSequence(currentActorIndex, 0)
   console.log('battleOP TRIGGERED ATTACK: END', currentActorIndex, attackId, attackModifier)
   return {}
 }
-const DSTR = async (op) => { // 93
+const DSTR = async (stack, op) => { // 93
   console.log('battleOp DSTR', op)
   console.log('battleOP DISPLAY STRING: START', op.text)
   // batteActions.displayMessage(op.text) // TODO - Implement this
   console.log('battleOP DISPLAY STRING: END', op.text)
   return {}
 }
-const COPY = async (op) => { // 94
+const COPY = async (stack, op) => { // 94
   console.log('battleOp COPY', op)
   stack.pop()
   stack.pop()
@@ -475,7 +468,7 @@ const COPY = async (op) => { // 94
   // TODO: Implement this
   return {}
 }
-const GLOB = async (op) => { // 95
+const GLOB = async (stack, op) => { // 95
   console.log('battleOp GLOB', op)
   stack.pop()
   stack.pop()
@@ -485,7 +478,7 @@ const GLOB = async (op) => { // 95
   // TODO: Implement this
   return {}
 }
-const EDEF = async (op) => { // 96
+const EDEF = async (stack, op) => { // 96
   console.log('battleOp EDEF', op)
   stack.pop()
   stack.pop()
@@ -493,24 +486,22 @@ const EDEF = async (op) => { // 96
   // TODO: Implement this
   return {}
 }
-const DEBG = async (op) => { // A0
+const DEBG = async (stack, op) => { // A0
   console.log('battleOp DEBG', op)
   console.log('battleOP DISPLAY DEBUG STRING: START')
   console.log(op.text)
   console.log('battleOP DISPLAY DEBUG STRING: END')
   return {}
 }
-const POP2 = async (op) => { // A1
+const POP2 = async (stack, op) => { // A1
   console.log('battleOp POP2', op)
   stack.pop()
   stack.pop()
   return {}
 }
 export {
-  resetStack,
   logStack,
   logMemory,
-  setCurrentActorIndex,
   PUSH,
   PSHA,
   RBYT,

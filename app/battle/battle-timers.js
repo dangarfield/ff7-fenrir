@@ -104,11 +104,10 @@ const initTimers = (currentBattle) => {
   // console.log('global frames', timers.globalTimerMark / timers.speedValue, 'global seconds', timers.globalTimerMark / timers.speedValue / 30)
   // console.log('normalSpeed', timers.normalSpeed)
   currentBattle.timers = timers
-  const battleLayoutType = 'BackAttack'
   for (const actor of currentBattle.actors) {
     if (!actor.active) continue
     recalculateActorTimerIncrementValues(timers, actor)
-    setActorTurnTimerInitialValue(timers, actor, battleLayoutType)
+    setActorTurnTimerInitialValue(timers, actor, currentBattle.setup.battleLayoutType)
     console.log('battleTimers', actor.data.name, 'turn', actor.timers.turnTimerIncrement, 'turnTime', 0xFFFF / (actor.timers.turnTimerIncrement * 30),
       'v', actor.timers.vTimerIncrement, 'c', actor.timers.cTimerIncrement,
       'initial', actor.timers.turnTimerProgress, `${Math.round(actor.timers.turnTimerProgress / 0xFFFF * 100 * 10) / 10}%`)

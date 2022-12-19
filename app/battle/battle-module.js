@@ -9,7 +9,7 @@ import { importModels } from './battle-3d.js'
 import { setupBattle } from './battle-setup.js'
 import { initAllVariables } from './battle-memory.js'
 import { initBattleQueue } from './battle-queue.js'
-import { executeAllPreActionSetupScripts } from './battle-stack.js'
+import { executeAllInitScripts } from './battle-stack.js'
 let BATTLE_PROMISE
 
 /*
@@ -38,10 +38,9 @@ const preLoadBattle = async (battleId, options) => {
   await importModels(currentBattle)
   await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
 
-  initAllVariables()
-  // TODO - Not sure if preActionSetup is done before every action or once before all actions
-  await executeAllPreActionSetupScripts(currentBattle)
+  currentBattle.memory = initAllVariables()
   initBattleQueue(currentBattle)
+  await executeAllInitScripts(currentBattle)
 
   // console.log('battle preload: END')
 }

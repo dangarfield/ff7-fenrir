@@ -14,7 +14,8 @@ window.console = (function (origConsole) {
       'battleOP',
       'battleMemory',
       'battleTimers',
-      'battleQueue'
+      'battleQueue',
+      'battleStack'
     ],
     log: function () {
       if (limit) {

@@ -23,6 +23,7 @@ const initAllVariables = () => {
   variables.global = {}
   variables.actor = Array.from({ length: 10 }, Object)
   populateInitialActorVariables()
+  return variables
 }
 const populateInitialActorVariables = () => {
   // TODO
@@ -50,7 +51,8 @@ const setGlobalValue = (addressHex, value) => {
   variables.global[addressHex] = value
 }
 const getActorValueAll = (addressHex, returnType) => {
-  const value = Array.from({ length: 10 }, 0)
+  // TODO
+  const value = Array.from({ length: 10 }, () => 0)
   console.log('battleMemory getActorValueAll', addressHex, returnType, value)
   return value
 }
