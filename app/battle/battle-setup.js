@@ -31,8 +31,8 @@ const characterNameToModelCode = (name) => {
 }
 
 const setupBattle = (battleId) => {
-  const sceneId = Math.floor(battleId / 4)
-  const formationId = battleId % 4
+  const sceneId = battleId >> 2 // eg, Math.trunc(battleId / 4)
+  const formationId = battleId & 3 // eg, battleId % 4
   const scene = { ...window.data.sceneData.find(s => s.sceneId === sceneId) }
   currentBattle = {
     sceneId,
