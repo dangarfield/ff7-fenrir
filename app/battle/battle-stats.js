@@ -884,7 +884,7 @@ const debugSetEquipmentAndMateria = () => {
   )
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Barret,
-    'Missing Score', 'Wizard Bracelet', '',
+    'Missing Score', 'Wizard Bracelet', 'Choco Feather',
     ['Master Command', 'Choco/Mog', 'Shiva', 'Ifrit', '', '', '', ''],
     ['', '', '', '', '', '', '', '']
   )

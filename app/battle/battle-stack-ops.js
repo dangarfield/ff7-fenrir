@@ -9,11 +9,13 @@ import {
   logMemory as logMemoryMemory
 } from './battle-memory.js'
 import { currentBattle } from './battle-setup.js'
+import { placeholderBattleAttackSequence } from './battle-actions.js'
 
 const TYPES = { VALUE: 'value', ADDRESS: 'address', MULTI: 'multi' }
 const LENGTH = { BIT: 'bit', BYTE: 'byte', BYTE2: 'byte2', BYTE4: 'byte4' }
 const stack = []
-const currentActorIndex = 0
+let currentActorIndex = 0
+
 /*
 https://pastebin.com/raw/mjfRFNsZ
 https://forums.qhimm.com/index.php?topic=3290.msg45951#msg45951
@@ -26,7 +28,9 @@ https://faqs.neoseeker.com/Games/PS4/final_fantasy_vii_dynamixdj.txt
 */
 
 // Utils
-const setCurrentActorIndex = (index) => currentActorIndex
+const setCurrentActorIndex = (newIndex) => {
+  currentActorIndex = newIndex
+}
 const resetStack = () => {
   stack.length = 0
 }
@@ -450,6 +454,8 @@ const ATTK = async (op) => { // 92
   const attackModifier = x.v
   console.log('battleOP TRIGGERED ATTACK: START', currentActorIndex, attackId, attackModifier)
   // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
+
+  await placeholderBattleAttackSequence(currentActorIndex, 0)
   console.log('battleOP TRIGGERED ATTACK: END', currentActorIndex, attackId, attackModifier)
   return {}
 }

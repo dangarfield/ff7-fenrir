@@ -12,7 +12,9 @@ window.console = (function (origConsole) {
       'loadBattle',
       'battle',
       'battleOP',
-      'battleMemory'
+      'battleMemory',
+      'battleTimers',
+      'battleQueue'
     ],
     log: function () {
       if (limit) {

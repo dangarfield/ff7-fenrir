@@ -7,9 +7,9 @@ import { initBattleKeypressActions } from './battle-controls.js'
 import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
 import { setupBattle } from './battle-setup.js'
-import { initBattleStackForActor } from './battle-stack.js'
 import { initAllVariables } from './battle-memory.js'
-
+import { initBattleQueue } from './battle-queue.js'
+import { executeAllPreActionSetupScripts } from './battle-stack.js'
 let BATTLE_PROMISE
 
 /*
@@ -39,7 +39,10 @@ const preLoadBattle = async (battleId, options) => {
   await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
 
   initAllVariables()
-  initBattleStackForActor(0) // TODO
+  // TODO - Not sure if preActionSetup is done before every action or once before all actions
+  await executeAllPreActionSetupScripts(currentBattle)
+  initBattleQueue(currentBattle)
+
   // console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {

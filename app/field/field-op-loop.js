@@ -1131,6 +1131,8 @@ const initialiseOpLoops = async () => {
     initEntityMain(window.currentField.name, entity) // All running async
   }
 
+  // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
+  // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
   control.BATTLE({ b: 0, n: 27 * 4 + 2 })
   console.log('initialiseOpLoops: END')
 }

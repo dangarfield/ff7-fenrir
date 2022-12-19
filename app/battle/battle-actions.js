@@ -1,5 +1,5 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
+import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
 
 const moveEntity = (model, from, to) => {
@@ -27,7 +27,9 @@ const moveEntity = (model, from, to) => {
   })
 }
 
-const battleAttackSequence = async (fromEntity, toEntity) => {
+const placeholderBattleAttackSequence = async (fromEntityIndex, toEntityIndex) => {
+  const fromEntity = window.currentBattle.actors[fromEntityIndex]
+  const toEntity = window.currentBattle.actors[toEntityIndex]
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
   await moveEntity(fromEntity.model, fromEntity.model.userData.defaultPosition, toEntity.model.userData.defaultPosition)
   await Promise.all([
@@ -41,15 +43,15 @@ const battleAttackSequence = async (fromEntity, toEntity) => {
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
 
-const initTestBattleSequence = async () => {
-  const battleConfig = window.currentBattle
-  await tweenSleep(1000)
-  await battleAttackSequence(battleConfig.actors[4], battleConfig.actors[0])
-  await battleAttackSequence(battleConfig.actors[5], battleConfig.actors[0])
-  await battleAttackSequence(battleConfig.actors[4], battleConfig.actors[1])
-  await battleAttackSequence(battleConfig.actors[5], battleConfig.actors[1])
-}
+// const initTestBattleSequence = async () => {
+//   const battleConfig = window.currentBattle
+//   await tweenSleep(1000)
+//   await placeholderBattleAttackSequence(battleConfig.actors[4], battleConfig.actors[0])
+//   await placeholderBattleAttackSequence(battleConfig.actors[5], battleConfig.actors[0])
+//   await placeholderBattleAttackSequence(battleConfig.actors[4], battleConfig.actors[1])
+//   await placeholderBattleAttackSequence(battleConfig.actors[5], battleConfig.actors[1])
+// }
 
 export {
-  initTestBattleSequence
+  placeholderBattleAttackSequence
 }

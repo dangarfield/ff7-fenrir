@@ -2,6 +2,7 @@ import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
+import { incrementTick } from './battle-timers.js'
 
 let scene
 let sceneGroup
@@ -32,6 +33,7 @@ const renderLoop = () => {
     // console.log('render')
     // const activeCamera = fixedCamera
 
+    incrementTick() // TODO - Have to wait for initial camera animations / fades?
     const delta = window.anim.clock.getDelta()
 
     if (debugControls) {

@@ -1,12 +1,14 @@
-import { initTestBattleSequence } from './battle-actions.js'
-import { tweenSleep } from './battle-scene.js'
+// import { tweenSleep } from './battle-scene.js'
+import { currentHasEnded } from './battle-queue.js'
+import { resetTurnTimer } from './battle-timers.js'
 import * as stackOps from './battle-stack-ops.js'
 
 const executeOp = async (op) => {
   return stackOps[op.op](op)
 }
-const walkThroughEnemy1StackExample = async () => {
-  const script = window.currentBattle.scene.enemyScript1.main.script
+const executeScript = async (actorIndex, script) => {
+  stackOps.setCurrentActorIndex(actorIndex)
+  stackOps.resetStack()
   let exit = false
   let currentScriptPosition = 0
   while (!exit) {
@@ -20,17 +22,31 @@ const walkThroughEnemy1StackExample = async () => {
     } else {
       currentScriptPosition++
     }
-    await tweenSleep(1000)
+    // await tweenSleep(1000)
   }
   for (const op of script) {
     console.log('battle stack queue', 'op', op)
   }
-}
-const initBattleStackForActor = async (index) => {
-  stackOps.setCurrentActorIndex(0)
-  stackOps.resetStack()
-  await walkThroughEnemy1StackExample()
-  await initTestBattleSequence()
+  currentHasEnded()
+  resetTurnTimer(actorIndex)
 }
 
-export { initBattleStackForActor }
+// TODO - Not sure, it looks as though this is done before every action, rather than once before all actions
+const executeAllPreActionSetupScripts = async (currentBattle) => {
+  for (const actor of currentBattle.actors.filter(a => a.type === 'player')) {
+    if (actor.script && actor.script.preActionSetup && actor.script.preActionSetup.count > 0) {
+      executeScript(actor.index, actor.script.preActionSetup.script)
+    }
+  }
+  for (const actor of currentBattle.actors.filter(a => a.type === 'enemy')) {
+    if (actor.script && actor.script.preActionSetup && actor.script.preActionSetup.count > 0) {
+      executeScript(actor.index, actor.script.preActionSetup.script)
+    }
+  }
+  for (const actor of currentBattle.actors.filter(a => a.type === 'formation')) { // ?!?! Not sure yet
+    if (actor.script && actor.script.preActionSetup && actor.script.preActionSetup.count > 0) {
+      executeScript(actor.index, actor.script.preActionSetup.script)
+    }
+  }
+}
+export { executeScript, executeAllPreActionSetupScripts }
