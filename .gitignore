@@ -6,3 +6,4 @@ package-lock.json
 workings-out/unlgp
 .DS_Store
 *.code-workspace
+*.xcf

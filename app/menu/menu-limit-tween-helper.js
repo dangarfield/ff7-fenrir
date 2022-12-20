@@ -10,7 +10,7 @@ const LIMIT_TWEEN_DATA = {
   limitTextTween: null
 }
 window.LIMIT_TWEEN_DATA = LIMIT_TWEEN_DATA
-const beginLimitBarTween = () => {
+const beginLimitBarTween = (tweenGroup) => {
   // Temp limit tween color testing - tween
   // const to = { r: [], g: [], b: [] }
   // const colorsToUse = [GAUGE_COLORS.LIMIT_NORMAL_2, GAUGE_COLORS.LIMIT_NORMAL_3, GAUGE_COLORS.LIMIT_NORMAL_4, GAUGE_COLORS.LIMIT_NORMAL_1]
@@ -61,7 +61,7 @@ const beginLimitBarTween = () => {
   const c4 = new THREE.Color(GAUGE_COLORS.LIMIT_NORMAL_4)
   let colorToUse
 
-  LIMIT_TWEEN_DATA.limitBarTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+  LIMIT_TWEEN_DATA.limitBarTween = new TWEEN.Tween(from, tweenGroup)
     .to(to, 750)
     .repeat(Infinity)
     // .easing(TWEEN.Easing.Quadratic.Out)
@@ -115,7 +115,7 @@ const beginLimitBarTween = () => {
     .start()
 }
 
-const beginLimitTextTween = () => {
+const beginLimitTextTween = (tweenGroup) => {
   const to = { v: 8 }
   const from = { v: 0 }
 
@@ -145,7 +145,7 @@ const beginLimitTextTween = () => {
   }
   let index
 
-  LIMIT_TWEEN_DATA.limitTextTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
+  LIMIT_TWEEN_DATA.limitTextTween = new TWEEN.Tween(from, tweenGroup)
     .to(to, 350)
     .repeat(Infinity)
     .onUpdate(function () {
@@ -219,10 +219,11 @@ const beginLimitTextTween = () => {
     })
     .start()
 }
-const addLimitBarTween = (mesh) => {
+const addLimitBarTween = (mesh, tweenGroup) => {
+  if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
   if (LIMIT_TWEEN_DATA.limitBarTweens.length === 0) {
     LIMIT_TWEEN_DATA.limitBarTweens.push(mesh)
-    beginLimitBarTween()
+    beginLimitBarTween(tweenGroup)
   } else {
     LIMIT_TWEEN_DATA.limitBarTweens.push(mesh)
   }
@@ -235,11 +236,12 @@ const stopAllLimitBarTweens = () => {
   }
 }
 
-const addLimitTextTween = (group) => {
+const addLimitTextTween = (group, tweenGroup) => {
 //   console.log('limit addLimitTextTween', group, LIMIT_TWEEN_DATA.limitTextTweens)
+  if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
   if (LIMIT_TWEEN_DATA.limitTextTweens.length === 0) {
     LIMIT_TWEEN_DATA.limitTextTweens.push(group)
-    beginLimitTextTween()
+    beginLimitTextTween(tweenGroup)
   } else {
     LIMIT_TWEEN_DATA.limitTextTweens.push(group)
   }
@@ -251,9 +253,16 @@ const stopAllLimitTextTweens = () => {
     LIMIT_TWEEN_DATA.limitTextTween.stop()
   }
 }
+const stopLimitBarTween = (group) => {
+  const index = LIMIT_TWEEN_DATA.limitBarTweens.indexOf(group)
+  if (index > -1) {
+    LIMIT_TWEEN_DATA.limitBarTweens.splice(index, 1)
+  }
+}
 export {
   addLimitBarTween,
   stopAllLimitBarTweens,
   addLimitTextTween,
-  stopAllLimitTextTweens
+  stopAllLimitTextTweens,
+  stopLimitBarTween
 }

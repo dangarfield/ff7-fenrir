@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addTextToDialog, LETTER_TYPES, LETTER_COLORS, addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
-import { addBattleBarrier } from './battle-menu-box-helper.js'
+import { addBattleBarrier, addBattleLimit } from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -38,9 +38,14 @@ const constructMainMenus = (currentBattle) => {
       184 + (playerLineHeight * i),
       0.5, null, null, true
     )
-    const barrier = addBattleBarrier(mainL, 95, 186 + (playerLineHeight * i), 127, 255, `barrier-${i}`)
+    const barrier = addBattleBarrier(mainL, 95, 186 + (playerLineHeight * i), `barrier-${i}`)
     barrier.setPBarrier(200)
     barrier.setMBarrier(50)
+
+    const limit = addBattleLimit(mainR, 238, 184 + (playerLineHeight * i), `limit-${i}`)
+    // limit.setLimit(255)
+    limit.setLimit(player.data.limit.bar)
+    // limit.setStatus('Sadness')
   }
 }
 const initBattleMenu = async (currentBattle) => {
