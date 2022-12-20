@@ -26,7 +26,7 @@ const initRenderer = () => {
   )
   window.anim.renderer.autoClear = false
   window.anim.renderer.localClippingEnabled = true
-  // TODO - All field model colours look strange now, need to fix after
+  // TODO - All field model colours look strange now, need to fix after - Upgrade THREE and use ColorManagement to set defaults everywhere
   window.anim.renderer.outputEncoding = THREE.sRGBEncoding
   // window.anim.renderer.setPixelRatio(config.sizing.width / config.sizing.height) // Set pixel ratio helps with antialias, but messing the background alignment up
   // console.log('pixelRatio', window.anim.renderer.getPixelRatio())

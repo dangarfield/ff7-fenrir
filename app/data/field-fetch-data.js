@@ -39,6 +39,7 @@ const loadFieldTextures = async () => {
             `${KUJATA_BASE}/metadata/${textureGroupName}-assets/${assetType}/${asset.description}.png`
           )
           fieldTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
+          fieldTextures[assetType][asset.description].texture.encoding = THREE.sRGBEncoding
           fieldTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
         }
       }

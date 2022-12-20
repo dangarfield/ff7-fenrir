@@ -280,6 +280,7 @@ const fadeOperation = async (type, r, g, b, speed) => {
 
   stopInProgressFades()
 
+  // TODO - Compare with https://github.com/Akari1982/q-gears_reverse/blob/master/ffvii/documents/opcodes_fade_data.txt
   switch (type) {
     case 1: //  1 -> colorInverse4 to field subtractive async, hold field
       fade(

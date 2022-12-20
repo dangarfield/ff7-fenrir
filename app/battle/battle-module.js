@@ -10,6 +10,7 @@ import { setupBattle } from './battle-setup.js'
 import { initAllVariables } from './battle-memory.js'
 import { initBattleQueue } from './battle-queue.js'
 import { executeAllInitScripts } from './battle-stack.js'
+import { initBattleMenu } from './battle-menu.js'
 let BATTLE_PROMISE
 
 /*
@@ -36,12 +37,12 @@ const preLoadBattle = async (battleId, options) => {
   const currentBattle = setupBattle(battleId) // TODO, add from random / world map etc
   // console.log('loadBattle', battleId, options)
   await importModels(currentBattle)
-  await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
+  // await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
 
   currentBattle.memory = initAllVariables()
   initBattleQueue(currentBattle)
   await executeAllInitScripts(currentBattle)
-
+  await initBattleMenu(currentBattle)
   // console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {

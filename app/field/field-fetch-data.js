@@ -160,6 +160,7 @@ const getTexture = (url, cb) => {
     textureLoader.load(url,
       function (texture) {
         texture.flipY = false
+        texture.encoding = THREE.sRGBEncoding
         resolve(texture)
       }
     )

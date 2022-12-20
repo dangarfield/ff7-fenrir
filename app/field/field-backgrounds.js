@@ -679,6 +679,7 @@ const drawBG = async (
   if (!NO_CUSTOM_SHADER) {
     const bgPixelUrl = getFieldBGPixelLayerUrl(fieldName, layerData.fileName)
     const texture = new THREE.TextureLoader(manager).load(bgPixelUrl)
+    // texture.encoding = THREE.sRGBEncoding
     texture.magFilter = THREE.NearestFilter
     // texture.minFilter = THREE.LinearFilter
 
@@ -716,6 +717,7 @@ const drawBG = async (
     const bgImgUrl = getFieldBGLayerUrl(fieldName, layerData.fileName)
 
     const texture = new THREE.TextureLoader(manager).load(bgImgUrl)
+    texture.encoding = THREE.sRGBEncoding
     texture.magFilter = THREE.NearestFilter
     texture.minFilter = THREE.LinearFilter
 

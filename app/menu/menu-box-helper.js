@@ -464,9 +464,10 @@ const createDialogBox = dialog => {
     enlargeInstant(dialogBox)
   }
   dialogBox.visible = false
-  scene.add(dialogBox)
+  const sceneToUse = dialog.scene ? dialog.scene : scene
+  sceneToUse.add(dialogBox)
   if (dialog.group === undefined) {
-    scene.add(dialogBox)
+    sceneToUse.add(dialogBox)
   } else {
     console.log('save dialog.group', dialog.group, dialogBox)
     dialog.group.add(dialogBox)
@@ -748,7 +749,7 @@ const getDialogTextures = () => {
     r: textures.borders['border r'].texture
   }
 }
-const addTextToDialog = (
+const addTextToDialog = ( // Note: This is offset by x=12 y=12
   dialogBox,
   text,
   id,
@@ -758,10 +759,15 @@ const addTextToDialog = (
   y,
   scale,
   clippingPlanes,
-  align
+  align,
+  autoAdjustOffset
 ) => {
   const letters = ('' + text).split('')
   const textGroup = new THREE.Group()
+  if (autoAdjustOffset) {
+    x -= 8
+    y -= 4
+  }
   textGroup.userData = {
     id,
     type: text,
@@ -1813,5 +1819,6 @@ export {
   updateTexture,
   createEquipmentMateriaViewer,
   addMenuCommandsToDialog,
-  removeGroupChildren
+  removeGroupChildren,
+  enlargeInstant
 }

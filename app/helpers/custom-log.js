@@ -10,12 +10,13 @@ window.console = (function (origConsole) {
       // 'executeOp',
       // 'joinLeader'
       'loadBattle',
-      'battle',
-      'battleOP',
-      'battleMemory',
-      'battleTimers',
-      'battleQueue',
-      'battleStack'
+      // 'battle',
+      // 'battleOP',
+      // 'battleMemory',
+      // 'battleTimers',
+      // 'battleQueue',
+      // 'battleStack',
+      'battleMenu'
     ],
     log: function () {
       if (limit) {

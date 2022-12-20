@@ -38,6 +38,7 @@ const loadWindowTextures = async () => {
         ].texture = new THREE.TextureLoader(manager).load(
           `${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`
         )
+        windowTextures[assetType][asset.description].texture.encoding = THREE.sRGBEncoding
         windowTextures[assetType][
           asset.description
         ].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
