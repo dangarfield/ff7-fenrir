@@ -38,7 +38,9 @@ const constructMainMenus = (currentBattle) => {
       184 + (playerLineHeight * i),
       0.5, null, null, true
     )
-    addBattleBarrier(mainL, 95, 186 + (playerLineHeight * i), 127, 255, `barrier-${i}`)
+    const barrier = addBattleBarrier(mainL, 95, 186 + (playerLineHeight * i), 127, 255, `barrier-${i}`)
+    barrier.setPBarrier(200)
+    barrier.setMBarrier(50)
   }
 }
 const initBattleMenu = async (currentBattle) => {
