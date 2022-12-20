@@ -1,8 +1,8 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY } from '../menu/menu-box-helper.js'
+import { addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
 import { addLimitBarTween, stopLimitBarTween } from '../menu/menu-limit-tween-helper.js'
-// import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP, orthoScene as scene } from './battle-scene.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 
 const addShape = (
   dialogBox,
@@ -147,7 +147,67 @@ const addBattleLimit = (dialog, x, y, id) => {
     // Tween when it gets to 255
   }
 }
+const addPlayerName = (group, name, id, x, y) => {
+  const playerNameWhite = addTextToDialog(group,
+    name,
+    id,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    x,
+    y,
+    0.5, null, null, true
+  )
+  const playerNameGrey = addTextToDialog(group,
+    name,
+    id,
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.Gray,
+    x,
+    y,
+    0.5, null, null, true
+  )
+  playerNameGrey.visible = false
+  let playerNameTween = null
+  return {
+    setActive: (isActive) => {
+      if (!isActive) {
+        playerNameGrey.visible = false
+        if (playerNameTween) {
+          playerNameTween.stop()
+          BATTLE_TWEEN_GROUP.remove(playerNameTween)
+          playerNameTween = null
+        }
+      } else {
+        const from = { v: 0 }
+        const to = { v: 1 }
+        let visible = false
+        playerNameTween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+          .to(to, 500) // Is time ok?
+          .repeat(Infinity)
+          .onUpdate(() => {
+            let shouldChange = false
+            if (from.v < 0.5) {
+              if (visible !== true) {
+                visible = true
+                shouldChange = true
+              }
+            } else {
+              if (visible !== false) {
+                visible = false
+                shouldChange = true
+              }
+            }
+            if (shouldChange) playerNameGrey.visible = visible
+          })
+          .onStop(() => { playerNameGrey.visible = false })
+          .onComplete(() => { playerNameGrey.visible = false })
+          .start()
+      }
+    }
+  }
+}
 export {
+  addPlayerName,
   addBattleBarrier,
   addBattleLimit
 }

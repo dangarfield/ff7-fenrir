@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { addTextToDialog, LETTER_TYPES, LETTER_COLORS, addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
-import { addBattleBarrier, addBattleLimit } from './battle-menu-box-helper.js'
+import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
+import { addBattleBarrier, addBattleLimit, addPlayerName } from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -28,16 +28,9 @@ const constructMainMenus = (currentBattle) => {
   // Player Elements
   for (const [i, player] of window.currentBattle.actors.filter(a => a.index < 3).entries()) {
     if (!player.active) continue
-    const playerName = addTextToDialog(
-      mainL,
-      player.data.name,
-      `player-name-${i}`,
-      LETTER_TYPES.MenuBaseFont,
-      LETTER_COLORS.White,
-      14,
-      184 + (playerLineHeight * i),
-      0.5, null, null, true
-    )
+    const name = addPlayerName(mainL, player.data.name, `player-name-${i}`, 14, 184 + (playerLineHeight * i))
+    name.setActive(false)
+
     const barrier = addBattleBarrier(mainL, 95, 186 + (playerLineHeight * i), `barrier-${i}`)
     barrier.setPBarrier(200)
     barrier.setMBarrier(50)
