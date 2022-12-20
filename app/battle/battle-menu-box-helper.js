@@ -80,7 +80,9 @@ const addBattleBarrier = (dialog, x, y, id) => {
         m2.position.x = x + 3 + (w / 2 * percent)
         m2.scale.set(percent, 1, 1)
       }
-    }
+    },
+    getPBarrier: () => pValue,
+    getMBarrier: () => mValue
   }
 }
 
@@ -143,12 +145,112 @@ const addBattleLimit = (dialog, x, y, id) => {
           addLimitBarTween(l2, BATTLE_TWEEN_GROUP)
         }
       }
+    },
+    get: () => lValue
+  }
+}
+const addTurnTimer = (dialog, x, y, id) => {
+  addImageToDialog(dialog, 'bars', 'battle', `${id}`, x, y, 0.5, null, ALIGN.LEFT, ALIGN.BOTTOM)
+
+  const w = 32
+
+  // Set default colours
+  let color1 = WINDOW_COLORS_SUMMARY.TURN_1 // Colours not correct
+  let color2 = WINDOW_COLORS_SUMMARY.TURN_2
+  const t1 = addShape(dialog, color1, `${id}-l1`, x + 3, y - 7.5, w, 3, THREE.AdditiveBlending)
+  const t2 = addShape(dialog, color2, `${id}-l2`, x + 3, y - 4.5, w, 3, THREE.AdditiveBlending)
+  let tValue = -1
+  let defaultColor1 = WINDOW_COLORS_SUMMARY.TURN_1
+  let defaultColor2 = WINDOW_COLORS_SUMMARY.TURN_2
+  let activeTurnTween = null
+  const refreshTurnColours = () => {
+    const l1ColorAttr = t1.geometry.getAttribute('color')
+    for (let i = 0; i < color1.length; i++) {
+      const color = new THREE.Color(color1[i])
+      l1ColorAttr.setXYZ(i, color.r, color.g, color.b)
     }
-    // Tween when it gets to 255
+    l1ColorAttr.needsUpdate = true
+
+    const l2ColorAttr = t2.geometry.getAttribute('color')
+    for (let i = 0; i < color2.length; i++) {
+      const color = new THREE.Color(color2[i])
+      l2ColorAttr.setXYZ(i, color.r, color.g, color.b)
+    }
+    l2ColorAttr.needsUpdate = true
+  }
+  return {
+    setStatus: (value) => {
+      // TODO - This is not updating
+      if (value === 'Haste') {
+        defaultColor1 = WINDOW_COLORS_SUMMARY.TURN_HASTE_1
+        defaultColor2 = WINDOW_COLORS_SUMMARY.TURN_HASTE_2
+      } else if (value === 'Slow') {
+        defaultColor1 = WINDOW_COLORS_SUMMARY.TURN_SLOW_1
+        defaultColor2 = WINDOW_COLORS_SUMMARY.TURN_SLOW_2
+      } else {
+        defaultColor1 = WINDOW_COLORS_SUMMARY.TURN_1
+        defaultColor2 = WINDOW_COLORS_SUMMARY.TURN_2
+      }
+      if (tValue !== 0xFFFF) {
+        color1 = defaultColor1
+        color2 = defaultColor2
+      }
+      refreshTurnColours()
+      // console.log('battleUI', 'setStatus', value, defaultColor1, color1)
+    },
+    set: (value) => {
+      if (tValue !== value) {
+        if (tValue === 0xFFFF) {
+          color1 = defaultColor1
+          color2 = defaultColor2
+          refreshTurnColours()
+          // console.log('battleUI', 'set FROM 0xFFFF', value, defaultColor1, color1)
+        }
+        tValue = value
+        const percent = tValue / 0xFFFF
+        t1.position.x = x + 3 + (w / 2 * percent)
+        t1.scale.set(percent, 1, 1)
+        t2.position.x = x + 3 + (w / 2 * percent)
+        t2.scale.set(percent, 1, 1)
+        // console.log('battleUI', 'set', value, defaultColor1, color1)
+        if (tValue === 0xFFFF) {
+          color1 = WINDOW_COLORS_SUMMARY.TURN_FULL_1
+          color2 = WINDOW_COLORS_SUMMARY.TURN_FULL_2
+          refreshTurnColours()
+          // console.log('battleUI', 'set TO 0xFFFF', value, defaultColor1, color1)
+        }
+      }
+    },
+    setActive: (isActive) => {
+      if (isActive) {
+        color1 = WINDOW_COLORS_SUMMARY.TURN_ACTIVE_1
+        color2 = WINDOW_COLORS_SUMMARY.TURN_ACTIVE_2
+        refreshTurnColours()
+        const from = { v: 0 }
+        const to = { v: [1, 0] }
+        activeTurnTween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+          .to(to, 1000)
+          .repeat(Infinity)
+          .onUpdate(() => { t1.material.opacity = from.v; t2.material.opacity = from.v })
+          .onStop(() => { t1.material.opacity = 1; t2.material.opacity = 1 })
+          .onComplete(() => { t1.material.opacity = 1; t2.material.opacity = 1 })
+          .start()
+      } else {
+        if (activeTurnTween) {
+          activeTurnTween.stop()
+          BATTLE_TWEEN_GROUP.remove(activeTurnTween)
+          activeTurnTween = null
+        }
+        color1 = WINDOW_COLORS_SUMMARY.TURN_FULL_1
+        color2 = WINDOW_COLORS_SUMMARY.TURN_FULL_2
+        refreshTurnColours()
+      }
+    },
+    get: () => tValue
   }
 }
 const addPlayerName = (group, name, id, x, y) => {
-  const playerNameWhite = addTextToDialog(group,
+  addTextToDialog(group,
     name,
     id,
     LETTER_TYPES.MenuBaseFont,
@@ -209,5 +311,6 @@ const addPlayerName = (group, name, id, x, y) => {
 export {
   addPlayerName,
   addBattleBarrier,
-  addBattleLimit
+  addBattleLimit,
+  addTurnTimer
 }

@@ -124,6 +124,16 @@ const WINDOW_COLORS_SUMMARY = {
   LIMIT_FURY_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_FURY),
   LIMIT_SADNESS_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_SADNESS),
   LIMIT_SADNESS_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_SADNESS),
+  TURN_1: generateGaugeBarsColors1(GAUGE_COLORS.WAIT_FILL), // TODO - All turn colours are just placeholders
+  TURN_2: generateGaugeBarsColors2(GAUGE_COLORS.WAIT_FILL),
+  TURN_HASTE_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_FURY),
+  TURN_HASTE_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_FURY),
+  TURN_SLOW_1: generateGaugeBarsColors1(GAUGE_COLORS.LIMIT_SADNESS),
+  TURN_SLOW_2: generateGaugeBarsColors2(GAUGE_COLORS.LIMIT_SADNESS),
+  TURN_FULL_1: generateGaugeBarsColors1(GAUGE_COLORS.WAIT_NON_ACTIVE),
+  TURN_FULL_2: generateGaugeBarsColors2(GAUGE_COLORS.WAIT_NON_ACTIVE),
+  TURN_ACTIVE_1: generateGaugeBarsColors1(GAUGE_COLORS.WAIT_ACTIVE),
+  TURN_ACTIVE_2: generateGaugeBarsColors2(GAUGE_COLORS.WAIT_ACTIVE),
   ITEM_LIST_SLIDER_BG: [
     'rgb(25,25,75)',
     'rgb(25,25,75)',
@@ -1591,63 +1601,63 @@ const createHorizontalConfigSlider = (dialog, x, y, defaultValue) => {
   return slider
 }
 
-const addLimitToDialogColorsTest = (dialog) => {
-  const limitPerc = 1
+// const addLimitToDialogColorsTest = (dialog) => {
+//   const limitPerc = 1
 
-  const options = [0, 32, 64, 92, 128, 192]
-  const perms = []
-  for (let i = 0; i < options.length; i++) {
-    const o1 = options[i]
-    for (let j = 0; j < options.length; j++) {
-      const o2 = options[j]
-      for (let k = 0; k < options.length; k++) {
-        const o3 = options[k]
-        perms.push(`rgb(${o1},${o2},${o3})`)
-      }
-    }
-  }
-  perms.push('rgb(0,0,0)')
-  perms.push('rgb(0,0,0)')
-  const gaugeKeys = Object.keys(GAUGE_COLORS)
-  for (let i = 0; i < gaugeKeys.length; i++) {
-    const gaugeKey = gaugeKeys[i]
-    perms.push(GAUGE_COLORS[gaugeKey])
-  }
-  for (let i = 0; i < perms.length; i++) {
-    const perm = perms[i]
-    const rows = 25
-    const rootX = 35 + (Math.trunc(i / rows) * 30)
-    const rootY = -10 + ((i % rows) * 8)
+//   const options = [0, 32, 64, 92, 128, 192]
+//   const perms = []
+//   for (let i = 0; i < options.length; i++) {
+//     const o1 = options[i]
+//     for (let j = 0; j < options.length; j++) {
+//       const o2 = options[j]
+//       for (let k = 0; k < options.length; k++) {
+//         const o3 = options[k]
+//         perms.push(`rgb(${o1},${o2},${o3})`)
+//       }
+//     }
+//   }
+//   perms.push('rgb(0,0,0)')
+//   perms.push('rgb(0,0,0)')
+//   const gaugeKeys = Object.keys(GAUGE_COLORS)
+//   for (let i = 0; i < gaugeKeys.length; i++) {
+//     const gaugeKey = gaugeKeys[i]
+//     perms.push(GAUGE_COLORS[gaugeKey])
+//   }
+//   for (let i = 0; i < perms.length; i++) {
+//     const perm = perms[i]
+//     const rows = 25
+//     const rootX = 35 + (Math.trunc(i / rows) * 30)
+//     const rootY = -10 + ((i % rows) * 8)
 
-    addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', rootX + 0.5, rootY, 0.5)
-    addShapeToDialog(
-      dialog,
-      generateGaugeBarsColors1(perm),
-      'limit-bar-a',
-      rootX,
-      rootY - 2.5,
-      58,
-      3,
-      limitPerc,
-      THREE.AdditiveBlending
-    )
-    addShapeToDialog(
-      dialog,
-      generateGaugeBarsColors2(perm),
-      'limit-bar-b',
-      rootX,
-      rootY + 0.5,
-      58,
-      3,
-      limitPerc,
-      THREE.AdditiveBlending
-    )
-    addTextToDialog(dialog, perm.replace('rgb(', '').replace(')', ''), `perm-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, rootX - 35, rootY, 0.125)
-    console.log('limit perm', i, perm)
-  }
-  dialog.position.z = 100
-  window.limitTest = dialog
-}
+//     addImageToDialog(dialog, 'bars', 'level', 'limit-bar-bg', rootX + 0.5, rootY, 0.5)
+//     addShapeToDialog(
+//       dialog,
+//       generateGaugeBarsColors1(perm),
+//       'limit-bar-a',
+//       rootX,
+//       rootY - 2.5,
+//       58,
+//       3,
+//       limitPerc,
+//       THREE.AdditiveBlending
+//     )
+//     addShapeToDialog(
+//       dialog,
+//       generateGaugeBarsColors2(perm),
+//       'limit-bar-b',
+//       rootX,
+//       rootY + 0.5,
+//       58,
+//       3,
+//       limitPerc,
+//       THREE.AdditiveBlending
+//     )
+//     addTextToDialog(dialog, perm.replace('rgb(', '').replace(')', ''), `perm-${i}`, LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, rootX - 35, rootY, 0.125)
+//     console.log('limit perm', i, perm)
+//   }
+//   dialog.position.z = 100
+//   window.limitTest = dialog
+// }
 const addLimitToDialog = (dialog, x, y, char) => {
   const limitPerc = char.limit.bar / 255
   // TODO - sadness??

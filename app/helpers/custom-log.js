@@ -13,7 +13,7 @@ window.console = (function (origConsole) {
       // 'battle',
       // 'battleOP',
       // 'battleMemory',
-      // 'battleTimers',
+      // 'battleTimer',
       // 'battleQueue',
       // 'battleStack',
       'battleMenu',

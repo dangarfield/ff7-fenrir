@@ -3,6 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { incrementTick } from './battle-timers.js'
+import { updateActorsUI } from './battle-menu.js'
 
 let scene
 let sceneGroup
@@ -47,6 +48,7 @@ const renderLoop = () => {
         if (model.userData.updateShadowPosition) model.userData.updateShadowPosition()
       }
     }
+    updateActorsUI()
     BATTLE_TWEEN_GROUP.update()
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, debugCamera)

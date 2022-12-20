@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
-import { addBattleBarrier, addBattleLimit, addPlayerName } from './battle-menu-box-helper.js'
+import { addBattleBarrier, addBattleLimit, addPlayerName, addTurnTimer } from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -39,6 +39,23 @@ const constructMainMenus = (currentBattle) => {
     // limit.setLimit(255)
     limit.setLimit(player.data.limit.bar)
     // limit.setStatus('Sadness')
+
+    const turnTimer = addTurnTimer(mainR, 277, 184 + (playerLineHeight * i), `turn-${i}`)
+    turnTimer.set(0)
+    // turnTimer.setActive(false)
+
+    player.ui = {
+      name, barrier, limit, turnTimer
+    }
+  }
+}
+const updateActorsUI = () => {
+  for (const [i, player] of window.currentBattle.actors.entries()) {
+    if (player.ui) {
+      if (player.timers.turnTimerProgress && player.ui.turnTimer && player.ui.turnTimer.get() !== player.timers.turnTimerProgress) {
+        player.ui.turnTimer.set(player.timers.turnTimerProgress)
+      }
+    }
   }
 }
 const initBattleMenu = async (currentBattle) => {
@@ -49,5 +66,6 @@ const initBattleMenu = async (currentBattle) => {
   console.log('battleMenu command', command)
 }
 export {
-  initBattleMenu
+  initBattleMenu,
+  updateActorsUI
 }

@@ -22,6 +22,7 @@ const turnTimerCallback = function () {
 }
 const resetTurnTimer = (actorIndex) => {
   console.log('battleTimer resetTurnTimer', actorIndex)
+  window.currentBattle.actors[actorIndex].timers.turnTimerFull = false
   window.currentBattle.actors[actorIndex].timers.turnTimerProgress = 0
 }
 
@@ -92,6 +93,7 @@ const initTimers = (currentBattle) => {
         turnTimerIncrement: 0,
         turnTimerProgress: 0,
         turnTimer: 0,
+        turnTimerFull: false,
         turnTimerCallback,
         getActor: () => { return a }
       }
@@ -131,7 +133,7 @@ const incrementTick = () => {
     actor.timers.vTimerProgress += actor.timers.vTimerIncrement
 
     // Only increment this if actor does not have an active turn in progress, or has one queued
-    if (actor.timers.turnTimerProgress < timers.turnTimersMark && actor.timers.turnTimerProgress !== -1) {
+    if (actor.timers.turnTimerProgress < timers.turnTimersMark && !actor.timers.turnTimerFull) {
       actor.timers.turnTimerProgress = Math.min(actor.timers.turnTimerProgress + actor.timers.turnTimerIncrement, timers.turnTimersMark)
     }
 
@@ -149,7 +151,7 @@ const incrementTick = () => {
     }
 
     if (actor.timers.turnTimerProgress >= timers.turnTimersMark) {
-      actor.timers.turnTimerProgress = -1 // -1 Stops additional turn increments, once an actor has had a turn, set this to 0
+      actor.timers.turnTimerFull = true
       actor.timers.turnTimer++
       //   console.log('battleTimers turnTimer', actor.data.name, actor.timers.turnTimer)
       actor.timers.turnTimerCallback()
