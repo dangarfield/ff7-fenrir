@@ -1,8 +1,11 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
+import {
+  addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY, addTextToDialog, LETTER_TYPES, LETTER_COLORS,
+  createDialogBox
+} from '../menu/menu-box-helper.js'
 import { addLimitBarTween, stopLimitBarTween } from '../menu/menu-limit-tween-helper.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 
 const addShape = (
   dialogBox,
@@ -253,7 +256,7 @@ const addPlayerName = (group, name, id, x, y) => {
   addTextToDialog(group,
     name,
     id,
-    LETTER_TYPES.MenuBaseFont,
+    LETTER_TYPES.BattleBaseFont,
     LETTER_COLORS.White,
     x,
     y,
@@ -262,7 +265,7 @@ const addPlayerName = (group, name, id, x, y) => {
   const playerNameGrey = addTextToDialog(group,
     name,
     id,
-    LETTER_TYPES.MenuBaseFont,
+    LETTER_TYPES.BattleBaseFont,
     LETTER_COLORS.Gray,
     x,
     y,
@@ -308,9 +311,49 @@ const addPlayerName = (group, name, id, x, y) => {
     }
   }
 }
+
+const addPauseMenu = () => {
+  const pause = createDialogBox({ id: 1, x: 141, y: 83, w: 44, h: 24, expandInstantly: true, noClipping: true, scene: orthoScene })
+  pause.visible = false
+  addTextToDialog(pause,
+    'Pause',
+    'pause-label-white',
+    LETTER_TYPES.BattleBaseFont,
+    LETTER_COLORS.White,
+    148,
+    99,
+    0.5, null, null, true
+  )
+  const pauseGrey = addTextToDialog(pause,
+    'Pause',
+    'pause-label-grey',
+    LETTER_TYPES.BattleBaseFont,
+    LETTER_COLORS.Gray,
+    148,
+    99,
+    0.5, null, null, true
+  )
+  pauseGrey.visible = false
+  let pauseAnimInterval = null
+  return {
+    start: () => {
+      clearInterval(pauseAnimInterval)
+      pauseAnimInterval = setInterval(() => {
+        pauseGrey.visible = !pauseGrey.visible
+      }, 560)
+      pause.visible = true
+    },
+    stop: () => {
+      clearInterval(pauseAnimInterval)
+      pauseAnimInterval = null
+      pause.visible = false
+    }
+  }
+}
 export {
   addPlayerName,
   addBattleBarrier,
   addBattleLimit,
-  addTurnTimer
+  addTurnTimer,
+  addPauseMenu
 }

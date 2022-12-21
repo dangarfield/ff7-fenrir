@@ -16,6 +16,8 @@ let debugControls
 
 const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
 
+let BATTLE_PAUSED = false
+
 const tweenSleep = (ms) => {
   return new Promise(resolve => {
     new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP).to({ x: 1 }, ms).onComplete(function () { resolve() }).start()
@@ -28,28 +30,30 @@ const renderLoop = () => {
     return
   }
 
-  window.requestAnimationFrame(renderLoop)
-  updateOnceASecond()
   if (window.anim.renderer) {
     // console.log('render')
     // const activeCamera = fixedCamera
 
-    incrementTick() // TODO - Have to wait for initial camera animations / fades?
-    const delta = window.anim.clock.getDelta()
-
-    if (debugControls) {
-      console.log('batte debugControls', debugControls)
-      debugControls.update(delta)
-    }
-
-    if (window.currentBattle.models) {
-      for (const model of window.currentBattle.models) {
-        if (model.mixer) model.mixer.update(delta)
-        if (model.userData.updateShadowPosition) model.userData.updateShadowPosition()
+    window.requestAnimationFrame(renderLoop)
+    if (!BATTLE_PAUSED) {
+      updateOnceASecond()
+      incrementTick() // TODO - Have to wait for initial camera animations / fades?
+      const delta = window.anim.clock.getDelta()
+      if (debugControls) {
+        console.log('batte debugControls', debugControls)
+        debugControls.update(delta)
       }
+
+      if (window.currentBattle.models) {
+        for (const model of window.currentBattle.models) {
+          if (model.mixer) model.mixer.update(delta)
+          if (model.userData.updateShadowPosition) model.userData.updateShadowPosition()
+        }
+      }
+      updateActorsUI()
+      BATTLE_TWEEN_GROUP.update()
     }
-    updateActorsUI()
-    BATTLE_TWEEN_GROUP.update()
+
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, debugCamera)
 
@@ -140,7 +144,20 @@ const setupScenes = () => {
   // const ambientLight = new THREE.AmbientLight(0x404040); // 0x404040 = soft white light
   // scene.add(ambientLight);
 }
-
+const togglePauseBattle = () => {
+  BATTLE_PAUSED = !BATTLE_PAUSED
+  // TODO - Some weirdness of some animations going past the floor after a second
+  // TODO - Also the 'active selection' indicators and limits should flash too
+  if (BATTLE_PAUSED) {
+    if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.pause) {
+      window.currentBattle.ui.pause.start()
+    }
+  } else {
+    if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.pause) {
+      window.currentBattle.ui.pause.stop()
+    }
+  }
+}
 export {
   scene,
   sceneGroup,
@@ -151,5 +168,6 @@ export {
   setupScenes,
   startBattleRenderingLoop,
   BATTLE_TWEEN_GROUP,
-  tweenSleep
+  tweenSleep,
+  togglePauseBattle
 }

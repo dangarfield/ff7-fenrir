@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
-import { addBattleBarrier, addBattleLimit, addPlayerName, addTurnTimer } from './battle-menu-box-helper.js'
+import { addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer } from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -60,6 +60,10 @@ const updateActorsUI = () => {
 }
 const initBattleMenu = async (currentBattle) => {
   constructMainMenus()
+  const pause = addPauseMenu()
+  window.currentBattle.ui = {
+    pause
+  }
   // Command list w = 1 list
   const command = createDialogBox({ id: 28, x: 71, y: 168, w: 60, h: 56, expandInstantly: true, noClipping: true, scene: orthoScene })
   //   command.visible = true
