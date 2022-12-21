@@ -1788,6 +1788,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
       }
     }
   }
+  // TODO Coin/Throw tween
   if (limitGroup !== null) {
     if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
     addLimitTextTween(limitGroup, tweenGroup)

@@ -87,8 +87,8 @@ const updateActorsUI = () => {
   }
 }
 const toggleHelperText = () => {
-  if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.helper) {
-    window.currentBattle.ui.helper.toggle()
+  if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.battleDescriptions) {
+    window.currentBattle.ui.battleDescriptions.toggle()
   }
 }
 const sendKeyPressToBattleMenu = (key) => {

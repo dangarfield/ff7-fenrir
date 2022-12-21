@@ -43,6 +43,7 @@ const setupBattle = (battleId) => {
     attackData: [...scene.attackData.filter(a => a.id !== 0xFFFF)]
   }
   // window.data.savemap.party.members[1] = 'None' // Temp
+  window.debugSetEquipmentAndMateria()
   for (const [i, partyMember] of window.data.savemap.party.members.entries()) {
     if (partyMember === 'None') {
       currentBattle.actors.push({ active: false, index: i })

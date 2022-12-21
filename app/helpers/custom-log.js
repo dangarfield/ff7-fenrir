@@ -13,12 +13,12 @@ window.console = (function (origConsole) {
       // 'battle',
       // 'battleOP',
       // 'battleMemory',
-      'battleTimer',
+      // 'battleTimer',
       // 'battleQueue',
       // 'battleStack',
       // 'battleMenu',
-      // 'battleUI'
-      'battleQueue'
+      'battleUI'
+      // 'battleQueue'
     ],
     log: function () {
       if (limit) {
