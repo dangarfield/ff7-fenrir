@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import {
   addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY, addTextToDialog, LETTER_TYPES, LETTER_COLORS,
-  createDialogBox
+  createDialogBox, getLetterTexture
 } from '../menu/menu-box-helper.js'
 import { addLimitBarTween, stopLimitBarTween } from '../menu/menu-limit-tween-helper.js'
 import TWEEN from '../../assets/tween.esm.js'
@@ -97,8 +97,8 @@ const addBattleLimit = (dialog, x, y, id) => {
   // Set default colours
   let color1 = WINDOW_COLORS_SUMMARY.LIMIT_1 // Colours not correct
   let color2 = WINDOW_COLORS_SUMMARY.LIMIT_2
-  const l1 = addShape(dialog, color1, `${id}-l1`, x + 3, y - 7.5, w, 3, THREE.AdditiveBlending)
-  const l2 = addShape(dialog, color2, `${id}-l2`, x + 3, y - 4.5, w, 3, THREE.AdditiveBlending)
+  const l1 = addShape(dialog, color1, `${id}-l1`, x + 3, y - 7, w, 2.5, THREE.AdditiveBlending)
+  const l2 = addShape(dialog, color2, `${id}-l2`, x + 3, y - 4.5, w, 2.5, THREE.AdditiveBlending)
   let lValue = -1
   const refreshLimitColours = () => {
     const l1ColorAttr = l1.geometry.getAttribute('color')
@@ -160,8 +160,8 @@ const addTurnTimer = (dialog, x, y, id) => {
   // Set default colours
   let color1 = WINDOW_COLORS_SUMMARY.TURN_1 // Colours not correct
   let color2 = WINDOW_COLORS_SUMMARY.TURN_2
-  const t1 = addShape(dialog, color1, `${id}-l1`, x + 3, y - 7.5, w, 3, THREE.AdditiveBlending)
-  const t2 = addShape(dialog, color2, `${id}-l2`, x + 3, y - 4.5, w, 3, THREE.AdditiveBlending)
+  const t1 = addShape(dialog, color1, `${id}-l1`, x + 3, y - 7, w, 2.5, THREE.AdditiveBlending)
+  const t2 = addShape(dialog, color2, `${id}-l2`, x + 3, y - 4.5, w, 2.5, THREE.AdditiveBlending)
   let tValue = -1
   let defaultColor1 = WINDOW_COLORS_SUMMARY.TURN_1
   let defaultColor2 = WINDOW_COLORS_SUMMARY.TURN_2
@@ -350,10 +350,120 @@ const addPauseMenu = () => {
     }
   }
 }
+const addHP = (group, x, y, id) => {
+  const text = addTextToDialog(
+    group,
+    '   0/   0',
+    `${id}-text`,
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    x + 0,
+    y - 2,
+    0.5, null, null, true
+  )
+  const bg1 = addShape(group, WINDOW_COLORS_SUMMARY.BG_1, `${id}-bg-1`, x, y - 2, 60, 1)
+  const bg2 = addShape(group, WINDOW_COLORS_SUMMARY.BG_2, `${id}-bg-2`, x, y - 1, 60, 1)
+  const bar = addShape(group, WINDOW_COLORS_SUMMARY.HP, `${id}-bar`, x, y - 2, 60, 1)
+  // bar.visible = false
+  console.log('battleUI hp', text, bg1, bg2, bar)
+  const values = { current: 0, max: 0 }
+  const update = (newCurrent, newMax) => {
+    const percent = newCurrent / newMax
+    const isCritical = percent <= 0.1
+    const newText = `${('' + newCurrent).padStart(4, ' ')}/${('' + newMax).padStart(4, ' ')}`.split('')
+    for (const [i, letter] of newText.entries()) {
+      const textureLetter = getLetterTexture(
+        letter,
+        LETTER_TYPES.BattleTextStats,
+        i < 4 && isCritical ? LETTER_COLORS.Yellow : LETTER_COLORS.White
+      ).texture
+      // console.log('battleUI set', letter, text.children[i].material.map === textureLetter)
+      if (text.children[i].material.map !== textureLetter) {
+        text.children[i].material.map = textureLetter
+        text.children[i].material.needsUpdate = true
+      }
+    }
+    bar.position.x = x + (30 * percent)
+    bar.scale.set(percent, 1, 1)
+  }
+  let textTween = null
+  return {
+    set: (newCurrent, newMax, instant) => {
+      if (instant) {
+        update(newCurrent, newMax)
+        values.current = newCurrent
+        values.max = newMax
+      } else {
+        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_GROUP)
+          .to({ current: newCurrent, max: newMax }, 250) // TODO I'm not sure if this is always same speed, I don't think it is
+          .onUpdate(() => { update(Math.trunc(values.current), Math.trunc(values.max)) })
+          .onStop(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
+          .onComplete(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
+          .start()
+      }
+    }
+  }
+}
+const addMP = (group, x, y, id) => {
+  const text = addTextToDialog(
+    group,
+    '   0',
+    `${id}-text`,
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    x + 1,
+    y - 2,
+    0.5, null, null, true
+  )
+  const bg1 = addShape(group, WINDOW_COLORS_SUMMARY.BG_1, `${id}-bg-1`, x, y - 2, 30, 1)
+  const bg2 = addShape(group, WINDOW_COLORS_SUMMARY.BG_2, `${id}-bg-2`, x, y - 1, 30, 1)
+  const bar = addShape(group, WINDOW_COLORS_SUMMARY.MP, `${id}-bar`, x, y - 2, 30, 1)
+  // bar.visible = false
+  console.log('battleUI mp', text, bg1, bg2, bar)
+  const values = { current: 0, max: 0 }
+  const update = (newCurrent, newMax) => {
+    const percent = newCurrent / newMax
+    const isCritical = percent <= 0.1
+    const newText = ('' + newCurrent).padStart(4, ' ').split('')
+    for (const [i, letter] of newText.entries()) {
+      const textureLetter = getLetterTexture(
+        letter,
+        LETTER_TYPES.BattleTextStats,
+        i < 4 && isCritical ? LETTER_COLORS.Yellow : LETTER_COLORS.White
+      ).texture
+      // console.log('battleUI set', letter, text.children[i].material.map === textureLetter)
+      if (text.children[i].material.map !== textureLetter) {
+        text.children[i].material.map = textureLetter
+        text.children[i].material.needsUpdate = true
+      }
+    }
+    bar.position.x = x + (15 * percent)
+    bar.scale.set(percent, 1, 1)
+  }
+  let textTween = null
+  return {
+    set: (newCurrent, newMax, instant) => {
+      if (instant) {
+        update(newCurrent, newMax)
+        values.current = newCurrent
+        values.max = newMax
+      } else {
+        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_GROUP)
+          .to({ current: newCurrent, max: newMax }, 250) // TODO I'm not sure if this is always same speed, I don't think it is
+          .onUpdate(() => { update(Math.trunc(values.current), Math.trunc(values.max)) })
+          .onStop(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
+          .onComplete(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
+          .start()
+      }
+    }
+  }
+}
 export {
   addPlayerName,
   addBattleBarrier,
   addBattleLimit,
   addTurnTimer,
-  addPauseMenu
+  addPauseMenu,
+  addHP,
+  addMP
 }

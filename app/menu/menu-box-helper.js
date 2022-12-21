@@ -104,6 +104,8 @@ const generateGaugeBarsColors2 = c => {
 }
 const WINDOW_COLORS_SUMMARY = {
   BG: ['rgb(70,0,0)', 'rgb(70,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
+  BG_1: ['rgb(70,0,0)', 'rgb(70,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
+  BG_2: ['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
   HP: [
     'rgb(0,126,255)',
     'rgb(255,255,255)',

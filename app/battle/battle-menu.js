@@ -1,6 +1,9 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
-import { addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer } from './battle-menu-box-helper.js'
+import {
+  addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,
+  addHP, addMP
+} from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -44,8 +47,20 @@ const constructMainMenus = (currentBattle) => {
     turnTimer.set(0)
     // turnTimer.setActive(false)
 
+    const hp = addHP(mainR, 144, 184 + (playerLineHeight * i), `hp-${i}`)
+    hp.set(1234, 5678, true)
+    setInterval(() => {
+      hp.set(Math.floor(Math.random() * (5678 + 1)), 5678)
+    }, 2000)
+
+    const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
+    mp.set(1234, 5678, true)
+    setInterval(() => {
+      mp.set(Math.floor(Math.random() * (567 + 1)), 567)
+    }, 2000)
+
     player.ui = {
-      name, barrier, limit, turnTimer
+      name, barrier, limit, turnTimer, hp, mp
     }
   }
 }

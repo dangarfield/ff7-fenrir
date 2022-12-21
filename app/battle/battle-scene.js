@@ -169,5 +169,6 @@ export {
   startBattleRenderingLoop,
   BATTLE_TWEEN_GROUP,
   tweenSleep,
-  togglePauseBattle
+  togglePauseBattle,
+  BATTLE_PAUSED
 }
