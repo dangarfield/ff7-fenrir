@@ -375,25 +375,35 @@ const addBattleTextMenu = () => {
   let battleText = null
   const textGroupSpecial = createDialogBox({ id: 28, x: 16, y: 8, w: 320 - 32, h: 24, expandInstantly: true, noClipping: true, scene: orthoScene, isSemiTransparent: true, colors: WINDOW_COLORS_SUMMARY.DIALOG_SPECIAL })
   let battleTextSpecial = null
-  return {
-    showBattleMessage: async (text, isSpecial) => {
-      if (text === undefined) text = ''
+  const messageQueue = []
+  let messageIsBeingDisplayed = false
+  const processMessageQueue = async () => {
+    if (messageIsBeingDisplayed) return
+    while (messageQueue.length > 0) {
+      messageIsBeingDisplayed = true
+      const { text, isSpecial } = messageQueue.shift()
       if (isSpecial) {
         if (battleTextSpecial) textGroupSpecial.remove(battleTextSpecial)
         battleTextSpecial = addTextToDialog(textGroupSpecial, text, 'battle-descriptions-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 160, 24, 0.5, null, ALIGN.CENTRE, true)
         textGroupSpecial.visible = true
-        await tweenSleep(1000) // TODO - Time based on savemap config
+        await tweenSleep(2000) // TODO - Seems to be fixed regardless of speed - Eg, hit a limit
         textGroupSpecial.visible = false
       } else {
         if (battleText) textGroup.remove(battleText)
         battleText = addTextToDialog(textGroup, text, 'battle-descriptions-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 160, 24, 0.5, null, ALIGN.CENTRE, true)
         textGroup.visible = true
-        await tweenSleep(1000) // TODO - Time based on savemap config
+        const speed = ((255 - window.data.savemap.config.battleMessageSpeed) * 16) + 512 // TODO - This is a guess
+        await tweenSleep(speed)
         textGroup.visible = false
       }
-    },
-    showBattleMessageSpecial: async (text) => {
-
+    }
+    messageIsBeingDisplayed = false
+  }
+  return {
+    showBattleMessage: async (text, isSpecial) => {
+      if (text === undefined) text = ''
+      messageQueue.push({ text, isSpecial })
+      processMessageQueue()
     }
   }
 }

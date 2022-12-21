@@ -59,7 +59,7 @@ const constructMainMenus = (currentBattle) => {
   }
 }
 const updateActorsUI = () => {
-  for (const [i, player] of window.currentBattle.actors.entries()) {
+  for (const player of window.currentBattle.actors) {
     if (player.ui) {
       if (player.timers.turnTimerProgress && player.ui.turnTimer && player.ui.turnTimer.get() !== player.timers.turnTimerProgress) {
         player.ui.turnTimer.set(player.timers.turnTimerProgress)
@@ -77,6 +77,15 @@ const initBattleMenu = async (currentBattle) => {
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
+  battleText.showBattleMessage('One')
+  battleText.showBattleMessage('Two')
+  //   battleDescriptions.setText('Something')
+  //   battleDescriptions.setText('Use a limit skill')
+  setTimeout(() => {
+    // battleDescriptions.setText()
+    battleText.showBattleMessage('Three', true)
+    battleText.showBattleMessage('Four')
+  }, 1500)
 
   window.currentBattle.ui = {
     pause, battleDescriptions, battleText

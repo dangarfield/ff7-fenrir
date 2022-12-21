@@ -4,7 +4,6 @@ import {
   sceneGroup
 } from './battle-scene.js'
 import { initBattleKeypressActions } from './battle-controls.js'
-import { loadTempBattle2d } from './battle-2d.js'
 import { importModels } from './battle-3d.js'
 import { setupBattle } from './battle-setup.js'
 import { initAllVariables } from './battle-memory.js'
