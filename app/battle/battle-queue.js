@@ -4,15 +4,24 @@ import { resetTurnTimer } from './battle-timers.js'
 const initBattleQueue = (currentBattle) => {
   currentBattle.queue = {
     current: null,
-    queue: [],
+    actions: [],
+    activeSelectionPlayer: null,
     activeSelectionPlayers: [] // Should probably set this on the player actor itself
   }
 }
 
 const allowPlayerToSelectAction = (actorIndex) => {
-  if (!window.currentBattle.queue.activeSelectionPlayers.includes[actorIndex]) {
+  if (!window.currentBattle.queue.activeSelectionPlayers.includes(actorIndex)) {
     window.currentBattle.queue.activeSelectionPlayers.push(actorIndex)
     console.log('battleQueue allowPlayerToSelectAction', actorIndex)
+    promoteAvailablePlayerToSelectAction()
+  }
+}
+const promoteAvailablePlayerToSelectAction = () => {
+  if (window.currentBattle.queue.activeSelectionPlayer === null && window.currentBattle.queue.activeSelectionPlayers.length > 0) {
+    const actorIndex = window.currentBattle.queue.activeSelectionPlayers[0]
+    window.currentBattle.queue.activeSelectionPlayer = actorIndex
+    window.currentBattle.actors[actorIndex].ui.makeActiveSelectionPlayer()
   }
 }
 const doNotAllowPlayerToSelectAction = (actorIndex) => {
@@ -25,17 +34,17 @@ const doNotAllowPlayerToSelectAction = (actorIndex) => {
 const addPlayerActionToQueue = (actorIndex, action, priority) => {
   // TODO
   console.log('battleQueue addPlayerActionToQueue', actorIndex, action, priority)
-//   window.currentBattle.queue.queue.push({ actorIndex, type: 'playerAction' }) // TODO - Priority - https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics#Queued_Actions
+//   window.currentBattle.queue.actions.push({ actorIndex, type: 'playerAction' }) // TODO - Priority - https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics#Queued_Actions
 }
 const addScriptActionToQueue = (actorIndex) => {
   console.log('battleQueue addScriptActionToQueue', actorIndex) // Priority ?
-  window.currentBattle.queue.queue.push({ actorIndex, type: 'script' }) // TODO - Priority ?!
+  window.currentBattle.queue.actions.push({ actorIndex, type: 'script' }) // TODO - Priority ?!
   processQueue()
 }
 const processQueue = async () => {
   const queue = window.currentBattle.queue
-  if (queue.current === null && queue.queue.length > 0) {
-    queue.current = queue.queue.shift()
+  if (queue.current === null && queue.actions.length > 0) {
+    queue.current = queue.actions.shift()
     const actorIndex = queue.current.actorIndex
     if (queue.current.type === 'script') {
       // Execute script
@@ -50,6 +59,17 @@ const processQueue = async () => {
     }
   }
 }
+
+const cycleActiveSelectionPlayer = () => {
+  if (window.currentBattle.queue.activeSelectionPlayer === null) return
+  const doubleList = [...window.currentBattle.queue.activeSelectionPlayers, ...window.currentBattle.queue.activeSelectionPlayers]
+  const current = window.currentBattle.queue.activeSelectionPlayer
+  const next = doubleList[doubleList.findIndex(a => a === window.currentBattle.queue.activeSelectionPlayer) + 1]
+  window.currentBattle.actors[current].ui.removeActiveSelectionPlayer()
+  window.currentBattle.actors[next].ui.makeActiveSelectionPlayer()
+  window.currentBattle.queue.activeSelectionPlayer = next
+  console.log('battleQueue cycleActiveSelectionPlayer', doubleList, current, next)
+}
 const currentHasEnded = () => {
   window.currentBattle.queue.current = null
   processQueue()
@@ -60,5 +80,6 @@ export {
   doNotAllowPlayerToSelectAction,
   addPlayerActionToQueue,
   addScriptActionToQueue,
-  currentHasEnded
+  currentHasEnded,
+  cycleActiveSelectionPlayer
 }

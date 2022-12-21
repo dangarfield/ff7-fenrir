@@ -95,7 +95,6 @@ const initOpLoopVisualiser = () => {
   // console.log('data', data)
   renderInitialState(data)
 
-  createNanoEvents
   emitter = createNanoEvents()
   emitter.on('op-flow', data => {
     visualiseOpFlowEvent(data)

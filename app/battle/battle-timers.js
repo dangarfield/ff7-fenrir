@@ -135,6 +135,12 @@ const incrementTick = () => {
     // Only increment this if actor does not have an active turn in progress, or has one queued
     if (actor.timers.turnTimerProgress < timers.turnTimersMark && !actor.timers.turnTimerFull) {
       actor.timers.turnTimerProgress = Math.min(actor.timers.turnTimerProgress + actor.timers.turnTimerIncrement, timers.turnTimersMark)
+      if (actor.timers.turnTimerProgress === timers.turnTimersMark) {
+        actor.timers.turnTimerFull = true
+        actor.timers.turnTimer++
+        console.log('battleTimers turnTimer', actor.data.name, actor.timers.turnTimer, actor.timers.turnTimerProgress)
+        actor.timers.turnTimerCallback()
+      }
     }
 
     if (actor.timers.cTimerProgress > timers.cTimerMark) {
@@ -148,13 +154,6 @@ const incrementTick = () => {
       actor.timers.vTimer++
       //   console.log('battleTimers vTimer', actor.data.name, actor.timers.vTimer)
       actor.timers.vTimerCallback()
-    }
-
-    if (actor.timers.turnTimerProgress >= timers.turnTimersMark) {
-      actor.timers.turnTimerFull = true
-      actor.timers.turnTimer++
-      //   console.log('battleTimers turnTimer', actor.data.name, actor.timers.turnTimer)
-      actor.timers.turnTimerCallback()
     }
   }
 

@@ -30,6 +30,7 @@ const moveEntity = (model, from, to) => {
 const placeholderBattleAttackSequence = async (fromEntityIndex, toEntityIndex) => {
   const fromEntity = window.currentBattle.actors[fromEntityIndex]
   const toEntity = window.currentBattle.actors[toEntityIndex]
+  window.currentBattle.ui.battleText.showBattleMessage(`Attack: ${fromEntity.data.name} -> ${toEntity.data.name}`)
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
   await moveEntity(fromEntity.model, fromEntity.model.userData.defaultPosition, toEntity.model.userData.defaultPosition)
   await Promise.all([
@@ -42,15 +43,6 @@ const placeholderBattleAttackSequence = async (fromEntityIndex, toEntityIndex) =
 
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
-
-// const initTestBattleSequence = async () => {
-//   const battleConfig = window.currentBattle
-//   await tweenSleep(1000)
-//   await placeholderBattleAttackSequence(battleConfig.actors[4], battleConfig.actors[0])
-//   await placeholderBattleAttackSequence(battleConfig.actors[5], battleConfig.actors[0])
-//   await placeholderBattleAttackSequence(battleConfig.actors[4], battleConfig.actors[1])
-//   await placeholderBattleAttackSequence(battleConfig.actors[5], battleConfig.actors[1])
-// }
 
 export {
   placeholderBattleAttackSequence

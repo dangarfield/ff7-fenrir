@@ -53,8 +53,22 @@ const constructMainMenus = (currentBattle) => {
     const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
     mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
+    // TODO - When a player is dead, name, hp, mp, barrier, limit and wait are all red and blanked out
     player.ui = {
-      name, barrier, limit, turnTimer, hp, mp
+      name,
+      barrier,
+      limit,
+      turnTimer,
+      hp,
+      mp,
+      makeActiveSelectionPlayer: () => {
+        name.setActive(true)
+        turnTimer.setActive(true)
+      },
+      removeActiveSelectionPlayer: () => {
+        name.setActive(false)
+        turnTimer.setActive(false)
+      }
     }
   }
 }
@@ -77,15 +91,6 @@ const initBattleMenu = async (currentBattle) => {
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
-  battleText.showBattleMessage('One')
-  battleText.showBattleMessage('Two')
-  //   battleDescriptions.setText('Something')
-  //   battleDescriptions.setText('Use a limit skill')
-  setTimeout(() => {
-    // battleDescriptions.setText()
-    battleText.showBattleMessage('Three', true)
-    battleText.showBattleMessage('Four')
-  }, 1500)
 
   window.currentBattle.ui = {
     pause, battleDescriptions, battleText

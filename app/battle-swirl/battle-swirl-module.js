@@ -109,8 +109,8 @@ const loadBattleWithSwirl = async (battleId, options) => {
 
   console.log('battle loadBattleWithSwirl: START')
   await Promise.all([
-    preLoadBattle(battleId, options),
-    doSwirl()
+    doSwirl(),
+    preLoadBattle(battleId, options) // TODO - This causes a lot of lag, add a loading screen instead
   ])
   console.log('battle loadBattleWithSwirl: END')
   await loadBattle(battleId, options)
