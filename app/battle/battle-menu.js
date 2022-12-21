@@ -2,7 +2,7 @@ import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
 import {
   addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,
-  addHP, addMP
+  addHP, addMP, addBattleDescriptionsTextMenu, addBattleTextMenu
 } from './battle-menu-box-helper.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
@@ -48,16 +48,10 @@ const constructMainMenus = (currentBattle) => {
     // turnTimer.setActive(false)
 
     const hp = addHP(mainR, 144, 184 + (playerLineHeight * i), `hp-${i}`)
-    hp.set(1234, 5678, true)
-    setInterval(() => {
-      hp.set(Math.floor(Math.random() * (5678 + 1)), 5678)
-    }, 2000)
+    hp.set(player.battleStats.hp.current, player.battleStats.hp.max, true)
 
     const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
-    mp.set(1234, 5678, true)
-    setInterval(() => {
-      mp.set(Math.floor(Math.random() * (567 + 1)), 567)
-    }, 2000)
+    mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
     player.ui = {
       name, barrier, limit, turnTimer, hp, mp
@@ -73,11 +67,19 @@ const updateActorsUI = () => {
     }
   }
 }
+const toggleHelperText = () => {
+  if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.helper) {
+    window.currentBattle.ui.helper.toggle()
+  }
+}
 const initBattleMenu = async (currentBattle) => {
   constructMainMenus()
   const pause = addPauseMenu()
+  const battleDescriptions = addBattleDescriptionsTextMenu()
+  const battleText = addBattleTextMenu()
+
   window.currentBattle.ui = {
-    pause
+    pause, battleDescriptions, battleText
   }
   // Command list w = 1 list
   const command = createDialogBox({ id: 28, x: 71, y: 168, w: 60, h: 56, expandInstantly: true, noClipping: true, scene: orthoScene })
@@ -86,5 +88,6 @@ const initBattleMenu = async (currentBattle) => {
 }
 export {
   initBattleMenu,
-  updateActorsUI
+  updateActorsUI,
+  toggleHelperText
 }

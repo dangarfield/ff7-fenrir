@@ -2,6 +2,7 @@ import { getKeyPressEmitter } from '../interaction/inputs.js'
 import { setLastBattleResult } from '../field/field-battle.js'
 import { resolveBattlePromise } from './battle-module.js'
 import { togglePauseBattle, BATTLE_PAUSED } from './battle-scene.js'
+import { toggleHelperText } from './battle-menu.js'
 
 const areBattleControlsActive = () => {
   return window.anim.activeScene === 'battle'
@@ -26,6 +27,12 @@ const initBattleKeypressActions = () => {
     if (areBattleControlsActive() && firstPress) {
       console.log('press start')
       togglePauseBattle()
+    }
+  })
+  getKeyPressEmitter().on('select', firstPress => {
+    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
+      console.log('press select')
+      toggleHelperText()
     }
   })
 }

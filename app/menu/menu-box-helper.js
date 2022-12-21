@@ -294,9 +294,9 @@ const createDialogBox = dialog => {
   //     bg.material.opacity = 0
   //     console.log('isNoBackgroundBorder bg', bg)
   // }
-  // if (isTransparent) {
-  //     bg.material.opacity = 0.5
-  // }
+  if (dialog.isSemiTransparent) {
+    bg.material.opacity = 0.5
+  }
   dialogBox.add(bg)
 
   const tl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tl)

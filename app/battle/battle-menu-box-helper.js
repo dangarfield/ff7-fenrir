@@ -5,7 +5,7 @@ import {
 } from '../menu/menu-box-helper.js'
 import { addLimitBarTween, stopLimitBarTween } from '../menu/menu-limit-tween-helper.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
+import { BATTLE_TWEEN_GROUP, orthoScene, tweenSleep } from './battle-scene.js'
 
 const addShape = (
   dialogBox,
@@ -350,6 +350,53 @@ const addPauseMenu = () => {
     }
   }
 }
+const addBattleDescriptionsTextMenu = () => {
+  const helper = createDialogBox({ id: 28, x: 0, y: 166 - 24, w: 320, h: 24, expandInstantly: true, noClipping: true, scene: orthoScene, isSemiTransparent: true })
+  let helperText = null
+  helper.visible = window.data.savemap.config.battleDescriptions.Active
+  const save = () => {
+    window.data.savemap.config.battleDescriptions.Active = helper.visible
+    window.data.savemap.config.battleDescriptions.Inactive = !helper.visible
+  }
+  return {
+    setText: (text) => {
+      if (helperText) helper.remove(helperText)
+      if (text === undefined) text = ''
+      helperText = addTextToDialog(helper, text, 'battle-descriptions-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 160, 166 - 8, 0.5, null, ALIGN.CENTRE, true)
+    },
+    show: () => { helper.visible = true; save() },
+    hide: () => { helper.visible = false; save() },
+    toggle: () => { helper.visible = !helper.visible; save() }
+  }
+}
+const addBattleTextMenu = () => {
+  // TODO - Sometimes it can be special colours
+  const textGroup = createDialogBox({ id: 28, x: 16, y: 8, w: 320 - 32, h: 24, expandInstantly: true, noClipping: true, scene: orthoScene, isSemiTransparent: true })
+  let battleText = null
+  const textGroupSpecial = createDialogBox({ id: 28, x: 16, y: 8, w: 320 - 32, h: 24, expandInstantly: true, noClipping: true, scene: orthoScene, isSemiTransparent: true, colors: WINDOW_COLORS_SUMMARY.DIALOG_SPECIAL })
+  let battleTextSpecial = null
+  return {
+    showBattleMessage: async (text, isSpecial) => {
+      if (text === undefined) text = ''
+      if (isSpecial) {
+        if (battleTextSpecial) textGroupSpecial.remove(battleTextSpecial)
+        battleTextSpecial = addTextToDialog(textGroupSpecial, text, 'battle-descriptions-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 160, 24, 0.5, null, ALIGN.CENTRE, true)
+        textGroupSpecial.visible = true
+        await tweenSleep(1000) // TODO - Time based on savemap config
+        textGroupSpecial.visible = false
+      } else {
+        if (battleText) textGroup.remove(battleText)
+        battleText = addTextToDialog(textGroup, text, 'battle-descriptions-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 160, 24, 0.5, null, ALIGN.CENTRE, true)
+        textGroup.visible = true
+        await tweenSleep(1000) // TODO - Time based on savemap config
+        textGroup.visible = false
+      }
+    },
+    showBattleMessageSpecial: async (text) => {
+
+    }
+  }
+}
 const addHP = (group, x, y, id) => {
   const text = addTextToDialog(
     group,
@@ -364,7 +411,6 @@ const addHP = (group, x, y, id) => {
   const bg1 = addShape(group, WINDOW_COLORS_SUMMARY.BG_1, `${id}-bg-1`, x, y - 2, 60, 1)
   const bg2 = addShape(group, WINDOW_COLORS_SUMMARY.BG_2, `${id}-bg-2`, x, y - 1, 60, 1)
   const bar = addShape(group, WINDOW_COLORS_SUMMARY.HP, `${id}-bar`, x, y - 2, 60, 1)
-  // bar.visible = false
   console.log('battleUI hp', text, bg1, bg2, bar)
   const values = { current: 0, max: 0 }
   const update = (newCurrent, newMax) => {
@@ -397,8 +443,8 @@ const addHP = (group, x, y, id) => {
         textTween = new TWEEN.Tween(values, BATTLE_TWEEN_GROUP)
           .to({ current: newCurrent, max: newMax }, 250) // TODO I'm not sure if this is always same speed, I don't think it is
           .onUpdate(() => { update(Math.trunc(values.current), Math.trunc(values.max)) })
-          .onStop(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
-          .onComplete(() => { BATTLE_TWEEN_GROUP.remove(textTween); textTween = null })
+          .onStop(() => { BATTLE_TWEEN_GROUP.remove(textTween) })
+          .onComplete(() => { BATTLE_TWEEN_GROUP.remove(textTween) })
           .start()
       }
     }
@@ -418,7 +464,6 @@ const addMP = (group, x, y, id) => {
   const bg1 = addShape(group, WINDOW_COLORS_SUMMARY.BG_1, `${id}-bg-1`, x, y - 2, 30, 1)
   const bg2 = addShape(group, WINDOW_COLORS_SUMMARY.BG_2, `${id}-bg-2`, x, y - 1, 30, 1)
   const bar = addShape(group, WINDOW_COLORS_SUMMARY.MP, `${id}-bar`, x, y - 2, 30, 1)
-  // bar.visible = false
   console.log('battleUI mp', text, bg1, bg2, bar)
   const values = { current: 0, max: 0 }
   const update = (newCurrent, newMax) => {
@@ -464,6 +509,8 @@ export {
   addBattleLimit,
   addTurnTimer,
   addPauseMenu,
+  addBattleDescriptionsTextMenu,
+  addBattleTextMenu,
   addHP,
   addMP
 }
