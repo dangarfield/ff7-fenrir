@@ -60,13 +60,13 @@ const processQueue = async () => {
   }
 }
 
-const cycleActiveSelectionPlayer = () => {
+const cycleActiveSelectionPlayer = async () => {
   if (window.currentBattle.queue.activeSelectionPlayer === null) return
   const doubleList = [...window.currentBattle.queue.activeSelectionPlayers, ...window.currentBattle.queue.activeSelectionPlayers]
   const current = window.currentBattle.queue.activeSelectionPlayer
   const next = doubleList[doubleList.findIndex(a => a === window.currentBattle.queue.activeSelectionPlayer) + 1]
-  window.currentBattle.actors[current].ui.removeActiveSelectionPlayer()
-  window.currentBattle.actors[next].ui.makeActiveSelectionPlayer()
+  await window.currentBattle.actors[current].ui.removeActiveSelectionPlayer()
+  await window.currentBattle.actors[next].ui.makeActiveSelectionPlayer()
   window.currentBattle.queue.activeSelectionPlayer = next
   console.log('battleQueue cycleActiveSelectionPlayer', doubleList, current, next)
 }

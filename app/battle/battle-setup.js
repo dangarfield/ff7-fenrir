@@ -48,6 +48,7 @@ const setupBattle = (battleId) => {
       currentBattle.actors.push({ active: false, index: i })
     } else {
       const data = { ...window.data.savemap.characters[partyMember] }
+      // if (i === 0) data.limit.bar = 0xFF // TODO - Remove this, just for testing
       const battleStats = getBattleStatsForChar(data)
 
       currentBattle.actors.push({

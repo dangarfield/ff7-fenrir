@@ -1090,10 +1090,10 @@ const addCharacterSummary = async (
     mpPerc
   )
 }
-const initPointers = () => {
-  POINTERS.pointer1 = createPointer(scene)
-  POINTERS.pointer2 = createPointer(scene)
-  POINTERS.pointer3 = createPointer(scene)
+const initPointers = (sceneToUse) => {
+  POINTERS.pointer1 = createPointer(sceneToUse)
+  POINTERS.pointer2 = createPointer(sceneToUse)
+  POINTERS.pointer3 = createPointer(sceneToUse)
   // pointer2 = createPointer()
   console.log('pointer1', POINTERS.pointer1)
   window.POINTERS = POINTERS
@@ -1728,7 +1728,7 @@ const addLevelToDialog = (dialog, x, y, char) => {
     THREE.AdditiveBlending
   )
 }
-const addMenuCommandsToDialog = (dialog, x, y, commands) => {
+const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup) => {
   const widthCol1 = 50
   const widthCol2 = 86.5
   const widthCol3 = 126.5
@@ -1743,21 +1743,27 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
   const yAdjTextCol2 = 40.5
   const yAdjTextCol3 = 77
 
-  const commandDialog = createDialogBox({
+  const dialogOptions = {
     id: dialog.position.z + 3,
     name: 'commandDialog',
     w: width,
     h: 60,
     x,
-    y,
-    expandInstantly: true,
-    noClipping: true
-  })
-  commandDialog.visible = true
+    y
+  }
+  if (startHidden === undefined || !startHidden) {
+    dialogOptions.expandInstantly = true
+    dialogOptions.noClipping = true
+  }
+
+  const commandDialog = createDialogBox(dialogOptions)
+  if (startHidden === undefined || !startHidden) {
+    commandDialog.visible = true
+  }
   dialog.add(commandDialog)
 
   let limitGroup = null
-  for (let i = 0; i < commands.length; i++) {
+  for (let i = 0; i < commands.length; i++) { // TODO - These change in battle need to amend
     const command = commands[i]
     let yAdjText = yAdjTextCol1
     if (i >= 8) {
@@ -1783,8 +1789,10 @@ const addMenuCommandsToDialog = (dialog, x, y, commands) => {
     }
   }
   if (limitGroup !== null) {
-    addLimitTextTween(limitGroup)
+    if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
+    addLimitTextTween(limitGroup, tweenGroup)
   }
+  return commandDialog
 }
 const updateTexture = (mesh, letter, letterType, color) => {
   const textureLetter = getLetterTexture(letter, letterType, color)

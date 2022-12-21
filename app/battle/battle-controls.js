@@ -1,8 +1,8 @@
-import { getKeyPressEmitter } from '../interaction/inputs.js'
+import { getKeyPressEmitter, KEY } from '../interaction/inputs.js'
 import { setLastBattleResult } from '../field/field-battle.js'
 import { resolveBattlePromise } from './battle-module.js'
 import { togglePauseBattle, BATTLE_PAUSED } from './battle-scene.js'
-import { toggleHelperText } from './battle-menu.js'
+import { sendKeyPressToBattleMenu, toggleHelperText } from './battle-menu.js'
 import { cycleActiveSelectionPlayer } from './battle-queue.js'
 
 const areBattleControlsActive = () => {
@@ -10,13 +10,7 @@ const areBattleControlsActive = () => {
 }
 
 const initBattleKeypressActions = () => {
-  getKeyPressEmitter().on('o', firstPress => {
-    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
-      console.log('press o')
-    }
-  })
-
-  getKeyPressEmitter().on('x', firstPress => {
+  getKeyPressEmitter().on(KEY.L2, firstPress => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
       console.log('press x')
       // Temp
@@ -24,22 +18,70 @@ const initBattleKeypressActions = () => {
       resolveBattlePromise()
     }
   })
-  getKeyPressEmitter().on('triangle', firstPress => {
-    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
-      console.log('press triangle')
-      cycleActiveSelectionPlayer()
-    }
-  })
-  getKeyPressEmitter().on('start', firstPress => {
+  getKeyPressEmitter().on(KEY.START, firstPress => {
     if (areBattleControlsActive() && firstPress) {
       console.log('press start')
       togglePauseBattle()
     }
   })
-  getKeyPressEmitter().on('select', firstPress => {
+  getKeyPressEmitter().on(KEY.SELECT, firstPress => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
       console.log('press select')
       toggleHelperText()
+    }
+  })
+
+  getKeyPressEmitter().on(KEY.TRIANGLE, firstPress => {
+    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
+      console.log('press triangle')
+      cycleActiveSelectionPlayer()
+    }
+  })
+  getKeyPressEmitter().on(KEY.SQUARE, firstPress => {
+    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
+      console.log('press triangle')
+      // TODO - Hide menus
+    }
+  })
+
+  getKeyPressEmitter().on(KEY.O, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.O)
+    }
+  })
+  getKeyPressEmitter().on(KEY.X, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.X)
+    }
+  })
+  getKeyPressEmitter().on(KEY.UP, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.UP)
+    }
+  })
+  getKeyPressEmitter().on(KEY.DOWN, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.DOWN)
+    }
+  })
+  getKeyPressEmitter().on(KEY.LEFT, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.LEFT)
+    }
+  })
+  getKeyPressEmitter().on(KEY.RIGHT, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.RIGHT)
+    }
+  })
+  getKeyPressEmitter().on(KEY.L1, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.L1)
+    }
+  })
+  getKeyPressEmitter().on(KEY.R1, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.R1)
     }
   })
 }

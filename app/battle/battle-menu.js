@@ -1,9 +1,10 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { addImageToDialog, ALIGN, createDialogBox } from '../menu/menu-box-helper.js'
+import { addImageToDialog, ALIGN, createDialogBox, initPointers } from '../menu/menu-box-helper.js'
 import {
   addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,
   addHP, addMP, addBattleDescriptionsTextMenu, addBattleTextMenu
 } from './battle-menu-box-helper.js'
+import { addCommands } from './battle-menu-selection.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
@@ -53,6 +54,7 @@ const constructMainMenus = (currentBattle) => {
     const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
     mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
+    const commands = addCommands(i)
     // TODO - When a player is dead, name, hp, mp, barrier, limit and wait are all red and blanked out
     player.ui = {
       name,
@@ -61,13 +63,16 @@ const constructMainMenus = (currentBattle) => {
       turnTimer,
       hp,
       mp,
-      makeActiveSelectionPlayer: () => {
+      commands,
+      makeActiveSelectionPlayer: async () => {
         name.setActive(true)
         turnTimer.setActive(true)
+        await commands.show()
       },
-      removeActiveSelectionPlayer: () => {
+      removeActiveSelectionPlayer: async () => {
         name.setActive(false)
         turnTimer.setActive(false)
+        await commands.hide()
       }
     }
   }
@@ -86,7 +91,13 @@ const toggleHelperText = () => {
     window.currentBattle.ui.helper.toggle()
   }
 }
+const sendKeyPressToBattleMenu = (key) => {
+  if (window.currentBattle.queue.activeSelectionPlayer === null) return
+  window.currentBattle.actors[window.currentBattle.queue.activeSelectionPlayer].ui.commands.keyPress(key)
+}
 const initBattleMenu = async (currentBattle) => {
+  // TODO - Clear orthoScene
+  initPointers(orthoScene)
   constructMainMenus()
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()
@@ -103,5 +114,6 @@ const initBattleMenu = async (currentBattle) => {
 export {
   initBattleMenu,
   updateActorsUI,
-  toggleHelperText
+  toggleHelperText,
+  sendKeyPressToBattleMenu
 }

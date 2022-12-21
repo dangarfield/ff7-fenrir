@@ -1270,7 +1270,7 @@ const drawCheckSubCastingInfo = () => {
       }
     }
 
-    if (spell.hasOwnProperty('uses')) {
+    if (Object.hasOwn(spell, 'uses')) {
       if (spell.uses === 0xFF) {
         addImageToDialog(
           checkSubGroup.userData.subCasting,

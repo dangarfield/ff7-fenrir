@@ -89,7 +89,7 @@ const clearScene = () => {
 }
 const initCommonMenuItems = () => {
   createMenuBlackOverlay()
-  initPointers()
+  initPointers(scene)
 }
 let menuBlackOverlay
 const createMenuBlackOverlay = () => {
@@ -112,7 +112,7 @@ const loadMenuWithWait = (menuCode, param) => {
   )
   clearScene()
   initMenuRenderLoop()
-  return new Promise(async resolve => {
+  return new Promise(resolve => {
     MENU_PROMISE = resolve
     switch (menuCode) {
       case MENU_TYPE.Credits:
