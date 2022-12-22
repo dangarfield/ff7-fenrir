@@ -81,8 +81,8 @@ const setupScenes = () => {
   // const light = new THREE.DirectionalLight(0xffffff)
   // light.position.set(0, 0, 50).normalize()
   // scene.add(light)
-  const ambientLight = new THREE.AmbientLight(0xffffff, 12)
-  scene.add(ambientLight)
+  // const ambientLight = new THREE.AmbientLight(0xffffff, 12)
+  // scene.add(ambientLight)
 
   fixedCamera = new THREE.PerspectiveCamera(
     100,

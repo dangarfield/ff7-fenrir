@@ -25,6 +25,13 @@ const loadSceneModel = async modelCode => {
         console.log('battle parsed gltf:', gltf)
         addBlendingToMaterials(gltf)
         // console.log("combined gltf:", gltf)
+
+        // Quick hack for smooth animations until we remove the duplicate frames in the gltfs
+        for (const anim of gltf.animations) {
+          for (const track of anim.tracks) {
+            track.optimize()
+          }
+        }
         resolve(gltf)
       }
     )

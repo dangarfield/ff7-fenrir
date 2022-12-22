@@ -136,6 +136,13 @@ const loadFullFieldModel = async modelLoader => {
         addBlendingToMaterials(gltf)
         await addBlinkingToModel(modelLoader.hrcId.replace('.HRC', ''), gltf)
         // console.log("combined gltf:", gltf)
+
+        // Quick hack for smooth animations until we remove the duplicate frames in the gltfs
+        for (const anim of gltf.animations) {
+          for (const track of anim.tracks) {
+            track.optimize()
+          }
+        }
         resolve(gltf)
       }
     )
