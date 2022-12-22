@@ -6,7 +6,7 @@ import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
-import { addLimitBarTween, addLimitTextTween } from './menu-limit-tween-helper.js'
+import { addCoinTextTween, addLimitBarTween, addLimitTextTween } from './menu-limit-tween-helper.js'
 const EDGE_SIZE = 8
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -1763,6 +1763,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
   dialog.add(commandDialog)
 
   let limitGroup = null
+  let coinGroup = null
   for (let i = 0; i < commands.length; i++) { // TODO - These change in battle need to amend
     const command = commands[i]
     let yAdjText = yAdjTextCol1
@@ -1786,12 +1787,29 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
         limitGroup = commandText
         commandText.userData.limitText = window.data.kernel.commandData[command.limit].name
       }
+      if (command.id === 7) { // Coin
+        const commandText2 = addTextToDialog(
+          commandDialog,
+          window.data.kernel.commandData[8].name, // Throw
+          'menu-cmd-throw',
+          LETTER_TYPES.MenuBaseFont,
+          LETTER_COLORS.White,
+          x + 5 - 8 + yAdjText,
+          y + 15.5 - 4 + (13 * (i % 4)),
+          0.5
+        )
+        commandText2.visible = false
+        coinGroup = [commandText, commandText2]
+      }
     }
   }
-  // TODO Coin/Throw tween
   if (limitGroup !== null) {
     if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
     addLimitTextTween(limitGroup, tweenGroup)
+  }
+  if (coinGroup !== null) {
+    if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
+    commandDialog.userData.coinGroup = coinGroup
   }
   return commandDialog
 }

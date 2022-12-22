@@ -885,12 +885,13 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Barret,
     'Missing Score', 'Wizard Bracelet', 'Choco Feather',
-    ['Master Command', 'Choco/Mog', 'Shiva', 'Ifrit', '', '', '', ''],
+    ['', 'Choco/Mog', 'Shiva', 'Ifrit', 'Throw', 'Throw', '', ''],
     ['', '', '', '', '', '', '', '']
   )
   window.data.savemap.characters.Barret.materia.weaponMateria2.ap = 1000
   window.data.savemap.characters.Barret.materia.weaponMateria3.ap = 16000
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
+  window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 const getWeaponDataFromItemId = (itemId) => {

@@ -7,7 +7,8 @@ const LIMIT_TWEEN_DATA = {
   limitBarTweens: [],
   limitBarTween: null,
   limitTextTweens: [],
-  limitTextTween: null
+  limitTextTween: null,
+  coinTextTweens: []
 }
 window.LIMIT_TWEEN_DATA = LIMIT_TWEEN_DATA
 const beginLimitBarTween = (tweenGroup) => {
@@ -246,6 +247,37 @@ const addLimitTextTween = (group, tweenGroup) => {
     LIMIT_TWEEN_DATA.limitTextTweens.push(group)
   }
 }
+const tweenSleep = (ms, tweenGroup) => {
+  return new Promise(resolve => {
+    new TWEEN.Tween({ x: 1 }, tweenGroup).to({ x: 1 }, ms).onComplete(function () { resolve() }).start()
+  })
+}
+const beginCoinTextTween = async (tweenGroup) => {
+  while (LIMIT_TWEEN_DATA.coinTextTweens.length > 0) {
+    await tweenSleep(1000, tweenGroup)
+    for (const groups of LIMIT_TWEEN_DATA.coinTextTweens) {
+      for (const group of groups) {
+        group.visible = !group.visible
+      }
+    }
+  }
+}
+const startAllCoinTextTweens = (groups, tweenGroup) => {
+  if (groups === undefined) return
+  if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
+  if (LIMIT_TWEEN_DATA.coinTextTweens.length === 0) {
+    LIMIT_TWEEN_DATA.coinTextTweens.push(groups)
+    beginCoinTextTween(tweenGroup)
+  } else {
+    LIMIT_TWEEN_DATA.coinTextTweens.push(groups)
+  }
+}
+const stopAllCoinTextTweens = () => {
+  LIMIT_TWEEN_DATA.coinTextTweens = []
+}
+const addCoinTextTween = (groups, tweenGroup) => {
+  if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
+}
 const stopAllLimitTextTweens = () => {
 //   console.log('limit stopAllLimitTextTweens')
   if (LIMIT_TWEEN_DATA.limitTextTween) {
@@ -264,5 +296,8 @@ export {
   stopAllLimitBarTweens,
   addLimitTextTween,
   stopAllLimitTextTweens,
-  stopLimitBarTween
+  stopLimitBarTween,
+  addCoinTextTween,
+  startAllCoinTextTweens,
+  stopAllCoinTextTweens
 }
