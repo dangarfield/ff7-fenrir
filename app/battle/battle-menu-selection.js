@@ -1,6 +1,6 @@
 import { KEY } from '../interaction/inputs.js'
 import { addMenuCommandsToDialog, closeDialog, showDialog, POINTERS, movePointer, createDialogBox, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
-import { stopAllCoinTextTweens, startAllCoinTextTweens } from '../menu/menu-limit-tween-helper.js'
+import { startLimitTextTween, stopAllCoinTextTweens, startCoinTextTweens, stopAllLimitTextTweens } from '../menu/menu-limit-tween-helper.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 
 const addCommands = (actorIndex) => {
@@ -112,7 +112,8 @@ const addCommands = (actorIndex) => {
   }
   return {
     show: async () => {
-      startAllCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
+      startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
+      startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
       await showDialog(commandsGroup)
       drawCommandCursor()
     },
@@ -125,6 +126,7 @@ const addCommands = (actorIndex) => {
       closeDialog(defendGroup)
       await closeDialog(commandsGroup) // TODO - Clipping doesn't happen here, so text doesn't disappear
       stopAllCoinTextTweens()
+      stopAllLimitTextTweens()
       DATA.state = 'command'
     },
     keyPress

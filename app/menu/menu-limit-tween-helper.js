@@ -237,8 +237,9 @@ const stopAllLimitBarTweens = () => {
   }
 }
 
-const addLimitTextTween = (group, tweenGroup) => {
+const startLimitTextTween = (group, tweenGroup) => {
 //   console.log('limit addLimitTextTween', group, LIMIT_TWEEN_DATA.limitTextTweens)
+  if (group === undefined) return
   if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
   if (LIMIT_TWEEN_DATA.limitTextTweens.length === 0) {
     LIMIT_TWEEN_DATA.limitTextTweens.push(group)
@@ -254,7 +255,7 @@ const tweenSleep = (ms, tweenGroup) => {
 }
 const beginCoinTextTween = async (tweenGroup) => {
   while (LIMIT_TWEEN_DATA.coinTextTweens.length > 0) {
-    await tweenSleep(1000, tweenGroup)
+    await tweenSleep(1000, tweenGroup) // TODO - This really needs to be killed directly from stopAllCoinTextTweens
     for (const groups of LIMIT_TWEEN_DATA.coinTextTweens) {
       for (const group of groups) {
         group.visible = !group.visible
@@ -262,7 +263,7 @@ const beginCoinTextTween = async (tweenGroup) => {
     }
   }
 }
-const startAllCoinTextTweens = (groups, tweenGroup) => {
+const startCoinTextTweens = (groups, tweenGroup) => {
   if (groups === undefined) return
   if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
   if (LIMIT_TWEEN_DATA.coinTextTweens.length === 0) {
@@ -274,9 +275,6 @@ const startAllCoinTextTweens = (groups, tweenGroup) => {
 }
 const stopAllCoinTextTweens = () => {
   LIMIT_TWEEN_DATA.coinTextTweens = []
-}
-const addCoinTextTween = (groups, tweenGroup) => {
-  if (!tweenGroup) tweenGroup = MENU_TWEEN_GROUP
 }
 const stopAllLimitTextTweens = () => {
 //   console.log('limit stopAllLimitTextTweens')
@@ -294,10 +292,9 @@ const stopLimitBarTween = (group) => {
 export {
   addLimitBarTween,
   stopAllLimitBarTweens,
-  addLimitTextTween,
+  startLimitTextTween,
   stopAllLimitTextTweens,
   stopLimitBarTween,
-  addCoinTextTween,
-  startAllCoinTextTweens,
+  startCoinTextTweens,
   stopAllCoinTextTweens
 }

@@ -892,6 +892,8 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria3.ap = 16000
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
+
+  window.data.savemap.characters.Barret.limit.bar = 255
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
 const getWeaponDataFromItemId = (itemId) => {

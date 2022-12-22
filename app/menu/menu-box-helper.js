@@ -6,7 +6,7 @@ import { getMenuTextures } from '../data/menu-fetch-data.js'
 import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
-import { addCoinTextTween, addLimitBarTween, addLimitTextTween } from './menu-limit-tween-helper.js'
+import { addLimitBarTween } from './menu-limit-tween-helper.js'
 const EDGE_SIZE = 8
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -1804,11 +1804,9 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
     }
   }
   if (limitGroup !== null) {
-    if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
-    addLimitTextTween(limitGroup, tweenGroup)
+    commandDialog.userData.limitGroup = limitGroup
   }
   if (coinGroup !== null) {
-    if (tweenGroup === undefined) tweenGroup = MENU_TWEEN_GROUP
     commandDialog.userData.coinGroup = coinGroup
   }
   return commandDialog
