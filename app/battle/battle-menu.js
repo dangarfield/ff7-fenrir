@@ -1,6 +1,5 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox, initPointers } from '../menu/menu-box-helper.js'
-import { stopAllCoinTextTweens } from '../menu/menu-limit-tween-helper.js'
 import {
   addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,
   addHP, addMP, addBattleDescriptionsTextMenu, addBattleTextMenu

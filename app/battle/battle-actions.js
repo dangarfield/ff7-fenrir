@@ -43,7 +43,18 @@ const placeholderBattleAttackSequence = async (fromEntityIndex, toEntityIndex) =
 
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
+const placeholdePlayerAnimation = async (actor) => {
+  await actor.model.userData.playAnimationOnce(9, { nextAnim: 0 })
+}
+const executePlayerAction = async (actor, queueItem) => {
+  // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
+  const { commandId } = queueItem
+  const command = window.data.kernel.commandData[commandId]
+  window.currentBattle.ui.battleText.showBattleMessage(`${actor.data.name} -> ${command.name}`)
+  await placeholdePlayerAnimation(actor)
+}
 
 export {
-  placeholderBattleAttackSequence
+  placeholderBattleAttackSequence,
+  executePlayerAction
 }

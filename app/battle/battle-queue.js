@@ -1,3 +1,4 @@
+import { executePlayerAction } from './battle-actions.js'
 import { executeScript } from './battle-stack.js'
 import { resetTurnTimer } from './battle-timers.js'
 
@@ -6,7 +7,7 @@ const initBattleQueue = (currentBattle) => {
     current: null,
     actions: [],
     activeSelectionPlayer: null,
-    activeSelectionPlayers: [] // Should probably set this on the player actor itself
+    activeSelectionPlayers: []
   }
 }
 
@@ -25,16 +26,18 @@ const promoteAvailablePlayerToSelectAction = () => {
   }
 }
 const doNotAllowPlayerToSelectAction = (actorIndex) => {
+  if (window.currentBattle.queue.activeSelectionPlayer === actorIndex) window.currentBattle.queue.activeSelectionPlayer = null
   const index = window.currentBattle.queue.activeSelectionPlayers.indexOf(actorIndex)
   if (index !== -1) {
     window.currentBattle.queue.activeSelectionPlayers.splice(index, 1)
     console.log('battleQueue doNotAllowPlayerToSelectAction', actorIndex)
   }
+  promoteAvailablePlayerToSelectAction()
 }
-const addPlayerActionToQueue = (actorIndex, action, priority) => {
-  // TODO
-  console.log('battleQueue addPlayerActionToQueue', actorIndex, action, priority)
-//   window.currentBattle.queue.actions.push({ actorIndex, type: 'playerAction' }) // TODO - Priority - https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics#Queued_Actions
+const addPlayerActionToQueue = (actorIndex, commandId, attack, targetMask, priority) => {
+  console.log('battleQueue addPlayerActionToQueue', actorIndex, commandId, attack, targetMask, priority)
+  window.currentBattle.queue.actions.push({ actorIndex, type: 'playerAction', commandId, attack, targetMask, priority }) // TODO - Priority - https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics#Queued_Actions
+  processQueue()
 }
 const addScriptActionToQueue = (actorIndex) => {
   console.log('battleQueue addScriptActionToQueue', actorIndex) // Priority ?
@@ -46,16 +49,20 @@ const processQueue = async () => {
   if (queue.current === null && queue.actions.length > 0) {
     queue.current = queue.actions.shift()
     const actorIndex = queue.current.actorIndex
+    const actor = window.currentBattle.actors[actorIndex]
     if (queue.current.type === 'script') {
       // Execute script
-      const actor = window.currentBattle.actors[actorIndex]
-      console.log('battleStack main: START', actor)
+      console.log('battleQueue enemy action: START', actor)
       await executeScript(actorIndex, actor.script.main.script)
-      console.log('battleStack main: END', actor)
+      console.log('battleQueue enemy action: END', actor)
       currentHasEnded()
       resetTurnTimer(actorIndex)
     } else if (queue.current.type === 'playerAction') {
-      // TODO: Execute player action
+      console.log('battleQueue player action: START', actor, queue.current)
+      await executePlayerAction(actor, queue.current)
+      console.log('battleQueue player action: END', actor)
+      currentHasEnded()
+      resetTurnTimer(actorIndex)
     }
   }
 }

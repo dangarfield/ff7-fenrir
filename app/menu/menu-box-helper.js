@@ -1729,9 +1729,9 @@ const addLevelToDialog = (dialog, x, y, char) => {
   )
 }
 const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup) => {
-  const widthCol1 = 50
-  const widthCol2 = 86.5
-  const widthCol3 = 126.5
+  const widthCol1 = 60
+  const widthCol2 = 109
+  const widthCol3 = 157
 
   let width = widthCol1
   if (commands.length > 8) {
@@ -1740,8 +1740,8 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
     width = widthCol2
   }
   const yAdjTextCol1 = 0
-  const yAdjTextCol2 = 40.5
-  const yAdjTextCol3 = 77
+  const yAdjTextCol2 = 52.5
+  const yAdjTextCol3 = 96.5
 
   const dialogOptions = {
     id: dialog.position.z + 3,
@@ -1777,7 +1777,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
         commandDialog,
         command.limit ? window.data.kernel.commandData[command.limit].name : command.name,
         `menu-cmd-${command.name}`,
-        LETTER_TYPES.MenuBaseFont,
+        LETTER_TYPES.BattleBaseFont,
         LETTER_COLORS.White,
         x + 5 - 8 + yAdjText,
         y + 15.5 - 4 + (13 * (i % 4)),
@@ -1792,7 +1792,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
           commandDialog,
           window.data.kernel.commandData[8].name, // Throw
           'menu-cmd-throw',
-          LETTER_TYPES.MenuBaseFont,
+          LETTER_TYPES.BattleBaseFont,
           LETTER_COLORS.White,
           x + 5 - 8 + yAdjText,
           y + 15.5 - 4 + (13 * (i % 4)),

@@ -868,8 +868,10 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
     'Ultima Weapon', 'Wizard Bracelet', '',
-    ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
-    ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
+    // ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
+    // ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
+    ['Mega All', 'Master Command', 'Master Magic', 'W-Magic', 'Master Summon', 'Enemy Skill', '', ''],
+    ['', '', '', '', '', '', '', '']
   )
 
   // window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677
@@ -885,7 +887,7 @@ const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Barret,
     'Missing Score', 'Wizard Bracelet', 'Choco Feather',
-    ['', 'Choco/Mog', 'Shiva', 'Ifrit', 'Throw', 'Throw', '', ''],
+    ['', 'Choco/Mog', 'Shiva', 'Ifrit', 'Throw', 'Throw', 'W-Summon', 'Deathblow'],
     ['', '', '', '', '', '', '', '']
   )
   window.data.savemap.characters.Barret.materia.weaponMateria2.ap = 1000
