@@ -8,50 +8,11 @@ const LIMIT_TWEEN_DATA = {
   limitBarTween: null,
   limitTextTweens: [],
   limitTextTween: null,
-  coinTextTweens: []
+  coinTextTweens: [],
+  coinTextTween: null
 }
 window.LIMIT_TWEEN_DATA = LIMIT_TWEEN_DATA
 const beginLimitBarTween = (tweenGroup) => {
-  // Temp limit tween color testing - tween
-  // const to = { r: [], g: [], b: [] }
-  // const colorsToUse = [GAUGE_COLORS.LIMIT_NORMAL_2, GAUGE_COLORS.LIMIT_NORMAL_3, GAUGE_COLORS.LIMIT_NORMAL_4, GAUGE_COLORS.LIMIT_NORMAL_1]
-  // for (let i = 0; i < colorsToUse.length; i++) {
-  //   const colorToUse = new THREE.Color(colorsToUse[i])
-  //   to.r.push(colorToUse.r)
-  //   to.g.push(colorToUse.g)
-  //   to.b.push(colorToUse.b)
-  // }
-  // const from = {
-  //   r: to.r[colorsToUse.length - 1],
-  //   g: to.g[colorsToUse.length - 1],
-  //   b: to.b[colorsToUse.length - 1]
-  // }
-  // console.log('limit tween colors: ', from, to)
-
-  // const l1GeoColorAtt = l1.geometry.getAttribute('color')
-  // v
-  // const l2GeoColorAtt = l2.geometry.getAttribute('color')
-  // l2GeoColorAtt.needsUpdate = true
-  // new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-  //   .to(to, 1000)
-  //   .repeat(Infinity)
-  //   // .easing(TWEEN.Easing.Quadratic.Out)
-  //   .onUpdate(function () {
-  //     console.log('limit color tween: UPDATE', from)
-  //     // fade.material.opacity = from.opacity
-  //     l1GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
-  //     l1GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
-  //     l1GeoColorAtt.needsUpdate = true
-  //     l2GeoColorAtt.setXYZ(2, from.r, from.b, from.g)
-  //     l2GeoColorAtt.setXYZ(3, from.r, from.b, from.g)
-  //     l2GeoColorAtt.needsUpdate = true
-  //   })
-  //   .onComplete(function () {
-  //     console.log('limit color tween: END', from)
-  //     // resolve()
-  //   })
-  //   .start()
-
   // Temp limit tween color testing 2 - fixed steps
   const to = { v: 1 }
   const from = { v: 0 }
@@ -248,20 +209,27 @@ const startLimitTextTween = (group, tweenGroup) => {
     LIMIT_TWEEN_DATA.limitTextTweens.push(group)
   }
 }
-const tweenSleep = (ms, tweenGroup) => {
-  return new Promise(resolve => {
-    new TWEEN.Tween({ x: 1 }, tweenGroup).to({ x: 1 }, ms).onComplete(function () { resolve() }).start()
-  })
-}
 const beginCoinTextTween = async (tweenGroup) => {
-  while (LIMIT_TWEEN_DATA.coinTextTweens.length > 0) {
-    await tweenSleep(1000, tweenGroup) // TODO - This really needs to be killed directly from stopAllCoinTextTweens
-    for (const groups of LIMIT_TWEEN_DATA.coinTextTweens) {
-      for (const group of groups) {
-        group.visible = !group.visible
+  const from = { v: 0 }
+  const to = { v: 1 }
+  LIMIT_TWEEN_DATA.coinTextTween = new TWEEN.Tween(from, tweenGroup)
+    .to(to, 750)
+    .repeat(Infinity)
+    .onStop(function () {
+      console.log('limit bar tween: STOP')
+    })
+    .onRepeat(function () {
+      console.log('limit bar tween: REPEAT', LIMIT_TWEEN_DATA.limitBarTweens.length)
+      for (const groups of LIMIT_TWEEN_DATA.coinTextTweens) {
+        for (const group of groups) {
+          group.visible = !group.visible
+        }
       }
-    }
-  }
+    })
+    .onComplete(function () {
+      console.log('limit bar tween: END', from)
+    })
+    .start()
 }
 const startCoinTextTweens = (groups, tweenGroup) => {
   if (groups === undefined) return
@@ -274,7 +242,10 @@ const startCoinTextTweens = (groups, tweenGroup) => {
   }
 }
 const stopAllCoinTextTweens = () => {
-  LIMIT_TWEEN_DATA.coinTextTweens = []
+  if (LIMIT_TWEEN_DATA.coinTextTween) {
+    LIMIT_TWEEN_DATA.coinTextTweens = []
+    LIMIT_TWEEN_DATA.coinTextTween.stop()
+  }
 }
 const stopAllLimitTextTweens = () => {
 //   console.log('limit stopAllLimitTextTweens')
