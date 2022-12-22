@@ -977,12 +977,12 @@ const drawCheckSelect = () => {
 const drawCheckMainPointer = () => {
   const x = 27 - 10
   const y = 116.5 + 7
-  const xAdj = 43 // TODO - This is not a set value for each col
+  const xAdj = [0, 52.5, 96.5]
   const yAdj = 13
 
   movePointer(POINTERS.pointer1, POINTERS.pointer1.position.x, 240 - POINTERS.pointer1.position.y, false, true)
   movePointer(POINTERS.pointer2,
-    x + (Math.trunc(DATA.check.main / 4) * xAdj),
+    x + xAdj[Math.trunc(DATA.check.main / 4)],
     y + ((DATA.check.main % 4) * yAdj)
   )
 }

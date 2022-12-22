@@ -836,6 +836,7 @@ const addTextToDialog = ( // Note: This is offset by x=12 y=12
       letterMesh.position.x = letterMesh.position.x - fullWidth
     }
   }
+  textGroup.userData.w = fullWidth
   dialogBox.add(textGroup)
   return textGroup
 }
@@ -1801,6 +1802,18 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
         commandText2.visible = false
         coinGroup = [commandText, commandText2]
       }
+
+      console.log('battleUI commandText', commandText, commandText.userData.w)
+      if (command.all) {
+        const allArrow = addImageToDialog(
+          commandDialog, 'pointers', 'arrow-right', `menu-cmd-${command.name}-all`,
+          x + 6 + yAdjText + commandText.userData.w,
+          y + 15.5 - 4 + (13 * (i % 4)),
+          0.5, null, ALIGN.LEFT)
+        allArrow.material.clippingPlanes = null // TODO - Not sure why, but clipping planes are messed up here
+      }
+
+      // TODO - Blank out magic / summons etc that cannot be used (silence, no mp, etc)
     }
   }
   if (limitGroup !== null) {

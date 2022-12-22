@@ -408,6 +408,7 @@ const getMenuOptions = (char) => {
   ]
   let hasMagic = false
   let hasSummon = false
+  let hasMegaAll = false
 
   for (const materiaSlot in char.materia) {
     const materia = char.materia[materiaSlot]
@@ -423,6 +424,7 @@ const getMenuOptions = (char) => {
       if (materiaData.name === 'Mega All') {
         const slashAllMateriaData = window.data.kernel.materiaData.filter(m => m.index === 14)[0]
         replaceMenuOption(command, slashAllMateriaData.attributes.menu.id, slashAllMateriaData.attributes.with[0])
+        hasMegaAll = true
       }
       if (materiaData.type === 'Command') {
         if (materiaData.attributes.type === 'Add') {
@@ -452,12 +454,20 @@ const getMenuOptions = (char) => {
       }
     }
   }
+  if (hasMegaAll) {
+    for (const commandItem of command) {
+      // TODO: Add a number that can be decremented, same with magic all & summons etc
+      // Steal, Mug, Sense, Morph, Deathblow, Manipulate
+      if ([5, 17, 6, 9, 10, 11].includes(commandItem.id)) commandItem.all = true
+    }
+  }
   // Add Limit command is limit is full
   if (char.limit.bar === 0xFF) {
     console.log('limit battleStats', command)
     command[0].limit = 20 // Hardcoded ref to limit command
   }
   ensureCommandMenuMagicSummonItemOrder(command, hasMagic, hasSummon)
+
   const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonEnemySkillMenus(char)
   const menu = { command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu }
   console.log('status menu', menu)
