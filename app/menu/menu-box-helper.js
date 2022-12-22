@@ -1802,8 +1802,6 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
         commandText2.visible = false
         coinGroup = [commandText, commandText2]
       }
-
-      console.log('battleUI commandText', commandText, commandText.userData.w)
       if (command.all) {
         const allArrow = addImageToDialog(
           commandDialog, 'pointers', 'arrow-right', `menu-cmd-${command.name}-all`,

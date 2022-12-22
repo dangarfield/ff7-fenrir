@@ -60,6 +60,7 @@ const loadModelWithAnimationBindings = async (code) => {
   return model
 }
 const addShadow = (model) => {
+  // TODO - Not always circles, need to investigate more
   const box = new THREE.BoxHelper(model.scene)
   box.geometry.computeBoundingBox()
   const radius = Math.max(

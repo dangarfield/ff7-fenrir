@@ -880,7 +880,7 @@ const debugSetEquipmentAndMateria = () => {
     'Ultima Weapon', 'Wizard Bracelet', '',
     // ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
     // ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
-    ['Mega All', 'Master Command', 'Master Magic', 'W-Magic', 'Master Summon', 'Enemy Skill', '', ''],
+    ['Mega All', 'Master Command', 'Master Magic', '', 'Master Summon', 'Enemy Skill', '', ''],
     ['', '', '', '', '', '', '', '']
   )
 
