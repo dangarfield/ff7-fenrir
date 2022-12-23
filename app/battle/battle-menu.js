@@ -67,11 +67,13 @@ const constructMainMenus = (currentBattle) => {
       makeActiveSelectionPlayer: async () => {
         name.setActive(true)
         turnTimer.setActive(true)
+        window.currentBattle.miscModels.selectionTriangle.showForActor(player)
         await commands.show()
       },
       removeActiveSelectionPlayer: async () => {
         name.setActive(false)
         turnTimer.setActive(false)
+        window.currentBattle.miscModels.selectionTriangle.hide()
         await commands.hide()
       }
     }

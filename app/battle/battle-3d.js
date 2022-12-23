@@ -1,5 +1,6 @@
 import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { sceneGroup, tweenSleep } from './battle-scene.js'
+import TWEEN from '../../assets/tween.esm.js'
+import { sceneGroup, tweenSleep, BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
 
 const tempSlow = 1
@@ -88,6 +89,57 @@ const memberPositions = {
   },
   row: [-1600, -2100]
 }
+const createSelectionTriangle = () => {
+  // TODO - Replace with real model when it's found - https://forums.qhimm.com/index.php?topic=21302
+  /*
+    Potential pointers
+      kaku.rsd
+      try.rsd
+      jo_tam.rsd
+      .\FF7\DATA\BATTLE\SPECIAL/triangle/hikari.rsd
+  */
+  const size = 150
+  const geometry = new THREE.TetrahedronGeometry(size, 0)
+  geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(12 * 3), 3))
+
+  const b = new THREE.Color(0x302000) // bottom
+  const t1 = new THREE.Color(0xeecd00) // mid
+  const t2 = new THREE.Color(0xf0f000) // lightest
+  const t3 = new THREE.Color(0x967a00) // darkest
+
+  const vertexColors = [b, t1, t2, t3, t2, t1, t3, t1, b, t3, b, t2]
+  for (const [i, color] of vertexColors.entries()) {
+    geometry.attributes.color.setXYZW(i, color.r, color.g, color.b)
+  }
+  geometry.applyMatrix4(new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 1).normalize(), Math.atan(Math.sqrt(2))))
+  geometry.translate(0, size / 3, 0)
+
+  const meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors, flatShading: true })
+  const selectionTriangle = new THREE.Mesh(geometry, meshMaterial)
+  selectionTriangle.visible = false
+  // console.log('battleUI selectionTriangle', selectionTriangle)
+  sceneGroup.add(selectionTriangle)
+
+  const from = { v: 0 }
+  const to = { v: -Math.PI * 2 }
+  new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+    .to(to, 2200)
+    .repeat(Infinity)
+    .onUpdate(() => { selectionTriangle.rotation.y = from.v })
+    .start()
+
+  return {
+    model: selectionTriangle,
+    showForActor: (actor) => {
+      selectionTriangle.position.x = actor.model.scene.position.x
+      selectionTriangle.position.y = 1060 // -actor.model.scene.position.y + 600 // Does this need to be model height plus offset?
+      selectionTriangle.position.z = actor.model.scene.position.z
+
+      selectionTriangle.visible = true
+    },
+    hide: () => { selectionTriangle.visible = false }
+  }
+}
 const importModels = async (currentBattle) => {
   const modelsToFind = [currentBattle.setup.locationCode, ...currentBattle.actors.filter(a => a.modelCode).map(a => a.modelCode)]
   const modelsFound = await Promise.all(modelsToFind.map(code => loadModelWithAnimationBindings(code)))
@@ -129,6 +181,10 @@ const importModels = async (currentBattle) => {
     addShadow(model)
 
     if (i === 0) window.bm = model
+  }
+
+  currentBattle.miscModels = {
+    selectionTriangle: createSelectionTriangle()
   }
 
   // Set default camera

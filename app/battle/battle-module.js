@@ -1,7 +1,8 @@
 import {
   setupScenes,
   startBattleRenderingLoop,
-  sceneGroup
+  sceneGroup,
+  BATTLE_TWEEN_GROUP
 } from './battle-scene.js'
 import { initBattleKeypressActions } from './battle-controls.js'
 import { importModels } from './battle-3d.js'
@@ -26,6 +27,8 @@ const cleanSceneGroup = () => {
   while (sceneGroup.children.length) {
     sceneGroup.remove(sceneGroup.children[0])
   }
+
+  BATTLE_TWEEN_GROUP.removeAll()
   // while (orthoScene.children.length) {
   //   orthoScene.remove(orthoScene.children[0])
   // }
