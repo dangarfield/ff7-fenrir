@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import { getFieldDimensions, getFieldBGLayerUrl, getFieldBGPixelLayerUrl, getFieldBGPaletteUrl } from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 import { getModelScaleDownValue } from './field-models.js'
@@ -82,14 +82,14 @@ const clearBackgroundDepth = (layerId, z) => {
     // Apply sizing adjustment
     const vH =
       Math.tan(
-        THREE.Math.degToRad(
+        THREE.MathUtils.degToRad(
           window.currentField.fieldCamera.getEffectiveFOV() / 2
         )
       ) *
       distance *
       2
     const vW = vH * window.currentField.fieldCamera.aspect
-    const geometry = new THREE.PlaneBufferGeometry(vW, vH)
+    const geometry = new THREE.PlaneGeometry(vW, vH)
     layer.geometry.dispose()
     layer.geometry = geometry // Requires any 'needUpdate' param?
 
@@ -657,7 +657,7 @@ const drawBG = async (
 ) => {
   let vH =
     Math.tan(
-      THREE.Math.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)
+      THREE.MathUtils.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)
     ) *
     distance *
     2
@@ -672,7 +672,7 @@ const drawBG = async (
   if (userData.z !== 1124) {
     // return
   }
-  const geometry = new THREE.PlaneBufferGeometry(vW, vH)
+  const geometry = new THREE.PlaneGeometry(vW, vH)
   console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
 
   let material

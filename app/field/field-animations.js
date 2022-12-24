@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import { uuid } from '../helpers/helpers.js'
 import { getModelByEntityId } from './field-models.js'
 

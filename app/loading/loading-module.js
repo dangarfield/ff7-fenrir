@@ -1,5 +1,5 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
-import { TextGeometry } from '../../assets/threejs-r135-dg/examples/jsm/geometries/TextGeometry.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import { TextGeometry } from '../../assets/threejs-r148/examples/jsm/geometries/TextGeometry.js'
 
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { loadFont } from '../helpers/font-helper.js'
@@ -35,7 +35,7 @@ const initLoadingModule = async () => {
     10
   )
 
-  const geometry = new THREE.PlaneBufferGeometry(1, 1)
+  const geometry = new THREE.PlaneGeometry(1, 1)
   const material = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true

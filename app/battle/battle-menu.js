@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import { addImageToDialog, ALIGN, createDialogBox, initPointers } from '../menu/menu-box-helper.js'
 import {
   addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,

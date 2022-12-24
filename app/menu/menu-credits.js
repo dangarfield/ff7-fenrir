@@ -1,5 +1,5 @@
 import { getMenuBlackOverlay, setMenuState, resolveMenuPromise, getMenuState } from './menu-module.js'
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
 import {
@@ -275,7 +275,7 @@ const playEndingVideo = async () => {
   setCurrentDisc(3)
   const video = await loadMovie(26)
   console.log('credits video loaded', video)
-  const geometry = new THREE.PlaneBufferGeometry(
+  const geometry = new THREE.PlaneGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )

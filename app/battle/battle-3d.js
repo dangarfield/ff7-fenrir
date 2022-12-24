@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { sceneGroup, tweenSleep, BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
@@ -90,31 +90,38 @@ const memberPositions = {
   row: [-1600, -2100]
 }
 const createSelectionTriangle = () => {
-  // TODO - Replace with real model when it's found - https://forums.qhimm.com/index.php?topic=21302
-  /*
-    Potential pointers
-      kaku.rsd
-      try.rsd
-      jo_tam.rsd
-      .\FF7\DATA\BATTLE\SPECIAL/triangle/hikari.rsd
-  */
-  const size = 150
+  const size = 150 // Haven't worked it out yet - https://forums.qhimm.com/index.php?topic=21302
   const geometry = new THREE.TetrahedronGeometry(size, 0)
   geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(12 * 3), 3))
 
-  const b = new THREE.Color(0x302000) // bottom
-  const t1 = new THREE.Color(0xeecd00) // mid
-  const t2 = new THREE.Color(0xf0f000) // lightest
-  const t3 = new THREE.Color(0x967a00) // darkest
+  /*
+  // Manually:
+  const b = new THREE.Color(0x332700) // bottom
+  const t1 = new THREE.Color(0xffd800) // mid
+  const t2 = new THREE.Color(0xffff00) // lightest
+  const t3 = new THREE.Color(0x9b7800) // darkest
 
-  const vertexColors = [b, t1, t2, t3, t2, t1, t3, t1, b, t3, b, t2]
+  const vertexColors = [
+    b, t1, t2,
+    t3, t2, t1,
+    t3, t1, b,
+    t3, b, t2
+  ]
   for (const [i, color] of vertexColors.entries()) {
+    console.log('battleUI MANUAL', i, color)
+    // geometry.attributes.color.setXYZW(i, color.r, color.g, color.b)
+  }
+  */
+  for (const [i, colorArray] of window.data.battleMisc.mark.vertexColors.flat().entries()) {
+    const color = new THREE.Color(colorArray[3]) // 0,1,2,3 = r,g,b,rgb as 24bit int -> number
+    // console.log('battleUI ACTUAL', i, color, colorArray[0] / 255, colorArray[1] / 255, colorArray[2] / 255, vertexColors[i])
     geometry.attributes.color.setXYZW(i, color.r, color.g, color.b)
   }
+
   geometry.applyMatrix4(new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 1).normalize(), Math.atan(Math.sqrt(2))))
   geometry.translate(0, size / 3, 0)
 
-  const meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors, flatShading: true })
+  const meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: true })
   const selectionTriangle = new THREE.Mesh(geometry, meshMaterial)
   selectionTriangle.visible = false
   // console.log('battleUI selectionTriangle', selectionTriangle)

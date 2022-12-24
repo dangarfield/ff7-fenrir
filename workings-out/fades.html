@@ -96,8 +96,8 @@
             fdMesh.material.blending = blendingType
             fdMesh.material.color = new THREE.Color(
                 `rgb(${Math.floor(colorType.r)},${Math.floor(
-            colorType.g
-          )},${Math.floor(colorType.b)})`
+                    colorType.g
+                )},${Math.floor(colorType.b)})`
             )
             fadeActive = false
         }
@@ -124,13 +124,13 @@
                 new FIELD_TWEEN_GROUP.Tween(delta)
                     .to(to, time)
                     // .easing(TWEEN.Easing.Quadratic.InOut)
-                    .onUpdate(function() {
+                    .onUpdate(function () {
                         // if (delta.hasOwnProperty('r')) {
                         // Has to be like this for non THREE.NormalBlending modes
                         fdMesh.material.color = new THREE.Color(
                             `rgb(${Math.floor(delta.r)},${Math.floor(delta.g)},${Math.floor(
-                  delta.b
-                )})`
+                                delta.b
+                            )})`
                         )
                         // console.log('FADE TWEEN UPDATE: Color', delta) // fdMesh.material.color
                         // }
@@ -139,12 +139,12 @@
                         //     console.log('FADE TWEEN UPDATE: Opacity', fdMesh.material.opacity)
                         // }
                     })
-                    .onComplete(function() {
+                    .onComplete(function () {
                         console.log('FADE TWEEN: END', delta, to, frames, time, end)
                         fdMesh.material.color = new THREE.Color(
                             `rgb(${Math.floor(end.r)},${Math.floor(end.g)},${Math.floor(
-                  end.b
-                )})`
+                                end.b
+                            )})`
                         )
                         fadeActive = false
                         resolve()
@@ -162,7 +162,7 @@
             const bgMat = new THREE.MeshBasicMaterial({
                 map: bgTex
             })
-            const bgGeo = new THREE.PlaneBufferGeometry(
+            const bgGeo = new THREE.PlaneGeometry(
                 sizeWidth / sizeFactor,
                 sizeHeight / sizeFactor
             )
@@ -175,7 +175,7 @@
                 transparent: true
             })
             fdMat.blending = THREE.AdditiveBlending
-            const fdGeo = new THREE.PlaneBufferGeometry(
+            const fdGeo = new THREE.PlaneGeometry(
                 sizeWidth / sizeFactor,
                 sizeHeight / sizeFactor
             )

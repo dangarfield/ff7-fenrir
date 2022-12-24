@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { getConfigWindowColours } from '../data/savemap-config.js'
@@ -199,7 +199,7 @@ const WINDOW_COLORS_SUMMARY = {
 }
 const createFadeOverlay = () => {
   const fade = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(320, 240),
+    new THREE.PlaneGeometry(320, 240),
     new THREE.MeshBasicMaterial({ color: 0x000000 })
   )
   fade.position.set(320 / 2, 240 / 2, 100 - 2)
@@ -252,7 +252,7 @@ const createDialogBox = dialog => {
   const dialogBox = new THREE.Group()
   dialogBox.userData = dialog
   const dialogTextures = getDialogTextures()
-  const bgGeo = new THREE.PlaneBufferGeometry(
+  const bgGeo = new THREE.PlaneGeometry(
     w - EDGE_SIZE + 3,
     h - EDGE_SIZE + 3
   )
@@ -274,7 +274,7 @@ const createDialogBox = dialog => {
     bgGeo,
     new THREE.MeshBasicMaterial({
       transparent: true,
-      vertexColors: THREE.VertexColors
+      vertexColors: true
     })
   )
   bg.userData.sizeSmall = { w: EDGE_SIZE * 2 - 3, h: EDGE_SIZE * 2 - 3 }
@@ -617,7 +617,7 @@ const createTextureMesh = (w, h, texture) => {
     map: texture,
     transparent: true
   })
-  return new THREE.Mesh(new THREE.PlaneBufferGeometry(w, h), material)
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), material)
 }
 const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
   mesh.position.set(
@@ -631,7 +631,7 @@ const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
   )
 }
 const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo, colors) => {
-  mesh.geometry = new THREE.PlaneBufferGeometry(
+  mesh.geometry = new THREE.PlaneGeometry(
     mesh.userData.sizeSmall.w -
       ((mesh.userData.sizeSmall.w - mesh.userData.sizeExpand.w) / stepTotal) *
         step,
@@ -1187,7 +1187,7 @@ const addShapeToDialog = (
   }
   x = x - (1 - perc) * w * 0.5
   w = w * perc
-  const bgGeo = new THREE.PlaneBufferGeometry(w, h)
+  const bgGeo = new THREE.PlaneGeometry(w, h)
   bgGeo.colorsNeedUpdate = true
   bgGeo.setAttribute(
     'color',
@@ -1202,7 +1202,7 @@ const addShapeToDialog = (
     bgGeo,
     new THREE.MeshBasicMaterial({
       transparent: true,
-      vertexColors: THREE.VertexColors
+      vertexColors: true
     })
   )
   if (blending) {
@@ -1226,7 +1226,7 @@ const adjustDialogShrinkPos = (mesh, step, stepTotal, z, from, to) => {
   )
 }
 const adjustDialogShrinkSize = (mesh, step, stepTotal, from, to, colors) => {
-  mesh.geometry = new THREE.PlaneBufferGeometry(
+  mesh.geometry = new THREE.PlaneGeometry(
     mesh.userData[from].w -
       ((mesh.userData[from].w - mesh.userData[to].w) / stepTotal) * step,
     mesh.userData[from].h -

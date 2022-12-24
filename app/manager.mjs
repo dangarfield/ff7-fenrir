@@ -16,6 +16,7 @@ import { initMiniGameModule } from './minigame/minigame-module.js'
 import { initWorldModule } from './world/world-module.js'
 import { bindDisplayControls } from './helpers/display-controls.js'
 import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
+import { loadMiscData } from './data/misc-fetch-data.js'
 
 const initManager = async () => {
   // Generic Game loading
@@ -30,6 +31,7 @@ const initManager = async () => {
   await initWorldModule()
   await loadKernelData()
   await loadExeData()
+  await loadMiscData()
   await loadSceneData()
   await loadCDData()
   await loadWindowTextures()

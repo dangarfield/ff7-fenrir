@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import { getActiveInputs } from '../interaction/inputs.js'
 import {
   setCameraPosition,
@@ -111,7 +111,7 @@ const updateFieldPlayerMovement = delta => {
   let isSlipDirection = false
   const originalDirection = direction
   window.currentField.playableCharacter.scene.userData.originalDirection = originalDirection
-  const originalDirectionRadians = THREE.Math.degToRad(originalDirection)
+  const originalDirectionRadians = THREE.MathUtils.degToRad(originalDirection)
   const originalDirectionVector = new THREE.Vector3(
     Math.sin(originalDirectionRadians),
     Math.cos(originalDirectionRadians),
@@ -125,7 +125,7 @@ const updateFieldPlayerMovement = delta => {
   for (let i = 0; i < directions.length; i++) {
     const potentialDirection = directions[i]
     // Set player in direction
-    const directionRadians = THREE.Math.degToRad(potentialDirection)
+    const directionRadians = THREE.MathUtils.degToRad(potentialDirection)
     const directionVector = new THREE.Vector3(
       Math.sin(directionRadians),
       Math.cos(directionRadians),
@@ -137,7 +137,7 @@ const updateFieldPlayerMovement = delta => {
     const nextPositionForRaycast = playerPositionOffset
       .clone()
       .addScaledVector(directionVector, speed)
-    window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(
+    window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.MathUtils.degToRad(
       180 - potentialDirection
     )
 
@@ -225,7 +225,7 @@ const updateFieldPlayerMovement = delta => {
 
   if (!walkmeshFound) {
     // console.log('asd no walkmesh found')
-    window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(
+    window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.MathUtils.degToRad(
       180 - originalDirection
     )
     window.currentField.playableCharacter.mixer.stopAllAction()
@@ -264,7 +264,7 @@ const updateFieldPlayerMovement = delta => {
       window.currentField.playableCharacter.scene.userData.isSlipDirection &&
       !line.userData.slippabilityEnabled
     ) {
-      window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.Math.degToRad(
+      window.currentField.playableCharacter.scene.children[0].rotation.y = THREE.MathUtils.degToRad(
         180 -
           window.currentField.playableCharacter.scene.userData.originalDirection
       )
@@ -743,8 +743,8 @@ const ladderMovement = speed => {
   if (distanceToTarget <= 0.005 || (movementBackwards && ladder.atStart)) {
     model.mixer.stopAllAction()
 
-    model.scene.children[0].rotation.x = THREE.Math.degToRad(90)
-    model.scene.children[0].rotation.z = THREE.Math.degToRad(0)
+    model.scene.children[0].rotation.x = THREE.MathUtils.degToRad(90)
+    model.scene.children[0].rotation.z = THREE.MathUtils.degToRad(0)
     model.scene.up.set(0, 0, 1)
 
     for (let i = 0; i < window.currentField.gatewayLines.children.length; i++) {

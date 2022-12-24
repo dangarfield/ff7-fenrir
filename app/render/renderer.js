@@ -1,5 +1,5 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import Stats from '../../assets/threejs-r135-dg/examples/jsm/libs/stats.module.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
+import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import Stats from '../../assets/threejs-r148/examples/jsm/libs/stats.module.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
 
 // let currentField = window.currentField // Handle this better in the future
 // let anim = window.anim
@@ -26,7 +26,7 @@ const initRenderer = () => {
   )
   window.anim.renderer.autoClear = false
   window.anim.renderer.localClippingEnabled = true
-  // TODO - All field model colours look strange now, need to fix after - Upgrade THREE and use ColorManagement to set defaults everywhere
+  THREE.ColorManagement.legacyMode = false
   window.anim.renderer.outputEncoding = THREE.sRGBEncoding
   // window.anim.renderer.setPixelRatio(config.sizing.width / config.sizing.height) // Set pixel ratio helps with antialias, but messing the background alignment up
   // console.log('pixelRatio', window.anim.renderer.getPixelRatio())

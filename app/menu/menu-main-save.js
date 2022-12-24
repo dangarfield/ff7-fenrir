@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
 import { setMenuState, getMenuBlackOverlay, resolveMenuPromise } from './menu-module.js'
@@ -114,7 +114,7 @@ const createSlotDialogHolders = () => {
 
   const blackCoverMesh = new THREE.MeshBasicMaterial({ color: 0x000000 })
   const saveSlotsGroupCover1 = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(320, 25.5),
+    new THREE.PlaneGeometry(320, 25.5),
     blackCoverMesh
   )
   saveSlotsGroupCover1.position.set(320 / 2, 240 - (25.5 / 2), 100 - 2)
@@ -123,7 +123,7 @@ const createSlotDialogHolders = () => {
   saveSlotsGroupCover.add(saveSlotsGroupCover1)
 
   const saveSlotsGroupCover2 = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(320, 240 - 25.5 - (68.5 * 3)),
+    new THREE.PlaneGeometry(320, 240 - 25.5 - (68.5 * 3)),
     blackCoverMesh
   )
   saveSlotsGroupCover2.position.set(320 / 2, (240 - 25.5 - (68.5 * 3)) / 2, 100 - 2)

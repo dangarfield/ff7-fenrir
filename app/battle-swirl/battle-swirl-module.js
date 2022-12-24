@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { loadBattle, preLoadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
@@ -53,7 +53,7 @@ const initBattleSwirlModule = () => {
 const tempFadeEffect = () => {
   return new Promise(resolve => {
     console.log('tempFadeEffect: START')
-    const geometry = new THREE.PlaneBufferGeometry(
+    const geometry = new THREE.PlaneGeometry(
       window.config.sizing.width,
       window.config.sizing.height
     )

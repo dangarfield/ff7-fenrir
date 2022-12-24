@@ -1131,6 +1131,7 @@ const initialiseOpLoops = async () => {
     initEntityMain(window.currentField.name, entity) // All running async
   }
 
+  // window.quickBattle = () => {
   // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
   // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
   // control.BATTLE({ b: 0, n: 27 * 4 + 2 }) // Grand Hown
@@ -1138,6 +1139,7 @@ const initialiseOpLoops = async () => {
   control.BATTLE({ b: 0, n: 75 * 4 + 2 }) // MP + MP
   // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
   // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
+  // }
   console.log('initialiseOpLoops: END')
 }
 

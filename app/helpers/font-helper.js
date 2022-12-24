@@ -1,4 +1,4 @@
-import { FontLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/FontLoader.js'
+import { FontLoader } from '../../assets/threejs-r148/examples/jsm/loaders/FontLoader.js'
 
 const loadFont = async () => {
   return new Promise((resolve, reject) => {

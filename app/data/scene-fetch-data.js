@@ -1,5 +1,5 @@
 import { KUJATA_BASE } from './kernel-fetch-data.js'
-import { GLTFLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/GLTFLoader.js'
+import { GLTFLoader } from '../../assets/threejs-r148/examples/jsm/loaders/GLTFLoader.js'
 import { addBlendingToMaterials } from '../field/field-fetch-data.js'
 
 const loadSceneData = async () => {

@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { moveCameraToLeader } from './field-op-codes-camera-media-helper.js'
 import {
@@ -38,7 +38,7 @@ const degreesToDirection = deg => {
   return Math.round(deg * (255 / 360))
 }
 const radiansToDirection = radians => {
-  let deg = THREE.Math.radToDeg(radians)
+  let deg = THREE.MathUtils.radToDeg(radians)
   if (deg < 0) {
     deg = 360 - deg
   }
@@ -143,7 +143,7 @@ const setModelAsEntity = (entityId, modelId) => {
   model.userData.entityName = getEntityNameFromEntityId(entityId)
   const scaleDownValue = getModelScaleDownValue()
   model.scene.scale.set(scaleDownValue, scaleDownValue, scaleDownValue)
-  model.scene.children[0].rotation.x = THREE.Math.degToRad(90)
+  model.scene.children[0].rotation.x = THREE.MathUtils.degToRad(90)
   model.scene.up.set(0, 0, 1)
   model.scene.visible = false
   if (model.userData.isPlayableCharacter) {
@@ -281,7 +281,7 @@ const positionPlayableCharacterFromTransition = async () => {
       // Need to implement directionFacing (annoying in debug mode at this point as I have to reverse previous placeModel deg value)
       // let deg = window.config.debug.debugModeNoOpLoops ? window.currentField.playableCharacter.scene.userData.placeModeInitialDirection : 0
       // deg = deg - directionToDegrees(initData.direction) // TODO - Adjust this as it looks better, check when not in debug mode
-      // window.currentField.playableCharacter.scene.rotateY(THREE.Math.degToRad(deg))
+      // window.currentField.playableCharacter.scene.rotateY(THREE.MathUtils.degToRad(deg))
 
       // const relativeToCamera = calculateViewClippingPointFromVector3(window.currentField.playableCharacter.scene.position)
       // console.log('positionPlayableCharacterFromTransition', relativeToCamera.x, relativeToCamera.y)
@@ -576,7 +576,7 @@ const faceModelInstantly = (model, targetModel) => {
     model.scene.position,
     targetModel.scene.position
   )
-  model.scene.children[0].rotation.y = THREE.Math.degToRad(deg)
+  model.scene.children[0].rotation.y = THREE.MathUtils.degToRad(deg)
 }
 const getEntityDirection = entityId => {
   const model = getModelByEntityId(entityId)
@@ -611,7 +611,7 @@ const setModelDirection = (window.setModelDirection = (entityId, direction) => {
   if (model === undefined) {
     return
   }
-  model.scene.children[0].rotation.y = THREE.Math.degToRad(deg)
+  model.scene.children[0].rotation.y = THREE.MathUtils.degToRad(deg)
 })
 const setModelMovementSpeed = (entityId, speed) => {
   console.log('setModelMovementSpeed', entityId, speed)
@@ -795,7 +795,7 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
     }
     // Get start and end angles in radians
     let desiredYDeg = degrees
-    let currentYDeg = THREE.Math.radToDeg(model.scene.children[0].rotation.y)
+    let currentYDeg = THREE.MathUtils.radToDeg(model.scene.children[0].rotation.y)
     console.log('turnModel currentYDeg 1', currentYDeg)
     currentYDeg = (3600 + currentYDeg) % 360 // Ensure currentYDeg is between 0 - 360
     // console.log('turnModel currentYDeg 2', currentYDeg)
@@ -821,8 +821,8 @@ const turnModel = async (entityId, degrees, whichWayId, steps, stepType) => {
     }
 
     // console.log('turnModel currentYDeg 3', currentYDeg, desiredYDeg)
-    const currentYRad = THREE.Math.degToRad(currentYDeg)
-    const desiredYRad = THREE.Math.degToRad(desiredYDeg)
+    const currentYRad = THREE.MathUtils.degToRad(currentYDeg)
+    const desiredYRad = THREE.MathUtils.degToRad(desiredYDeg)
     console.log('turnModel deg', currentYDeg, '->', desiredYDeg)
     console.log('turnModel rad', currentYRad, '->', desiredYRad)
 

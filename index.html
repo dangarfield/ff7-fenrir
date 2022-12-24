@@ -1,94 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Fenrir.js</title>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="./apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="./favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="./favicon-16x16.png"
-    />
-    <link rel="manifest" href="./site.webmanifest" />
-    <link rel="stylesheet" href="./assets/bootstrap/bootstrap.min.css" />
-    <link
-      type="text/css"
-      rel="stylesheet"
-      href="./assets/op-loop-visualiser.css"
-    />
-    <link type="text/css" rel="stylesheet" href="./assets/main.css" />
-  </head>
 
-  <body>
-    <div class="holder">
-      <div id="container"></div>
-    </div>
-    <div class="stats"></div>
+<head>
+  <title>Fenrir.js</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
+  <link rel="manifest" href="./site.webmanifest" />
+  <link rel="stylesheet" href="./assets/bootstrap/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="./assets/op-loop-visualiser.css" />
+  <link type="text/css" rel="stylesheet" href="./assets/main.css" />
+</head>
 
-    <div class="display-controls">
-      <div class="btn-group btn-group-sm">
-        <button type="button" class="btn btn-dark controls">Controls</button>
-        <button type="button" class="btn btn-dark stats">Stats</button>
-        <button type="button" class="btn btn-dark debug">Debug</button>
-        <button type="button" class="btn btn-dark loop">Loop</button>
-      </div>
+<body>
+  <div class="holder">
+    <div id="container"></div>
+  </div>
+  <div class="stats"></div>
+
+  <div class="display-controls">
+    <div class="btn-group btn-group-sm">
+      <button type="button" class="btn btn-dark controls">Controls</button>
+      <button type="button" class="btn btn-dark stats">Stats</button>
+      <button type="button" class="btn btn-dark debug">Debug</button>
+      <button type="button" class="btn btn-dark loop">Loop</button>
     </div>
-    <div class="keyboard-instructions">
-      <div class="modal">
-        <div class="modal-dialog modal-xl">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Controls</h5>
-              <button type="button" class="close">
-                <span aria-hidden="true">×</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <img
-                class="img-fluid"
-                src="./assets/fenrir/keyboard-layout.png"
-              />
-              <p>You can access 5 different save slots</p>
-              <p>
-                Quicksave -> Press <code>1</code>, <code>2</code>,
-                <code>3</code>, <code>4</code>, <code>5</code>
-              </p>
-              <p>
-                Quickload -> Press <code>Shift + 1</code>,
-                <code>Shift + 2</code>, <code>Shift + 3</code>,
-                <code>Shift + 4</code>, <code>Shift + 5</code>
-              </p>
-              <p>
-                Download saves to desktop -> Press <code>Ctrl + Shift + 1</code>
-              </p>
-            </div>
+  </div>
+  <div class="keyboard-instructions">
+    <div class="modal">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Controls</h5>
+            <button type="button" class="close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img class="img-fluid" src="./assets/fenrir/keyboard-layout.png" />
+            <p>You can access 5 different save slots</p>
+            <p>
+              Quicksave -> Press <code>1</code>, <code>2</code>,
+              <code>3</code>, <code>4</code>, <code>5</code>
+            </p>
+            <p>
+              Quickload -> Press <code>Shift + 1</code>,
+              <code>Shift + 2</code>, <code>Shift + 3</code>,
+              <code>Shift + 4</code>, <code>Shift + 5</code>
+            </p>
+            <p>
+              Download saves to desktop -> Press <code>Ctrl + Shift + 1</code>
+            </p>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="toasts"></div>
-    <script src="./app/helpers/custom-log.js"></script>
-    <script src="./assets/howler.js"></script>
-    <script src="./assets/howler.spatial.min.js"></script>
-    <script src="./assets/async.min.js"></script>
+  <div class="toasts"></div>
+  <script src="./app/helpers/custom-log.js"></script>
+  <script src="./assets/howler.js"></script>
+  <script src="./assets/howler.spatial.min.js"></script>
+  <script src="./assets/async.min.js"></script>
 
-    <script type="module" src="./app/data/global-data.js"></script>
-    <script type="module" src="./app/manager.mjs"></script>
-  </body>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/assets/threejs-r148/build/three.module.js"
+      }
+    }
+    </script>
+  <script type="module" src="./app/data/global-data.js"></script>
+  <script type="module" src="./app/manager.mjs"></script>
+</body>
+
 </html>

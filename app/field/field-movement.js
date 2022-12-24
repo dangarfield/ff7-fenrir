@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import {
   getModelByEntityId,
@@ -113,7 +113,7 @@ const moveEntityJump = async (entityId, x, y, triangleId, height) => {
     model
   )
   // const directionDegrees = getDegreesFromTwoPoints(model.scene.position, { x: targetX, y: targetY })
-  // model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees) // TODO - Not sure if this works properly
+  // model.scene.children[0].rotation.y = THREE.MathUtils.degToRad(directionDegrees) // TODO - Not sure if this works properly
   // Don't change direction degree - pillar_3 ba. Need to see if this breaks anything elsewhere
 
   const heightAdjustment = 0.00235 * height // 0.04 <-> 17 // TODO - Need to test with other JUMP heights
@@ -228,7 +228,7 @@ const updateMoveEntityMovement = delta => {
         )
 
         if (model.userData.moveEntity.rotate) {
-          model.scene.children[0].rotation.y = THREE.Math.degToRad(direction)
+          model.scene.children[0].rotation.y = THREE.MathUtils.degToRad(direction)
         }
 
         const SLIP_ANGLE_1 = 45
@@ -264,7 +264,7 @@ const updateMoveEntityMovement = delta => {
 
         for (let i = 0; i < directions.length; i++) {
           const potentialDirection = directions[i]
-          const directionRadians = THREE.Math.degToRad(180 - potentialDirection)
+          const directionRadians = THREE.MathUtils.degToRad(180 - potentialDirection)
           const directionVector = new THREE.Vector3(
             Math.sin(directionRadians),
             Math.cos(directionRadians),
@@ -605,7 +605,7 @@ const moveEntity = async (entityId, x, y, rotate, animate, speedInFrames) => {
 
 //   // console.log('moveEntity animationId', animationId, model.userData.movementSpeed, desiredSpeed)
 //   if (rotate && model.userData.rotationEnabled) {
-//     model.scene.children[0].rotation.y = THREE.Math.degToRad(directionDegrees)
+//     model.scene.children[0].rotation.y = THREE.MathUtils.degToRad(directionDegrees)
 //   }
 //   if (animate && model.animations[animationId]) {
 //     // console.log('stopAllAction C', model.userData.entityName)

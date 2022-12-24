@@ -1,5 +1,5 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
-import { TextGeometry } from '../../assets/threejs-r135-dg/examples/jsm/geometries/TextGeometry.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
+import { TextGeometry } from '../../assets/threejs-r148/examples/jsm/geometries/TextGeometry.js'
 import { orthoScene } from './world-scene.js'
 import { loadFont } from '../helpers/font-helper.js'
 

@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { sleep } from '../helpers/helpers.js'
@@ -44,7 +44,7 @@ const setFaderVisible = isVisible => {
 }
 const drawFaders = whiteTransition => {
   console.log('drawFaders')
-  const transitionFaderGeo = new THREE.PlaneBufferGeometry(
+  const transitionFaderGeo = new THREE.PlaneGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )
@@ -65,7 +65,7 @@ const drawFaders = whiteTransition => {
   // window.currentField.transitionFader = transitionFader
   orthoFrontScene.add(transitionFader)
 
-  const fadeFaderGeo = new THREE.PlaneBufferGeometry(
+  const fadeFaderGeo = new THREE.PlaneGeometry(
     window.config.sizing.width,
     window.config.sizing.height
   )

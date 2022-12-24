@@ -1,6 +1,6 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { OrbitControls } from '../../assets/threejs-r135-dg/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from '../../assets/threejs-r148/examples/jsm/controls/OrbitControls.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { incrementTick } from './battle-timers.js'
 import { updateActorsUI } from './battle-menu.js'

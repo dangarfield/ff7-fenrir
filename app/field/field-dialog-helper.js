@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { FIELD_TWEEN_GROUP } from './field-scene.js'
 import { getPointRight, getFieldDialogNumber } from './field-fetch-data.js'
@@ -84,7 +84,7 @@ const createTextureMesh = (w, h, texture) => {
     map: texture,
     transparent: true
   })
-  return new THREE.Mesh(new THREE.PlaneBufferGeometry(w, h), material)
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), material)
 }
 const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
   mesh.position.set(
@@ -98,7 +98,7 @@ const adjustDialogExpandPos = (mesh, step, stepTotal, z) => {
   )
 }
 const adjustDialogExpandSize = (mesh, step, stepTotal, bgGeo) => {
-  mesh.geometry = new THREE.PlaneBufferGeometry(
+  mesh.geometry = new THREE.PlaneGeometry(
     mesh.userData.sizeSmall.w -
       ((mesh.userData.sizeSmall.w - mesh.userData.sizeExpand.w) / stepTotal) *
         step,
@@ -188,7 +188,7 @@ const createDialogBox = async dialog => {
 
   const dialogBox = new THREE.Group()
   const dialogTextures = getDialogTextures()
-  const bgGeo = new THREE.PlaneBufferGeometry(
+  const bgGeo = new THREE.PlaneGeometry(
     w - EDGE_SIZE + 3,
     h - EDGE_SIZE + 3
   )
@@ -210,7 +210,7 @@ const createDialogBox = async dialog => {
     bgGeo,
     new THREE.MeshBasicMaterial({
       transparent: true,
-      vertexColors: THREE.VertexColors
+      vertexColors: true
     })
   )
   bg.userData.sizeSmall = { w: EDGE_SIZE * 2 - 3, h: EDGE_SIZE * 2 - 3 }
@@ -446,7 +446,7 @@ const createClockBackgroundMesh = (w, h) => {
     color: 0x000000,
     transparent: true
   })
-  return new THREE.Mesh(new THREE.PlaneBufferGeometry(w, h), bgMaterial)
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), bgMaterial)
 }
 
 const updateCountdownDisplays = () => {

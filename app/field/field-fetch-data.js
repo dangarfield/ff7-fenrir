@@ -1,6 +1,6 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
-import { GLTFLoader } from '../../assets/threejs-r135-dg/examples/jsm/loaders/GLTFLoader.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
-import { clone } from '../../assets/threejs-r135-dg/examples/jsm/utils/SkeletonUtils.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
+import { GLTFLoader } from '../../assets/threejs-r148/examples/jsm/loaders/GLTFLoader.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js'
+import { clone } from '../../assets/threejs-r148/examples/jsm/utils/SkeletonUtils.js' // 'https://raw.githack.com/mrdoob/three.js/dev/examples/jsm/utils/SkeletonUtils.js'
 import { KUJATA_BASE, getWindowTextures } from '../data/kernel-fetch-data.js'
 import {
   setLoadingText,

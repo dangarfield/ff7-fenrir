@@ -1,4 +1,4 @@
-import * as THREE from '../../assets/threejs-r135-dg/build/three.module.js'
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import {
   addImageToDialog, ALIGN, WINDOW_COLORS_SUMMARY, addTextToDialog, LETTER_TYPES, LETTER_COLORS,
   createDialogBox, getLetterTexture
@@ -17,7 +17,7 @@ const addShape = (
   h,
   blending
 ) => {
-  const bgGeo = new THREE.PlaneBufferGeometry(w, h)
+  const bgGeo = new THREE.PlaneGeometry(w, h)
   bgGeo.colorsNeedUpdate = true
   bgGeo.setAttribute(
     'color',
@@ -32,7 +32,7 @@ const addShape = (
     bgGeo,
     new THREE.MeshBasicMaterial({
       transparent: true,
-      vertexColors: THREE.VertexColors
+      vertexColors: true
     })
   )
   if (blending) {
