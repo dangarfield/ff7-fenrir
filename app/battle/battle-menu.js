@@ -4,7 +4,7 @@ import {
   addBattleBarrier, addBattleLimit, addPauseMenu, addPlayerName, addTurnTimer,
   addHP, addMP, addBattleDescriptionsTextMenu, addBattleTextMenu
 } from './battle-menu-box-helper.js'
-import { addCommands } from './battle-menu-selection.js'
+import { addCommands } from './battle-menu-command.js'
 import { orthoScene } from './battle-scene.js'
 window.THREE = THREE
 
