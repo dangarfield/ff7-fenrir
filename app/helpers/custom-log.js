@@ -17,8 +17,10 @@ window.console = (function (origConsole) {
       // 'battleQueue',
       // 'battleStack',
       // 'battleMenu',
-      'battleUI'
+      'battleUI',
       // 'battleQueue'
+      'renderToTexture',
+      'doSwirl'
     ],
     log: function () {
       if (limit) {
@@ -40,7 +42,7 @@ window.console = (function (origConsole) {
     },
     warn: function () {
       // if (arguments[0] !== 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.') {
-        origConsole.warn.apply(origConsole, arguments)
+      origConsole.warn.apply(origConsole, arguments)
       // }
     },
     error: function () {

@@ -95,6 +95,12 @@ const renderLoop = function () {
     window.currentField.fieldCameraHelper.update()
   }
 }
+const renderToTexture = (bufferTexture) => {
+  console.log('renderToTexture', 'renderToTexture', bufferTexture)
+  window.anim.renderer.setRenderTarget(bufferTexture)
+  window.anim.renderer.render(window.currentField.fieldScene, window.currentField.fieldCamera, bufferTexture)
+  window.anim.renderer.setRenderTarget(null)
+}
 const startFieldRenderLoop = () => {
   if (window.anim.activeScene !== 'field') {
     window.anim.activeScene = 'field'
@@ -885,5 +891,6 @@ export {
   setCameraShakePosition,
   updateVideoCameraPosition,
   createPointLights,
-  FIELD_TWEEN_GROUP
+  FIELD_TWEEN_GROUP,
+  renderToTexture
 }
