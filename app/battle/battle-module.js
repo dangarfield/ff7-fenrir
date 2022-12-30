@@ -49,6 +49,7 @@ const preLoadBattle = async (battleId, options) => {
 }
 const loadBattle = async (battleId, options) => {
   // console.log('battle loadBattle: START')
+  window.anim.clock.start()
   startBattleRenderingLoop()
   return new Promise(resolve => {
     BATTLE_PROMISE = resolve
