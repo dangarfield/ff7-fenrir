@@ -1729,7 +1729,7 @@ const addLevelToDialog = (dialog, x, y, char) => {
     THREE.AdditiveBlending
   )
 }
-const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup) => {
+const createCommandsDialog = (dialog, x, y, commands, startHidden) => {
   const widthCol1 = 60
   const widthCol2 = 109
   const widthCol3 = 157
@@ -1740,9 +1740,6 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
   } else if (commands.length > 4) {
     width = widthCol2
   }
-  const yAdjTextCol1 = 0
-  const yAdjTextCol2 = 52.5
-  const yAdjTextCol3 = 96.5
 
   const dialogOptions = {
     id: dialog.position.z + 3,
@@ -1762,6 +1759,20 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
     commandDialog.visible = true
   }
   dialog.add(commandDialog)
+  const innerGroup = new THREE.Group()
+  innerGroup.userData.id = commandDialog.userData.id
+  innerGroup.userData.z = commandDialog.userData.z
+  innerGroup.visible = true
+  commandDialog.add(innerGroup)
+
+  commandDialog.userData.innerGroup = innerGroup
+  return commandDialog
+}
+const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
+  removeGroupChildren(commandDialog.userData.innerGroup)
+  const yAdjTextCol1 = 0
+  const yAdjTextCol2 = 52.5
+  const yAdjTextCol3 = 96.5
 
   let limitGroup = null
   let coinGroup = null
@@ -1775,7 +1786,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
     }
     if (command.id < 255) {
       const commandText = addTextToDialog(
-        commandDialog,
+        commandDialog.userData.innerGroup,
         command.limit ? window.data.kernel.commandData[command.limit].name : command.name,
         `menu-cmd-${command.name}`,
         LETTER_TYPES.BattleBaseFont,
@@ -1790,7 +1801,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
       }
       if (command.id === 7) { // Coin
         const commandText2 = addTextToDialog(
-          commandDialog,
+          commandDialog.userData.innerGroup,
           window.data.kernel.commandData[8].name, // Throw
           'menu-cmd-throw',
           LETTER_TYPES.BattleBaseFont,
@@ -1804,7 +1815,7 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
       }
       if (command.all) {
         const allArrow = addImageToDialog(
-          commandDialog, 'pointers', 'arrow-right', `menu-cmd-${command.name}-all`,
+          commandDialog.userData.innerGroup, 'pointers', 'arrow-right', `menu-cmd-${command.name}-all`,
           x + 6 + yAdjText + commandText.userData.w,
           y + 15.5 - 4 + (13 * (i % 4)),
           0.5, null, ALIGN.LEFT)
@@ -1820,7 +1831,6 @@ const addMenuCommandsToDialog = (dialog, x, y, commands, startHidden, tweenGroup
   if (coinGroup !== null) {
     commandDialog.userData.coinGroup = coinGroup
   }
-  return commandDialog
 }
 const updateTexture = (mesh, letter, letterType, color) => {
   const textureLetter = getLetterTexture(letter, letterType, color)
@@ -1866,6 +1876,7 @@ export {
   createHorizontalConfigSlider,
   updateTexture,
   createEquipmentMateriaViewer,
+  createCommandsDialog,
   addMenuCommandsToDialog,
   removeGroupChildren,
   enlargeInstant

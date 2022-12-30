@@ -6,7 +6,7 @@ import {
 import { KEY } from '../interaction/inputs.js'
 import { unequipMateria, arrangeMateria, trashMateria } from '../materia/materia-module.js'
 import {
-  addCharacterSummary, addGroupToDialog, addImageToDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
+  addCharacterSummary, addGroupToDialog, addImageToDialog, createCommandsDialog, addMenuCommandsToDialog, addShapeToDialog, addTextToDialog, createDialogBox, createEquipmentMateriaViewer, createItemListNavigation, EQUIPMENT_TYPE, fadeOverlayIn, fadeOverlayOut, LETTER_COLORS, LETTER_TYPES, movePointer, POINTERS, removeGroupChildren, WINDOW_COLORS_SUMMARY
 } from './menu-box-helper.js'
 import { loadEquipMenu } from './menu-main-equip.js'
 import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
@@ -959,7 +959,8 @@ const drawCheck = () => {
   smallMateriaListGroup.visible = false
   smallMateriaListContentsGroup.visible = false
 
-  addMenuCommandsToDialog(checkGroup, 23.5, 107, DATA.battleStats.menu.command)
+  const commandsGroup = createCommandsDialog(checkGroup, 23.5, 107, DATA.battleStats.menu.command)
+  addMenuCommandsToDialog(commandsGroup, 23.5, 107, DATA.battleStats.menu.command)
 }
 const drawCheckSelect = () => {
   // DATA.check = { main: 0, sub: 0 }

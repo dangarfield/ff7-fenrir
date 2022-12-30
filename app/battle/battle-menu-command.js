@@ -1,12 +1,12 @@
 import { KEY } from '../interaction/inputs.js'
-import { addMenuCommandsToDialog, closeDialog, showDialog, POINTERS, movePointer, createDialogBox, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
+import { createCommandsDialog, addMenuCommandsToDialog, closeDialog, showDialog, POINTERS, movePointer, createDialogBox, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
 import { startLimitTextTween, stopAllCoinTextTweens, startCoinTextTweens, stopAllLimitTextTweens } from '../menu/menu-limit-tween-helper.js'
 import { addPlayerActionToQueue, doNotAllowPlayerToSelectAction } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 
 const addCommands = (actorIndex) => {
   const actor = window.currentBattle.actors[actorIndex]
-  const commandsGroup = addMenuCommandsToDialog(orthoScene, 72, 170, actor.battleStats.menu.command, true, BATTLE_TWEEN_GROUP)
+  const commandsGroup = createCommandsDialog(orthoScene, 72, 170, actor.battleStats.menu.command, true)
   commandsGroup.visible = false
   console.log('battleUI commandsGroup', commandsGroup)
 
@@ -160,6 +160,7 @@ const addCommands = (actorIndex) => {
     }
   }
   const show = async () => {
+    addMenuCommandsToDialog(commandsGroup, 72, 170, actor.battleStats.menu.command)
     startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
     startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
     await showDialog(commandsGroup)
@@ -180,7 +181,8 @@ const addCommands = (actorIndex) => {
   return {
     show,
     hide,
-    keyPress
+    keyPress,
+    commandsGroup
   }
 }
 

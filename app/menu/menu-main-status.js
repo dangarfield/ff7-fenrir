@@ -15,6 +15,7 @@ import {
   fadeOverlayIn,
   createEquipmentMateriaViewer,
   EQUIPMENT_TYPE,
+  createCommandsDialog,
   addMenuCommandsToDialog
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
@@ -277,7 +278,9 @@ const addPartyMemberStats = (char, battleStats) => {
   }
 
   // Commands
-  addMenuCommandsToDialog(statsGroup, 148.5, 68.5, battleStats.menu.command)
+
+  const commandsGroup = createCommandsDialog(statsGroup, 148.5, 68.5, battleStats.menu.command)
+  addMenuCommandsToDialog(commandsGroup, 148.5, 68.5, battleStats.menu.command)
 
   // Equips
   const equips = [
