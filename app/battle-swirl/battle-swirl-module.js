@@ -4,7 +4,6 @@ import { loadBattle, preLoadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { renderToTexture } from '../field/field-scene.js'
-import { sleep } from '../helpers/helpers.js'
 
 // Example interesting shader - https://masatomakino.github.io/threejs-shader-materials/demo/ -> demoSwirl.html
 
@@ -128,8 +127,8 @@ const doSwirl = async () => {
 
   return new Promise(resolve => {
     const from = { rotation: 0.0, scale: 1 }
-    const to = { rotation: Math.PI * 2, scale: 5 }
-    const time = 5000
+    const to = { rotation: Math.PI * 2, scale: 3 }
+    const time = 1000 // TODO - Time it
 
     new TWEEN.Tween(from)
       .to(to, time)
