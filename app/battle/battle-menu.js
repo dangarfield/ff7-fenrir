@@ -10,6 +10,10 @@ window.THREE = THREE
 
 const playerLineHeight = 16
 
+const constructMagicMenu = () => {
+  return ''
+}
+
 const constructMainMenus = (currentBattle) => {
   // Main Left
   const mainL = createDialogBox({ id: 30, x: 0, y: 166, w: 137, h: 56, expandInstantly: true, noClipping: true, scene: orthoScene })
@@ -78,6 +82,9 @@ const constructMainMenus = (currentBattle) => {
       }
     }
   }
+
+  const magicDialog = constructMagicMenu()
+  return { magicDialog }
 }
 const updateActorsUI = () => {
   for (const player of window.currentBattle.actors) {
@@ -100,13 +107,13 @@ const sendKeyPressToBattleMenu = (key) => {
 const initBattleMenu = async (currentBattle) => {
   // TODO - Clear orthoScene
   initPointers(orthoScene)
-  constructMainMenus()
+  const { magicDialog } = constructMainMenus()
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
 
   window.currentBattle.ui = {
-    pause, battleDescriptions, battleText
+    pause, battleDescriptions, battleText, magicDialog
   }
   // Command list w = 1 list
   const command = createDialogBox({ id: 28, x: 71, y: 168, w: 60, h: 56, expandInstantly: true, noClipping: true, scene: orthoScene })
