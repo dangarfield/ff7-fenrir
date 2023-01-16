@@ -90,41 +90,16 @@ const memberPositions = {
   row: [-1600, -2100]
 }
 const createSelectionTriangle = () => {
-  const size = 150 // Haven't worked it out yet - https://forums.qhimm.com/index.php?topic=21302
-  const geometry = new THREE.TetrahedronGeometry(size, 0)
-  geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(12 * 3), 3))
-
-  /*
-  // Manually:
-  const b = new THREE.Color(0x332700) // bottom
-  const t1 = new THREE.Color(0xffd800) // mid
-  const t2 = new THREE.Color(0xffff00) // lightest
-  const t3 = new THREE.Color(0x9b7800) // darkest
-
-  const vertexColors = [
-    b, t1, t2,
-    t3, t2, t1,
-    t3, t1, b,
-    t3, b, t2
-  ]
-  for (const [i, color] of vertexColors.entries()) {
-    console.log('battleUI MANUAL', i, color)
-    // geometry.attributes.color.setXYZW(i, color.r, color.g, color.b)
-  }
-  */
-  for (const [i, colorArray] of window.data.battleMisc.mark.vertexColors.flat().entries()) {
-    const color = new THREE.Color(colorArray[3]) // 0,1,2,3 = r,g,b,rgb as 24bit int -> number
-    // console.log('battleUI ACTUAL', i, color, colorArray[0] / 255, colorArray[1] / 255, colorArray[2] / 255, vertexColors[i])
-    geometry.attributes.color.setXYZW(i, color.r, color.g, color.b)
-  }
-
-  geometry.applyMatrix4(new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 1).normalize(), Math.atan(Math.sqrt(2))))
-  geometry.translate(0, size / 3, 0)
-
-  const meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: true })
-  const selectionTriangle = new THREE.Mesh(geometry, meshMaterial)
+  const geom = new THREE.BufferGeometry()
+  const vertices = new Float32Array([].concat(...window.data.battleMisc.mark.map(m => m.positions.map(p => p.map(v => v * -1)))).flat())
+  geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
+  geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array([].concat(...window.data.battleMisc.mark.map(m => m.colors.map(c => {
+    const col = new THREE.Color(c)
+    return [col.r, col.g, col.b]
+  }))).flat()), 3))
+  const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide })
+  const selectionTriangle = new THREE.Mesh(geom, material)
   selectionTriangle.visible = false
-  // console.log('battleUI selectionTriangle', selectionTriangle)
   sceneGroup.add(selectionTriangle)
 
   const from = { v: 0 }
@@ -139,7 +114,7 @@ const createSelectionTriangle = () => {
     model: selectionTriangle,
     showForActor: (actor) => {
       selectionTriangle.position.x = actor.model.scene.position.x
-      selectionTriangle.position.y = 1060 // -actor.model.scene.position.y + 600 // Does this need to be model height plus offset?
+      selectionTriangle.position.y = 0 // -actor.model.scene.position.y + 600 // Does this need to be model height plus offset?
       selectionTriangle.position.z = actor.model.scene.position.z
 
       selectionTriangle.visible = true
