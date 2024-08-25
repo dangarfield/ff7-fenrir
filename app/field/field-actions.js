@@ -460,7 +460,7 @@ const triggerBattleWithSwirl = async battleId => {
   stopFieldSceneAnimating()
   setPlayableCharacterIsInteracting(true)
   const options = { things: 'more-things' } // get options from currentField / somewhere
-  await loadBattleWithSwirl(battleId, options)
+  // await loadBattleWithSwirl(battleId, options)
   unfreezeField()
 }
 const stopFieldSceneAnimating = () => {

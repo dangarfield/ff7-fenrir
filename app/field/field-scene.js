@@ -17,7 +17,7 @@ import {
   camera as orthoFrontCamera
 } from './field-ortho-scene.js'
 import { initOpLoopVisualiser } from './field-op-loop-visualiser.js'
-import { stopAllLoops } from './field-op-loop.js'
+import { stopAllLoops, setFieldLoopActive } from './field-op-loop.js'
 import {
   updateBackgroundScolling,
   updateLayer2Parallax
@@ -102,6 +102,7 @@ const renderToTexture = (bufferTexture) => {
   window.anim.renderer.setRenderTarget(null)
 }
 const startFieldRenderLoop = () => {
+  setFieldLoopActive(true)
   if (window.anim.activeScene !== 'field') {
     window.anim.activeScene = 'field'
     if (window.config.raycast.active) {

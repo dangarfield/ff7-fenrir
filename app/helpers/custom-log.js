@@ -20,7 +20,15 @@ window.console = (function (origConsole) {
       'battleUI',
       // 'battleQueue'
       'renderToTexture',
-      'doSwirl'
+      'doSwirl',
+      // 'loadField',
+      // 'transitionIn',
+      // 'initialiseOpLoops',
+      // 'initEntityInit',
+      // 'initLoop',
+      // 'executeScriptLoop',
+      // 'executeScriptLoopDEBUG',
+      // 'SCR2D'
     ],
     log: function () {
       if (limit) {
@@ -41,9 +49,9 @@ window.console = (function (origConsole) {
       }
     },
     warn: function () {
-      // if (arguments[0] !== 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.') {
-      origConsole.warn.apply(origConsole, arguments)
-      // }
+      if (arguments[0] !== 'THREE.GLTFLoader: Missing min/max properties for accessor POSITION.') {
+        origConsole.warn.apply(origConsole, arguments)
+      }
     },
     error: function () {
       origConsole.error.apply(origConsole, arguments)

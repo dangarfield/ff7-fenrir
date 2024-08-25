@@ -10,7 +10,7 @@
     "unlgp-menu": "cd .\\workings-out\\unlgp\\unlgp-menu_us.lgp & D:\\code\\ff7\\kujata-dg\\lgp-0.5b\\bin\\unlgp.exe 'D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\menu\\menu_us.lgp'",
     "dev": "run-p dev:**",
     "dev:fenrir": "http-server -p 3000 -s --cors -c-1",
-    "dev:kujata": "http-server -p 3001 -s --cors -1000000",
+    "dev:kujata": "http-server ../ -p 3001 -s --cors -1000000",
     "opcodes-progress": "node workings-out/createOpCodesProgressReadme.js"
   },
   "repository": {
