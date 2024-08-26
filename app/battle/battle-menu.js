@@ -52,11 +52,11 @@ const constructMainMenus = (currentBattle) => {
     turnTimer.set(0)
     // turnTimer.setActive(false)
 
-    const hp = addHP(mainR, 144, 184 + (playerLineHeight * i), `hp-${i}`)
-    hp.set(player.battleStats.hp.current, player.battleStats.hp.max, true)
+    // const hp = addHP(mainR, 144, 184 + (playerLineHeight * i), `hp-${i}`)
+    // hp.set(player.battleStats.hp.current, player.battleStats.hp.max, true)
 
-    const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
-    mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
+    // const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
+    // mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
     const commands = addCommands(i)
     // TODO - When a player is dead, name, hp, mp, barrier, limit and wait are all red and blanked out
@@ -65,8 +65,8 @@ const constructMainMenus = (currentBattle) => {
       barrier,
       limit,
       turnTimer,
-      hp,
-      mp,
+      hp:'',
+      mp:'',
       commands,
       makeActiveSelectionPlayer: async () => {
         name.setActive(true)

@@ -34,7 +34,7 @@ const cleanSceneGroup = () => {
   // }
 }
 const preLoadBattle = async (battleId, options) => {
-  // console.log('battle preload: START')
+  console.log('battle preload: START')
   cleanSceneGroup()
   const currentBattle = setupBattle(battleId) // TODO, add from random / world map etc
   // console.log('loadBattle', battleId, options)
@@ -45,10 +45,11 @@ const preLoadBattle = async (battleId, options) => {
   initBattleQueue(currentBattle)
   await executeAllInitScripts(currentBattle)
   await initBattleMenu(currentBattle)
-  // console.log('battle preload: END')
+  console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {
-  // console.log('battle loadBattle: START')
+  console.log('battle loadBattle: START')
+  window.alert('Placeholder battles - Press Y to skip')
   window.anim.clock.start()
   startBattleRenderingLoop()
   return new Promise(resolve => {

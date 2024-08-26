@@ -10,7 +10,7 @@ window.console = (function (origConsole) {
       // 'executeOp',
       // 'joinLeader'
       'loadBattle',
-      // 'battle',
+      'battle',
       // 'battleOP',
       // 'battleMemory',
       // 'battleTimer',

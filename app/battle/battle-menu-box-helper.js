@@ -428,12 +428,13 @@ const addHP = (group, x, y, id) => {
     const isCritical = percent <= 0.1
     const newText = `${('' + newCurrent).padStart(4, ' ')}/${('' + newMax).padStart(4, ' ')}`.split('')
     for (const [i, letter] of newText.entries()) {
+      console.log('battleUI letter', letter)
       const textureLetter = getLetterTexture(
         letter,
         LETTER_TYPES.BattleTextStats,
         i < 4 && isCritical ? LETTER_COLORS.Yellow : LETTER_COLORS.White
       ).texture
-      // console.log('battleUI set', letter, text.children[i].material.map === textureLetter)
+      console.log('battleUI set', letter, text.children[i].material.map === textureLetter)
       if (text.children[i].material.map !== textureLetter) {
         text.children[i].material.map = textureLetter
         text.children[i].material.needsUpdate = true
