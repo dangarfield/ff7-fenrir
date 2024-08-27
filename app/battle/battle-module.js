@@ -11,6 +11,7 @@ import { initAllVariables } from './battle-memory.js'
 import { initBattleQueue } from './battle-queue.js'
 import { executeAllInitScripts } from './battle-stack.js'
 import { initBattleMenu } from './battle-menu.js'
+import { setLoadingText, showLoadingScreen } from '../loading/loading-module.js'
 let BATTLE_PROMISE
 
 /*
@@ -34,10 +35,15 @@ const cleanSceneGroup = () => {
   // }
 }
 const preLoadBattle = async (battleId, options) => {
+  setLoadingText('Loading battle...')
+  showLoadingScreen(false)
+
   console.log('battle preload: START')
   cleanSceneGroup()
+
   const currentBattle = setupBattle(battleId) // TODO, add from random / world map etc
   // console.log('loadBattle', battleId, options)
+
   await importModels(currentBattle)
   // await loadTempBattle2d(`${currentBattle.sceneId} - ${currentBattle.formationId}`)
 
@@ -45,11 +51,15 @@ const preLoadBattle = async (battleId, options) => {
   initBattleQueue(currentBattle)
   await executeAllInitScripts(currentBattle)
   await initBattleMenu(currentBattle)
+
   console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {
+  await preLoadBattle(battleId, options)
   console.log('battle loadBattle: START')
-  window.alert('Placeholder battles - Press Y to skip')
+  if (!window.location.host.includes('localhost')) {
+    window.alert('Placeholder battles - Press Y to skip') // TEMP - Need to remove
+  }
   window.anim.clock.start()
   startBattleRenderingLoop()
   return new Promise(resolve => {

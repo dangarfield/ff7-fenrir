@@ -28,7 +28,9 @@ let CURRENT_FIELD = 'None'
 let FIELD_LOOP_ACTIVE = true
 
 const isFieldLoopActive = () => FIELD_LOOP_ACTIVE
-const setFieldLoopActive = (newValue) => { FIELD_LOOP_ACTIVE = newValue }
+const setFieldLoopActive = newValue => {
+  FIELD_LOOP_ACTIVE = newValue
+}
 
 const executeOp = async (
   fieldName,
@@ -396,7 +398,7 @@ const executeOp = async (
       result = assign.COS(op)
       break
 
-      // Windowing and Menu
+    // Windowing and Menu
 
     case 'TUTOR':
       result = await windowMenu.TUTOR(op)
@@ -548,7 +550,7 @@ const executeOp = async (
       result = await party.MMBUK(op)
       break
 
-      // Field Models and Animation
+    // Field Models and Animation
 
     case 'JOIN':
       result = await models.JOIN(entityId, op)
@@ -776,7 +778,7 @@ const executeOp = async (
       result = await background.BGCLR(op)
       break
 
-      // TODO - ordering
+    // TODO - ordering
     case 'STPLS':
       result = await background.STPLS(op)
       break
@@ -805,7 +807,7 @@ const executeOp = async (
       result = await background.CPPAL(op)
       break
 
-      // Camera, Audio and Video
+    // Camera, Audio and Video
 
     case 'NFADE':
       result = await cameraMedia.NFADE(op)
@@ -1133,13 +1135,13 @@ const initialiseOpLoops = async () => {
 
   setTimeout(() => {
     window.quickBattle = () => {
-    // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
-    // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
-    // control.BATTLE({ b: 0, n: 27 * 4 + 2 }) // Grand Hown
-    // control.BATTLE({ b: 0, n: 75 * 4 + 3 }) // MP + Guard Hound
-    control.BATTLE({ b: 0, n: 75 * 4 + 2 }) // MP + MP
-    // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
-    // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
+      // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
+      // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
+      // control.BATTLE({ b: 0, n: 27 * 4 + 2 }) // Grand Hown
+      // control.BATTLE({ b: 0, n: 75 * 4 + 3 }) // MP + Guard Hound
+      control.BATTLE({ b: 0, n: 75 * 4 + 2 }) // MP + MP
+      // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
+      // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
     }
   }, 1000)
   console.log('initialiseOpLoops: END')

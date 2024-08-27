@@ -26,6 +26,7 @@ const initManager = async () => {
   }
   initRenderer()
   await initLoadingModule()
+  console.log('loading ALL START')
   showLoadingScreen()
   setupInputs()
   await initWorldModule()
@@ -37,6 +38,8 @@ const initManager = async () => {
   await loadWindowTextures()
   await loadMenuTextures()
   await loadFieldTextures()
+  
+  console.log('loading ALL END')
   initMenuModule()
   initBattleSwirlModule()
   initBattleModule()

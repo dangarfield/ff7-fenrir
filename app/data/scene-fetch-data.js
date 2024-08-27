@@ -3,19 +3,23 @@ import { GLTFLoader } from '../../assets/threejs-r148/examples/jsm/loaders/GLTFL
 import { addBlendingToMaterials } from '../field/field-fetch-data.js'
 
 const loadSceneData = async () => {
-  const sceneDataRes = await fetch(`${KUJATA_BASE}/data/battle/scene.bin/scene.bin.json`)
+  const sceneDataRes = await fetch(
+    `${KUJATA_BASE}/data/battle/scene.bin/scene.bin.json`
+  )
   const sceneData = await sceneDataRes.json()
   window.data.sceneData = sceneData
 }
-const loadSceneModel = async modelCode => {
+const loadSceneModel = async (modelCode, manager) => {
   // These models aren't cached, we really should cache them
+
+  console.log('loading sceneModel', modelCode, 'START')
   const modelGLTFRes = await fetch(
     `${KUJATA_BASE}/data/battle/battle.lgp/${modelCode.toLowerCase()}.hrc.gltf`,
     { cache: 'force-cache' }
   )
   const modelGLTF = await modelGLTFRes.json()
   return new Promise((resolve, reject) => {
-    const loader = new GLTFLoader()
+    const loader = new GLTFLoader(manager)
     console.log('battle loader', loader.textureLoader)
 
     loader.parse(
@@ -32,6 +36,7 @@ const loadSceneModel = async modelCode => {
             track.optimize()
           }
         }
+        console.log('loading sceneModel', modelCode, 'END')
         resolve(gltf)
       }
     )

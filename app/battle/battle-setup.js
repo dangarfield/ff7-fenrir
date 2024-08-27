@@ -3,19 +3,19 @@ import { initTimers } from './battle-timers.js'
 
 let currentBattle = {}
 
-const locationIdToLocationCode = (i) => {
+const locationIdToLocationCode = i => {
   const id = i + 370
   const id2 = Math.floor(id / 26)
-  const id3 = id - (id2 * 26)
+  const id3 = id - id2 * 26
   return String.fromCharCode(id2 + 97) + String.fromCharCode(id3 + 97) + 'aa'
 }
-const enemyIdToEnemyCode = (i) => {
+const enemyIdToEnemyCode = i => {
   const id = i + 0
   const id2 = Math.floor(id / 26)
-  const id3 = id - (id2 * 26)
+  const id3 = id - id2 * 26
   return String.fromCharCode(id2 + 97) + String.fromCharCode(id3 + 97) + 'aa'
 }
-const characterNameToModelCode = (name) => {
+const characterNameToModelCode = name => {
   let modelName = 'CLOUD'
   if (name === 'Cloud') modelName = 'CLOUD'
   if (name === 'Barret') modelName = 'BARRETT'
@@ -27,10 +27,11 @@ const characterNameToModelCode = (name) => {
   if (name === 'CaitSith') modelName = 'KETCY'
   if (name === 'Vincent') modelName = 'VINSENT'
   // TODO - Othe chars, special frog, vincent limits, sephiroth, weapons, multiple barret?
-  return window.data.exe.battleCharacterModels.find(m => m.name === modelName).hrc
+  return window.data.exe.battleCharacterModels.find(m => m.name === modelName)
+    .hrc
 }
 
-const setupBattle = (battleId) => {
+const setupBattle = battleId => {
   const sceneId = battleId >> 2 // eg, Math.trunc(battleId / 4)
   const formationId = battleId & 3 // eg, battleId % 4
   const scene = { ...window.data.sceneData.find(s => s.sceneId === sceneId) }
@@ -40,10 +41,10 @@ const setupBattle = (battleId) => {
     scene, // temp - remove after
     setup: { ...scene.battleSetup[formationId] },
     actors: [],
-    attackData: [...scene.attackData.filter(a => a.id !== 0xFFFF)]
+    attackData: [...scene.attackData.filter(a => a.id !== 0xffff)]
   }
   // window.data.savemap.party.members[1] = 'None' // Temp
-  window.debugSetEquipmentAndMateria()
+  window.debugSetEquipmentAndMateria() // Temp
   for (const [i, partyMember] of window.data.savemap.party.members.entries()) {
     if (partyMember === 'None') {
       currentBattle.actors.push({ active: false, index: i })
@@ -66,7 +67,7 @@ const setupBattle = (battleId) => {
   currentBattle.actors.push({ active: false, index: 3, type: 'formation' }) // Battle Actor that hod formation AI
 
   for (const [i, enemy] of scene.battleFormations[formationId].entries()) {
-    if (enemy.enemyId === 0xFFFF) {
+    if (enemy.enemyId === 0xffff) {
       currentBattle.actors.push({ active: false, index: i + 4 })
     } else {
       let enemyData
@@ -95,7 +96,9 @@ const setupBattle = (battleId) => {
     }
   }
 
-  currentBattle.setup.locationCode = locationIdToLocationCode(currentBattle.setup.locationId)
+  currentBattle.setup.locationCode = locationIdToLocationCode(
+    currentBattle.setup.locationId
+  )
 
   initTimers(currentBattle)
 

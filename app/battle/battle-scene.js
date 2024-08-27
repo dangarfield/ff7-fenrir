@@ -18,9 +18,14 @@ const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
 
 let BATTLE_PAUSED = false
 
-const tweenSleep = (ms) => {
+const tweenSleep = ms => {
   return new Promise(resolve => {
-    new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP).to({ x: 1 }, ms).onComplete(function () { resolve() }).start()
+    new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
+      .to({ x: 1 }, ms)
+      .onComplete(function () {
+        resolve()
+      })
+      .start()
   })
 }
 
@@ -47,7 +52,9 @@ const renderLoop = () => {
       if (window.currentBattle.models) {
         for (const model of window.currentBattle.models) {
           if (model.mixer) model.mixer.update(delta)
-          if (model.userData.updateShadowPosition) model.userData.updateShadowPosition()
+          if (model.userData.updateShadowPosition) {
+            model.userData.updateShadowPosition()
+          }
         }
       }
       updateActorsUI()
@@ -110,12 +117,15 @@ const setupScenes = () => {
     1,
     100000
   )
-  debugCamera.position.x = 5520// 3000
-  debugCamera.position.y = 2184// 1200
-  debugCamera.position.z = 7411// -400
+  debugCamera.position.x = 5520 // 3000
+  debugCamera.position.y = 2184 // 1200
+  debugCamera.position.z = 7411 // -400
   window.battleDebugCamera = debugCamera
 
-  debugControls = new OrbitControls(debugCamera, window.anim.renderer.domElement)
+  debugControls = new OrbitControls(
+    debugCamera,
+    window.anim.renderer.domElement
+  )
   debugControls.target = new THREE.Vector3(0, 1000, 0)
   debugControls.update()
   debugCamera.controls = debugControls
@@ -130,7 +140,7 @@ const setupScenes = () => {
   )
   orthoCamera.position.z = 1001
 
-  // scene.background = new THREE.Color(0xBBDDFF) // 0x505050
+  // scene.background = new THREE.Color(0xbbddff) // Temp
   scene.add(battleCamera)
   // add lights
   // const addDirectionalLight = function (x, y, z) {
@@ -149,11 +159,19 @@ const togglePauseBattle = () => {
   // TODO - Some weirdness of some animations going past the floor after a second
   // TODO - Also the 'active selection' indicators and limits should flash too
   if (BATTLE_PAUSED) {
-    if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.pause) {
+    if (
+      window.currentBattle &&
+      window.currentBattle.ui &&
+      window.currentBattle.ui.pause
+    ) {
       window.currentBattle.ui.pause.start()
     }
   } else {
-    if (window.currentBattle && window.currentBattle.ui && window.currentBattle.ui.pause) {
+    if (
+      window.currentBattle &&
+      window.currentBattle.ui &&
+      window.currentBattle.ui.pause
+    ) {
       window.currentBattle.ui.pause.stop()
     }
   }

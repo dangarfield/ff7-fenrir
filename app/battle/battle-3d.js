@@ -2,11 +2,12 @@ import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { sceneGroup, tweenSleep, BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
+import { setLoadingProgress } from '../loading/loading-module.js'
 
 const tempSlow = 1
 
-const loadModelWithAnimationBindings = async (code) => {
-  const model = await loadSceneModel(code)
+const loadModelWithAnimationBindings = async (code, manager) => {
+  const model = await loadSceneModel(code, manager)
   model.mixer = new THREE.AnimationMixer(model.scene)
   model.mixer.addEventListener('finished', async e => {
     // console.log('battle finished mixer', e, e.action.model, e.action.nextAnim)
@@ -20,7 +21,7 @@ const loadModelWithAnimationBindings = async (code) => {
       delete e.action.nextAnim
     }
   })
-  model.userData.playAnimation = (i) => {
+  model.userData.playAnimation = i => {
     // console.log('battle playAnimation', i)
     const action = model.mixer.clipAction(model.animations[i])
     action.timeScale = tempSlow
@@ -60,24 +61,29 @@ const loadModelWithAnimationBindings = async (code) => {
   }
   return model
 }
-const addShadow = (model) => {
+const addShadow = model => {
   // TODO - Not always circles, need to investigate more
   const box = new THREE.BoxHelper(model.scene)
   box.geometry.computeBoundingBox()
-  const radius = Math.max(
-    box.geometry.boundingBox.max.x - box.geometry.boundingBox.min.x,
-    box.geometry.boundingBox.max.z - box.geometry.boundingBox.min.z
-  ) / 2
+  const radius =
+    Math.max(
+      box.geometry.boundingBox.max.x - box.geometry.boundingBox.min.x,
+      box.geometry.boundingBox.max.z - box.geometry.boundingBox.min.z
+    ) / 2
   // sceneGroup.add(box)
   // console.log('battle shadow size', box, box.geometry.boundingBox, radius)
   const geometry = new THREE.CircleGeometry(radius, 32)
-  const material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 })
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    transparent: true,
+    opacity: 0.3
+  })
   const shadow = new THREE.Mesh(geometry, material)
-  shadow.position.y = 10
+  shadow.position.y = 17
   shadow.rotation.x = -Math.PI / 2
   model.userData.shadow = shadow
   model.userData.updateShadowPosition = () => {
-    shadow.position.y = model.initialY - model.scene.children[0].position.y + 5
+    shadow.position.y = model.initialY - model.scene.children[0].position.y + 17
   }
   model.scene.children[0].add(shadow)
 }
@@ -91,13 +97,38 @@ const memberPositions = {
 }
 const createSelectionTriangle = () => {
   const geom = new THREE.BufferGeometry()
-  const vertices = new Float32Array([].concat(...window.data.battleMisc.mark.map(m => m.positions.map(p => p.map(v => v * -1)))).flat())
+  const vertices = new Float32Array(
+    []
+      .concat(
+        ...window.data.battleMisc.mark.map(m =>
+          m.positions.map(p => p.map(v => v * -1))
+        )
+      )
+      .flat()
+  )
   geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
-  geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array([].concat(...window.data.battleMisc.mark.map(m => m.colors.map(c => {
-    const col = new THREE.Color(c)
-    return [col.r, col.g, col.b]
-  }))).flat()), 3))
-  const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide })
+  geom.setAttribute(
+    'color',
+    new THREE.BufferAttribute(
+      new Float32Array(
+        []
+          .concat(
+            ...window.data.battleMisc.mark.map(m =>
+              m.colors.map(c => {
+                const col = new THREE.Color(c)
+                return [col.r, col.g, col.b]
+              })
+            )
+          )
+          .flat()
+      ),
+      3
+    )
+  )
+  const material = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    side: THREE.DoubleSide
+  })
   const selectionTriangle = new THREE.Mesh(geom, material)
   selectionTriangle.visible = false
   sceneGroup.add(selectionTriangle)
@@ -107,30 +138,51 @@ const createSelectionTriangle = () => {
   new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
     .to(to, 2200)
     .repeat(Infinity)
-    .onUpdate(() => { selectionTriangle.rotation.y = from.v })
+    .onUpdate(() => {
+      selectionTriangle.rotation.y = from.v
+    })
     .start()
 
   return {
     model: selectionTriangle,
-    showForActor: (actor) => {
+    showForActor: actor => {
       selectionTriangle.position.x = actor.model.scene.position.x
       selectionTriangle.position.y = 0 // -actor.model.scene.position.y + 600 // Does this need to be model height plus offset?
       selectionTriangle.position.z = actor.model.scene.position.z
 
       selectionTriangle.visible = true
     },
-    hide: () => { selectionTriangle.visible = false }
+    hide: () => {
+      selectionTriangle.visible = false
+    }
   }
 }
-const importModels = async (currentBattle) => {
-  const modelsToFind = [currentBattle.setup.locationCode, ...currentBattle.actors.filter(a => a.modelCode).map(a => a.modelCode)]
-  const modelsFound = await Promise.all(modelsToFind.map(code => loadModelWithAnimationBindings(code)))
+const loadBattleModels = async modelsToFind => {
+  const manager = new THREE.LoadingManager()
+  manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+    setLoadingProgress(itemsLoaded / itemsTotal)
+  }
+
+  const modelsFound = await Promise.all(
+    modelsToFind.map(async code =>
+      loadModelWithAnimationBindings(code, manager)
+    )
+  )
+  console.log('loading complete')
+  return modelsFound
+}
+const importModels = async currentBattle => {
+  const modelsToFind = [
+    currentBattle.setup.locationCode,
+    ...currentBattle.actors.filter(a => a.modelCode).map(a => a.modelCode)
+  ]
+  const modelsFound = await loadBattleModels(modelsToFind)
   const locationModel = modelsFound.shift()
   locationModel.name = 'location'
   // console.log('battle locationModel', locationModel)
   currentBattle.models = [locationModel]
-
   sceneGroup.add(locationModel.scene)
+  console.log('location', locationModel)
 
   for (const [i, actor] of currentBattle.actors.entries()) {
     if (!actor.active) continue
@@ -172,12 +224,18 @@ const importModels = async (currentBattle) => {
   // Set default camera
 
   // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
-  window.battleDebugCamera.position.x = currentBattle.scene.cameraPlacement['0'].camera1.pos.x
-  window.battleDebugCamera.position.y = -currentBattle.scene.cameraPlacement['0'].camera1.pos.y
-  window.battleDebugCamera.position.z = -currentBattle.scene.cameraPlacement['0'].camera1.pos.z
-  window.battleDebugCamera.controls.target.x = currentBattle.scene.cameraPlacement['0'].camera1.dir.x
-  window.battleDebugCamera.controls.target.y = -currentBattle.scene.cameraPlacement['0'].camera1.dir.y
-  window.battleDebugCamera.controls.target.z = -currentBattle.scene.cameraPlacement['0'].camera1.dir.z
+  window.battleDebugCamera.position.x =
+    currentBattle.scene.cameraPlacement['0'].camera1.pos.x
+  window.battleDebugCamera.position.y =
+    -currentBattle.scene.cameraPlacement['0'].camera1.pos.y
+  window.battleDebugCamera.position.z =
+    -currentBattle.scene.cameraPlacement['0'].camera1.pos.z
+  window.battleDebugCamera.controls.target.x =
+    currentBattle.scene.cameraPlacement['0'].camera1.dir.x
+  window.battleDebugCamera.controls.target.y =
+    -currentBattle.scene.cameraPlacement['0'].camera1.dir.y
+  window.battleDebugCamera.controls.target.z =
+    -currentBattle.scene.cameraPlacement['0'].camera1.dir.z
 }
 
 export { importModels, tempSlow }

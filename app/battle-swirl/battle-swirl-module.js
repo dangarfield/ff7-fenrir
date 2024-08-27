@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { loadBattle, preLoadBattle } from '../battle/battle-module.js'
+import { loadBattle } from '../battle/battle-module.js'
 import { playCommonSound, COMMON_SOUNDS } from '../media/media-sound.js'
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { renderToTexture } from '../field/field-scene.js'
@@ -162,8 +162,6 @@ const loadBattleWithSwirl = async (battleId, options) => {
   // ])
   // await sleep(2000) // TODO - For some reason there is a fps drop at this point
   await doSwirl()
-  await preLoadBattle(battleId, options)
-
   console.log('battle loadBattleWithSwirl: END')
   await loadBattle(battleId, options)
 }
