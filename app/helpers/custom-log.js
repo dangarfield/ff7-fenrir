@@ -29,10 +29,7 @@ window.console = (function (origConsole) {
       // 'executeScriptLoop',
       // 'executeScriptLoopDEBUG',
       // 'SCR2D',
-      'loading',
-      'battle preload',
-      'battle parsed gltf',
-      'location'
+      'FIXCAM'
     ],
     log: function () {
       if (limit) {

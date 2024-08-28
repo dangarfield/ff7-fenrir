@@ -95,10 +95,14 @@ const renderLoop = function () {
     window.currentField.fieldCameraHelper.update()
   }
 }
-const renderToTexture = (bufferTexture) => {
+const renderToTexture = bufferTexture => {
   console.log('renderToTexture', 'renderToTexture', bufferTexture)
   window.anim.renderer.setRenderTarget(bufferTexture)
-  window.anim.renderer.render(window.currentField.fieldScene, window.currentField.fieldCamera, bufferTexture)
+  window.anim.renderer.render(
+    window.currentField.fieldScene,
+    window.currentField.fieldCamera,
+    bufferTexture
+  )
   window.anim.renderer.setRenderTarget(null)
 }
 const startFieldRenderLoop = () => {
@@ -302,20 +306,27 @@ const setupFieldLights = () => {
 
     const lightLayer = 0
     window.currentField.centrePoint = getSceneCentrePoint()
-    window.currentField.lights = { lightData, globalLight: null, pointLights: [] }
+    window.currentField.lights = {
+      lightData,
+      globalLight: null,
+      pointLights: []
+    }
 
     createGlobalLight(1)
     createPointLights(lightLayer, 1)
   }
 }
-const ensureFieldLightData = (lightLayer) => {
+const ensureFieldLightData = lightLayer => {
   console.log('light 1')
-  if (lightLayer !== undefined && window.currentField.lights.pointLights[lightLayer] === undefined) {
+  if (
+    lightLayer !== undefined &&
+    window.currentField.lights.pointLights[lightLayer] === undefined
+  ) {
     window.currentField.lights.pointLights[lightLayer] = []
     console.log('light 3', window.currentField.lights)
   }
 }
-const createGlobalLight = (intensity) => {
+const createGlobalLight = intensity => {
   // if (window.currentField.lights.globalLight) {
   //   window.currentField.lights.globalLight.parent.remove(window.currentField.lights.globalLight)
   //   delete window.currentField.lights.globalLight
@@ -337,7 +348,11 @@ const createGlobalLight = (intensity) => {
 const createPointLights = (lightLayer, intensity) => {
   ensureFieldLightData(lightLayer)
   if (window.currentField.lights.pointLights[lightLayer]) {
-    for (let i = 0; i < window.currentField.lights.pointLights[lightLayer].length; i++) {
+    for (
+      let i = 0;
+      i < window.currentField.lights.pointLights[lightLayer].length;
+      i++
+    ) {
       const pointLight = window.currentField.lights.pointLights[lightLayer][i]
       pointLight.visible = false
       console.log('light removing point light', pointLight)
@@ -370,7 +385,13 @@ const createPointLights = (lightLayer, intensity) => {
     window.currentField.fieldScene.add(pointLight)
     window.currentField.lights.pointLights[lightLayer].push(pointLight)
   }
-  console.log('light createPointLights lightData', lightLayer, lightData, intensity, window.currentField.lights.pointLights[lightLayer][0].intensity)
+  console.log(
+    'light createPointLights lightData',
+    lightLayer,
+    lightData,
+    intensity,
+    window.currentField.lights.pointLights[lightLayer][0].intensity
+  )
 }
 const activateDebugCamera = () => {
   if (window.currentField.debugCamera) {
@@ -385,8 +406,20 @@ const activateDebugCamera = () => {
     window.currentField.debugCameraControls.enabled = true
   }
   if (window.config.debug.showDebugCamera) {
+    window.anim.renderer.setSize(
+      window.currentField.metaData.assetDimensions.width *
+        window.config.sizing.factor *
+        window.currentField.metaData.bgScale,
+      window.currentField.metaData.assetDimensions.height *
+        window.config.sizing.factor *
+        window.currentField.metaData.bgScale
+    )
     window.currentField.debugCameraControls.enabled = true
   } else {
+    window.anim.renderer.setSize(
+      window.config.sizing.width * window.config.sizing.factor,
+      window.config.sizing.height * window.config.sizing.factor
+    )
     window.currentField.debugCameraControls.enabled = false
   }
 }
@@ -487,17 +520,32 @@ const initFieldDebug = async loadFieldCB => {
 
       const sceneGraph = await getSceneGraph()
       const fieldId = await getFieldIdForName(val)
-      const potentialFieldTransitionSourcesGateway = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'gateway') // Just do gateways only
-      const potentialFieldTransitionSourcesMapJump = sceneGraph.links.filter(l => l.target === fieldId && l.type === 'MAPJUMP')
+      const potentialFieldTransitionSourcesGateway = sceneGraph.links.filter(
+        l => l.target === fieldId && l.type === 'gateway'
+      ) // Just do gateways only
+      const potentialFieldTransitionSourcesMapJump = sceneGraph.links.filter(
+        l => l.target === fieldId && l.type === 'MAPJUMP'
+      )
 
       if (potentialFieldTransitionSourcesGateway.length > 0) {
         console.log('loadField get init position from gateway')
-        const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSourcesGateway[0].source].fieldName
+        const sourceFieldName =
+          sceneGraph.nodes[potentialFieldTransitionSourcesGateway[0].source]
+            .fieldName
 
         const sourceFieldData = await loadFieldData(sourceFieldName)
-        console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData)
+        console.log(
+          'loadField sceneGraph',
+          val,
+          fieldId,
+          sceneGraph,
+          sourceFieldName,
+          sourceFieldData
+        )
 
-        const gateway = sourceFieldData.triggers.gateways.filter(g => g.fieldId === fieldId)[0]
+        const gateway = sourceFieldData.triggers.gateways.filter(
+          g => g.fieldId === fieldId
+        )[0]
 
         const playableCharacterInitData = {
           triangleId: gateway.destinationVertex.triangleId,
@@ -506,7 +554,8 @@ const initFieldDebug = async loadFieldCB => {
             y: gateway.destinationVertex.y
           },
           direction: gateway.destinationVertex.direction,
-          characterName: window.currentField.playableCharacter.userData.characterName
+          characterName:
+            window.currentField.playableCharacter.userData.characterName
         }
 
         console.log('loadField gateway', gateway, playableCharacterInitData)
@@ -515,10 +564,20 @@ const initFieldDebug = async loadFieldCB => {
         loadFieldCB(val, playableCharacterInitData)
       } else if (potentialFieldTransitionSourcesMapJump.length > 0) {
         console.log('loadField get init position from map jump')
-        const sourceFieldName = sceneGraph.nodes[potentialFieldTransitionSourcesMapJump[0].source].fieldName
+        const sourceFieldName =
+          sceneGraph.nodes[potentialFieldTransitionSourcesMapJump[0].source]
+            .fieldName
 
         const sourceFieldData = await loadFieldData(sourceFieldName)
-        console.log('loadField sceneGraph', val, fieldId, sceneGraph, sourceFieldName, sourceFieldData, sourceFieldData.script.entities)
+        console.log(
+          'loadField sceneGraph',
+          val,
+          fieldId,
+          sceneGraph,
+          sourceFieldName,
+          sourceFieldData,
+          sourceFieldData.script.entities
+        )
 
         for (let i = 0; i < sourceFieldData.script.entities.length; i++) {
           const entity = sourceFieldData.script.entities[i]
@@ -548,7 +607,8 @@ const initFieldDebug = async loadFieldCB => {
                     y: op.y
                   },
                   direction: op.direction,
-                  characterName: window.currentField.playableCharacter.userData.characterName
+                  characterName:
+                    window.currentField.playableCharacter.userData.characterName
                 }
               }
             })
@@ -557,7 +617,9 @@ const initFieldDebug = async loadFieldCB => {
         loadFieldCB(val, playableCharacterInitData)
       } else {
         // console.log('loadField get init position from gateway')
-        window.alert('NO POINTS OF ENTRY TO FIELD - Implement WORLD MAP JUMP in field-scene')
+        window.alert(
+          'NO POINTS OF ENTRY TO FIELD - Implement WORLD MAP JUMP in field-scene'
+        )
       }
     })
     .listen()
@@ -666,7 +728,8 @@ const initFieldDebug = async loadFieldCB => {
     )
     arrowHelpers.map(a => (a.visible = window.config.debug.showModelHelpers))
     console.log('window.currentField.fieldScene.children', arrowHelpers)
-    window.currentField.backgroundLayers.visible = window.config.debug.showModelHelpers
+    window.currentField.backgroundLayers.visible =
+      window.config.debug.showModelHelpers
   })
   debugGUI.add(window.config.debug, 'showAxes').onChange(() => {
     window.anim.axesHelper.visible = window.config.debug.showAxes
@@ -787,7 +850,7 @@ const calculateViewClippingPointFromVector3 = v => {
 
   return relativeToCamera
 }
-const roundHalf = (num) => {
+const roundHalf = num => {
   return Math.round(num * 2) / 2
 }
 

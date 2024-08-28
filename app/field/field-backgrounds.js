@@ -1,5 +1,10 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
-import { getFieldDimensions, getFieldBGLayerUrl, getFieldBGPixelLayerUrl, getFieldBGPaletteUrl } from './field-fetch-data.js'
+import {
+  getFieldDimensions,
+  getFieldBGLayerUrl,
+  getFieldBGPixelLayerUrl,
+  getFieldBGPaletteUrl
+} from './field-fetch-data.js'
 import { drawArrowPositionHelper } from './field-position-helpers.js'
 import { getModelScaleDownValue } from './field-models.js'
 import { dec2hexPairs } from '../helpers/helpers.js'
@@ -306,7 +311,8 @@ const drawWalkmesh = () => {
   // geometry.setAttribute('position', new THREE.Float32BufferAttribute(walkmeshPositions, 3))
   // let material = new THREE.MeshBasicMaterial({ color: 0x2194CE, opacity: 0.2, transparent: true, side: THREE.DoubleSide })
   // window.currentField.walkmeshMesh = new THREE.Mesh(geometry, material)
-  window.currentField.walkmeshMesh.visible = window.config.debug.showWalkmeshMesh
+  window.currentField.walkmeshMesh.visible =
+    window.config.debug.showWalkmeshMesh
   window.currentField.fieldScene.add(window.currentField.walkmeshMesh)
 
   // Draw gateways
@@ -324,7 +330,10 @@ const drawWalkmesh = () => {
     gatewayPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     gatewayPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     const gatewayPositionsGeo = new THREE.BufferGeometry()
-    gatewayPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(gatewayPositions, 3))
+    gatewayPositionsGeo.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(gatewayPositions, 3)
+    )
     const gatewayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 })
     const gatewayLine = new THREE.Line(gatewayPositionsGeo, gatewayMaterial)
     window.currentField.gatewayLines.add(gatewayLine)
@@ -345,14 +354,15 @@ const drawWalkmesh = () => {
 
   // Draw triggers / doors
   window.currentField.triggerLines = new THREE.Group()
-  window.currentField.data.triggers.triggers = window.currentField.data.triggers.triggers.filter(
-    t =>
-      !(
-        t.cornerVertex1.x === 0 &&
-        t.cornerVertex1.y === 0 &&
-        t.cornerVertex1.z === 0
-      )
-  )
+  window.currentField.data.triggers.triggers =
+    window.currentField.data.triggers.triggers.filter(
+      t =>
+        !(
+          t.cornerVertex1.x === 0 &&
+          t.cornerVertex1.y === 0 &&
+          t.cornerVertex1.z === 0
+        )
+    )
   // for some reason there are a lots of 0,0,0 triggers, remove them for now
   for (const trigger of window.currentField.data.triggers.triggers) {
     const lv0 = trigger.cornerVertex1
@@ -363,7 +373,10 @@ const drawWalkmesh = () => {
     triggerPositions.push(lv0.x / 4096, lv0.y / 4096, lv0.z / 4096)
     triggerPositions.push(lv1.x / 4096, lv1.y / 4096, lv1.z / 4096)
     const triggerPositionsGeo = new THREE.BufferGeometry()
-    triggerPositionsGeo.setAttribute('position', new THREE.Float32BufferAttribute(triggerPositions, 3))
+    triggerPositionsGeo.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(triggerPositions, 3)
+    )
     const triggerLine = new THREE.Line(triggerPositionsGeo, triggerMaterial)
     window.currentField.triggerLines.add(triggerLine)
   }
@@ -395,6 +408,27 @@ const drawWalkmesh = () => {
 const placeBG = async fieldName => {
   const assetDimensions = await getFieldDimensions(fieldName)
   // Create meta-data
+
+  const adjustedFovFactor = fov => {
+    // At fov 19 > 41 (md1_1) a 1.0 is ok
+    // At fov 27 > 58 (nmkin_2) a 0.95 is ok
+    // At fov 34 > 93 (pillar_1) a 0.85 seems to be ok
+    return fov < 41 ? 1 : fov > 93 ? 0.85 : 1 - (fov - 41) * 0.002885
+  }
+  console.log(
+    'FIXCAM adjustedFovFactor',
+    window.currentField.fieldCamera.fov,
+    assetDimensions.height / window.config.sizing.height,
+    window.currentField.fieldCamera.fov *
+      (assetDimensions.height / window.config.sizing.height),
+
+    adjustedFovFactor(window.currentField.fieldCamera.fov),
+    adjustedFovFactor(
+      window.currentField.fieldCamera.fov *
+        (assetDimensions.height / window.config.sizing.height)
+    )
+  )
+
   window.currentField.metaData = {
     assetDimensions,
     width: assetDimensions.width / window.config.sizing.width,
@@ -402,9 +436,18 @@ const placeBG = async fieldName => {
     bgScale: 1, // assetDimensions.height / window.config.sizing.height,
     adjustedFOV:
       window.currentField.fieldCamera.fov *
-      (assetDimensions.height / window.config.sizing.height),
+      (assetDimensions.height / window.config.sizing.height) *
+      adjustedFovFactor(
+        window.currentField.fieldCamera.fov *
+          (assetDimensions.height / window.config.sizing.height)
+      ), // Magic adjustment that seems to solve everything, maybe because the screen is about 7% smaller
+    // Although, this seems to vary. Yes, I know it's a hack
+
     cameraUnknown: window.currentField.data.cameraSection.cameras[0].unknown,
-    cameraUnknownString: window.currentField.data.cameraSection.cameras[0].unknown + ' - ' + dec2hexPairs(window.currentField.data.cameraSection.cameras[0].unknown),
+    cameraUnknownString:
+      window.currentField.data.cameraSection.cameras[0].unknown +
+      ' - ' +
+      dec2hexPairs(window.currentField.data.cameraSection.cameras[0].unknown),
     modelScale: window.currentField.data.model.header.modelScale,
     scaleDownValue: getModelScaleDownValue(),
     numModels: window.currentField.data.model.header.numModels,
@@ -414,15 +457,8 @@ const placeBG = async fieldName => {
   }
   // console.log('window.currentField.metaData', window.currentField.metaData)
 
-  // Rescale renderer and cameras for scene
-  window.anim.renderer.setSize(
-    assetDimensions.width *
-      window.config.sizing.factor *
-      window.currentField.metaData.bgScale,
-    assetDimensions.height *
-      window.config.sizing.factor *
-      window.currentField.metaData.bgScale
-  )
+  // Rescale camera for scene
+
   window.currentField.fieldCamera.aspect =
     assetDimensions.width / assetDimensions.height
   window.currentField.fieldCamera.fov = window.currentField.metaData.adjustedFOV
@@ -431,7 +467,7 @@ const placeBG = async fieldName => {
   window.currentField.debugCamera.aspect =
     assetDimensions.width / assetDimensions.height
   window.currentField.debugCamera.fov = window.currentField.metaData.adjustedFOV
-  window.currentField.fieldCamera.lookAt(window.currentField.cameraTarget)
+  window.currentField.debugCamera.lookAt(window.currentField.cameraTarget)
   window.currentField.debugCamera.updateProjectionMatrix()
 
   // Draw backgrounds
@@ -493,7 +529,7 @@ const processBG = (layerData, fieldName, manager) => {
   // const bgDistance = (intendedDistance * (layer.z / 4096)) // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - layerData.paletteId / 1) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
   // const bgDistance = (layerData.z - (layerData.paletteId / 10)) / window.currentField.metaData.bgZDistance // First attempt at ratios, not quite right but ok
-  const bgDistance = (layerData.z / window.currentField.metaData.bgZDistance)// - (layerData.paletteId / 1000000) // First attempt at ratios, not quite right but ok
+  const bgDistance = layerData.z / window.currentField.metaData.bgZDistance // - (layerData.paletteId / 1000000) // First attempt at ratios, not quite right but ok
   // console.log('Layer', layer, bgDistance)
 
   const userData = {
@@ -529,7 +565,12 @@ const processBG = (layerData, fieldName, manager) => {
 }
 
 const loadPalettes = (fieldName, manager) => {
-  window.currentField.backgroundData.palettes = { textures: [], textureList: [], data: [], dataTextures: [] }
+  window.currentField.backgroundData.palettes = {
+    textures: [],
+    textureList: [],
+    data: [],
+    dataTextures: []
+  }
   for (let i = 0; i < window.currentField.backgroundData.paletteCount; i++) {
     const bgPaletteUrl = getFieldBGPaletteUrl(fieldName, i)
     console.log('palettes', i, bgPaletteUrl)
@@ -549,7 +590,14 @@ const processPalettes = () => {
     for (let j = 0; j < paletteInfos.length; j++) {
       const paletteInfo = paletteInfos[j]
       // console.log('palettes - processing', i, j)
-      paletteData.push(new THREE.Vector4(paletteInfo.r / 255, paletteInfo.g / 255, paletteInfo.b / 255, paletteInfo.a / 255))
+      paletteData.push(
+        new THREE.Vector4(
+          paletteInfo.r / 255,
+          paletteInfo.g / 255,
+          paletteInfo.b / 255,
+          paletteInfo.a / 255
+        )
+      )
       data[j * 4 + 0] = paletteInfo.r
       data[j * 4 + 1] = paletteInfo.g
       data[j * 4 + 2] = paletteInfo.b
@@ -562,35 +610,35 @@ const processPalettes = () => {
   }
 
   // Test to amend paletteData
-//   let up = true
-//   let c = 0
-//   setInterval(() => {
-//     const i = 14
-//     if (up) {
-//       c++
-//       if (c >= 16) up = false
-//     } else {
-//       c--
-//       if (c <= 0) up = true
-//     }
-//     // const r = Math.random() * 256 | 0
-//     // const g = Math.random() * 256 | 0
-//     // const b = Math.random() * 256 | 0
-//     const d = window.currentField.backgroundData.palettes.dataTextures[i].image.data
-//     for (const k of d.keys()) {
-//       const u = k % 4
-//       // console.log('k', k, u)
-//       if (u === 0 || u === 1 || u === 2) {
-//         if (up && d[k] < 255) {
-//           d[k]++
-//         } else if (!up && d[k] > 0) {
-//           d[k]--
-//         }
-//       }
-//     }
-//     window.currentField.backgroundData.palettes.dataTextures[i].needsUpdate = true
-//     // console.log('updated d', d, c)
-//   }, 20)
+  //   let up = true
+  //   let c = 0
+  //   setInterval(() => {
+  //     const i = 14
+  //     if (up) {
+  //       c++
+  //       if (c >= 16) up = false
+  //     } else {
+  //       c--
+  //       if (c <= 0) up = true
+  //     }
+  //     // const r = Math.random() * 256 | 0
+  //     // const g = Math.random() * 256 | 0
+  //     // const b = Math.random() * 256 | 0
+  //     const d = window.currentField.backgroundData.palettes.dataTextures[i].image.data
+  //     for (const k of d.keys()) {
+  //       const u = k % 4
+  //       // console.log('k', k, u)
+  //       if (u === 0 || u === 1 || u === 2) {
+  //         if (up && d[k] < 255) {
+  //           d[k]++
+  //         } else if (!up && d[k] > 0) {
+  //           d[k]--
+  //         }
+  //       }
+  //     }
+  //     window.currentField.backgroundData.palettes.dataTextures[i].needsUpdate = true
+  //     // console.log('updated d', d, c)
+  //   }, 20)
 }
 
 // https://wikisquare-ffdream-com.translate.goog/ff7/technique/field/bg?_x_tr_sl=fr&_x_tr_tl=en&_x_tr_hl=en-GB
@@ -657,7 +705,9 @@ const drawBG = async (
 ) => {
   let vH =
     Math.tan(
-      THREE.MathUtils.degToRad(window.currentField.fieldCamera.getEffectiveFOV() / 2)
+      THREE.MathUtils.degToRad(
+        window.currentField.fieldCamera.getEffectiveFOV() / 2
+      )
     ) *
     distance *
     2
@@ -673,7 +723,16 @@ const drawBG = async (
     // return
   }
   const geometry = new THREE.PlaneGeometry(vW, vH)
-  console.log('drawBG', distance, '->', vH, vW, userData, layerData.fileName, geometry.uuid)
+  console.log(
+    'drawBG',
+    distance,
+    '->',
+    vH,
+    vW,
+    userData,
+    layerData.fileName,
+    geometry.uuid
+  )
 
   let material
   if (!NO_CUSTOM_SHADER) {
@@ -685,7 +744,10 @@ const drawBG = async (
 
     const uniforms = {
       useFirstPixel: {
-        value: window.currentField.data.background.palette.ignoreFirstPixel[userData.paletteId]
+        value:
+          window.currentField.data.background.palette.ignoreFirstPixel[
+            userData.paletteId
+          ]
       },
       paletteSize: {
         value: 256
@@ -694,13 +756,22 @@ const drawBG = async (
         value: layerData.useBlack === true
       },
       paletteList: {
-        value: window.currentField.backgroundData.palettes.textureList[userData.paletteId]
+        value:
+          window.currentField.backgroundData.palettes.textureList[
+            userData.paletteId
+          ]
       },
       palette: {
-        value: window.currentField.backgroundData.palettes.textures[userData.paletteId]
+        value:
+          window.currentField.backgroundData.palettes.textures[
+            userData.paletteId
+          ]
       },
       paletteData: {
-        value: window.currentField.backgroundData.palettes.dataTextures[userData.paletteId]
+        value:
+          window.currentField.backgroundData.palettes.dataTextures[
+            userData.paletteId
+          ]
       },
       pixels: {
         value: texture
@@ -758,14 +829,22 @@ const drawBG = async (
   }
 }
 const ensureTempPalette = () => {
-  if (!window.data.TEMP_PALETTE) { // TODO, need to ensure this cleared on each field?
+  if (!window.data.TEMP_PALETTE) {
+    // TODO, need to ensure this cleared on each field?
     window.data.TEMP_PALETTE = []
   }
 }
-const storePalette = (sourcePaletteId, destinationTempPaletteId, start, size) => {
+const storePalette = (
+  sourcePaletteId,
+  destinationTempPaletteId,
+  start,
+  size
+) => {
   ensureTempPalette()
   // size = 32
-  const sourcePaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
+  const sourcePaletteData =
+    window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId]
+      .image.data
 
   const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
@@ -777,21 +856,52 @@ const storePalette = (sourcePaletteId, destinationTempPaletteId, start, size) =>
     destinationTempPaletteData[j * 4 + 3] = sourcePaletteData[i * 4 + 3]
     j++
   }
-  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
-  console.log('storePalette', sourcePaletteId, destinationTempPaletteId, start, size, sourcePaletteData, window.data.TEMP_PALETTE)
+  window.data.TEMP_PALETTE[destinationTempPaletteId] =
+    destinationTempPaletteData
+  console.log(
+    'storePalette',
+    sourcePaletteId,
+    destinationTempPaletteId,
+    start,
+    size,
+    sourcePaletteData,
+    window.data.TEMP_PALETTE
+  )
 }
-const loadPalette = (sourceTempPaletteId, destinationPaletteId, start, size) => {
+const loadPalette = (
+  sourceTempPaletteId,
+  destinationPaletteId,
+  start,
+  size
+) => {
   ensureTempPalette()
   // size = 32 // TODO - Need to see if this is still needed, it was just for a test
   try {
-  // tempPaletteId = tempPaletteId - 10 // temp
-    console.log('loadPalette', sourceTempPaletteId, destinationPaletteId, start, size, window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId])
-    const destinationPaletteData = window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId].image.data
+    // tempPaletteId = tempPaletteId - 10 // temp
+    console.log(
+      'loadPalette',
+      sourceTempPaletteId,
+      destinationPaletteId,
+      start,
+      size,
+      window.currentField.backgroundData.palettes.dataTextures[
+        destinationPaletteId
+      ]
+    )
+    const destinationPaletteData =
+      window.currentField.backgroundData.palettes.dataTextures[
+        destinationPaletteId
+      ].image.data
 
     const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
     let j = 0
     for (let i = start; i < start + size; i++) {
-      console.log('loadPalette - processing', destinationPaletteId, sourceTempPaletteId, sourceTempPaletteData)
+      console.log(
+        'loadPalette - processing',
+        destinationPaletteId,
+        sourceTempPaletteId,
+        sourceTempPaletteData
+      )
       destinationPaletteData[i * 4 + 0] = sourceTempPaletteData[j * 4 + 0] // TODO: Is the start relative to the temp or main palette?
       destinationPaletteData[i * 4 + 1] = sourceTempPaletteData[j * 4 + 1]
       destinationPaletteData[i * 4 + 2] = sourceTempPaletteData[j * 4 + 2]
@@ -799,46 +909,100 @@ const loadPalette = (sourceTempPaletteId, destinationPaletteId, start, size) => 
       j++
     }
     console.log('loadPalette res', destinationPaletteData)
-    window.currentField.backgroundData.palettes.dataTextures[destinationPaletteId].needsUpdate = true
+    window.currentField.backgroundData.palettes.dataTextures[
+      destinationPaletteId
+    ].needsUpdate = true
   } catch (error) {
     console.log('loadPalette error', error)
   }
 }
-const addPalette = (sourceTempPaletteId, destinationTempPaletteId, r, g, b, start, size) => {
+const addPalette = (
+  sourceTempPaletteId,
+  destinationTempPaletteId,
+  r,
+  g,
+  b,
+  start,
+  size
+) => {
   ensureTempPalette()
   // size = 32
-  console.log('addPalette', sourceTempPaletteId, destinationTempPaletteId, r, g, b, size)
+  console.log(
+    'addPalette',
+    sourceTempPaletteId,
+    destinationTempPaletteId,
+    r,
+    g,
+    b,
+    size
+  )
   const sourceTempPaletteData = window.data.TEMP_PALETTE[sourceTempPaletteId]
   const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
   for (let i = start; i < start + size; i++) {
-    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] - (r * 8) // Is rgb order correct?
-    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] - (g * 8)
-    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] - (b * 8)
+    destinationTempPaletteData[j * 4 + 0] +=
+      sourceTempPaletteData[i * 4 + 0] - r * 8 // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] +=
+      sourceTempPaletteData[i * 4 + 1] - g * 8
+    destinationTempPaletteData[j * 4 + 2] +=
+      sourceTempPaletteData[i * 4 + 2] - b * 8
     destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
     j++
   }
-  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
-  console.log('addPalette RES', sourceTempPaletteData, destinationTempPaletteData, window.data.TEMP_PALETTE)
+  window.data.TEMP_PALETTE[destinationTempPaletteId] =
+    destinationTempPaletteData
+  console.log(
+    'addPalette RES',
+    sourceTempPaletteData,
+    destinationTempPaletteData,
+    window.data.TEMP_PALETTE
+  )
 }
-const multiplyPalette = (sourcePaletteId, destinationTempPaletteId, r, g, b, start, size) => {
+const multiplyPalette = (
+  sourcePaletteId,
+  destinationTempPaletteId,
+  r,
+  g,
+  b,
+  start,
+  size
+) => {
   ensureTempPalette()
   // size = 32
-  console.log('multiplyPalette', sourcePaletteId, destinationTempPaletteId, r, g, b, size)
+  console.log(
+    'multiplyPalette',
+    sourcePaletteId,
+    destinationTempPaletteId,
+    r,
+    g,
+    b,
+    size
+  )
   // const sourceTempPaletteData = window.currentField.backgroundData.palettes.dataTextures[sourcePaletteId].image.data
   const sourceTempPaletteData = window.data.TEMP_PALETTE[sourcePaletteId]
   const destinationTempPaletteData = new Uint8ClampedArray(4 * size)
   let j = 0
   for (let i = start; i < start + size; i++) {
     // Note, this is still not really right, it should almost be negative OR positive, md1_2, lights
-    destinationTempPaletteData[j * 4 + 0] += sourceTempPaletteData[i * 4 + 0] + ((r - 128) * 1) // Is rgb order correct?
-    destinationTempPaletteData[j * 4 + 1] += sourceTempPaletteData[i * 4 + 1] + ((g - 128) * 1)
-    destinationTempPaletteData[j * 4 + 2] += sourceTempPaletteData[i * 4 + 2] + ((b - 128) * 1)
+    destinationTempPaletteData[j * 4 + 0] +=
+      sourceTempPaletteData[i * 4 + 0] + (r - 128) * 1 // Is rgb order correct?
+    destinationTempPaletteData[j * 4 + 1] +=
+      sourceTempPaletteData[i * 4 + 1] + (g - 128) * 1
+    destinationTempPaletteData[j * 4 + 2] +=
+      sourceTempPaletteData[i * 4 + 2] + (b - 128) * 1
     destinationTempPaletteData[j * 4 + 3] += sourceTempPaletteData[i * 4 + 3]
     j++
   }
-  window.data.TEMP_PALETTE[destinationTempPaletteId] = destinationTempPaletteData
-  console.log('multiplyPalette RES', sourceTempPaletteData, destinationTempPaletteData, r, g, b)
+  window.data.TEMP_PALETTE[destinationTempPaletteId] =
+    destinationTempPaletteData
+  console.log(
+    'multiplyPalette RES',
+    sourceTempPaletteData,
+    destinationTempPaletteData,
+    r,
+    g,
+    b
+  )
 }
 
 export {
