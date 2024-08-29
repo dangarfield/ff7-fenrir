@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js';
 import { setLoadingProgress } from '../loading/loading-module.js'
 const KUJATA_BASE = window.location.host.includes('localhost')
-  ? 'http://localhost:3001/kujata-data'
+  ? '/kujata-data'
   : 'https://kujata-data-dg.netlify.app'
 
 const windowTextures = {}
@@ -10,7 +10,7 @@ const getWindowTextures = (window.getWindowTextures = () => {
 })
 const loadWindowTextures = async () => {
   const windowBinRes = await fetch(
-      `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
+    `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
   )
   const windowBin = await windowBinRes.json()
   const assetTypes = Object.keys(windowBin)
@@ -33,15 +33,14 @@ const loadWindowTextures = async () => {
         const asset = windowBin[assetType][j]
 
         windowTextures[assetType][asset.description] = asset
-        windowTextures[assetType][
-          asset.description
-        ].texture = new THREE.TextureLoader(manager).load(
-          `${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`
-        )
-        windowTextures[assetType][asset.description].texture.encoding = THREE.sRGBEncoding
-        windowTextures[assetType][
-          asset.description
-        ].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
+        windowTextures[assetType][asset.description].texture =
+          new THREE.TextureLoader(manager).load(
+            `${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`
+          )
+        windowTextures[assetType][asset.description].texture.encoding =
+          THREE.sRGBEncoding
+        windowTextures[assetType][asset.description].anisotropy =
+          window.anim.renderer.capabilities.getMaxAnisotropy()
       }
     }
   })

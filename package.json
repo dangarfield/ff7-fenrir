@@ -1,16 +1,14 @@
 {
   "name": "ff7-fenrir",
   "version": "1.0.0",
-  "description": "> Web based game engine for FF7 - Work-in-proress",
+  "description": "> Web based game engine for FF7 - Work-in-progress",
   "main": "index.js",
   "scripts": {
     "unlgp-fields": "cd .\\workings-out\\unlgp\\unlgp-flevel.lgp & C:\\Users\\Carol\\Documents\\code\\ff7\\kujata\\lgp-0.5b\\bin\\unlgp.exe 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\flevel.lgp'",
     "unlgp-char": "cd .\\workings-out\\unlgp\\unlgp-char.lgp & C:\\Users\\Carol\\Documents\\code\\ff7\\kujata\\lgp-0.5b\\bin\\unlgp.exe 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\field\\char.lgp'",
     "unlgp-movies": "cd .\\workings-out\\unlgp\\unlgp-moviecam.lgp & C:\\Users\\Carol\\Documents\\code\\ff7\\kujata\\lgp-0.5b\\bin\\unlgp.exe 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\movies\\moviecam.lgp'",
     "unlgp-menu": "cd .\\workings-out\\unlgp\\unlgp-menu_us.lgp & C:\\Users\\Carol\\Documents\\code\\ff7\\kujata\\lgp-0.5b\\bin\\unlgp.exe 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\menu\\menu_us.lgp'",
-    "dev": "run-p dev:**",
-    "dev:fenrir": "http-server -p 3000 -s --cors -c-1",
-    "dev:kujata": "http-server ../ -p 3001 -s --cors -1000000",
+    "dev": "node ./static-server.js",
     "opcodes-progress": "node workings-out/createOpCodesProgressReadme.js"
   },
   "repository": {
@@ -30,9 +28,9 @@
   },
   "devDependencies": {
     "fs-extra": "^9.1.0",
-    "http-server": "^14.0.0",
     "lodash": "^4.17.21",
-    "npm-run-all": "^4.1.5",
+    "mime": "^4.0.4",
+    "node-mime-types": "^1.1.2",
     "prettier-standard": "^13.0.6",
     "standard": "^17.0.0"
   }
