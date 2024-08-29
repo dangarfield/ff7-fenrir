@@ -9,9 +9,10 @@ const createVideoBackground = video => {
     window.config.sizing.height
   )
   const texture = new THREE.VideoTexture(video)
-  texture.minFilter = THREE.NearestFilter
-  texture.magFilter = THREE.NearestFilter
-  texture.format = THREE.RGBFormat
+  texture.minFilter = THREE.LinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.format = THREE.RGBAFormat
+  texture.encoding = THREE.sRGBEncoding
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     transparent: true
