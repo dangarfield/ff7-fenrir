@@ -675,7 +675,7 @@ vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sa
     color.a = 0.0;
   } else if (useFirstPixel == 1 && paletteIndex == 0.0) {
     color.a = 0.0;
-  } else if(color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
+  } else if (color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
     color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
   }
   return color;
@@ -753,7 +753,7 @@ const drawBG = async (
         value: 256
       },
       useBlack: {
-        value: layerData.useBlack === true
+        value: layerData.useBlack === true && layerData.blending > 0
       },
       paletteList: {
         value:
