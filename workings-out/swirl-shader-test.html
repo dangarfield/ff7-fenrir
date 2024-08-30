@@ -6,11 +6,7 @@
     <style>
         body {
             margin: 0;
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%
+            background-color: darkslategrey;
         }
     </style>
     <script type="importmap">
@@ -21,12 +17,16 @@
             }
         }
     </script>
+    <!-- <script src="motion-blur.js"></script> -->
 
 </head>
 
 <body>
+    <canvas id="main"></canvas>
+    <video src="swirl-shader-test.mp4" muted></video>
+    <canvas id="prev"></canvas>
     <script type="module">
-        // Shaders, ignore for example
+        // Shaders
         const vertexShader = `
 varying vec2 vUv; 
 void main() {
@@ -35,12 +35,17 @@ void main() {
     gl_Position = projectionMatrix * modelViewPosition; 
 }
 `
-        const fragmentShader = `
+const fragmentShader = `
 uniform sampler2D tDiffuse;
+uniform sampler2D tPrevFrame;
+uniform float swirl;
+uniform float zoom;
 uniform float rotation;
+uniform float fade;
+uniform float blurAmount;
 varying vec2 vUv;
 
-vec2 swirl(vec2 uv, float radius, float rot, vec2 center)
+vec2 applySwirl(vec2 uv, float radius, float rot, vec2 center)
 {
   vec2 tc = uv - center;
   float dist = length(tc);
@@ -56,112 +61,262 @@ vec2 swirl(vec2 uv, float radius, float rot, vec2 center)
   return tc;
 }
 
+vec2 applyRotate(vec2 uv, float angle, vec2 center) {
+    vec2 tc = uv - center;
+    float s = sin(angle);
+    float c = cos(angle);
+    tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
+    tc += center;
+    return tc;
+}
+
 void main() {
-    vec2 swirlUv = swirl(vUv, 1.0, rotation, vec2(0.5,0.5));
-    gl_FragColor = texture2D(tDiffuse, swirlUv);
+    // Apply swirl effect
+    vec2 swirlUv = applySwirl(vUv, 1.0, swirl, vec2(0.5, 0.5));
+
+    // Apply zoom by scaling the UV coordinates
+    vec2 zoomedUv = (swirlUv - 0.5) * zoom + 0.5;
+
+    // Apply overall rotation
+    vec2 rotatedUv = applyRotate(zoomedUv, rotation, vec2(0.5, 0.5));
+
+    // Sample the texture color
+    vec4 color = texture2D(tDiffuse, rotatedUv);
+
+    // Apply fade effect by interpolating between the color and black
+    color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), fade);
+    gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 1.0), fade);
+
+    // Sample the previous frame color
+    //vec4 prevColor = texture2D(tPrevFrame, vUv);
+
+    // Blend the current frame with the previous frame for a motion blur effect
+    //gl_FragColor = mix(prevColor, color, 1.0);
 }
 `
-
         // Basic scene elements
         import * as THREE from 'three'
 
         import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+        import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
         import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
         import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+        import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js'
+        import { SavePass } from 'three/examples/jsm/postprocessing/SavePass.js'
+        import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
+        import { BlendShader } from 'three/examples/jsm/shaders/BlendShader.js'
         import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
+        import * as TWEEN from 'three/examples/jsm/libs/tween.module.js'
 
-
-        var scene = new THREE.Scene()
-        const camera = new THREE.OrthographicCamera(5 / - 2, 5 / 2, 5 / 2, 5 / - 2, 1, 1000)
+        // Setup scene
+        const width = 640
+        const height = 480
+        const scene = new THREE.Scene()
+        const camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000)
         camera.position.z = 4
-        var renderer = new THREE.WebGLRenderer({ antialias: true })
+        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.querySelector('canvas#main') })
         renderer.setClearColor("#000000")
-        renderer.setSize(window.innerWidth, window.innerHeight)
-        document.body.appendChild(renderer.domElement)
-
+        renderer.setSize(width, height)
+        
+        // Mesh Containing image to use
         const bgMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(3, 3),
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('https://picsum.photos/seed/swirltests/1500/1500') })
+            new THREE.PlaneGeometry(width, height),
+            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('swirl-shader-test.png') })
         )
         scene.add(bgMesh)
 
-        // const material = new THREE.ShaderMaterial({
-        //     uniforms: {
-        //         rotation: { value: 1.0 },
-        //         // Just an example I don't want to use this texture, I want to use whatever the camera sees underneath each from
-        //         tDiffuse: { type: 't', value: null }
-        //     },
-        //     vertexShader: vertexShader,
-        //     fragmentShader: fragmentShader
-        // })
+        // // Setup target - Plane is used purely for display purposes to help with debugging
+        // const prevFrameRenderTarget = new THREE.WebGLRenderTarget(width, height)
 
-        const testTex = new THREE.TextureLoader().load('https://picsum.photos/seed/swirl-tests/1500/1500')
-        const shaderMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(3, 3),
+        // // Test scene
+        // const bufferScene = new THREE.Scene()
+        // // const cameraPrev = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000)
+        // // cameraPrev.position.z = 4
+        // const bufferTexture = new THREE.WebGLRenderer({ antialias: true, canvas: document.querySelector('canvas#prev') })
+        // bufferTexture.setClearColor("#000000")
+        // bufferTexture.setSize(width/5, height/5)
 
-            new THREE.ShaderMaterial({
-                uniforms: {
-                    rotation: { value: 0.0 },
-                    // Just an example I don't want to use this texture, I want to use whatever the camera sees underneath each from
-                    tDiffuse: { type: 't', value: testTex }
-                },
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader
-            })
-        )
-        shaderMesh.position.z = 1
-        shaderMesh.visible = false
-        scene.add(shaderMesh)
+        // const prevFramePlaneGeometry = new THREE.PlaneGeometry(width, height)
+        // const prevFramePlaneMaterial = new THREE.MeshBasicMaterial({ map: prevFrameRenderTarget.texture })
+        // const prevFramePlane = new THREE.Mesh(prevFramePlaneGeometry, prevFramePlaneMaterial)
+        // prevFramePlane.scale.set(0.25, 0.25, 0.25)
+        // scene.add(prevFramePlane)
 
+        // Setup shader
         const swirlShader = {
             uniforms: {
                 tDiffuse: { value: null },
+                tPrevFrame: { value: null },
+                swirl: { value: 0.0 },
                 rotation: { value: 0.0 },
+                zoom: { value: 1.0 },
+                fade: { value: 0.0 },
+                blurAmount: { value: 0.5 }
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader
         }
-
-        const composer = new EffectComposer(renderer)
-        composer.addPass(new RenderPass(scene, camera))
-
         const swirlEffect = new ShaderPass(swirlShader)
-        composer.addPass(swirlEffect)
 
+        // Setup config tweens
+        const config = {
+            time: 1000,
+            delay: 2000,
+            swirl: -1.18,
+            rotation: -6,
+            zoom: 0.0,
+            fade: 1.0
+        }
+        const tweenGroup = new TWEEN.Group()
+        const createTween = (target, to, easing, onEveryStart) => {
+            const tween = new TWEEN.Tween(target, tweenGroup)
+                .to(to, config.time)
+                .repeat(Infinity)
+                .delay(100)
+                .repeatDelay(config.delay)
+                .easing(easing)
+            if (onEveryStart) {
+                tween.onEveryStart(onEveryStart)
+            }
+            return tween.start()
+        }
+        createTween(swirlEffect.uniforms.swirl, { value: config.swirl }, TWEEN.Easing.Quadratic.Out, () => {
+            console.log('go')
+            setTimeout(() => {
+                document.querySelector('video')?.play()
+            }, 100)
+        })
+        createTween(swirlEffect.uniforms.rotation, { value: config.rotation }, TWEEN.Easing.Quadratic.In)
+        createTween(swirlEffect.uniforms.zoom, { value: config.zoom }, TWEEN.Easing.Linear.None)
+        createTween(swirlEffect.uniforms.fade, { value: config.fade }, TWEEN.Easing.Quadratic.In)
+
+
+        // Setup GUI
         const controller = { 'Use Post Processing': true, 'Use External Texture': true }
         const gui = new GUI()
-        gui.add(controller, 'Use Post Processing').onChange(usePostProcessing => {
-            usePostProcessing ? composer.addPass(swirlEffect) : composer.removePass(swirlEffect)
-            shaderMesh.visible = !usePostProcessing
-        })
-        gui.add(controller, 'Use External Texture').onChange(useExternalTexture => {
-            useExternalTexture ? shaderMesh.material.uniforms.tDiffuse.value = testTex : shaderMesh.material.uniforms.tDiffuse.value = null
-        })
+        gui.add(swirlEffect.uniforms.swirl, 'value',2,-2).name('Swirl').listen()
+        gui.add(swirlEffect.uniforms.rotation, 'value',10,-10).name('Rotation').listen()
+        gui.add(swirlEffect.uniforms.zoom, 'value',1,0).name('Zoom').listen()
+        gui.add(swirlEffect.uniforms.fade, 'value',0,1).name('Fade').listen()
+        
+
+        // .onChange(usePostProcessing => {
+        //     usePostProcessing ? composer.addPass(swirlEffect) : composer.removePass(swirlEffect)
+        //     shaderMesh.visible = !usePostProcessing
+        // })
+        // gui.add(swirlEffect.uniforms, 'rotation')
+        // gui.add(swirlEffect.uniforms, 'zoom')
+        // gui.add(swirlEffect.uniforms, 'fade')
 
 
+        // Setup rendering pipeline
+
+        // save pass
+		
+		var renderTargetParameters = {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false
+		};
+		
+		var savePass = new SavePass( new THREE.WebGLRenderTarget( width, height, renderTargetParameters ) );
+
+		// blend pass
+
+		// var blendPass = new ShaderPass( THREE.BlendShader, 'tDiffuse1' );
+		// blendPass.uniforms[ 'tDiffuse2' ].value = savePass.renderTarget.texture;
+		// blendPass.uniforms[ 'mixRatio' ].value = 0.65;
+		
+		// output pass
+		
+		var outputPass = new ShaderPass( THREE.CopyShader );
+		outputPass.renderToScreen = true;
 
 
-        let directionUp = true // Just for basic rotation adjustment
-        var render = function (now) {
-            // Just for basic rotation adjustment
-            if (swirlEffect.uniforms.rotation.value > 8 && directionUp) directionUp = false
-            if (swirlEffect.uniforms.rotation.value < 0.1 && !directionUp) directionUp = true
-            if (directionUp) {
-                swirlEffect.uniforms.rotation.value += 0.05
-                shaderMesh.material.uniforms.rotation.value += 0.05
-            } else {
-                swirlEffect.uniforms.rotation.value -= 0.05
-                shaderMesh.material.uniforms.rotation.value -= 0.05
-            }
+        // const motionPass = new MotionBlurPass( scene, camera );
+        // console.log('motionPass', motionPass)
+        const composer = new EffectComposer(renderer)
 
+        composer.addPass(new RenderPass(scene, camera))
+        composer.addPass(swirlEffect)
+        
+        const motionBlurShader = {
+            uniforms: {
+                "tDiffuse": { value: null },
+                "tPrevious": { value: null },
+                "opacity": { value: 0.9 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D tDiffuse;
+                uniform sampler2D tPrevious;
+                uniform float opacity;
+                varying vec2 vUv;
 
+                void main() {
+                    vec4 current = texture2D(tDiffuse, vUv);
+                    vec4 previous = texture2D(tPrevious, vUv);
+                    gl_FragColor = mix(current, previous, opacity);
+                }
+            `
+        };
 
-            // console.log('swirlShader', swirlEffect.uniforms.rotation.value)
+        const motionBlurPass = new ShaderPass(motionBlurShader);
+        motionBlurPass.enabled = false
+        composer.addPass(motionBlurPass);
+        const previousRenderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { 
+            minFilter: THREE.LinearFilter, 
+            magFilter: THREE.LinearFilter, 
+            format: THREE.RGBAFormat 
+        });
+        motionBlurPass.uniforms["tPrevious"].value = previousRenderTarget.texture;
+
+        const afterimagePass = new AfterimagePass();
+        afterimagePass.uniforms[ 'damp' ] = 0.0
+        afterimagePass.enabled = false
+        composer.addPass( afterimagePass );
+
+    
+        var animate = function () {
+            // renderer.setRenderTarget(prevFrameRenderTarget);
+            // renderer.render(scene, camera)
+            // renderer.clear();
+            // renderer.setRenderTarget(null);
+
+            // renderer.setRenderTarget(prevFrameRenderTarget);
+            
+            // renderer.clear();
+
+            // renderer.render(scene, camera, prevFrameRenderTarget)
+            // renderer.clear()
+            // renderer.setRenderTarget(null)
+            
             composer.render()
-            requestAnimationFrame(render)
+            // renderer.setRenderTarget(null);
+            // swirlEffect.uniforms.tPrevFrame.value = prevFrameRenderTarget.texture;
+            // composer.render()
+
+ 
+            // renderer.render(scenePrev, cameraPrev)
+ 
+// Copy the current frame to the previousRenderTarget
+            renderer.setRenderTarget(previousRenderTarget)
+            renderer.clear()
+            renderer.render(scene, camera)
+            renderer.setRenderTarget(null)
+            motionBlurPass.uniforms["tPrevious"].value = previousRenderTarget.texture
+
+            tweenGroup.update()
+            requestAnimationFrame(animate)
         }
 
-        render()
+        animate()
 
     </script>
 </body>

@@ -11,6 +11,7 @@ let scene
 let camera
 let renderTarget
 let swirlMesh
+let swirlEffect
 
 const renderLoop = function () {
   if (window.anim.activeScene !== 'battle-swirl') {
@@ -57,10 +58,15 @@ void main() {
 `
   const fragmentShader = `
 uniform sampler2D tDiffuse;
+uniform sampler2D tPrevFrame;
+uniform float swirl;
+uniform float zoom;
 uniform float rotation;
+uniform float fade;
+uniform float blurAmount;
 varying vec2 vUv;
 
-vec2 swirl(vec2 uv, float radius, float rot, vec2 center)
+vec2 applySwirl(vec2 uv, float radius, float rot, vec2 center)
 {
   vec2 tc = uv - center;
   float dist = length(tc);
@@ -76,33 +82,60 @@ vec2 swirl(vec2 uv, float radius, float rot, vec2 center)
   return tc;
 }
 
+vec2 applyRotate(vec2 uv, float angle, vec2 center) {
+    vec2 tc = uv - center;
+    float s = sin(angle);
+    float c = cos(angle);
+    tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
+    tc += center;
+    return tc;
+}
+
 void main() {
-    vec2 swirlUv = swirl(vUv, 1.0, rotation, vec2(0.5,0.5));
-    gl_FragColor = texture2D(tDiffuse, swirlUv);
+    // Apply swirl effect
+    vec2 swirlUv = applySwirl(vUv, 1.0, swirl, vec2(0.5, 0.5));
+
+    // Apply zoom by scaling the UV coordinates
+    vec2 zoomedUv = (swirlUv - 0.5) * zoom + 0.5;
+
+    // Apply overall rotation
+    vec2 rotatedUv = applyRotate(zoomedUv, rotation, vec2(0.5, 0.5));
+
+    // Sample the texture color
+    vec4 color = texture2D(tDiffuse, rotatedUv);
+
+    // Apply fade effect by interpolating between the color and black
+    color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), fade);
+    gl_FragColor = mix(color, vec4(0.0, 0.0, 0.0, 1.0), fade);
 }
 `
 
-  renderTarget = new THREE.WebGLRenderTarget(window.config.sizing.width * window.config.sizing.factor,
-    window.config.sizing.height * window.config.sizing.factor, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, encoding: THREE.sRGBEncoding })
-  window.renderTarget = renderTarget
-  renderTarget.outputEncoding = THREE.sRGBEncoding
-  renderTarget.encoding = THREE.sRGBEncoding
-  const geometry = new THREE.PlaneGeometry(window.config.sizing.width, window.config.sizing.height)
+  // renderTarget.outputEncoding = THREE.sRGBEncoding
+  // renderTarget.encoding = THREE.sRGBEncoding
+  const geometry = new THREE.PlaneGeometry(
+    window.config.sizing.width,
+    window.config.sizing.height
+  )
   // const material = new THREE.MeshBasicMaterial({
   //   map: renderTarget.texture
   // })
   // TODO - When using this in the shader material, 3d models are darker
   //      - When using this in the basic material, bgs are lighter
-  const material = new THREE.ShaderMaterial({
+  swirlEffect = new THREE.ShaderMaterial({
     uniforms: {
+      tDiffuse: { value: null },
+      tPrevFrame: { value: null },
+      swirl: { value: 0.0 },
       rotation: { value: 0.0 },
-      // Just an example I don't want to use this texture, I want to use whatever the camera sees underneath each from
-      tDiffuse: { type: 't', value: renderTarget.texture }
+      zoom: { value: 1.0 },
+      fade: { value: 0.0 },
+      blurAmount: { value: 0.5 }
+      // tDiffuse: { type: 't', value: renderTarget.texture }
     },
     vertexShader,
     fragmentShader
   })
-  swirlMesh = new THREE.Mesh(geometry, material)
+  swirlMesh = new THREE.Mesh(geometry, swirlEffect)
   swirlMesh.position.set(
     window.config.sizing.width / 2,
     window.config.sizing.height / 2,
@@ -110,47 +143,83 @@ void main() {
   )
   scene.add(swirlMesh)
 
-  // const mesh2 = new THREE.Mesh(new THREE.PlaneGeometry(window.config.sizing.width / 4, window.config.sizing.height / 4), new THREE.MeshBasicMaterial({ color: 'red' }))
-  // mesh2.position.set(
-  //   window.config.sizing.width / 8,
-  //   window.config.sizing.height / 8,
-  //   0
-  // )
-  // mesh2.visible = true
-  // scene.add(mesh2)
-
   camera.position.z = 1001
+  console.log('doSwirl: INIT', swirlEffect)
 }
 
 const doSwirl = async () => {
   console.log('doSwirl: START')
 
   return new Promise(resolve => {
-    const from = { rotation: 0.0, scale: 1 }
-    const to = { rotation: Math.PI * 2, scale: 3 }
-    const time = 1000 // TODO - Time it
-
-    new TWEEN.Tween(from)
-      .to(to, time)
-      // .easing(TWEEN.Easing.Quadratic.InOut)
-      .onUpdate(function () {
-        // console.log('doSwirl: TWEEN', from)
-        swirlMesh.material.uniforms.rotation.value = from.rotation
-        swirlMesh.scale.x = from.scale
-        swirlMesh.scale.y = from.scale
-        // TODO - Blur / progressingly render to texture each time
-      })
-      .onComplete(function () {
+    const config = {
+      time: 1000,
+      delay: 2000,
+      swirl: -1.18,
+      rotation: -6,
+      zoom: 0.0,
+      fade: 1.0
+    }
+    swirlEffect.uniforms.swirl.value = 0.0
+    swirlEffect.uniforms.rotation.value = 0.0
+    swirlEffect.uniforms.zoom.value = 1.0
+    swirlEffect.uniforms.fade.value = 0.0
+    // const tweenGroup = new TWEEN.Group()
+    const createTween = (target, to, easing, onComplete) => {
+      // console.log('doSwirl: createTween', target, to, easing, onComplete, TWEEN)
+      const tween = new TWEEN.Tween(target)
+        .to(to, config.time)
+        // .repeat(Infinity)
+        // .delay(100)
+        // .repeatDelay(config.delay)
+        .easing(easing)
+      if (onComplete) {
+        tween.onComplete(onComplete)
+      }
+      return tween.start()
+    }
+    createTween(
+      swirlEffect.uniforms.swirl,
+      { value: config.swirl },
+      TWEEN.Easing.Quadratic.Out,
+      () => {
         console.log('doSwirl: END')
         resolve()
-      })
-      .start()
+      }
+    )
+    createTween(
+      swirlEffect.uniforms.rotation,
+      { value: config.rotation },
+      TWEEN.Easing.Quadratic.In
+    )
+    createTween(
+      swirlEffect.uniforms.zoom,
+      { value: config.zoom },
+      TWEEN.Easing.Linear.None
+    )
+    createTween(
+      swirlEffect.uniforms.fade,
+      { value: config.fade },
+      TWEEN.Easing.Quadratic.In
+    )
   })
 }
 const loadBattleWithSwirl = async (battleId, options) => {
   console.log('loadBattleWithSwirl', battleId, options)
   // cleanScene()
+  renderTarget = new THREE.WebGLRenderTarget(
+    window.config.sizing.width * window.config.sizing.factor,
+    window.config.sizing.height * window.config.sizing.factor,
+    {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.NearestFilter,
+      encoding: THREE.sRGBEncoding
+    }
+  )
+  // renderTarget.texture.encoding = THREE.LinearEncoding
+  // window.renderTarget = renderTarget
+  // renderTarget.texture.encoding = THREE.sRGBEncoding
   renderToTexture(renderTarget)
+  swirlEffect.uniforms.tDiffuse.value = renderTarget.texture
   console.log('renderToTexture done')
   playCommonSound(COMMON_SOUNDS.BATTLE_SWIRL)
   startBattleSwirlRenderingLoop()

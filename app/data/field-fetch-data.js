@@ -8,7 +8,7 @@ const getFieldTextures = (window.getFieldTextures = () => {
 })
 const loadFieldTextures = async () => {
   const fieldRes = await fetch(
-      `${KUJATA_BASE}/metadata/field-assets/flevel.metadata.json`
+    `${KUJATA_BASE}/metadata/field-assets/flevel.metadata.json`
   )
   const field = await fieldRes.json()
   return new Promise((resolve, reject) => {
@@ -35,12 +35,16 @@ const loadFieldTextures = async () => {
         for (let k = 0; k < textureGroup[assetType].length; k++) {
           const asset = textureGroup[assetType][k]
           fieldTextures[assetType][asset.description] = asset
-          fieldTextures[assetType][asset.description].texture = new THREE.TextureLoader(manager).load(
-            `${KUJATA_BASE}/metadata/${textureGroupName}-assets/${assetType}/${asset.description}.png`
-          )
-          fieldTextures[assetType][asset.description].texture.magFilter = THREE.NearestFilter
-          fieldTextures[assetType][asset.description].texture.encoding = THREE.sRGBEncoding
-          fieldTextures[assetType][asset.description].anisotropy = window.anim.renderer.capabilities.getMaxAnisotropy()
+          fieldTextures[assetType][asset.description].texture =
+            new THREE.TextureLoader(manager).load(
+              `${KUJATA_BASE}/metadata/${textureGroupName}-assets/${assetType}/${asset.description}.png`
+            )
+          fieldTextures[assetType][asset.description].texture.magFilter =
+            THREE.NearestFilter
+          fieldTextures[assetType][asset.description].texture.encoding =
+            THREE.sRGBEncoding
+          fieldTextures[assetType][asset.description].anisotropy =
+            window.anim.renderer.capabilities.getMaxAnisotropy()
         }
       }
     }

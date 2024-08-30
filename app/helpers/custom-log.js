@@ -29,7 +29,8 @@ window.console = (function (origConsole) {
       // 'executeScriptLoop',
       // 'executeScriptLoopDEBUG',
       // 'SCR2D',
-      'FIXCAM'
+      'renderToTexture',
+      'doSwirl'
     ],
     log: function () {
       if (limit) {

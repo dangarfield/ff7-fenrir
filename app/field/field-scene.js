@@ -96,7 +96,9 @@ const renderLoop = function () {
   }
 }
 const renderToTexture = bufferTexture => {
-  console.log('renderToTexture', 'renderToTexture', bufferTexture)
+  // bufferTexture.texture.encoding = THREE.LinearEncoding
+  // bufferTexture.texture.encoding = THREE.sRGBEncoding
+  console.log('renderToTexture', bufferTexture)
   window.anim.renderer.setRenderTarget(bufferTexture)
   window.anim.renderer.render(
     window.currentField.fieldScene,
@@ -104,6 +106,7 @@ const renderToTexture = bufferTexture => {
     bufferTexture
   )
   window.anim.renderer.setRenderTarget(null)
+  // bufferTexture.texture.encoding = THREE.sRGBEncoding
 }
 const startFieldRenderLoop = () => {
   setFieldLoopActive(true)
