@@ -13,6 +13,7 @@ let battleCamera
 let debugCamera
 let orthoCamera
 let debugControls
+let activeCamera
 
 const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
 
@@ -49,11 +50,29 @@ const renderLoop = () => {
         debugControls.update(delta)
       }
 
-      if (window.currentBattle.models) {
-        for (const model of window.currentBattle.models) {
-          if (model.mixer) model.mixer.update(delta)
-          if (model.userData.updateShadowPosition) {
-            model.userData.updateShadowPosition()
+      // if (window.currentBattle.models) {
+      //   for (const model of window.currentBattle.models) {
+
+      //   }
+      // }
+      if (window.currentBattle.actors) {
+        for (const actor of window.currentBattle.actors) {
+          if (!actor.active) continue
+          if (actor.model) {
+            if (actor.model.mixer) actor.model.mixer.update(delta)
+            if (actor.model.userData.updateShadowPosition) {
+              actor.model.userData.updateShadowPosition()
+            }
+            if (actor.model.userData.updateOrthoPosition) {
+              actor.model.userData.updateOrthoPosition()
+              actor.positionSprite.position.x =
+                actor.model.userData.orthoPosition.x
+              actor.positionSprite.position.y =
+                actor.model.userData.orthoPosition.y
+              actor.positionSprite.position.z =
+                1 / actor.model.userData.orthoPosition.z
+              // TODO - Sits above menus, which is shouldn't
+            }
           }
         }
       }
@@ -62,7 +81,7 @@ const renderLoop = () => {
     }
 
     window.anim.renderer.clear()
-    window.anim.renderer.render(scene, debugCamera)
+    window.anim.renderer.render(scene, activeCamera)
 
     window.anim.renderer.clearDepth()
     window.anim.renderer.render(orthoScene, orthoCamera)
@@ -85,6 +104,7 @@ const setupScenes = () => {
   orthoScene = new THREE.Scene()
 
   window.battleScene = scene
+  window.battleOrthoScene = orthoScene
   // const light = new THREE.DirectionalLight(0xffffff)
   // light.position.set(0, 0, 50).normalize()
   // scene.add(light)
@@ -122,6 +142,7 @@ const setupScenes = () => {
   debugCamera.position.z = 7411 // -400
   window.battleDebugCamera = debugCamera
 
+  activeCamera = debugCamera
   debugControls = new OrbitControls(
     debugCamera,
     window.anim.renderer.domElement
@@ -180,6 +201,7 @@ export {
   scene,
   sceneGroup,
   orthoScene,
+  activeCamera,
   fixedCamera,
   battleCamera,
   orthoCamera,

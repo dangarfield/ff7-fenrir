@@ -1,6 +1,7 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import {
   addImageToDialog,
+  addImageToGroup,
   ALIGN,
   createDialogBox,
   initPointers
@@ -171,11 +172,11 @@ const constructMainMenus = currentBattle => {
     turnTimer.set(0)
     // turnTimer.setActive(false)
 
-    // const hp = addHP(mainR, 144, 184 + (playerLineHeight * i), `hp-${i}`)
-    // hp.set(player.battleStats.hp.current, player.battleStats.hp.max, true)
+    const hp = addHP(mainR, 144, 184 + playerLineHeight * i, `hp-${i}`)
+    hp.set(player.battleStats.hp.current, player.battleStats.hp.max, true)
 
-    // const mp = addMP(mainR, 207, 184 + (playerLineHeight * i), `mp-${i}`)
-    // mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
+    const mp = addMP(mainR, 207, 184 + playerLineHeight * i, `mp-${i}`)
+    mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
     const commands = addCommands(i)
     // TODO - When a player is dead, name, hp, mp, barrier, limit and wait are all red and blanked out
@@ -233,9 +234,37 @@ const sendKeyPressToBattleMenu = key => {
     window.currentBattle.queue.activeSelectionPlayer
   ].ui.commands.keyPress(key)
 }
+const clearOrthoScene = () => {
+  while (orthoScene.children.length) {
+    orthoScene.remove(orthoScene.children[0])
+  }
+}
+const initActorPositionSprites = actors => {
+  for (const actor of actors.filter(a => a.active && a.type)) {
+    console.log('initActorPositionSprites', actor)
+    const positionSprite = new THREE.Group()
+    positionSprite.userData.z = 0
+    if (actor.type && actor.type === 'enemy') {
+      positionSprite.userData.target = addImageToGroup(
+        positionSprite,
+        'labels',
+        'target',
+        0,
+        0,
+        0.5,
+        null,
+        ALIGN.LEFT
+      )
+    }
+
+    actor.positionSprite = positionSprite
+    orthoScene.add(positionSprite)
+  }
+}
 const initBattleMenu = async currentBattle => {
-  // TODO - Clear orthoScene
+  clearOrthoScene()
   initPointers(orthoScene)
+  initActorPositionSprites(currentBattle.actors)
   const { magicDialog } = constructMainMenus()
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()

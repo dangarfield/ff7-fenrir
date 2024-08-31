@@ -1,21 +1,86 @@
 import { KEY } from '../interaction/inputs.js'
-import { createCommandsDialog, addMenuCommandsToDialog, closeDialog, showDialog, POINTERS, movePointer, createDialogBox, addTextToDialog, LETTER_TYPES, LETTER_COLORS } from '../menu/menu-box-helper.js'
-import { startLimitTextTween, stopAllCoinTextTweens, startCoinTextTweens, stopAllLimitTextTweens } from '../menu/menu-limit-tween-helper.js'
-import { addPlayerActionToQueue, doNotAllowPlayerToSelectAction } from './battle-queue.js'
+import {
+  createCommandsDialog,
+  addMenuCommandsToDialog,
+  closeDialog,
+  showDialog,
+  POINTERS,
+  movePointer,
+  createDialogBox,
+  addTextToDialog,
+  LETTER_TYPES,
+  LETTER_COLORS
+} from '../menu/menu-box-helper.js'
+import {
+  startLimitTextTween,
+  stopAllCoinTextTweens,
+  startCoinTextTweens,
+  stopAllLimitTextTweens
+} from '../menu/menu-limit-tween-helper.js'
+import {
+  addPlayerActionToQueue,
+  doNotAllowPlayerToSelectAction
+} from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 
-const addCommands = (actorIndex) => {
+const addCommands = actorIndex => {
   const actor = window.currentBattle.actors[actorIndex]
-  const commandsGroup = createCommandsDialog(orthoScene, 72, 170, actor.battleStats.menu.command, true)
+  const commandsGroup = createCommandsDialog(
+    orthoScene,
+    72,
+    170,
+    actor.battleStats.menu.command,
+    true
+  )
   commandsGroup.visible = false
   console.log('battleUI commandsGroup', commandsGroup)
 
   // TODO - change and defend have variable y, rather than just fixed
-  const changeGroup = createDialogBox({ id: 2, name: 'change', w: 56, h: 23, x: 24, y: 169, scene: orthoScene })
-  addTextToDialog(changeGroup, window.data.kernel.commandData[18].name, 'change-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 32, 185, 0.5, null, null, true)
+  const changeGroup = createDialogBox({
+    id: 2,
+    name: 'change',
+    w: 56,
+    h: 23,
+    x: 24,
+    y: 169,
+    scene: orthoScene
+  })
+  addTextToDialog(
+    changeGroup,
+    window.data.kernel.commandData[18].name,
+    'change-text',
+    LETTER_TYPES.BattleBaseFont,
+    LETTER_COLORS.White,
+    32,
+    185,
+    0.5,
+    null,
+    null,
+    true
+  )
 
-  const defendGroup = createDialogBox({ id: 2, name: 'defend', w: 56, h: 23, x: 72 + commandsGroup.userData.w - 8, y: 169, scene: orthoScene })
-  addTextToDialog(defendGroup, window.data.kernel.commandData[19].name, 'defend-text', LETTER_TYPES.BattleBaseFont, LETTER_COLORS.White, 72 + commandsGroup.userData.w, 185, 0.5, null, null, true)
+  const defendGroup = createDialogBox({
+    id: 2,
+    name: 'defend',
+    w: 56,
+    h: 23,
+    x: 72 + commandsGroup.userData.w - 8,
+    y: 169,
+    scene: orthoScene
+  })
+  addTextToDialog(
+    defendGroup,
+    window.data.kernel.commandData[19].name,
+    'defend-text',
+    LETTER_TYPES.BattleBaseFont,
+    LETTER_COLORS.White,
+    72 + commandsGroup.userData.w,
+    185,
+    0.5,
+    null,
+    null,
+    true
+  )
 
   const DATA = {
     state: 'command',
@@ -28,23 +93,26 @@ const addCommands = (actorIndex) => {
     const yAdj = 13
     let commandId
     if (DATA.command.special === 'change') {
-      movePointer(POINTERS.pointer1,
-        30 - 10,
-        178 + 7)
+      movePointer(POINTERS.pointer1, 30 - 10, 178 + 7)
       commandId = 18
     } else if (DATA.command.special === 'defend') {
-      movePointer(POINTERS.pointer1,
+      movePointer(
+        POINTERS.pointer1,
         70 + commandsGroup.userData.w - 10,
-        178 + 7)
+        178 + 7
+      )
       commandId = 19
     } else {
-      movePointer(POINTERS.pointer1,
+      movePointer(
+        POINTERS.pointer1,
         x + xAdj[Math.trunc(DATA.command.pos / 4)],
-        y + ((DATA.command.pos % 4) * yAdj))
+        y + (DATA.command.pos % 4) * yAdj
+      )
       const command = actor.battleStats.menu.command[DATA.command.pos]
       commandId = command.limit ? command.limit : command.id
     }
-    const commandDescription = window.data.kernel.commandData[commandId].description
+    const commandDescription =
+      window.data.kernel.commandData[commandId].description
     window.currentBattle.ui.battleDescriptions.setText(commandDescription)
     // console.log('battleUI drawCommandCursor', commandId, commandDescription)
   }
@@ -53,7 +121,8 @@ const addCommands = (actorIndex) => {
     let commandId = posCommand.limit ? posCommand.limit : posCommand.id
     if (DATA.command.special === 'change') commandId = 18
     if (DATA.command.special === 'defend') commandId = 19
-    if (commandId === 7 && commandsGroup.userData.coinGroup) { // Coin
+    if (commandId === 7 && commandsGroup.userData.coinGroup) {
+      // Coin
       if (commandsGroup.userData.coinGroup[0].visible === false) commandId = 8 // Throw
     }
     const command = window.data.kernel.commandData[commandId]
@@ -79,28 +148,35 @@ const addCommands = (actorIndex) => {
         // TODO - confirm targets by using command target data and showing pointer(s)
         if (command.targetFlags.includes('EnableSelection')) {
           // TODO - Go to target selection
+          console.log('battleUI EnableSelection')
         } else {
+          console.log('battleUI Add player action', command)
           addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
           actor.ui.removeActiveSelectionPlayer()
           doNotAllowPlayerToSelectAction(actorIndex)
+          window.currentBattle.ui.battleDescriptions.setText('')
         }
 
         break
 
       default:
-        window.currentBattle.ui.battleText.showBattleMessage(`Unknown command action - ${command.initialCursorAction}`)
+        window.currentBattle.ui.battleText.showBattleMessage(
+          `Unknown command action - ${command.initialCursorAction}`
+        )
         break
     }
   }
-  const handleKeyPressCommand = (key) => {
+  const handleKeyPressCommand = key => {
     switch (key) {
       case KEY.UP: {
         if (DATA.command.special === null) {
           let navCorrect = false
           while (!navCorrect) {
             DATA.command.pos--
-            if (DATA.command.pos % 4 === 3 || DATA.command.pos === -1) DATA.command.pos = DATA.command.pos + 4
-            if (actor.battleStats.menu.command[DATA.command.pos].id < 255) navCorrect = true
+            if (DATA.command.pos % 4 === 3 || DATA.command.pos === -1)
+              DATA.command.pos = DATA.command.pos + 4
+            if (actor.battleStats.menu.command[DATA.command.pos].id < 255)
+              navCorrect = true
           }
           drawCommandCursor()
         }
@@ -111,8 +187,10 @@ const addCommands = (actorIndex) => {
           let navCorrect = false
           while (!navCorrect) {
             DATA.command.pos++
-            if (DATA.command.pos % 4 === 0) DATA.command.pos = DATA.command.pos - 4
-            if (actor.battleStats.menu.command[DATA.command.pos].id < 255) navCorrect = true
+            if (DATA.command.pos % 4 === 0)
+              DATA.command.pos = DATA.command.pos - 4
+            if (actor.battleStats.menu.command[DATA.command.pos].id < 255)
+              navCorrect = true
           }
           drawCommandCursor()
         }
@@ -127,7 +205,10 @@ const addCommands = (actorIndex) => {
         } else if (DATA.command.pos < 4) {
           DATA.command.special = 'change'
           showDialog(changeGroup)
-        } else if (actor.battleStats.menu.command[DATA.command.pos - 4] && actor.battleStats.menu.command[DATA.command.pos - 4].id < 255) {
+        } else if (
+          actor.battleStats.menu.command[DATA.command.pos - 4] &&
+          actor.battleStats.menu.command[DATA.command.pos - 4].id < 255
+        ) {
           DATA.command.pos = DATA.command.pos - 4
         }
         drawCommandCursor()
@@ -154,13 +235,18 @@ const addCommands = (actorIndex) => {
       }
     }
   }
-  const keyPress = (key) => {
+  const keyPress = key => {
     if (DATA.state === 'command') {
       handleKeyPressCommand(key)
     }
   }
   const show = async () => {
-    addMenuCommandsToDialog(commandsGroup, 72, 170, actor.battleStats.menu.command)
+    addMenuCommandsToDialog(
+      commandsGroup,
+      72,
+      170,
+      actor.battleStats.menu.command
+    )
     startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
     startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
     await showDialog(commandsGroup)
@@ -186,6 +272,4 @@ const addCommands = (actorIndex) => {
   }
 }
 
-export {
-  addCommands
-}
+export { addCommands }

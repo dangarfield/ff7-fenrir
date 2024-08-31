@@ -78,7 +78,6 @@ const GAUGE_COLORS = {
   // LIMIT_SADNESS_2: 'rgb(128,32,76)', // ?
   // LIMIT_SADNESS_3: 'rgb(128,32,76)', // ?
   // LIMIT_SADNESS_4: 'rgb(128,32,76)' // ?
-
 }
 const POINTERS = {
   pointer1: null,
@@ -172,12 +171,7 @@ const WINDOW_COLORS_SUMMARY = {
     'rgb(255,255,255)',
     'rgb(0,0,0)'
   ],
-  BLACK: [
-    'rgb(0,0,0)',
-    'rgb(0,0,0)',
-    'rgb(0,0,0)',
-    'rgb(0,0,0)'
-  ],
+  BLACK: ['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)'],
   GRAY: [
     'rgb(106,106,106)',
     'rgb(106,106,106)',
@@ -252,10 +246,7 @@ const createDialogBox = dialog => {
   const dialogBox = new THREE.Group()
   dialogBox.userData = dialog
   const dialogTextures = getDialogTextures()
-  const bgGeo = new THREE.PlaneGeometry(
-    w - EDGE_SIZE + 3,
-    h - EDGE_SIZE + 3
-  )
+  const bgGeo = new THREE.PlaneGeometry(w - EDGE_SIZE + 3, h - EDGE_SIZE + 3)
   bgGeo.colorsNeedUpdate = true
 
   bgGeo.setAttribute(
@@ -718,7 +709,11 @@ const getDialogButton = char => {
 }
 const getLetterTexture = (letter, letterType, color) => {
   let textureLetters
-  if (letterType.startsWith('menu') || letterType.startsWith('battle') || letterType.startsWith('credits')) {
+  if (
+    letterType.startsWith('menu') ||
+    letterType.startsWith('battle') ||
+    letterType.startsWith('credits')
+  ) {
     textureLetters = getMenuTextures()[letterType]
   } else {
     textureLetters = getMenuTextures()[LETTER_TYPES.MenuTextLargeThin]
@@ -740,11 +735,11 @@ const getImageTexture = (type, image) => {
   for (const key in textureImages) {
     const textureImage = textureImages[key]
     if (textureImage.description === image) {
-      // console.log('found image', image, textureImage)
+      console.log('getImageTexture found image', image, textureImage)
       return textureImage
     }
   }
-  console.log('not found image', type, image)
+  console.log('getImageTexture not found image', type, image)
   return image
 }
 const getDialogTextures = () => {
@@ -761,7 +756,8 @@ const getDialogTextures = () => {
     r: textures.borders['border r'].texture
   }
 }
-const addTextToDialog = ( // Note: This is offset by x=12 y=12
+const addTextToDialog = (
+  // Note: This is offset by x=12 y=12
   dialogBox,
   text,
   id,
@@ -827,7 +823,7 @@ const addTextToDialog = ( // Note: This is offset by x=12 y=12
   if (align === ALIGN.CENTRE || align === true) {
     for (let i = 0; i < textGroup.children.length; i++) {
       const letterMesh = textGroup.children[i]
-      letterMesh.position.x = letterMesh.position.x - (fullWidth / 2)
+      letterMesh.position.x = letterMesh.position.x - fullWidth / 2
     }
   }
   if (align === ALIGN.RIGHT) {
@@ -848,8 +844,49 @@ const addGroupToDialog = (dialog, id) => {
   dialog.add(group)
   return group
 }
-const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending, hAlign, vAlign) => {
+const addImageToGroup = (
+  group,
+  type,
+  image,
+  x,
+  y,
+  scale,
+  blending,
+  hAlign,
+  vAlign
+) => {
   const textureLetter = getImageTexture(type, image)
+  console.log('textureLetter', type, image, textureLetter)
+  const mesh = createTextureMesh(
+    textureLetter.w * scale,
+    textureLetter.h * scale,
+    textureLetter.texture
+  )
+  const posX = x
+  const posY = y
+  mesh.position.set(posX, posY, group.userData.z)
+  if (hAlign && hAlign === ALIGN.LEFT) {
+    mesh.position.x = mesh.position.x + mesh.geometry.parameters.width / 2
+  } else if (hAlign && hAlign === ALIGN.RIGHT) {
+    mesh.position.x = mesh.position.x - mesh.geometry.parameters.width / 2
+  }
+  group.add(mesh)
+  return mesh
+}
+const addImageToDialog = (
+  dialogBox,
+  type,
+  image,
+  id,
+  x,
+  y,
+  scale,
+  blending,
+  hAlign,
+  vAlign
+) => {
+  const textureLetter = getImageTexture(type, image)
+  console.log('textureLetter', type, image, textureLetter)
   const mesh = createTextureMesh(
     textureLetter.w * scale,
     textureLetter.h * scale,
@@ -867,14 +904,14 @@ const addImageToDialog = (dialogBox, type, image, id, x, y, scale, blending, hAl
   mesh.position.set(posX, posY, dialogBox.userData.z)
 
   if (hAlign && hAlign === ALIGN.LEFT) {
-    mesh.position.x = mesh.position.x + (mesh.geometry.parameters.width / 2)
+    mesh.position.x = mesh.position.x + mesh.geometry.parameters.width / 2
   } else if (hAlign && hAlign === ALIGN.RIGHT) {
-    mesh.position.x = mesh.position.x - (mesh.geometry.parameters.width / 2)
+    mesh.position.x = mesh.position.x - mesh.geometry.parameters.width / 2
   }
   if (vAlign && vAlign === ALIGN.TOP) {
-    mesh.position.y = mesh.position.y - (mesh.geometry.parameters.height / 2)
+    mesh.position.y = mesh.position.y - mesh.geometry.parameters.height / 2
   } else if (vAlign && vAlign === ALIGN.BOTTOM) {
-    mesh.position.y = mesh.position.y + (mesh.geometry.parameters.height / 2)
+    mesh.position.y = mesh.position.y + mesh.geometry.parameters.height / 2
   }
   dialogBox.add(mesh)
   return mesh
@@ -1091,7 +1128,7 @@ const addCharacterSummary = async (
     mpPerc
   )
 }
-const initPointers = (sceneToUse) => {
+const initPointers = sceneToUse => {
   POINTERS.pointer1 = createPointer(sceneToUse)
   POINTERS.pointer2 = createPointer(sceneToUse)
   POINTERS.pointer3 = createPointer(sceneToUse)
@@ -1461,21 +1498,38 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
   )
 }
 
-const weaponMateriaTypes = (char) => {
+const weaponMateriaTypes = char => {
   const materiaTypes = []
   for (let i = 1; i < 9; i++) {
-    materiaTypes.push(char.materia[`weaponMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id].type : 'None')
+    materiaTypes.push(
+      char.materia[`weaponMateria${i}`].id < 255
+        ? window.data.kernel.materiaData[char.materia[`weaponMateria${i}`].id]
+            .type
+        : 'None'
+    )
   }
   return materiaTypes
 }
-const armorMateriaTypes = (char) => {
+const armorMateriaTypes = char => {
   const materiaTypes = []
   for (let i = 1; i < 9; i++) {
-    materiaTypes.push(char.materia[`armorMateria${i}`].id < 255 ? window.data.kernel.materiaData[char.materia[`armorMateria${i}`].id].type : 'None')
+    materiaTypes.push(
+      char.materia[`armorMateria${i}`].id < 255
+        ? window.data.kernel.materiaData[char.materia[`armorMateria${i}`].id]
+            .type
+        : 'None'
+    )
   }
   return materiaTypes
 }
-const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) => {
+const createEquipmentMateriaViewer = (
+  dialog,
+  x,
+  y,
+  slots,
+  char,
+  equipmentType
+) => {
   // TODO - Slider bg have an additional light edge on bottom and right
   // Also, it seems to be a blended color rather than fixed
   const w = 113
@@ -1501,16 +1555,40 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) 
   for (let i = 0; i < slots.length; i++) {
     const slot = slots[i]
     if (slot.includes('Normal')) {
-      addImageToDialog(dialog, 'materia', 'slot-normal', `slot-${i}`, xStart + slotOffset + (i * materiaGap), yStart + 0.5, 0.5)
+      addImageToDialog(
+        dialog,
+        'materia',
+        'slot-normal',
+        `slot-${i}`,
+        xStart + slotOffset + i * materiaGap,
+        yStart + 0.5,
+        0.5
+      )
     } else if (slot.includes('Empty')) {
-      addImageToDialog(dialog, 'materia', 'slot-nogrowth', `slot-${i}`, xStart + slotOffset + (i * materiaGap), yStart + 0.5, 0.5)
+      addImageToDialog(
+        dialog,
+        'materia',
+        'slot-nogrowth',
+        `slot-${i}`,
+        xStart + slotOffset + i * materiaGap,
+        yStart + 0.5,
+        0.5
+      )
     }
   }
 
   for (let i = 0; i < slots.length; i++) {
     const slot = slots[i]
     if (slot.includes('LeftLinkedSlot')) {
-      addImageToDialog(dialog, 'materia', 'slot-link', `slot-${i}-link`, xStart + slotOffset + joinOffset + (i * materiaGap), yStart + 0.5, 0.5)
+      addImageToDialog(
+        dialog,
+        'materia',
+        'slot-link',
+        `slot-${i}-link`,
+        xStart + slotOffset + joinOffset + i * materiaGap,
+        yStart + 0.5,
+        0.5
+      )
     }
   }
 
@@ -1526,7 +1604,16 @@ const createEquipmentMateriaViewer = (dialog, x, y, slots, char, equipmentType) 
       for (let i = 0; i < materias.length; i++) {
         const materia = materias[i]
         if (materia !== 'None') {
-          addImageToDialog(dialog, 'materia', materia, `slot-${i}-link`, xStart + slotOffset + materiaOffset + (i * materiaGap), yStart, 0.5, THREE.AdditiveBlending)
+          addImageToDialog(
+            dialog,
+            'materia',
+            materia,
+            `slot-${i}-link`,
+            xStart + slotOffset + materiaOffset + i * materiaGap,
+            yStart,
+            0.5,
+            THREE.AdditiveBlending
+          )
         }
       }
     }
@@ -1776,7 +1863,8 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
 
   let limitGroup = null
   let coinGroup = null
-  for (let i = 0; i < commands.length; i++) { // TODO - These change in battle need to amend
+  for (let i = 0; i < commands.length; i++) {
+    // TODO - These change in battle need to amend
     const command = commands[i]
     let yAdjText = yAdjTextCol1
     if (i >= 8) {
@@ -1787,19 +1875,23 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
     if (command.id < 255) {
       const commandText = addTextToDialog(
         commandDialog.userData.innerGroup,
-        command.limit ? window.data.kernel.commandData[command.limit].name : command.name,
+        command.limit
+          ? window.data.kernel.commandData[command.limit].name
+          : command.name,
         `menu-cmd-${command.name}`,
         LETTER_TYPES.BattleBaseFont,
         LETTER_COLORS.White,
         x + 5 - 8 + yAdjText,
-        y + 15.5 - 4 + (13 * (i % 4)),
+        y + 15.5 - 4 + 13 * (i % 4),
         0.5
       )
       if (command.limit) {
         limitGroup = commandText
-        commandText.userData.limitText = window.data.kernel.commandData[command.limit].name
+        commandText.userData.limitText =
+          window.data.kernel.commandData[command.limit].name
       }
-      if (command.id === 7) { // Coin
+      if (command.id === 7) {
+        // Coin
         const commandText2 = addTextToDialog(
           commandDialog.userData.innerGroup,
           window.data.kernel.commandData[8].name, // Throw
@@ -1807,7 +1899,7 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
           LETTER_TYPES.BattleBaseFont,
           LETTER_COLORS.White,
           x + 5 - 8 + yAdjText,
-          y + 15.5 - 4 + (13 * (i % 4)),
+          y + 15.5 - 4 + 13 * (i % 4),
           0.5
         )
         commandText2.visible = false
@@ -1815,10 +1907,16 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
       }
       if (command.all) {
         const allArrow = addImageToDialog(
-          commandDialog.userData.innerGroup, 'pointers', 'arrow-right', `menu-cmd-${command.name}-all`,
+          commandDialog.userData.innerGroup,
+          'pointers',
+          'arrow-right',
+          `menu-cmd-${command.name}-all`,
           x + 6 + yAdjText + commandText.userData.w,
-          y + 15.5 - 4 + (13 * (i % 4)),
-          0.5, null, ALIGN.LEFT)
+          y + 15.5 - 4 + 13 * (i % 4),
+          0.5,
+          null,
+          ALIGN.LEFT
+        )
         allArrow.material.clippingPlanes = null // TODO - Not sure why, but clipping planes are messed up here
       }
 
@@ -1837,7 +1935,7 @@ const updateTexture = (mesh, letter, letterType, color) => {
   mesh.material.needsUpdate = true
   mesh.material.map = textureLetter.texture
 }
-const removeGroupChildren = (group) => {
+const removeGroupChildren = group => {
   while (group.children.length) {
     group.remove(group.children[0])
   }
@@ -1853,6 +1951,7 @@ export {
   slideFrom,
   slideTo,
   addTextToDialog,
+  addImageToGroup,
   addImageToDialog,
   addGroupToDialog,
   addCharacterSummary,

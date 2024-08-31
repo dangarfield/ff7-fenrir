@@ -1,6 +1,11 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { sceneGroup, tweenSleep, BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import {
+  sceneGroup,
+  tweenSleep,
+  BATTLE_TWEEN_GROUP,
+  activeCamera
+} from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
 import { setLoadingProgress } from '../loading/loading-module.js'
 
@@ -157,6 +162,47 @@ const createSelectionTriangle = () => {
     }
   }
 }
+const addOrthoPosition = model => {
+  // console.log('updateOrthoPosition INIT', model)
+  model.userData.orthoPosition = new THREE.Vector3()
+  // model.userData.boundingBox = new THREE.Box3()
+  model.userData.centreBone = null
+  model.scene.traverse(el => {
+    if (el.isMesh && el.name && el.name.endsWith('Bone3_3')) {
+      // eg, **AP
+      console.log('bone name', model.name, el.name)
+      model.userData.centreBone = el
+    }
+  })
+  console.log('bone name FOUND', model.name, model.userData.centreBone)
+  model.userData.updateOrthoPosition = () => {
+    if (!model.userData.centreBone) return
+
+    // console.log('updateOrthoPosition', model.name, model.userData.centreBone)
+    // Hmm, looks like it's the centre of the **AP bone, not the whole of the model ??
+
+    // Option 1 - Centre of the bone
+    // model.userData.boundingBox.setFromObject(model.userData.centreBone)
+    // const vector = model.userData.boundingBox.getCenter(new THREE.Vector3())
+
+    // Option 2 - World position of the bone
+    const vector = new THREE.Vector3()
+    model.userData.centreBone.getWorldPosition(vector)
+
+    // Option 3 - Something else entirely... Need to look
+
+    // Project the world position into screen space
+    vector.project(activeCamera)
+
+    // Convert the normalized screen coordinates to 2D orthographic camera coordinates
+    vector.x = (vector.x / 2 + 0.5) * window.config.sizing.width
+    vector.y = (vector.y / 2 + 0.5) * window.config.sizing.height
+    vector.z = model.scene.position.distanceToSquared(activeCamera.position)
+    model.userData.orthoPosition = vector
+    // console.log('getOrthoPosition END', vector)
+  }
+  model.userData.updateOrthoPosition()
+}
 const loadBattleModels = async modelsToFind => {
   const manager = new THREE.LoadingManager()
   manager.onProgress = function (url, itemsLoaded, itemsTotal) {
@@ -213,6 +259,7 @@ const importModels = async currentBattle => {
 
     model.userData.playAnimation(0)
     addShadow(model)
+    addOrthoPosition(model)
 
     if (i === 0) window.bm = model
   }
