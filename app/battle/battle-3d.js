@@ -4,7 +4,8 @@ import {
   sceneGroup,
   tweenSleep,
   BATTLE_TWEEN_GROUP,
-  activeCamera
+  activeCamera,
+  scene
 } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
 import { setLoadingProgress } from '../loading/loading-module.js'
@@ -166,12 +167,22 @@ const addOrthoPosition = model => {
   // console.log('updateOrthoPosition INIT', model)
   model.userData.orthoPosition = new THREE.Vector3()
   // model.userData.boundingBox = new THREE.Box3()
+  // scene.add(new THREE.Box3Helper(model.userData.boundingBox, 0xffff00))
+
   model.userData.centreBone = null
   model.scene.traverse(el => {
-    if (el.isMesh && el.name && el.name.endsWith('Bone3_3')) {
-      // eg, **AP
-      console.log('bone name', model.name, el.name)
+    // console.log('bone name ALL', model.name, el.name)
+    if (el.name && el.name.endsWith('BoneRoot')) {
+      // console.log('bone name', model.name, el.name)
       model.userData.centreBone = el
+
+      console.log('bone name FOUND END', model.name)
+      // const points = [start, end]
+      // const geometry = new THREE.BufferGeometry().setFromPoints(points)
+      // const material = new THREE.LineBasicMaterial({ color: 0xff00ff })
+
+      // const line = new THREE.Line(geometry, material)
+      // el.add(line)
     }
   })
   console.log('bone name FOUND', model.name, model.userData.centreBone)
@@ -180,17 +191,20 @@ const addOrthoPosition = model => {
 
     // console.log('updateOrthoPosition', model.name, model.userData.centreBone)
     // Hmm, looks like it's the centre of the **AP bone, not the whole of the model ??
+    // Update - It's really not, look at moth slasher (chaa) and soldier 3rd () in battle 442
 
     // Option 1 - Centre of the bone
+    // model.userData.boundingBox.setFromObject(model.scene)
     // model.userData.boundingBox.setFromObject(model.userData.centreBone)
     // const vector = model.userData.boundingBox.getCenter(new THREE.Vector3())
 
     // Option 2 - World position of the bone
+    // const vector = new THREE.Vector3()
+    // model.userData.centreBone.getWorldPosition(vector)
+
+    // Option 3 - Something else entirely... Just use the root position for now
     const vector = new THREE.Vector3()
-    model.userData.centreBone.getWorldPosition(vector)
-
-    // Option 3 - Something else entirely... Need to look
-
+    model.userData.centreBone.localToWorld(vector)
     // Project the world position into screen space
     vector.project(activeCamera)
 

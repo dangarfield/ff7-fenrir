@@ -870,6 +870,11 @@ const addImageToGroup = (
   } else if (hAlign && hAlign === ALIGN.RIGHT) {
     mesh.position.x = mesh.position.x - mesh.geometry.parameters.width / 2
   }
+  if (vAlign && vAlign === ALIGN.TOP) {
+    mesh.position.y = mesh.position.y - mesh.geometry.parameters.height / 2
+  } else if (vAlign && vAlign === ALIGN.BOTTOM) {
+    mesh.position.y = mesh.position.y + mesh.geometry.parameters.height / 2
+  }
   group.add(mesh)
   return mesh
 }

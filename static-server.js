@@ -5,6 +5,12 @@ const mime = require('node-mime-types')
 const fenrirDirectory = path.join(__dirname)
 const kujataDataDirectory = path.join(__dirname, '..', 'kujata-data')
 
+const addCors = res => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET')
+  res.setHeader('Access-Control-Max-Age', 2592000) // 30 days
+  res.setHeader('Access-Control-Allow-Headers', 'content-type') // Might be helpful
+}
 const server = http.createServer((req, res) => {
   let cacheControlHeader = 'public, max-age=0'
   let sourceDirectory = fenrirDirectory
@@ -43,6 +49,7 @@ const server = http.createServer((req, res) => {
         'Content-Type',
         mime.getMIMEType(filePath) || 'application/octet-stream'
       )
+      addCors(res)
       fs.createReadStream(filePath).pipe(res)
     } else {
       res.writeHead(403, { 'Content-Type': 'text/plain' })
