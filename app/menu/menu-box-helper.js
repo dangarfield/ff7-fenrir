@@ -82,7 +82,8 @@ const GAUGE_COLORS = {
 const POINTERS = {
   pointer1: null,
   pointer2: null,
-  pointer3: null
+  pointer3: null,
+  pointerLeft: null
 }
 const EQUIPMENT_TYPE = {
   WEAPON: 'WEAPON',
@@ -1137,6 +1138,7 @@ const initPointers = sceneToUse => {
   POINTERS.pointer1 = createPointer(sceneToUse)
   POINTERS.pointer2 = createPointer(sceneToUse)
   POINTERS.pointer3 = createPointer(sceneToUse)
+  POINTERS.pointerLeft = createPointerLeft(sceneToUse)
   // pointer2 = createPointer()
   console.log('pointer1', POINTERS.pointer1)
   window.POINTERS = POINTERS
@@ -1180,13 +1182,45 @@ const createPointer = parent => {
   console.log('pointer', pointer)
   return pointer
 }
+const createPointerLeft = parent => {
+  const pointer = new THREE.Group()
+  const id = 70
+  const z = 100 - id
+
+  // const dialogBox = new THREE.Group()
+  pointer.userData = { id, z }
+  addImageToDialog(
+    pointer,
+    'pointers',
+    'hand-left-big-with-shadow',
+    'pointer-1a',
+    0,
+    window.config.sizing.height,
+    0.5
+  )
+  pointer.userData = {
+    id: 'pointer-1',
+    z: 0.1
+  }
+
+  pointer.position.x = 0
+  pointer.position.y = 0
+  pointer.position.z = z
+  // pointer.children[1].material.opacity = 0.5
+  pointer.visible = false
+  parent.add(pointer)
+  console.log('pointer', pointer)
+  return pointer
+}
 const movePointerDebug = (i, x, y, hide, flash) => {
   if (i === 1) {
     movePointer(POINTERS.pointer1, x, y, hide, flash)
   } else if (i === 2) {
     movePointer(POINTERS.pointer2, x, y, hide, flash)
-  } else {
+  } else if (i === 3) {
     movePointer(POINTERS.pointer3, x, y, hide, flash)
+  } else {
+    movePointer(POINTERS.pointerLeft, x, y, hide, flash)
   }
 }
 window.movePointerDebug = movePointerDebug

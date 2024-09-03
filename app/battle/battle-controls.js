@@ -2,7 +2,11 @@ import { getKeyPressEmitter, KEY } from '../interaction/inputs.js'
 import { setLastBattleResult } from '../field/field-battle.js'
 import { resolveBattlePromise } from './battle-module.js'
 import { togglePauseBattle, BATTLE_PAUSED } from './battle-scene.js'
-import { sendKeyPressToBattleMenu, toggleHelperText } from './battle-menu.js'
+import {
+  sendKeyPressToBattleMenu,
+  toggleHelperText,
+  toggleTargetLabel
+} from './battle-menu.js'
 import { cycleActiveSelectionPlayer } from './battle-queue.js'
 
 const areBattleControlsActive = () => {
@@ -82,6 +86,16 @@ const initBattleKeypressActions = () => {
   getKeyPressEmitter().on(KEY.R1, firstPress => {
     if (areBattleControlsActive() && !BATTLE_PAUSED) {
       sendKeyPressToBattleMenu(KEY.R1)
+    }
+  })
+  getKeyPressEmitter().on(KEY.L2, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      sendKeyPressToBattleMenu(KEY.L2)
+    }
+  })
+  getKeyPressEmitter().on(KEY.R2, firstPress => {
+    if (areBattleControlsActive() && !BATTLE_PAUSED) {
+      toggleTargetLabel()
     }
   })
 }

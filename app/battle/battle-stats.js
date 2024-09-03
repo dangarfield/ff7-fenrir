@@ -14,15 +14,37 @@ const groupStatBonuses = (items, materias) => {
   for (const materiaSlot in materias) {
     const materia = materias[materiaSlot]
     if (materia.id !== 255) {
-      const materiaData = window.data.kernel.materiaData.filter(a => a.index === materia.id)[0]
+      const materiaData = window.data.kernel.materiaData.filter(
+        a => a.index === materia.id
+      )[0]
       for (let j = 0; j < materiaData.equipEffect.length; j++) {
         const equipEffect = materiaData.equipEffect[j]
-        stats.push({ stat: equipEffect[0], value: equipEffect[1], type: equipEffect[0] === 'HP' || equipEffect[0] === 'MP' ? 'percent' : 'amount' })
+        stats.push({
+          stat: equipEffect[0],
+          value: equipEffect[1],
+          type:
+            equipEffect[0] === 'HP' || equipEffect[0] === 'MP'
+              ? 'percent'
+              : 'amount'
+        })
       }
 
-      if (materiaData.type === 'Independent' && materiaData.attributes.type === 'StatBoost') {
+      if (
+        materiaData.type === 'Independent' &&
+        materiaData.attributes.type === 'StatBoost'
+      ) {
         const currentLevel = currentMateriaLevel(materiaData, materia.ap)
-        stats.push({ stat: materiaData.attributes.stat, value: materiaData.attributes.attributes[Math.min(currentLevel - 1, materiaData.attributes.attributes.length - 1)], type: 'percent' })
+        stats.push({
+          stat: materiaData.attributes.stat,
+          value:
+            materiaData.attributes.attributes[
+              Math.min(
+                currentLevel - 1,
+                materiaData.attributes.attributes.length - 1
+              )
+            ],
+          type: 'percent'
+        })
       }
     }
   }
@@ -59,7 +81,9 @@ const calculateElementEquip = (elements, items, materia) => {
     { item: items[0], type: 'weapon' },
     { item: items[1], type: 'armor' }
   ]
-  const elementalMateriaData = window.data.kernel.materiaData.filter(a => a.attributes.type === 'Elemental')[0]
+  const elementalMateriaData = window.data.kernel.materiaData.filter(
+    a => a.attributes.type === 'Elemental'
+  )[0]
   for (let i = 0; i < equipment.length; i++) {
     const item = equipment[i].item
     const type = equipment[i].type
@@ -86,7 +110,10 @@ const calculateElementEquip = (elements, items, materia) => {
             if (type === 'weapon') {
               elementModifier = 'attack'
             } else {
-              const materiaLevel = currentMateriaLevel(elementalMateriaData, slotMateria.ap)
+              const materiaLevel = currentMateriaLevel(
+                elementalMateriaData,
+                slotMateria.ap
+              )
               // console.log('status elemental materia level', materiaLevel, elementalMateriaData, slotMateria.ap)
               if (materiaLevel === 1) {
                 elementModifier = 'halve'
@@ -96,7 +123,9 @@ const calculateElementEquip = (elements, items, materia) => {
                 elementModifier = 'absorb'
               }
             }
-            const attachedMateriaElements = [window.data.kernel.materiaData[attachedMateria.id].element]
+            const attachedMateriaElements = [
+              window.data.kernel.materiaData[attachedMateria.id].element
+            ]
             // console.log('status elemental ap', slotMateria.ap, elementModifier, elements[elementModifier], attachedMateriaElements)
 
             addNoDuplicates(elements[elementModifier], attachedMateriaElements)
@@ -112,25 +141,53 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
   // Time with added effect? Levels of ap apply slow or stop?!
   // Frog or small with transform?
 
-  const validStatusToApply = ['Death', 'Sleep', 'Poison', 'Sadness', 'Fury', 'Confusion', 'Silence', 'Slow', 'Stop',
-    'Frog', 'Small', 'SlowNumb', 'Petrify', 'DeathSentence', 'Berserk', 'Paralysis', 'Darkness']
+  const validStatusToApply = [
+    'Death',
+    'Sleep',
+    'Poison',
+    'Sadness',
+    'Fury',
+    'Confusion',
+    'Silence',
+    'Slow',
+    'Stop',
+    'Frog',
+    'Small',
+    'SlowNumb',
+    'Petrify',
+    'DeathSentence',
+    'Berserk',
+    'Paralysis',
+    'Darkness'
+  ]
 
   // weapon
-  addNoDuplicates(statusEffects.attack, removeInvalidStatusEffect(items[0].status, validStatusToApply))
+  addNoDuplicates(
+    statusEffects.attack,
+    removeInvalidStatusEffect(items[0].status, validStatusToApply)
+  )
   // armor
   if (items[1].status.length > 0) {
-    addNoDuplicates(statusEffects.defend, removeInvalidStatusEffect(items[1].status, validStatusToApply))
+    addNoDuplicates(
+      statusEffects.defend,
+      removeInvalidStatusEffect(items[1].status, validStatusToApply)
+    )
   }
   // acc
   if (items[2] && items[2].status && items[2].status.length > 0) {
-    addNoDuplicates(statusEffects.defend, removeInvalidStatusEffect(items[2].status, validStatusToApply))
+    addNoDuplicates(
+      statusEffects.defend,
+      removeInvalidStatusEffect(items[2].status, validStatusToApply)
+    )
   }
   // Materia
   const equipment = [
     { item: items[0], type: 'weapon' },
     { item: items[1], type: 'armor' }
   ]
-  const addedEffectMateriaData = window.data.kernel.materiaData.filter(m => m.attributes.type === 'AddedEffect')[0]
+  const addedEffectMateriaData = window.data.kernel.materiaData.filter(
+    m => m.attributes.type === 'AddedEffect'
+  )[0]
 
   for (let i = 0; i < equipment.length; i++) {
     const item = equipment[i].item
@@ -160,10 +217,17 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
             } else {
               elementModifier = 'defend'
             }
-            const attachedMateriaStatusEffects = window.data.kernel.materiaData[attachedMateria.id].status
+            const attachedMateriaStatusEffects =
+              window.data.kernel.materiaData[attachedMateria.id].status
             // console.log('status status ap', slotMateria.ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
 
-            addNoDuplicates(statusEffects[elementModifier], removeInvalidStatusEffect(attachedMateriaStatusEffects, validStatusToApply))
+            addNoDuplicates(
+              statusEffects[elementModifier],
+              removeInvalidStatusEffect(
+                attachedMateriaStatusEffects,
+                validStatusToApply
+              )
+            )
           }
         }
       }
@@ -203,8 +267,10 @@ const addNoDuplicates = (arr1, arr2) => {
     }
   }
 }
-const hasMPHPMateria = (char) => {
-  const hpMPMateriaData = window.data.kernel.materiaData.filter(m => m.attributes.type && m.attributes.type === 'HP<->MP')[0]
+const hasMPHPMateria = char => {
+  const hpMPMateriaData = window.data.kernel.materiaData.filter(
+    m => m.attributes.type && m.attributes.type === 'HP<->MP'
+  )[0]
   for (const materiaSlot in char.materia) {
     const materia = char.materia[materiaSlot]
     if (materia.id === hpMPMateriaData.index) {
@@ -213,10 +279,16 @@ const hasMPHPMateria = (char) => {
   }
   return false
 }
-const getEnemySkillFlags = (ap) => {
-// This is a little tricky and should probably be done else, but keep it here for now.
+const getEnemySkillFlags = ap => {
+  // This is a little tricky and should probably be done else, but keep it here for now.
   // Basically ap is 3 bytes, 1st byte contains the first 8 spell flags from LSB to MSB, but because I store the ap as single int, it's a pain
-  const flags = dec2bin(ap).padStart(24, '0').match(/[\s\S]{1,8}/g).map(s => s.split('').reverse().join('')).join('').split('').map(s => s === '1')
+  const flags = dec2bin(ap)
+    .padStart(24, '0')
+    .match(/[\s\S]{1,8}/g)
+    .map(s => s.split('').reverse().join(''))
+    .join('')
+    .split('')
+    .map(s => s === '1')
   return flags
 }
 const populateAllEnemySkillsList = () => {
@@ -232,7 +304,7 @@ const populateAllEnemySkillsList = () => {
   }
   return s
 }
-const getEnemySkillFlagsWithSkills = (ap) => {
+const getEnemySkillFlagsWithSkills = ap => {
   const flags = getEnemySkillFlags(ap)
   const skills = populateAllEnemySkillsList()
   for (let i = 0; i < skills.length; i++) {
@@ -244,14 +316,20 @@ const getEnemySkillFlagsWithSkills = (ap) => {
 }
 const calculateHPMP = (char, statBonuses) => {
   // Calc max HP MP
-  const hpBonusAmount = statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP').map(s => s.value).reduce((a, b) => a + b, 100)
+  const hpBonusAmount = statBonuses
+    .filter(s => s.type === 'percent' && s.stat === 'HP')
+    .map(s => s.value)
+    .reduce((a, b) => a + b, 100)
   const hp = {
     current: char.stats.hp.current ? char.stats.hp.current : char.stats.hp.base,
     max: Math.min(9999, Math.trunc(char.stats.hp.base * (hpBonusAmount / 100)))
   }
 
   // console.log('status HP', char.stats.hp.base, hpBonusAmount, hp, char, statBonuses.filter(s => s.type === 'percent' && s.stat === 'HP'))
-  const mpBonusAmount = statBonuses.filter(s => s.type === 'percent' && s.stat === 'MP').map(s => s.value).reduce((a, b) => a + b, 100)
+  const mpBonusAmount = statBonuses
+    .filter(s => s.type === 'percent' && s.stat === 'MP')
+    .map(s => s.value)
+    .reduce((a, b) => a + b, 100)
   const mp = {
     current: char.stats.mp.current ? char.stats.mp.current : char.stats.mp.base,
     max: Math.min(999, Math.trunc(char.stats.mp.base * (mpBonusAmount / 100)))
@@ -282,7 +360,7 @@ const recalculateAndApplyHPMPToAll = () => {
     recalculateAndApplyHPMP(window.data.savemap.characters[name])
   }
 }
-const recalculateAndApplyHPMP = (char) => {
+const recalculateAndApplyHPMP = char => {
   const weaponData = getWeaponDataFromItemId[char.equip.weapon.itemId]
   const armorData = getArmorDataFromItemId(char.equip.armor.itemId)
   const accessoryData = getAccessoryDataFromItemId(char.equip.accessory.itemId)
@@ -295,10 +373,17 @@ const recalculateAndApplyHPMP = (char) => {
   char.stats.mp.current = mp.current
   char.stats.mp.max = mp.max
 }
-const getMenuOptions = (char) => {
+const getMenuOptions = char => {
   // console.log('status getMenuOptions')
   const addMenuOption = (all, choice) => {
-    const materiaData = window.data.kernel.materiaData.filter(a => a.name && a.attributes.menu && a.attributes.type === 'Add' && a.attributes.menu.length > 0 && a.attributes.menu.filter(m => m.id === choice.id).length > 0)[0]
+    const materiaData = window.data.kernel.materiaData.filter(
+      a =>
+        a.name &&
+        a.attributes.menu &&
+        a.attributes.type === 'Add' &&
+        a.attributes.menu.length > 0 &&
+        a.attributes.menu.filter(m => m.id === choice.id).length > 0
+    )[0]
     const moreThanOneChoice = materiaData.attributes.menu.length > 1
     // console.log('stats addMenuOption', choice, materiaData)
     if (!moreThanOneChoice) {
@@ -310,9 +395,12 @@ const getMenuOptions = (char) => {
         // console.log('stats addMenuOption one push A', all, choice)
       }
     } else {
-      const firstChoiceSelected = materiaData.attributes.menu[0].id === choice.id
-      const choice1IsInList = all.filter(a => a.id === materiaData.attributes.menu[0].id).length > 0
-      const choice2IsInList = all.filter(a => a.id === materiaData.attributes.menu[1].id).length > 0
+      const firstChoiceSelected =
+        materiaData.attributes.menu[0].id === choice.id
+      const choice1IsInList =
+        all.filter(a => a.id === materiaData.attributes.menu[0].id).length > 0
+      const choice2IsInList =
+        all.filter(a => a.id === materiaData.attributes.menu[1].id).length > 0
 
       // console.log('stats addMenuOption multi', firstChoiceSelected, choice1IsInList, choice2IsInList)
       // if two choice, 1st choice is selected, 1st is not in list, 2nd is not in list = Add
@@ -368,7 +456,7 @@ const getMenuOptions = (char) => {
   }
   const ensureCommandMenuMagicSummonItemOrder = (all, hasMagic, hasSummon) => {
     // Command materia is actually just the order that the materia is on equipment...
-    const itemCommandPosition = (all) => {
+    const itemCommandPosition = all => {
       for (let i = 0; i < all.length; i++) {
         const choice = all[i]
         if (choice.id === 4 || choice.id === 23) {
@@ -422,8 +510,14 @@ const getMenuOptions = (char) => {
         hasSummon = true
       }
       if (materiaData.name === 'Mega All') {
-        const slashAllMateriaData = window.data.kernel.materiaData.filter(m => m.index === 14)[0]
-        replaceMenuOption(command, slashAllMateriaData.attributes.menu.id, slashAllMateriaData.attributes.with[0])
+        const slashAllMateriaData = window.data.kernel.materiaData.filter(
+          m => m.index === 14
+        )[0]
+        replaceMenuOption(
+          command,
+          slashAllMateriaData.attributes.menu.id,
+          slashAllMateriaData.attributes.with[0]
+        )
         hasMegaAll = true
       }
       if (materiaData.type === 'Command') {
@@ -446,9 +540,17 @@ const getMenuOptions = (char) => {
         if (materiaData.attributes.type === 'Replace') {
           // console.log('status Replace', materiaData.name, materiaData, currentLevel)
           if (currentLevel > 1 && materiaData.attributes.with.length > 1) {
-            replaceMenuOption(command, materiaData.attributes.menu.id, materiaData.attributes.with[1])
+            replaceMenuOption(
+              command,
+              materiaData.attributes.menu.id,
+              materiaData.attributes.with[1]
+            )
           } else {
-            replaceMenuOption(command, materiaData.attributes.menu.id, materiaData.attributes.with[0])
+            replaceMenuOption(
+              command,
+              materiaData.attributes.menu.id,
+              materiaData.attributes.with[0]
+            )
           }
         }
       }
@@ -462,24 +564,42 @@ const getMenuOptions = (char) => {
     }
   }
   // Add Limit command is limit is full
-  if (char.limit.bar === 0xFF) {
+  if (char.limit.bar === 0xff) {
     console.log('limit battleStats', command)
     command[0].limit = 20 // Hardcoded ref to limit command
   }
   ensureCommandMenuMagicSummonItemOrder(command, hasMagic, hasSummon)
 
-  const { magicMenu, summonMenu, enemySkillsMenu } = calculateMagicSummonEnemySkillMenus(char)
-  const menu = { command, magic: magicMenu, summon: summonMenu, enemySkills: enemySkillsMenu }
+  const { magicMenu, summonMenu, enemySkillsMenu } =
+    calculateMagicSummonEnemySkillMenus(char)
+  const menu = {
+    command,
+    magic: magicMenu,
+    summon: summonMenu,
+    enemySkills: enemySkillsMenu
+  }
   console.log('status menu', menu)
 
   return menu
 }
 
-const calculateMagicSummonEnemySkillMenus = (char) => {
+const calculateMagicSummonEnemySkillMenus = char => {
   // Interestingly, the config magic order does change the order of the magic on the menu, must just be in battle. Leave it as below for now
   const pairedAddedAbilities = [
-    { type: 'All', order: 1, text: 'All', count: 5, targetFlag: 'ToggleSingleMultiTarget' }, // not escape, only available if targetFlags has ToggleSingleMultiTarget
-    { type: 'QuadraMagic', order: 2, text: '4x-M', count: 5, targetFlag: 'EnableSelection' }, // not escape
+    {
+      type: 'All',
+      order: 1,
+      text: 'All',
+      count: 5,
+      targetFlag: 'ToggleSingleMultiTarget'
+    }, // not escape, only available if targetFlags has ToggleSingleMultiTarget
+    {
+      type: 'QuadraMagic',
+      order: 2,
+      text: '4x-M',
+      count: 5,
+      targetFlag: 'EnableSelection'
+    }, // not escape
     { type: 'HPAbsorb', order: 3, text: 'Absorb HP' },
     { type: 'MPAbsorb', order: 4, text: 'Absorb MP' },
     { type: 'StealAsWell', order: 5, text: 'Steal as well' },
@@ -510,23 +630,43 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     let boostIndirect = 0
     const boostUltimate = 400
     if (window.data.savemap.config.magicOrder.RestoreAttackIndirect) {
-      boostRestore = 100; boostAttack = 200; boostIndirect = 300
+      boostRestore = 100
+      boostAttack = 200
+      boostIndirect = 300
     } else if (window.data.savemap.config.magicOrder.RestoreIndirectAttack) {
-      boostRestore = 100; boostAttack = 300; boostIndirect = 200
+      boostRestore = 100
+      boostAttack = 300
+      boostIndirect = 200
     } else if (window.data.savemap.config.magicOrder.AttackIndirectRestore) {
-      boostRestore = 300; boostAttack = 100; boostIndirect = 200
+      boostRestore = 300
+      boostAttack = 100
+      boostIndirect = 200
     } else if (window.data.savemap.config.magicOrder.AttackRestoreIndirect) {
-      boostRestore = 200; boostAttack = 100; boostIndirect = 300
+      boostRestore = 200
+      boostAttack = 100
+      boostIndirect = 300
     } else if (window.data.savemap.config.magicOrder.IndirectRestoreAttack) {
-      boostRestore = 200; boostAttack = 300; boostIndirect = 100
+      boostRestore = 200
+      boostAttack = 300
+      boostIndirect = 100
     } else if (window.data.savemap.config.magicOrder.IndirectAttackRestore) {
-      boostRestore = 300; boostAttack = 200; boostIndirect = 100
+      boostRestore = 300
+      boostAttack = 200
+      boostIndirect = 100
     }
     const orderTypes = [boostRestore, boostAttack, boostIndirect, boostUltimate]
 
-    for (let i = 0; i < window.data.kernel.battleAndGrowthData.spellOrder.length; i++) {
+    for (
+      let i = 0;
+      i < window.data.kernel.battleAndGrowthData.spellOrder.length;
+      i++
+    ) {
       const spell = window.data.kernel.battleAndGrowthData.spellOrder[i]
-      orderingList.push({ index: spell.index, name: spell.name, order: orderTypes[spell.section] + spell.position })
+      orderingList.push({
+        index: spell.index,
+        name: spell.name,
+        order: orderTypes[spell.section] + spell.position
+      })
     }
 
     orderingList.sort((a, b) => a.order - b.order)
@@ -546,9 +686,16 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
   }
   const populateAllSummonsList = () => {
     // I assume there is a more kernel oriented way of getting this
-    return window.data.kernel.materiaData.filter(m => m.type === 'Summon' && m.attributes.summon.length > 1)[0]
-      .attributes.summon.map((s) => {
-        return { index: s.attackId, name: s.name, enabled: false, addedAbilities: [], uses: 0 }
+    return window.data.kernel.materiaData
+      .filter(m => m.type === 'Summon' && m.attributes.summon.length > 1)[0]
+      .attributes.summon.map(s => {
+        return {
+          index: s.attackId,
+          name: s.name,
+          enabled: false,
+          addedAbilities: [],
+          uses: 0
+        }
       })
   }
 
@@ -560,7 +707,10 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
         // console.log('stats enable', magic.index, addedAbility, targetFlag)
         if (addedAbility !== null) {
           // First check if it can be added to the magic with targetFlag check
-          if (targetFlag && !window.data.kernel.attackData[id].targetFlags.includes(targetFlag)) {
+          if (
+            targetFlag &&
+            !window.data.kernel.attackData[id].targetFlags.includes(targetFlag)
+          ) {
             break
           }
           let updated = false
@@ -568,10 +718,17 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
             const ability = item.addedAbilities[j]
             if (ability.type === addedAbility.type) {
               // console.log('stats updated', ability.count, addedAbility.count, ability.count + addedAbility.count)
-              if (Object.hasOwnProperty.call(ability, 'count') && Object.hasOwnProperty.call(addedAbility, 'count')) {
+              if (
+                Object.hasOwnProperty.call(ability, 'count') &&
+                Object.hasOwnProperty.call(addedAbility, 'count')
+              ) {
                 // console.log('stats updated count', magic, ability, addedAbility, ability.count, addedAbility.count, ability.count + addedAbility.count)
                 ability.count = ability.count + addedAbility.count // All is accumulative in terms of count
-              } else if (Object.hasOwnProperty.call(ability, 'level') && Object.hasOwnProperty.call(addedAbility, 'level') && addedAbility.level > ability.level) {
+              } else if (
+                Object.hasOwnProperty.call(ability, 'level') &&
+                Object.hasOwnProperty.call(addedAbility, 'level') &&
+                addedAbility.level > ability.level
+              ) {
                 // console.log('stats updated level', ability.count, addedAbility.count, ability.count + addedAbility.count)
                 ability.level = addedAbility.level
               }
@@ -591,7 +748,10 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
         if (uses !== undefined) {
           if (!Object.hasOwnProperty.call(item, 'uses')) {
             item.uses = uses
-          } else if (Object.hasOwnProperty.call(item, 'uses') && uses > item.uses) {
+          } else if (
+            Object.hasOwnProperty.call(item, 'uses') &&
+            uses > item.uses
+          ) {
             item.uses = uses
           }
         }
@@ -609,10 +769,16 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
       // console.log('stats linked materia', linkedMateria, linkedMateriaData, level)
 
       if (linkedMateriaData.attributes.type) {
-        const ability = pairedAddedAbilities.filter(a => a.type === linkedMateriaData.attributes.type)[0]
+        const ability = pairedAddedAbilities.filter(
+          a => a.type === linkedMateriaData.attributes.type
+        )[0]
 
         if (ability !== undefined) {
-          addedAbility = { type: ability.type, order: ability.order, text: ability.text }
+          addedAbility = {
+            type: ability.type,
+            order: ability.order,
+            text: ability.text
+          }
           if (Object.hasOwnProperty.call(ability, 'count')) {
             addedAbility.count = level
           }
@@ -628,12 +794,13 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
 
     return { addedAbility, targetFlag }
   }
-  const filterUnusedMagicRows = (oMagics) => {
+  const filterUnusedMagicRows = oMagics => {
     // Magic list does't leave gaps, eg, filter the un-enabled spell options, but it does include the row if there is an active spell on that row,
     // eg, restore has regen and is on row 3 with life and life2, therefore include that row but if you don't have poisona, esuna or resist, ignore row 2
     const filteredMagics = []
     for (let i = 0; i < oMagics.length; i = i + 3) {
-      const keepRow = oMagics[i].enabled || oMagics[i + 1].enabled || oMagics[i + 2].enabled
+      const keepRow =
+        oMagics[i].enabled || oMagics[i + 1].enabled || oMagics[i + 2].enabled
       // console.log('magic filter row', i, 'of', oMagics.length,
       //   oMagics[i].name, oMagics[i].enabled,
       //   oMagics[i + 1].name, oMagics[i + 1].enabled,
@@ -648,7 +815,12 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     }
     // console.log('magic filterUnusedMagicRows', oMagics, filteredMagics)
     while (filteredMagics.length !== oMagics.length) {
-      filteredMagics.push({ index: 255, name: '', enabled: false, addedAbilities: [] })
+      filteredMagics.push({
+        index: 255,
+        name: '',
+        enabled: false,
+        addedAbilities: []
+      })
     }
     return filteredMagics
   }
@@ -658,8 +830,14 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
   const enemySkills = populateAllEnemySkillsList()
 
   const equipment = [
-    { item: window.data.kernel.allItemData[char.equip.weapon.itemId], type: 'weapon' },
-    { item: window.data.kernel.allItemData[char.equip.armor.itemId], type: 'armor' }
+    {
+      item: window.data.kernel.allItemData[char.equip.weapon.itemId],
+      type: 'weapon'
+    },
+    {
+      item: window.data.kernel.allItemData[char.equip.armor.itemId],
+      type: 'armor'
+    }
   ]
   let megaAllPresent = false
   for (let i = 0; i < equipment.length; i++) {
@@ -669,36 +847,66 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     for (let j = 0; j < item.materiaSlots.length; j++) {
       const slot = item.materiaSlots[j]
       const isLinked = slot.includes('LinkedSlot')
-      const linkedMateria = slot.includes('Left') ? char.materia[`${type}Materia${j + 2}`] : char.materia[`${type}Materia${j}`]
+      const linkedMateria = slot.includes('Left')
+        ? char.materia[`${type}Materia${j + 2}`]
+        : char.materia[`${type}Materia${j}`]
       const materia = char.materia[`${type}Materia${j + 1}`]
       if (materia.id !== 255) {
         const materiaData = window.data.kernel.materiaData[materia.id]
         const currentLevel = currentMateriaLevel(materiaData, materia.ap)
         if (materiaData.type === 'Magic') {
-          const toAdd = materiaData.attributes.magic.filter(m => m.level <= currentLevel)
-          const { addedAbility, targetFlag } = getLinkedAbility(isLinked, linkedMateria)
+          const toAdd = materiaData.attributes.magic.filter(
+            m => m.level <= currentLevel
+          )
+          const { addedAbility, targetFlag } = getLinkedAbility(
+            isLinked,
+            linkedMateria
+          )
           for (let i = 0; i < toAdd.length; i++) {
             const spell = toAdd[i]
             enabledAttacks(magics, spell.attackId, addedAbility, targetFlag)
           }
         } else if (materiaData.type === 'Summon') {
-          const { addedAbility, targetFlag } = getLinkedAbility(isLinked, linkedMateria)
-          console.log('stats ADD SUMMON', materiaData, materiaData.attributes.summon, currentLevel)
+          const { addedAbility, targetFlag } = getLinkedAbility(
+            isLinked,
+            linkedMateria
+          )
+          console.log(
+            'stats ADD SUMMON',
+            materiaData,
+            materiaData.attributes.summon,
+            currentLevel
+          )
 
           for (let i = 0; i < materiaData.attributes.summon.length; i++) {
             const summon = materiaData.attributes.summon[i]
 
             // console.log('magic ENABLE SUMMON', summon.attackId, addedAbility, targetFlag, window.data.kernel.attackData[summon.attackId])
-            const uses = materiaData.attributes.master ? 0xFF : currentLevel
+            const uses = materiaData.attributes.master ? 0xff : currentLevel
             console.log('stats ADD SUMMON attack', summon, uses)
             // For some reason KOTR summon isn't allowed to use Quadra Magic, but I can't see what flag to use, so I'll use this
-            if (window.data.kernel.attackData[summon.attackId].additionalEffects.type === 0 && addedAbility && addedAbility.type === 'QuadraMagic') {
+            if (
+              window.data.kernel.attackData[summon.attackId].additionalEffects
+                .type === 0 &&
+              addedAbility &&
+              addedAbility.type === 'QuadraMagic'
+            ) {
               enabledAttacks(summons, summon.attackId, null, null, uses)
             } else {
-              enabledAttacks(summons, summon.attackId, addedAbility, targetFlag, uses)
+              enabledAttacks(
+                summons,
+                summon.attackId,
+                addedAbility,
+                targetFlag,
+                uses
+              )
             }
           }
-        } else if (materiaData.type === 'Command' && materiaData.attributes.skill && materiaData.attributes.skill === 'EnemySkill') {
+        } else if (
+          materiaData.type === 'Command' &&
+          materiaData.attributes.skill &&
+          materiaData.attributes.skill === 'EnemySkill'
+        ) {
           const flags = getEnemySkillFlags(materia.ap)
 
           for (let i = 0; i < flags.length; i++) {
@@ -708,8 +916,17 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
               // No added abilities?
             }
           }
-          console.log('magic enemy Skill materia', materia, materia.ap, dec2bin(materia.ap).padStart(24, '0'), flags)
-        } else if (materiaData.attributes.type && materiaData.attributes.type === 'MegaAll') {
+          console.log(
+            'magic enemy Skill materia',
+            materia,
+            materia.ap,
+            dec2bin(materia.ap).padStart(24, '0'),
+            flags
+          )
+        } else if (
+          materiaData.attributes.type &&
+          materiaData.attributes.type === 'MegaAll'
+        ) {
           megaAllPresent = true
         }
       }
@@ -722,7 +939,9 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     for (let i = 0; i < magics.length; i++) {
       const magic = magics[i]
       if (magic.enabled) {
-        const allAbility = JSON.parse(JSON.stringify(pairedAddedAbilities.filter(a => a.type === 'All')[0]))
+        const allAbility = JSON.parse(
+          JSON.stringify(pairedAddedAbilities.filter(a => a.type === 'All')[0])
+        )
         const targetFlag = allAbility.targetFlag
         delete allAbility.targetFlag
         enabledAttacks(magics, magic.index, allAbility, targetFlag)
@@ -730,16 +949,31 @@ const calculateMagicSummonEnemySkillMenus = (char) => {
     }
   }
 
-  return { magicMenu: filterUnusedMagicRows(magics), summonMenu: summons, enemySkillsMenu: enemySkills }
+  return {
+    magicMenu: filterUnusedMagicRows(magics),
+    summonMenu: summons,
+    enemySkillsMenu: enemySkills
+  }
 }
 
-const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessoryName, weaponMat, armorMat) => {
+const setEquipmentAndMateriaForTesting = (
+  char,
+  weaponName,
+  armorName,
+  accessoryName,
+  weaponMat,
+  armorMat
+) => {
   const ap = 10000000
-  const weaponData = window.data.kernel.weaponData.filter(m => m.name === weaponName)[0]
+  const weaponData = window.data.kernel.weaponData.filter(
+    m => m.name === weaponName
+  )[0]
   char.equip.weapon.index = weaponData.itemId - 128
   char.equip.weapon.itemId = weaponData.itemId
   char.equip.weapon.name = weaponData.name
-  const armorData = window.data.kernel.armorData.filter(m => m.name === armorName)[0]
+  const armorData = window.data.kernel.armorData.filter(
+    m => m.name === armorName
+  )[0]
   char.equip.armor.index = armorData.itemId - 256
   char.equip.armor.itemId = armorData.itemId
   char.equip.armor.name = armorData.name
@@ -747,7 +981,9 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
     char.equip.accessory.index = 255
     delete char.equip.accessory.name
   } else {
-    const accessoryData = window.data.kernel.accessoryData.filter(m => m.name === accessoryName)[0]
+    const accessoryData = window.data.kernel.accessoryData.filter(
+      m => m.name === accessoryName
+    )[0]
     char.equip.accessory.index = accessoryData.itemId - 128
     char.equip.accessory.itemId = accessoryData.itemId
     char.equip.accessory.name = accessoryData.name
@@ -757,40 +993,70 @@ const setEquipmentAndMateriaForTesting = (char, weaponName, armorName, accessory
     const materiaName = weaponMat[i]
     console.log('magic', `weaponMateria${i + 1}`, materiaName)
     if (materiaName.length > 0) {
-      const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
+      const materia = window.data.kernel.materiaData.filter(
+        m => m.name === materiaName
+      )[0]
       if (!materia) {
         window.alert(`No materia: ${materiaName} in weaponMateria${i + 1}`)
       }
-      char.materia[`weaponMateria${i + 1}`] = { id: materia.index, ap, name: materia.name, description: materia.description }
+      char.materia[`weaponMateria${i + 1}`] = {
+        id: materia.index,
+        ap,
+        name: materia.name,
+        description: materia.description
+      }
     } else {
-      char.materia[`weaponMateria${i + 1}`] = { id: 255, ap: 0xFFFFFF }
+      char.materia[`weaponMateria${i + 1}`] = { id: 255, ap: 0xffffff }
     }
   }
   for (let i = 0; i < armorMat.length; i++) {
     const materiaName = armorMat[i]
     if (materiaName.length > 0) {
-      const materia = window.data.kernel.materiaData.filter(m => m.name === materiaName)[0]
+      const materia = window.data.kernel.materiaData.filter(
+        m => m.name === materiaName
+      )[0]
       if (!materia) {
         window.alert(`No materia: ${materiaName} in armorMateria${i + 1}`)
       }
-      char.materia[`armorMateria${i + 1}`] = { id: materia.index, ap, name: materia.name, description: materia.description }
+      char.materia[`armorMateria${i + 1}`] = {
+        id: materia.index,
+        ap,
+        name: materia.name,
+        description: materia.description
+      }
     } else {
-      char.materia[`armorMateria${i + 1}`] = { id: 255, ap: 0xFFFFFF }
+      char.materia[`armorMateria${i + 1}`] = { id: 255, ap: 0xffffff }
     }
   }
 
   recalculateAndApplyHPMP(char)
 }
 const calculateStatValue = (base, bonus, stat, statBonuses) => {
-  const statBonusAmount = statBonuses.filter(s => s.type === 'amount' && s.stat === stat).map(s => s.value).reduce((a, b) => a + b, 0)
-  const statBonusPercent = statBonuses.filter(s => s.type === 'percent' && s.stat === stat).map(s => s.value).reduce((a, b) => a + b, 100) / 100
+  const statBonusAmount = statBonuses
+    .filter(s => s.type === 'amount' && s.stat === stat)
+    .map(s => s.value)
+    .reduce((a, b) => a + b, 0)
+  const statBonusPercent =
+    statBonuses
+      .filter(s => s.type === 'percent' && s.stat === stat)
+      .map(s => s.value)
+      .reduce((a, b) => a + b, 100) / 100
   const total = Math.trunc((base + bonus + statBonusAmount) * statBonusPercent)
 
-  console.log('status calculateStatValue', base, bonus, stat, statBonuses, statBonusAmount, statBonusPercent, total)
+  console.log(
+    'status calculateStatValue',
+    base,
+    bonus,
+    stat,
+    statBonuses,
+    statBonusAmount,
+    statBonusPercent,
+    total
+  )
 
   return total
 }
-const getBattleStatsForChar = (char) => {
+const getBattleStatsForChar = char => {
   // Temp equipment and materia override for testing
   const weaponData = getWeaponDataFromItemId(char.equip.weapon.itemId)
   const armorData = getArmorDataFromItemId(char.equip.armor.itemId)
@@ -799,19 +1065,51 @@ const getBattleStatsForChar = (char) => {
   const equippedMateria = []
   for (const materiaSlot in char.materia) {
     if (char.materia[materiaSlot].id !== 255) {
-      equippedMateria.push(window.data.kernel.materiaData[char.materia[materiaSlot].id])
+      equippedMateria.push(
+        window.data.kernel.materiaData[char.materia[materiaSlot].id]
+      )
     }
   }
 
   const statBonuses = groupStatBonuses(equippedItems, char.materia)
   const { hp, mp } = calculateHPMP(char, statBonuses)
 
-  const strength = calculateStatValue(char.stats.strength, char.stats.strengthBonus, 'Strength', statBonuses)
-  const dexterity = calculateStatValue(char.stats.dexterity, char.stats.dexterityBonus, 'Dexterity', statBonuses)
-  const vitality = calculateStatValue(char.stats.vitality, char.stats.vitalityBonus, 'Vitality', statBonuses)
-  const magic = calculateStatValue(char.stats.magic, char.stats.magicBonus, 'Magic', statBonuses)
-  const spirit = calculateStatValue(char.stats.spirit, char.stats.spiritBonus, 'Spirit', statBonuses)
-  const luck = calculateStatValue(char.stats.luck, char.stats.luckBonus, 'Luck', statBonuses)
+  const strength = calculateStatValue(
+    char.stats.strength,
+    char.stats.strengthBonus,
+    'Strength',
+    statBonuses
+  )
+  const dexterity = calculateStatValue(
+    char.stats.dexterity,
+    char.stats.dexterityBonus,
+    'Dexterity',
+    statBonuses
+  )
+  const vitality = calculateStatValue(
+    char.stats.vitality,
+    char.stats.vitalityBonus,
+    'Vitality',
+    statBonuses
+  )
+  const magic = calculateStatValue(
+    char.stats.magic,
+    char.stats.magicBonus,
+    'Magic',
+    statBonuses
+  )
+  const spirit = calculateStatValue(
+    char.stats.spirit,
+    char.stats.spiritBonus,
+    'Spirit',
+    statBonuses
+  )
+  const luck = calculateStatValue(
+    char.stats.luck,
+    char.stats.luckBonus,
+    'Luck',
+    statBonuses
+  )
 
   // TODO - How to add battle / field affecting materia (eg, all support and independent materia), Gil Exp
 
@@ -866,21 +1164,37 @@ const getBattleStatsForChar = (char) => {
     modifiers
   }
 }
-const isMPTurboActive = (item) => {
+const isMPTurboActive = item => {
   return item.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0
 }
 const applyMPTurbo = (originalMP, item) => {
-  const mpTurboAbility = item.addedAbilities.filter(a => a.type === 'MPTurbo')[0]
-  const mp = Math.min(255, Math.trunc(((originalMP * (10 + mpTurboAbility.level)) / 10) + 1))
+  const mpTurboAbility = item.addedAbilities.filter(
+    a => a.type === 'MPTurbo'
+  )[0]
+  const mp = Math.min(
+    255,
+    Math.trunc((originalMP * (10 + mpTurboAbility.level)) / 10 + 1)
+  )
   return mp
 }
 const debugSetEquipmentAndMateria = () => {
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Cloud,
-    'Ultima Weapon', 'Wizard Bracelet', '',
+    'Ultima Weapon',
+    'Wizard Bracelet',
+    '',
     // ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
     // ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
-    ['Mega All', 'Master Command', 'Master Magic', '', 'Master Summon', 'Enemy Skill', '', ''],
+    [
+      'Mega All',
+      'Master Command',
+      'Master Magic',
+      '',
+      'Master Summon',
+      'Enemy Skill',
+      '',
+      ''
+    ],
     ['', '', '', '', '', '', '', '']
   )
 
@@ -890,14 +1204,45 @@ const debugSetEquipmentAndMateria = () => {
 
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Tifa,
-    'Premium Heart', 'Wizard Bracelet', '',
-    ['Double Cut', 'Underwater', 'Cover', 'Ultima', 'Mega All', 'Long Range', 'Pre-Emptive', 'Chocobo Lure'],
-    ['Enemy Skill', 'Time', 'Gil Plus', 'Revive', 'Fire', 'Magic Plus', 'Speed Plus', 'HP Plus']
+    'Premium Heart',
+    'Wizard Bracelet',
+    '',
+    [
+      'Double Cut',
+      'Underwater',
+      'Cover',
+      'Ultima',
+      'Mega All',
+      'Long Range',
+      'Pre-Emptive',
+      'Chocobo Lure'
+    ],
+    [
+      'Enemy Skill',
+      'Time',
+      'Gil Plus',
+      'Revive',
+      'Fire',
+      'Magic Plus',
+      'Speed Plus',
+      'HP Plus'
+    ]
   )
   setEquipmentAndMateriaForTesting(
     window.data.savemap.characters.Barret,
-    'Missing Score', 'Wizard Bracelet', 'Choco Feather',
-    ['', 'Choco/Mog', 'Shiva', 'Ifrit', 'Throw', 'Throw', 'W-Summon', 'Deathblow'],
+    'Missing Score',
+    'Wizard Bracelet',
+    'Choco Feather',
+    [
+      '',
+      'Choco/Mog',
+      'Shiva',
+      'Ifrit',
+      'Throw',
+      'Throw',
+      'W-Summon',
+      'Deathblow'
+    ],
     ['', '', '', '', '', '', '', '']
   )
   window.data.savemap.characters.Barret.materia.weaponMateria2.ap = 1000
@@ -906,15 +1251,18 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
   window.data.savemap.characters.Barret.limit.bar = 255
+  // window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
+  // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']
+  window.data.savemap.party.members = ['Cloud', 'None', 'None']
 }
 window.debugSetEquipmentAndMateria = debugSetEquipmentAndMateria
-const getWeaponDataFromItemId = (itemId) => {
+const getWeaponDataFromItemId = itemId => {
   return window.data.kernel.weaponData.find(i => i.itemId === itemId)
 }
-const getArmorDataFromItemId = (itemId) => {
+const getArmorDataFromItemId = itemId => {
   return window.data.kernel.armorData.find(i => i.itemId === itemId)
 }
-const getAccessoryDataFromItemId = (itemId) => {
+const getAccessoryDataFromItemId = itemId => {
   return window.data.kernel.accessoryData.find(i => i.itemId === itemId)
 }
 export {

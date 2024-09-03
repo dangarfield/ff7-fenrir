@@ -17,8 +17,9 @@ import {
   addBattleDescriptionsTextMenu,
   addBattleTextMenu
 } from './battle-menu-box-helper.js'
+import { POINTERS, movePointer } from '../menu/menu-box-helper.js'
 import { addCommands } from './battle-menu-command.js'
-import { orthoScene } from './battle-scene.js'
+import { orthoScene, activeCamera } from './battle-scene.js'
 window.THREE = THREE
 
 const playerLineHeight = 16
@@ -219,6 +220,16 @@ const updateActorsUI = () => {
     }
   }
 }
+// TODO - Validate whether the savemap contains the target helper displayed or not
+let showTargetLabel = false // Only persisted for playing session, not in savemap
+const toggleTargetLabel = () => {
+  showTargetLabel = !showTargetLabel
+  for (const actor of window.currentBattle.actors.filter(
+    a => a.active && a.type && a.type === 'enemy'
+  )) {
+    actor.positionSprite.userData.target.visible = showTargetLabel
+  }
+}
 const toggleHelperText = () => {
   if (
     window.currentBattle &&
@@ -255,8 +266,8 @@ const initActorPositionSprites = actors => {
         null,
         ALIGN.LEFT
       )
+      positionSprite.userData.target.visible = showTargetLabel
     }
-
     actor.positionSprite = positionSprite
     orthoScene.add(positionSprite)
   }
@@ -274,7 +285,36 @@ const initBattleMenu = async currentBattle => {
     pause,
     battleDescriptions,
     battleText,
-    magicDialog
+    magicDialog,
+    battlePointer: {
+      isShow: () => {
+        return POINTERS.pointerLeft.visible
+      },
+      show: () => {
+        POINTERS.pointerLeft.visible = true
+      },
+      hide: () => {
+        POINTERS.pointerLeft.visible = false
+      },
+      currentActorID: 0,
+      updatePositionOrtho: () => {
+        if (
+          window.currentBattle.actors[
+            window.currentBattle.ui.battlePointer.currentActorID
+          ]
+        ) {
+          const { x, y } =
+            window.currentBattle.actors[
+              window.currentBattle.ui.battlePointer.currentActorID
+            ].model.userData.orthoPosition
+          movePointer(
+            POINTERS.pointerLeft,
+            x + 10,
+            window.config.sizing.height - y + 4
+          )
+        }
+      }
+    }
   }
   // Command list w = 1 list
   const command = createDialogBox({
@@ -293,6 +333,7 @@ const initBattleMenu = async currentBattle => {
 export {
   initBattleMenu,
   updateActorsUI,
+  toggleTargetLabel,
   toggleHelperText,
   sendKeyPressToBattleMenu
 }

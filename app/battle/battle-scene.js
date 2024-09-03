@@ -76,6 +76,9 @@ const renderLoop = () => {
           }
         }
       }
+      if (window.currentBattle.ui.battlePointer.isShow()) {
+        window.currentBattle.ui.battlePointer.updatePositionOrtho()
+      }
       updateActorsUI()
       BATTLE_TWEEN_GROUP.update()
     }

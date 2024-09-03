@@ -36,6 +36,7 @@ const addCommands = actorIndex => {
   console.log('battleUI commandsGroup', commandsGroup)
 
   // TODO - change and defend have variable y, rather than just fixed
+  // TODO - You cannot select change if you are in a pincer attack
   const changeGroup = createDialogBox({
     id: 2,
     name: 'change',

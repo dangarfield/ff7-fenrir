@@ -1139,7 +1139,7 @@ const initialiseOpLoops = async () => {
         // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
         // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
         // control.BATTLE({ b: 0, n: 27 * 4 + 2 }) // Grand Hown
-        control.BATTLE({ b: 0, n: 75 * 4 + 3 }) // MP + Guard Hound
+        // control.BATTLE({ b: 0, n: 75 * 4 + 3 }) // MP + Guard Hound
         // control.BATTLE({ b: 0, n: 75 * 4 + 2 }) // MP + MP
         // control.BATTLE({ b: 0, n: 328 }) // MP + MP (sector 8)
         // control.BATTLE({ b: 0, n: 412 }) // Reno Pyramid x3
@@ -1148,6 +1148,8 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
         // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
+        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - Pincer attack
+        control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
       }
       window.quickBattle()
     }, 1000)

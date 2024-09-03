@@ -94,12 +94,32 @@ const addShadow = model => {
   model.scene.children[0].add(shadow)
 }
 const memberPositions = {
-  x: {
-    1: [0],
-    2: [-800, 800],
-    3: [-1500, 0, 1500]
+  // Massive guess, need to adjust, also adjust for pincer attacks
+  row: -2 * 256,
+  normal: {
+    1: [{ x: 0, z: -7 * 256 }],
+    2: [
+      { x: -4 * 256, z: -6.5 * 256 },
+      { x: 4 * 256, z: -6.5 * 256 }
+    ],
+    3: [
+      { x: -6.5 * 256, z: -6.5 * 256 },
+      { x: 0, z: -6.5 * 256 },
+      { x: 6.5 * 256, z: -6.5 * 256 }
+    ]
   },
-  row: [-1600, -2100]
+  pincer: {
+    1: [{ x: 0, z: 0 }],
+    2: [
+      { x: -4 * 256, z: 0 },
+      { x: 4 * 256, z: -1 * 256, r: true }
+    ],
+    3: [
+      { x: -6 * 256, z: 0 },
+      { x: 0, z: -2 * 256, r: true },
+      { x: 6 * 256, z: 0 }
+    ]
+  }
 }
 const createSelectionTriangle = () => {
   const geom = new THREE.BufferGeometry()
@@ -231,6 +251,28 @@ const loadBattleModels = async modelsToFind => {
   console.log('loading complete')
   return modelsFound
 }
+const rotateObjectTowardsTargetObject = (object, targetVector) => {
+  const objectPosition = object.position
+
+  const direction = new THREE.Vector3()
+  direction.subVectors(targetVector, objectPosition).normalize()
+  direction.y = 0
+  direction.normalize()
+
+  const forward = new THREE.Vector3(0, 0, 1)
+  forward.applyQuaternion(object.quaternion) // Adjust according to the object's current rotation
+  forward.normalize() // Normalize the forward vector
+
+  let angle = Math.acos(forward.dot(direction))
+
+  const cross = new THREE.Vector3().crossVectors(forward, direction)
+  if (cross.y < 0) {
+    angle = -angle
+  }
+  object.rotateOnAxis(new THREE.Vector3(0, 1, 0), angle)
+}
+window.rotateObjectTowardsTargetObject = rotateObjectTowardsTargetObject
+
 const importModels = async currentBattle => {
   const modelsToFind = [
     currentBattle.setup.locationCode,
@@ -244,6 +286,9 @@ const importModels = async currentBattle => {
   sceneGroup.add(locationModel.scene)
   console.log('location', locationModel)
 
+  const activePlayerCount = currentBattle.actors.filter(
+    a => a.active && a.type === 'player'
+  ).length
   for (const [i, actor] of currentBattle.actors.entries()) {
     if (!actor.active) continue
     const model = modelsFound.shift()
@@ -254,9 +299,12 @@ const importModels = async currentBattle => {
     actor.model = model
     if (actor.type === 'player') {
       model.userData.defaultPosition = {
-        x: memberPositions.x['3'][i],
+        x: memberPositions.normal[activePlayerCount][i].x,
         y: -model.initialY,
-        z: memberPositions.row[0] // TODO - Row
+        z: memberPositions.normal[activePlayerCount][i].z // TODO - Row
+      }
+      if (memberPositions.normal[activePlayerCount][i].r) {
+        model.scene.rotation.y = Math.PI
       }
     } else {
       model.userData.defaultPosition = {
@@ -265,6 +313,14 @@ const importModels = async currentBattle => {
         z: -actor.initialData.position.z // TODO - Row
       }
       model.scene.rotation.y = Math.PI
+      if (
+        actor.initialData.initialConditionFlags.includes(
+          'SideAttackInitialDirection'
+        )
+      ) {
+        // model.scene.rotation.y = 0
+      }
+      //rotateObjectTowardsTargetObject(model.scene, new THREE.Vector3())
     }
 
     model.scene.position.x = model.userData.defaultPosition.x
@@ -285,18 +341,23 @@ const importModels = async currentBattle => {
   // Set default camera
 
   // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
+  setCameraPosition('3')
+  window.setCameraPosition = setCameraPosition
+}
+
+const setCameraPosition = positionID => {
   window.battleDebugCamera.position.x =
-    currentBattle.scene.cameraPlacement['0'].camera1.pos.x
+    currentBattle.scene.cameraPlacement[positionID].camera1.pos.x
   window.battleDebugCamera.position.y =
-    -currentBattle.scene.cameraPlacement['0'].camera1.pos.y
+    -currentBattle.scene.cameraPlacement[positionID].camera1.pos.y
   window.battleDebugCamera.position.z =
-    -currentBattle.scene.cameraPlacement['0'].camera1.pos.z
+    -currentBattle.scene.cameraPlacement[positionID].camera1.pos.z
   window.battleDebugCamera.controls.target.x =
-    currentBattle.scene.cameraPlacement['0'].camera1.dir.x
+    currentBattle.scene.cameraPlacement[positionID].camera1.dir.x
   window.battleDebugCamera.controls.target.y =
-    -currentBattle.scene.cameraPlacement['0'].camera1.dir.y
+    -currentBattle.scene.cameraPlacement[positionID].camera1.dir.y
   window.battleDebugCamera.controls.target.z =
-    -currentBattle.scene.cameraPlacement['0'].camera1.dir.z
+    -currentBattle.scene.cameraPlacement[positionID].camera1.dir.z
 }
 
 export { importModels, tempSlow }
