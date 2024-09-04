@@ -1,3 +1,4 @@
+import { battleFormationConfig } from './battle-formation.js'
 import { getBattleStatsForChar } from './battle-stats.js'
 import { initTimers } from './battle-timers.js'
 
@@ -43,6 +44,9 @@ const setupBattle = battleId => {
     actors: [],
     attackData: [...scene.attackData.filter(a => a.id !== 0xffff)]
   }
+  currentBattle.formationConfig =
+    battleFormationConfig.formations[currentBattle.setup.battleLayoutType]
+
   // window.data.savemap.party.members[1] = 'None' // Temp
   window.debugSetEquipmentAndMateria() // Temp
   for (const [i, partyMember] of window.data.savemap.party.members.entries()) {
@@ -59,7 +63,8 @@ const setupBattle = battleId => {
         data,
         battleStats,
         modelCode: characterNameToModelCode(partyMember),
-        type: 'player'
+        type: 'player',
+        targetGroup: currentBattle.formationConfig.playerTargetGroups?.[i] ?? 1
       })
     }
   }
@@ -84,6 +89,7 @@ const setupBattle = battleId => {
         enemyData = { ...scene.enemyData3 }
         script = { ...scene.enemyScript1 }
       }
+
       currentBattle.actors.push({
         active: true,
         index: i + 4,
@@ -91,11 +97,16 @@ const setupBattle = battleId => {
         data: enemyData,
         modelCode: enemyIdToEnemyCode(enemy.enemyId),
         script,
-        type: 'enemy'
+        type: 'enemy',
+        targetGroup:
+          currentBattle.formationConfig.enemyTargetGroup ??
+          (enemy.initialConditionFlags.includes('SideAttackInitialDirection')
+            ? 0
+            : 2)
       })
     }
   }
-
+  currentBattle.setup.targetGroups = ['enemy', 'player'] // TODO - Update based on battle type, pincer, back attack etc
   currentBattle.setup.locationCode = locationIdToLocationCode(
     currentBattle.setup.locationId
   )

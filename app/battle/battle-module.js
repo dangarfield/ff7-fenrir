@@ -49,7 +49,7 @@ const preLoadBattle = async (battleId, options) => {
 
   currentBattle.memory = initAllVariables()
   initBattleQueue(currentBattle)
-  await executeAllInitScripts(currentBattle)
+  // await executeAllInitScripts(currentBattle) // For some reason this takes a huge amount of time, need to look into it
   await initBattleMenu(currentBattle)
 
   console.log('battle preload: END')

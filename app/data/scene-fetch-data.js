@@ -8,6 +8,43 @@ const loadSceneData = async () => {
   )
   const sceneData = await sceneDataRes.json()
   window.data.sceneData = sceneData
+
+  // const allRows = []
+  // for (const scene of sceneData) {
+  //   for (let i = 0; i < scene.battleFormations.length; i++) {
+  //     const formation = scene.battleFormations[i]
+  //     const setup = scene.battleSetup[i]
+  //     const rows = []
+  //     for (const enemy of formation) {
+  //       if (enemy.row < 1000 && !rows.includes(enemy.row)) {
+  //         rows.push(enemy.row)
+  //       }
+  //       if (enemy.row < 1000 && !allRows.includes(enemy.row)) {
+  //         allRows.push(enemy.row)
+  //       }
+  //     }
+  //     if (rows.length > 1) {
+  //       console.log(
+  //         'sceneData Multi row: ',
+  //         scene.sceneId,
+  //         scene.sceneId * 4 + i,
+  //         '-',
+  //         rows
+  //       )
+  //     }
+  //     // if (!rows.includes(1)) {
+  //     //   console.log(
+  //     //     'sceneData no row 1: ',
+  //     //     scene.sceneId,
+  //     //     scene.sceneId * 4 + i,
+  //     //     '-',
+  //     //     rows
+  //     //   )
+  //     // }
+  //     // console.log('sceneData Multi row: ', scene.sceneId, rows)
+  //   }
+  // }
+  // console.log('sceneData all rows ', allRows)
 }
 const loadSceneModel = async (modelCode, manager) => {
   // These models aren't cached, we really should cache them

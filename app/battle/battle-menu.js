@@ -17,9 +17,9 @@ import {
   addBattleDescriptionsTextMenu,
   addBattleTextMenu
 } from './battle-menu-box-helper.js'
-import { POINTERS, movePointer } from '../menu/menu-box-helper.js'
 import { addCommands } from './battle-menu-command.js'
 import { orthoScene, activeCamera } from './battle-scene.js'
+import { battlePointer } from './battle-target.js'
 window.THREE = THREE
 
 const playerLineHeight = 16
@@ -286,35 +286,7 @@ const initBattleMenu = async currentBattle => {
     battleDescriptions,
     battleText,
     magicDialog,
-    battlePointer: {
-      isShow: () => {
-        return POINTERS.pointerLeft.visible
-      },
-      show: () => {
-        POINTERS.pointerLeft.visible = true
-      },
-      hide: () => {
-        POINTERS.pointerLeft.visible = false
-      },
-      currentActorID: 0,
-      updatePositionOrtho: () => {
-        if (
-          window.currentBattle.actors[
-            window.currentBattle.ui.battlePointer.currentActorID
-          ]
-        ) {
-          const { x, y } =
-            window.currentBattle.actors[
-              window.currentBattle.ui.battlePointer.currentActorID
-            ].model.userData.orthoPosition
-          movePointer(
-            POINTERS.pointerLeft,
-            x + 10,
-            window.config.sizing.height - y + 4
-          )
-        }
-      }
-    }
+    battlePointer
   }
   // Command list w = 1 list
   const command = createDialogBox({

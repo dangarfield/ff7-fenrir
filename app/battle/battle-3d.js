@@ -93,34 +93,6 @@ const addShadow = model => {
   }
   model.scene.children[0].add(shadow)
 }
-const memberPositions = {
-  // Massive guess, need to adjust, also adjust for pincer attacks
-  row: -2 * 256,
-  normal: {
-    1: [{ x: 0, z: -7 * 256 }],
-    2: [
-      { x: -4 * 256, z: -6.5 * 256 },
-      { x: 4 * 256, z: -6.5 * 256 }
-    ],
-    3: [
-      { x: -6.5 * 256, z: -6.5 * 256 },
-      { x: 0, z: -6.5 * 256 },
-      { x: 6.5 * 256, z: -6.5 * 256 }
-    ]
-  },
-  pincer: {
-    1: [{ x: 0, z: 0 }],
-    2: [
-      { x: -4 * 256, z: 0 },
-      { x: 4 * 256, z: -1 * 256, r: true }
-    ],
-    3: [
-      { x: -6 * 256, z: 0 },
-      { x: 0, z: -2 * 256, r: true },
-      { x: 6 * 256, z: 0 }
-    ]
-  }
-}
 const createSelectionTriangle = () => {
   const geom = new THREE.BufferGeometry()
   const vertices = new Float32Array(
@@ -299,12 +271,16 @@ const importModels = async currentBattle => {
     actor.model = model
     if (actor.type === 'player') {
       model.userData.defaultPosition = {
-        x: memberPositions.normal[activePlayerCount][i].x,
+        x: currentBattle.formationConfig.positions[activePlayerCount][i].x,
         y: -model.initialY,
-        z: memberPositions.normal[activePlayerCount][i].z // TODO - Row
+        z: currentBattle.formationConfig.positions[activePlayerCount][i].z // TODO - Row
       }
-      if (memberPositions.normal[activePlayerCount][i].r) {
+      if (
+        currentBattle.formationConfig.positions[activePlayerCount][i]
+          .faceBackwards
+      ) {
         model.scene.rotation.y = Math.PI
+        // TODO - Set this better, as it will affect damage and needs to be kept updated
       }
     } else {
       model.userData.defaultPosition = {
@@ -318,7 +294,7 @@ const importModels = async currentBattle => {
           'SideAttackInitialDirection'
         )
       ) {
-        // model.scene.rotation.y = 0
+        model.scene.rotation.y = 0
       }
       //rotateObjectTowardsTargetObject(model.scene, new THREE.Vector3())
     }
@@ -341,7 +317,7 @@ const importModels = async currentBattle => {
   // Set default camera
 
   // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
-  setCameraPosition('3')
+  setCameraPosition('0')
   window.setCameraPosition = setCameraPosition
 }
 

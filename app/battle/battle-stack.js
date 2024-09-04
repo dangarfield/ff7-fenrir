@@ -7,7 +7,7 @@ const executeScript = async (actorIndex, script) => {
   let currentScriptPosition = 0
   while (!exit) {
     const op = script[currentScriptPosition]
-    console.log('battleStack op', op)
+    console.log('battleStack op', op, actorIndex, script)
     const result = await stackOps[op.op](stack, op, actorIndex)
     stackOps.logStack(stack)
     stackOps.logMemory()
@@ -25,7 +25,7 @@ const executeScript = async (actorIndex, script) => {
   }
 }
 
-const executeAllInitScripts = async (currentBattle) => {
+const executeAllInitScripts = async currentBattle => {
   for (const actor of currentBattle.actors.filter(a => a.type === 'player')) {
     if (actor.script && actor.script.init && actor.script.init.count > 0) {
       console.log('battleStack init: START', actor)
@@ -40,7 +40,10 @@ const executeAllInitScripts = async (currentBattle) => {
       console.log('battleStack init: END', actor)
     }
   }
-  for (const actor of currentBattle.actors.filter(a => a.type === 'formation')) { // ?!?! Not sure yet
+  for (const actor of currentBattle.actors.filter(
+    a => a.type === 'formation'
+  )) {
+    // ?!?! Not sure yet
     if (actor.script && actor.script.init && actor.script.init.count > 0) {
       console.log('battleStack init: START', actor)
       await executeScript(actor.index, actor.script.init.script)
@@ -50,8 +53,13 @@ const executeAllInitScripts = async (currentBattle) => {
 }
 
 const executeAllPreActionSetupScripts = async () => {
-  for (const actor of window.currentBattle.actors) { // Any order?!
-    if (actor.script && actor.script.preActionSetup && actor.script.preActionSetup.count > 0) {
+  for (const actor of window.currentBattle.actors) {
+    // Any order?!
+    if (
+      actor.script &&
+      actor.script.preActionSetup &&
+      actor.script.preActionSetup.count > 0
+    ) {
       console.log('battleStack preActionSetup: START', actor)
       await executeScript(actor.index, actor.script.preActionSetup.script)
       console.log('battleStack preActionSetup: END', actor)

@@ -22,6 +22,7 @@ import {
   doNotAllowPlayerToSelectAction
 } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
+import { handleKeyPressTarget } from './battle-target.js'
 
 const addCommands = actorIndex => {
   const actor = window.currentBattle.actors[actorIndex]
@@ -87,6 +88,10 @@ const addCommands = actorIndex => {
     state: 'command',
     command: { pos: 0, special: null }
   }
+  // window.COMMAND_DATA = DATA
+  const hideCommandCursor = () => {
+    POINTERS.pointer1.visible = false
+  }
   const drawCommandCursor = () => {
     const x = 72 + 5 - 10
     const y = 170 + 9 + 7
@@ -117,7 +122,7 @@ const addCommands = actorIndex => {
     window.currentBattle.ui.battleDescriptions.setText(commandDescription)
     // console.log('battleUI drawCommandCursor', commandId, commandDescription)
   }
-  const selectCommand = () => {
+  const selectCommand = async () => {
     const posCommand = actor.battleStats.menu.command[DATA.command.pos]
     let commandId = posCommand.limit ? posCommand.limit : posCommand.id
     if (DATA.command.special === 'change') commandId = 18
@@ -146,17 +151,30 @@ const addCommands = actorIndex => {
       // If the command is 'attack' (maybe some others too), use the target flags from the weapon
       // Not entirely sure what the difference between EnableTargetSelectionUsingCursor and PerformCommandUsingTargetData is
       case 'PerformCommandUsingTargetData':
-        // TODO - confirm targets by using command target data and showing pointer(s)
-        if (command.targetFlags.includes('EnableSelection')) {
-          // TODO - Go to target selection
-          console.log('battleUI EnableSelection')
+        // TODO - Go to target selection
+        console.log('battleUI EnableSelection', command)
+        DATA.state = 'target'
+        // TODO - Add weapon, magic, item details to targetFlags
+        hideCommandCursor()
+        const selectionResult =
+          await window.currentBattle.ui.battlePointer.startSelection(
+            actorIndex,
+            command.targetFlags
+          )
+        DATA.state = 'command'
+        console.log('battleUI target selectionResult', selectionResult)
+        if (selectionResult.target) {
+          console.log('battleUI target confirmed, sending to op stack')
+          // TODO - Add command to stack with targets, not sure what this looks like
+          hide()
         } else {
-          console.log('battleUI Add player action', command)
-          addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
-          actor.ui.removeActiveSelectionPlayer()
-          doNotAllowPlayerToSelectAction(actorIndex)
-          window.currentBattle.ui.battleDescriptions.setText('')
+          POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
+        // console.log('battleUI Add player action', command)
+        // addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
+        // actor.ui.removeActiveSelectionPlayer()
+        // doNotAllowPlayerToSelectAction(actorIndex)
+        // window.currentBattle.ui.battleDescriptions.setText('')
 
         break
 
@@ -239,6 +257,8 @@ const addCommands = actorIndex => {
   const keyPress = key => {
     if (DATA.state === 'command') {
       handleKeyPressCommand(key)
+    } else if (DATA.state === 'target') {
+      handleKeyPressTarget(key)
     }
   }
   const show = async () => {

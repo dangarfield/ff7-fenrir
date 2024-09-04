@@ -17,10 +17,11 @@ window.console = (function (origConsole) {
       // 'battleQueue',
       // 'battleStack',
       // 'battleMenu',
+      // 'battleStack',
       'battleUI',
-      'battleQueue',
-      'updateOrthoPosition',
-      'bone name'
+      'battlePointer',
+      // 'battleQueue',
+      // 'updateOrthoPosition'
       // 'renderToTexture',
       // 'doSwirl',
       // 'loadField',
@@ -33,7 +34,8 @@ window.console = (function (origConsole) {
       // 'SCR2D',
       // 'textureLetter',
       // 'getImageTexture',
-      // 'SET MENU TEXTURES'
+      // 'SET MENU TEXTURES',
+      'sceneData'
     ],
     log: function () {
       if (limit) {

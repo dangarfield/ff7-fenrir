@@ -43,7 +43,7 @@ const initBattleKeypressActions = () => {
   })
   getKeyPressEmitter().on(KEY.SQUARE, firstPress => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
-      console.log('press triangle')
+      console.log('press square')
       // TODO - Hide menus
     }
   })

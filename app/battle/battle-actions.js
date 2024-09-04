@@ -27,34 +27,47 @@ const moveEntity = (model, from, to) => {
   })
 }
 
-const placeholderBattleAttackSequence = async (fromEntityIndex, toEntityIndex) => {
+const placeholderBattleAttackSequence = async (
+  fromEntityIndex,
+  toEntityIndex,
+  attackId
+) => {
   const fromEntity = window.currentBattle.actors[fromEntityIndex]
   const toEntity = window.currentBattle.actors[toEntityIndex]
-  window.currentBattle.ui.battleText.showBattleMessage(`Attack: ${fromEntity.data.name} -> ${toEntity.data.name}`)
+  window.currentBattle.ui.battleText.showBattleMessage(
+    `${fromEntity.data.name}: ${
+      window.currentBattle.attackData.find(a => a.id === attackId).name
+    } -> ${toEntity.data.name}`
+  )
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
-  await moveEntity(fromEntity.model, fromEntity.model.userData.defaultPosition, toEntity.model.userData.defaultPosition)
+  await moveEntity(
+    fromEntity.model,
+    fromEntity.model.userData.defaultPosition,
+    toEntity.model.userData.defaultPosition
+  )
   await Promise.all([
     toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
     fromEntity.model.userData.playAnimationOnce(8)
   ])
 
-  fromEntity.model.scene.position.x = fromEntity.model.userData.defaultPosition.x
-  fromEntity.model.scene.position.z = fromEntity.model.userData.defaultPosition.z
+  fromEntity.model.scene.position.x =
+    fromEntity.model.userData.defaultPosition.x
+  fromEntity.model.scene.position.z =
+    fromEntity.model.userData.defaultPosition.z
 
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
-const placeholdePlayerAnimation = async (actor) => {
+const placeholdePlayerAnimation = async actor => {
   await actor.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
 const executePlayerAction = async (actor, queueItem) => {
   // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
-  window.currentBattle.ui.battleText.showBattleMessage(`${actor.data.name} -> ${command.name}`)
+  window.currentBattle.ui.battleText.showBattleMessage(
+    `${actor.data.name} -> ${command.name}`
+  )
   await placeholdePlayerAnimation(actor)
 }
 
-export {
-  placeholderBattleAttackSequence,
-  executePlayerAction
-}
+export { placeholderBattleAttackSequence, executePlayerAction }
