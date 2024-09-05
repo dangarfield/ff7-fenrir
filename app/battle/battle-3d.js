@@ -68,6 +68,7 @@ const loadModelWithAnimationBindings = async (code, manager) => {
   return model
 }
 const addShadow = model => {
+  // TODO - battle 99 with spencer, the animations make the shadows move, need to fix
   // TODO - Not always circles, need to investigate more
   const box = new THREE.BoxHelper(model.scene)
   box.geometry.computeBoundingBox()
@@ -214,7 +215,7 @@ const loadBattleModels = async modelsToFind => {
   manager.onProgress = function (url, itemsLoaded, itemsTotal) {
     setLoadingProgress(itemsLoaded / itemsTotal)
   }
-
+  // TODO - Ensure that weapons are loaded too, at the minute, weapons are baked into the model
   const modelsFound = await Promise.all(
     modelsToFind.map(async code =>
       loadModelWithAnimationBindings(code, manager)
@@ -289,13 +290,13 @@ const importModels = async currentBattle => {
         z: -actor.initialData.position.z // TODO - Row
       }
       model.scene.rotation.y = Math.PI
-      if (
-        actor.initialData.initialConditionFlags.includes(
-          'SideAttackInitialDirection'
-        )
-      ) {
-        model.scene.rotation.y = 0
-      }
+      // if ( // Hmm, this is right most of the time, but very wrong in the pincer battles
+      //   actor.initialData.initialConditionFlags.includes(
+      //     'SideAttackInitialDirection'
+      //   )
+      // ) {
+      //   model.scene.rotation.y = 0
+      // }
       //rotateObjectTowardsTargetObject(model.scene, new THREE.Vector3())
     }
 
@@ -317,7 +318,7 @@ const importModels = async currentBattle => {
   // Set default camera
 
   // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
-  setCameraPosition('0')
+  setCameraPosition('3')
   window.setCameraPosition = setCameraPosition
 }
 

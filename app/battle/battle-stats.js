@@ -1137,6 +1137,8 @@ const getBattleStatsForChar = char => {
 
   const menu = getMenuOptions(char)
 
+  // console.log('battleUI equippedMateria', char, equippedMateria)
+  const hasLongRangeMateria = equippedMateria.some(m => m.index === 11)
   // TODO - boosted stats
   return {
     hp,
@@ -1161,7 +1163,12 @@ const getBattleStatsForChar = char => {
 
     menu,
 
-    modifiers
+    modifiers,
+
+    weaponData,
+    armorData,
+    accessoryData,
+    hasLongRangeMateria
   }
 }
 const isMPTurboActive = item => {
@@ -1186,7 +1193,9 @@ const debugSetEquipmentAndMateria = () => {
     // ['Master Summon', 'All', 'Master Summon', 'Quadra Magic', 'Master Summon', 'HP Absorb', 'Master Summon', 'MP Absorb'],
     // ['Master Summon', 'Steal as well', 'Master Summon', 'Added Cut', 'Master Summon', 'MP Turbo', 'Master Summon', 'Mega All']
     [
+      // '',
       'Mega All',
+      // '',
       'Master Command',
       'Master Magic',
       '',
@@ -1208,12 +1217,12 @@ const debugSetEquipmentAndMateria = () => {
     'Wizard Bracelet',
     '',
     [
-      'Double Cut',
+      '',
       'Underwater',
       'Cover',
       'Ultima',
-      'Mega All',
-      'Long Range',
+      'Steal',
+      'All',
       'Pre-Emptive',
       'Chocobo Lure'
     ],
@@ -1234,7 +1243,7 @@ const debugSetEquipmentAndMateria = () => {
     'Wizard Bracelet',
     'Choco Feather',
     [
-      '',
+      'Steal',
       'Choco/Mog',
       'Shiva',
       'Ifrit',
@@ -1250,7 +1259,7 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
-  window.data.savemap.characters.Barret.limit.bar = 255
+  window.data.savemap.characters.Barret.limit.bar = 100
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
   // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']
   // window.data.savemap.party.members = ['Cloud', 'None', 'None']

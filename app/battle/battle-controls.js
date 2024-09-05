@@ -38,6 +38,7 @@ const initBattleKeypressActions = () => {
   getKeyPressEmitter().on(KEY.TRIANGLE, firstPress => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
       console.log('press triangle')
+      window.currentBattle.ui.battlePointer.closeIfOpen()
       cycleActiveSelectionPlayer()
     }
   })

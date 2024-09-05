@@ -22,16 +22,27 @@ const loadSceneData = async () => {
   //       if (enemy.row < 1000 && !allRows.includes(enemy.row)) {
   //         allRows.push(enemy.row)
   //       }
+  //       if (enemy.coverFlags !== 0 && enemy.coverFlags !== 0xffff) {
+  //         console.log(
+  //           'sceneData',
+  //           scene.sceneId,
+  //           scene.sceneId * 4 + i,
+  //           '-',
+  //           enemy.enemyId,
+  //           '-',
+  //           enemy.coverFlags
+  //         )
+  //       }
   //     }
-  //     if (rows.length > 1) {
-  //       console.log(
-  //         'sceneData Multi row: ',
-  //         scene.sceneId,
-  //         scene.sceneId * 4 + i,
-  //         '-',
-  //         rows
-  //       )
-  //     }
+  //     // if (rows.length > 1) {
+  //     //   console.log(
+  //     //     'sceneData Multi row: ',
+  //     //     scene.sceneId,
+  //     //     scene.sceneId * 4 + i,
+  //     //     '-',
+  //     //     rows
+  //     //   )
+  //     // }
   //     // if (!rows.includes(1)) {
   //     //   console.log(
   //     //     'sceneData no row 1: ',

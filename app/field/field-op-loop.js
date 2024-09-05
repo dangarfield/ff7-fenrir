@@ -1148,8 +1148,9 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
         // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
-        control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - Pincer attack
+        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - Pincer attack
         // control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
+        control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags)
       }
       window.quickBattle()
     }, 1000)

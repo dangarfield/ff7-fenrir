@@ -14,7 +14,8 @@ const battleFormationConfig = {
   formations: {
     Normal: {
       // DONE
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -29,7 +30,8 @@ const battleFormationConfig = {
       }
     },
     Preemptive: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -44,7 +46,8 @@ const battleFormationConfig = {
       }
     },
     BackAttack: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -59,6 +62,7 @@ const battleFormationConfig = {
       }
     },
     SideAttack1: {
+      targetGroups: ['player', 'enemy', 'player'],
       playerTargetGroups: [0, 2, 0],
       enemyTargetGroup: 1,
       positions: {
@@ -92,7 +96,8 @@ const battleFormationConfig = {
       }
     },
     SideAttack2: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -107,7 +112,8 @@ const battleFormationConfig = {
       }
     },
     SideAttack3: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -122,7 +128,8 @@ const battleFormationConfig = {
       }
     },
     SideAttack4: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [
@@ -137,7 +144,8 @@ const battleFormationConfig = {
       }
     },
     NormalLockFrontRow: {
-      playerTargetGroups: [0, 0, 0],
+      targetGroups: ['enemy', 'player'],
+      playerTargetGroups: [1, 1, 1],
       positions: {
         1: [{ x: p.p0, z: -p.p7 }],
         2: [

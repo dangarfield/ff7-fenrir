@@ -122,21 +122,53 @@ const addCommands = actorIndex => {
     window.currentBattle.ui.battleDescriptions.setText(commandDescription)
     // console.log('battleUI drawCommandCursor', commandId, commandDescription)
   }
-  const combineTargetFlags = (command, posCommand) => {
+  const combineTargetFlags = (
+    commandIndex,
+    commandFlags,
+    attackFlags,
+    weaponFlags,
+    isAll,
+    hasLongRangeMateria // TODO
+  ) => {
     // more to do
-    let combined = [...command.targetFlags]
+    let combined = commandFlags.length === 8 ? [] : [...commandFlags]
+    for (const weaponFlag of weaponFlags) {
+      if (!combined.includes(weaponFlag)) combined.push(weaponFlag)
+    }
     if (
-      // Most commands and summons default flags have 'all'. Not quite sure about this
+      // Most commands and summons default flags set to target all enemies.
+      // Filter out if we haven't got an all material or mega all
       combined.includes('ToggleSingleMultiTarget') &&
       combined.includes('DefaultMultipleTargets') &&
-      !posCommand.all
+      !isAll
     ) {
       combined = combined.filter(
         f => f !== 'ToggleSingleMultiTarget' && f !== 'DefaultMultipleTargets'
       )
       // if (posCommand.all) combined.push('ToggleSingleMultiTarget')
     }
+    // Note: Most commands have a SingleRowOnly applied, but not present in the config at least are the ones with
+    // EnableTargetSelectionUsingCursor, eg: Steal, Mug, 2x-Cut. Most likely hardcoded into the battle engine
+    // Steal and mug can also be combined with mega-all, but not just a normal all and it behaves like a long range command
+    if ([5, 17, 25].includes(commandIndex)) combined.push('SingleRowOnly')
+    if ([5, 17].includes(commandIndex) && isAll) {
+      combined.push('ToggleSingleMultiTarget', 'DefaultMultipleTargets')
+      combined = combined.filter(f => f !== 'ShortRange')
+    }
 
+    if (hasLongRangeMateria) combined = combined.filter(f => f !== 'ShortRange')
+
+    console.log(
+      'battleUI combineTargetFlags',
+      commandFlags,
+      attackFlags,
+      weaponFlags,
+      '-',
+      isAll === true,
+      hasLongRangeMateria,
+      '->',
+      combined
+    )
     return combined
   }
   const selectCommand = async () => {
@@ -149,13 +181,11 @@ const addCommands = actorIndex => {
       if (commandsGroup.userData.coinGroup[0].visible === false) commandId = 8 // Throw
     }
     const command = window.data.kernel.commandData[commandId]
-    const combinedTargetFlags = combineTargetFlags(command, posCommand)
-    console.log(
-      'battleUI selectCommand',
-      command,
-      posCommand,
-      combinedTargetFlags
-    )
+
+    console.log('battleUI selectCommand', command, posCommand)
+
+    let combinedTargetFlags // Just to keep the variable names consistent
+    let selectionResult
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData"
@@ -172,18 +202,38 @@ const addCommands = actorIndex => {
       // "WItemMenu"
       // "None"
 
-      // If the command is 'attack' (maybe some others too), use the target flags from the weapon
       // Not entirely sure what the difference between EnableTargetSelectionUsingCursor and PerformCommandUsingTargetData is
+      // If the command is 'attack' (maybe some others too), use the target flags from the weapon
+      // EnableTargetSelectionUsingCursor - Attack, Steal, Mug, 2x-Cut
+      // Steal+MegaAll - Targets all (eg, not bound by cover flags)
+      // Steal with a mega all switched to a single target mode, also allows all targets
+      // Steal and no long range - bound by cover flags
+      // 2x cut bound by cover flag
+      // 2x cut with long range weapon / material - Targets all
+
+      // When mega-all commands - you cannot target own player
+      // All of these seem to be start on enemy row too
+
       case 'PerformCommandUsingTargetData':
         // TODO - Go to target selection
-        console.log('battleUI EnableSelection', command)
+        console.log('battleUI PerformCommandUsingTargetData', command)
         DATA.state = 'target'
         // TODO - Add weapon, magic, item details to targetFlags
+        // If it's a command and a mega-all, it should not target players
         hideCommandCursor()
-        const selectionResult =
+        combinedTargetFlags = combineTargetFlags(
+          command.index,
+          command.targetFlags,
+          [],
+          actor.battleStats.weaponData.targets,
+          posCommand.all,
+          actor.battleStats.hasLongRangeMateria
+        )
+        selectionResult =
           await window.currentBattle.ui.battlePointer.startSelection(
             actorIndex,
-            combinedTargetFlags
+            combinedTargetFlags,
+            false
           )
         DATA.state = 'command'
         console.log('battleUI target selectionResult', selectionResult)
@@ -199,7 +249,41 @@ const addCommands = actorIndex => {
         // actor.ui.removeActiveSelectionPlayer()
         // doNotAllowPlayerToSelectAction(actorIndex)
         // window.currentBattle.ui.battleDescriptions.setText('')
-
+        break
+      case 'EnableTargetSelectionUsingCursor':
+        // TODO - Go to target selection
+        console.log('battleUI EnableTargetSelectionUsingCursor', command)
+        DATA.state = 'target'
+        // TODO - Add weapon, magic, item details to targetFlags
+        hideCommandCursor()
+        combinedTargetFlags = combineTargetFlags(
+          command.index,
+          command.targetFlags,
+          [],
+          actor.battleStats.weaponData.targets,
+          posCommand.all,
+          actor.battleStats.hasLongRangeMateria
+        )
+        selectionResult =
+          await window.currentBattle.ui.battlePointer.startSelection(
+            actorIndex,
+            combinedTargetFlags,
+            combinedTargetFlags.includes('ShortRange')
+          )
+        DATA.state = 'command'
+        console.log('battleUI target selectionResult', selectionResult)
+        if (selectionResult.target) {
+          console.log('battleUI target confirmed, sending to op stack')
+          // TODO - Add command to stack with targets, not sure what this looks like
+          hide()
+        } else {
+          POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
+        }
+        // console.log('battleUI Add player action', command)
+        // addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
+        // actor.ui.removeActiveSelectionPlayer()
+        // doNotAllowPlayerToSelectAction(actorIndex)
+        // window.currentBattle.ui.battleDescriptions.setText('')
         break
 
       default:
@@ -298,9 +382,9 @@ const addCommands = actorIndex => {
     drawCommandCursor()
   }
   const hide = async () => {
-    movePointer(POINTERS.pointer1, 0, 0, true)
-    movePointer(POINTERS.pointer2, 0, 0, true)
-    movePointer(POINTERS.pointer3, 0, 0, true)
+    movePointer(POINTERS.pointer1, -100, -100, true)
+    movePointer(POINTERS.pointer2, -100, -100, true)
+    movePointer(POINTERS.pointer3, -100, -100, true)
     DATA.command.special = null
     stopAllCoinTextTweens()
     stopAllLimitTextTweens()

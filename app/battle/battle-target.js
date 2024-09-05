@@ -8,7 +8,6 @@ const data = {
   currentTargetActorIndex: 0,
   currentTargetGroup: 0,
   // Groups: - Set on battle load
-  // -1 - All viable targets
   // 0 - left (eg, normally enemies)
   // 1 - centre (eg, normally players)
   // 2 - right (eg, enemies with no SideAttackInitialDirection, eg outside of pincer)
@@ -18,6 +17,8 @@ const data = {
   selectionEnabled: true,
   selectionLockedOnEnemyOrPlayer: null,
   selectAllTargets: false,
+
+  useCoverFlags: false,
   // 01h - EnableSelection - Cursor will move to the battle field and a target can be selected with the constraints in the following.
   // 02h - StartCursorOnEnemyRow - Cursor will start on the first enemy row.
   // 04h - DefaultMultipleTargets - Cursor will select all targets in a given row.
@@ -30,8 +31,24 @@ const data = {
 
   selectionPromise: null
 }
+const updateAllEnemyCoveredFlags = () => {
+  const enemies = window.currentBattle.actors.filter(
+    a => a.active && a.type === 'enemy'
+  )
+  // TODO - Also filter for dead enemies and not current active enemies
+  enemies.forEach(enemy => {
+    const isCovered = enemies.some(
+      other =>
+        other.initialData.row === enemy.initialData.row - 1 &&
+        (other.initialData.coverFlags & enemy.initialData.coverFlags) !== 0
+    )
+    enemy.covered = isCovered
+  })
+}
+
 const isViableTarget = a => {
   // TODO - filter out dead or not viable enemies
+  if (data.useCoverFlags && a.covered) return false
   return true
 }
 const getFirstViableEnemyTarget = () => {
@@ -61,7 +78,7 @@ const viableTargetsForGroup = targetGroup => {
     .filter(a => a.active && a.targetGroup === targetGroup)
     .filter(isViableTarget)
 }
-const startSelection = (actorIndex, targetFlags) => {
+const startSelection = (actorIndex, targetFlags, useCoverFlags) => {
   //   targetFlags = [
   //     // DEBUG
   //     'EnableSelection',
@@ -78,6 +95,7 @@ const startSelection = (actorIndex, targetFlags) => {
   // The exception is ultima and comet2, but this is highlighted by NOT having ToggleSingleMultiTarget
   return new Promise(resolve => {
     data.selectionPromise = resolve
+    data.useCoverFlags = useCoverFlags
     data.currentTargetActorIndex = actorIndex
     data.selectionEnabled = targetFlags.includes('EnableSelection')
     data.selectionMultiToggleAllowed = targetFlags.includes(
@@ -122,6 +140,7 @@ const startSelection = (actorIndex, targetFlags) => {
       targetFlags,
       data
     )
+    updateAllEnemyCoveredFlags()
     updatePositionOrtho() // Start
     // TODO - Turn off battle pointer on selection, do this with a callback from calling method
   })
@@ -208,19 +227,21 @@ const selectTargetActor = direction => {
   )
   if (target !== null) data.currentTargetActorIndex = target
 }
+const closeIfOpen = () => {
+  if (data.battlePointerIsActive) {
+    hide()
+    data.selectionPromise({ cancelled: true })
+  }
+}
 const handleKeyPressTarget = key => {
   console.log('battlePointer handleKeyPressTarget', key)
   switch (key) {
     case KEY.X:
-      hide()
-      data.selectionPromise({ cancelled: true })
+      closeIfOpen()
       break
 
     case KEY.O:
       hide()
-      //   data.selectAllTargets
-      //     ? allViableTargets()
-      //     : viableTargetsForGroup(data.currentTargetGroup)
 
       const result = {
         target: data.selectAllTargets
@@ -236,6 +257,7 @@ const handleKeyPressTarget = key => {
     case KEY.UP:
       if (!data.selectionEnabled || data.selectAllTargets) break
       if (!data.currentSelectionTypeMulti) {
+        updateAllEnemyCoveredFlags()
         // Single target selection
         selectTargetActor('up')
       }
@@ -243,12 +265,14 @@ const handleKeyPressTarget = key => {
     case KEY.DOWN:
       if (!data.selectionEnabled || data.selectAllTargets) break
       if (!data.currentSelectionTypeMulti) {
+        updateAllEnemyCoveredFlags()
         // Single target selection
         selectTargetActor('down')
       }
       break
     case KEY.LEFT:
       if (!data.selectionEnabled || data.selectAllTargets) break
+      updateAllEnemyCoveredFlags()
       if (data.currentSelectionTypeMulti) {
         selectTargetGroup(1)
       } else {
@@ -258,6 +282,7 @@ const handleKeyPressTarget = key => {
       break
     case KEY.RIGHT:
       if (!data.selectionEnabled || data.selectAllTargets) break
+      updateAllEnemyCoveredFlags()
       if (data.currentSelectionTypeMulti) {
         selectTargetGroup(-1)
       } else {
@@ -269,6 +294,7 @@ const handleKeyPressTarget = key => {
     case KEY.R1:
       if (!data.selectionEnabled || data.selectAllTargets) break
       if (data.selectionMultiToggleAllowed) {
+        updateAllEnemyCoveredFlags()
         if (!data.currentSelectionTypeMulti) {
           // Ensure current multi group from current actor
           data.currentTargetGroup =
@@ -314,6 +340,7 @@ const hide = () => {
   data.battlePointerIsActive = false
 }
 const battlePointer = {
+  closeIfOpen,
   isShow: () => {
     return data.battlePointerIsActive
   },
