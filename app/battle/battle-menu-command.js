@@ -122,6 +122,23 @@ const addCommands = actorIndex => {
     window.currentBattle.ui.battleDescriptions.setText(commandDescription)
     // console.log('battleUI drawCommandCursor', commandId, commandDescription)
   }
+  const combineTargetFlags = (command, posCommand) => {
+    // more to do
+    let combined = [...command.targetFlags]
+    if (
+      // Most commands and summons default flags have 'all'. Not quite sure about this
+      combined.includes('ToggleSingleMultiTarget') &&
+      combined.includes('DefaultMultipleTargets') &&
+      !posCommand.all
+    ) {
+      combined = combined.filter(
+        f => f !== 'ToggleSingleMultiTarget' && f !== 'DefaultMultipleTargets'
+      )
+      // if (posCommand.all) combined.push('ToggleSingleMultiTarget')
+    }
+
+    return combined
+  }
   const selectCommand = async () => {
     const posCommand = actor.battleStats.menu.command[DATA.command.pos]
     let commandId = posCommand.limit ? posCommand.limit : posCommand.id
@@ -132,7 +149,14 @@ const addCommands = actorIndex => {
       if (commandsGroup.userData.coinGroup[0].visible === false) commandId = 8 // Throw
     }
     const command = window.data.kernel.commandData[commandId]
-    console.log('battleUI selectCommand', command)
+    const combinedTargetFlags = combineTargetFlags(command, posCommand)
+    console.log(
+      'battleUI selectCommand',
+      command,
+      posCommand,
+      combinedTargetFlags
+    )
+
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData"
       // "EnableTargetSelectionUsingCursor"
@@ -159,7 +183,7 @@ const addCommands = actorIndex => {
         const selectionResult =
           await window.currentBattle.ui.battlePointer.startSelection(
             actorIndex,
-            command.targetFlags
+            combinedTargetFlags
           )
         DATA.state = 'command'
         console.log('battleUI target selectionResult', selectionResult)

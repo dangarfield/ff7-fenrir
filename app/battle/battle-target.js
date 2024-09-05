@@ -17,6 +17,7 @@ const data = {
   selectionMultiToggleAllowed: false,
   selectionEnabled: true,
   selectionLockedOnEnemyOrPlayer: null,
+  selectAllTargets: false,
   // 01h - EnableSelection - Cursor will move to the battle field and a target can be selected with the constraints in the following.
   // 02h - StartCursorOnEnemyRow - Cursor will start on the first enemy row.
   // 04h - DefaultMultipleTargets - Cursor will select all targets in a given row.
@@ -61,17 +62,20 @@ const viableTargetsForGroup = targetGroup => {
     .filter(isViableTarget)
 }
 const startSelection = (actorIndex, targetFlags) => {
-  targetFlags = [
-    // DEBUG
-    'EnableSelection', // DONE
-    'StartCursorOnEnemyRow', // DONE
-    'DefaultMultipleTargets' // DONE
-    // 'ToggleSingleMultiTarget' // DONE
-    // 'SingleRowOnly' // DONE
-    // 'ShortRange',
-    // 'AllRows',
-    // 'RandomTarget',
-  ]
+  //   targetFlags = [
+  //     // DEBUG
+  //     'EnableSelection',
+  //     'StartCursorOnEnemyRow',
+  //     'DefaultMultipleTargets',
+  //     // 'ToggleSingleMultiTarget',
+  //     // 'SingleRowOnly',
+  //     // 'ShortRange', // Only on weapons
+  //     // 'AllRows', // Roulette
+  //     // 'RandomTarget' // 4x-cut, Comet2, Roulette, Beat Rush -> Final Heaven
+  //   ]
+
+  // TODO - Most commands and magic are set to 'DefaultMultipleTargets' true. But this only applies when there is an 'all' in the mix
+  // The exception is ultima and comet2, but this is highlighted by NOT having ToggleSingleMultiTarget
   return new Promise(resolve => {
     data.selectionPromise = resolve
     data.currentTargetActorIndex = actorIndex
@@ -82,6 +86,7 @@ const startSelection = (actorIndex, targetFlags) => {
     data.currentSelectionTypeMulti = targetFlags.includes(
       'DefaultMultipleTargets'
     )
+    data.returnRandomTarget = targetFlags.includes('RandomTarget')
     if (targetFlags.includes('StartCursorOnEnemyRow')) {
       const enemy = getFirstViableEnemyTarget()
       if (enemy) {
@@ -109,7 +114,7 @@ const startSelection = (actorIndex, targetFlags) => {
     } else {
       data.selectionLockedOnEnemyOrPlayer = null
     }
-    if (targetFlags.includes('AllRows')) data.currentTargetGroup = -1
+    if (targetFlags.includes('AllRows')) data.selectAllTargets = true
 
     console.log(
       'battlePointer data',
@@ -213,29 +218,37 @@ const handleKeyPressTarget = key => {
 
     case KEY.O:
       hide()
-      data.selectionPromise({
-        target: data.currentSelectionTypeMulti
+      //   data.selectAllTargets
+      //     ? allViableTargets()
+      //     : viableTargetsForGroup(data.currentTargetGroup)
+
+      const result = {
+        target: data.selectAllTargets
+          ? allViableTargets()
+          : data.currentSelectionTypeMulti
           ? viableTargetsForGroup(data.currentTargetGroup)
           : [window.currentBattle.actors[data.currentTargetActorIndex]] // Should this be an array of one?
-      })
+      }
+      if (data.returnRandomTarget) result.random = true
+      data.selectionPromise(result)
       break
 
     case KEY.UP:
-      if (!data.selectionEnabled) break
+      if (!data.selectionEnabled || data.selectAllTargets) break
       if (!data.currentSelectionTypeMulti) {
         // Single target selection
         selectTargetActor('up')
       }
       break
     case KEY.DOWN:
-      if (!data.selectionEnabled) break
+      if (!data.selectionEnabled || data.selectAllTargets) break
       if (!data.currentSelectionTypeMulti) {
         // Single target selection
         selectTargetActor('down')
       }
       break
     case KEY.LEFT:
-      if (!data.selectionEnabled) break
+      if (!data.selectionEnabled || data.selectAllTargets) break
       if (data.currentSelectionTypeMulti) {
         selectTargetGroup(1)
       } else {
@@ -244,7 +257,7 @@ const handleKeyPressTarget = key => {
       }
       break
     case KEY.RIGHT:
-      if (!data.selectionEnabled) break
+      if (!data.selectionEnabled || data.selectAllTargets) break
       if (data.currentSelectionTypeMulti) {
         selectTargetGroup(-1)
       } else {
@@ -254,7 +267,7 @@ const handleKeyPressTarget = key => {
       break
     case KEY.L1:
     case KEY.R1:
-      if (!data.selectionEnabled) break
+      if (!data.selectionEnabled || data.selectAllTargets) break
       if (data.selectionMultiToggleAllowed) {
         if (!data.currentSelectionTypeMulti) {
           // Ensure current multi group from current actor
@@ -284,7 +297,9 @@ const cycleAndDisplayBattlePointer = () => {
     cycleCounter++
     if (cycleCounter > 2) {
       cycleCounter = 0
-      const targets = viableTargetsForGroup(data.currentTargetGroup)
+      const targets = data.selectAllTargets
+        ? allViableTargets()
+        : viableTargetsForGroup(data.currentTargetGroup)
       const nextTargetIndex = getNextItem(
         targets,
         data.currentTargetActorIndex
