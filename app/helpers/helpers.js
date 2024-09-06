@@ -34,21 +34,34 @@ const uuid = () => {
     lut[(d3 >> 24) & 0xff]
   )
 }
-const dec2bin = (dec) => {
+const dec2bin = dec => {
   return (dec >>> 0).toString(2)
 }
 window.dec2bin = dec2bin
 const dec2hex = (dec, padding, rawWithSpaces) => {
   const h = parseInt(dec).toString(16)
-  return `${!rawWithSpaces ? '0x' : ''}${padding ? h.padStart(padding, '0') : h}`
+  return `${!rawWithSpaces ? '0x' : ''}${
+    padding ? h.padStart(padding, '0') : h
+  }`
 }
 window.dec2hex = dec2hex
-const dec2hexPairs = (dec) => {
+const dec2hexPairs = dec => {
   let s = parseInt(dec).toString(16)
-  if (s.length % 2) { s = '0' + s }
+  if (s.length % 2) {
+    s = '0' + s
+  }
   s = s.match(/.{1,2}/g).join(' ')
   return s
 }
 window.dec2hexPairs = dec2hexPairs
 
-export { sleep, uuid, dec2bin, dec2hex, dec2hexPairs }
+const asyncWrap = fn => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      fn()
+      resolve()
+    }, 0)
+  })
+}
+
+export { sleep, uuid, dec2bin, dec2hex, dec2hexPairs, asyncWrap }

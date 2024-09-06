@@ -17,7 +17,7 @@ import {
   addBattleDescriptionsTextMenu,
   addBattleTextMenu
 } from './battle-menu-box-helper.js'
-import { addCommands } from './battle-menu-command.js'
+import { initCommands } from './battle-menu-command.js'
 import { orthoScene, activeCamera } from './battle-scene.js'
 import { battlePointer } from './battle-target.js'
 window.THREE = THREE
@@ -28,7 +28,7 @@ const constructMagicMenu = () => {
   return ''
 }
 
-const constructMainMenus = currentBattle => {
+const constructMainMenus = () => {
   // Main Left
   const mainL = createDialogBox({
     id: 30,
@@ -144,6 +144,8 @@ const constructMainMenus = currentBattle => {
     ALIGN.BOTTOM
   )
 
+  const commands = initCommands()
+
   // Player Elements
   for (const [i, player] of window.currentBattle.actors
     .filter(a => a.index < 3)
@@ -192,7 +194,6 @@ const constructMainMenus = currentBattle => {
     const mp = addMP(mainR, 207, 184 + playerLineHeight * i, `mp-${i}`)
     mp.set(player.battleStats.mp.current, player.battleStats.mp.max, true)
 
-    const commands = addCommands(i)
     // TODO - When a player is dead, name, hp, mp, barrier, limit and wait are all red and blanked out
     player.ui = {
       name,
@@ -206,7 +207,7 @@ const constructMainMenus = currentBattle => {
         name.setActive(true)
         turnTimer.setActive(true)
         window.currentBattle.miscModels.selectionTriangle.showForActor(player)
-        await commands.show()
+        await commands.show(player)
       },
       removeActiveSelectionPlayer: async () => {
         name.setActive(false)

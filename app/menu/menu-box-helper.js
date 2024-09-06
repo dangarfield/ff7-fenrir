@@ -483,7 +483,20 @@ const createDialogBox = dialog => {
 const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
 
+const applyClippingPlanes = (node, clippingPlanes, depth = 0) => {
+  if (depth > 2) return
+  if (node.userData.isText || node.userData.isPointer) {
+    node.material.clippingPlanes = clippingPlanes
+  }
+  if (depth < 2) {
+    node.children.forEach(child =>
+      applyClippingPlanes(child, clippingPlanes, depth + 1)
+    )
+  }
+}
+
 const showDialog = async dialogBox => {
+  // console.log('battleUI showDialog', dialogBox)
   dialogBox.visible = true
 
   for (let step = 1; step <= DIALOG_APPEAR_STEP_TOTAL; step++) {
@@ -515,25 +528,14 @@ const showDialog = async dialogBox => {
       dialogBox.userData.sizeAdjustList[2],
       dialogBox.userData.sizeAdjustList[3]
     )
-    for (let i = 0; i < dialogBox.children.length; i++) {
-      const childlevel1 = dialogBox.children[i]
-      if (childlevel1.userData.isText || childlevel1.userData.isPointer) {
-        childlevel1.material.clippingPlanes =
-          dialogBox.userData.bg.material.clippingPlanes
-      }
-      if (childlevel1.children) {
-        for (let j = 0; j < childlevel1.children.length; j++) {
-          const childlevel2 = childlevel1.children[j]
-          if (childlevel2.userData.isText || childlevel2.userData.isPointer) {
-            childlevel2.material.clippingPlanes =
-              dialogBox.userData.bg.material.clippingPlanes
-          }
-        }
-      }
-    }
+    applyClippingPlanes(
+      dialogBox,
+      dialogBox.userData.bg.material.clippingPlanes
+    )
   }
 }
 const closeDialog = async dialogBox => {
+  // console.log('battleUI closeDialog', dialogBox)
   for (let step = DIALOG_APPEAR_STEP_TOTAL - 1; step >= 0; step--) {
     dialogBox.userData.posAdjustList.map(mesh =>
       adjustDialogExpandPos(
@@ -552,7 +554,7 @@ const closeDialog = async dialogBox => {
         dialogBox.userData.colors
       )
     )
-    const clippingPlanes = createClippingPlanes(
+    dialogBox.userData.bg.material.clippingPlanes = createClippingPlanes(
       dialogBox.userData.w,
       dialogBox.userData.h,
       dialogBox.userData.z,
@@ -561,16 +563,10 @@ const closeDialog = async dialogBox => {
       dialogBox.userData.sizeAdjustList[2],
       dialogBox.userData.sizeAdjustList[3]
     )
-
-    dialogBox.userData.bg.material.clippingPlanes = clippingPlanes
-    for (let i = 0; i < dialogBox.children.length; i++) {
-      if (
-        dialogBox.children[i].userData.isText ||
-        dialogBox.children[i].userData.isPointer
-      ) {
-        dialogBox.children[i].material.clippingPlanes = clippingPlanes
-      }
-    }
+    applyClippingPlanes(
+      dialogBox,
+      dialogBox.userData.bg.material.clippingPlanes
+    )
     await sleep(DIALOG_APPEAR_SPEED)
   }
   dialogBox.visible = false
@@ -1879,7 +1875,7 @@ const createCommandsDialog = (dialog, x, y, commands, startHidden) => {
     dialogOptions.expandInstantly = true
     dialogOptions.noClipping = true
   }
-
+  console.log('battleUI commandDialog', dialogOptions)
   const commandDialog = createDialogBox(dialogOptions)
   if (startHidden === undefined || !startHidden) {
     commandDialog.visible = true
@@ -1895,7 +1891,8 @@ const createCommandsDialog = (dialog, x, y, commands, startHidden) => {
   return commandDialog
 }
 const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
-  removeGroupChildren(commandDialog.userData.innerGroup)
+  console.log('battleUI addMenuCommandsToDialog')
+  // removeGroupChildren(commandDialog.userData.innerGroup)
   const yAdjTextCol1 = 0
   const yAdjTextCol2 = 52.5
   const yAdjTextCol3 = 96.5
@@ -1913,7 +1910,7 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
     }
     if (command.id < 255) {
       const commandText = addTextToDialog(
-        commandDialog.userData.innerGroup,
+        commandDialog,
         command.limit
           ? window.data.kernel.commandData[command.limit].name
           : command.name,
@@ -1923,6 +1920,7 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
         x + 5 - 8 + yAdjText,
         y + 15.5 - 4 + 13 * (i % 4),
         0.5
+        // commandDialog.userData.bg.material.clippingPlanes
       )
       if (command.limit) {
         limitGroup = commandText
@@ -1932,21 +1930,22 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
       if (command.id === 7) {
         // Coin
         const commandText2 = addTextToDialog(
-          commandDialog.userData.innerGroup,
+          commandDialog,
           window.data.kernel.commandData[8].name, // Throw
           'menu-cmd-throw',
           LETTER_TYPES.BattleBaseFont,
           LETTER_COLORS.White,
           x + 5 - 8 + yAdjText,
           y + 15.5 - 4 + 13 * (i % 4),
-          0.5
+          0.5,
+          commandDialog.userData.bg.material.clippingPlanes
         )
         commandText2.visible = false
         coinGroup = [commandText, commandText2]
       }
       if (command.all) {
         const allArrow = addImageToDialog(
-          commandDialog.userData.innerGroup,
+          commandDialog,
           'pointers',
           'arrow-right',
           `menu-cmd-${command.name}-all`,
@@ -1954,9 +1953,12 @@ const addMenuCommandsToDialog = (commandDialog, x, y, commands) => {
           y + 15.5 - 4 + 13 * (i % 4),
           0.5,
           null,
+          // commandDialog.userData.bg.material.clippingPlanes,
           ALIGN.LEFT
         )
-        allArrow.material.clippingPlanes = null // TODO - Not sure why, but clipping planes are messed up here
+        allArrow.userData.isText = true
+        // console.log('battleUI ALL', command.all, allArrow)
+        // allArrow.material.clippingPlanes = null // TODO - Not sure why, but clipping planes are messed up here
       }
 
       // TODO - Blank out magic / summons etc that cannot be used (silence, no mp, etc)

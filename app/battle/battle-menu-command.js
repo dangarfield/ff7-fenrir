@@ -1,3 +1,4 @@
+import { asyncWrap } from '../helpers/helpers.js'
 import { KEY } from '../interaction/inputs.js'
 import {
   createCommandsDialog,
@@ -9,7 +10,8 @@ import {
   createDialogBox,
   addTextToDialog,
   LETTER_TYPES,
-  LETTER_COLORS
+  LETTER_COLORS,
+  removeGroupChildren
 } from '../menu/menu-box-helper.js'
 import {
   startLimitTextTween,
@@ -24,70 +26,87 @@ import {
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 import { handleKeyPressTarget } from './battle-target.js'
 
-const addCommands = actorIndex => {
-  const actor = window.currentBattle.actors[actorIndex]
-  const commandsGroup = createCommandsDialog(
-    orthoScene,
-    72,
-    170,
-    actor.battleStats.menu.command,
-    true
-  )
-  commandsGroup.visible = false
-  // console.log('battleUI commandsGroup', commandsGroup)
+const DATA = {
+  state: 'command',
+  command: { pos: 0, special: null } // Should really keep this at the actor level
+}
+let actor
+let commandContainerGroup
+let commandsGroup
+let changeGroup
+let defendGroup
 
-  // TODO - change and defend have variable y, rather than just fixed
-  // TODO - You cannot select change if you are in a pincer attack
-  const changeGroup = createDialogBox({
-    id: 2,
-    name: 'change',
-    w: 56,
-    h: 23,
-    x: 24,
-    y: 169,
-    scene: orthoScene
-  })
-  addTextToDialog(
-    changeGroup,
-    window.data.kernel.commandData[18].name,
-    'change-text',
-    LETTER_TYPES.BattleBaseFont,
-    LETTER_COLORS.White,
-    32,
-    185,
-    0.5,
-    null,
-    null,
-    true
-  )
+const initCommands = () => {
+  commandContainerGroup = new THREE.Group()
+  commandContainerGroup.userData = { id: 3, z: 100 - 3 }
+  commandContainerGroup.position.z = 3
+  commandContainerGroup.visible = true
+  orthoScene.add(commandContainerGroup)
 
-  const defendGroup = createDialogBox({
-    id: 2,
-    name: 'defend',
-    w: 56,
-    h: 23,
-    x: 72 + commandsGroup.userData.w - 8,
-    y: 169,
-    scene: orthoScene
-  })
-  addTextToDialog(
-    defendGroup,
-    window.data.kernel.commandData[19].name,
-    'defend-text',
-    LETTER_TYPES.BattleBaseFont,
-    LETTER_COLORS.White,
-    72 + commandsGroup.userData.w,
-    185,
-    0.5,
-    null,
-    null,
-    true
-  )
+  const init = () => {
+    DATA.state = 'command'
+    console.log('battleUI commands INIT', commandContainerGroup.children.length)
+    DATA.command = { pos: 0, special: null }
+    commandsGroup = createCommandsDialog(
+      commandContainerGroup,
+      72,
+      170,
+      actor.battleStats.menu.command,
+      true
+    )
+    commandsGroup.visible = false
+    window.commandsGroup = commandsGroup
+    // console.log('battleUI commandsGroup', commandsGroup)
+    console.log('battleUI addCommands', commandsGroup, actor)
+    // TODO - change and defend have variable y, rather than just fixed
+    // TODO - You cannot select change if you are in a pincer attack
+    changeGroup = createDialogBox({
+      id: 2,
+      name: 'change',
+      w: 56,
+      h: 23,
+      x: 24,
+      y: 169,
+      scene: orthoScene
+    })
+    addTextToDialog(
+      changeGroup,
+      window.data.kernel.commandData[18].name,
+      'change-text',
+      LETTER_TYPES.BattleBaseFont,
+      LETTER_COLORS.White,
+      32,
+      185,
+      0.5,
+      null,
+      null,
+      true
+    )
 
-  const DATA = {
-    state: 'command',
-    command: { pos: 0, special: null }
+    defendGroup = createDialogBox({
+      id: 2,
+      name: 'defend',
+      w: 56,
+      h: 23,
+      x: 72 + commandsGroup.userData.w - 8,
+      y: 169,
+      scene: orthoScene
+    })
+    addTextToDialog(
+      defendGroup,
+      window.data.kernel.commandData[19].name,
+      'defend-text',
+      LETTER_TYPES.BattleBaseFont,
+      LETTER_COLORS.White,
+      72 + commandsGroup.userData.w,
+      185,
+      0.5,
+      null,
+      null,
+      true
+    )
   }
+
   // window.COMMAND_DATA = DATA
   const hideCommandCursor = () => {
     POINTERS.pointer1.visible = false
@@ -231,7 +250,7 @@ const addCommands = actorIndex => {
         )
         selectionResult =
           await window.currentBattle.ui.battlePointer.startSelection(
-            actorIndex,
+            actor.index,
             combinedTargetFlags,
             false
           )
@@ -245,9 +264,9 @@ const addCommands = actorIndex => {
           POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
         // console.log('battleUI Add player action', command)
-        // addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
+        // addPlayerActionToQueue(actor.index, command.index, null, null, 6)
         // actor.ui.removeActiveSelectionPlayer()
-        // doNotAllowPlayerToSelectAction(actorIndex)
+        // doNotAllowPlayerToSelectAction(actor.index)
         // window.currentBattle.ui.battleDescriptions.setText('')
         break
       case 'EnableTargetSelectionUsingCursor':
@@ -266,7 +285,7 @@ const addCommands = actorIndex => {
         )
         selectionResult =
           await window.currentBattle.ui.battlePointer.startSelection(
-            actorIndex,
+            actor.index,
             combinedTargetFlags,
             combinedTargetFlags.includes('ShortRange')
           )
@@ -280,9 +299,9 @@ const addCommands = actorIndex => {
           POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
         // console.log('battleUI Add player action', command)
-        // addPlayerActionToQueue(actorIndex, command.index, null, null, 6)
+        // addPlayerActionToQueue(actor.index, command.index, null, null, 6)
         // actor.ui.removeActiveSelectionPlayer()
-        // doNotAllowPlayerToSelectAction(actorIndex)
+        // doNotAllowPlayerToSelectAction(actor.index)
         // window.currentBattle.ui.battleDescriptions.setText('')
         break
 
@@ -369,7 +388,10 @@ const addCommands = actorIndex => {
       handleKeyPressTarget(key)
     }
   }
-  const show = async () => {
+  const show = async player => {
+    actor = player
+    init()
+    console.log('battleUI command menu show')
     addMenuCommandsToDialog(
       commandsGroup,
       72,
@@ -388,17 +410,21 @@ const addCommands = actorIndex => {
     DATA.command.special = null
     stopAllCoinTextTweens()
     stopAllLimitTextTweens()
-    closeDialog(changeGroup)
-    closeDialog(defendGroup)
-    await closeDialog(commandsGroup) // TODO - Clipping doesn't happen here, so text doesn't disappear
+    // console.log('battleUI hide START')
+    await Promise.all([
+      asyncWrap(() => closeDialog(changeGroup)),
+      asyncWrap(() => closeDialog(defendGroup)),
+      asyncWrap(() => closeDialog(commandsGroup))
+    ])
+    removeGroupChildren(commandContainerGroup)
+    // console.log('battleUI hide END')
     DATA.state = 'command'
   }
   return {
     show,
     hide,
-    keyPress,
-    commandsGroup
+    keyPress
   }
 }
 
-export { addCommands }
+export { initCommands }

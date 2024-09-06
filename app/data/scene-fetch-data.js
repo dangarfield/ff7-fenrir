@@ -10,35 +10,44 @@ const loadSceneData = async () => {
   window.data.sceneData = sceneData
 
   // const allRows = []
+  // const allRows2 = []
   // for (const scene of sceneData) {
   //   for (let i = 0; i < scene.battleFormations.length; i++) {
   //     const formation = scene.battleFormations[i]
   //     const setup = scene.battleSetup[i]
-  //     const rows = []
-  //     for (const enemy of formation) {
-  //       if (enemy.row < 1000 && !rows.includes(enemy.row)) {
-  //         rows.push(enemy.row)
-  //       }
-  //       if (enemy.row < 1000 && !allRows.includes(enemy.row)) {
-  //         allRows.push(enemy.row)
-  //       }
-  //       if (
-  //         setup.battleLayoutType === 'NormalLockFrontRow' &&
-  //         enemy.enemyId !== 0xffff
-  //       ) {
-  //         console.log(
-  //           'sceneData',
-  //           scene.sceneId,
-  //           scene.sceneId * 4 + i,
-  //           '-',
-  //           enemy.enemyId,
-  //           '-',
-  //           enemy.position,
-  //           setup.battleLayoutType
-  //         )
-  //       }
+  //     if (!allRows.includes(setup.battleFlagsBin))
+  //       allRows.push(setup.battleFlagsBin)
+  //     for (const flag of setup.battleFlags) {
+  //       if (!allRows2.includes(flag)) allRows2.push(flag)
   //     }
-  //     console.log('sceneData   ------------')
+  //     if (setup.battleFlags.includes('Unknown3')) {
+  //       console.log('sceneData Unknown3', scene.sceneId, scene.sceneId * 4 + i)
+  //     }
+  //     // const rows = []
+  //     // for (const enemy of formation) {
+  //     //   if (enemy.row < 1000 && !rows.includes(enemy.row)) {
+  //     //     rows.push(enemy.row)
+  //     //   }
+  //     //   if (enemy.row < 1000 && !allRows.includes(enemy.row)) {
+  //     //     allRows.push(enemy.row)
+  //     //   }
+  //     //   if (
+  //     //     setup.battleLayoutType === 'NormalLockFrontRow' &&
+  //     //     enemy.enemyId !== 0xffff
+  //     //   ) {
+  //     //     console.log(
+  //     //       'sceneData',
+  //     //       scene.sceneId,
+  //     //       scene.sceneId * 4 + i,
+  //     //       '-',
+  //     //       enemy.enemyId,
+  //     //       '-',
+  //     //       enemy.position,
+  //     //       setup.battleLayoutType
+  //     //     )
+  //     //   }
+  //     // }
+  //     // console.log('sceneData   ------------')
 
   //     // if (rows.length > 1) {
   //     //   console.log(
@@ -62,6 +71,7 @@ const loadSceneData = async () => {
   //   }
   // }
   // console.log('sceneData all rows ', allRows)
+  // console.log('sceneData all rows2 ', allRows2)
 }
 const loadSceneModel = async (modelCode, manager) => {
   // These models aren't cached, we really should cache them
