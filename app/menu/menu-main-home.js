@@ -35,7 +35,11 @@ import { loadConfigMenu } from './menu-main-config.js'
 import { loadPHSMenu } from './menu-main-phs.js'
 import { loadSaveMenu } from './menu-main-save.js'
 
-import { getCurrentGameTime, getMenuVisibility, isSaveMenuEnabled } from '../data/savemap-alias.js'
+import {
+  getCurrentGameTime,
+  getMenuVisibility,
+  isSaveMenuEnabled
+} from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 import { loadTitleMenu } from './menu-title.js'
 
@@ -79,8 +83,28 @@ const debugPopulateMenuTestData = () => {
 
   // Party
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
-  window.data.savemap.party.phsLocked = { Cloud: 1, Barret: 0, Tifa: 0, Aeris: 0, RedXIII: 1, Yuffie: 0, CaitSith: 0, Vincent: 0, Cid: 1 }
-  window.data.savemap.party.phsVisibility = { Cloud: 1, Barret: 1, Tifa: 1, Aeris: 0, RedXIII: 1, Yuffie: 0, CaitSith: 1, Vincent: 1, Cid: 0 }
+  window.data.savemap.party.phsLocked = {
+    Cloud: 1,
+    Barret: 0,
+    Tifa: 0,
+    Aeris: 0,
+    RedXIII: 1,
+    Yuffie: 0,
+    CaitSith: 0,
+    Vincent: 0,
+    Cid: 1
+  }
+  window.data.savemap.party.phsVisibility = {
+    Cloud: 1,
+    Barret: 1,
+    Tifa: 1,
+    Aeris: 0,
+    RedXIII: 1,
+    Yuffie: 0,
+    CaitSith: 1,
+    Vincent: 1,
+    Cid: 0
+  }
 
   // Status
   window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
@@ -667,7 +691,10 @@ const navSelectOrderToConfirm = () => {
       navSelectOrderFromLoad()
       return
     }
-    const char = window.data.savemap.characters[window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]]
+    const char =
+      window.data.savemap.characters[
+        window.data.savemap.party.members[SELECT_PARTY_MEMBER_POSITIONS.from]
+      ]
     if (char.status.battleOrder === 'Normal') {
       char.status.battleOrder = 'BackRow'
     } else {
@@ -801,12 +828,17 @@ const fadeInHomeMenu = async () => {
   const selectedNav = nav.options[nav.current]
   navSlideUp(selectedNav.type)
 }
-const setSelectedNavByName = (name) => {
+const setSelectedNavByName = name => {
   console.log('menu setSelectedNavByName', name, homeNav, nav)
   const homeNavGroups = homeNav.children.filter(c => c.type === 'Group')
   for (let i = 0; i < homeNavGroups.length; i++) {
     const childNav = homeNavGroups[i]
-    console.log('menu childnav', childNav.userData.type, name, childNav.userData.type === name)
+    console.log(
+      'menu childnav',
+      childNav.userData.type,
+      name,
+      childNav.userData.type === name
+    )
     if (childNav.userData.type === name) {
       nav.current = i
       console.log('menu childnav YES', childNav.userData.type, nav)

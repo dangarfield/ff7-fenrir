@@ -1135,7 +1135,11 @@ const initialiseOpLoops = async () => {
 
   if (window.developerMode) {
     setTimeout(() => {
-      window.quickBattle = () => {
+      window.quickBattle = n => {
+        if (n !== undefined) {
+          control.BATTLE({ b: 0, n })
+          return
+        }
         // window.data.savemap.characters.Barret.equip.accessory.itemId = 292
         // window.data.savemap.characters.Barret.equip.accessory.name = 'Choco Feather'
         // control.BATTLE({ b: 0, n: 27 * 4 + 2 }) // Grand Hown
@@ -1148,9 +1152,17 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 183 * 4 + 1 }) // Ironite
         // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
-        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - Pincer attack
         // control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
-        control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags)
+
+        // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal
+        // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 + Chocobo - Premptive
+        // control.BATTLE({ b: 0, n: 511 }) // Bizarre Bug x3 + Chocobo - SideAttack1
+        // control.BATTLE({ b: 0, n: 101 }) // Joker + Flapbeat x2 - BackAttack
+        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - PincerAttack
+        // control.BATTLE({ b: 0, n: 94 }) // Bleachplug x3 - SideAttack2 (enemy position seems incorrect)
+        // control.BATTLE({ b: 0, n: 22 }) // Pyramid (test) x3 - SideAttack3
+        // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4
+        control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow
       }
       window.quickBattle()
     }, 1000)

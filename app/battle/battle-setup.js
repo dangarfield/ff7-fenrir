@@ -53,8 +53,14 @@ const setupBattle = battleId => {
     if (partyMember === 'None') {
       currentBattle.actors.push({ active: false, index: i })
     } else {
-      const data = { ...window.data.savemap.characters[partyMember] }
-      // if (i === 0) data.limit.bar = 0xFF // TODO - Remove this, just for testing
+      const data = structuredClone(window.data.savemap.characters[partyMember])
+      if (currentBattle.formationConfig.playerRowSwap) {
+        data.status.battleOrder =
+          data.status.battleOrder === 'BackRow' ? 'Normal' : 'BackRow'
+      }
+      if (currentBattle.formationConfig.playerRowLocked) {
+        data.status.battleOrder = 'Normal'
+      }
       const battleStats = getBattleStatsForChar(data)
 
       currentBattle.actors.push({

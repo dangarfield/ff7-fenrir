@@ -9,6 +9,7 @@ import {
 } from './battle-scene.js'
 import { loadSceneModel } from '../data/scene-fetch-data.js'
 import { setLoadingProgress } from '../loading/loading-module.js'
+import { battleFormationConfig, FACING } from './battle-formation.js'
 
 const tempSlow = 1
 
@@ -68,8 +69,7 @@ const loadModelWithAnimationBindings = async (code, manager) => {
   return model
 }
 const addShadow = model => {
-  // TODO - battle 99 with spencer, the animations make the shadows move, need to fix
-  // TODO - Not always circles, need to investigate more
+  // TODO - Not always circles, need to investigate more, plus, these aren't the right sizes
   const box = new THREE.BoxHelper(model.scene)
   box.geometry.computeBoundingBox()
   const radius =
@@ -86,13 +86,16 @@ const addShadow = model => {
     opacity: 0.3
   })
   const shadow = new THREE.Mesh(geometry, material)
-  shadow.position.y = 17
   shadow.rotation.x = -Math.PI / 2
   model.userData.shadow = shadow
   model.userData.updateShadowPosition = () => {
-    shadow.position.y = model.initialY - model.scene.children[0].position.y + 17
+    const worldPosition = new THREE.Vector3()
+    model.scene.children[0].getWorldPosition(worldPosition)
+    shadow.position.x = worldPosition.x
+    shadow.position.y = 17
+    shadow.position.z = worldPosition.z
   }
-  model.scene.children[0].add(shadow)
+  return shadow
 }
 const createSelectionTriangle = () => {
   const geom = new THREE.BufferGeometry()
@@ -246,6 +249,16 @@ const rotateObjectTowardsTargetObject = (object, targetVector) => {
 }
 window.rotateObjectTowardsTargetObject = rotateObjectTowardsTargetObject
 
+const getCorrectModelRotationY = (modelZ, facingIn) => {
+  return modelZ < 0
+    ? facingIn === FACING.IN
+      ? 0
+      : Math.PI
+    : facingIn === FACING.IN
+    ? Math.PI
+    : 0
+}
+
 const importModels = async currentBattle => {
   const modelsToFind = [
     currentBattle.setup.locationCode,
@@ -254,6 +267,8 @@ const importModels = async currentBattle => {
   const modelsFound = await loadBattleModels(modelsToFind)
   const locationModel = modelsFound.shift()
   locationModel.name = 'location'
+
+  // TODO - Some locations have moving parts, eg, look at the rain in battle 20
   // console.log('battle locationModel', locationModel)
   currentBattle.models = [locationModel]
   sceneGroup.add(locationModel.scene)
@@ -271,33 +286,50 @@ const importModels = async currentBattle => {
     sceneGroup.add(model.scene)
     actor.model = model
     if (actor.type === 'player') {
+      console.log(
+        'battleUI row',
+        actor,
+        actor.data.status.battleOrder,
+        actor.data.status.battleOrder === 'BackRow'
+          ? -battleFormationConfig.row
+          : 0
+      )
       model.userData.defaultPosition = {
         x: currentBattle.formationConfig.positions[activePlayerCount][i].x,
         y: -model.initialY,
-        z: currentBattle.formationConfig.positions[activePlayerCount][i].z // TODO - Row
+        z:
+          currentBattle.formationConfig.positions[activePlayerCount][i].z +
+          (actor.data.status.battleOrder === 'BackRow'
+            ? currentBattle.formationConfig.positions[activePlayerCount][i].z >
+              0
+              ? battleFormationConfig.row
+              : -battleFormationConfig.row
+            : 0)
       }
-      if (
-        currentBattle.formationConfig.positions[activePlayerCount][i]
-          .faceBackwards
-      ) {
-        model.scene.rotation.y = Math.PI
-        // TODO - Set this better, as it will affect damage and needs to be kept updated
-      }
+      // Set rotation
+      model.userData.defaultRotationY = getCorrectModelRotationY(
+        model.userData.defaultPosition.z,
+        currentBattle.formationConfig.directions.player.default
+      )
+      model.scene.rotation.y = getCorrectModelRotationY(
+        model.userData.defaultPosition.z,
+        currentBattle.formationConfig.directions.player.initial
+      )
     } else {
       model.userData.defaultPosition = {
         x: actor.initialData.position.x,
-        y: actor.initialData.position.y - model.initialY,
-        z: -actor.initialData.position.z // TODO - Row
+        y: -actor.initialData.position.y - model.initialY,
+        z: -actor.initialData.position.z // TODO - Validate, enemies don't have row adjustments
       }
-      model.scene.rotation.y = Math.PI
-      // if ( // Hmm, this is right most of the time, but very wrong in the pincer battles
-      //   actor.initialData.initialConditionFlags.includes(
-      //     'SideAttackInitialDirection'
-      //   )
-      // ) {
-      //   model.scene.rotation.y = 0
-      // }
-      //rotateObjectTowardsTargetObject(model.scene, new THREE.Vector3())
+      // Set rotation
+      model.userData.defaultRotationY = getCorrectModelRotationY(
+        model.userData.defaultPosition.z,
+        currentBattle.formationConfig.directions.enemy.default
+      )
+      model.scene.rotation.y = getCorrectModelRotationY(
+        model.userData.defaultPosition.z,
+        currentBattle.formationConfig.directions.enemy.initial
+      )
     }
 
     model.scene.position.x = model.userData.defaultPosition.x
@@ -305,7 +337,7 @@ const importModels = async currentBattle => {
     model.scene.position.z = model.userData.defaultPosition.z
 
     model.userData.playAnimation(0)
-    addShadow(model)
+    sceneGroup.add(addShadow(model))
     addOrthoPosition(model)
 
     if (i === 0) window.bm = model
@@ -316,25 +348,25 @@ const importModels = async currentBattle => {
   }
 
   // Set default camera
-
-  // console.log('battle cameraPlacement', battleConfig.scene.cameraPlacement['0'].camera1)
-  setCameraPosition('3')
-  window.setCameraPosition = setCameraPosition
+  setCameraPosition(0) // TODO - I don't know how this is set yet
 }
+// Shortcuts for debugging
 
-const setCameraPosition = positionID => {
+const setCameraPosition = (positionID, cameraID) => {
+  if (cameraID === undefined) cameraID = 1
   window.battleDebugCamera.position.x =
-    currentBattle.scene.cameraPlacement[positionID].camera1.pos.x
+    currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.x
   window.battleDebugCamera.position.y =
-    -currentBattle.scene.cameraPlacement[positionID].camera1.pos.y
+    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.y
   window.battleDebugCamera.position.z =
-    -currentBattle.scene.cameraPlacement[positionID].camera1.pos.z
+    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.z
   window.battleDebugCamera.controls.target.x =
-    currentBattle.scene.cameraPlacement[positionID].camera1.dir.x
+    currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.x
   window.battleDebugCamera.controls.target.y =
-    -currentBattle.scene.cameraPlacement[positionID].camera1.dir.y
+    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.y
   window.battleDebugCamera.controls.target.z =
-    -currentBattle.scene.cameraPlacement[positionID].camera1.dir.z
+    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.z
 }
+window.setCameraPosition = setCameraPosition
 
 export { importModels, tempSlow }

@@ -52,6 +52,14 @@ const preLoadBattle = async (battleId, options) => {
   // await executeAllInitScripts(currentBattle) // For some reason this takes a huge amount of time, need to look into it
   await initBattleMenu(currentBattle)
 
+  // Debugging
+  window.a0 = window?.currentBattle?.actors[0]
+  window.a1 = window?.currentBattle?.actors[1]
+  window.a2 = window?.currentBattle?.actors[2]
+  window.a0p = window?.currentBattle?.actors[0]?.model?.scene?.position
+  window.a1p = window?.currentBattle?.actors[1]?.model?.scene?.position
+  window.a2p = window?.currentBattle?.actors[2]?.model?.scene?.position
+
   console.log('battle preload: END')
 }
 const loadBattle = async (battleId, options) => {

@@ -1260,6 +1260,7 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
   window.data.savemap.characters.Barret.limit.bar = 100
+  window.data.savemap.characters.Barret.status.battleOrder = 'BackRow'
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
   // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']
   // window.data.savemap.party.members = ['Cloud', 'None', 'None']

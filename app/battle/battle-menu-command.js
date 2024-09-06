@@ -34,7 +34,7 @@ const addCommands = actorIndex => {
     true
   )
   commandsGroup.visible = false
-  console.log('battleUI commandsGroup', commandsGroup)
+  // console.log('battleUI commandsGroup', commandsGroup)
 
   // TODO - change and defend have variable y, rather than just fixed
   // TODO - You cannot select change if you are in a pincer attack

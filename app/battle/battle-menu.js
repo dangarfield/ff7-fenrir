@@ -121,9 +121,22 @@ const constructMainMenus = currentBattle => {
   addImageToDialog(
     mainR,
     'labels',
-    'wait',
-    'wait-label',
+    'time-1',
+    'time-label',
     279,
+    174,
+    0.5,
+    null,
+    ALIGN.LEFT,
+    ALIGN.BOTTOM
+  )
+
+  addImageToDialog(
+    mainR,
+    'labels',
+    'time-2',
+    'time-label',
+    279 + 16,
     174,
     0.5,
     null,
