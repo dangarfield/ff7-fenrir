@@ -149,7 +149,7 @@ const initCommands = () => {
     isAll,
     hasLongRangeMateria // TODO
   ) => {
-    // more to do
+    if (commandFlags.length === 0) return commandFlags // Mime, Change, Defend
     let combined = commandFlags.length === 8 ? [] : [...commandFlags]
     for (const weaponFlag of weaponFlags) {
       if (!combined.includes(weaponFlag)) combined.push(weaponFlag)
@@ -248,12 +248,14 @@ const initCommands = () => {
           posCommand.all,
           actor.battleStats.hasLongRangeMateria
         )
-        selectionResult =
-          await window.currentBattle.ui.battlePointer.startSelection(
-            actor.index,
-            combinedTargetFlags,
-            false
-          )
+        selectionResult = [18, 19].includes(command.index)
+          ? { target: [actor] } // For some reason, Change and Defend look the same as Mime, but are treated
+          : // differently with no visible config differences
+            await window.currentBattle.ui.battlePointer.startSelection(
+              actor.index,
+              combinedTargetFlags,
+              false
+            )
         DATA.state = 'command'
         console.log('battleUI target selectionResult', selectionResult)
         if (selectionResult.target) {
