@@ -19,10 +19,7 @@ import {
   startCoinTextTweens,
   stopAllLimitTextTweens
 } from '../menu/menu-limit-tween-helper.js'
-import {
-  addPlayerActionToQueue,
-  doNotAllowPlayerToSelectAction
-} from './battle-queue.js'
+import { addPlayerActionToQueue } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 import { handleKeyPressTarget } from './battle-target.js'
 
@@ -260,16 +257,18 @@ const initCommands = () => {
         console.log('battleUI target selectionResult', selectionResult)
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')
-          // TODO - Add command to stack with targets, not sure what this looks like
-          hide()
+          // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
+          addPlayerActionToQueue(
+            // Includes hiding commands etc
+            actor.index,
+            command.index,
+            null,
+            selectionResult,
+            6
+          )
         } else {
           POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
-        // console.log('battleUI Add player action', command)
-        // addPlayerActionToQueue(actor.index, command.index, null, null, 6)
-        // actor.ui.removeActiveSelectionPlayer()
-        // doNotAllowPlayerToSelectAction(actor.index)
-        // window.currentBattle.ui.battleDescriptions.setText('')
         break
       case 'EnableTargetSelectionUsingCursor':
         // TODO - Go to target selection
@@ -295,16 +294,18 @@ const initCommands = () => {
         console.log('battleUI target selectionResult', selectionResult)
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')
-          // TODO - Add command to stack with targets, not sure what this looks like
-          hide()
+          // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
+          addPlayerActionToQueue(
+            // Includes hiding commands etc
+            actor.index,
+            command.index,
+            null,
+            selectionResult,
+            6
+          )
         } else {
           POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
-        // console.log('battleUI Add player action', command)
-        // addPlayerActionToQueue(actor.index, command.index, null, null, 6)
-        // actor.ui.removeActiveSelectionPlayer()
-        // doNotAllowPlayerToSelectAction(actor.index)
-        // window.currentBattle.ui.battleDescriptions.setText('')
         break
 
       default:
@@ -392,8 +393,8 @@ const initCommands = () => {
   }
   const show = async player => {
     actor = player
+    removeGroupChildren(commandContainerGroup)
     init()
-    console.log('battleUI command menu show')
     addMenuCommandsToDialog(
       commandsGroup,
       72,
@@ -402,6 +403,7 @@ const initCommands = () => {
     )
     startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
     startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
+    console.log('battleUI command menu show')
     await showDialog(commandsGroup)
     drawCommandCursor()
   }
@@ -412,14 +414,12 @@ const initCommands = () => {
     DATA.command.special = null
     stopAllCoinTextTweens()
     stopAllLimitTextTweens()
-    // console.log('battleUI hide START')
     await Promise.all([
       asyncWrap(() => closeDialog(changeGroup)),
       asyncWrap(() => closeDialog(defendGroup)),
       asyncWrap(() => closeDialog(commandsGroup))
     ])
     removeGroupChildren(commandContainerGroup)
-    // console.log('battleUI hide END')
     DATA.state = 'command'
   }
   return {

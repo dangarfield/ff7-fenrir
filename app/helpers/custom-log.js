@@ -19,8 +19,8 @@ window.console = (function (origConsole) {
       // 'battleMenu',
       // 'battleStack',
       'battleUI',
-      'battlePointer',
-      // 'battleQueue',
+      // 'battlePointer',
+      'battleQueue'
       // 'updateOrthoPosition'
       // 'renderToTexture',
       // 'doSwirl',
@@ -35,7 +35,7 @@ window.console = (function (origConsole) {
       // 'textureLetter',
       // 'getImageTexture',
       // 'SET MENU TEXTURES',
-      'sceneData'
+      // 'sceneData'
     ],
     log: function () {
       if (limit) {

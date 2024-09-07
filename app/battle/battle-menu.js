@@ -254,9 +254,9 @@ const toggleHelperText = () => {
   }
 }
 const sendKeyPressToBattleMenu = key => {
-  if (window.currentBattle.queue.activeSelectionPlayer === null) return
+  if (window.currentBattle.queue.activeSelectionPlayers.length === 0) return
   window.currentBattle.actors[
-    window.currentBattle.queue.activeSelectionPlayer
+    window.currentBattle.queue.activeSelectionPlayers[0]
   ].ui.commands.keyPress(key)
 }
 const clearOrthoScene = () => {
