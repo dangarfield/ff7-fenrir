@@ -484,11 +484,11 @@ const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
 
 const applyClippingPlanes = (node, clippingPlanes, depth = 0) => {
-  if (depth > 2) return
+  if (depth > 3) return
   if (node.userData.isText || node.userData.isPointer) {
     node.material.clippingPlanes = clippingPlanes
   }
-  if (depth < 2) {
+  if (depth < 3) {
     node.children.forEach(child =>
       applyClippingPlanes(child, clippingPlanes, depth + 1)
     )
@@ -1864,7 +1864,7 @@ const createCommandsDialog = (dialog, x, y, commands, startHidden) => {
   }
 
   const dialogOptions = {
-    id: dialog.position.z + 3,
+    id: dialog.userData.id + 3,
     name: 'commandDialog',
     w: width,
     h: 60,

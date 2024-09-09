@@ -65,7 +65,9 @@ const executePlayerAction = async (actor, queueItem) => {
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
   window.currentBattle.ui.battleText.showBattleMessage(
-    `${actor.data.name} -> ${command.name}`
+    `${actor.data.name} -> ${command.name} -> ${queueItem.targetMask.target
+      .map(t => t.data.name)
+      .join(' + ')}`
   )
   await placeholdePlayerAnimation(actor)
 }

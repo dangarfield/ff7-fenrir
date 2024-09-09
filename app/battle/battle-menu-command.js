@@ -11,7 +11,8 @@ import {
   addTextToDialog,
   LETTER_TYPES,
   LETTER_COLORS,
-  removeGroupChildren
+  removeGroupChildren,
+  createItemListNavigation
 } from '../menu/menu-box-helper.js'
 import {
   startLimitTextTween,
@@ -19,24 +20,28 @@ import {
   startCoinTextTweens,
   stopAllLimitTextTweens
 } from '../menu/menu-limit-tween-helper.js'
+import { drawMagicList, handleKeyPressMagic } from './battle-menu-magic.js'
 import { addPlayerActionToQueue } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 import { handleKeyPressTarget } from './battle-target.js'
 
 const DATA = {
-  state: 'command',
-  command: { pos: 0, special: null } // Should really keep this at the actor level
+  state: 'command', // Should really keep this at the actor level
+  command: { pos: 0, special: null },
+  magic: { pos: 0, page: 0 }
 }
 let actor
 let commandContainerGroup
 let commandsGroup
 let changeGroup
 let defendGroup
+let magicSummonListGroup
+let magicSummonCostGroup
 
 const initCommands = () => {
   commandContainerGroup = new THREE.Group()
-  commandContainerGroup.userData = { id: 3, z: 100 - 3 }
-  commandContainerGroup.position.z = 3
+  commandContainerGroup.userData = { id: 30, z: 50 }
+  // commandContainerGroup.position.z = 0
   commandContainerGroup.visible = true
   orthoScene.add(commandContainerGroup)
 
@@ -45,6 +50,7 @@ const initCommands = () => {
     console.log('battleUI commands INIT', commandContainerGroup.children.length)
     DATA.command = { pos: 0, special: null }
     commandsGroup = createCommandsDialog(
+      // 100 - z - 3
       commandContainerGroup,
       72,
       170,
@@ -58,13 +64,13 @@ const initCommands = () => {
     // TODO - change and defend have variable y, rather than just fixed
     // TODO - You cannot select change if you are in a pincer attack
     changeGroup = createDialogBox({
-      id: 2,
+      id: 25,
       name: 'change',
       w: 56,
       h: 23,
       x: 24,
       y: 169,
-      scene: orthoScene
+      scene: commandContainerGroup
     })
     addTextToDialog(
       changeGroup,
@@ -81,13 +87,13 @@ const initCommands = () => {
     )
 
     defendGroup = createDialogBox({
-      id: 2,
+      id: 25,
       name: 'defend',
       w: 56,
       h: 23,
       x: 72 + commandsGroup.userData.w - 8,
       y: 169,
-      scene: orthoScene
+      scene: commandContainerGroup
     })
     addTextToDialog(
       defendGroup,
@@ -102,6 +108,15 @@ const initCommands = () => {
       null,
       true
     )
+
+    window.b = {
+      commandContainerGroup,
+      commandsGroup,
+      changeGroup,
+      defendGroup,
+      magicSummonListGroup,
+      magicSummonCostGroup
+    }
   }
 
   // window.COMMAND_DATA = DATA
@@ -204,8 +219,8 @@ const initCommands = () => {
     let selectionResult
 
     switch (command.initialCursorAction) {
-      // "PerformCommandUsingTargetData"
-      // "EnableTargetSelectionUsingCursor"
+      // "PerformCommandUsingTargetData" // DONE
+      // "EnableTargetSelectionUsingCursor" // DONE
       // "MagicMenu"
       // "SummonMenu"
       // "ItemMenu"
@@ -307,6 +322,10 @@ const initCommands = () => {
           POINTERS.pointer1.visible = true // More than one pointer required here ? Need a better way to keep track
         }
         break
+      case 'MagicMenu':
+        DATA.state = 'magic'
+        drawMagicList(commandContainerGroup, actor, DATA)
+        break
 
       default:
         window.currentBattle.ui.battleText.showBattleMessage(
@@ -389,6 +408,8 @@ const initCommands = () => {
       handleKeyPressCommand(key)
     } else if (DATA.state === 'target') {
       handleKeyPressTarget(key)
+    } else if (DATA.state === 'magic') {
+      handleKeyPressMagic(key, DATA, drawCommandCursor)
     }
   }
   const show = async player => {

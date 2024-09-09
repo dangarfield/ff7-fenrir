@@ -31,7 +31,7 @@ const constructMagicMenu = () => {
 const constructMainMenus = () => {
   // Main Left
   const mainL = createDialogBox({
-    id: 30,
+    id: 95,
     x: 0,
     y: 166,
     w: 137,
@@ -45,7 +45,7 @@ const constructMainMenus = () => {
 
   // Main right
   const mainR = createDialogBox({
-    id: 29,
+    id: 95,
     x: 137,
     y: 166,
     w: 183,
