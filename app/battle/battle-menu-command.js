@@ -22,7 +22,8 @@ import {
 import {
   selectSpell,
   handleKeyPressSpell,
-  closeSpellDialogs
+  closeSpellDialogs,
+  openSpellMenu
 } from './battle-menu-spells.js'
 import { addPlayerActionToQueue } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
@@ -166,8 +167,30 @@ const initCommands = () => {
     isAll,
     hasLongRangeMateria // TODO
   ) => {
+    console.log(
+      'battleUI combineTargetFlags: START',
+      commandIndex,
+      commandFlags,
+      attackFlags,
+      weaponFlags,
+      isAll,
+      hasLongRangeMateria
+    )
+    let combined
+    if (attackFlags !== null) {
+      // When attack is present it's magic, summon, eskill, so just use this combined with 'all'
+      combined = [...attackFlags]
+
+      // Multi target is selected on magic by default, need to make this work with 'alls'
+      if (!isAll && combined.includes('ToggleSingleMultiTarget')) {
+        combined = combined.filter(
+          f => f !== 'ToggleSingleMultiTarget' && f !== 'DefaultMultipleTargets'
+        )
+      }
+      return combined
+    }
     if (commandFlags.length === 0) return commandFlags // Mime, Change, Defend
-    let combined = commandFlags.length === 8 ? [] : [...commandFlags]
+    combined = commandFlags.length === 8 ? [] : [...commandFlags]
     for (const weaponFlag of weaponFlags) {
       if (!combined.includes(weaponFlag)) combined.push(weaponFlag)
     }
@@ -261,7 +284,7 @@ const initCommands = () => {
         combinedTargetFlags = combineTargetFlags(
           command.index,
           command.targetFlags,
-          [],
+          null,
           DATA.actor.battleStats.weaponData.targets,
           posCommand.all,
           DATA.actor.battleStats.hasLongRangeMateria
@@ -300,7 +323,7 @@ const initCommands = () => {
         combinedTargetFlags = combineTargetFlags(
           command.index,
           command.targetFlags,
-          [],
+          null,
           DATA.actor.battleStats.weaponData.targets,
           posCommand.all,
           DATA.actor.battleStats.hasLongRangeMateria
@@ -329,23 +352,94 @@ const initCommands = () => {
         }
         break
       case 'MagicMenu':
-        DATA.state = 'magic'
         POINTERS.pointer1.visible = false
-        selectedSpell = await selectSpell(commandContainerGroup)
-        console.log('battleUI MagicMenu selectSpell', selectedSpell)
-        if (selectedSpell === null) {
-          DATA.state = 'command'
-          drawCommandCursor()
-          break
+
+        const selectedActions = [] // has spell, target, spell, target etc
+        const spellsRequired = 1
+        DATA.state = 'magic'
+        openSpellMenu(commandContainerGroup)
+
+        console.log('battleUI SELECT SPELL: START')
+        while (selectedActions.length < spellsRequired * 2) {
+          if (selectedActions.length % 2 === 0) {
+            // Select spell
+            DATA.state = 'magic'
+            selectedSpell = await selectSpell(commandContainerGroup)
+            console.log('battleUI MagicMenu selectSpell', selectedSpell)
+            if (selectedSpell === null) {
+              // If w-menu, null goes back to previous target selection
+              if (selectedActions.length > 0) {
+                // Remove last target so that it goes back to target selection
+                selectedActions.pop()
+                continue
+              } else {
+                DATA.state = 'command'
+                drawCommandCursor()
+                break
+              }
+            }
+            POINTERS.pointer1.visible = false // Improve...
+            selectedActions.push(selectedSpell)
+          } else {
+            // Select target
+            DATA.state = 'target'
+            combinedTargetFlags = combineTargetFlags(
+              command.index,
+              command.targetFlags,
+              window.data.kernel.attackData[selectedSpell.index].targetFlags,
+              DATA.actor.battleStats.weaponData.targets,
+              selectedSpell.addedAbilities.find(a => a.type === 'All')?.count >
+                0,
+              DATA.actor.battleStats.hasLongRangeMateria
+            )
+            console.log(
+              'battleUI start target selection for MagicMenu',
+              selectedSpell,
+              selectedSpell.addedAbilities.find(a => a.type === 'All')?.count >
+                0,
+              combinedTargetFlags
+            )
+
+            selectionResult =
+              await window.currentBattle.ui.battlePointer.startSelection(
+                DATA.actor.index,
+                combinedTargetFlags,
+                false
+              )
+            console.log(
+              'battleUI selectionResult for MagicMenu',
+              selectionResult
+            )
+            if (selectionResult.target) {
+              selectedActions.push(selectionResult)
+            } else {
+              // Remove last spell so that it goes back to spell selection
+              selectedActions.pop()
+              continue
+            }
+          }
         }
+
         console.log(
-          'battleUI start target selection for MagicMenu',
-          selectedSpell
+          'battleUI SELECT SPELL: END',
+          selectedActions,
+          selectedActions.length === spellsRequired * 2
         )
-        // TEMPORARY
         DATA.state = 'command'
         await closeSpellDialogs()
-        drawCommandCursor()
+        if (selectedActions.length === spellsRequired * 2) {
+          addPlayerActionToQueue(
+            // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
+            DATA.actor.index,
+            command.index,
+            selectedActions[0],
+            selectedActions[1],
+            6
+          )
+        } else {
+          drawCommandCursor()
+        }
+
         break
       case 'SummonMenu':
         DATA.state = 'summon'

@@ -150,115 +150,117 @@ const drawInfo = desc => {
   window.currentBattle.ui.battleDescriptions.setText(desc)
 }
 
-let promiseToResolve
-const selectSpell = commandContainerGroup => {
-  return new Promise(resolve => {
-    promiseToResolve = resolve
+const openSpellMenu = commandContainerGroup => {
+  const menu = DATA[DATA.state]
+  menu.page = 0
+  menu.pos = 0
 
-    const menu = DATA[DATA.state]
-    menu.page = 0
-    menu.pos = 0
+  // Create list group
+  listDialog = createDialogBox({
+    // 100 - 20
+    id: 20,
+    name: 'spell-list',
+    w: 251,
+    h: 56,
+    x: 0,
+    y: 174,
+    scene: commandContainerGroup
+  })
+  listGroup = addGroupToDialog(listDialog, 20)
+  listGroupContents = addGroupToDialog(listDialog, 20)
 
-    // Create list group
-    listDialog = createDialogBox({
-      // 100 - 20
-      id: 20,
-      name: 'spell-list',
-      w: 251,
-      h: 56,
-      x: 0,
-      y: 174,
-      scene: commandContainerGroup
-    })
-    listGroup = addGroupToDialog(listDialog, 20)
-    listGroupContents = addGroupToDialog(listDialog, 20)
+  console.log('battleUI spell list actor', DATA.actor)
+  for (let i = 0; i < DATA.actor.battleStats.menu[DATA.state].length; i++) {
+    const spell = DATA.actor.battleStats.menu[DATA.state][i]
+    const { x, y } = getTextRowPosition(i)
+    // console.log('battleUI spell list', spell, x, y)
 
-    console.log('battleUI spell list actor', DATA.actor)
-    for (let i = 0; i < DATA.actor.battleStats.menu[DATA.state].length; i++) {
-      const spell = DATA.actor.battleStats.menu[DATA.state][i]
-      const { x, y } = getTextRowPosition(i)
-      // console.log('battleUI spell list', spell, x, y)
+    // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
+    if (spell.enabled) {
+      let color = LETTER_COLORS.White
+      if (spell.mpCost > DATA.actor.battleStats.mp.current) {
+        color = LETTER_COLORS.Gray
+      }
 
-      // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
-      if (spell.enabled) {
-        let color = LETTER_COLORS.White
-        if (spell.mpCost > DATA.actor.battleStats.mp.current) {
-          color = LETTER_COLORS.Gray
-        }
-
-        const textGroup = addTextToDialog(
+      const textGroup = addTextToDialog(
+        listGroupContents,
+        spell.name,
+        `spell-list-${i}`,
+        LETTER_TYPES.BattleBaseFont,
+        color,
+        x,
+        y,
+        0.5,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      const allAbility = spell.addedAbilities.find(a => a.type === 'All')
+      if (allAbility && allAbility.count > 0) {
+        const allArrow = addImageToDialog(
           listGroupContents,
-          spell.name,
-          `spell-list-${i}`,
-          LETTER_TYPES.BattleBaseFont,
-          color,
-          x,
+          'pointers',
+          'arrow-right',
+          `spell-list-${i}-all`,
+          x + offsets[DATA.state].xAdjAll,
           y,
           0.5,
+          null,
+          ALIGN.LEFT,
+          null,
           listDialog.userData.bg.material.clippingPlanes
         )
-        const allAbility = spell.addedAbilities.find(a => a.type === 'All')
-        if (allAbility && allAbility.count > 0) {
-          const allArrow = addImageToDialog(
-            listGroupContents,
-            'pointers',
-            'arrow-right',
-            `spell-list-${i}-all`,
-            x + offsets[DATA.state].xAdjAll,
-            y,
-            0.5,
-            null,
-            ALIGN.LEFT,
-            null,
-            listDialog.userData.bg.material.clippingPlanes
-          )
-        }
       }
+      // TODO - Summon counts and infinity
     }
+  }
 
-    createItemListNavigation(
-      listGroup,
-      243.5,
-      38,
-      50,
-      menu.total / menu.cols,
-      menu.rows,
-      listDialog.userData.bg.material.clippingPlanes
-    )
-    window.listDialog = listDialog
-    window.listGroup = listGroup
-    // Create cost group
-    costDialog = createDialogBox({
-      id: 20,
-      name: 'spell-cost',
-      w: 69,
-      h: 56,
-      x: 251,
-      y: 174,
-      scene: commandContainerGroup
-    })
-    costGroupContents = addGroupToDialog(costDialog, 20)
-    const mpNeeded = addImageToDialog(
-      costDialog,
-      'labels',
-      'mp-needed',
-      `mp-needed`,
-      251 + 16,
-      174 + 16,
-      0.5,
-      null,
-      ALIGN.LEFT,
-      ALIGN.BOTTOM,
-      costDialog.userData.bg.material.clippingPlanes
-    )
+  createItemListNavigation(
+    listGroup,
+    243.5,
+    38,
+    50,
+    menu.total / menu.cols,
+    menu.rows,
+    listDialog.userData.bg.material.clippingPlanes
+  )
+  window.listDialog = listDialog
+  window.listGroup = listGroup
+  // Create cost group
+  costDialog = createDialogBox({
+    id: 20,
+    name: 'spell-cost',
+    w: 69,
+    h: 56,
+    x: 251,
+    y: 174,
+    scene: commandContainerGroup
+  })
+  costGroupContents = addGroupToDialog(costDialog, 20)
+  const mpNeeded = addImageToDialog(
+    costDialog,
+    'labels',
+    'mp-needed',
+    `mp-needed`,
+    251 + 16,
+    174 + 16,
+    0.5,
+    null,
+    ALIGN.LEFT,
+    ALIGN.BOTTOM,
+    costDialog.userData.bg.material.clippingPlanes
+  )
 
-    // Show all
-    showDialog(listDialog)
-    showDialog(costDialog)
+  // Show all
+  showDialog(listDialog)
+  showDialog(costDialog)
 
-    listGroup.userData.slider.userData.moveToPage(menu.page)
-    listGroupContents.position.y = menu.page * offsets[DATA.state].yAdj
+  listGroup.userData.slider.userData.moveToPage(menu.page)
+  listGroupContents.position.y = menu.page * offsets[DATA.state].yAdj
+}
 
+let promiseToResolve
+const selectSpell = async () => {
+  return new Promise(resolve => {
+    promiseToResolve = resolve
     updateInfoForSelectedSpell()
     drawListPointer()
   })
@@ -396,7 +398,7 @@ const handleKeyPressSpell = async key => {
       break
     case KEY.X:
       DATA.state = 'returning'
-      await closeSpellDialogs()
+      // await closeSpellDialogs()
       promiseToResolve(null)
       // DATA.state = 'command'
       // drawCommandCursor()
@@ -406,4 +408,4 @@ const handleKeyPressSpell = async key => {
       break
   }
 }
-export { selectSpell, closeSpellDialogs, handleKeyPressSpell }
+export { openSpellMenu, selectSpell, closeSpellDialogs, handleKeyPressSpell }

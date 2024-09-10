@@ -64,8 +64,9 @@ const executePlayerAction = async (actor, queueItem) => {
   // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
+  const actionName = queueItem.attack ? queueItem.attack.name : command.name
   window.currentBattle.ui.battleText.showBattleMessage(
-    `${actor.data.name} -> ${command.name} -> ${queueItem.targetMask.target
+    `${actor.data.name} -> ${actionName} -> ${queueItem.targetMask.target
       .map(t => t.data.name)
       .join(' + ')}`
   )
