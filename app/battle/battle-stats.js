@@ -952,10 +952,28 @@ const calculateMagicSummonEnemySkillMenus = char => {
     }
   }
 
+  const calculateMPCostForSpells = spells => {
+    for (const spell of spells) {
+      if (spell.index === 0xff) continue
+      const attackData = window.data.kernel.attackData[spell.index]
+      // TODO - Other MP cost affecting equipment? Golden hairpin?
+
+      spell.mpCost = attackData.mp
+      // MP Turbo - Done
+      if (isMPTurboActive(spell))
+        spell.mpCost = applyMPTurbo(spell.mpCost, spell)
+      // All - ?
+      // Quadra Magic - ?
+
+      // There is a limit of 255
+      if (spell.mpCost > 0xff) spell.mpCost = 0xff
+    }
+    return spells
+  }
   return {
-    magicMenu: filterUnusedMagicRows(magics),
-    summonMenu: summons,
-    enemySkillsMenu: enemySkills
+    magicMenu: calculateMPCostForSpells(filterUnusedMagicRows(magics)),
+    summonMenu: calculateMPCostForSpells(summons),
+    enemySkillsMenu: calculateMPCostForSpells(enemySkills)
   }
 }
 
@@ -1262,7 +1280,7 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
-  window.data.savemap.characters.Barret.limit.bar = 100
+  window.data.savemap.characters.Barret.limit.bar = 255
   window.data.savemap.characters.Barret.status.battleOrder = 'BackRow'
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
   // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']
@@ -1284,8 +1302,6 @@ export {
   getBattleStatsForChar,
   currentMateriaLevel,
   getEnemySkillFlagsWithSkills,
-  isMPTurboActive,
-  applyMPTurbo,
   getWeaponDataFromItemId,
   getArmorDataFromItemId,
   getAccessoryDataFromItemId

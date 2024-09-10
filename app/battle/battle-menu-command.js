@@ -11,8 +11,7 @@ import {
   addTextToDialog,
   LETTER_TYPES,
   LETTER_COLORS,
-  removeGroupChildren,
-  createItemListNavigation
+  removeGroupChildren
 } from '../menu/menu-box-helper.js'
 import {
   startLimitTextTween,
@@ -20,16 +19,22 @@ import {
   startCoinTextTweens,
   stopAllLimitTextTweens
 } from '../menu/menu-limit-tween-helper.js'
-import { drawMagicList, handleKeyPressMagic } from './battle-menu-magic.js'
+import {
+  selectSpell,
+  handleKeyPressSpell,
+  closeSpellDialogs
+} from './battle-menu-spells.js'
 import { addPlayerActionToQueue } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
 import { handleKeyPressTarget } from './battle-target.js'
 
 const DATA = {
-  state: 'command', // Should really keep this at the actor level
+  state: 'command', // Should really keep this at the actor level,
   actor: null,
   command: { pos: 0, special: null },
-  magic: { pos: 0, page: 0, cols: 3, rows: 3, total: 54 }
+  magic: { pos: 0, page: 0, cols: 3, rows: 3, total: 54 },
+  enemySkills: { pos: 0, page: 0, cols: 2, rows: 3, total: 24 },
+  summon: { pos: 0, page: 0, cols: 1, rows: 3, total: 16 }
 }
 let commandContainerGroup
 let commandsGroup
@@ -217,6 +222,7 @@ const initCommands = () => {
 
     let combinedTargetFlags // Just to keep the variable names consistent
     let selectionResult
+    let selectedSpell
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData" // DONE
@@ -324,7 +330,60 @@ const initCommands = () => {
         break
       case 'MagicMenu':
         DATA.state = 'magic'
-        drawMagicList(commandContainerGroup)
+        POINTERS.pointer1.visible = false
+        selectedSpell = await selectSpell(commandContainerGroup)
+        console.log('battleUI MagicMenu selectSpell', selectedSpell)
+        if (selectedSpell === null) {
+          DATA.state = 'command'
+          drawCommandCursor()
+          break
+        }
+        console.log(
+          'battleUI start target selection for MagicMenu',
+          selectedSpell
+        )
+        // TEMPORARY
+        DATA.state = 'command'
+        await closeSpellDialogs()
+        drawCommandCursor()
+        break
+      case 'SummonMenu':
+        DATA.state = 'summon'
+        POINTERS.pointer1.visible = false
+        selectedSpell = await selectSpell(commandContainerGroup)
+        console.log('battleUI SummonMenu selectSpell', selectedSpell)
+        if (selectedSpell === null) {
+          DATA.state = 'command'
+          drawCommandCursor()
+          break
+        }
+        console.log(
+          'battleUI start target selection for SummonMenu',
+          selectedSpell
+        )
+        // TEMPORARY
+        DATA.state = 'command'
+        await closeSpellDialogs()
+        drawCommandCursor()
+        break
+      case 'ESkillMenu':
+        DATA.state = 'enemySkills'
+        POINTERS.pointer1.visible = false
+        selectedSpell = await selectSpell(commandContainerGroup)
+        console.log('battleUI ESkillMenu selectSpell', selectedSpell)
+        if (selectedSpell === null) {
+          DATA.state = 'command'
+          drawCommandCursor()
+          break
+        }
+        console.log(
+          'battleUI start target selection for ESkillMenu',
+          selectedSpell
+        )
+        // TEMPORARY
+        DATA.state = 'command'
+        await closeSpellDialogs()
+        drawCommandCursor()
         break
 
       default:
@@ -409,7 +468,11 @@ const initCommands = () => {
     } else if (DATA.state === 'target') {
       handleKeyPressTarget(key)
     } else if (DATA.state === 'magic') {
-      handleKeyPressMagic(key, drawCommandCursor)
+      handleKeyPressSpell(key)
+    } else if (DATA.state === 'enemySkills') {
+      handleKeyPressSpell(key)
+    } else if (DATA.state === 'summon') {
+      handleKeyPressSpell(key)
     }
   }
   const show = async player => {

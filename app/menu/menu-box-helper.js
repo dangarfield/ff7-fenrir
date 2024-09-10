@@ -885,7 +885,8 @@ const addImageToDialog = (
   scale,
   blending,
   hAlign,
-  vAlign
+  vAlign,
+  clippingPlanes
 ) => {
   const textureLetter = getImageTexture(type, image)
   console.log('textureLetter', type, image, textureLetter)
@@ -914,6 +915,10 @@ const addImageToDialog = (
     mesh.position.y = mesh.position.y - mesh.geometry.parameters.height / 2
   } else if (vAlign && vAlign === ALIGN.BOTTOM) {
     mesh.position.y = mesh.position.y + mesh.geometry.parameters.height / 2
+  }
+  if (clippingPlanes) {
+    mesh.userData.isText = true
+    mesh.material.clippingPlanes = clippingPlanes
   }
   dialogBox.add(mesh)
   return mesh

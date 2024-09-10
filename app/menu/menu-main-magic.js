@@ -21,11 +21,7 @@ import {
   isMagicMenuEnemySkillEnabled
 } from '../data/savemap-alias.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
-import {
-  getBattleStatsForChar,
-  isMPTurboActive,
-  applyMPTurbo
-} from '../battle/battle-stats.js'
+import { getBattleStatsForChar } from '../battle/battle-stats.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog,
@@ -501,11 +497,7 @@ const updateInfoForSelectedSpell = () => {
     drawMP(false)
     drawAbilities(false)
   } else {
-    if (isMPTurboActive(spell)) {
-      drawMP(applyMPTurbo(attackData.mp, spell))
-    } else {
-      drawMP(attackData.mp)
-    }
+    drawMP(spell.mpCost)
     drawInfo(attackData.description)
     drawAbilities(spell.addedAbilities)
   }
