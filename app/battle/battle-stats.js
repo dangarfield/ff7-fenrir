@@ -590,6 +590,7 @@ const calculateMagicSummonEnemySkillMenus = char => {
       type: 'All',
       order: 1,
       text: 'All',
+      textBattle: 'All:',
       count: 5,
       targetFlag: 'ToggleSingleMultiTarget'
     }, // not escape, only available if targetFlags has ToggleSingleMultiTarget
@@ -597,6 +598,7 @@ const calculateMagicSummonEnemySkillMenus = char => {
       type: 'QuadraMagic',
       order: 2,
       text: '4x-M',
+      textBattle: '4x:',
       count: 5,
       targetFlag: 'EnableSelection'
     }, // not escape
@@ -777,7 +779,8 @@ const calculateMagicSummonEnemySkillMenus = char => {
           addedAbility = {
             type: ability.type,
             order: ability.order,
-            text: ability.text
+            text: ability.text,
+            textBattle: ability.textBattle
           }
           if (Object.hasOwnProperty.call(ability, 'count')) {
             addedAbility.count = level
@@ -1204,7 +1207,7 @@ const debugSetEquipmentAndMateria = () => {
       '',
       ''
     ],
-    ['', '', '', '', '', '', '', '']
+    ['Restore', 'MP Turbo', 'Restore', 'Quadra Magic', '', '', '', '']
   )
 
   // window.data.savemap.characters.Cloud.materia.weaponMateria1.ap = 3245677

@@ -27,10 +27,10 @@ import { handleKeyPressTarget } from './battle-target.js'
 
 const DATA = {
   state: 'command', // Should really keep this at the actor level
+  actor: null,
   command: { pos: 0, special: null },
-  magic: { pos: 0, page: 0 }
+  magic: { pos: 0, page: 0, cols: 3, rows: 3, total: 54 }
 }
-let actor
 let commandContainerGroup
 let commandsGroup
 let changeGroup
@@ -54,13 +54,13 @@ const initCommands = () => {
       commandContainerGroup,
       72,
       170,
-      actor.battleStats.menu.command,
+      DATA.actor.battleStats.menu.command,
       true
     )
     commandsGroup.visible = false
     window.commandsGroup = commandsGroup
     // console.log('battleUI commandsGroup', commandsGroup)
-    console.log('battleUI addCommands', commandsGroup, actor)
+    console.log('battleUI addCommands', commandsGroup, DATA.actor)
     // TODO - change and defend have variable y, rather than just fixed
     // TODO - You cannot select change if you are in a pincer attack
     changeGroup = createDialogBox({
@@ -145,7 +145,7 @@ const initCommands = () => {
         x + xAdj[Math.trunc(DATA.command.pos / 4)],
         y + (DATA.command.pos % 4) * yAdj
       )
-      const command = actor.battleStats.menu.command[DATA.command.pos]
+      const command = DATA.actor.battleStats.menu.command[DATA.command.pos]
       commandId = command.limit ? command.limit : command.id
     }
     const commandDescription =
@@ -203,7 +203,7 @@ const initCommands = () => {
     return combined
   }
   const selectCommand = async () => {
-    const posCommand = actor.battleStats.menu.command[DATA.command.pos]
+    const posCommand = DATA.actor.battleStats.menu.command[DATA.command.pos]
     let commandId = posCommand.limit ? posCommand.limit : posCommand.id
     if (DATA.command.special === 'change') commandId = 18
     if (DATA.command.special === 'defend') commandId = 19
@@ -256,15 +256,15 @@ const initCommands = () => {
           command.index,
           command.targetFlags,
           [],
-          actor.battleStats.weaponData.targets,
+          DATA.actor.battleStats.weaponData.targets,
           posCommand.all,
-          actor.battleStats.hasLongRangeMateria
+          DATA.actor.battleStats.hasLongRangeMateria
         )
         selectionResult = [18, 19].includes(command.index)
-          ? { target: [actor] } // For some reason, Change and Defend look the same as Mime, but are treated
+          ? { target: [DATA.actor] } // For some reason, Change and Defend look the same as Mime, but are treated
           : // differently with no visible config differences
             await window.currentBattle.ui.battlePointer.startSelection(
-              actor.index,
+              DATA.actor.index,
               combinedTargetFlags,
               false
             )
@@ -275,7 +275,7 @@ const initCommands = () => {
           // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
           addPlayerActionToQueue(
             // Includes hiding commands etc
-            actor.index,
+            DATA.actor.index,
             command.index,
             null,
             selectionResult,
@@ -295,13 +295,13 @@ const initCommands = () => {
           command.index,
           command.targetFlags,
           [],
-          actor.battleStats.weaponData.targets,
+          DATA.actor.battleStats.weaponData.targets,
           posCommand.all,
-          actor.battleStats.hasLongRangeMateria
+          DATA.actor.battleStats.hasLongRangeMateria
         )
         selectionResult =
           await window.currentBattle.ui.battlePointer.startSelection(
-            actor.index,
+            DATA.actor.index,
             combinedTargetFlags,
             combinedTargetFlags.includes('ShortRange')
           )
@@ -312,7 +312,7 @@ const initCommands = () => {
           // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
           addPlayerActionToQueue(
             // Includes hiding commands etc
-            actor.index,
+            DATA.actor.index,
             command.index,
             null,
             selectionResult,
@@ -324,7 +324,7 @@ const initCommands = () => {
         break
       case 'MagicMenu':
         DATA.state = 'magic'
-        drawMagicList(commandContainerGroup, actor, DATA)
+        drawMagicList(commandContainerGroup)
         break
 
       default:
@@ -343,7 +343,7 @@ const initCommands = () => {
             DATA.command.pos--
             if (DATA.command.pos % 4 === 3 || DATA.command.pos === -1)
               DATA.command.pos = DATA.command.pos + 4
-            if (actor.battleStats.menu.command[DATA.command.pos].id < 255)
+            if (DATA.actor.battleStats.menu.command[DATA.command.pos].id < 255)
               navCorrect = true
           }
           drawCommandCursor()
@@ -357,7 +357,7 @@ const initCommands = () => {
             DATA.command.pos++
             if (DATA.command.pos % 4 === 0)
               DATA.command.pos = DATA.command.pos - 4
-            if (actor.battleStats.menu.command[DATA.command.pos].id < 255)
+            if (DATA.actor.battleStats.menu.command[DATA.command.pos].id < 255)
               navCorrect = true
           }
           drawCommandCursor()
@@ -374,8 +374,8 @@ const initCommands = () => {
           DATA.command.special = 'change'
           showDialog(changeGroup)
         } else if (
-          actor.battleStats.menu.command[DATA.command.pos - 4] &&
-          actor.battleStats.menu.command[DATA.command.pos - 4].id < 255
+          DATA.actor.battleStats.menu.command[DATA.command.pos - 4] &&
+          DATA.actor.battleStats.menu.command[DATA.command.pos - 4].id < 255
         ) {
           DATA.command.pos = DATA.command.pos - 4
         }
@@ -383,7 +383,7 @@ const initCommands = () => {
         break
       }
       case KEY.RIGHT: {
-        const next = actor.battleStats.menu.command[DATA.command.pos + 4]
+        const next = DATA.actor.battleStats.menu.command[DATA.command.pos + 4]
         if (DATA.command.special === 'defend') {
           // Do nothing
         } else if (DATA.command.special === 'change') {
@@ -409,18 +409,18 @@ const initCommands = () => {
     } else if (DATA.state === 'target') {
       handleKeyPressTarget(key)
     } else if (DATA.state === 'magic') {
-      handleKeyPressMagic(key, DATA, drawCommandCursor)
+      handleKeyPressMagic(key, drawCommandCursor)
     }
   }
   const show = async player => {
-    actor = player
+    DATA.actor = player
     removeGroupChildren(commandContainerGroup)
     init()
     addMenuCommandsToDialog(
       commandsGroup,
       72,
       170,
-      actor.battleStats.menu.command
+      DATA.actor.battleStats.menu.command
     )
     startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
     startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
@@ -450,4 +450,4 @@ const initCommands = () => {
   }
 }
 
-export { initCommands }
+export { initCommands, DATA }

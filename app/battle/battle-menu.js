@@ -118,6 +118,7 @@ const constructMainMenus = () => {
     ALIGN.LEFT,
     ALIGN.BOTTOM
   )
+  // TODO - Note, I think that TIME and WAIT change depending on ATB status, need to look
   addImageToDialog(
     mainR,
     'labels',

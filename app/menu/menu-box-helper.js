@@ -484,11 +484,11 @@ const DIALOG_APPEAR_SPEED = 15
 const DIALOG_APPEAR_STEP_TOTAL = 6
 
 const applyClippingPlanes = (node, clippingPlanes, depth = 0) => {
-  if (depth > 3) return
+  if (depth > 10) return
   if (node.userData.isText || node.userData.isPointer) {
     node.material.clippingPlanes = clippingPlanes
   }
-  if (depth < 3) {
+  if (depth < 10) {
     node.children.forEach(child =>
       applyClippingPlanes(child, clippingPlanes, depth + 1)
     )
@@ -1249,10 +1249,11 @@ const addShapeToDialog = (
   w,
   h,
   perc,
-  blending
+  blending,
+  clippingPlanes
 ) => {
   // console.log('limit shape colors', colors)
-  if (perc === undefined) {
+  if (perc === undefined || perc === null) {
     perc = 1
   } else if (perc < 0.001) {
     perc = 0.001 // Setting width to zero creates a mess
@@ -1284,6 +1285,10 @@ const addShapeToDialog = (
   bg.position.set(x, window.config.sizing.height - y, dialogBox.userData.z)
   bg.userData = { id }
 
+  if (clippingPlanes) {
+    bg.material.clippingPlanes = clippingPlanes
+    bg.userData.isText = true
+  }
   dialogBox.add(bg)
   return bg
 }
@@ -1463,7 +1468,15 @@ const expandDialog = async (dialogBox, type) => {
   })
 }
 
-const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
+const createItemListNavigation = (
+  dialog,
+  x,
+  y,
+  h,
+  totalLines,
+  pageSize,
+  clippingPlanes
+) => {
   const sliderBg = addShapeToDialog(
     dialog,
     WINDOW_COLORS_SUMMARY.ITEM_LIST_SLIDER_BG,
@@ -1471,10 +1484,12 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     x,
     window.config.sizing.height - y,
     8,
-    h
+    h,
+    null,
+    null,
+    clippingPlanes
   )
   dialog.userData.sliderBg = sliderBg
-
   const slider = new THREE.Group()
   slider.position.x = x
   slider.position.y = y
@@ -1511,7 +1526,10 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8,
-    h / (totalLines / pageSize)
+    h / (totalLines / pageSize),
+    null,
+    null,
+    clippingPlanes
   )
   addShapeToDialog(
     slider,
@@ -1520,7 +1538,10 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8,
-    h / (totalLines / pageSize) - 1
+    h / (totalLines / pageSize) - 1,
+    null,
+    null,
+    clippingPlanes
   )
   addShapeToDialog(
     slider,
@@ -1529,7 +1550,10 @@ const createItemListNavigation = (dialog, x, y, h, totalLines, pageSize) => {
     0,
     window.config.sizing.height,
     8 - 1,
-    h / (totalLines / pageSize) - 1
+    h / (totalLines / pageSize) - 1,
+    null,
+    null,
+    clippingPlanes
   )
 }
 

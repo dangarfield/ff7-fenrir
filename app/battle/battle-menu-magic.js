@@ -1,3 +1,4 @@
+import TWEEN from '../../assets/tween.esm.js'
 import { KEY } from '../interaction/inputs.js'
 import {
   addGroupToDialog,
@@ -14,6 +15,9 @@ import {
   removeGroupChildren,
   showDialog
 } from '../menu/menu-box-helper.js'
+import { DATA } from './battle-menu-command.js'
+import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { applyMPTurbo, isMPTurboActive } from './battle-stats.js'
 
 let magicListDialog
 let magicListGroup
@@ -33,71 +37,138 @@ const getTextRowPosition = i => {
     y: offsets.pos.y + Math.trunc(i / 3) * offsets.yAdj - 4
   }
 }
-const getCurrentSpell = (actor, pos, page) => {
-  return actor.battleStats.menu.magic[page * 3 + pos]
-}
-const drawMagicCost = (spellCost, currentMP) => {
+const drawMagicCost = (spellCost, currentMP, multiplier) => {
   removeGroupChildren(magicCostGroupContents)
 
   // TODO - Does this alignment change if hp<->mp materia gets 9999 mp?
-  // I'm up to here...
   addTextToDialog(
     magicCostGroupContents,
     `${('' + spellCost).padStart(3, ' ')}/${('' + currentMP).padStart(3, ' ')}`,
-    `magic-cost-amount`,
-    LETTER_TYPES.MenuTextStats,
+    `cost-amount`,
+    LETTER_TYPES.BattleTextStats,
     LETTER_COLORS.White,
-    251 + 116 / 2,
-    174 + 52 / 2,
-    0.5,
-    magicCostDialog.userData.bg.material.clippingPlanes
-    // ALIGN.RIGHT
+    251 + 4,
+    174 + 22,
+    0.5
   )
-
-  //   addTextToDialog(
-  //     mpGroup,
-  //     '' + spellCost,
-  //     'mp-required',
-  //     LETTER_TYPES.MenuTextStats,
-  //     LETTER_COLORS.White,
-  //     68 / 2,
-  //     52 / 2,
-  //     0.5,
-  //     null,
-  //     ALIGN.RIGHT
-  //   )
-
-  //   addTextToDialog(
-  //     mpGroup,
-  //     '' + currentMP,
-  //     'mp-current',
-  //     LETTER_TYPES.MenuTextStats,
-  //     LETTER_COLORS.White,
-  //     116 / 2,
-  //     52 / 2,
-  //     0.5,
-  //     null,
-  //     ALIGN.RIGHT
-  //   )
 }
-const drawMagicCursor = (actor, DATA) => {
+const drawListPointer = () => {
   const { x, y } = getTextRowPosition(DATA.magic.pos)
   movePointer(POINTERS.pointer1, x - 2, y + 3.5) // Hmm, I think this pointer is too small for battle menus
-
-  const spell = getCurrentSpell(actor, DATA.magic.pos, DATA.magic.page)
-  console.log('battleUI current spell', spell)
-
-  // Set text
-  const desc = window.data.kernel.magicDescriptions[spell.index]
-  window.currentBattle.ui.battleDescriptions.setText(desc)
-
-  // TODO - More effectively calculate the spell cost. Could be affected by materia (MP Turbo), equipment (golden hairpin) etc
-  // Should really calculate this in battle stats
-  const spellCost = 123
-  drawMagicCost(spellCost, actor.battleStats.mp.current)
 }
-const drawMagicList = (commandContainerGroup, actor, DATA) => {
+const updateInfoForSelectedSpell = () => {
+  let spell
+  if (DATA.state === 'magic') {
+    spell =
+      DATA.actor.battleStats.menu.magic[DATA.magic.page * 3 + DATA.magic.pos]
+    //   } else if (menu.type === 'Summon') {
+    //     spell = DATA.battleStats.menu.summon[menu.page * 2 + menu.pos]
+    //   } else if (menu.type === 'Enemy-Skill') {
+    //     spell = DATA.battleStats.menu.enemySkills[menu.page * 2 + menu.pos]
+  }
+  console.log(
+    'battleUI spell',
+    DATA.state,
+    DATA.magic.page,
+    DATA.magic.pos,
+    spell,
+    DATA.actor.battleStats.menu.magic[DATA.magic.page * 3 + DATA.magic.pos]
+  )
+  if (spell === undefined) return
+
+  const attackData = window.data.kernel.attackData[spell.index]
+  removeGroupChildren(magicCostGroupContents)
+  if (!spell.enabled) {
+    drawMP(DATA.actor.battleStats.mp.current, false)
+    drawAbilities(false)
+  } else {
+    // TODO - Other MP cost affecting equipment? Golden hairpin? Should this really be applied at the battleStats level?
+    if (isMPTurboActive(spell)) {
+      drawMP(
+        DATA.actor.battleStats.mp.current,
+        applyMPTurbo(attackData.mp, spell)
+      )
+    } else {
+      drawMP(DATA.actor.battleStats.mp.current, attackData.mp)
+    }
+    drawInfo(attackData.description)
+    drawAbilities(spell.addedAbilities)
+  }
+}
+const drawMP = (currentMP, mp) => {
+  // TODO - Does this alignment change if hp<->mp materia gets 9999 mp?
+  // TODO - Should probably put currentMP on the background layer magicCostDialog as it doesn't change
+  addTextToDialog(
+    magicCostGroupContents,
+    `/${('' + currentMP).padStart(3, ' ')}`,
+    `cost-amount`,
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    251 + 25,
+    174 + 22,
+    0.5
+  )
+  if (mp === false) return
+  addTextToDialog(
+    magicCostGroupContents,
+    `${('' + mp).padStart(3, ' ')}`,
+    `cost-amount`,
+    LETTER_TYPES.BattleTextStats,
+    LETTER_COLORS.White,
+    251 + 4,
+    174 + 22,
+    0.5
+  )
+}
+const drawAbilities = abilities => {
+  if (abilities === false) return
+  const displayedAbilities = ['QuadraMagic', 'All']
+  for (const [i, abilityType] of displayedAbilities.entries()) {
+    const ability = abilities.find(a => a.type === abilityType)
+    if (ability && ability.count > 0) {
+      addTextToDialog(
+        magicCostGroupContents,
+        ability.textBattle,
+        `ability-${abilityType}-text`,
+        LETTER_TYPES.BattleBaseFont,
+        LETTER_COLORS.White,
+        251 + (16 - 16) / 2,
+        174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+        0.5,
+        null
+      )
+      addTextToDialog(
+        magicCostGroupContents,
+        '' + ability.count,
+        `ability-${abilityType}-count`,
+        LETTER_TYPES.BattleTextStats,
+        LETTER_COLORS.White,
+        251 + (78 - 16) / 2,
+        174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+        0.5,
+        null
+      )
+      const times = addImageToDialog(
+        magicCostGroupContents,
+        'labels',
+        'times',
+        `ability-${abilityType}-times`,
+        251 + (98 + 6) / 2,
+        174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+        0.5
+      )
+      times.userData.isText = true
+    }
+  }
+}
+const drawInfo = desc => {
+  window.currentBattle.ui.battleDescriptions.setText(desc)
+}
+
+const drawMagicList = commandContainerGroup => {
   // TODO - Remove all
+  DATA.magic.page = 0
+  DATA.magic.pos = 0
 
   // Create list group
   magicListDialog = createDialogBox({
@@ -113,9 +184,9 @@ const drawMagicList = (commandContainerGroup, actor, DATA) => {
   magicListGroup = addGroupToDialog(magicListDialog, 20)
   magicListGroupContents = addGroupToDialog(magicListDialog, 20)
 
-  console.log('battleUI magic list actor', actor)
-  for (let i = 0; i < actor.battleStats.menu.magic.length; i++) {
-    const spell = actor.battleStats.menu.magic[i]
+  console.log('battleUI magic list actor', DATA.actor)
+  for (let i = 0; i < DATA.actor.battleStats.menu.magic.length; i++) {
+    const spell = DATA.actor.battleStats.menu.magic[i]
     const { x, y } = getTextRowPosition(i)
     // console.log('battleUI magic list', spell, x, y)
     if (spell.enabled) {
@@ -141,6 +212,7 @@ const drawMagicList = (commandContainerGroup, actor, DATA) => {
           magicListDialog.userData.bg.material.clippingPlanes
       }
       if (spell.addedAbilities.some(a => a.type === 'All')) {
+        // TODO - remaining allTotal must also be < 0
         const allArrow = addImageToDialog(
           magicListGroupContents,
           'pointers',
@@ -165,10 +237,12 @@ const drawMagicList = (commandContainerGroup, actor, DATA) => {
     243.5,
     38,
     50,
-    actor.battleStats.menu.magic.length / 3,
-    3
-  ) // TODO - Pass in clipping planes
-
+    DATA.actor.battleStats.menu.magic.length / 3,
+    3,
+    magicListDialog.userData.bg.material.clippingPlanes
+  )
+  window.magicListDialog = magicListDialog
+  window.magicListGroup = magicListGroup
   // Create cost group
   magicCostDialog = createDialogBox({
     id: 20,
@@ -202,27 +276,126 @@ const drawMagicList = (commandContainerGroup, actor, DATA) => {
   showDialog(magicListDialog)
   showDialog(magicCostDialog)
 
-  drawMagicCursor(actor, DATA)
   magicListGroup.userData.slider.userData.moveToPage(DATA.magic.page)
   magicListGroupContents.position.y = 0 // TODO - Update this
 
-  // TODO update selected item cost and help text
+  updateInfoForSelectedSpell()
+  drawListPointer()
+}
+const tweenMagicList = (up, state, cb) => {
+  DATA.state = 'tween-list'
+  for (let i = 0; i < DATA.page + 1; i++) {
+    magicListGroupContents.children[i].visible = true
+  }
+  const from = { y: magicListGroupContents.position.y }
+  const to = {
+    y: up
+      ? magicListGroupContents.position.y + offsets.yAdj
+      : magicListGroupContents.position.y - offsets.yAdj
+  }
+  new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+    .to(to, 50)
+    .onUpdate(function () {
+      magicListGroupContents.position.y = from.y
+    })
+    .onComplete(function () {
+      for (let i = 0; i < DATA.page; i++) {
+        magicListGroupContents.children[i].visible = false
+      }
+      DATA.state = state
+      console.log('battleUI tween end', DATA, DATA.state, state)
+      cb()
+    })
+    .start()
 }
 
-const handleKeyPressMagic = async (key, DATA, drawCommandCursor) => {
+const listNavigation = delta => {
+  const menu = DATA[DATA.state]
+  const lastPage = (menu.total - menu.cols * menu.rows) / menu.cols
+  const maxPos = menu.cols * menu.rows
+  const potential = menu.pos + delta
+  if (potential < 0) {
+    if (menu.page === 0) {
+      // console.log('magic listNavigation on first page - do nothing')
+    } else {
+      // console.log('magic listNavigation not on first page - PAGE DOWN')
+      if (delta === -1) {
+        menu.pos = menu.pos + (menu.cols - 1)
+        drawListPointer()
+      }
+      menu.page--
+      tweenMagicList(false, DATA.state, updateInfoForSelectedSpell)
+      magicListGroup.userData.slider.userData.moveToPage(menu.page)
+    }
+  } else if (potential >= maxPos) {
+    // console.log('magic listNavigation page - is last page??', menu.page, maxPos, maxPage - 7)
+    if (menu.page >= lastPage) {
+      // console.log('magic listNavigation on last page - do nothing')
+    } else {
+      // console.log('magic listNavigation not on last page - PAGE UP', delta, delta === 1, menu.pos)
+      if (delta === 1) {
+        menu.pos = menu.pos - (menu.cols - 1)
+        drawListPointer()
+      }
+      menu.page++
+      tweenMagicList(true, DATA.state, updateInfoForSelectedSpell)
+      magicListGroup.userData.slider.userData.moveToPage(menu.page)
+    }
+  } else {
+    // console.log('magic listNavigation', menu.page, menu.pos, potential)
+    menu.pos = potential
+    updateInfoForSelectedSpell()
+    drawListPointer()
+  }
+}
+
+const listPageNavigation = up => {
+  const menu = DATA[DATA.state]
+  const lastPage = (menu.total - menu.cols * menu.rows) / menu.cols
+
+  if (up) {
+    menu.page = menu.page + menu.rows
+    if (menu.page > lastPage) {
+      menu.page = lastPage
+    }
+  } else {
+    menu.page = menu.page - menu.rows
+    if (menu.page < 0) {
+      menu.page = 0
+    }
+  }
+  console.log('battleUI listPageNavigation', menu, lastPage, menu.page)
+  // Update list group positions
+
+  magicListGroup.userData.slider.userData.moveToPage(menu.page)
+  magicListGroupContents.position.y = menu.page * offsets.yAdj
+  updateInfoForSelectedSpell()
+}
+const handleKeyPressMagic = async (key, drawCommandCursor) => {
   switch (key) {
     case KEY.UP:
+      listNavigation(0 - DATA[DATA.state].cols)
       break
     case KEY.DOWN:
+      listNavigation(DATA[DATA.state].cols)
       break
     case KEY.LEFT:
+      listNavigation(-1)
       break
     case KEY.RIGHT:
+      listNavigation(1)
+      break
+    case KEY.L1:
+      listPageNavigation(false)
+      break
+    case KEY.R1:
+      listPageNavigation(true)
       break
     case KEY.O:
       break
     case KEY.X:
       DATA.state = 'loading'
+      movePointer(POINTERS.pointer1, -100, -100, true)
       closeDialog(magicCostDialog)
       await closeDialog(magicListDialog)
       removeGroupChildren(magicListDialog)
