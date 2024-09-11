@@ -77,7 +77,7 @@ const updateInfoForSelectedSpell = () => {
   } else {
     drawMP(DATA.actor.battleStats.mp.current, spell.mpCost)
     drawInfo(attackData.description)
-    drawAbilities(spell.addedAbilities)
+    drawAbilities(spell.addedAbilities, spell.uses)
   }
 }
 const drawMP = (currentMP, mp) => {
@@ -105,7 +105,7 @@ const drawMP = (currentMP, mp) => {
     0.5
   )
 }
-const drawAbilities = abilities => {
+const drawAbilities = (abilities, uses) => {
   if (abilities === false) return
   const displayedAbilities = ['QuadraMagic', 'All']
   for (const [i, abilityType] of displayedAbilities.entries()) {
@@ -144,6 +144,43 @@ const drawAbilities = abilities => {
       )
       times.userData.isText = true
     }
+  }
+  if (uses !== undefined) {
+    const i = 1
+    if (uses === 0xff) {
+      const infinity = addImageToDialog(
+        costGroupContents,
+        'labels',
+        'infinity',
+        `ability-infinity`,
+        251 + (98 + 6 - 24) / 2,
+        174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+        0.5
+      )
+      infinity.userData.isText = true
+    } else {
+      addTextToDialog(
+        costGroupContents,
+        '' + uses,
+        `ability-uses`,
+        LETTER_TYPES.BattleTextStats,
+        LETTER_COLORS.White,
+        251 + (78 - 16) / 2,
+        174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+        0.5,
+        null
+      )
+    }
+    const times = addImageToDialog(
+      costGroupContents,
+      'labels',
+      'times',
+      `ability-times`,
+      251 + (98 + 6) / 2,
+      174 + (96 - 8 - 16 - 4) / 2 + i * 11,
+      0.5
+    )
+    times.userData.isText = true
   }
 }
 const drawInfo = desc => {
