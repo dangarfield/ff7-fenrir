@@ -91,7 +91,8 @@ const addPlayerActionToQueue = async (
   commandId,
   attack,
   targetMask,
-  priority
+  priority,
+  dontProcess
 ) => {
   console.log(
     'battleQueue addPlayerActionToQueue',
@@ -99,7 +100,8 @@ const addPlayerActionToQueue = async (
     commandId,
     attack,
     targetMask,
-    priority
+    priority,
+    dontProcess
   )
   window.currentBattle.queue.actions.push({
     actorIndex,
@@ -109,6 +111,7 @@ const addPlayerActionToQueue = async (
     targetMask,
     priority
   }) // TODO - Priority - https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics#Queued_Actions
+  if (dontProcess) return // Eg, for multi queued items, such a w-magic, w-summon etc
   await removeActivePlayerFromSelectionList()
   await promoteAvailablePlayerToSelectAction()
   processQueue()

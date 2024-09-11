@@ -230,6 +230,106 @@ const initCommands = () => {
     )
     return combined
   }
+  const spellMenuProcess = async (command, type, spellsRequired) => {
+    // TODO - There are some async / await operations here, of which I should cancel and return this method immediately
+    // if cycleActiveSelectionPlayer is triggered
+
+    let selectedSpell
+    POINTERS.pointer1.visible = false
+
+    const selectedActions = [] // has spell, target, spell, target etc
+    // const spellsRequired = 1
+    DATA.state = type
+    openSpellMenu(commandContainerGroup)
+
+    console.log('battleUI SELECT SPELL: START')
+    while (selectedActions.length < spellsRequired * 2) {
+      if (selectedActions.length % 2 === 0) {
+        // Select spell
+        DATA.state = type
+        // TODO: For W-Magic etc should this show the 'new provisional' mp amount too?
+        // Nope, the original game doesn't, it allows to go over, then when executing it says 'not enough mp'
+        // But if this happens, it still decrements the 'all and summon count' even if it fails to execute because of mp etc
+        // If remaining all count is 1, you CAN queue 2 all spells with both targets for all. But when the second executes,
+        // it only targets a random 1 of those in the all target
+        selectedSpell = await selectSpell(commandContainerGroup)
+
+        console.log('battleUI spellMenuProcess selectSpell', selectedSpell)
+        if (selectedSpell === null) {
+          // If w-menu, null goes back to previous target selection
+          if (selectedActions.length > 0) {
+            // Remove last target so that it goes back to target selection
+            selectedActions.pop()
+            POINTERS.pointer1.visible = false
+            continue
+          } else {
+            DATA.state = 'command'
+            drawCommandCursor()
+            break
+          }
+        }
+        POINTERS.pointer1.visible = false // Improve...
+        selectedActions.push(selectedSpell)
+      } else {
+        // Select target
+        DATA.state = 'target'
+        selectedSpell = selectedActions[selectedActions.length - 1]
+        const combinedTargetFlags = combineTargetFlags(
+          command.index,
+          command.targetFlags,
+          window.data.kernel.attackData[selectedSpell.index].targetFlags,
+          DATA.actor.battleStats.weaponData.targets,
+          selectedSpell.addedAbilities.find(a => a.type === 'All')?.count > 0,
+          DATA.actor.battleStats.hasLongRangeMateria
+        )
+        console.log(
+          'battleUI start target selection for MagicMenu',
+          selectedSpell,
+          selectedSpell.addedAbilities.find(a => a.type === 'All')?.count > 0,
+          combinedTargetFlags
+        )
+
+        const selectionResult =
+          await window.currentBattle.ui.battlePointer.startSelection(
+            DATA.actor.index,
+            combinedTargetFlags,
+            false
+          )
+        console.log('battleUI selectionResult for MagicMenu', selectionResult)
+        if (selectionResult.target) {
+          selectedActions.push(selectionResult)
+        } else {
+          // Remove last spell so that it goes back to spell selection
+          selectedActions.pop()
+          continue
+        }
+      }
+    }
+
+    console.log(
+      'battleUI SELECT SPELL: END',
+      selectedActions,
+      selectedActions.length === spellsRequired * 2
+    )
+    DATA.state = 'command'
+    await closeSpellDialogs()
+    if (selectedActions.length === spellsRequired * 2) {
+      for (let i = 0; i < spellsRequired; i++) {
+        addPlayerActionToQueue(
+          // Envoking this each times removes current player from queue, need to fix for w-magic etc
+          // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
+          DATA.actor.index,
+          command.index,
+          selectedActions[i * 2 + 0],
+          selectedActions[i * 2 + 1],
+          6,
+          i + 1 < spellsRequired // Don't trigger process queue of first one of w-magic etc
+        )
+      }
+    } else {
+      drawCommandCursor()
+    }
+  }
   const selectCommand = async () => {
     const posCommand = DATA.actor.battleStats.menu.command[DATA.command.pos]
     let commandId = posCommand.limit ? posCommand.limit : posCommand.id
@@ -352,132 +452,19 @@ const initCommands = () => {
         }
         break
       case 'MagicMenu':
-        POINTERS.pointer1.visible = false
-
-        const selectedActions = [] // has spell, target, spell, target etc
-        const spellsRequired = 1
-        DATA.state = 'magic'
-        openSpellMenu(commandContainerGroup)
-
-        console.log('battleUI SELECT SPELL: START')
-        while (selectedActions.length < spellsRequired * 2) {
-          if (selectedActions.length % 2 === 0) {
-            // Select spell
-            DATA.state = 'magic'
-            selectedSpell = await selectSpell(commandContainerGroup)
-            console.log('battleUI MagicMenu selectSpell', selectedSpell)
-            if (selectedSpell === null) {
-              // If w-menu, null goes back to previous target selection
-              if (selectedActions.length > 0) {
-                // Remove last target so that it goes back to target selection
-                selectedActions.pop()
-                continue
-              } else {
-                DATA.state = 'command'
-                drawCommandCursor()
-                break
-              }
-            }
-            POINTERS.pointer1.visible = false // Improve...
-            selectedActions.push(selectedSpell)
-          } else {
-            // Select target
-            DATA.state = 'target'
-            combinedTargetFlags = combineTargetFlags(
-              command.index,
-              command.targetFlags,
-              window.data.kernel.attackData[selectedSpell.index].targetFlags,
-              DATA.actor.battleStats.weaponData.targets,
-              selectedSpell.addedAbilities.find(a => a.type === 'All')?.count >
-                0,
-              DATA.actor.battleStats.hasLongRangeMateria
-            )
-            console.log(
-              'battleUI start target selection for MagicMenu',
-              selectedSpell,
-              selectedSpell.addedAbilities.find(a => a.type === 'All')?.count >
-                0,
-              combinedTargetFlags
-            )
-
-            selectionResult =
-              await window.currentBattle.ui.battlePointer.startSelection(
-                DATA.actor.index,
-                combinedTargetFlags,
-                false
-              )
-            console.log(
-              'battleUI selectionResult for MagicMenu',
-              selectionResult
-            )
-            if (selectionResult.target) {
-              selectedActions.push(selectionResult)
-            } else {
-              // Remove last spell so that it goes back to spell selection
-              selectedActions.pop()
-              continue
-            }
-          }
-        }
-
-        console.log(
-          'battleUI SELECT SPELL: END',
-          selectedActions,
-          selectedActions.length === spellsRequired * 2
-        )
-        DATA.state = 'command'
-        await closeSpellDialogs()
-        if (selectedActions.length === spellsRequired * 2) {
-          addPlayerActionToQueue(
-            // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
-            DATA.actor.index,
-            command.index,
-            selectedActions[0],
-            selectedActions[1],
-            6
-          )
-        } else {
-          drawCommandCursor()
-        }
-
+        spellMenuProcess(command, 'magic', 1)
         break
       case 'SummonMenu':
-        DATA.state = 'summon'
-        POINTERS.pointer1.visible = false
-        selectedSpell = await selectSpell(commandContainerGroup)
-        console.log('battleUI SummonMenu selectSpell', selectedSpell)
-        if (selectedSpell === null) {
-          DATA.state = 'command'
-          drawCommandCursor()
-          break
-        }
-        console.log(
-          'battleUI start target selection for SummonMenu',
-          selectedSpell
-        )
-        // TEMPORARY
-        DATA.state = 'command'
-        await closeSpellDialogs()
-        drawCommandCursor()
+        spellMenuProcess(command, 'summon', 1)
         break
       case 'ESkillMenu':
-        DATA.state = 'enemySkills'
-        POINTERS.pointer1.visible = false
-        selectedSpell = await selectSpell(commandContainerGroup)
-        console.log('battleUI ESkillMenu selectSpell', selectedSpell)
-        if (selectedSpell === null) {
-          DATA.state = 'command'
-          drawCommandCursor()
-          break
-        }
-        console.log(
-          'battleUI start target selection for ESkillMenu',
-          selectedSpell
-        )
-        // TEMPORARY
-        DATA.state = 'command'
-        await closeSpellDialogs()
-        drawCommandCursor()
+        spellMenuProcess(command, 'enemySkills', 1)
+        break
+      case 'WMagicMenu':
+        spellMenuProcess(command, 'magic', 2)
+        break
+      case 'WSummonMenu':
+        spellMenuProcess(command, 'summon', 2)
         break
 
       default:

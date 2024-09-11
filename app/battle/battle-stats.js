@@ -1238,7 +1238,7 @@ const debugSetEquipmentAndMateria = () => {
     'Wizard Bracelet',
     '',
     [
-      '',
+      'W-Magic',
       'Underwater',
       'Cover',
       'Ultima',
