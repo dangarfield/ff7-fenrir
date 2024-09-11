@@ -43,7 +43,36 @@ let changeGroup
 let defendGroup
 let magicSummonListGroup
 let magicSummonCostGroup
+let temporaryConcealPointerState = {
+  visible: true,
+  state: '',
+  pointers: {}
+}
 
+const temporarilyConcealCommands = visible => {
+  temporaryConcealPointerState.visible = visible
+  if (POINTERS.pointer1 !== null) {
+    if (visible) {
+      DATA.state = temporaryConcealPointerState.state
+      for (const key in temporaryConcealPointerState.pointers) {
+        POINTERS[key].visible = temporaryConcealPointerState.pointers[key]
+      }
+    } else {
+      temporaryConcealPointerState.state = DATA.state
+      DATA.state = 'conceal'
+      temporaryConcealPointerState.pointers = {}
+      for (const key in POINTERS) {
+        temporaryConcealPointerState.pointers[key] = POINTERS[key].visible
+        POINTERS[key].visible = false
+      }
+    }
+  }
+
+  if (commandContainerGroup) {
+    commandContainerGroup.visible = visible
+  }
+  console.log('press CONCEAL', visible, temporaryConcealPointerState)
+}
 const initCommands = () => {
   commandContainerGroup = new THREE.Group()
   commandContainerGroup.userData = { id: 30, z: 50 }
@@ -345,41 +374,28 @@ const initCommands = () => {
 
     let combinedTargetFlags // Just to keep the variable names consistent
     let selectionResult
-    let selectedSpell
+
+    // TODO - A big one - state changes when menu selection is open (eg, mp or status affects commands)
+    // TODO - TIME and WAIT - When selecting a command, ATB can stop if configured
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData" // DONE
       // "EnableTargetSelectionUsingCursor" // DONE
-      // "MagicMenu"
-      // "SummonMenu"
+      // "MagicMenu" // DONE
+      // "SummonMenu" // DONE
       // "ItemMenu"
       // "CoinMenu"
       // "ThrowMenu"
-      // "ESkillMenu"
+      // "ESkillMenu" // DONE
       // "LimitMenu"
-      // "WMagicMenu"
-      // "WSummonMenu"
-      // "WItemMenu"
-      // "None"
-
-      // Not entirely sure what the difference between EnableTargetSelectionUsingCursor and PerformCommandUsingTargetData is
-      // If the command is 'attack' (maybe some others too), use the target flags from the weapon
-      // EnableTargetSelectionUsingCursor - Attack, Steal, Mug, 2x-Cut
-      // Steal+MegaAll - Targets all (eg, not bound by cover flags)
-      // Steal with a mega all switched to a single target mode, also allows all targets
-      // Steal and no long range - bound by cover flags
-      // 2x cut bound by cover flag
-      // 2x cut with long range weapon / material - Targets all
-
-      // When mega-all commands - you cannot target own player
-      // All of these seem to be start on enemy row too
+      // "WMagicMenu" // DONE
+      // "WSummonMenu" // DONE
+      // "WItemMenu" // DONE
+      // "None" // DONE
 
       case 'PerformCommandUsingTargetData':
-        // TODO - Go to target selection
         console.log('battleUI PerformCommandUsingTargetData', command)
         DATA.state = 'target'
-        // TODO - Add weapon, magic, item details to targetFlags
-        // If it's a command and a mega-all, it should not target players
         hideCommandCursor()
         combinedTargetFlags = combineTargetFlags(
           command.index,
@@ -594,4 +610,4 @@ const initCommands = () => {
   }
 }
 
-export { initCommands, DATA }
+export { initCommands, DATA, temporarilyConcealCommands }

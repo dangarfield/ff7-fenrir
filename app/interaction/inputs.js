@@ -60,6 +60,7 @@ const sendSteppedThrottleEvent = (keyData, keyDown) => {
   if (!keyDown) {
     keyData.lastCall = 0
     keyData.count = 0
+    if (keyData.key === KEY.SQUARE) sendEvent(keyData.key, -1) // Only send key up events for square right now, eg battles
     return
   }
   const delay = keyData.count > 1 ? 32 : 60

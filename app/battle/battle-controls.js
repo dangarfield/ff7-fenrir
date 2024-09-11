@@ -8,6 +8,7 @@ import {
   toggleTargetLabel
 } from './battle-menu.js'
 import { cycleActiveSelectionPlayer } from './battle-queue.js'
+import { DATA, temporarilyConcealCommands } from './battle-menu-command.js'
 
 const areBattleControlsActive = () => {
   return window.anim.activeScene === 'battle'
@@ -38,14 +39,21 @@ const initBattleKeypressActions = () => {
   getKeyPressEmitter().on(KEY.TRIANGLE, firstPress => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
       console.log('press triangle')
+      if (DATA.state === 'conceal') return
       window.currentBattle.ui.battlePointer.closeIfOpen()
       cycleActiveSelectionPlayer()
     }
   })
   getKeyPressEmitter().on(KEY.SQUARE, firstPress => {
-    if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
-      console.log('press square')
-      // TODO - Hide menus
+    if (areBattleControlsActive()) {
+      // console.log('press square value:', firstPress)
+      if (firstPress === -1) {
+        console.log('press square: ended')
+        temporarilyConcealCommands(true)
+      } else if (firstPress) {
+        console.log('press square: started')
+        temporarilyConcealCommands(false)
+      }
     }
   })
 
