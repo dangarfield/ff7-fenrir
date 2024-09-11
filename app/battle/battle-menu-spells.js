@@ -209,9 +209,21 @@ const drawAbilities = (abilities, uses) => {
 const drawInfo = desc => {
   window.currentBattle.ui.battleDescriptions.setText(desc)
 }
+const drawAllInView = menu => {
+  removeGroupChildren(listGroupContents)
+  const drawFrom = menu.page * menu.cols
+  const drawToInclusive = drawFrom + menu.cols * menu.rows - 1
+  drawnList = new Map()
+  window.drawnList = drawnList
+  console.log('battleUI render drawAllInView', menu, drawFrom, drawToInclusive)
+  for (let i = drawFrom; i <= drawToInclusive; i++) {
+    drawOneItem(i)
+  }
+}
 const drawOneItem = i => {
   const existingItems = drawnList.get(i)
 
+  console.log('battleUI render drawOneItem', i, existingItems)
   if (existingItems) {
     for (const item of existingItems) {
       item.visible = true
@@ -229,6 +241,13 @@ const drawOneItem = i => {
     if (item.itemId != 0x7f) {
       let color = LETTER_COLORS.White
       if (!itemData.restrictions.includes(DATA.items.restriction)) {
+        color = LETTER_COLORS.Gray
+      }
+      const adjustedQuantity =
+        DATA.items.firstItemId === item.itemId
+          ? item.quantity - 1
+          : item.quantity
+      if (adjustedQuantity === 0) {
         color = LETTER_COLORS.Gray
       }
       // console.log('battleUI ITEMS position', item, x, offsets.items.xAdjName, offsets.items.xAdjIcon)
@@ -273,7 +292,7 @@ const drawOneItem = i => {
       colon.userData.index = i
       const quantity = addTextToDialog(
         listGroupContents,
-        `${('' + Math.min(99, item.quantity)).padStart(2, '0')}`,
+        `${('' + Math.min(99, adjustedQuantity)).padStart(2, '0')}`,
         `item-list-${i}-colon`,
         LETTER_TYPES.BattleTextStats,
         color,
@@ -354,13 +373,7 @@ const openSpellMenu = commandContainerGroup => {
   listGroup = addGroupToDialog(listDialog, 20)
   listGroupContents = addGroupToDialog(listDialog, 20)
 
-  const drawFrom = menu.page * menu.cols
-  const drawToInclusive = drawFrom + menu.cols * menu.rows - 1
-  drawnList = new Map()
-  window.drawnList = drawnList
-  for (let i = drawFrom; i <= drawToInclusive; i++) {
-    drawOneItem(i)
-  }
+  drawAllInView(menu)
   window.listGroupContents = listGroupContents
   // console.log('battleUI spell list actor', DATA.actor)
 
@@ -418,6 +431,8 @@ const selectSpell = async () => {
     promiseToResolve = resolve
     updateInfoForSelectedSpell()
     drawListPointer()
+    console.log('battleUI render selectSpell')
+    drawAllInView(DATA[DATA.state])
   })
 }
 const hideNonPageItems = type => {
@@ -589,6 +604,8 @@ const handleKeyPressSpell = async key => {
           !itemData.restrictions.includes(DATA.items.restriction)
         )
           break
+        if (spell.itemId === DATA.items.firstItemId && spell.quantity <= 1)
+          break
       } else {
         if (!spell.enabled || spell.mpCost > DATA.actor.battleStats.mp.current)
           break
@@ -596,6 +613,10 @@ const handleKeyPressSpell = async key => {
       promiseToResolve(spell)
       break
     case KEY.X:
+      if (DATA.state === 'items') {
+        DATA.items.firstItemId = null
+        drawAllInView(DATA.items)
+      }
       DATA.state = 'returning'
       // await closeSpellDialogs()
       promiseToResolve(null)
@@ -607,4 +628,10 @@ const handleKeyPressSpell = async key => {
       break
   }
 }
-export { openSpellMenu, selectSpell, closeSpellDialogs, handleKeyPressSpell }
+export {
+  openSpellMenu,
+  selectSpell,
+  drawAllInView,
+  closeSpellDialogs,
+  handleKeyPressSpell
+}

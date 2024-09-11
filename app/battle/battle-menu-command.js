@@ -1,5 +1,6 @@
 import { asyncWrap } from '../helpers/helpers.js'
 import { KEY } from '../interaction/inputs.js'
+import { removeItemFromInventory } from '../items/items-module.js'
 import {
   createCommandsDialog,
   addMenuCommandsToDialog,
@@ -23,7 +24,8 @@ import {
   selectSpell,
   handleKeyPressSpell,
   closeSpellDialogs,
-  openSpellMenu
+  openSpellMenu,
+  drawAllInView
 } from './battle-menu-spells.js'
 import { addPlayerActionToQueue } from './battle-queue.js'
 import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
@@ -42,7 +44,8 @@ const DATA = {
     cols: 1,
     rows: 3,
     total: 320,
-    restriction: 'CanBeUsedInBattle'
+    restriction: 'CanBeUsedInBattle',
+    firstItemId: null
   }
 }
 let commandContainerGroup
@@ -271,7 +274,8 @@ const initCommands = () => {
     POINTERS.pointer1.visible = false
 
     const selectedActions = [] // has spell, target, spell, target etc
-    // const spellsRequired = 1
+    DATA.items.firstItemId = null
+
     DATA.state = type
     openSpellMenu(commandContainerGroup)
 
@@ -285,7 +289,7 @@ const initCommands = () => {
         // But if this happens, it still decrements the 'all and summon count' even if it fails to execute because of mp etc
         // If remaining all count is 1, you CAN queue 2 all spells with both targets for all. But when the second executes,
         // it only targets a random 1 of those in the all target
-        selectedSpell = await selectSpell(commandContainerGroup)
+        selectedSpell = await selectSpell()
 
         console.log('battleUI spellMenuProcess selectSpell', selectedSpell)
         if (selectedSpell === null) {
@@ -294,6 +298,7 @@ const initCommands = () => {
             // Remove last target so that it goes back to target selection
             selectedActions.pop()
             POINTERS.pointer1.visible = false
+            DATA.items.firstItemId = null
             continue
           } else {
             DATA.state = 'command'
@@ -305,6 +310,7 @@ const initCommands = () => {
         selectedActions.push(selectedSpell)
       } else {
         // Select target
+        // drawAllInView(DATA[type])
         DATA.state = 'target'
         selectedSpell = selectedActions[selectedActions.length - 1]
 
@@ -341,6 +347,7 @@ const initCommands = () => {
         console.log('battleUI selectionResult for MagicMenu', selectionResult)
         if (selectionResult.target) {
           selectedActions.push(selectionResult)
+          if (type === 'items') DATA.items.firstItemId = selectedSpell.itemId
         } else {
           // Remove last spell so that it goes back to spell selection
           selectedActions.pop()
@@ -368,6 +375,9 @@ const initCommands = () => {
           6,
           i + 1 < spellsRequired // Don't trigger process queue of first one of w-magic etc
         )
+        if (type === 'items')
+          removeItemFromInventory(selectedActions[i * 2 + 0].itemId, 1)
+        // TODO - When the battle is finished, the item actions that were not completed are added back into the inventory
       }
     } else {
       drawCommandCursor()
@@ -391,6 +401,7 @@ const initCommands = () => {
 
     // TODO - A big one - state changes when menu selection is open (eg, mp or status affects commands)
     // TODO - TIME and WAIT - When selecting a command, ATB can stop if configured
+    // TODO -
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData" // DONE
