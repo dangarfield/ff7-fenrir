@@ -35,14 +35,20 @@ const DATA = {
   command: { pos: 0, special: null },
   magic: { pos: 0, page: 0, cols: 3, rows: 3, total: 54 },
   enemySkills: { pos: 0, page: 0, cols: 2, rows: 3, total: 24 },
-  summon: { pos: 0, page: 0, cols: 1, rows: 3, total: 16 }
+  summon: { pos: 0, page: 0, cols: 1, rows: 3, total: 16 },
+  items: {
+    pos: 0,
+    page: 0,
+    cols: 1,
+    rows: 3,
+    total: 320,
+    restriction: 'CanBeUsedInBattle'
+  }
 }
 let commandContainerGroup
 let commandsGroup
 let changeGroup
 let defendGroup
-let magicSummonListGroup
-let magicSummonCostGroup
 let temporaryConcealPointerState = {
   visible: true,
   state: '',
@@ -148,9 +154,7 @@ const initCommands = () => {
       commandContainerGroup,
       commandsGroup,
       changeGroup,
-      defendGroup,
-      magicSummonListGroup,
-      magicSummonCostGroup
+      defendGroup
     }
   }
 
@@ -303,18 +307,28 @@ const initCommands = () => {
         // Select target
         DATA.state = 'target'
         selectedSpell = selectedActions[selectedActions.length - 1]
+
+        const attackFlags =
+          type === 'items'
+            ? window.data.kernel.allItemData[selectedSpell.itemId].targetData
+            : window.data.kernel.attackData[selectedSpell.index].targetFlags
+        const isAll =
+          type === 'items'
+            ? false
+            : selectedSpell.addedAbilities.find(a => a.type === 'All')?.count >
+              0
         const combinedTargetFlags = combineTargetFlags(
           command.index,
           command.targetFlags,
-          window.data.kernel.attackData[selectedSpell.index].targetFlags,
+          attackFlags,
           DATA.actor.battleStats.weaponData.targets,
-          selectedSpell.addedAbilities.find(a => a.type === 'All')?.count > 0,
+          isAll,
           DATA.actor.battleStats.hasLongRangeMateria
         )
         console.log(
           'battleUI start target selection for MagicMenu',
           selectedSpell,
-          selectedSpell.addedAbilities.find(a => a.type === 'All')?.count > 0,
+          // selectedSpell.addedAbilities.find(a => a.type === 'All')?.count > 0,
           combinedTargetFlags
         )
 
@@ -383,9 +397,9 @@ const initCommands = () => {
       // "EnableTargetSelectionUsingCursor" // DONE
       // "MagicMenu" // DONE
       // "SummonMenu" // DONE
-      // "ItemMenu"
+      // "ItemMenu" // DONE
       // "CoinMenu"
-      // "ThrowMenu"
+      // "ThrowMenu" // DONE
       // "ESkillMenu" // DONE
       // "LimitMenu"
       // "WMagicMenu" // DONE
@@ -482,6 +496,18 @@ const initCommands = () => {
       case 'WSummonMenu':
         spellMenuProcess(command, 'summon', 2)
         break
+      case 'ItemMenu':
+        DATA.items.restriction = 'CanBeUsedInBattle'
+        spellMenuProcess(command, 'items', 1)
+        break
+      case 'WItemMenu':
+        DATA.items.restriction = 'CanBeUsedInBattle'
+        spellMenuProcess(command, 'items', 2)
+        break
+      case 'ThrowMenu':
+        DATA.items.restriction = 'CanBeThrown'
+        spellMenuProcess(command, 'items', 1)
+        break
 
       default:
         window.currentBattle.ui.battleText.showBattleMessage(
@@ -569,6 +595,8 @@ const initCommands = () => {
     } else if (DATA.state === 'enemySkills') {
       handleKeyPressSpell(key)
     } else if (DATA.state === 'summon') {
+      handleKeyPressSpell(key)
+    } else if (DATA.state === 'items') {
       handleKeyPressSpell(key)
     }
   }

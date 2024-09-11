@@ -1239,7 +1239,7 @@ const debugSetEquipmentAndMateria = () => {
     '',
     [
       'W-Magic',
-      'Underwater',
+      'W-Item',
       'Cover',
       'Ultima',
       'Steal',

@@ -1,5 +1,6 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { KEY } from '../interaction/inputs.js'
+import { getItemIcon } from '../items/items-module.js'
 import {
   addGroupToDialog,
   addImageToDialog,
@@ -40,6 +41,15 @@ const offsets = {
     pos: { x: 112 / 2, y: 380 / 2 },
     yAdj: 32 / 2,
     xAdj: (156 + 84) / 2
+  },
+  items: {
+    pos: { x: (112 - 24) / 2, y: 380 / 2 },
+    yAdj: 32 / 2,
+    xAdj: (156 + 84) / 2,
+    xAdjIcon: 22 / 2,
+    xAdjName: 42 / 2,
+    xAdjColon: 278 / 2,
+    xAdjQuantity: 290 / 2
   }
 }
 const getTextRowPosition = i => {
@@ -61,18 +71,31 @@ const drawListPointer = () => {
 }
 const getCurrentSpell = () => {
   const menu = DATA[DATA.state]
+  if (DATA.state === 'items') {
+    const inventoryItem =
+      window.data.savemap.items[menu.page * menu.cols + menu.pos]
+    return inventoryItem.itemId === 0x7f ? undefined : inventoryItem
+  }
   return DATA.actor.battleStats.menu[DATA.state][
     menu.page * menu.cols + menu.pos
   ]
 }
 const updateInfoForSelectedSpell = () => {
   const spell = getCurrentSpell()
-  if (spell === undefined) return
 
+  if (spell === undefined) {
+    drawInfo()
+    return
+  }
+  if (DATA.state === 'items') {
+    drawInfo(window.data.kernel.allItemData[spell.itemId].description)
+    return
+  }
   const attackData = window.data.kernel.attackData[spell.index]
   removeGroupChildren(costGroupContents)
   if (!spell.enabled) {
     drawMP(DATA.actor.battleStats.mp.current, false)
+    drawInfo()
     drawAbilities(false)
   } else {
     drawMP(DATA.actor.battleStats.mp.current, spell.mpCost)
@@ -197,7 +220,7 @@ const openSpellMenu = commandContainerGroup => {
     // 100 - 20
     id: 20,
     name: 'spell-list',
-    w: 251,
+    w: DATA.state === 'items' ? 320 : 251,
     h: 56,
     x: 0,
     y: 174,
@@ -207,37 +230,41 @@ const openSpellMenu = commandContainerGroup => {
   listGroupContents = addGroupToDialog(listDialog, 20)
 
   console.log('battleUI spell list actor', DATA.actor)
-  for (let i = 0; i < DATA.actor.battleStats.menu[DATA.state].length; i++) {
-    const spell = DATA.actor.battleStats.menu[DATA.state][i]
-    const { x, y } = getTextRowPosition(i)
-    // console.log('battleUI spell list', spell, x, y)
+  if (DATA.state === 'items') {
+    // TODO - A much need performance improvement, don't render all items. Only render what is needed
+    // and after tweens hide / destroy those that are not in the main view
+    // TODO - W-Item decrement after first selection
+    for (let i = 0; i < window.data.savemap.items.length; i++) {
+      const item = window.data.savemap.items[i]
+      const itemData = window.data.kernel.allItemData[item.itemId]
+      const { x, y } = getTextRowPosition(i)
+      // console.log('battleUI spell list', spell, x, y)
 
-    // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
-    if (spell.enabled) {
-      let color = LETTER_COLORS.White
-      if (spell.mpCost > DATA.actor.battleStats.mp.current) {
-        color = LETTER_COLORS.Gray
-      }
+      // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
+      if (item.itemId != 0x7f) {
+        let color = LETTER_COLORS.White
+        if (!itemData.restrictions.includes(DATA.items.restriction)) {
+          color = LETTER_COLORS.Gray
+        }
+        // console.log('battleUI ITEMS position', item, x, offsets.items.xAdjName, offsets.items.xAdjIcon)
 
-      const textGroup = addTextToDialog(
-        listGroupContents,
-        spell.name,
-        `spell-list-${i}`,
-        LETTER_TYPES.BattleBaseFont,
-        color,
-        x,
-        y,
-        0.5,
-        listDialog.userData.bg.material.clippingPlanes
-      )
-      const allAbility = spell.addedAbilities.find(a => a.type === 'All')
-      if (allAbility && allAbility.count > 0) {
-        const allArrow = addImageToDialog(
+        addTextToDialog(
           listGroupContents,
-          'pointers',
-          'arrow-right',
-          `spell-list-${i}-all`,
-          x + offsets[DATA.state].xAdjAll,
+          item.name,
+          `item-list-${i}`,
+          LETTER_TYPES.BattleBaseFont,
+          color,
+          x + offsets.items.xAdjName,
+          y,
+          0.5,
+          listDialog.userData.bg.material.clippingPlanes
+        )
+        const icon = addImageToDialog(
+          listGroupContents,
+          'icons-battle',
+          getItemIcon(itemData),
+          `spell-list-${i}-icon`,
+          x + offsets.items.xAdjIcon,
           y,
           0.5,
           null,
@@ -245,14 +272,77 @@ const openSpellMenu = commandContainerGroup => {
           null,
           listDialog.userData.bg.material.clippingPlanes
         )
+        addTextToDialog(
+          listGroupContents,
+          ':',
+          `item-list-${i}-colon`,
+          LETTER_TYPES.BattleTextFixed,
+          color,
+          x + offsets.items.xAdjColon,
+          y,
+          0.5,
+          listDialog.userData.bg.material.clippingPlanes
+        )
+        addTextToDialog(
+          listGroupContents,
+          `${('' + Math.min(99, item.quantity)).padStart(2, '0')}`,
+          `item-list-${i}-colon`,
+          LETTER_TYPES.BattleTextStats,
+          color,
+          x + offsets.items.xAdjQuantity,
+          y,
+          0.5,
+          listDialog.userData.bg.material.clippingPlanes
+        )
       }
-      // TODO - Summon counts and infinity
+    }
+  } else {
+    for (let i = 0; i < DATA.actor.battleStats.menu[DATA.state].length; i++) {
+      const spell = DATA.actor.battleStats.menu[DATA.state][i]
+      const { x, y } = getTextRowPosition(i)
+      // console.log('battleUI spell list', spell, x, y)
+
+      // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
+      if (spell.enabled) {
+        let color = LETTER_COLORS.White
+        if (spell.mpCost > DATA.actor.battleStats.mp.current) {
+          color = LETTER_COLORS.Gray
+        }
+
+        const textGroup = addTextToDialog(
+          listGroupContents,
+          spell.name,
+          `spell-list-${i}`,
+          LETTER_TYPES.BattleBaseFont,
+          color,
+          x,
+          y,
+          0.5,
+          listDialog.userData.bg.material.clippingPlanes
+        )
+        const allAbility = spell.addedAbilities.find(a => a.type === 'All')
+        if (allAbility && allAbility.count > 0) {
+          const allArrow = addImageToDialog(
+            listGroupContents,
+            'pointers',
+            'arrow-right',
+            `spell-list-${i}-all`,
+            x + offsets[DATA.state].xAdjAll,
+            y,
+            0.5,
+            null,
+            ALIGN.LEFT,
+            null,
+            listDialog.userData.bg.material.clippingPlanes
+          )
+        }
+      }
     }
   }
 
   createItemListNavigation(
     listGroup,
-    243.5,
+    DATA.state === 'items' ? 320 - (251 - 243.5) : 243.5,
     38,
     50,
     menu.total / menu.cols,
@@ -261,35 +351,39 @@ const openSpellMenu = commandContainerGroup => {
   )
   window.listDialog = listDialog
   window.listGroup = listGroup
-  // Create cost group
-  costDialog = createDialogBox({
-    id: 20,
-    name: 'spell-cost',
-    w: 69,
-    h: 56,
-    x: 251,
-    y: 174,
-    scene: commandContainerGroup
-  })
-  costGroupContents = addGroupToDialog(costDialog, 20)
-  const mpNeeded = addImageToDialog(
-    costDialog,
-    'labels',
-    'mp-needed',
-    `mp-needed`,
-    251 + 16,
-    174 + 16,
-    0.5,
-    null,
-    ALIGN.LEFT,
-    ALIGN.BOTTOM,
-    costDialog.userData.bg.material.clippingPlanes
-  )
+
+  if (DATA.state !== 'items') {
+    // Create cost group
+    costDialog = createDialogBox({
+      id: 20,
+      name: 'spell-cost',
+      w: 69,
+      h: 56,
+      x: 251,
+      y: 174,
+      scene: commandContainerGroup
+    })
+    costGroupContents = addGroupToDialog(costDialog, 20)
+    const mpNeeded = addImageToDialog(
+      costDialog,
+      'labels',
+      'mp-needed',
+      `mp-needed`,
+      251 + 16,
+      174 + 16,
+      0.5,
+      null,
+      ALIGN.LEFT,
+      ALIGN.BOTTOM,
+      costDialog.userData.bg.material.clippingPlanes
+    )
+  }
 
   // Show all
   showDialog(listDialog)
-  showDialog(costDialog)
-
+  if (DATA.state !== 'items') {
+    showDialog(costDialog)
+  }
   listGroup.userData.slider.userData.moveToPage(menu.page)
   listGroupContents.position.y = menu.page * offsets[DATA.state].yAdj
 }
@@ -393,13 +487,15 @@ const listPageNavigation = up => {
 }
 const closeSpellDialogs = async () => {
   movePointer(POINTERS.pointer1, -100, -100, true)
-  closeDialog(costDialog)
+  if (costDialog) closeDialog(costDialog)
   await closeDialog(listDialog)
   removeGroupChildren(listDialog)
-  removeGroupChildren(costDialog)
+  if (costDialog) removeGroupChildren(costDialog)
   // Should really remove these listDialog and costDialog too
   listDialog.parent.remove(listDialog)
-  costDialog.parent.remove(costDialog)
+  listDialog = undefined
+  if (costDialog) costDialog.parent.remove(costDialog)
+  if (costDialog) costDialog = undefined
 }
 const handleKeyPressSpell = async key => {
   switch (key) {
@@ -429,8 +525,17 @@ const handleKeyPressSpell = async key => {
         spell,
         DATA.actor.battleStats.mp.current
       )
-      if (!spell.enabled || spell.mpCost > DATA.actor.battleStats.mp.current)
-        break
+      if (DATA.state === 'items') {
+        const itemData = window.data.kernel.allItemData[spell.itemId]
+        if (
+          !spell.quantity > 0 ||
+          !itemData.restrictions.includes(DATA.items.restriction)
+        )
+          break
+      } else {
+        if (!spell.enabled || spell.mpCost > DATA.actor.battleStats.mp.current)
+          break
+      }
       promiseToResolve(spell)
       break
     case KEY.X:

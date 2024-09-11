@@ -5,7 +5,7 @@ window.console = (function (origConsole) {
   const limit = true
   return {
     terms: [
-      'press'
+      'press',
       // 'executeOpDEBUG',
       // 'executeOp',
       // 'joinLeader'
@@ -18,7 +18,7 @@ window.console = (function (origConsole) {
       // 'battleStack',
       // 'battleMenu',
       // 'battleStack',
-      // 'battleUI',
+      'battleUI'
       // 'battlePointer',
       // 'battleQueue'
       // 'updateOrthoPosition'
