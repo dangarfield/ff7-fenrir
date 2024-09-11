@@ -209,7 +209,132 @@ const drawAbilities = (abilities, uses) => {
 const drawInfo = desc => {
   window.currentBattle.ui.battleDescriptions.setText(desc)
 }
+const drawOneItem = i => {
+  const existingItems = drawnList.get(i)
 
+  if (existingItems) {
+    for (const item of existingItems) {
+      item.visible = true
+    }
+    return
+  }
+  if (DATA.state === 'items') {
+    // TODO - W-Item decrement after first selection
+    const item = window.data.savemap.items[i]
+    const itemData = window.data.kernel.allItemData[item.itemId]
+    const { x, y } = getTextRowPosition(i)
+    // console.log('battleUI spell list', spell, x, y)
+
+    // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
+    if (item.itemId != 0x7f) {
+      let color = LETTER_COLORS.White
+      if (!itemData.restrictions.includes(DATA.items.restriction)) {
+        color = LETTER_COLORS.Gray
+      }
+      // console.log('battleUI ITEMS position', item, x, offsets.items.xAdjName, offsets.items.xAdjIcon)
+
+      const name = addTextToDialog(
+        listGroupContents,
+        item.name,
+        `item-list-${i}`,
+        LETTER_TYPES.BattleBaseFont,
+        color,
+        x + offsets.items.xAdjName,
+        y,
+        0.5,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      name.userData.index = i
+      const icon = addImageToDialog(
+        listGroupContents,
+        'icons-battle',
+        getItemIcon(itemData),
+        `spell-list-${i}-icon`,
+        x + offsets.items.xAdjIcon,
+        y,
+        0.5,
+        null,
+        ALIGN.LEFT,
+        null,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      icon.userData.index = i
+      const colon = addTextToDialog(
+        listGroupContents,
+        ':',
+        `item-list-${i}-colon`,
+        LETTER_TYPES.BattleTextFixed,
+        color,
+        x + offsets.items.xAdjColon,
+        y,
+        0.5,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      colon.userData.index = i
+      const quantity = addTextToDialog(
+        listGroupContents,
+        `${('' + Math.min(99, item.quantity)).padStart(2, '0')}`,
+        `item-list-${i}-colon`,
+        LETTER_TYPES.BattleTextStats,
+        color,
+        x + offsets.items.xAdjQuantity,
+        y,
+        0.5,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      quantity.userData.index = i
+
+      drawnList.set(i, [name, icon, colon, quantity])
+    }
+  } else {
+    const spell = DATA.actor.battleStats.menu[DATA.state][i]
+    const { x, y } = getTextRowPosition(i)
+    // console.log('battleUI spell list', spell, x, y)
+
+    // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
+    if (spell.enabled) {
+      let color = LETTER_COLORS.White
+      if (spell.mpCost > DATA.actor.battleStats.mp.current) {
+        color = LETTER_COLORS.Gray
+      }
+
+      const name = addTextToDialog(
+        listGroupContents,
+        spell.name,
+        `spell-list-${i}`,
+        LETTER_TYPES.BattleBaseFont,
+        color,
+        x,
+        y,
+        0.5,
+        listDialog.userData.bg.material.clippingPlanes
+      )
+      name.userData.index = i
+      const items = [name]
+      const allAbility = spell.addedAbilities.find(a => a.type === 'All')
+      if (allAbility && allAbility.count > 0) {
+        const allArrow = addImageToDialog(
+          listGroupContents,
+          'pointers',
+          'arrow-right',
+          `spell-list-${i}-all`,
+          x + offsets[DATA.state].xAdjAll,
+          y,
+          0.5,
+          null,
+          ALIGN.LEFT,
+          null,
+          listDialog.userData.bg.material.clippingPlanes
+        )
+        allArrow.userData.index = i
+        items.push(allArrow)
+      }
+
+      drawnList.set(i, items)
+    }
+  }
+}
+let drawnList = new Map()
 const openSpellMenu = commandContainerGroup => {
   const menu = DATA[DATA.state]
   menu.page = 0
@@ -229,116 +354,15 @@ const openSpellMenu = commandContainerGroup => {
   listGroup = addGroupToDialog(listDialog, 20)
   listGroupContents = addGroupToDialog(listDialog, 20)
 
-  console.log('battleUI spell list actor', DATA.actor)
-  if (DATA.state === 'items') {
-    // TODO - A much need performance improvement, don't render all items. Only render what is needed
-    // and after tweens hide / destroy those that are not in the main view
-    // TODO - W-Item decrement after first selection
-    for (let i = 0; i < window.data.savemap.items.length; i++) {
-      const item = window.data.savemap.items[i]
-      const itemData = window.data.kernel.allItemData[item.itemId]
-      const { x, y } = getTextRowPosition(i)
-      // console.log('battleUI spell list', spell, x, y)
-
-      // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
-      if (item.itemId != 0x7f) {
-        let color = LETTER_COLORS.White
-        if (!itemData.restrictions.includes(DATA.items.restriction)) {
-          color = LETTER_COLORS.Gray
-        }
-        // console.log('battleUI ITEMS position', item, x, offsets.items.xAdjName, offsets.items.xAdjIcon)
-
-        addTextToDialog(
-          listGroupContents,
-          item.name,
-          `item-list-${i}`,
-          LETTER_TYPES.BattleBaseFont,
-          color,
-          x + offsets.items.xAdjName,
-          y,
-          0.5,
-          listDialog.userData.bg.material.clippingPlanes
-        )
-        const icon = addImageToDialog(
-          listGroupContents,
-          'icons-battle',
-          getItemIcon(itemData),
-          `spell-list-${i}-icon`,
-          x + offsets.items.xAdjIcon,
-          y,
-          0.5,
-          null,
-          ALIGN.LEFT,
-          null,
-          listDialog.userData.bg.material.clippingPlanes
-        )
-        addTextToDialog(
-          listGroupContents,
-          ':',
-          `item-list-${i}-colon`,
-          LETTER_TYPES.BattleTextFixed,
-          color,
-          x + offsets.items.xAdjColon,
-          y,
-          0.5,
-          listDialog.userData.bg.material.clippingPlanes
-        )
-        addTextToDialog(
-          listGroupContents,
-          `${('' + Math.min(99, item.quantity)).padStart(2, '0')}`,
-          `item-list-${i}-colon`,
-          LETTER_TYPES.BattleTextStats,
-          color,
-          x + offsets.items.xAdjQuantity,
-          y,
-          0.5,
-          listDialog.userData.bg.material.clippingPlanes
-        )
-      }
-    }
-  } else {
-    for (let i = 0; i < DATA.actor.battleStats.menu[DATA.state].length; i++) {
-      const spell = DATA.actor.battleStats.menu[DATA.state][i]
-      const { x, y } = getTextRowPosition(i)
-      // console.log('battleUI spell list', spell, x, y)
-
-      // TODO - Have to validate whether the actor has enough MP + other factors I don't know yet
-      if (spell.enabled) {
-        let color = LETTER_COLORS.White
-        if (spell.mpCost > DATA.actor.battleStats.mp.current) {
-          color = LETTER_COLORS.Gray
-        }
-
-        const textGroup = addTextToDialog(
-          listGroupContents,
-          spell.name,
-          `spell-list-${i}`,
-          LETTER_TYPES.BattleBaseFont,
-          color,
-          x,
-          y,
-          0.5,
-          listDialog.userData.bg.material.clippingPlanes
-        )
-        const allAbility = spell.addedAbilities.find(a => a.type === 'All')
-        if (allAbility && allAbility.count > 0) {
-          const allArrow = addImageToDialog(
-            listGroupContents,
-            'pointers',
-            'arrow-right',
-            `spell-list-${i}-all`,
-            x + offsets[DATA.state].xAdjAll,
-            y,
-            0.5,
-            null,
-            ALIGN.LEFT,
-            null,
-            listDialog.userData.bg.material.clippingPlanes
-          )
-        }
-      }
-    }
+  const drawFrom = menu.page * menu.cols
+  const drawToInclusive = drawFrom + menu.cols * menu.rows - 1
+  drawnList = new Map()
+  window.drawnList = drawnList
+  for (let i = drawFrom; i <= drawToInclusive; i++) {
+    drawOneItem(i)
   }
+  window.listGroupContents = listGroupContents
+  // console.log('battleUI spell list actor', DATA.actor)
 
   createItemListNavigation(
     listGroup,
@@ -396,6 +420,16 @@ const selectSpell = async () => {
     drawListPointer()
   })
 }
+const hideNonPageItems = type => {
+  const menu = DATA[type]
+  const drawFrom = menu.page * menu.cols
+  const drawToInclusive = drawFrom + menu.cols * menu.rows - 1
+  // console.log('battleUI render hideNonPageItems', drawFrom, drawToInclusive)
+  drawnList.forEach((value, key) => {
+    const visible = key >= drawFrom && key <= drawToInclusive
+    value.forEach(item => (item.visible = visible))
+  })
+}
 const tweenList = (up, state, cb) => {
   DATA.state = 'tween-list'
   for (let i = 0; i < DATA.page + 1; i++) {
@@ -413,9 +447,11 @@ const tweenList = (up, state, cb) => {
       listGroupContents.position.y = from.y
     })
     .onComplete(function () {
-      for (let i = 0; i < DATA.page; i++) {
-        listGroupContents.children[i].visible = false
-      }
+      // for (let i = 0; i < DATA.page; i++) {
+      //   // TODO - Remove all children that are not within the correct range
+      //   listGroupContents.children[i].visible = false
+      // }
+      hideNonPageItems(state)
       DATA.state = state
       console.log('battleUI tween end', DATA, DATA.state, state)
       cb()
@@ -438,6 +474,13 @@ const listNavigation = delta => {
         drawListPointer()
       }
       menu.page--
+
+      const drawFrom = menu.page * menu.cols
+      const drawToInclusive = drawFrom + menu.rows - 1
+      for (let i = drawFrom; i <= drawToInclusive; i++) {
+        drawOneItem(i)
+      }
+
       tweenList(false, DATA.state, updateInfoForSelectedSpell)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
@@ -452,6 +495,13 @@ const listNavigation = delta => {
         drawListPointer()
       }
       menu.page++
+
+      const drawFrom = (menu.page - 1) * menu.cols + menu.cols * menu.rows
+      const drawToInclusive = drawFrom + menu.cols - 1
+      for (let i = drawFrom; i <= drawToInclusive; i++) {
+        drawOneItem(i)
+      }
+
       tweenList(true, DATA.state, updateInfoForSelectedSpell)
       listGroup.userData.slider.userData.moveToPage(menu.page)
     }
@@ -480,6 +530,13 @@ const listPageNavigation = up => {
   }
   console.log('battleUI listPageNavigation', menu, lastPage, menu.page)
   // Update list group positions
+
+  const drawFrom = menu.page * menu.cols
+  const drawToInclusive = drawFrom + menu.cols * menu.rows - 1
+  for (let i = drawFrom; i <= drawToInclusive; i++) {
+    drawOneItem(i)
+  }
+  hideNonPageItems(DATA.state)
 
   listGroup.userData.slider.userData.moveToPage(menu.page)
   listGroupContents.position.y = menu.page * offsets[DATA.state].yAdj
