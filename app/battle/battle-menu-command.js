@@ -21,6 +21,12 @@ import {
   stopAllLimitTextTweens
 } from '../menu/menu-limit-tween-helper.js'
 import {
+  closeCoinDialog,
+  handleKeyPressCoin,
+  openCoinDialog,
+  selectCoinAmount
+} from './battle-menu-coin.js'
+import {
   selectSpell,
   handleKeyPressSpell,
   closeSpellDialogs,
@@ -88,7 +94,7 @@ const initCommands = () => {
   // commandContainerGroup.position.z = 0
   commandContainerGroup.visible = true
   orthoScene.add(commandContainerGroup)
-
+  window.commandContainerGroup = commandContainerGroup
   const init = () => {
     DATA.state = 'command'
     console.log('battleUI commands INIT', commandContainerGroup.children.length)
@@ -266,6 +272,78 @@ const initCommands = () => {
     )
     return combined
   }
+  const coinMenuProcess = async command => {
+    POINTERS.pointer1.visible = false
+    DATA.state = 'coin'
+
+    const selectedActions = []
+    console.log('battleUI COIN: START')
+    await openCoinDialog(commandContainerGroup)
+    while (selectedActions.length < 2) {
+      if (selectedActions.length % 2 === 0) {
+        // Select coin amount
+        DATA.state = 'coin'
+        const coinAmount = await selectCoinAmount()
+        POINTERS.pointer1.visible = false
+        if (coinAmount === null) break
+        selectedActions.push(coinAmount)
+        continue
+      } else {
+        // Select target
+        DATA.state = 'target'
+        const combinedTargetFlags = combineTargetFlags(
+          command.index,
+          command.targetFlags,
+          null,
+          DATA.actor.battleStats.weaponData.targets,
+          true,
+          DATA.actor.battleStats.hasLongRangeMateria
+        )
+        console.log(
+          'battleUI start target selection for CoinMenu',
+          selectedActions[0],
+          combinedTargetFlags
+        )
+
+        const selectionResult =
+          await window.currentBattle.ui.battlePointer.startSelection(
+            DATA.actor.index,
+            combinedTargetFlags,
+            false
+          )
+        console.log('battleUI selectionResult for CoinMenu', selectionResult)
+        if (selectionResult.target) {
+          selectedActions.push(selectionResult)
+        } else {
+          // Remove last spell so that it goes back to spell selection
+          selectedActions.pop()
+        }
+      }
+    }
+    console.log(
+      'battleUI COIN: END',
+      selectedActions,
+      selectedActions.length === 2
+    )
+    DATA.state = 'command'
+    await closeCoinDialog()
+    if (selectedActions.length === 2) {
+      addPlayerActionToQueue(
+        // Envoking this each times removes current player from queue, need to fix for w-magic etc
+        // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
+        DATA.actor.index,
+        command.index,
+        selectedActions[0],
+        selectedActions[1],
+        6
+      )
+      window.data.savemap.gil =
+        window.data.savemap.gil - selectedActions[0].amount
+      // TODO - When the battle is finished, the gil were not completed are added back into the inventory
+    } else {
+      drawCommandCursor()
+    }
+  }
   const spellMenuProcess = async (command, type, spellsRequired) => {
     // TODO - There are some async / await operations here, of which I should cancel and return this method immediately
     // if cycleActiveSelectionPlayer is triggered
@@ -401,7 +479,7 @@ const initCommands = () => {
 
     // TODO - A big one - state changes when menu selection is open (eg, mp or status affects commands)
     // TODO - TIME and WAIT - When selecting a command, ATB can stop if configured
-    // TODO -
+    // TODO - Cannot always execute change command, need to validate it is possible on field
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData" // DONE
@@ -409,7 +487,7 @@ const initCommands = () => {
       // "MagicMenu" // DONE
       // "SummonMenu" // DONE
       // "ItemMenu" // DONE
-      // "CoinMenu"
+      // "CoinMenu" // DONE
       // "ThrowMenu" // DONE
       // "ESkillMenu" // DONE
       // "LimitMenu"
@@ -519,6 +597,9 @@ const initCommands = () => {
         DATA.items.restriction = 'CanBeThrown'
         spellMenuProcess(command, 'items', 1)
         break
+      case 'CoinMenu':
+        coinMenuProcess(command)
+        break
 
       default:
         window.currentBattle.ui.battleText.showBattleMessage(
@@ -609,6 +690,8 @@ const initCommands = () => {
       handleKeyPressSpell(key)
     } else if (DATA.state === 'items') {
       handleKeyPressSpell(key)
+    } else if (DATA.state === 'coin') {
+      handleKeyPressCoin(key)
     }
   }
   const show = async player => {

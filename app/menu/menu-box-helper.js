@@ -232,6 +232,26 @@ const fadeOverlay = async (fade, from, to, resolve) => {
     })
     .start()
 }
+
+const updateDialogBGWIthTiledImage = (dialog, type, image) => {
+  const textureData = getImageTexture(type, image)
+  const texture = textureData.texture
+  //   console.log('battleUI COIN: coin material', texture, dialog, textureData)
+  const bgBoundingBox = new THREE.Box3().setFromObject(dialog.userData.bg)
+  const xFactor =
+    (bgBoundingBox.max.x - bgBoundingBox.min.x) / (textureData.w / 2)
+  const yFactor =
+    (bgBoundingBox.max.y - bgBoundingBox.min.y) / (textureData.h / 2)
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(xFactor, yFactor)
+
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true
+  })
+  dialog.userData.bg.material = material
+}
 const createDialogBox = dialog => {
   const id = dialog.id
   const x = dialog.x
@@ -2048,5 +2068,6 @@ export {
   createCommandsDialog,
   addMenuCommandsToDialog,
   removeGroupChildren,
-  enlargeInstant
+  enlargeInstant,
+  updateDialogBGWIthTiledImage
 }

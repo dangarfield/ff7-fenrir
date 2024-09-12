@@ -19,7 +19,7 @@ window.console = (function (origConsole) {
       // 'battleMenu',
       // 'battleStack',
       // 'battleUI',
-      'battleUI render'
+      'battleUI COIN'
       // 'battlePointer',
       // 'battleQueue'
       // 'updateOrthoPosition'

@@ -143,6 +143,7 @@ const processQueue = async () => {
     }
   }
   // TODO - When the battle is finished, the item actions that were not completed are added back into the inventory
+  // TODO - When the battle is finished, the gil were not completed are added back into the inventory
 }
 
 const cycleActiveSelectionPlayer = async () => {
