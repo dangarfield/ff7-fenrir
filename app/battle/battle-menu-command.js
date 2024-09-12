@@ -27,6 +27,12 @@ import {
   selectCoinAmount
 } from './battle-menu-coin.js'
 import {
+  closeLimitDialog,
+  handleKeyPressLimit,
+  openLimitDialog,
+  selectLimit
+} from './battle-menu-limit.js'
+import {
   selectSpell,
   handleKeyPressSpell,
   closeSpellDialogs,
@@ -52,7 +58,8 @@ const DATA = {
     total: 320,
     restriction: 'CanBeUsedInBattle',
     firstItemId: null
-  }
+  },
+  limit: { pos: 0 }
 }
 let commandContainerGroup
 let commandsGroup
@@ -271,6 +278,76 @@ const initCommands = () => {
       combined
     )
     return combined
+  }
+  const limitMenuProcess = async command => {
+    POINTERS.pointer1.visible = false
+    DATA.state = 'limit'
+
+    const selectedActions = []
+    console.log('battleUI LIMIT: START')
+    await openLimitDialog(commandContainerGroup)
+    while (selectedActions.length < 2) {
+      if (selectedActions.length % 2 === 0) {
+        // Select limit
+        DATA.state = 'limit'
+        const selectedLimit = await selectLimit()
+        POINTERS.pointer1.visible = false
+        if (selectedLimit === null) break
+        selectedActions.push(selectedLimit)
+        continue
+      } else {
+        // Select target
+        DATA.state = 'target' // Note: Not all limits require targetting, in fact, not many of them do
+        const combinedTargetFlags = combineTargetFlags(
+          command.index,
+          command.targetFlags,
+          null,
+          DATA.actor.battleStats.weaponData.targets,
+          true,
+          DATA.actor.battleStats.hasLongRangeMateria
+        )
+
+        console.log(
+          'battleUI LIMIT: Target Selection',
+          selectedActions[0],
+          combinedTargetFlags
+        )
+
+        const selectionResult =
+          await window.currentBattle.ui.battlePointer.startSelection(
+            DATA.actor.index,
+            combinedTargetFlags,
+            false
+          )
+        console.log('battleUI LIMIT: Target Selection Results', selectionResult)
+        if (selectionResult.target) {
+          selectedActions.push(selectionResult)
+        } else {
+          // Remove last spell so that it goes back to spell selection
+          selectedActions.pop()
+        }
+      }
+    }
+    console.log(
+      'battleUI LIMIT: END',
+      selectedActions,
+      selectedActions.length === 2
+    )
+    DATA.state = 'command'
+    await closeLimitDialog()
+    if (selectedActions.length === 2) {
+      addPlayerActionToQueue(
+        // Envoking this each times removes current player from queue, need to fix for w-magic etc
+        // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
+        DATA.actor.index,
+        command.index,
+        selectedActions[0],
+        selectedActions[1],
+        1 // Limits are 1?
+      )
+    } else {
+      drawCommandCursor()
+    }
   }
   const coinMenuProcess = async command => {
     POINTERS.pointer1.visible = false
@@ -600,6 +677,9 @@ const initCommands = () => {
       case 'CoinMenu':
         coinMenuProcess(command)
         break
+      case 'LimitMenu':
+        limitMenuProcess(command)
+        break
 
       default:
         window.currentBattle.ui.battleText.showBattleMessage(
@@ -692,6 +772,8 @@ const initCommands = () => {
       handleKeyPressSpell(key)
     } else if (DATA.state === 'coin') {
       handleKeyPressCoin(key)
+    } else if (DATA.state === 'limit') {
+      handleKeyPressLimit(key)
     }
   }
   const show = async player => {
