@@ -1111,7 +1111,7 @@ const initialiseOpLoops = async () => {
   console.log('initialiseOpLoops: START')
   CURRENT_FIELD = window.currentField.name
   await positionPlayableCharacterFromTransition()
-  const entities = window.currentField.data.script.entities
+  let entities = window.currentField.data.script.entities
   // .filter(e => (
   // //   e.entityName.includes('dirs') ||
   // //   e.entityName.includes('cls') ||
@@ -1123,7 +1123,16 @@ const initialiseOpLoops = async () => {
   // e.entityName === 'light'
   // // e.entityName === 'light2'
   // )) // Debug
-  // .filter(e => e.entityName === 'light0')
+  // .filter(e => e.entityName === 'light')
+
+  const params = new URLSearchParams(window.location.search)
+  if (params.has('script')) {
+    const scriptValues = params.get('script').split(',')
+    entities = entities.filter(entity =>
+      scriptValues.includes(entity.entityName)
+    )
+  }
+
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
     await initEntityInit(window.currentField.name, entity) // All complete sync in order
@@ -1164,7 +1173,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4
         control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow
       }
-      window.quickBattle()
+      // window.quickBattle()
     }, 1000)
   }
 
