@@ -507,7 +507,8 @@ const addBattleDescriptionsTextMenu = () => {
     expandInstantly: true,
     noClipping: true,
     scene: orthoScene,
-    isSemiTransparent: true
+    isSemiTransparent: true,
+    toggleSpecial: true
   })
   let helperText = null
   helper.visible = window.data.savemap.config.battleDescriptions.Active
@@ -516,7 +517,9 @@ const addBattleDescriptionsTextMenu = () => {
     window.data.savemap.config.battleDescriptions.Inactive = !helper.visible
   }
   return {
-    setText: text => {
+    setText: (text, showSpecialColors) => {
+      helper.userData.bg.visible = !showSpecialColors
+      helper.userData.bgSpecial.visible = showSpecialColors === true
       if (helperText) helper.remove(helperText)
       if (text === undefined) text = ''
       helperText = addTextToDialog(

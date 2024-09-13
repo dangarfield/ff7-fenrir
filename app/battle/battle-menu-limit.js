@@ -33,11 +33,6 @@ const offsets = {
 
 let limitDialog
 
-const limitLevelValue = 2
-const limitData = [
-  { name: 'Limit Action 1', desc: 'Use Limit 1' },
-  { name: 'Limit Action 2', desc: 'Use Limit 2' }
-]
 const openLimitDialog = async commandContainerGroup => {
   DATA.limit.pos = 0
 
@@ -45,7 +40,10 @@ const openLimitDialog = async commandContainerGroup => {
     id: 20,
     name: 'limit',
     w: offsets.dialog.w,
-    h: offsets.dialog.h + (limitData.length - 1) * offsets.dialog.hAdj,
+    h:
+      offsets.dialog.h +
+      (DATA.actor.battleStats.menu.limit.limits.length - 1) *
+        offsets.dialog.hAdj,
     x: offsets.dialog.x,
     y: offsets.dialog.y,
     scene: commandContainerGroup,
@@ -82,7 +80,7 @@ const openLimitDialog = async commandContainerGroup => {
   const labelLevelValue = addImageToDialog(
     limitDialog,
     'limit-level',
-    `limit-level-${limitLevelValue}`,
+    `limit-level-${DATA.actor.data.limit.level}`,
     'limit-title-level-value',
     offsets.dialog.x + offsets.header.xLevelValue,
     offsets.dialog.y + offsets.header.y - 0.5,
@@ -92,10 +90,10 @@ const openLimitDialog = async commandContainerGroup => {
   )
   labelLevelValue.userData.isText = true
 
-  for (let i = 0; i < limitData.length; i++) {
+  for (let i = 0; i < DATA.actor.battleStats.menu.limit.limits.length; i++) {
     addTextToDialog(
       limitDialog,
-      limitData[i].name,
+      DATA.actor.battleStats.menu.limit.limits[i].name,
       `limit-level-${i}`,
       LETTER_TYPES.BattleBaseFont,
       LETTER_COLORS.White,
@@ -110,8 +108,8 @@ const openLimitDialog = async commandContainerGroup => {
 }
 const updateInfoForSelectedLimit = () => {
   // TODO - Change color
-  const limit = limitData[DATA.limit.pos]
-  window.currentBattle.ui.battleDescriptions.setText(limit.desc)
+  const limit = DATA.actor.battleStats.menu.limit.limits[DATA.limit.pos]
+  window.currentBattle.ui.battleDescriptions.setText(limit.description, true)
 }
 const drawPointer = () => {
   movePointer(
@@ -143,7 +141,12 @@ const wrapAround = (start, min, max, delta) => {
 }
 
 const changeLimit = async delta => {
-  DATA.limit.pos = wrapAround(DATA.limit.pos, 0, limitData.length - 1, delta)
+  DATA.limit.pos = wrapAround(
+    DATA.limit.pos,
+    0,
+    DATA.actor.battleStats.menu.limit.limits.length - 1,
+    delta
+  )
 
   updateInfoForSelectedLimit()
   drawPointer()
@@ -163,7 +166,7 @@ const handleKeyPressLimit = async key => {
     //   changeAmount(-1000)
     //   break
     case KEY.O:
-      promiseToResolve({ name: limitData[DATA.limit.pos] }) // Just so it displays the debug easily
+      promiseToResolve(DATA.actor.battleStats.menu.limit.limits[DATA.limit.pos])
       break
     case KEY.X:
       DATA.state = 'returning'

@@ -297,11 +297,11 @@ const initCommands = () => {
         continue
       } else {
         // Select target
-        DATA.state = 'target' // Note: Not all limits require targetting, in fact, not many of them do
+        DATA.state = 'target' // Note: Not all limits require targetting
         const combinedTargetFlags = combineTargetFlags(
           command.index,
           command.targetFlags,
-          null,
+          selectedActions[0].targetFlags,
           DATA.actor.battleStats.weaponData.targets,
           true,
           DATA.actor.battleStats.hasLongRangeMateria
@@ -335,6 +335,7 @@ const initCommands = () => {
     )
     DATA.state = 'command'
     await closeLimitDialog()
+    window.currentBattle.ui.battleDescriptions.setText()
     if (selectedActions.length === 2) {
       addPlayerActionToQueue(
         // Envoking this each times removes current player from queue, need to fix for w-magic etc
@@ -404,6 +405,7 @@ const initCommands = () => {
     )
     DATA.state = 'command'
     await closeCoinDialog()
+    window.currentBattle.ui.battleDescriptions.setText()
     if (selectedActions.length === 2) {
       addPlayerActionToQueue(
         // Envoking this each times removes current player from queue, need to fix for w-magic etc
@@ -518,6 +520,7 @@ const initCommands = () => {
     )
     DATA.state = 'command'
     await closeSpellDialogs()
+    window.currentBattle.ui.battleDescriptions.setText()
     if (selectedActions.length === spellsRequired * 2) {
       for (let i = 0; i < spellsRequired; i++) {
         addPlayerActionToQueue(
@@ -557,6 +560,7 @@ const initCommands = () => {
     // TODO - A big one - state changes when menu selection is open (eg, mp or status affects commands)
     // TODO - TIME and WAIT - When selecting a command, ATB can stop if configured
     // TODO - Cannot always execute change command, need to validate it is possible on field
+    // TODO - Some spells and items have a condition sub menu to be displayed for hp and status
 
     switch (command.initialCursorAction) {
       // "PerformCommandUsingTargetData" // DONE
@@ -595,6 +599,7 @@ const initCommands = () => {
             )
         DATA.state = 'command'
         console.log('battleUI target selectionResult', selectionResult)
+        window.currentBattle.ui.battleDescriptions.setText()
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')
           // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
@@ -631,6 +636,7 @@ const initCommands = () => {
             combinedTargetFlags.includes('ShortRange')
           )
         DATA.state = 'command'
+        window.currentBattle.ui.battleDescriptions.setText()
         console.log('battleUI target selectionResult', selectionResult)
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')

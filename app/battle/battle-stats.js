@@ -1,4 +1,5 @@
 import { dec2bin } from '../helpers/helpers.js'
+import { getLimitMenuData } from './battle-limits.js'
 
 const groupStatBonuses = (items, materias) => {
   const stats = []
@@ -572,11 +573,14 @@ const getMenuOptions = char => {
 
   const { magicMenu, summonMenu, enemySkillsMenu } =
     calculateMagicSummonEnemySkillMenus(char)
+  const limitMenuData = getLimitMenuData(char)
+
   const menu = {
     command,
     magic: magicMenu,
     summon: summonMenu,
-    enemySkills: enemySkillsMenu
+    enemySkills: enemySkillsMenu,
+    limit: limitMenuData
   }
   console.log('status menu', menu)
 
@@ -1280,7 +1284,23 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
+  window.data.savemap.characters.Cloud.limit.level = 2
+  window.data.savemap.characters.Cloud.limit.learnedLimitSkills = [
+    'Limit_1_1',
+    'Limit_1_2',
+    'Limit_2_1',
+    'Limit_2_2',
+    'Limit_3_1',
+    'Limit_3_2',
+    'Limit_4_1'
+  ]
+  window.data.savemap.characters.Cloud.limit.bar = 255
+  window.data.savemap.characters.Tifa.limit.bar = 255
   window.data.savemap.characters.Barret.limit.bar = 255
+  window.data.savemap.characters.Barret.limit.learnedLimitSkills = [
+    'Limit_1_1',
+    'Limit_1_2'
+  ]
   window.data.savemap.characters.Barret.status.battleOrder = 'BackRow'
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
   // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']

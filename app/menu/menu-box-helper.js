@@ -309,6 +309,26 @@ const createDialogBox = dialog => {
   if (dialog.isSemiTransparent) {
     bg.material.opacity = 0.5
   }
+  if (dialog.toggleSpecial) {
+    const bgSpecial = bg.clone()
+    const bgSpecialGeo = bgSpecial.geometry.clone()
+    bgSpecialGeo.setAttribute(
+      'color',
+      new THREE.BufferAttribute(
+        new Float32Array(bgSpecialGeo.attributes.position.count * 3),
+        3
+      )
+    )
+    const specialDialogColors = WINDOW_COLORS_SUMMARY.DIALOG_SPECIAL
+    for (let i = 0; i < specialDialogColors.length; i++) {
+      const color = new THREE.Color(specialDialogColors[i])
+      bgSpecialGeo.getAttribute('color').setXYZ(i, color.r, color.g, color.b)
+    }
+    bgSpecial.geometry = bgSpecialGeo
+    bgSpecial.visible = false
+    dialogBox.add(bgSpecial)
+    dialogBox.userData.bgSpecial = bgSpecial
+  }
   dialogBox.add(bg)
 
   const tl = createTextureMesh(EDGE_SIZE, EDGE_SIZE, dialogTextures.tl)
