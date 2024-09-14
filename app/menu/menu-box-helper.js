@@ -768,7 +768,15 @@ const getLetterTexture = (letter, letterType, color) => {
 window.getLetterTexture = getLetterTexture
 
 const getImageTexture = (type, image) => {
-  const textureImages = getMenuTextures()[type]
+  let textureImages = getMenuTextures()[type]
+  for (const key in textureImages) {
+    const textureImage = textureImages[key]
+    if (textureImage.description === image) {
+      console.log('getImageTexture found image', image, textureImage)
+      return textureImage
+    }
+  }
+  textureImages = getWindowTextures()[type]
   for (const key in textureImages) {
     const textureImage = textureImages[key]
     if (textureImage.description === image) {
@@ -2066,6 +2074,7 @@ export {
   addGroupToDialog,
   addCharacterSummary,
   getLetterTexture,
+  getImageTexture,
   addShapeToDialog,
   getDialogTextures,
   POINTERS,

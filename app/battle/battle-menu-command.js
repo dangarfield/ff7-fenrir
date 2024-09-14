@@ -20,6 +20,7 @@ import {
   startCoinTextTweens,
   stopAllLimitTextTweens
 } from '../menu/menu-limit-tween-helper.js'
+import { LIMIT_MENU_TYPES } from './battle-limits.js'
 import {
   closeCoinDialog,
   handleKeyPressCoin,
@@ -32,6 +33,12 @@ import {
   openLimitDialog,
   selectLimit
 } from './battle-menu-limit.js'
+import {
+  closeSlotsDialog,
+  handleKeyPressSlots,
+  openSlotsDialog,
+  selectSlots
+} from './battle-menu-slots.js'
 import {
   selectSpell,
   handleKeyPressSpell,
@@ -59,7 +66,8 @@ const DATA = {
     restriction: 'CanBeUsedInBattle',
     firstItemId: null
   },
-  limit: { pos: 0 }
+  limit: { pos: 0 },
+  slots: { type: null }
 }
 let commandContainerGroup
 let commandsGroup
@@ -278,6 +286,34 @@ const initCommands = () => {
       combined
     )
     return combined
+  }
+  const slotsProcess = async (command, type) => {
+    POINTERS.pointer1.visible = false
+    DATA.state = 'loading'
+    DATA.slots.type = type
+    console.log('battleUI SLOTS: START')
+    await openSlotsDialog(commandContainerGroup)
+
+    DATA.state = 'slots'
+    const slotsResults = await selectSlots()
+    // TODO - flags and targets?!
+
+    console.log('battleUI SLOTS: slotsResults', slotsResults)
+
+    DATA.state = 'command'
+    await closeSlotsDialog()
+    window.currentBattle.ui.battleDescriptions.setText()
+    if (slotsResults) {
+      addPlayerActionToQueue(
+        DATA.actor.index,
+        command.index,
+        slotsResults, // TODO
+        { target: [{ data: { name: 'tbc' } }] }, // TODO
+        1 // Limits are 1?
+      )
+    } else {
+      drawCommandCursor()
+    }
   }
   const limitMenuProcess = async command => {
     POINTERS.pointer1.visible = false
@@ -684,7 +720,15 @@ const initCommands = () => {
         coinMenuProcess(command)
         break
       case 'LimitMenu':
-        limitMenuProcess(command)
+        if (
+          DATA.actor.battleStats.menu.limit.menuType ===
+          LIMIT_MENU_TYPES.REELS_TIFA
+        ) {
+          slotsProcess(command, DATA.actor.battleStats.menu.limit.menuType)
+        } else {
+          limitMenuProcess(command)
+        }
+
         break
 
       default:
@@ -780,6 +824,8 @@ const initCommands = () => {
       handleKeyPressCoin(key)
     } else if (DATA.state === 'limit') {
       handleKeyPressLimit(key)
+    } else if (DATA.state === 'slots') {
+      handleKeyPressSlots(key)
     }
   }
   const show = async player => {

@@ -159,12 +159,6 @@ const handleKeyPressLimit = async key => {
     case KEY.DOWN:
       changeLimit(1)
       break
-    // case KEY.RIGHT:
-    //   changeAmount(1000)
-    //   break
-    // case KEY.LEFT:
-    //   changeAmount(-1000)
-    //   break
     case KEY.O:
       promiseToResolve(DATA.actor.battleStats.menu.limit.limits[DATA.limit.pos])
       break

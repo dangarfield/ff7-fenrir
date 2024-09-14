@@ -65,7 +65,7 @@ const getLimitAttack = (playerName, limitEnum) => {
   //     limitConfig,
   //     limitAttackId
   //   )
-  return window.data.exe.limitData[limitAttackId]
+  return window.data.exe.limitData.limits[limitAttackId]
 }
 
 const getLimitMenuData = char => {
@@ -81,4 +81,4 @@ const getLimitMenuData = char => {
     : CONFIG[playerName].menuType
   return { limits, menuType }
 }
-export { getLimitMenuData }
+export { getLimitMenuData, LIMIT_MENU_TYPES }
