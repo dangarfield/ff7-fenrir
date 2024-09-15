@@ -10,7 +10,14 @@ import {
 import { DATA } from './battle-menu-command.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 
+// TODO - Generify a little
+// TODO - Investigate square, triangle and X key presses
+// TODO - Validate speed
+
+const TIFA_SLOT_RESULT = { HIT: 'hit', YEAH: 'yeah', MISS: 'miss' }
 let slotsDialog
+let slotCount = 0
+let iconCount = 0
 
 const offsets = {
   dialog: { x: 0, y: 174, h: 56, w: 320 }
@@ -67,7 +74,8 @@ const addSlotMesh = (textureAtlas, x, y, z, w, h) => {
   return slot
 }
 const openSlotsDialog = async commandContainerGroup => {
-  const iconCount = window.data.exe.limitData.tifaSlots.length
+  iconCount = window.data.exe.limitData.tifaSlots[0].length
+  slotCount = window.data.exe.limitData.tifaSlots.length
   slotsDialog = createDialogBox({
     id: 20,
     name: 'slots-bg',
@@ -77,9 +85,11 @@ const openSlotsDialog = async commandContainerGroup => {
     y: offsets.dialog.y,
     scene: commandContainerGroup
   })
+  slotsDialog.userData.total = slotCount
+  slotsDialog.userData.complete = 0
   window.slotsDialog = slotsDialog
 
-  const positions = getSlotPositions(7)
+  const positions = getSlotPositions(slotsDialog.userData.total)
   console.log('battleUI SLOTS: getSlotPositions', positions)
   const textureList = [
     getImageTexture('slots', 'tifa-miss').texture,
@@ -104,7 +114,7 @@ const openSlotsDialog = async commandContainerGroup => {
 
   const from = { y: 0 }
   slotsDialog.userData.tween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
-    .to({ y: 1 }, iconCount * 300) //200 seems ok
+    .to({ y: 1 }, iconCount * 75) //200 seems ok
     .repeat(Infinity)
     .onUpdate(() => {
       for (const slot of slots) {
@@ -114,44 +124,100 @@ const openSlotsDialog = async commandContainerGroup => {
             slot.material.map.offset.y >= slot.userData.stopPoint
           ) {
             slot.userData.active = false
-            slot.material.map.offset.y = slot.userData.stopPoint // TODO - A better way to stop this less abruptly
+
+            const to = {
+              y:
+                slot.material.map.offset.y - slot.userData.stopPoint < 0.5
+                  ? slot.userData.stopPoint
+                  : 1 + slot.userData.stopPoint
+            }
+            const resolveTween = new TWEEN.Tween(
+              slot.material.map.offset,
+              BATTLE_TWEEN_GROUP
+            )
+              .to(to, 200)
+              .onComplete(() => {
+                DATA.state = 'slots'
+                BATTLE_TWEEN_GROUP.remove(resolveTween)
+                slotsDialog.userData.complete++
+                console.log(
+                  'battleUI SLOTS: resolve',
+                  slotsDialog.userData.complete
+                )
+                if (
+                  slotsDialog.userData.complete >= slotsDialog.userData.total
+                ) {
+                  DATA.state = 'returning'
+                  const results = calculateSlotResults()
+                  promiseToResolve({
+                    name: `Slots: ${DATA.slots.type}`,
+                    results
+                  })
+                }
+              })
+              .start()
+            // slot.material.map.offset.y = slot.userData.stopPoint // TODO - A better way to stop this less abruptly
             continue
           }
           slot.material.map.offset.y = from.y
         }
       }
     })
-  // .onStop(() => {
-  //   coinDialog.userData.bg.material.map.offset.x = 0
-  //   coinDialog.userData.bg.material.map.offset.y = 0
-  // })
 
   slotsDialog.userData.tween.start()
 
   await showDialog(slotsDialog)
 }
 const stopSlot = () => {
+  DATA.state = 'tweening'
   const activeSlots = slotsDialog.userData.slots.filter(s => s.userData.active)
   if (activeSlots.length > 0) {
     const activeSlot = activeSlots[0]
-    const step = 1 / 16
+    const step = 1 / iconCount
     const extraStep = step / 2
     const y = activeSlot.material.map.offset.y
 
     let stopPoint = Math.min(Math.ceil(y / step) * step, 1) + extraStep
     stopPoint = stopPoint > 1 ? stopPoint - 1 : stopPoint
 
-    console.log('battleUI SLOTS: start stopPoint', y, stopPoint)
+    console.log('battleUI SLOTS: start stopPoint', y, stopPoint, iconCount)
     activeSlot.userData.stopPoint = stopPoint
-    return activeSlots.length > 1 // eg, last slot select returns false, hmm, should be on last tween finished
   }
-  return false // Catch all, should never reach here
 }
 const calculateSlotResults = () => {
-  const results = slotsDialog.userData.slots.map(
-    slot => slot.userData.stopPoint * 16 - 1.5
+  const indexes = slotsDialog.userData.slots.map(
+    slot => slot.userData.stopPoint * iconCount - 0.5
   )
-  console.log('battleUI SLOTS: calculateSlotResults', results)
+  // console.log(
+  //   'battleUI SLOTS: calculateSlotResults',
+  //   slotsDialog.userData.slots.map(slot => slot.userData.stopPoint * 16 - 0.5)
+  // )
+  // for (let j = 0; j < 16; j++) {
+  //   const r = indexes.map(
+  //     (hitIndex, i) =>
+  //       window.data.exe.limitData.tifaSlots[i][
+  //         (16 - ((hitIndex + j) % 16)) % 16
+  //       ]
+  //   )
+  //   console.log('battleUI SLOTS: r', j, r)
+  // }
+  const iconOffset = iconCount / 2 + 1 // When happens when iconCount is odd?
+  const results = indexes
+    .map(
+      (hitIndex, i) =>
+        window.data.exe.limitData.tifaSlots[i][
+          (iconCount - ((hitIndex + iconOffset) % iconCount)) % iconCount
+        ]
+    )
+    .map(i =>
+      i === 0
+        ? TIFA_SLOT_RESULT.MISS
+        : i === 1
+        ? TIFA_SLOT_RESULT.HIT
+        : i === 2
+        ? TIFA_SLOT_RESULT.YEAH
+        : null
+    )
   return results
 }
 
@@ -160,8 +226,6 @@ const selectSlots = async () => {
   return new Promise(resolve => {
     console.log('battleUI SLOTS: selectSlots')
     promiseToResolve = resolve
-    //   updateInfoForSelectedLimit()
-    //   drawPointer()
   })
 }
 const closeSlotsDialog = async () => {
@@ -176,11 +240,7 @@ const closeSlotsDialog = async () => {
 const handleKeyPressSlots = async key => {
   switch (key) {
     case KEY.O:
-      const slotsStillActive = stopSlot()
-      if (!slotsStillActive) {
-        const results = calculateSlotResults()
-        promiseToResolve({ name: `Slots: ${DATA.slots.type}`, results })
-      }
+      stopSlot()
       break
     case KEY.X:
       DATA.state = 'returning'
