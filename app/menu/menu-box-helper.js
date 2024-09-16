@@ -683,7 +683,7 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
   const bgClipDatas = [
     {
       w: w + EDGE_SIZE,
-      h: 2,
+      h: 1,
       mesh: t,
       x: 0,
       rotateX: true,
@@ -691,7 +691,7 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
     },
     {
       w: w + EDGE_SIZE,
-      h: -2,
+      h: -1,
       mesh: b,
       x: 0,
       rotateX: true,
@@ -701,11 +701,11 @@ const createClippingPlanes = (w, h, z, t, b, l, r) => {
       w: 10,
       h: h + EDGE_SIZE,
       mesh: l,
-      x: -2,
+      x: -1,
       rotateX: false,
       flip: false
     },
-    { w: 10, h: h + EDGE_SIZE, mesh: r, x: 2, rotateX: false, flip: true }
+    { w: 10, h: h + EDGE_SIZE, mesh: r, x: 1, rotateX: false, flip: true }
   ]
   for (let i = 0; i < bgClipDatas.length; i++) {
     const bgClipData = bgClipDatas[i]

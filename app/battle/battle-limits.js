@@ -2,8 +2,8 @@ import { getPlayableCharacterName } from '../field/field-op-codes-party-helper.j
 
 const LIMIT_MENU_TYPES = {
   STANDARD: 'standard',
-  REELS_TIFA: 'reels-tifa',
-  REELS_CAITSITH: 'reels-caitsith'
+  SLOTS_TIFA: 'slots-tifa',
+  SLOTS_CAITSITH: 'slots-caitsith'
 }
 
 const standardLimit = index => {
@@ -22,7 +22,7 @@ const CONFIG = {
     levelsTotal: 4,
     limitsPerLevel: 2,
     limitAttackIndex: 21,
-    menuType: LIMIT_MENU_TYPES.REELS_TIFA
+    menuType: LIMIT_MENU_TYPES.SLOTS_TIFA
   }, //standardLimit(0),// 21 - 27
   Aeris: standardLimit(14),
   RedXIII: standardLimit(35),
@@ -32,7 +32,7 @@ const CONFIG = {
     limitsPerLevel: 1,
     limitAttackIndex: 42,
     limitAttackLevel2Skip: 1,
-    menuType: [LIMIT_MENU_TYPES.STANDARD, LIMIT_MENU_TYPES.REELS_CAITSITH]
+    menuType: [LIMIT_MENU_TYPES.STANDARD, LIMIT_MENU_TYPES.SLOTS_CAITSITH]
   }, // standardLimit(0), // 42-44 but attacks are: 56-60
   Vincent: {
     levelsTotal: 1,
@@ -57,14 +57,15 @@ const getLimitAttack = (playerName, limitEnum) => {
     (levelIndex - 1)
   if (limitConfig.limitAttackLevel2Skip && level === 2)
     limitAttackId = limitAttackId + limitConfig.limitAttackLevel2Skip
-  //   console.log(
-  //     'battleUI LIMIT: attack',
-  //     limitSplit,
-  //     level,
-  //     levelIndex,
-  //     limitConfig,
-  //     limitAttackId
-  //   )
+  console.log(
+    'battleUI LIMIT: attack',
+    playerName,
+    limitSplit,
+    level,
+    levelIndex,
+    limitConfig,
+    limitAttackId
+  )
   return window.data.exe.limitData.limits[limitAttackId]
 }
 

@@ -17,6 +17,10 @@ const FACING = { IN: 'in', OUT: 'out' }
 
 const battleFormationConfig = {
   // Massive guess, need to adjust
+  // FOUND: https://github.com/Akari1982/q-gears_reverse/blob/47cf28f864d48d1959719cc28c7640bd573dc43c/ffvii/address_battle.txt#L70
+  // 0x003C0BF0
+  // Prev section to investigate: 0x3C09FC
+
   row: p.p2,
   formations: {
     Normal: {

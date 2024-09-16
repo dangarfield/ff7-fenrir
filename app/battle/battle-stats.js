@@ -1296,13 +1296,31 @@ const debugSetEquipmentAndMateria = () => {
   ]
   window.data.savemap.characters.Cloud.limit.bar = 255
   window.data.savemap.characters.Tifa.limit.bar = 255
+  window.data.savemap.characters.Tifa.limit.level = 4
+  window.data.savemap.characters.Tifa.limit.learnedLimitSkills = [
+    'Limit_1_1',
+    'Limit_1_2',
+    'Limit_2_1',
+    'Limit_2_2',
+    'Limit_3_1',
+    'Limit_3_2',
+    'Limit_4_1'
+  ]
   window.data.savemap.characters.Barret.limit.bar = 255
   window.data.savemap.characters.Barret.limit.learnedLimitSkills = [
     'Limit_1_1',
     'Limit_1_2'
   ]
   window.data.savemap.characters.Barret.status.battleOrder = 'BackRow'
-  window.data.savemap.party.members = ['Cloud', 'Tifa', 'Barret']
+
+  window.data.savemap.characters.CaitSith.limit.level = 2
+  window.data.savemap.characters.CaitSith.limit.learnedLimitSkills = [
+    'Limit_1_1',
+    'Limit_2_1'
+  ]
+  window.data.savemap.characters.CaitSith.limit
+
+  window.data.savemap.party.members = ['Cloud', 'Tifa', 'CaitSith']
   // window.data.savemap.party.members = ['Cloud', 'Tifa', 'None']
   // window.data.savemap.party.members = ['Cloud', 'None', 'None']
 }

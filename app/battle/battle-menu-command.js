@@ -37,7 +37,8 @@ import {
   closeSlotsDialog,
   handleKeyPressSlots,
   openSlotsDialog,
-  selectSlots
+  selectSlots,
+  SLOT_TYPE
 } from './battle-menu-slots.js'
 import {
   selectSpell,
@@ -289,10 +290,23 @@ const initCommands = () => {
   }
   const slotsProcess = async (command, type) => {
     POINTERS.pointer1.visible = false
-    DATA.state = 'loading'
+    DATA.state = 'slots-loading'
     DATA.slots.type = type
     console.log('battleUI SLOTS: START')
-    await openSlotsDialog(commandContainerGroup)
+    let slotType
+    switch (type) {
+      case LIMIT_MENU_TYPES.SLOTS_TIFA:
+        slotType = SLOT_TYPE.TIFA_LIMIT
+        break
+      case LIMIT_MENU_TYPES.SLOTS_CAITSITH:
+        slotType = SLOT_TYPE.CAIT_SITH
+        break
+
+      default:
+        slotType = SLOT_TYPE.BATTLE_ARENA
+        break
+    }
+    await openSlotsDialog(commandContainerGroup, slotType)
 
     DATA.state = 'slots'
     const slotsResults = await selectSlots()
@@ -722,7 +736,9 @@ const initCommands = () => {
       case 'LimitMenu':
         if (
           DATA.actor.battleStats.menu.limit.menuType ===
-          LIMIT_MENU_TYPES.REELS_TIFA
+            LIMIT_MENU_TYPES.SLOTS_TIFA ||
+          DATA.actor.battleStats.menu.limit.menuType ===
+            LIMIT_MENU_TYPES.SLOTS_CAITSITH
         ) {
           slotsProcess(command, DATA.actor.battleStats.menu.limit.menuType)
         } else {

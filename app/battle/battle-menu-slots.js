@@ -10,17 +10,76 @@ import {
 import { DATA } from './battle-menu-command.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 
-// TODO - Generify a little
-// TODO - Investigate square, triangle and X key presses
-// TODO - Validate speed
+const SLOT_TYPE = {
+  TIFA_LIMIT: 'tifa',
+  CAIT_SITH: 'caitsith',
+  BATTLE_ARENA: 'battlearena'
+}
 
-const TIFA_SLOT_RESULT = { HIT: 'hit', YEAH: 'yeah', MISS: 'miss' }
 let slotsDialog
 let slotCount = 0
 let iconCount = 0
+let resultList
 
 const offsets = {
   dialog: { x: 0, y: 174, h: 56, w: 320 }
+}
+const addGradients = () => {
+  addGradient(
+    offsets.dialog.w / 2,
+    offsets.dialog.y + 46 - 1,
+    64 * slotCount,
+    32,
+    0.9,
+    0
+  )
+  addGradient(
+    offsets.dialog.w / 2,
+    offsets.dialog.y + 10 + 1,
+    64 * slotCount,
+    32,
+    0,
+    0.9
+  )
+}
+const addGradient = (x, y, w, h, oT, oB) => {
+  const geometry = new THREE.PlaneGeometry(w, h, 1, 1)
+  const material = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    transparent: true
+  })
+
+  // Set the vertex colors for the top and bottom vertices
+  geometry.attributes.color = new THREE.BufferAttribute(
+    new Float32Array([
+      0x00,
+      0x00,
+      0x00,
+      oB,
+      0x00,
+      0x00,
+      0x00,
+      oB,
+      0x00,
+      0x00,
+      0x00,
+      oT,
+      0x00,
+      0x00,
+      0x00,
+      oT
+    ]),
+    4
+  )
+
+  const gradientMesh = new THREE.Mesh(geometry, material)
+  gradientMesh.position.set(x, window.config.sizing.height - y, 86)
+  gradientMesh.scale.set(0.5, 0.5, 0.5)
+  gradientMesh.material.clippingPlanes =
+    slotsDialog.userData.bg.material.clippingPlanes
+  gradientMesh.userData.isText = true
+  slotsDialog.add(gradientMesh)
+  window.gradientMesh = gradientMesh
 }
 const getSlotPositions = total => {
   const y = offsets.dialog.y + offsets.dialog.h / 2
@@ -32,13 +91,15 @@ const getSlotPositions = total => {
 
 const createTextureAtlas = textures => {
   const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
+  const context = canvas.getContext('2d', { alpha: true })
 
   // Set canvas size (adjust based on your texture sizes)
   const textureWidth = textures[0].image.width // Assuming all textures are the same size
   const textureHeight = textures[0].image.height
   canvas.width = textureWidth
   canvas.height = textureHeight * textures.length // Stack the textures vertically
+
+  context.clearRect(0, 0, canvas.width, canvas.height)
 
   // Draw each texture onto the canvas
   textures.forEach((texture, index) => {
@@ -54,15 +115,21 @@ const createTextureAtlas = textures => {
   // Create a new texture from the canvas
   const atlasTexture = new THREE.CanvasTexture(canvas)
   atlasTexture.needsUpdate = true
+  atlasTexture.premultiplyAlpha = false
+  atlasTexture.transparent = true
   atlasTexture.wrapS = THREE.RepeatWrapping
   atlasTexture.wrapT = THREE.RepeatWrapping
+  atlasTexture.encoding = THREE.sRGBEncoding
   atlasTexture.repeat.set(1, 1)
   return atlasTexture
 }
 
 const addSlotMesh = (textureAtlas, x, y, z, w, h) => {
   const slotGeometry = new THREE.PlaneGeometry(w / 2, h / 2)
-  const slotMaterial = new THREE.MeshBasicMaterial({ map: textureAtlas })
+  const slotMaterial = new THREE.MeshBasicMaterial({
+    map: textureAtlas,
+    transparent: true
+  })
   const slot = new THREE.Mesh(slotGeometry, slotMaterial)
   slot.position.x = x
   slot.position.y = window.config.sizing.height - y
@@ -73,29 +140,69 @@ const addSlotMesh = (textureAtlas, x, y, z, w, h) => {
   slotsDialog.add(slot)
   return slot
 }
-const openSlotsDialog = async commandContainerGroup => {
-  iconCount = window.data.exe.limitData.tifaSlots[0].length
-  slotCount = window.data.exe.limitData.tifaSlots.length
-  slotsDialog = createDialogBox({
-    id: 20,
-    name: 'slots-bg',
-    w: offsets.dialog.w,
-    h: offsets.dialog.h,
-    x: offsets.dialog.x,
-    y: offsets.dialog.y,
-    scene: commandContainerGroup
-  })
+const getTifaLimitSlotCount = () => {
+  const learned =
+    window.data.savemap.characters.Tifa.limit.learnedLimitSkills.map(l =>
+      parseInt(l.split('_')[1])
+    )
+  const level = window.data.savemap.characters.Tifa.limit.level
+  const slotCount = learned.filter(l => l <= level).length
+  console.log(
+    'battleUI SLOTS: getTifaLimitSlotCount',
+    learned,
+    level,
+    slotCount
+  )
+  return slotCount
+}
+const initCaitSithSlots = async () => {
+  // TODO - Cait's slots auto lock based on chance: https://finalfantasy.fandom.com/wiki/Slots_(Final_Fantasy_VII)
+  console.log('battleUI SLOTS: initCaitSithSlots')
+  iconCount = window.data.exe.limitData.caitSithSlots[0].length
+  slotCount = window.data.exe.limitData.caitSithSlots.length
   slotsDialog.userData.total = slotCount
-  slotsDialog.userData.complete = 0
-  window.slotsDialog = slotsDialog
-
+  resultList = window.data.exe.limitData.caitSithSlots
   const positions = getSlotPositions(slotsDialog.userData.total)
   console.log('battleUI SLOTS: getSlotPositions', positions)
-  const textureList = [
-    getImageTexture('slots', 'tifa-miss').texture,
-    getImageTexture('slots', 'tifa-hit').texture,
-    getImageTexture('slots', 'tifa-yeah').texture
-  ]
+  const textureList = {
+    CaitSith1: getImageTexture('slots', 'cait-cait1').texture,
+    CaitSith2: getImageTexture('slots', 'cait-cait2').texture,
+    CaitSith3: getImageTexture('slots', 'cait-cait3').texture,
+    Bar: getImageTexture('slots', 'cait-bar').texture,
+    Crown: getImageTexture('slots', 'cait-crown').texture,
+    Heart: getImageTexture('slots', 'cait-heart').texture,
+    Star: getImageTexture('slots', 'cait-star').texture,
+    Moogle: getImageTexture('slots', 'cait-moogle').texture
+  }
+  const slots = Array.from({ length: positions.length }, (_, i) => i).map(i => {
+    // console.log('battleUI SLOTS: texture', i)
+    const icons = window.data.exe.limitData.caitSithSlots[i].map(ti =>
+      ti === 'CaitSith' ? textureList[`${ti}${i + 1}`] : textureList[ti]
+    )
+    const { x, y } = positions[i]
+    const textureAtlas = createTextureAtlas(icons)
+    const slot = addSlotMesh(textureAtlas, x, y, 85, 64, 32 * 3 * icons.length)
+    console.log('battleUI SLOTS: texture', i, icons, x, y, slot)
+
+    slot.userData.active = true
+    return slot
+  })
+  slotsDialog.userData.slots = slots
+  addGradients()
+  addSlotTween(slots, 75 * 3)
+}
+const initTifaSlots = async () => {
+  iconCount = window.data.exe.limitData.tifaSlots[0].length
+  slotCount = getTifaLimitSlotCount()
+  slotsDialog.userData.total = slotCount
+  resultList = window.data.exe.limitData.tifaSlots
+  const positions = getSlotPositions(slotsDialog.userData.total)
+  console.log('battleUI SLOTS: getSlotPositions', positions)
+  const textureList = {
+    Miss: getImageTexture('slots', 'tifa-miss').texture,
+    Hit: getImageTexture('slots', 'tifa-hit').texture,
+    Yeah: getImageTexture('slots', 'tifa-yeah').texture
+  }
   const slots = Array.from({ length: positions.length }, (_, i) => i).map(i => {
     // console.log('battleUI SLOTS: texture', i)
     const icons = window.data.exe.limitData.tifaSlots[i].map(
@@ -111,10 +218,13 @@ const openSlotsDialog = async commandContainerGroup => {
   })
   slotsDialog.userData.slots = slots
   window.slots = slots
-
+  addGradients()
+  addSlotTween(slots, 75)
+}
+const addSlotTween = (slots, speed) => {
   const from = { y: 0 }
   slotsDialog.userData.tween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
-    .to({ y: 1 }, iconCount * 75) //200 seems ok
+    .to({ y: 1 }, iconCount * speed) // I think that this is a little slower, but I like it
     .repeat(Infinity)
     .onUpdate(() => {
       for (const slot of slots) {
@@ -140,23 +250,8 @@ const openSlotsDialog = async commandContainerGroup => {
                 DATA.state = 'slots'
                 BATTLE_TWEEN_GROUP.remove(resolveTween)
                 slotsDialog.userData.complete++
-                console.log(
-                  'battleUI SLOTS: resolve',
-                  slotsDialog.userData.complete
-                )
-                if (
-                  slotsDialog.userData.complete >= slotsDialog.userData.total
-                ) {
-                  DATA.state = 'returning'
-                  const results = calculateSlotResults()
-                  promiseToResolve({
-                    name: `Slots: ${DATA.slots.type}`,
-                    results
-                  })
-                }
               })
               .start()
-            // slot.material.map.offset.y = slot.userData.stopPoint // TODO - A better way to stop this less abruptly
             continue
           }
           slot.material.map.offset.y = from.y
@@ -165,11 +260,30 @@ const openSlotsDialog = async commandContainerGroup => {
     })
 
   slotsDialog.userData.tween.start()
+}
+const openSlotsDialog = async (commandContainerGroup, slotType) => {
+  slotsDialog = createDialogBox({
+    id: 20,
+    name: 'slots-bg',
+    w: offsets.dialog.w,
+    h: offsets.dialog.h,
+    x: offsets.dialog.x,
+    y: offsets.dialog.y,
+    scene: commandContainerGroup
+  })
+  slotsDialog.userData.complete = 0
+  window.slotsDialog = slotsDialog
+
+  if (slotType === SLOT_TYPE.TIFA_LIMIT) {
+    await initTifaSlots()
+  } else if (slotType === SLOT_TYPE.CAIT_SITH) {
+    await initCaitSithSlots()
+  }
 
   await showDialog(slotsDialog)
 }
 const stopSlot = () => {
-  DATA.state = 'tweening'
+  DATA.state = 'slots-tweening'
   const activeSlots = slotsDialog.userData.slots.filter(s => s.userData.active)
   if (activeSlots.length > 0) {
     const activeSlot = activeSlots[0]
@@ -182,6 +296,14 @@ const stopSlot = () => {
 
     console.log('battleUI SLOTS: start stopPoint', y, stopPoint, iconCount)
     activeSlot.userData.stopPoint = stopPoint
+  }
+  if (slotsDialog.userData.complete >= slotsDialog.userData.total) {
+    DATA.state = 'slots-returning' // Not sure if we need this
+    const results = calculateSlotResults()
+    promiseToResolve({
+      name: `Slots: ${results.map(r => r.substring(0, 1)).join('')}`,
+      results
+    })
   }
 }
 const calculateSlotResults = () => {
@@ -202,22 +324,12 @@ const calculateSlotResults = () => {
   //   console.log('battleUI SLOTS: r', j, r)
   // }
   const iconOffset = iconCount / 2 + 1 // When happens when iconCount is odd?
-  const results = indexes
-    .map(
-      (hitIndex, i) =>
-        window.data.exe.limitData.tifaSlots[i][
-          (iconCount - ((hitIndex + iconOffset) % iconCount)) % iconCount
-        ]
-    )
-    .map(i =>
-      i === 0
-        ? TIFA_SLOT_RESULT.MISS
-        : i === 1
-        ? TIFA_SLOT_RESULT.HIT
-        : i === 2
-        ? TIFA_SLOT_RESULT.YEAH
-        : null
-    )
+  const results = indexes.map(
+    (hitIndex, i) =>
+      resultList[i][
+        (iconCount - ((hitIndex + iconOffset) % iconCount)) % iconCount
+      ]
+  )
   return results
 }
 
@@ -243,11 +355,18 @@ const handleKeyPressSlots = async key => {
       stopSlot()
       break
     case KEY.X:
-      DATA.state = 'returning'
+      if (slotsDialog.userData.complete > 0) break
+      DATA.state = 'slots-returning'
       promiseToResolve(null)
       break
     default:
       break
   }
 }
-export { openSlotsDialog, selectSlots, closeSlotsDialog, handleKeyPressSlots }
+export {
+  openSlotsDialog,
+  selectSlots,
+  closeSlotsDialog,
+  handleKeyPressSlots,
+  SLOT_TYPE
+}

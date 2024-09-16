@@ -40,6 +40,7 @@ const initBattleKeypressActions = () => {
     if (areBattleControlsActive() && firstPress && !BATTLE_PAUSED) {
       console.log('press triangle')
       if (DATA.state === 'conceal') return
+      if (DATA.state.startsWith('slots')) return
       window.currentBattle.ui.battlePointer.closeIfOpen()
       cycleActiveSelectionPlayer()
     }
