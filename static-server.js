@@ -29,7 +29,7 @@ const server = http.createServer((req, res) => {
   } else {
     req.url = decodeURI(req.url.split('?')[0])
   }
-  //   console.log('file', req.url, sourceDirectory, cacheControlHeader)
+  if (req.url.endsWith('.png')) console.log('file', req.url)
 
   const filePath = path.join(
     sourceDirectory,

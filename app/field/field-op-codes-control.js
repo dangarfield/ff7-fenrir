@@ -248,28 +248,28 @@ const MINIGAME = async op => {
   jumpToMiniGame(op.t, op.g, { map: op.m, x: op.x, y: op.y, z: op.z })
   return {}
 }
-setTimeout(async () => {
-  console.log('DEBUG: START')
-  // await MINIGAME({ m: 406, x: -101, y: -156, z: 8, g: 0, t: 4 })
-  // await SPECIAL({ subOpName: 'ARROW', params: [1] })
-  // await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
-  // await SPECIAL({ subOpName: 'BTLCK', params: [1] })
-  // await SPECIAL({ subOpName: 'MVLCK', params: [1] })
-  // await SPECIAL({ subOpName: 'SPCNM', params: [1, 2] })
-  // await SPECIAL({ subOpName: 'RSGLB', params: [0] })
+// setTimeout(async () => {
+//   console.log('DEBUG: START')
+//   // await MINIGAME({ m: 406, x: -101, y: -156, z: 8, g: 0, t: 4 })
+//   // await SPECIAL({ subOpName: 'ARROW', params: [1] })
+//   // await SPECIAL({ subOpName: 'SMSPD', params: [0, 255] })
+//   // await SPECIAL({ subOpName: 'BTLCK', params: [1] })
+//   // await SPECIAL({ subOpName: 'MVLCK', params: [1] })
+//   // await SPECIAL({ subOpName: 'SPCNM', params: [1, 2] })
+//   // await SPECIAL({ subOpName: 'RSGLB', params: [0] })
 
-  // await SPECIAL({ subOpName: 'FLMAT', params: [0] })
-  // await SPECIAL({ subOpName: 'FLITM', params: [0] })
-  // await SPECIAL({ subOpName: 'CLITM', params: [0] })
+//   // await SPECIAL({ subOpName: 'FLMAT', params: [0] })
+//   // await SPECIAL({ subOpName: 'FLITM', params: [0] })
+//   // await SPECIAL({ subOpName: 'CLITM', params: [0] })
 
-  // await MAPJUMP({ f: 74, x: 887, y: -810, i: 46, d: 192 })
+//   // await MAPJUMP({ f: 74, x: 887, y: -810, i: 46, d: 192 })
 
-  // await LSTMP({ b: 3, a: 3 })
-  // const fieldId = getBankData(3, 3)
-  // console.log('getBankData lastFieldid', fieldId)
-  // await BATTLE({ b: 0, n: 64 })
-  console.log('DEBUG: END')
-}, 10000)
+//   // await LSTMP({ b: 3, a: 3 })
+//   // const fieldId = getBankData(3, 3)
+//   // console.log('getBankData lastFieldid', fieldId)
+//   // await BATTLE({ b: 0, n: 64 })
+//   console.log('DEBUG: END')
+// }, 10000)
 
 export {
   DSKCG,

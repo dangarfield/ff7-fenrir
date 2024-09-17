@@ -19,7 +19,8 @@ window.console = (function (origConsole) {
       // 'battleMenu',
       // 'battleStack',
       // 'battleUI',
-      'battleUI SLOTS'
+      // 'battleUI SLOTS',
+      'CACHE'
       // 'battleUI LIMIT'
       // 'battlePointer',
       // 'battleQueue'

@@ -1,4 +1,5 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js' // 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r118/three.module.min.js'
+import TWEEN from '../../assets/tween.esm.js'
 import { TextGeometry } from '../../assets/threejs-r148/examples/jsm/geometries/TextGeometry.js'
 
 import { updateOnceASecond } from '../helpers/gametime.js'
@@ -11,6 +12,8 @@ let text
 let progress = 0
 let font
 let mediaText
+
+const LOADING_TWEEN_GROUP = new TWEEN.Group()
 
 const createTextGeometry = text => {
   return new TextGeometry(text, {
@@ -63,7 +66,7 @@ const renderLoop = function () {
   }
   requestAnimationFrame(renderLoop)
   updateOnceASecond()
-
+  LOADING_TWEEN_GROUP.update()
   const opacity = text.material.opacity // Fade in and out quickly
   if (progress < 0.9) {
     text.material.opacity = opacity > 1 ? 1 : opacity + 0.05
@@ -112,13 +115,19 @@ const showClickScreenForMediaText = () => {
     color: 0xffffff,
     transparent: true
   })
-  const textGeo = createTextGeometry('Please click on the screen to enable audio and video')
+  const textGeo = createTextGeometry(
+    'Please click on the screen to enable audio and video'
+  )
   mediaText = new THREE.Mesh(textGeo, material)
   mediaText.position.x = 2
   mediaText.position.y = 6
   mediaText.userData.mediaText = 'Click the screen'
   scene.add(mediaText)
-  console.log('waitUntilMediaCanPlay showClickScreenForMediaText', scene, mediaText)
+  console.log(
+    'waitUntilMediaCanPlay showClickScreenForMediaText',
+    scene,
+    mediaText
+  )
 }
 
 const hideClickScreenForMediaText = () => {
@@ -133,5 +142,6 @@ export {
   setLoadingProgress,
   setLoadingText,
   showClickScreenForMediaText,
-  hideClickScreenForMediaText
+  hideClickScreenForMediaText,
+  LOADING_TWEEN_GROUP
 }

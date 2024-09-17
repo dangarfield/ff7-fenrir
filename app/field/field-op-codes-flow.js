@@ -80,7 +80,15 @@ const REQEW = async (fieldName, entityId, scriptType, op) => {
 }
 const PREQ = async (fieldName, entityId, scriptType, op) => {
   const model = getModelByPartyMemberId(op.e)
-  console.log('PREQ', fieldName, entityId, scriptType, op, window.data.savemap.party.members, model)
+  console.log(
+    'PREQ',
+    fieldName,
+    entityId,
+    scriptType,
+    op,
+    window.data.savemap.party.members,
+    model
+  )
   const entity =
     window.currentField.data.script.entities[model.userData.entityId]
   const script = entity.scripts.filter(s => s.index === op.f)[0]
@@ -326,20 +334,20 @@ const IFMEMBQ = async (ops, op) => {
     return getOpIndexForByteIndex(ops, op.goto)
   }
 }
-setTimeout(async () => {
-  setInterval(() => {
-    console.log(
-      'TEMP_FIELD_BANK Var[5][13-14-15]',
-      getBankData(5, 13),
-      getBankData(5, 14),
-      getBankData(5, 15),
-      '-',
-      getBankData(6, 4),
-      getBankData(6, 6),
-      getBankData(6, 8)
-    )
-  }, 100)
-}, 11000)
+// setTimeout(async () => {
+//   setInterval(() => {
+//     console.log(
+//       'TEMP_FIELD_BANK Var[5][13-14-15]',
+//       getBankData(5, 13),
+//       getBankData(5, 14),
+//       getBankData(5, 15),
+//       '-',
+//       getBankData(6, 4),
+//       getBankData(6, 6),
+//       getBankData(6, 8)
+//     )
+//   }, 100)
+// }, 11000)
 export {
   RET,
   REQ,
