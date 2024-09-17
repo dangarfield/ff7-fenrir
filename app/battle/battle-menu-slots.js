@@ -185,6 +185,7 @@ const initCaitSithSlots = async () => {
     console.log('battleUI SLOTS: texture', i, icons, x, y, slot)
 
     slot.userData.active = true
+    slot.userData.slotIndex = i
     return slot
   })
   slotsDialog.userData.slots = slots
@@ -214,6 +215,7 @@ const initTifaSlots = async () => {
     console.log('battleUI SLOTS: texture', i, icons, x, y, slot)
 
     slot.userData.active = true
+    slot.userData.slotIndex = i
     return slot
   })
   slotsDialog.userData.slots = slots
@@ -272,6 +274,7 @@ const openSlotsDialog = async (commandContainerGroup, slotType) => {
     scene: commandContainerGroup
   })
   slotsDialog.userData.complete = 0
+  slotsDialog.userData.slotType = slotType
   window.slotsDialog = slotsDialog
 
   if (slotType === SLOT_TYPE.TIFA_LIMIT) {
@@ -282,6 +285,39 @@ const openSlotsDialog = async (commandContainerGroup, slotType) => {
 
   await showDialog(slotsDialog)
 }
+const getStopPointFromY = (y, step, extraStep) => {
+  const yNorm = y > 1 ? y - 1 : y
+  let stopPoint = Math.min(Math.ceil(yNorm / step) * step, 1) + extraStep
+  stopPoint = stopPoint > 1 ? stopPoint - 1 : stopPoint
+  return stopPoint
+}
+const setEvilFlag = prevSlotResult => {
+  let time = window.data.savemap.time.secondsPlayed
+  let evilFlag = true
+  if (prevSlotResult === 'Crown' || prevSlotResult === 'Star') {
+    evilFlag = false
+  } else if (prevSlotResult === 'Bar' || prevSlotResult === 'Moogle') {
+    if (time % 2 === 0) {
+      evilFlag = false
+    }
+  } else if (prevSlotResult === 'Heart') {
+    if (time % 4 === 0) {
+      evilFlag = false
+    }
+  } else if (prevSlotResult === 'CaitSith') {
+    if (time % 64 === 0) {
+      evilFlag = false
+    }
+  }
+  console.log(
+    'battleUI SLOTS: setEvilFlag',
+    prevSlotResult,
+    time,
+    '->',
+    evilFlag
+  )
+  return evilFlag
+}
 const stopSlot = () => {
   DATA.state = 'slots-tweening'
   const activeSlots = slotsDialog.userData.slots.filter(s => s.userData.active)
@@ -291,10 +327,84 @@ const stopSlot = () => {
     const extraStep = step / 2
     const y = activeSlot.material.map.offset.y
 
-    let stopPoint = Math.min(Math.ceil(y / step) * step, 1) + extraStep
-    stopPoint = stopPoint > 1 ? stopPoint - 1 : stopPoint
+    // let y = 0.602694 // caitsith1
+    // if (activeSlot.userData.slotIndex === 1) y = 0.23875 // caitsith2
+    // if (activeSlot.userData.slotIndex === 2) y = 0.05 // caitsith3
 
-    console.log('battleUI SLOTS: start stopPoint', y, stopPoint, iconCount)
+    let stopPoint = getStopPointFromY(y, step, extraStep)
+    const result = calculateSlotResult(activeSlot.userData.slotIndex, stopPoint)
+    if (
+      activeSlot.userData.slotIndex > 0 &&
+      slotsDialog.userData.slotType === SLOT_TYPE.CAIT_SITH
+    ) {
+      const prevSlotResult = calculateSlotResult(
+        activeSlot.userData.slotIndex - 1,
+        slotsDialog.userData.slots[activeSlot.userData.slotIndex - 1].userData
+          .stopPoint
+      )
+      const evilFlag = setEvilFlag(prevSlotResult)
+      if (evilFlag) {
+        // If evil flag is on and it's the second slot, just use the manually selected stop point, eg do nothing
+
+        // If evil flag is on and it's the last slot AND if everything would be lined up to get a line, go an extra step
+        if (activeSlot.userData.slotIndex === 2) {
+          const firstSlotResult = calculateSlotResult(
+            0,
+            slotsDialog.userData.slots[0].userData.stopPoint
+          )
+          const wouldBeCompleteLine =
+            firstSlotResult === prevSlotResult && prevSlotResult === result
+          console.log(
+            'battleUI SLOTS: start stopPoint CAIT SITH evilFlag: ON',
+            firstSlotResult,
+            prevSlotResult,
+            result,
+            '->',
+            wouldBeCompleteLine
+          )
+          if (wouldBeCompleteLine) {
+            stopPoint = getStopPointFromY(y + step, step, extraStep)
+            const evilResult = calculateSlotResult(
+              activeSlot.userData.slotIndex,
+              stopPoint
+            )
+            console.log(
+              'battleUI SLOTS: start stopPoint CAIT SITH evilFlag: ON cycle to next',
+              evilResult
+            )
+          }
+        }
+      } else {
+        // If evil flag is off, try and get the previous matching slot 4 times
+        if (result !== prevSlotResult) {
+          for (let i = 0; i < 4; i++) {
+            stopPoint = getStopPointFromY(y + step * i, step, extraStep)
+            const potentialResult = calculateSlotResult(
+              activeSlot.userData.slotIndex,
+              stopPoint
+            )
+            const matchesPreviousSlot = prevSlotResult === potentialResult
+            console.log(
+              'battleUI SLOTS: evilFlag: OFF try next',
+              i,
+              stopPoint,
+              potentialResult,
+              matchesPreviousSlot
+            )
+            if (matchesPreviousSlot) break
+          }
+        }
+      }
+    } else {
+      // Normal slots & cait sith first slot
+      console.log(
+        'battleUI SLOTS: start stopPoint NORMAL',
+        y,
+        stopPoint,
+        '->',
+        result
+      )
+    }
     activeSlot.userData.stopPoint = stopPoint
   }
   if (slotsDialog.userData.complete >= slotsDialog.userData.total) {
@@ -305,6 +415,13 @@ const stopSlot = () => {
       results
     })
   }
+}
+const calculateSlotResult = (slotIndex, stopPoint) => {
+  const iconOffset = iconCount / 2 + 1
+  const hitIndex = stopPoint * iconCount - 0.5
+  return resultList[slotIndex][
+    (iconCount - ((hitIndex + iconOffset) % iconCount)) % iconCount
+  ]
 }
 const calculateSlotResults = () => {
   const indexes = slotsDialog.userData.slots.map(

@@ -306,6 +306,7 @@ const initCommands = () => {
         slotType = SLOT_TYPE.BATTLE_ARENA
         break
     }
+    window.currentBattle.ui.battleDescriptions.setText()
     await openSlotsDialog(commandContainerGroup, slotType)
 
     DATA.state = 'slots'
