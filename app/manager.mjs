@@ -8,6 +8,7 @@ import { loadMenuTextures } from './data/menu-fetch-data.js'
 import { loadFieldTextures } from './data/field-fetch-data.js'
 import {
   initLoadingModule,
+  setLoadingText,
   showLoadingScreen
 } from './loading/loading-module.js'
 import { loadGame, initNewSaveMap } from './data/savemap.js'
@@ -24,7 +25,7 @@ import { initWorldModule } from './world/world-module.js'
 import { bindDisplayControls } from './helpers/display-controls.js'
 import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
 import { loadMiscData } from './data/misc-fetch-data.js'
-import { initCacheManager } from './data/cache-manager.js'
+import { loadZippedAssets } from './data/cache-manager.js'
 
 const initManager = async () => {
   // Generic Game loading
@@ -37,16 +38,27 @@ const initManager = async () => {
   console.log('loading ALL START')
   showLoadingScreen()
   setupInputs()
-  await initCacheManager() // Now loads all of the assets into the cache through a service worker. There, need to improve loading below
+
+  setLoadingText('Loading Core - Step 1 of 7')
   await initWorldModule() // 3 json
   await loadKernelData() // 1 json
   await loadExeData() // 1 json
   await loadMiscData() // 1 json
-  await loadSceneData() // 1 json
   await loadCDData() // 1 json
-  await loadWindowTextures() // 1 json then 2k images, 650 kb
-  await loadMenuTextures() // 3 json then: menu: 5k images, 3 mb. credits: 650 images, 14 images, 1 mb
-  await loadFieldTextures() // 1 json then 23 files, 8 kb
+
+  setLoadingText('Loading Scene Data - Step 2 of 7')
+  await loadSceneData() // 1 json
+
+  setLoadingText('Loading Core Assets - Step 3 of 7 - First load only')
+  const zip = await loadZippedAssets()
+  setLoadingText('Loading Window Textures - Step 4 of 7')
+  await loadWindowTextures(zip) // 1 json then 2k images, 650 kb
+  setLoadingText('Loading Menu Textures - Step 5 of 7')
+  await loadMenuTextures(zip) // 3 json then: menu: 5k images, 3 mb. credits: 650 images, 14 images, 1 mb
+  setLoadingText('Loading Field Textures - Step 6 of 7')
+  await loadFieldTextures(zip) // 1 json then 23 files, 8 kb
+  setLoadingText('Initialising Game - Step 7 of 7')
+  // zip = null // Clear a little memory
 
   console.log('loading ALL END')
   initMenuModule()

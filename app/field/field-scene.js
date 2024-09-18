@@ -26,6 +26,7 @@ import { updateOnceASecond } from '../helpers/gametime.js'
 import { processLineTriggersForFrame } from './field-actions.js'
 import { getSceneGraph } from '../data/world-fetch-data.js'
 import { getFieldIdForName } from './field-metadata.js'
+import { clearCache } from '../data/cache-manager.js'
 
 // Uses global states:
 // let currentField = window.currentField // Handle this better in the future
@@ -741,6 +742,14 @@ const initFieldDebug = async loadFieldCB => {
     window.currentField.movementHelpers.visible =
       window.config.debug.showMovementHelpers
   })
+
+  const cl = { clearCache: false }
+  debugGUI
+    .add(cl, 'clearCache')
+    .onChange(() => {
+      clearCache()
+    })
+    .name('Clear Cache')
   debugGUI.open()
 
   const inputsGUI = window.anim.gui.addFolder('Inputs')

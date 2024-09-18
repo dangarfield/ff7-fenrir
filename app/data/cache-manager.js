@@ -1,64 +1,5 @@
-import {
-  setLoadingText,
-  setLoadingProgress,
-  LOADING_TWEEN_GROUP
-} from '../loading/loading-module.js'
-import TWEEN from '../../assets/tween.esm.js'
-
-const waitForServiceWorkerActivation = () => {
-  return new Promise(resolve => {
-    if (navigator.serviceWorker.controller) {
-      console.log('CACHE: Service worker already has control of page')
-      resolve()
-    } else {
-      setLoadingText('Downloading core assets - Only happens once...')
-      setLoadingProgress(0.2)
-      const from = { progress: 0 }
-      const progressTween = new TWEEN.Tween(from, LOADING_TWEEN_GROUP)
-        .to({ progress: 1 }, 15 * 1000)
-        .onUpdate(() => {
-          setLoadingProgress(from.progress)
-        })
-        .start()
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log(
-          'CACHE: Service worker has taken control of page, waiting...'
-        )
-
-        setTimeout(() => {
-          // This is a mess, but I can't make it work otherwise
-          progressTween.stop()
-          TWEEN.remove(progressTween)
-          resolve()
-        }, 5000)
-      })
-    }
-  })
-}
-
-const initCacheManager = async () => {
-  if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register(
-        '/cache-worker.js',
-        { scope: '/' }
-      )
-      console.log(
-        'CACHE: Service Worker registered with scope:',
-        registration.scope,
-        registration,
-        registration.installing,
-        registration.active
-      )
-
-      await waitForServiceWorkerActivation(registration)
-
-      console.log('CACHE: Service Worker READY')
-    } catch (error) {
-      console.error('CACHE: Service Worker registration failed:', err)
-    }
-  }
-}
+import { setLoadingProgress } from '../loading/loading-module.js'
+import { KUJATA_BASE } from './kernel-fetch-data.js'
 
 const clearCache = async () => {
   if ('serviceWorker' in navigator) {
@@ -77,4 +18,50 @@ const clearCache = async () => {
   window.location.reload()
 }
 window.clearCache = clearCache
-export { initCacheManager, clearCache }
+
+// Note: This approach seems to work fine, but when the browser is set to ignore caches, it sends all of the queries to the server :(
+const loadZippedAssets = async () => {
+  const CACHE_NAME = 'zipped-assets-cache'
+  const cache = await caches.open(CACHE_NAME)
+
+  console.log('loadZippedAssets: START')
+  const zipResponse = await fetch(`${KUJATA_BASE}/cache.zip`)
+  const zipBlob = await zipResponse.blob()
+  const zip = await window.JSZip.loadAsync(zipBlob)
+
+  console.log(
+    'loadZippedAssets: preparing cache',
+    Object.keys(zip.files).length
+  )
+
+  const cachedItemOne = await cache.match(
+    `${KUJATA_BASE}/${Object.keys(zip.files)[0].replace(/\\/g, '/')}`
+  )
+  if (cachedItemOne) {
+    console.log(
+      'loadZippedAssets: END cache already populated',
+      Object.keys(zip.files).length
+    )
+    return zip
+  }
+  const total = Object.keys(zip.files).length
+  let complete = 0
+
+  const filePromises = Object.keys(zip.files).map(async filePath => {
+    const file = zip.files[filePath]
+    if (!file.dir) {
+      const normalizedPath = filePath.replace(/\\/g, '/')
+      const requestUrl = `${KUJATA_BASE}/${normalizedPath}`
+      const fileBlob = await file.async('blob')
+      await cache.put(requestUrl, new Response(fileBlob))
+
+      complete++
+      // console.log('progress', complete, 'of', total, '->', complete / total)
+      setLoadingProgress(Math.min(89, complete / total)) // Takes a while to display the progress
+    }
+  })
+  await Promise.all(filePromises)
+  console.log('loadZippedAssets: END', Object.keys(zip.files).length)
+  return zip
+}
+export { clearCache, loadZippedAssets }

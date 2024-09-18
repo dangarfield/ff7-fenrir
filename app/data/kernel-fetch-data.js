@@ -8,7 +8,9 @@ const windowTextures = {}
 const getWindowTextures = (window.getWindowTextures = () => {
   return windowTextures
 })
-const loadWindowTextures = async () => {
+
+const loadWindowTextures = async zip => {
+  console.log('loadWindowTextures: START')
   const windowBinRes = await fetch(
     `${KUJATA_BASE}/metadata/window-assets/window.bin.metadata.json`
   )
@@ -16,27 +18,28 @@ const loadWindowTextures = async () => {
   const assetTypes = Object.keys(windowBin)
 
   return new Promise((resolve, reject) => {
+    const start = new Date()
     const manager = new THREE.LoadingManager()
     manager.onProgress = function (url, itemsLoaded, itemsTotal) {
       const progress = itemsLoaded / itemsTotal
-      setLoadingProgress(progress)
+      setLoadingProgress(Math.min(0.89, progress))
     }
     manager.onLoad = function () {
-      console.log('loadWindowTextures Loading complete', windowTextures)
+      console.log('loadWindowTextures: END', windowTextures, new Date() - start)
       resolve()
     }
+    const loader = new THREE.TextureLoader(manager)
 
     for (let i = 0; i < assetTypes.length; i++) {
       const assetType = assetTypes[i]
       windowTextures[assetType] = {}
       for (let j = 0; j < windowBin[assetType].length; j++) {
         const asset = windowBin[assetType][j]
-
         windowTextures[assetType][asset.description] = asset
-        windowTextures[assetType][asset.description].texture =
-          new THREE.TextureLoader(manager).load(
-            `${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`
-          )
+
+        windowTextures[assetType][asset.description].texture = loader.load(
+          `${KUJATA_BASE}/metadata/window-assets/${assetType}/${asset.description}.png`
+        )
         windowTextures[assetType][asset.description].texture.encoding =
           THREE.sRGBEncoding
         windowTextures[assetType][asset.description].anisotropy =
