@@ -20,7 +20,11 @@ import {
   temporarilyHideMateriaCloud,
   reinstateMateriaCloud
 } from '../materia/materia-module.js'
-import { stopAllLimitBarTweens, stopAllLimitTextTweens } from './menu-limit-tween-helper.js'
+import {
+  stopAllLimitBarTweens,
+  stopAllLimitTextTweens
+} from './menu-limit-tween-helper.js'
+import { setLoadingText } from '../loading/loading-module.js'
 
 const MENU_TYPE = {
   Credits: 5,
@@ -104,6 +108,7 @@ window.getMenuBlackOverlay = getMenuBlackOverlay
 let MENU_PROMISE
 
 const loadMenuWithWait = (menuCode, param) => {
+  setLoadingText('Loading...')
   console.log(
     'loadMenuWithWait',
     menuCode,

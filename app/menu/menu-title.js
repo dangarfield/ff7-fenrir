@@ -1,4 +1,8 @@
-import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'
+import {
+  getMenuBlackOverlay,
+  setMenuState,
+  getMenuState
+} from './menu-module.js'
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
@@ -24,13 +28,16 @@ import { loadSaveMenu } from './menu-main-save.js'
 
 let titleDialog, bgGroup, nameGroup, movieGroup, logoGroup, gameSelectGroup
 
-const STATES = { TITLE_SEQUENCE: 'title-sequence', TITLE_SELECT: 'title-select' }
+const STATES = {
+  TITLE_SEQUENCE: 'title-sequence',
+  TITLE_SELECT: 'title-select'
+}
 const DATA = {
   gameSelectPos: 1,
   activeTween: null,
   activeVideo: null
 }
-const loadTitleMenu = async (straightToGameSelect) => {
+const loadTitleMenu = async straightToGameSelect => {
   console.log('title loadTitleMenu')
   console.log('mediaLoaded')
   DATA.gameSelectPos = 1
@@ -127,7 +134,7 @@ const tweenOpacity = (meshes, fromOpacity, toOpacity, ms) => {
       .start()
   })
 }
-const tweenSleep = (ms) => {
+const tweenSleep = ms => {
   return new Promise((resolve, reject) => {
     const from = { something: 1 }
     const to = { something: 1 }
@@ -173,15 +180,45 @@ const tweenCreditsFlyIn = (meshes, ms) => {
   })
 }
 
-const playCreditsLoop = async (video) => {
+const playCreditsLoop = async video => {
   removeGroupChildren(bgGroup)
 
   try {
-    const bgImage = addImageToDialog(bgGroup, 'intro', 'background', 'intro-background', 320 / 2, 240 / 2, 0.5)
+    const bgImage = addImageToDialog(
+      bgGroup,
+      'intro',
+      'background',
+      'intro-background',
+      320 / 2,
+      240 / 2,
+      0.5
+    )
     bgImage.material.opacity = 0
-    const logoImage = addImageToDialog(logoGroup, 'intro', 'title-logo', 'title-logo', 320 / 2, 180, 0.5, null, null, ALIGN.BOTTOM)
+    const logoImage = addImageToDialog(
+      logoGroup,
+      'intro',
+      'title-logo',
+      'title-logo',
+      320 / 2,
+      180,
+      0.5,
+      null,
+      null,
+      ALIGN.BOTTOM
+    )
     logoImage.material.opacity = 0
-    const copyrightImage = addImageToDialog(logoGroup, 'intro', 'title-copyright', 'title-copyright', 320 / 2, 220, 0.5, null, null, ALIGN.BOTTOM)
+    const copyrightImage = addImageToDialog(
+      logoGroup,
+      'intro',
+      'title-copyright',
+      'title-copyright',
+      320 / 2,
+      220,
+      0.5,
+      null,
+      null,
+      ALIGN.BOTTOM
+    )
     copyrightImage.material.opacity = 0
 
     while (true) {
@@ -190,20 +227,61 @@ const playCreditsLoop = async (video) => {
       await tweenOpacity([bgImage], 0, 1, 500)
 
       const titlePositionConfig = [
-        { x: 16, y: 24 - 16, align: ALIGN.LEFT, flyInOrder: ['tb', 'tw', 'nw', 'nb'] }, // tl
-        { x: 308, y: 24 - 16, align: ALIGN.RIGHT, flyInOrder: ['tw', 'tb', 'nw', 'nb'] }, // tr
-        { x: 16, y: 184 - 16, align: ALIGN.LEFT, flyInOrder: ['nb', 'nw', 'tb', 'tw'] }, // bl
-        { x: 308, y: 184 - 16, align: ALIGN.RIGHT, flyInOrder: ['nw', 'nb', 'tb', 'tw'] } // br
+        {
+          x: 16,
+          y: 24 - 16,
+          align: ALIGN.LEFT,
+          flyInOrder: ['tb', 'tw', 'nw', 'nb']
+        }, // tl
+        {
+          x: 308,
+          y: 24 - 16,
+          align: ALIGN.RIGHT,
+          flyInOrder: ['tw', 'tb', 'nw', 'nb']
+        }, // tr
+        {
+          x: 16,
+          y: 184 - 16,
+          align: ALIGN.LEFT,
+          flyInOrder: ['nb', 'nw', 'tb', 'tw']
+        }, // bl
+        {
+          x: 308,
+          y: 184 - 16,
+          align: ALIGN.RIGHT,
+          flyInOrder: ['nw', 'nb', 'tb', 'tw']
+        } // br
       ]
       const titlePositionLookup = [
-        1, 2, 0, 3, //
-        1, 2, 0, 3, //
-        1, 2, 0, 3, //
-        1, 2, 0, 3, //
-        1, 2, 0, // For some reason they missed this position out
-        1, 2, 0, 3, //
-        1, 2, 0, 3, //
-        1, 2
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2,
+        0, // For some reason they missed this position out
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2,
+        0,
+        3, //
+        1,
+        2
       ]
       // Main credit items
       for (let i = 0; i < titlePositionLookup.length; i++) {
@@ -214,23 +292,92 @@ const playCreditsLoop = async (video) => {
         const x = pos.x
         const y = pos.y
         const align = pos.align
-        const titleBlack = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x + 1, y + 0.5, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
-        const titleWhite = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-a`, 'intro-background', x, y, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
+        const titleBlack = addImageToDialog(
+          nameGroup,
+          'intro',
+          `title-${i + 1}-a`,
+          'intro-background',
+          x + 1,
+          y + 0.5,
+          0.5,
+          THREE.SubtractiveBlending,
+          align,
+          ALIGN.TOP
+        )
+        const titleWhite = addImageToDialog(
+          nameGroup,
+          'intro',
+          `title-${i + 1}-a`,
+          'intro-background',
+          x,
+          y,
+          0.5,
+          THREE.AdditiveBlending,
+          align,
+          ALIGN.TOP
+        )
 
         const yGap = titleWhite.geometry.parameters.height
         console.log('title yGap', yGap)
-        const nameBlack = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x + 1, y + 0.5 + yGap, 0.5, THREE.SubtractiveBlending, align, ALIGN.TOP)
-        const nameWhite = addImageToDialog(nameGroup, 'intro', `title-${i + 1}-b`, 'intro-background', x, y + yGap, 0.5, THREE.AdditiveBlending, align, ALIGN.TOP)
+        const nameBlack = addImageToDialog(
+          nameGroup,
+          'intro',
+          `title-${i + 1}-b`,
+          'intro-background',
+          x + 1,
+          y + 0.5 + yGap,
+          0.5,
+          THREE.SubtractiveBlending,
+          align,
+          ALIGN.TOP
+        )
+        const nameWhite = addImageToDialog(
+          nameGroup,
+          'intro',
+          `title-${i + 1}-b`,
+          'intro-background',
+          x,
+          y + yGap,
+          0.5,
+          THREE.AdditiveBlending,
+          align,
+          ALIGN.TOP
+        )
 
-        titleBlack.userData.position = { x: titleBlack.position.x, y: titleBlack.position.y }
-        titleWhite.userData.position = { x: titleWhite.position.x, y: titleWhite.position.y }
-        nameBlack.userData.position = { x: nameBlack.position.x, y: nameBlack.position.y }
-        nameWhite.userData.position = { x: nameWhite.position.x, y: nameWhite.position.y }
-        const meshes = { tb: titleBlack, tw: titleWhite, nb: nameBlack, nw: nameWhite }
+        titleBlack.userData.position = {
+          x: titleBlack.position.x,
+          y: titleBlack.position.y
+        }
+        titleWhite.userData.position = {
+          x: titleWhite.position.x,
+          y: titleWhite.position.y
+        }
+        nameBlack.userData.position = {
+          x: nameBlack.position.x,
+          y: nameBlack.position.y
+        }
+        nameWhite.userData.position = {
+          x: nameWhite.position.x,
+          y: nameWhite.position.y
+        }
+        const meshes = {
+          tb: titleBlack,
+          tw: titleWhite,
+          nb: nameBlack,
+          nw: nameWhite
+        }
 
-        await tweenCreditsFlyIn(pos.flyInOrder.map(m => meshes[m]), 3000)
+        await tweenCreditsFlyIn(
+          pos.flyInOrder.map(m => meshes[m]),
+          3000
+        )
         await tweenSleep(1200)
-        await tweenOpacity([titleBlack, titleWhite, nameWhite, nameBlack], 1, 0, 800)
+        await tweenOpacity(
+          [titleBlack, titleWhite, nameWhite, nameBlack],
+          1,
+          0,
+          800
+        )
         titleBlack.visible = false // TODO - For some reason I can't get THREE.SubtractiveBlending with opacity 0 to tween to be invisible
         nameBlack.visible = false
       }
@@ -252,7 +399,7 @@ const playCreditsLoop = async (video) => {
   }
   console.log('title playCreditsLoop: END')
 }
-const playExplodeVideoAndWaitForEnd = (video) => {
+const playExplodeVideoAndWaitForEnd = video => {
   return new Promise((resolve, reject) => {
     if (getMenuState() !== STATES.TITLE_SEQUENCE) {
       console.log('title not showing playExplodeVideo')
@@ -318,11 +465,40 @@ const getGameSelectPos = () => {
 }
 const showGameSelect = async () => {
   console.log('title showGameSelect: START')
-  window.buster = addImageToDialog(gameSelectGroup, 'misc', 'Buster', 'buster', 320 / 2, 255, 1, null, null, ALIGN.BOTTOM) // TODO - Is there not a better image of this?
+  window.buster = addImageToDialog(
+    gameSelectGroup,
+    'misc',
+    'Buster',
+    'buster',
+    320 / 2,
+    255,
+    1,
+    null,
+    null,
+    ALIGN.BOTTOM
+  ) // TODO - Is there not a better image of this?
 
   const { x, y, yAdj } = getGameSelectPos()
-  addTextToDialog(gameSelectGroup, 'NEW GAME', 'title-new-game', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x - 8, y - 4, 0.5)
-  addTextToDialog(gameSelectGroup, 'Continue?', 'title-continue', LETTER_TYPES.MenuBaseFont, LETTER_COLORS.White, x - 8, y + yAdj - 4, 0.5)
+  addTextToDialog(
+    gameSelectGroup,
+    'NEW GAME',
+    'title-new-game',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    x - 8,
+    y - 4,
+    0.5
+  )
+  addTextToDialog(
+    gameSelectGroup,
+    'Continue?',
+    'title-continue',
+    LETTER_TYPES.MenuBaseFont,
+    LETTER_COLORS.White,
+    x - 8,
+    y + yAdj - 4,
+    0.5
+  )
 
   await fadeOverlayOut(getMenuBlackOverlay())
   drawGameSelectPointer()
@@ -331,13 +507,14 @@ const showGameSelect = async () => {
 }
 const drawGameSelectPointer = () => {
   const { x, y, yAdj } = getGameSelectPos()
-  movePointer(POINTERS.pointer1, x - 15, y + (yAdj * DATA.gameSelectPos) - 2)
+  movePointer(POINTERS.pointer1, x - 15, y + yAdj * DATA.gameSelectPos - 2)
 }
-const gameSelectNavigation = (targetPos) => {
+const gameSelectNavigation = targetPos => {
   DATA.gameSelectPos = targetPos
   drawGameSelectPointer()
 }
 const gameSelectConfirm = async () => {
+  POINTERS.pointer1.visible = false
   if (DATA.gameSelectPos === 0) {
     console.log('title BEGIN NEW GAME')
     setMenuState('loading')
