@@ -1173,7 +1173,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4
         // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow
       }
-      window.quickBattle()
+      // window.quickBattle()
     }, 1000)
   }
 

@@ -34,9 +34,8 @@ const loadMetadata = async () => {
       fieldName:
         sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].fieldName,
       fieldDescription:
-        sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapNames
-          .length > 0
-          ? sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapNames[0]
+        sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapName !== ''
+          ? sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].mapName
           : sceneGraph.nodes[transitionData[wmId].sectionA.fieldId].fieldName
     })
     if (transitionData[wmId].sectionB.fieldId > 0) {
@@ -48,12 +47,11 @@ const loadMetadata = async () => {
         fieldName:
           sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].fieldName,
         fieldDescription:
-          (sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapNames
-            .length > 0
-            ? sceneGraph.nodes[transitionData[wmId].sectionB.fieldId]
-              .mapNames[0]
+          (sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapName !==
+          ''
+            ? sceneGraph.nodes[transitionData[wmId].sectionB.fieldId].mapName
             : sceneGraph.nodes[transitionData[wmId].sectionB.fieldId]
-              .fieldName) + ' B'
+                .fieldName) + ' B'
       })
     }
   }

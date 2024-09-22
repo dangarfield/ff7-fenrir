@@ -148,34 +148,45 @@ const loadFullFieldModel = async modelLoader => {
     )
   })
 }
-const addBlendingToMaterials = (gltf) => {
+const addBlendingToMaterials = gltf => {
   console.log('addBlendingToMaterials', gltf)
   gltf.scene.traverse(function (element) {
-    if (element.type === 'Mesh' && element.material && element.material.userData && element.material.userData.BlendType) {
+    if (
+      element.type === 'Mesh' &&
+      element.material &&
+      element.material.userData &&
+      element.material.userData.BlendType
+    ) {
       console.log('element', element)
       switch (element.material.userData.BlendType) {
-        case 'AdditiveBlending': element.material.blending = 2; break // This PROBABLY should take into account srcBlend & srcDest
-        case 'SubtractiveBlending': element.material.blending = 3; break // Still a lot to do here, look at fiba -> https://youtu.be/1U39x6jNKoI?t=66
-        case 'MultiplyBlending': element.material.blending = 4; break
-        default: break
+        case 'AdditiveBlending':
+          element.material.blending = 2
+          break // This PROBABLY should take into account srcBlend & srcDest
+        case 'SubtractiveBlending':
+          element.material.blending = 3
+          break // Still a lot to do here, look at fiba -> https://youtu.be/1U39x6jNKoI?t=66
+        case 'MultiplyBlending':
+          element.material.blending = 4
+          break
+        default:
+          break
       }
     }
   })
 }
 const getTexture = (url, cb) => {
   return new Promise((resolve, reject) => {
-    textureLoader.load(url,
-      function (texture) {
-        texture.flipY = false
-        texture.encoding = THREE.sRGBEncoding
-        resolve(texture)
-      }
-    )
+    textureLoader.load(url, function (texture) {
+      texture.flipY = false
+      texture.encoding = THREE.sRGBEncoding
+      resolve(texture)
+    })
   })
 }
 const addBlinkingToModel = async (hrc, gltf) => {
   const blinkData = window.data.exe.blinkData[hrc]
-  if (blinkData) { // TODO - Is this just these 10 models, or can any model blink, eg that use any of the eye textures on these 10 models
+  if (blinkData) {
+    // TODO - Is this just these 10 models, or can any model blink, eg that use any of the eye textures on these 10 models
     const blinkTextures = []
     if (blinkData.leftEye) {
       blinkTextures.push(blinkData.leftEye)
@@ -188,9 +199,19 @@ const addBlinkingToModel = async (hrc, gltf) => {
 
     const blinkMaterials = []
     gltf.scene.traverse(async function (element) {
-      if (element.type === 'Mesh' && element.material.map && blinkTextures.length > textureCount) {
+      if (
+        element.type === 'Mesh' &&
+        element.material.map &&
+        blinkTextures.length > textureCount
+      ) {
         const textureUrl = `${KUJATA_BASE}/data/field/flevel.lgp/textures/${blinkTextures[textureCount]}.tex.png`
-        console.log('addBlinkingToModel element', element, blinkTextures[textureCount], textureUrl, element.material)
+        console.log(
+          'addBlinkingToModel element',
+          element,
+          blinkTextures[textureCount],
+          textureUrl,
+          element.material
+        )
         element.material.userData.blink = { textureUrl }
         textureCount++
         blinkMaterials.push(element.material)
@@ -215,7 +236,13 @@ const addBlinkingToModel = async (hrc, gltf) => {
         // material.map = material.userData.blink.open
 
         // bindBlinkOperations(material)
-        console.log('addBlinkingToModel texture', texture, material.userData.blink.open, material.userData.blink.closed, material.map)
+        console.log(
+          'addBlinkingToModel texture',
+          texture,
+          material.userData.blink.open,
+          material.userData.blink.closed,
+          material.map
+        )
       }
       gltf.scene.userData.blink = getRandomBlinkTime()
     }
@@ -223,8 +250,9 @@ const addBlinkingToModel = async (hrc, gltf) => {
   }
 }
 const getFieldDimensions = fieldName =>
+  // TODO - This is pretty wasteful, make a better way
   new Promise(resolve => {
-    const url = `${KUJATA_BASE}/metadata/makou-reactor/backgrounds/${fieldName}.png`
+    const url = `https://makou-reactor-bg-images.netlify.app/${fieldName}.png`
     const img = new window.Image()
     img.onload = () => {
       const { naturalWidth: width, naturalHeight: height } = img

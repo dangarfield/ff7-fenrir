@@ -9,7 +9,7 @@ const getFieldToWorldMapTransitionData = async () => {
 }
 const getWorldToFieldTransitionData = async () => {
   const dataRes = await fetch(
-    `${KUJATA_BASE}/data/wm/world_us.lgp/field.tbl.json`
+    `${KUJATA_BASE}/data/world/world_us.lgp/field.tbl.json`
   )
   const data = await dataRes.json()
   return data
