@@ -12,6 +12,7 @@ import { initBattleQueue } from './battle-queue.js'
 import { executeAllInitScripts } from './battle-stack.js'
 import { initBattleMenu } from './battle-menu.js'
 import { setLoadingText, showLoadingScreen } from '../loading/loading-module.js'
+import { showBattleMessageForFormation } from './battle-formation.js'
 let BATTLE_PROMISE
 
 /*
@@ -65,6 +66,7 @@ const preLoadBattle = async (battleId, options) => {
 const loadBattle = async (battleId, options) => {
   await preLoadBattle(battleId, options)
   console.log('battle loadBattle: START')
+  showBattleMessageForFormation()
   if (!window.location.host.includes('localhost')) {
     window.alert('Placeholder battles - Press Y to skip') // TEMP - Need to remove
   }

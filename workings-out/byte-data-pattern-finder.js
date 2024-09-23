@@ -46,8 +46,30 @@ const findRepeatedValue = values => {
     'utf-8'
   )
 }
+const findPatternWithUnknownNumber = arr => {
+  const arrLength = arr.length
+  for (let i = 0; i < r.length - arrLength; i++) {
+    // for (let i = 0; i < 500; i++) {
+    r.byteOffset = i
+    r.readInt8()
+    const a = []
+    const root = r.readInt8(i)
+    for (let ia = 1; ia < arrLength; ia++) {
+      const next = r.readInt8(i + ia)
+      a.push(next)
+      // r.byteOffset++
+      if (next !== root + arr[ia]) {
+        break
+      }
+    }
+    if (a.length > 4) {
+      console.log(i, a, r.byteOffset)
+    }
+  }
+}
 const init = async () => {
-  findRepeatedValue([0, 3, 8, 11, 14])
+  // findRepeatedValue([0, 3, 8, 11, 14])
+  findPatternWithUnknownNumber([0, 1, 2, 3, 2, 2, 2])
 }
 
 init()

@@ -29,11 +29,12 @@ const server = http.createServer((req, res) => {
   } else {
     req.url = decodeURI(req.url.split('?')[0])
   }
-  if (
-    (req.url.startsWith('/metadata') && req.url.endsWith('.png')) ||
-    req.url.endsWith('.zip')
-  )
-    console.log('file', req.url)
+  // if (
+  //   (req.url.startsWith('/metadata') && req.url.endsWith('.png')) ||
+  //   req.url.endsWith('.zip')
+  // ) {
+  //   console.log('file', req.url)
+  // }
 
   const filePath = path.join(
     sourceDirectory,

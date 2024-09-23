@@ -129,6 +129,7 @@ const initCommands = () => {
     console.log('battleUI addCommands', commandsGroup, DATA.actor)
     // TODO - change and defend have variable y, rather than just fixed
     // TODO - You cannot select change if you are in a pincer attack
+    // TODO - Steal and mug target same row, need to fix
     changeGroup = createDialogBox({
       id: 25,
       name: 'change',
@@ -247,7 +248,9 @@ const initCommands = () => {
       }
       return combined
     }
-    if (commandFlags.length === 0) return commandFlags // Mime, Change, Defend
+    if (commandFlags.length === 0 && [12, 18, 19].includes(commandIndex)) {
+      return commandFlags // Mime, Change, Defend
+    }
     combined = commandFlags.length === 8 ? [] : [...commandFlags]
     for (const weaponFlag of weaponFlags) {
       if (!combined.includes(weaponFlag)) combined.push(weaponFlag)

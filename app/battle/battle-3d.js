@@ -298,12 +298,12 @@ const importModels = async currentBattle => {
         x: currentBattle.formationConfig.positions[activePlayerCount][i].x,
         y: -model.initialY,
         z:
-          currentBattle.formationConfig.positions[activePlayerCount][i].z +
+          -currentBattle.formationConfig.positions[activePlayerCount][i].z +
           (actor.data.status.battleOrder === 'BackRow'
             ? currentBattle.formationConfig.positions[activePlayerCount][i].z >
               0
-              ? battleFormationConfig.row
-              : -battleFormationConfig.row
+              ? -battleFormationConfig.row
+              : battleFormationConfig.row
             : 0)
       }
       // Set rotation

@@ -14,13 +14,8 @@ const p = {
 }
 
 const FACING = { IN: 'in', OUT: 'out' }
-
 const battleFormationConfig = {
-  // Massive guess, need to adjust
-  // FOUND: https://github.com/Akari1982/q-gears_reverse/blob/47cf28f864d48d1959719cc28c7640bd573dc43c/ffvii/address_battle.txt#L70
-  // 0x003C0BF0
-  // Prev section to investigate: 0x3C09FC
-
+  // Updated with exe data on load
   row: p.p2,
   formations: {
     Normal: {
@@ -30,65 +25,32 @@ const battleFormationConfig = {
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.IN, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p65 }],
-        2: [
-          { x: -p.p4, z: -p.p65 },
-          { x: p.p4, z: -p.p65 }
-        ],
-        3: [
-          { x: -p.p65, z: -p.p65 },
-          { x: p.p0, z: -p.p65 },
-          { x: p.p65, z: -p.p65 }
-        ]
       }
     },
     Preemptive: {
       // DONE
+      message: 50,
       targetGroups: ['enemy', 'player'],
       playerTargetGroups: [1, 1, 1],
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.OUT, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p65 }],
-        2: [
-          { x: -p.p4, z: -p.p65 },
-          { x: p.p4, z: -p.p65 }
-        ],
-        3: [
-          { x: -p.p65, z: -p.p65 },
-          { x: p.p0, z: -p.p65 },
-          { x: p.p65, z: -p.p65 }
-        ]
       }
     },
     BackAttack: {
       // DONE 101
+      message: 51,
       targetGroups: ['enemy', 'player'],
       playerTargetGroups: [1, 1, 1],
       playerRowSwap: true,
       directions: {
-        player: { initial: FACING.IN, default: FACING.IN },
+        player: { initial: FACING.OUT, default: FACING.IN },
         enemy: { initial: FACING.IN, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p65 }],
-        2: [
-          { x: -p.p4, z: -p.p65 },
-          { x: p.p4, z: -p.p65 }
-        ],
-        3: [
-          { x: -p.p65, z: p.p65 },
-          { x: p.p0, z: p.p65 },
-          { x: p.p65, z: p.p65 }
-        ]
       }
     },
     SideAttack1: {
       // DONE - 511
+      message: 52,
       targetGroups: ['player', 'enemy', 'player'],
       playerTargetGroups: [0, 2, 0],
       enemyTargetGroup: 1,
@@ -96,103 +58,47 @@ const battleFormationConfig = {
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.OUT, default: FACING.OUT }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p10 }],
-        2: [
-          { x: p.p0, z: -p.p10 },
-          { x: p.p0, z: p.p10 }
-        ],
-        3: [
-          { x: -p.p4, z: -p.p10 },
-          { x: p.p0, z: p.p10 },
-          { x: p.p4, z: -p.p10 }
-        ]
       }
     },
     PincerAttack: {
       // DONE
+      message: 53,
       targetGroups: ['enemy', 'player', 'enemy'],
       playerTargetGroups: [1, 1, 1],
       playerRowLocked: true,
       directions: {
         player: { initial: FACING.OUT, default: FACING.OUT },
         enemy: { initial: FACING.IN, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: p.p0 }],
-        2: [
-          { x: -p.p4, z: p.p0 },
-          { x: p.p4, z: -p.p2 }
-        ],
-        3: [
-          { x: -p.p6, z: p.p0 },
-          { x: p.p0, z: -p.p2 },
-          { x: p.p6, z: p.p0 }
-        ]
       }
     },
     SideAttack2: {
+      message: 52,
       targetGroups: ['enemy', 'player'],
       playerTargetGroups: [1, 1, 1],
       playerRowLocked: true, // Appears to be back row?!
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.OUT, default: FACING.OUT }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p14 }],
-        2: [
-          { x: p.p0, z: -p.p14 },
-          { x: p.p0, z: p.p14 }
-        ],
-        3: [
-          { x: -p.p4, z: -p.p14 },
-          { x: p.p0, z: p.p14 },
-          { x: p.p4, z: -p.p14 }
-        ]
       }
     },
     SideAttack3: {
+      message: 52,
       targetGroups: ['enemy', 'player'],
       playerTargetGroups: [1, 1, 1],
       playerRowLocked: true,
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.OUT, default: FACING.OUT }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p18 }],
-        2: [
-          { x: p.p0, z: -p.p18 },
-          { x: p.p0, z: p.p18 }
-        ],
-        3: [
-          { x: -p.p4, z: -p.p18 },
-          { x: p.p0, z: p.p18 },
-          { x: p.p4, z: -p.p18 }
-        ]
       }
     },
     SideAttack4: {
+      message: 52,
       targetGroups: ['enemy', 'player'],
       playerTargetGroups: [1, 1, 1],
       playerRowLocked: true,
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.IN, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: p.p10 }],
-        2: [
-          { x: p.p0, z: p.p10 },
-          { x: p.p0, z: -p.p10 }
-        ],
-        3: [
-          { x: -p.p4, z: p.p10 },
-          { x: p.p0, z: -p.p10 },
-          { x: p.p4, z: p.p10 }
-        ]
       }
     },
     NormalLockFrontRow: {
@@ -202,20 +108,39 @@ const battleFormationConfig = {
       directions: {
         player: { initial: FACING.IN, default: FACING.IN },
         enemy: { initial: FACING.IN, default: FACING.IN }
-      },
-      positions: {
-        1: [{ x: p.p0, z: -p.p65 }],
-        2: [
-          { x: -p.p4, z: -p.p65 },
-          { x: p.p4, z: -p.p65 }
-        ],
-        3: [
-          { x: -p.p65, z: -p.p65 },
-          { x: p.p0, z: -p.p65 },
-          { x: p.p65, z: -p.p65 }
-        ]
       }
     }
   }
 }
-export { battleFormationConfig, FACING }
+const combineBattleFormationConfig = exeFormationData => {
+  // Updated from exe-extractor.js in kujata
+
+  for (const battleType of Object.keys(battleFormationConfig.formations)) {
+    battleFormationConfig.formations[battleType].positions =
+      exeFormationData[battleType].positions
+    battleFormationConfig.formations[battleType].positions['1'] = [
+      exeFormationData[battleType].positions['3'][1]
+    ]
+    battleFormationConfig.formations[battleType].rotations =
+      exeFormationData[battleType].rotations
+  }
+  // console.log('FORMATION merged', battleFormationConfig)
+}
+
+const showBattleMessageForFormation = () => {
+  const message =
+    window.data.kernel.battleText[
+      battleFormationConfig.formations[
+        window.currentBattle.setup.battleLayoutType
+      ].message
+    ]
+  if (message) {
+    window.currentBattle.ui.battleText.showBattleMessage(message)
+  }
+}
+export {
+  combineBattleFormationConfig,
+  battleFormationConfig,
+  FACING,
+  showBattleMessageForFormation
+}

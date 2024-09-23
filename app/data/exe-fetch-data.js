@@ -1,3 +1,4 @@
+import { combineBattleFormationConfig } from '../battle/battle-formation.js'
 import { KUJATA_BASE } from './kernel-fetch-data.js'
 
 const loadExeData = async () => {
@@ -14,6 +15,7 @@ const loadExeData = async () => {
       ''
     )
   }
+  combineBattleFormationConfig(exeData.battlePlayerFormationData)
   window.data.exe = exeData
 }
 
