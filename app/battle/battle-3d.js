@@ -7,7 +7,7 @@ import {
   activeCamera,
   scene
 } from './battle-scene.js'
-import { loadSceneModel } from '../data/scene-fetch-data.js'
+import { loadSceneModel } from '../data/battle-fetch-data.js'
 import { setLoadingProgress } from '../loading/loading-module.js'
 import { battleFormationConfig, FACING } from './battle-formation.js'
 
@@ -102,7 +102,7 @@ const createSelectionTriangle = () => {
   const vertices = new Float32Array(
     []
       .concat(
-        ...window.data.battleMisc.mark.map(m =>
+        ...window.data.battle.mark.map(m =>
           m.positions.map(p => p.map(v => v * -1))
         )
       )
@@ -115,7 +115,7 @@ const createSelectionTriangle = () => {
       new Float32Array(
         []
           .concat(
-            ...window.data.battleMisc.mark.map(m =>
+            ...window.data.battle.mark.map(m =>
               m.colors.map(c => {
                 const col = new THREE.Color(c)
                 return [col.r, col.g, col.b]

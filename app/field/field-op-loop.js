@@ -1163,7 +1163,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
         // control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
 
-        control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal
+        // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal
         // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 + Chocobo - Premptive
         // control.BATTLE({ b: 0, n: 511 }) // Bizarre Bug x3 + Chocobo - SideAttack1
         // control.BATTLE({ b: 0, n: 101 }) // Joker + Flapbeat x2 - BackAttack
@@ -1172,6 +1172,8 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 22 }) // Pyramid (test) x3 - SideAttack3
         // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4
         // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow
+
+        control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
       }
       window.quickBattle()
     }, 1000)

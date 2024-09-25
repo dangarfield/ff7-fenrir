@@ -10,12 +10,10 @@ const dec2bin = dec => {
   // For debug only
   return (dec >>> 0).toString(2).padStart(8, '0')
 }
+const f = `C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\ff7_en.exe`
+// const f = `C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data\\lang_en\\battle\\camdat0.bin`
 
-const r = Buffer.from(
-  fs.readFileSync(
-    `C:\\Program Files (x86)\\Steam\\steamapps\\common\\FINAL FANTASY VII\\ff7_en.exe`
-  )
-)
+const r = Buffer.from(fs.readFileSync(f))
 const lines = []
 const allSame = arr => arr.every(val => val === arr[0])
 const missingNumbers = (arr, min, max) =>
@@ -62,14 +60,15 @@ const findPatternWithUnknownNumber = arr => {
         break
       }
     }
-    if (a.length > 4) {
+    if (a.length >= arr.length - 1) {
       console.log(i, a, r.byteOffset)
     }
   }
 }
+
 const init = async () => {
   // findRepeatedValue([0, 3, 8, 11, 14])
-  findPatternWithUnknownNumber([0, 1, 2, 3, 2, 2, 2])
+  findPatternWithUnknownNumber([0, 0, 1, 2, 2, 2, 2, 0])
 }
 
 init()

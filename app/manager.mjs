@@ -2,7 +2,7 @@ import { setupInputs } from './interaction/inputs.js'
 import { initRenderer, showStats } from './render/renderer.js'
 import { loadWindowTextures, loadKernelData } from './data/kernel-fetch-data.js'
 import { loadExeData } from './data/exe-fetch-data.js'
-import { loadSceneData } from './data/scene-fetch-data.js'
+import { loadBattleData } from './data/battle-fetch-data.js'
 import { loadCDData } from './data/cd-fetch-data.js'
 import { loadMenuTextures } from './data/menu-fetch-data.js'
 import { loadFieldTextures } from './data/field-fetch-data.js'
@@ -24,7 +24,6 @@ import { initMiniGameModule } from './minigame/minigame-module.js'
 import { initWorldModule } from './world/world-module.js'
 import { bindDisplayControls } from './helpers/display-controls.js'
 import { waitUntilMediaCanPlay } from './helpers/media-can-play.js'
-import { loadMiscData } from './data/misc-fetch-data.js'
 import { loadZippedAssets } from './data/cache-manager.js'
 
 const initManager = async () => {
@@ -43,11 +42,10 @@ const initManager = async () => {
   await initWorldModule() // 3 json
   await loadKernelData() // 1 json
   await loadExeData() // 1 json
-  await loadMiscData() // 1 json
   await loadCDData() // 1 json
 
-  setLoadingText('Loading Scene Data - Step 2 of 7')
-  await loadSceneData() // 1 json
+  setLoadingText('Loading Battle Data - Step 2 of 7')
+  await loadBattleData() // 1 json
 
   setLoadingText('Loading Core Assets - Step 3 of 7 - First load only')
   const zip = await loadZippedAssets()

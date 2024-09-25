@@ -2,12 +2,22 @@ import { KUJATA_BASE } from './kernel-fetch-data.js'
 import { GLTFLoader } from '../../assets/threejs-r148/examples/jsm/loaders/GLTFLoader.js'
 import { addBlendingToMaterials } from '../field/field-fetch-data.js'
 
-const loadSceneData = async () => {
+const loadBattleData = async () => {
   const sceneDataRes = await fetch(
     `${KUJATA_BASE}/data/battle/scene.bin/scene.bin.json`
   )
   const sceneData = await sceneDataRes.json()
   window.data.sceneData = sceneData
+
+  window.data.battle = {}
+
+  const camDataRes = await fetch(`${KUJATA_BASE}/data/battle/camdat.bin.json`)
+  const camData = await camDataRes.json()
+  window.data.battle.camData = camData
+
+  const markDataRes = await fetch(`${KUJATA_BASE}/data/battle/mark.dat.json`)
+  const markData = await markDataRes.json()
+  window.data.battle.mark = markData
 
   // const allRows = []
   // const allRows2 = []
@@ -107,4 +117,4 @@ const loadSceneModel = async (modelCode, manager) => {
   })
 }
 
-export { loadSceneData, loadSceneModel }
+export { loadBattleData, loadSceneModel }
