@@ -47,7 +47,7 @@ const renderLoop = () => {
       const delta = window.anim.clock.getDelta()
       if (debugControls) {
         console.log('batte debugControls', debugControls)
-        debugControls.update(delta)
+        // debugControls.update(delta)
       }
 
       // if (window.currentBattle.models) {
@@ -125,14 +125,15 @@ const setupScenes = () => {
   fixedCamera.position.z = 5
 
   battleCamera = new THREE.PerspectiveCamera(
-    50,
+    27,
     window.config.sizing.width / window.config.sizing.height,
-    0.01,
+    1,
     100000
   )
   battleCamera.position.x = 10
   battleCamera.position.y = 20
   battleCamera.position.z = 30
+  window.battleCamera = battleCamera
 
   debugCamera = new THREE.PerspectiveCamera(
     27,
@@ -145,7 +146,7 @@ const setupScenes = () => {
   debugCamera.position.z = 7411 // -400
   window.battleDebugCamera = debugCamera
 
-  activeCamera = debugCamera
+  activeCamera = battleCamera
   debugControls = new OrbitControls(
     debugCamera,
     window.anim.renderer.domElement
@@ -165,7 +166,7 @@ const setupScenes = () => {
   orthoCamera.position.z = 1001
 
   // scene.background = new THREE.Color(0xbbddff) // Temp
-  scene.add(battleCamera)
+  // scene.add(battleCamera)
   // add lights
   // const addDirectionalLight = function (x, y, z) {
   //   const light = new THREE.DirectionalLight(0xc0c0c0)

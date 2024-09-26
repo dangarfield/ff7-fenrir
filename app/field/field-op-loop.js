@@ -1162,20 +1162,21 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 197 * 4 + 0 }) // Rilfsak
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
         // control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
+        // control.BATTLE({ b: 0, n: 26 }) // Pyramid (test) x6 - semi transparent?!
 
-        // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal
-        // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 + Chocobo - Premptive
-        // control.BATTLE({ b: 0, n: 511 }) // Bizarre Bug x3 + Chocobo - SideAttack1
-        // control.BATTLE({ b: 0, n: 101 }) // Joker + Flapbeat x2 - BackAttack
-        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - PincerAttack
-        // control.BATTLE({ b: 0, n: 94 }) // Bleachplug x3 - SideAttack2 (enemy position seems incorrect)
-        // control.BATTLE({ b: 0, n: 22 }) // Pyramid (test) x3 - SideAttack3
-        // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4
-        // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow
+        // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal - cam 33,3. n:98,1,3
+        // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 + Chocobo - Premptive - cam 20,0
+        // control.BATTLE({ b: 0, n: 511 }) // Bizarre Bug x3 + Chocobo - SideAttack1 - cam 0,3
+        // control.BATTLE({ b: 0, n: 101 }) // Joker + Flapbeat x2 - BackAttack - cam 21,1
+        // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - PincerAttack - cam 8,0 // FIX ROTATIONS AGAIN
+        // control.BATTLE({ b: 0, n: 94 }) // Bleachplug x3 - SideAttack2 (enemy position seems incorrect) - cam 36,2
+        // control.BATTLE({ b: 0, n: 22 }) // Pyramid (test) x3 - SideAttack3 - cam 0,2. note n:23,0,2. n:24,0,0/1. n:25,0,0/1, n:26,0,0/1, n:27,0,3
+        // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4 - cam 76,0
+        // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow - cam 86,0         // 86 might work here!
 
         control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
       }
-      window.quickBattle()
+      // window.quickBattle()
     }, 1000)
   }
 

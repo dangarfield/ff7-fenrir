@@ -348,25 +348,8 @@ const importModels = async currentBattle => {
   }
 
   // Set default camera
-  setCameraPosition(0) // TODO - I don't know how this is set yet
+  // setCameraPosition(0) // TODO - I don't know how this is set yet
 }
 // Shortcuts for debugging
-
-const setCameraPosition = (positionID, cameraID) => {
-  if (cameraID === undefined) cameraID = 1
-  window.battleDebugCamera.position.x =
-    currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.x
-  window.battleDebugCamera.position.y =
-    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.y
-  window.battleDebugCamera.position.z =
-    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.z
-  window.battleDebugCamera.controls.target.x =
-    currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.x
-  window.battleDebugCamera.controls.target.y =
-    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.y
-  window.battleDebugCamera.controls.target.z =
-    -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.z
-}
-window.setCameraPosition = setCameraPosition
 
 export { importModels, tempSlow }

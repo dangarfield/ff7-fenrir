@@ -24,9 +24,9 @@ const loadBattleData = async () => {
   // for (const scene of sceneData) {
   //   for (let i = 0; i < scene.battleFormations.length; i++) {
   //     const formation = scene.battleFormations[i]
-  //     const setup = scene.battleSetup[i]
-  //     if (!allRows.includes(setup.battleFlagsBin))
-  //       allRows.push(setup.battleFlagsBin)
+  // const setup = scene.battleSetup[i]
+  // if (!allRows.includes(setup.initialCameraPosition))
+  //   allRows.push(setup.initialCameraPosition)
   //     for (const flag of setup.battleFlags) {
   //       if (!allRows2.includes(flag)) allRows2.push(flag)
   //     }
@@ -80,7 +80,8 @@ const loadBattleData = async () => {
   //     // console.log('sceneData Multi row: ', scene.sceneId, rows)
   //   }
   // }
-  // console.log('sceneData all rows ', allRows)
+  // const sorted = allRows.sort((a, b) => a - b)
+  // console.log('sceneData all rows ', sorted)
   // console.log('sceneData all rows2 ', allRows2)
 }
 const loadSceneModel = async (modelCode, manager) => {
