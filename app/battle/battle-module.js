@@ -63,17 +63,19 @@ const preLoadBattle = async (battleId, options) => {
   window.a2p = window?.currentBattle?.actors[2]?.model?.scene?.position
 
   console.log('battle preload: END')
+  return currentBattle
 }
 const loadBattle = async (battleId, options) => {
-  await preLoadBattle(battleId, options)
-  await executeInitialCameraScript()
+  const currentBattle = await preLoadBattle(battleId, options)
+  window.anim.clock.start()
+  startBattleRenderingLoop()
+  await executeInitialCameraScript(currentBattle)
   console.log('battle loadBattle: START')
   showBattleMessageForFormation()
   if (!window.location.host.includes('localhost')) {
     window.alert('Placeholder battles - Press Y to skip') // TEMP - Need to remove
   }
-  window.anim.clock.start()
-  startBattleRenderingLoop()
+  // TODO - Start 'timers' and actions now, not when rendering starts
   return new Promise(resolve => {
     BATTLE_PROMISE = resolve
   })

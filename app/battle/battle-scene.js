@@ -4,6 +4,7 @@ import { OrbitControls } from '../../assets/threejs-r148/examples/jsm/controls/O
 import { updateOnceASecond } from '../helpers/gametime.js'
 import { incrementTick } from './battle-timers.js'
 import { updateActorsUI } from './battle-menu.js'
+import { applyCamData } from './battle-camera.js'
 
 let scene
 let sceneGroup
@@ -21,9 +22,10 @@ let BATTLE_PAUSED = false
 
 const tweenSleep = ms => {
   return new Promise(resolve => {
-    new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
+    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
       .to({ x: 1 }, ms)
       .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
         resolve()
       })
       .start()
@@ -49,6 +51,7 @@ const renderLoop = () => {
         console.log('batte debugControls', debugControls)
         // debugControls.update(delta)
       }
+      applyCamData(battleCamera)
 
       // if (window.currentBattle.models) {
       //   for (const model of window.currentBattle.models) {
