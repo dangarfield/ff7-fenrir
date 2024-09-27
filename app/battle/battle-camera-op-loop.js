@@ -22,6 +22,9 @@ const executePositionOp = async op => {
     case 'RET': // FF
       pos.RET()
       break
+    case 'RET2': // 00 - Should never be called really
+      pos.RET2()
+      break
 
     default:
       //   window.alert(
@@ -49,6 +52,9 @@ const executeTargetOp = async op => {
     case 'RET': // FF
       target.RET()
       break
+    case 'RET2': // 00 - Should never be called really
+      pos.RET2()
+      break
 
     default:
       //   window.alert(
@@ -67,8 +73,8 @@ const runScriptPair = async scriptPair => {
 
   console.log('CAMERA runScriptPair: START')
   await Promise.all([
-    executeScript(scriptPair.position, executePositionOp)
-    // executeScript(scriptPair.target, executeTargetOp)
+    executeScript(scriptPair.position, executePositionOp),
+    executeScript(scriptPair.target, executeTargetOp)
   ])
   console.log('CAMERA runScriptPair: END')
 }

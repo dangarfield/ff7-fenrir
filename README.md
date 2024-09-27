@@ -6,7 +6,12 @@
 
 We all love FF7, there are lots of mods and an amazing community. As part of my personal foray into 3D graphics, I wanted to work to better understand the assets, data and logic, ideally with result of creating a new Game Engine that runs using FF7 data.
 
-I will prodeminately be looking at recreating the fields in the first instance. Ideally it will use the in game assets (`.lgp`'s etc), but I will start using generated json fields and pngs for a start.
+> _Progress:_ 
+> - Field - Playable - Mostly complete
+> - Menus - Mostly complete, but uses debug data
+> - Battle - Current focus
+
+Most fields are playable. Ideally it will use the in game assets (`.lgp`'s etc), but I will start using generated json fields and pngs for a start.
 
 I've also added a huge amount of functionality to [https://github.com/dangarfield/kujata](kujata) also - Web-friendly FF7 assets
 
@@ -14,10 +19,30 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 
 ### Installation
 
-- None, [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/) link. If you want to install locally:
+- None, go to [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
+- If you want to install locally:
 - Install `node.js`, clone this repo `git clone https://github.com/dangarfield/ff7-fenrir.git`
-- Clone `git clone https://github.com/dangarfield/kujata-data.git` into a sibling directory (eg, kujata-data and ff7-fenrir clones share a common parent directory). Alternatively, edit `KUJATA_BASE` variable in `kernel-fetch-data.mjs` to NOT point to localhost
-- To run `npm install` (or any other static web server), run `npm run dev`, open `http://localhost:3000` in browser
+- Extract game data using kujata: https://github.com/dangarfield/kujata
+- Or download all files directly: https://kujata-data-dg.netlify.app/filelist.txt
+- Amend `static-server.js` to reference your generated / downloaded `kujata-data`
+- Install with `npm i`
+- Run `npm run dev`
+- Open `http://localhost:3000` in browser
+
+
+### OP Code Completion Status
+
+See the [OPS_CODES_FIELD_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_FIELD_README.md) for field progress
+
+See the [OPS_CODES_BATTLE_CAMERA_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_BATTLE_CAMERA_README.md) for battle camera progress
+
+
+### Thanks
+
+- Picklejar76 and his work with `https://github.com/picklejar76/kujata` and `https://github.com/picklejar76/kujata-data` for game assets and services
+- Myst6re and his work with `https://github.com/myst6re/makoureactor` for understanding a huge amount of the field logic and field op code behaviours
+- All of the Tsunamods Discord and Qhimm community for their extensive work so far
+- Many others as I begin to work through further
 
 ### Progress - Field
 
@@ -115,14 +140,3 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 - :black_square_button: BUG: blin66_5 cloud anim not running
 - :black_square_button: Implement remaining difficult op codes
 - :white_check_mark: Add blinking eyes
-
-### OP Code Completion Status
-
-See the [OPS_CODES_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_README.md) for updates
-
-### Thanks
-
-- Picklejar76 and his work with `https://github.com/picklejar76/kujata` and `https://github.com/picklejar76/kujata-data` for game assets and services
-- Myst6re and his work with `https://github.com/myst6re/makoureactor` for understanding a huge amount of the field logic and field op code behaviours
-- All of the Tsunamods Discord and Qhimm community for their extensive work so far
-- Many others as I begin to work through further

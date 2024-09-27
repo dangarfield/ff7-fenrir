@@ -15,11 +15,6 @@ const MOVA = op => {
     .onUpdate(() => {
       // console.log('CAMERA pos MOVA: update', CAM_DATA)
       CAM_DATA.position.active.set(tweenVector.x, tweenVector.y, tweenVector.z)
-      // console.log(
-      //   'CAMERA pos MOVA: update',
-      //   tweenVector,
-      //   CAM_DATA.position.active
-      // )
     })
     .onComplete(() => {
       // console.log('CAMERA pos MOVA: END', CAM_DATA)
@@ -50,4 +45,7 @@ const WAIT = async op => {
 const RET = () => {
   console.log('CAMERA pos RET')
 }
-export { XYZ, MOVA, SETWAIT, WAIT, RET }
+const RET2 = () => {
+  console.log('CAMERA pos RET2')
+}
+export { XYZ, MOVA, SETWAIT, WAIT, RET, RET2 }

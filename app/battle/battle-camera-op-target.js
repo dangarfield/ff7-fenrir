@@ -50,4 +50,7 @@ const WAIT = async op => {
 const RET = () => {
   console.log('CAMERA target RET')
 }
-export { XYZ, MOVA, SETWAIT, WAIT, RET }
+const RET2 = () => {
+  console.log('CAMERA target RET2')
+}
+export { XYZ, MOVA, SETWAIT, WAIT, RET, RET2 }
