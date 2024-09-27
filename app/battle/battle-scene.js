@@ -19,7 +19,12 @@ let activeCamera
 const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
 
 let BATTLE_PAUSED = false
+let BATTLE_TICK_ACTIVE = false // Wait for initial, ATB too - eg, WAIT, TIME
 
+const setBattleTickActive = isActive => {
+  BATTLE_TICK_ACTIVE = isActive
+  // TODO - Update WAIT / TIME gui
+}
 const tweenSleep = ms => {
   return new Promise(resolve => {
     const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
@@ -45,7 +50,10 @@ const renderLoop = () => {
     window.requestAnimationFrame(renderLoop)
     if (!BATTLE_PAUSED) {
       updateOnceASecond()
-      incrementTick() // TODO - Have to wait for initial camera animations / fades?
+      if (BATTLE_TICK_ACTIVE) {
+        incrementTick()
+      }
+
       const delta = window.anim.clock.getDelta()
       if (debugControls) {
         console.log('batte debugControls', debugControls)
@@ -98,6 +106,7 @@ const renderLoop = () => {
 }
 const startBattleRenderingLoop = () => {
   if (window.anim.activeScene !== 'battle') {
+    setBattleTickActive(false)
     window.anim.activeScene = 'battle'
     renderLoop()
   }
@@ -217,5 +226,6 @@ export {
   BATTLE_TWEEN_GROUP,
   tweenSleep,
   togglePauseBattle,
-  BATTLE_PAUSED
+  BATTLE_PAUSED,
+  setBattleTickActive
 }

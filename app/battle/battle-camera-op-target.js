@@ -1,31 +1,33 @@
+import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { CAM_DATA } from './battle-camera.js'
-import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { CAM_DATA, tweenCamera } from './battle-camera.js'
+import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
+
+const U1ON = () => {
+  console.log('CAMERA pos U1ON')
+  CAM_DATA.target.unknown1 = true
+}
+const U1OFF = () => {
+  console.log('CAMERA pos U1OFF')
+  CAM_DATA.target.unknown1 = false
+}
 
 const XYZ = op => {
   CAM_DATA.target.to.set(op.x, -op.y, -op.z)
   console.log('CAMERA target XYZ', op, CAM_DATA)
 }
-const MOVA = op => {
-  console.log('CAMERA target MOVA: START', op, CAM_DATA)
-  const tweenVector = CAM_DATA.target.to.clone()
-  const t = new TWEEN.Tween(tweenVector, BATTLE_TWEEN_GROUP)
-    .to(CAM_DATA.idle.target, (op.frames / 15) * 1000) // eg, 15 fps
-    .easing(TWEEN.Easing.Quadratic.InOut) // ?
-    .onUpdate(() => {
-      CAM_DATA.target.active.set(tweenVector.x, tweenVector.y, tweenVector.z)
-      console.log('CAMERA target MOVA: update', CAM_DATA.target.active)
-      // console.log(
-      //   'CAMERA pos MOVA: update',
-      //   tweenVector,
-      //   CAM_DATA.target.active
-      // )
-    })
-    .onComplete(() => {
-      console.log('CAMERA target MOVA: END', CAM_DATA.target.active)
-      BATTLE_TWEEN_GROUP.remove(t)
-    })
-    .start()
+
+const MIDLE = op => {
+  console.log('CAMERA target MIDLE: START', op, CAM_DATA)
+  const from = CAM_DATA.target.active.clone()
+  const to = CAM_DATA.idle.target
+  tweenCamera(CAM_DATA.target.active, from, to, op.frames, 'target MIDLE')
+}
+const MOVE = op => {
+  console.log('CAMERA target MOVE: START', op, CAM_DATA)
+  const from = CAM_DATA.target.active.clone()
+  const to = new THREE.Vector3(op.x, -op.y, -op.z)
+  tweenCamera(CAM_DATA.target.active, from, to, op.frames, 'pos MOVE')
 }
 
 const SETWAIT = op => {
@@ -33,18 +35,11 @@ const SETWAIT = op => {
   console.log('CAMERA target SETWAIT:', op, CAM_DATA)
 }
 const WAIT = async op => {
-  return new Promise(resolve => {
+  return new Promise(async resolve => {
     console.log('CAMERA target WAIT: START', op, CAM_DATA.target.wait)
-    const from = {}
-    const t = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
-      .to({}, (CAM_DATA.target.wait / 15) * 1000) // eg, 15 fps
-      .onComplete(() => {
-        // console.log('CAMERA target MOVA: END', CAM_DATA)
-        console.log('CAMERA target WAIT: END')
-        BATTLE_TWEEN_GROUP.remove(t)
-        resolve()
-      })
-      .start()
+    await tweenSleep((CAM_DATA.target.wait / 15) * 1000)
+    console.log('CAMERA target WAIT: END')
+    resolve()
   })
 }
 const RET = () => {
@@ -53,4 +48,4 @@ const RET = () => {
 const RET2 = () => {
   console.log('CAMERA target RET2')
 }
-export { XYZ, MOVA, SETWAIT, WAIT, RET, RET2 }
+export { U1ON, U1OFF, XYZ, MIDLE, MOVE, SETWAIT, WAIT, RET, RET2 }

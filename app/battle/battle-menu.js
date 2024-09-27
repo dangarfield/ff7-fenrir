@@ -15,7 +15,8 @@ import {
   addHP,
   addMP,
   addBattleDescriptionsTextMenu,
-  addBattleTextMenu
+  addBattleTextMenu,
+  addFlashPlane
 } from './battle-menu-box-helper.js'
 import { initCommands } from './battle-menu-command.js'
 import { orthoScene, activeCamera } from './battle-scene.js'
@@ -23,10 +24,6 @@ import { battlePointer } from './battle-target.js'
 window.THREE = THREE
 
 const playerLineHeight = 16
-
-const constructMagicMenu = () => {
-  return ''
-}
 
 const constructMainMenus = () => {
   // Main Left
@@ -218,9 +215,6 @@ const constructMainMenus = () => {
       }
     }
   }
-
-  const magicDialog = constructMagicMenu()
-  return { magicDialog }
 }
 const updateActorsUI = () => {
   for (const player of window.currentBattle.actors) {
@@ -291,17 +285,18 @@ const initBattleMenu = async currentBattle => {
   clearOrthoScene()
   initPointers(orthoScene)
   initActorPositionSprites(currentBattle.actors)
-  const { magicDialog } = constructMainMenus()
+  constructMainMenus()
   const pause = addPauseMenu()
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
+  const flashPlane = addFlashPlane()
 
   window.currentBattle.ui = {
     pause,
     battleDescriptions,
     battleText,
-    magicDialog,
-    battlePointer
+    battlePointer,
+    flashPlane
   }
   // Command list w = 1 list
   const command = createDialogBox({

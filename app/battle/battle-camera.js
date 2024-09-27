@@ -8,12 +8,15 @@ const CAM_DATA = {
   position: {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
-    wait: 0
+    wait: 0,
+    unknown1: false,
+    unknown2: false
   },
   target: {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
-    wait: 0
+    wait: 0,
+    unknown1: false
   },
   idle: {
     position: new THREE.Vector3(),
@@ -30,21 +33,24 @@ const resetCamData = () => {
   CAM_DATA.position.active.set(0, 0, 0)
   CAM_DATA.position.to.set(0, 0, 0)
   CAM_DATA.position.wait = 0
+  CAM_DATA.position.unknown1 = false
+  CAM_DATA.position.unknown2 = false
   CAM_DATA.target.active.set(0, -1, 0)
   CAM_DATA.target.to.set(0, 0, 0)
   CAM_DATA.target.wait = 0
+  CAM_DATA.target.unknown1 = false
   CAM_DATA.idle.position.set(0, 0, 0)
   CAM_DATA.idle.target.set(0, 0, 0)
 }
 
 const setDebugCameraPosition = (positionID, cameraID) => {
   if (cameraID === undefined) cameraID = 1
-  window.battleCamera.position.set(
+  CAM_DATA.position.active.set(
     currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.x,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.y,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.z
   )
-  window.battleCamera.lookAt(
+  CAM_DATA.target.active.set(
     currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.x,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.y,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.z
@@ -52,101 +58,28 @@ const setDebugCameraPosition = (positionID, cameraID) => {
 }
 window.setDebugCameraPosition = setDebugCameraPosition
 
-const executeInitialCameraScriptDebug = async () => {
-  const initialCameraPosition = window.currentBattle.setup.initialCameraPosition
-  const idleCameraIndex = 0
-
-  const posOp0 =
-    window.data.battle.camData.initialScripts[initialCameraPosition].position[0] // Get correct offsets from scene config
-  const targetOp0 =
-    window.data.battle.camData.initialScripts[initialCameraPosition].target[0]
-
-  console.log(
-    'CAMERA initial Scripts',
-    window.data.battle.camData.initialScripts[initialCameraPosition]
-  )
-  console.log(
-    'CAMERA initialCameraPosition',
-    window.currentBattle.setup.initialCameraPosition,
-    'idleCameraIndex',
-    idleCameraIndex
-  )
-
-  const initialPosition = new THREE.Vector3(posOp0.x, -posOp0.y, -posOp0.z)
-  const initialTarget = new THREE.Vector3(
-    targetOp0.x,
-    -targetOp0.y,
-    -targetOp0.z
-  )
-
-  // How to find what offset for the idle camera? Or is this part of the random?!
-  const idlePosition = new THREE.Vector3(
-    currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.x,
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.y,
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.z
-  )
-  const idleTarget = new THREE.Vector3(
-    currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.x,
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.y,
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.z
-  )
-
-  console.log(
-    'CAMERA',
-    posOp0,
-    targetOp0,
-    '->',
-    initialPosition,
-    initialTarget,
-    '-',
-    idlePosition,
-    idleTarget
-  )
-  window.idleTarget = idleTarget
-
-  const applyCamera = () => {
-    window.battleCamera.position.copy(initialPosition)
-    window.battleCamera.lookAt(initialTarget)
+const tweenCamera = (camVector, from, to, frames, reference) => {
+  const time = frames === 1 ? 1 : (frames / 15) * 1000 // As fps is 15, an 'instant 1 frame' has to be kept the same
+  const t = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+    .to(to, time) // eg, 15 fps
+    .easing(TWEEN.Easing.Quadratic.InOut) // ?
+    .onUpdate(() => {
+      camVector.set(from.x, from.y, from.z)
+      console.log(`CAMERA ${reference}: UPDATE`, camVector)
+    })
+    .onComplete(() => {
+      console.log(`CAMERA ${reference}: END`, camVector, CAM_DATA)
+      BATTLE_TWEEN_GROUP.remove(t)
+    })
+  // There is often a WAIT after a 1 frame MOVE then a FLASH, I assume the engine groups them, this is a simple fix
+  if (frames === 1) {
+    t.delay(1000 / 15)
   }
-  applyCamera()
-
-  const tweenPosition = initialPosition.clone()
-  const initialCameraPositionTween = new TWEEN.Tween(
-    tweenPosition,
-    BATTLE_TWEEN_GROUP
-  )
-    .to(idlePosition, 4000)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate(() => {
-      window.battleCamera.position.set(
-        tweenPosition.x,
-        tweenPosition.y,
-        tweenPosition.z
-      )
-    })
-    .onComplete(() => {
-      BATTLE_TWEEN_GROUP.remove(initialCameraPositionTween)
-    })
-    .start()
-  const tweenTarget = initialTarget.clone()
-  const initialCameraTargetTween = new TWEEN.Tween(
-    tweenTarget,
-    BATTLE_TWEEN_GROUP
-  )
-    .to(idleTarget, 4000)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate(() => {
-      window.battleCamera.lookAt(tweenTarget)
-    })
-    .onComplete(() => {
-      BATTLE_TWEEN_GROUP.remove(initialCameraTargetTween)
-    })
-    .start()
+  t.start()
 }
-window.executeInitialCameraScriptDebug = executeInitialCameraScriptDebug
 
 const setIdleCamera = currentBattle => {
-  const idleCameraIndex = 0 // TODO - Not sure how to ascertain this value yet. 0-3
+  const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
 
   CAM_DATA.idle.position.x =
     currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.x
@@ -176,4 +109,4 @@ const executeInitialCameraScript = async currentBattle => {
   console.log('CAMERA initial: END')
 }
 
-export { executeInitialCameraScript, CAM_DATA, applyCamData }
+export { executeInitialCameraScript, CAM_DATA, applyCamData, tweenCamera }

@@ -7,8 +7,29 @@ import * as target from './battle-camera-op-target.js'
 const executePositionOp = async op => {
   //   console.log('CAMERA executePositionOp', op)
   switch (op.op) {
-    case 'MOVA': // E2
-      pos.MOVA(op)
+    case 'U2OFF': // DA
+      pos.U2OFF()
+      break
+    case 'U2ON': // DB
+      pos.U2ON()
+      break
+    case 'U1ON': // DC
+      pos.U1ON()
+      break
+    case 'U1OFF': // F1
+      pos.U1OFF()
+      break
+    case 'U2OFF': // DA
+      pos.U2OFF()
+      break
+    case 'FLASH': // D6
+      pos.FLASH()
+      break
+    case 'MIDLE': // E2
+      pos.MIDLE(op)
+      break
+    case 'MOVE': // E6
+      pos.MOVE(op)
       break
     case 'XYZ': // F9
       pos.XYZ(op)
@@ -37,8 +58,17 @@ const executePositionOp = async op => {
 const executeTargetOp = async op => {
   //   console.log('CAMERA executeTargetOp', op)
   switch (op.op) {
-    case 'MOVA': // E2
-      target.MOVA(op)
+    case 'U1OFF': // DB
+      target.U1OFF()
+      break
+    case 'U1ON': // DC
+      target.U1ON()
+      break
+    case 'MIDLE': // E2
+      target.MIDLE(op)
+      break
+    case 'MOVE': // E6
+      target.MOVE(op)
       break
     case 'XYZ': // FA
       target.XYZ(op)
@@ -53,7 +83,7 @@ const executeTargetOp = async op => {
       target.RET()
       break
     case 'RET2': // 00 - Should never be called really
-      pos.RET2()
+      target.RET2()
       break
 
     default:

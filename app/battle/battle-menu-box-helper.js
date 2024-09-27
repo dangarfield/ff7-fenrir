@@ -550,6 +550,38 @@ const addBattleDescriptionsTextMenu = () => {
     }
   }
 }
+const addFlashPlane = () => {
+  const geometry = new THREE.PlaneGeometry(
+    window.config.sizing.width * 2,
+    window.config.sizing.height * 2
+  )
+  const material = new THREE.MeshBasicMaterial({
+    // transparent: true,
+    // opacity: 0.5,
+    vertexColors: true
+  })
+
+  const white = new THREE.Color(0xffffff)
+  const colors = []
+  for (let i = 0; i < geometry.attributes.position.count; i++) {
+    colors.push(white.r, white.g, white.b)
+  }
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.visible = false
+  mesh.position.z = 4
+  mesh.userData.quickFlash = async () => {
+    mesh.visible = true
+    await tweenSleep(1000 / 60)
+    mesh.visible = false
+  }
+
+  window.flashPlane = mesh
+  orthoScene.add(mesh)
+
+  return mesh
+}
 const addBattleTextMenu = () => {
   // TODO - Sometimes it can be special colours
   const textGroup = createDialogBox({
@@ -820,5 +852,6 @@ export {
   addBattleDescriptionsTextMenu,
   addBattleTextMenu,
   addHP,
-  addMP
+  addMP,
+  addFlashPlane
 }

@@ -24,60 +24,17 @@ const loadBattleData = async () => {
   // for (const scene of sceneData) {
   //   for (let i = 0; i < scene.battleFormations.length; i++) {
   //     const formation = scene.battleFormations[i]
-  // const setup = scene.battleSetup[i]
-  // if (!allRows.includes(setup.initialCameraPosition))
-  //   allRows.push(setup.initialCameraPosition)
-  //     for (const flag of setup.battleFlags) {
-  //       if (!allRows2.includes(flag)) allRows2.push(flag)
+  //     const setup = scene.battleSetup[i]
+  //     // if (!allRows.includes(setup.initialCameraPosition))
+  //     if ([57, 68, 69, 88].includes(setup.initialCameraPosition)) {
+  //       console.log(
+  //         'sceneData',
+  //         scene,
+  //         formation,
+  //         setup,
+  //         setup.initialCameraPosition
+  //       )
   //     }
-  //     if (setup.battleFlags.includes('Unknown3')) {
-  //       console.log('sceneData Unknown3', scene.sceneId, scene.sceneId * 4 + i)
-  //     }
-  //     // const rows = []
-  //     // for (const enemy of formation) {
-  //     //   if (enemy.row < 1000 && !rows.includes(enemy.row)) {
-  //     //     rows.push(enemy.row)
-  //     //   }
-  //     //   if (enemy.row < 1000 && !allRows.includes(enemy.row)) {
-  //     //     allRows.push(enemy.row)
-  //     //   }
-  //     //   if (
-  //     //     setup.battleLayoutType === 'NormalLockFrontRow' &&
-  //     //     enemy.enemyId !== 0xffff
-  //     //   ) {
-  //     //     console.log(
-  //     //       'sceneData',
-  //     //       scene.sceneId,
-  //     //       scene.sceneId * 4 + i,
-  //     //       '-',
-  //     //       enemy.enemyId,
-  //     //       '-',
-  //     //       enemy.position,
-  //     //       setup.battleLayoutType
-  //     //     )
-  //     //   }
-  //     // }
-  //     // console.log('sceneData   ------------')
-
-  //     // if (rows.length > 1) {
-  //     //   console.log(
-  //     //     'sceneData Multi row: ',
-  //     //     scene.sceneId,
-  //     //     scene.sceneId * 4 + i,
-  //     //     '-',
-  //     //     rows
-  //     //   )
-  //     // }
-  //     // if (!rows.includes(1)) {
-  //     //   console.log(
-  //     //     'sceneData no row 1: ',
-  //     //     scene.sceneId,
-  //     //     scene.sceneId * 4 + i,
-  //     //     '-',
-  //     //     rows
-  //     //   )
-  //     // }
-  //     // console.log('sceneData Multi row: ', scene.sceneId, rows)
   //   }
   // }
   // const sorted = allRows.sort((a, b) => a - b)
