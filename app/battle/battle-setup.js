@@ -41,6 +41,7 @@ const setupBattle = battleId => {
     formationId,
     scene, // temp - remove after
     setup: { ...scene.battleSetup[formationId] },
+    camera: { ...scene.cameraPlacement[formationId] },
     actors: [],
     attackData: [...scene.attackData.filter(a => a.id !== 0xffff)]
   }

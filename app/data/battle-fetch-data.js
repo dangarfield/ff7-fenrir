@@ -20,13 +20,19 @@ const loadBattleData = async () => {
   window.data.battle.mark = markData
 
   // const allRows = []
-  // const allRows2 = []
   // for (const scene of sceneData) {
   //   for (let i = 0; i < scene.battleFormations.length; i++) {
   //     const formation = scene.battleFormations[i]
   //     const setup = scene.battleSetup[i]
-  //     // if (!allRows.includes(setup.initialCameraPosition))
-  //     if ([57, 68, 69, 88].includes(setup.initialCameraPosition)) {
+  //     if (!allRows.includes(setup.initialCameraPosition)) {
+  //       allRows.push(setup.initialCameraPosition)
+  //     }
+  //     if (
+  //       [
+  //         58, 59, 60, 61, 62, 63, 70, 71, 72, 73, 75, 77, 80, 81, 82, 83, 84,
+  //         90, 91, 92, 93
+  //       ].includes(setup.initialCameraPosition)
+  //     ) {
   //       console.log(
   //         'sceneData',
   //         scene,
@@ -39,7 +45,6 @@ const loadBattleData = async () => {
   // }
   // const sorted = allRows.sort((a, b) => a - b)
   // console.log('sceneData all rows ', sorted)
-  // console.log('sceneData all rows2 ', allRows2)
 }
 const loadSceneModel = async (modelCode, manager) => {
   // These models aren't cached, we really should cache them

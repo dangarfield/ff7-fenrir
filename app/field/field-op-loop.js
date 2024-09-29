@@ -1165,7 +1165,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 26 }) // Pyramid (test) x6 - semi transparent?!
 
         // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal - cam 33,3. n:98,1,3
-        // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 + Chocobo - Premptive - cam 20,0
+        // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 - Premptive - cam 20,0
         // control.BATTLE({ b: 0, n: 511 }) // Bizarre Bug x3 + Chocobo - SideAttack1 - cam 0,3
         // control.BATTLE({ b: 0, n: 101 }) // Joker + Flapbeat x2 - BackAttack - cam 21,1
         // control.BATTLE({ b: 0, n: 116 }) // Touch Me x6 - PincerAttack - cam 8,0 // FIX ROTATIONS AGAIN

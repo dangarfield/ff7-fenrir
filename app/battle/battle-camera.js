@@ -65,7 +65,7 @@ const tweenCamera = (camVector, from, to, frames, reference) => {
     .easing(TWEEN.Easing.Quadratic.InOut) // ?
     .onUpdate(() => {
       camVector.set(from.x, from.y, from.z)
-      console.log(`CAMERA ${reference}: UPDATE`, camVector)
+      // console.log(`CAMERA ${reference}: UPDATE`, camVector)
     })
     .onComplete(() => {
       console.log(`CAMERA ${reference}: END`, camVector, CAM_DATA)
@@ -79,20 +79,14 @@ const tweenCamera = (camVector, from, to, frames, reference) => {
 }
 
 const setIdleCamera = currentBattle => {
-  const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
+  // const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
 
-  CAM_DATA.idle.position.x =
-    currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.x
-  CAM_DATA.idle.position.y =
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.y
-  CAM_DATA.idle.position.z =
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.pos.z
-  CAM_DATA.idle.target.x =
-    currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.x
-  CAM_DATA.idle.target.x =
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.y
-  CAM_DATA.idle.target.x =
-    -currentBattle.scene.cameraPlacement[idleCameraIndex].camera1.dir.z
+  CAM_DATA.idle.position.x = currentBattle.camera.camera1.pos.x
+  CAM_DATA.idle.position.y = -currentBattle.camera.camera1.pos.y
+  CAM_DATA.idle.position.z = -currentBattle.camera.camera1.pos.z
+  CAM_DATA.idle.target.x = currentBattle.camera.camera1.dir.x
+  CAM_DATA.idle.target.y = -currentBattle.camera.camera1.dir.y
+  CAM_DATA.idle.target.z = -currentBattle.camera.camera1.dir.z
 }
 const executeInitialCameraScript = async currentBattle => {
   resetCamData()

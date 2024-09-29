@@ -1,7 +1,6 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
-import TWEEN from '../../assets/tween.esm.js'
 import { CAM_DATA, tweenCamera } from './battle-camera.js'
-import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
+import { tweenSleep } from './battle-scene.js'
 
 const U1ON = () => {
   console.log('CAMERA pos U1ON')
@@ -13,7 +12,7 @@ const U1OFF = () => {
 }
 
 const XYZ = op => {
-  CAM_DATA.target.to.set(op.x, -op.y, -op.z)
+  CAM_DATA.target.active.set(op.x, -op.y, -op.z)
   console.log('CAMERA target XYZ', op, CAM_DATA)
 }
 
