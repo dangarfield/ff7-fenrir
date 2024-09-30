@@ -201,6 +201,7 @@ const addOrthoPosition = model => {
     // Option 3 - Something else entirely... Just use the root position for now
     const vector = new THREE.Vector3()
     model.userData.centreBone.localToWorld(vector)
+    model.userData.centreBoneWorld = vector.clone()
     // Project the world position into screen space
     vector.project(activeCamera)
 

@@ -14,12 +14,12 @@ const POSITION_LOOP = path.join(
   'battle',
   'battle-camera-op-position.js'
 )
-const TARGET_LOOP = path.join(
+const FOCUS_LOOP = path.join(
   __dirname,
   '..',
   'app',
   'battle',
-  'battle-camera-op-target.js'
+  'battle-camera-op-focus.js'
 )
 
 const getCompletedOpCodes = async filePath => {
@@ -51,8 +51,8 @@ const generateProgress = async () => {
     for (const opHex of Object.keys(usage[type])) {
       const u = usage[type][opHex]
       const op = metadata[type].opCodes.find(op => op.shortName === opHex)
-      op.usage = u
       // console.log('u', type, opHex, u, op)
+      op.usage = u
     }
   }
   // Add completion
@@ -60,13 +60,13 @@ const generateProgress = async () => {
     type: 'position',
     complete: await getCompletedOpCodes(POSITION_LOOP)
   }
-  const targetComplete = {
-    type: 'target',
-    complete: await getCompletedOpCodes(TARGET_LOOP)
+  const focusComplete = {
+    type: 'focus',
+    complete: await getCompletedOpCodes(FOCUS_LOOP)
   }
-  for (items of [positionComplete, targetComplete]) {
+  for (items of [positionComplete, focusComplete]) {
     for (const opCode of items.complete) {
-      // console.log('opCode', items.type, opCode)
+      console.log('opCode', items.type, opCode)
       const op = metadata[items.type].opCodes.find(
         op => op.shortName === opCode
       )
@@ -78,9 +78,9 @@ const generateProgress = async () => {
 
   // console.log('metadata', JSON.stringify(metadata, null, 2))
 
-  let total = metadata.position.opCodes.length + metadata.target.opCodes.length
+  let total = metadata.position.opCodes.length + metadata.focus.opCodes.length
   let totalComplete =
-    positionComplete.complete.length + targetComplete.complete.length
+    positionComplete.complete.length + focusComplete.complete.length
   // console.log('total', total, totalComplete)
   return { metadata, total, totalComplete }
 }

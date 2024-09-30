@@ -10,24 +10,43 @@ const CAM_DATA = {
     to: new THREE.Vector3(),
     wait: 0,
     unknown1: false,
-    unknown2: false
+    unknown2: false,
+    updateFunction: null
   },
-  target: {
+  focus: {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
     wait: 0,
-    unknown1: false
+    unknown1: false,
+    updateFunction: null
   },
   idle: {
     position: new THREE.Vector3(),
-    target: new THREE.Vector3()
+    focus: new THREE.Vector3()
+  },
+  actors: {
+    // Probably should hold this in the battle-action state
+    attacker: null,
+    targets: []
   }
 }
 window.BATTLE_CAM_DATA = CAM_DATA
 
+const clearUpdateFunctionPosition = () => {
+  CAM_DATA.position.updateFunction = null
+}
+const clearUpdateFunctionFocus = () => {
+  CAM_DATA.focus.updateFunction = null
+}
 const applyCamData = battleCamera => {
+  if (CAM_DATA.position.updateFunction) {
+    CAM_DATA.position.updateFunction()
+  }
+  if (CAM_DATA.focus.updateFunction) {
+    CAM_DATA.focus.updateFunction()
+  }
   battleCamera.position.copy(CAM_DATA.position.active)
-  battleCamera.lookAt(CAM_DATA.target.active)
+  battleCamera.lookAt(CAM_DATA.focus.active)
 }
 const resetCamData = () => {
   CAM_DATA.position.active.set(0, 0, 0)
@@ -35,12 +54,12 @@ const resetCamData = () => {
   CAM_DATA.position.wait = 0
   CAM_DATA.position.unknown1 = false
   CAM_DATA.position.unknown2 = false
-  CAM_DATA.target.active.set(0, -1, 0)
-  CAM_DATA.target.to.set(0, 0, 0)
-  CAM_DATA.target.wait = 0
-  CAM_DATA.target.unknown1 = false
+  CAM_DATA.focus.active.set(0, -1, 0)
+  CAM_DATA.focus.to.set(0, 0, 0)
+  CAM_DATA.focus.wait = 0
+  CAM_DATA.focus.unknown1 = false
   CAM_DATA.idle.position.set(0, 0, 0)
-  CAM_DATA.idle.target.set(0, 0, 0)
+  CAM_DATA.idle.focus.set(0, 0, 0)
 }
 
 const setDebugCameraPosition = (positionID, cameraID) => {
@@ -50,7 +69,7 @@ const setDebugCameraPosition = (positionID, cameraID) => {
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.y,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].pos.z
   )
-  CAM_DATA.target.active.set(
+  CAM_DATA.focus.active.set(
     currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.x,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.y,
     -currentBattle.scene.cameraPlacement[positionID][`camera${cameraID}`].dir.z
@@ -84,9 +103,9 @@ const setIdleCamera = currentBattle => {
   CAM_DATA.idle.position.x = currentBattle.camera.camera1.pos.x
   CAM_DATA.idle.position.y = -currentBattle.camera.camera1.pos.y
   CAM_DATA.idle.position.z = -currentBattle.camera.camera1.pos.z
-  CAM_DATA.idle.target.x = currentBattle.camera.camera1.dir.x
-  CAM_DATA.idle.target.y = -currentBattle.camera.camera1.dir.y
-  CAM_DATA.idle.target.z = -currentBattle.camera.camera1.dir.z
+  CAM_DATA.idle.focus.x = currentBattle.camera.camera1.dir.x
+  CAM_DATA.idle.focus.y = -currentBattle.camera.camera1.dir.y
+  CAM_DATA.idle.focus.z = -currentBattle.camera.camera1.dir.z
 }
 const executeInitialCameraScript = async currentBattle => {
   resetCamData()
@@ -103,4 +122,11 @@ const executeInitialCameraScript = async currentBattle => {
   console.log('CAMERA initial: END')
 }
 
-export { executeInitialCameraScript, CAM_DATA, applyCamData, tweenCamera }
+export {
+  executeInitialCameraScript,
+  CAM_DATA,
+  applyCamData,
+  tweenCamera,
+  clearUpdateFunctionPosition,
+  clearUpdateFunctionFocus
+}

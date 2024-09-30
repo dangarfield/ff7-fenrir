@@ -1,6 +1,7 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
+import { runScriptPair } from './battle-camera-op-loop.js'
 
 const moveEntity = (model, from, to) => {
   // TODO - Rotation too?
@@ -39,23 +40,39 @@ const placeholderBattleAttackSequence = async (
       window.currentBattle.attackData.find(a => a.id === attackId).name
     } -> ${toEntity.data.name}`
   )
+  const scriptPair =
+    window.data.battle.camData.camdataFiles[0].scripts.main[210]
+  // await Promise.all([
+  //   fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 }),
+  //   runScriptPair(scriptPair)
+  // ])
+  // Move forward and get ready animation
+  runScriptPair(scriptPair)
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
-  await moveEntity(
-    fromEntity.model,
-    fromEntity.model.userData.defaultPosition,
-    toEntity.model.userData.defaultPosition
-  )
-  await Promise.all([
-    toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
-    fromEntity.model.userData.playAnimationOnce(8)
-  ])
-
-  fromEntity.model.scene.position.x =
-    fromEntity.model.userData.defaultPosition.x
-  fromEntity.model.scene.position.z =
-    fromEntity.model.userData.defaultPosition.z
-
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
+
+  // await moveEntity(
+  //   fromEntity.model,
+  //   fromEntity.model.userData.defaultPosition,
+  //   toEntity.model.userData.defaultPosition
+  // )
+
+  // Allow testing
+  // for (let i = 0; i < 20; i++) {
+  // Action animation
+  // await Promise.all([
+  // toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
+  // fromEntity.model.userData.playAnimationOnce(8)
+  // fromEntity.model.userData.playAnimationOnce(9)
+  // ])
+  // }
+
+  // fromEntity.model.scene.position.x =
+  //   fromEntity.model.userData.defaultPosition.x
+  // fromEntity.model.scene.position.z =
+  //   fromEntity.model.userData.defaultPosition.z
+
+  // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
 const placeholdePlayerAnimation = async actor => {
   await actor.model.userData.playAnimationOnce(9, { nextAnim: 0 })

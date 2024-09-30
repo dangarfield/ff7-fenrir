@@ -1,5 +1,9 @@
 import * as pos from './battle-camera-op-position.js'
-import * as target from './battle-camera-op-target.js'
+import * as focus from './battle-camera-op-focus.js'
+import {
+  clearUpdateFunctionPosition,
+  clearUpdateFunctionFocus
+} from './battle-camera.js'
 
 // https://forums.qhimm.com/index.php?topic=9126.msg124233#msg124233
 // https://github.com/q-gears/q-gears-reversing-data/blob/master/reversing/ffvii/ffvii_battle/camera/camera_script_export_start.lua
@@ -26,12 +30,22 @@ const executePositionOp = async op => {
       pos.FLASH()
       break
     case 'MIDLE': // E2
+      clearUpdateFunctionPosition()
       pos.MIDLE(op)
       break
+    case 'MOVET':
+      clearUpdateFunctionPosition()
+      pos.MOVET(op)
+      break
     case 'MOVE': // E6
+      clearUpdateFunctionPosition()
       pos.MOVE(op)
+    case 'FOCUSA': // F0
+      clearUpdateFunctionPosition()
+      pos.FOCUSA(op)
       break
     case 'XYZ': // F9
+      clearUpdateFunctionPosition()
       pos.XYZ(op)
       break
     case 'WAIT': // F4
@@ -41,13 +55,16 @@ const executePositionOp = async op => {
       pos.SETWAIT(op)
       break
     case 'RET': // FF
+      clearUpdateFunctionPosition()
       pos.RET()
       break
     case 'RET2': // 00 - Should never be called really
+      clearUpdateFunctionPosition()
       pos.RET2()
       break
 
     default:
+      clearUpdateFunctionPosition()
       //   window.alert(
       //     `--------- CAMERA POSITION OP: ${op.op} - NOT YET IMPLEMENTED ---------`
       //   )
@@ -55,40 +72,53 @@ const executePositionOp = async op => {
   }
 }
 
-const executeTargetOp = async op => {
-  //   console.log('CAMERA executeTargetOp', op)
+const executeFocusOp = async op => {
+  //   console.log('CAMERA executeFocusOp', op)
   switch (op.op) {
     case 'U1OFF': // DB
-      target.U1OFF()
+      focus.U1OFF()
       break
     case 'U1ON': // DC
-      target.U1ON()
+      focus.U1ON()
       break
     case 'MIDLE': // E2
-      target.MIDLE(op)
+      clearUpdateFunctionFocus()
+      focus.MIDLE(op)
+      break
+    case 'MOVEA':
+      clearUpdateFunctionFocus()
+      focus.MOVEA(op)
       break
     case 'MOVE': // E6
-      target.MOVE(op)
+      clearUpdateFunctionFocus()
+      focus.MOVE(op)
       break
     case 'XYZ': // FA
-      target.XYZ(op)
+      clearUpdateFunctionFocus()
+      focus.XYZ(op)
       break
     case 'WAIT': // F4
-      await target.WAIT(op)
+      await focus.WAIT(op)
       break
     case 'SETWAIT': // F5
-      target.SETWAIT(op)
+      focus.SETWAIT(op)
+      break
+    case 'FOCUSA': // F0
+      clearUpdateFunctionFocus()
+      focus.FOCUSA(op)
       break
     case 'RET': // FF
-      target.RET()
+      clearUpdateFunctionFocus()
+      focus.RET()
       break
-    case 'RET2': // 00 - Should never be called really
-      target.RET2()
+    case 'RET2': // 00 - Should really never be called, just added to solve parsing
+      clearUpdateFunctionFocus()
+      focus.RET2()
       break
-
     default:
+      clearUpdateFunctionFocus()
       //   window.alert(
-      //     `--------- CAMERA TARGET OP: ${op.op} - NOT YET IMPLEMENTED ---------`
+      //     `--------- CAMERA FOCUS OP: ${op.op} - NOT YET IMPLEMENTED ---------`
       //   )
       break
   }
@@ -104,7 +134,7 @@ const runScriptPair = async scriptPair => {
   console.log('CAMERA runScriptPair: START')
   await Promise.all([
     executeScript(scriptPair.position, executePositionOp),
-    executeScript(scriptPair.target, executeTargetOp)
+    executeScript(scriptPair.focus, executeFocusOp)
   ])
   console.log('CAMERA runScriptPair: END')
 }
