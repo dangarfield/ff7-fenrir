@@ -183,7 +183,8 @@ const addOrthoPosition = model => {
   })
   console.log('bone name FOUND', model.name, model.userData.centreBone)
   model.userData.updateOrthoPosition = () => {
-    if (!model.userData.centreBone) return
+    const targetPos = model.userData.getBonePosition(0)
+    if (!targetPos) return
 
     // console.log('updateOrthoPosition', model.name, model.userData.centreBone)
     // Hmm, looks like it's the centre of the **AP bone, not the whole of the model ??
@@ -199,9 +200,13 @@ const addOrthoPosition = model => {
     // model.userData.centreBone.getWorldPosition(vector)
 
     // Option 3 - Something else entirely... Just use the root position for now
-    const vector = new THREE.Vector3()
-    model.userData.centreBone.localToWorld(vector)
-    model.userData.centreBoneWorld = vector.clone()
+    // const vector = new THREE.Vector3()
+    // model.userData.centreBone.localToWorld(vector)
+    // model.userData.centreBoneWorld = vector.clone()
+
+    // Option 4 - get the centre point of the first bone's geometries
+    const vector = targetPos.clone()
+
     // Project the world position into screen space
     vector.project(activeCamera)
 
@@ -332,6 +337,38 @@ const importModels = async currentBattle => {
         currentBattle.formationConfig.directions.enemy.initial
       )
     }
+
+    // Bone positions
+    model.userData.bonePoints = []
+    model.userData.getBonePosition = boneId => {
+      const vector = new THREE.Vector3()
+      model.userData.bonePoints[boneId].localToWorld(vector)
+      return vector
+    }
+    model.scene.traverse(object => {
+      if (object.isMesh && object.name.includes('Bone')) {
+        object.material.transparent = true
+        object.material.opacity = 0.3
+
+        // const pos = object.position.clone() // default position of bone
+        const pos = new THREE.Vector3() // centre point of bone
+        const boundingBox = object.geometry.boundingBox
+        boundingBox.getCenter(pos)
+        // console.log('BONE mesh', object, object.geometry.boundingBox, pos)
+
+        // Create a small sphere for the center point
+        let color = 0x00ff00
+        if (object.name.includes('0_0')) color = 0xff0000
+        if (object.name.includes('6_6')) color = 0x0000ff
+        const geometry = new THREE.SphereGeometry(10)
+        const material = new THREE.MeshBasicMaterial({ color })
+        const point = new THREE.Mesh(geometry, material)
+        // point.visible = false
+        point.position.copy(pos)
+        object.add(point)
+        model.userData.bonePoints.push(point)
+      }
+    })
 
     model.scene.position.x = model.userData.defaultPosition.x
     model.scene.position.y = model.userData.defaultPosition.y

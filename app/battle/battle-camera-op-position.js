@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { CAM_DATA, tweenCamera } from './battle-camera.js'
+import { CAM_DATA, framesToTime, tweenCamera } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 /*
@@ -50,8 +50,8 @@ const FOCUSA = op => {
   CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
   console.log('CAMERA pos FOCUSA', op)
   CAM_DATA.position.updateFunction = () => {
-    const actor = currentBattle.actors[CAM_DATA.actors.attacker].model
-    const c = actor.userData.centreBoneWorld // TODO, use op.bone to find the specific bone coord
+    const model = currentBattle.actors[CAM_DATA.actors.attacker].model
+    const c = model.userData.getBonePosition(op.bone)
     // TODO - Ensure rotation is taken into account
     const z = c.z > 0 ? op.z : -op.z
     // console.log('CAMERA updateFunction', c)
@@ -59,24 +59,69 @@ const FOCUSA = op => {
   }
 }
 const MOVET = op => {
-  console.log('CAMERA pos MOVET', op)
+  console.log('CAMERA pos MOVET :START', op)
   CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
   CAM_DATA.actors.targets = [1]
 
   const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
-  let c = actor.model.userData.centreBoneWorld
+  let c = actor.model.userData.getBonePosition(op.bone)
   const z = c.z > 0 ? op.z : -op.z
   const offset = new THREE.Vector3(op.x, 0, -z) // TODO - y?!
   console.log('CAMERA pos MOVET offset', offset)
 
+  const startPos = CAM_DATA.position.active.clone()
   const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
-    .to({ p: 1 }, (1000 / 15) * op.frames) // Duration of 1 second
-    .easing(TWEEN.Easing.Quadratic.InOut)
+    .to({ p: 1 }, framesToTime(op.frames)) // Duration of 1 second
+    // .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(({ p }) => {
-      c = actor.model.userData.centreBoneWorld.clone()
-      const lerpPos = CAM_DATA.position.active.clone()
+      c = actor.model.userData.getBonePosition(op.bone).clone()
+      const lerpPos = startPos.clone()
       c.add(offset)
       lerpPos.lerp(c, p)
+      CAM_DATA.position.active.copy(lerpPos)
+    })
+    .onComplete(() => {
+      console.log('CAMERA pos MOVET :END')
+      BATTLE_TWEEN_GROUP.remove(lerpTween)
+    })
+    .start()
+}
+const TRANS = op => {
+  const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
+  let c = actor.model.userData.getBonePosition(0)
+
+  const startPos = CAM_DATA.position.active.clone()
+
+  // args: { "op": "F8", "arg": -40, "arg2": 250, "arg3": 1985, "arg4": 15, "arg5": 0, "arg6": 35, "raw": "F8 D8 FF FA 00 C1 07 0F 00 00 00 23 00", "js": "opF8()" }
+  // actor bone: x: 15, y: 591, z: -1674
+
+  // start pos: 214, 591, -3000
+  // end pos: 2243, 599, -5531
+
+  // 1985 / Math.cos(40 * (Math.PI / 180))
+
+  // const endPos = new THREE.Vector3(2243, 599, -5531)
+
+  // op.angle = op.arg
+  // op.x = op.arg3
+  // op.frames = op.arg6
+
+  let z = 1985 / Math.cos(40 * (Math.PI / 180))
+  if (op.angle > 0) z = z * -1
+
+  const endPos = new THREE.Vector3(
+    startPos.x + op.x,
+    startPos.y,
+    startPos.z - z
+  )
+
+  console.log('CAMERA pos F8', op, c, '-', startPos, '->', endPos)
+  const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
+    .to({ p: 1 }, framesToTime(op.frames))
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onUpdate(({ p }) => {
+      const lerpPos = startPos.clone()
+      lerpPos.lerp(endPos, p)
       CAM_DATA.position.active.copy(lerpPos)
     })
     .onComplete(() => {
@@ -92,18 +137,18 @@ const WAIT = async op => {
   return new Promise(async resolve => {
     console.log('CAMERA pos WAIT: START', op, CAM_DATA.position.wait)
     const from = {}
-    await tweenSleep((CAM_DATA.position.wait / 15) * 1000)
+    await tweenSleep(framesToTime(CAM_DATA.position.wait))
     console.log('CAMERA pos WAIT: END')
     resolve()
   })
 }
 const RET = () => {
   console.log('CAMERA pos RET')
-  MIDLE({ frames: 15 })
+  // MIDLE({ frames: 15 })
 }
 const RET2 = () => {
   console.log('CAMERA pos RET2')
-  MIDLE({ frames: 15 })
+  // MIDLE({ frames: 15 })
 }
 
 export {
@@ -117,6 +162,7 @@ export {
   MOVE,
   FOCUSA,
   MOVET,
+  TRANS,
   SETWAIT,
   WAIT,
   RET,

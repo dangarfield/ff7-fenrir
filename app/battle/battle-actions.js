@@ -1,7 +1,8 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
-import { runScriptPair } from './battle-camera-op-loop.js'
+import { returnToIdle, runCameraScriptPair } from './battle-camera-op-loop.js'
+import { sleep } from '../helpers/helpers.js'
 
 const moveEntity = (model, from, to) => {
   // TODO - Rotation too?
@@ -47,9 +48,13 @@ const placeholderBattleAttackSequence = async (
   //   runScriptPair(scriptPair)
   // ])
   // Move forward and get ready animation
-  runScriptPair(scriptPair)
+  runCameraScriptPair(scriptPair)
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
+  await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
+
+  await sleep(2000)
+  await returnToIdle()
 
   // await moveEntity(
   //   fromEntity.model,

@@ -8,6 +8,9 @@ import {
 // https://forums.qhimm.com/index.php?topic=9126.msg124233#msg124233
 // https://github.com/q-gears/q-gears-reversing-data/blob/master/reversing/ffvii/ffvii_battle/camera/camera_script_export_start.lua
 
+// TODO: Validate whether -+ z based on orientation of actors
+// TODO: Investigate and solve the 'facing each other', eg, turn slightly and apply along the adjusted axis of alignment
+
 const executePositionOp = async op => {
   //   console.log('CAMERA executePositionOp', op)
   switch (op.op) {
@@ -54,6 +57,9 @@ const executePositionOp = async op => {
     case 'SETWAIT': // F5
       pos.SETWAIT(op)
       break
+    case 'TRANS': // F8
+      pos.TRANS(op)
+      break
     case 'RET': // FF
       clearUpdateFunctionPosition()
       pos.RET()
@@ -85,9 +91,13 @@ const executeFocusOp = async op => {
       clearUpdateFunctionFocus()
       focus.MIDLE(op)
       break
-    case 'MOVEA':
+    case 'MOVEA': // E4
       clearUpdateFunctionFocus()
       focus.MOVEA(op)
+      break
+    case 'MOVET': // E5
+      clearUpdateFunctionFocus()
+      focus.MOVET(op)
       break
     case 'MOVE': // E6
       clearUpdateFunctionFocus()
@@ -128,7 +138,7 @@ const executeScript = async (script, method) => {
     await method(op)
   }
 }
-const runScriptPair = async scriptPair => {
+const runCameraScriptPair = async scriptPair => {
   // Note: start with a simple script execution, rather than a queue with cancellables etc
 
   console.log('CAMERA runScriptPair: START')
@@ -138,5 +148,8 @@ const runScriptPair = async scriptPair => {
   ])
   console.log('CAMERA runScriptPair: END')
 }
+const returnToIdle = async () => {
+  await Promise.all([pos.MIDLE({ frames: 15 }), focus.MIDLE({ frames: 15 })])
+}
 
-export { runScriptPair }
+export { runCameraScriptPair, returnToIdle }

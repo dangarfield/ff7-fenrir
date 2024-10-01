@@ -1,6 +1,6 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { CAM_DATA, tweenCamera } from './battle-camera.js'
+import { CAM_DATA, framesToTime, tweenCamera } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 const U1ON = () => {
@@ -33,8 +33,8 @@ const FOCUSA = op => {
   CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
   console.log('CAMERA focus FOCUSA', op)
   CAM_DATA.focus.updateFunction = () => {
-    const actor = currentBattle.actors[CAM_DATA.actors.attacker].model
-    const c = actor.userData.centreBoneWorld // TODO, use op.bone to find the specific bone coord
+    const model = currentBattle.actors[CAM_DATA.actors.attacker].model
+    const c = model.userData.getBonePosition(op.bone)
     const z = c.z > 0 ? op.z : -op.z
     CAM_DATA.focus.active.set(c.x + op.x, -op.y, c.z + z) // Unsure about all of this, eg, y seems to be absolute
   }
@@ -45,19 +45,33 @@ const MOVEA = op => {
   CAM_DATA.actors.targets = [1]
 
   const actor = window.currentBattle.actors[CAM_DATA.actors.attacker]
-  let c = actor.model.userData.centreBoneWorld
+  moveToActor(actor, op)
+}
+const MOVET = op => {
+  console.log('CAMERA focus MOVET', op)
+  CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
+  CAM_DATA.actors.targets = [1]
+
+  const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
+  moveToActor(actor, op)
+}
+const moveToActor = (actor, op) => {
+  let c = actor.model.userData.getBonePosition(op.bone)
   // TODO get bone
   const z = c.z > 0 ? op.z : -op.z
   const offset = new THREE.Vector3(op.x, 0, -z) // TODO - y?!
-  console.log('CAMERA focus MOVEA offset', offset)
+  console.log('CAMERA focus moveToActor offset', offset)
 
+  const startPos = CAM_DATA.focus.active.clone()
   const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
-    .to({ p: 1 }, (1000 / 15) * op.frames) // Duration of 1 second
+    .to({ p: 1 }, framesToTime(op.frames))
     .easing(TWEEN.Easing.Quadratic.InOut)
     .onUpdate(({ p }) => {
-      c = actor.model.userData.centreBoneWorld.clone()
-      const lerpPos = CAM_DATA.focus.active.clone()
+      c = actor.model.userData.getBonePosition(op.bone).clone()
+      const lerpPos = startPos.clone()
       c.add(offset)
+      if (op.y !== 0) c.y = op.y
+      console.log('CAMERA focus moveToActor update', op.y, c.y, offset)
       lerpPos.lerp(c, p)
       CAM_DATA.focus.active.copy(lerpPos)
     })
@@ -69,6 +83,7 @@ const MOVEA = op => {
     // .repeat(Infinity) // Continuously repeat the tween
     .start()
 }
+
 const SETWAIT = op => {
   CAM_DATA.focus.wait = op.frames
   console.log('CAMERA focus SETWAIT:', op, CAM_DATA)
@@ -76,18 +91,18 @@ const SETWAIT = op => {
 const WAIT = async op => {
   return new Promise(async resolve => {
     console.log('CAMERA focus WAIT: START', op, CAM_DATA.focus.wait)
-    await tweenSleep((CAM_DATA.focus.wait / 15) * 1000)
+    await tweenSleep(framesToTime(CAM_DATA.focus.wait))
     console.log('CAMERA focus WAIT: END')
     resolve()
   })
 }
 const RET = () => {
   console.log('CAMERA focus RET')
-  MIDLE({ frames: 15 })
+  // MIDLE({ frames: 15 })
 }
 const RET2 = () => {
   console.log('CAMERA focus RET2')
-  MIDLE({ frames: 15 })
+  // MIDLE({ frames: 15 })
 }
 export {
   U1ON,
@@ -97,6 +112,7 @@ export {
   MOVE,
   FOCUSA,
   MOVEA,
+  MOVET,
   SETWAIT,
   WAIT,
   RET,

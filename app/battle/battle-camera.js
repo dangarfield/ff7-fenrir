@@ -1,7 +1,7 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { sleep } from '../helpers/helpers.js'
-import { runScriptPair } from './battle-camera-op-loop.js'
+import { runCameraScriptPair } from './battle-camera-op-loop.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 
 const CAM_DATA = {
@@ -78,7 +78,7 @@ const setDebugCameraPosition = (positionID, cameraID) => {
 window.setDebugCameraPosition = setDebugCameraPosition
 
 const tweenCamera = (camVector, from, to, frames, reference) => {
-  const time = frames === 1 ? 1 : (frames / 15) * 1000 // As fps is 15, an 'instant 1 frame' has to be kept the same
+  const time = frames === 1 ? 1 : framesToTime(frames) // As fps is 15, an 'instant 1 frame' has to be kept the same
   const t = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
     .to(to, time) // eg, 15 fps
     .easing(TWEEN.Easing.Quadratic.InOut) // ?
@@ -96,7 +96,9 @@ const tweenCamera = (camVector, from, to, frames, reference) => {
   }
   t.start()
 }
-
+const framesToTime = frames => {
+  return (1000 / 30) * frames
+}
 const setIdleCamera = currentBattle => {
   // const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
 
@@ -118,7 +120,7 @@ const executeInitialCameraScript = async currentBattle => {
 
   // TODO - The is a 'horizontal fade' effect here too. Make it async
   console.log('CAMERA initial: START', scriptPair)
-  await runScriptPair(scriptPair)
+  await runCameraScriptPair(scriptPair)
   console.log('CAMERA initial: END')
 }
 
@@ -128,5 +130,6 @@ export {
   applyCamData,
   tweenCamera,
   clearUpdateFunctionPosition,
-  clearUpdateFunctionFocus
+  clearUpdateFunctionFocus,
+  framesToTime
 }

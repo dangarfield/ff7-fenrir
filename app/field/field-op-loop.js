@@ -1174,9 +1174,10 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 364 }) // Air Buster - SideAttack4 - cam 76,0
         // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow - cam 86,0         // 86 might work here!
 
-        control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
+        // control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
+        control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
       }
-      // window.quickBattle()
+      window.quickBattle()
     }, 1000)
   }
 
