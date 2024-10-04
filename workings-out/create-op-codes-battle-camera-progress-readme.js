@@ -51,7 +51,7 @@ const generateProgress = async () => {
     for (const opHex of Object.keys(usage[type])) {
       const u = usage[type][opHex]
       const op = metadata[type].opCodes.find(op => op.shortName === opHex)
-      console.log('u', type, opHex, u, op)
+      // console.log('u', type, opHex, u, op)
       op.usage = u
     }
   }
@@ -66,7 +66,7 @@ const generateProgress = async () => {
   }
   for (items of [positionComplete, focusComplete]) {
     for (const opCode of items.complete) {
-      console.log('opCode', items.type, opCode)
+      // console.log('opCode', items.type, opCode)
       const op = metadata[items.type].opCodes.find(
         op => op.shortName === opCode
       )

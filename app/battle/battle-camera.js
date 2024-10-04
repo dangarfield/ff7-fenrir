@@ -4,20 +4,24 @@ import { sleep } from '../helpers/helpers.js'
 import { runCameraScriptPair } from './battle-camera-op-loop.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 
+// MEMORY ADDRESSES
+// POS x: 00BF2158, y: 00BF215A, z: 00BF215C
+// TAR x: 00BE1130, y: 00BE1132, z: 00BE1134
+
 const CAM_DATA = {
   position: {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
     wait: 0,
-    unknown1: false,
-    unknown2: false,
+    unknown1: true,
+    unknown2: true,
     updateFunction: null
   },
   focus: {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
     wait: 0,
-    unknown1: false,
+    unknown1: true,
     updateFunction: null
   },
   idle: {
@@ -28,7 +32,8 @@ const CAM_DATA = {
     // Probably should hold this in the battle-action state
     attacker: null,
     targets: []
-  }
+  },
+  fps: 15
 }
 window.BATTLE_CAM_DATA = CAM_DATA
 
@@ -52,12 +57,12 @@ const resetCamData = () => {
   CAM_DATA.position.active.set(0, 0, 0)
   CAM_DATA.position.to.set(0, 0, 0)
   CAM_DATA.position.wait = 0
-  CAM_DATA.position.unknown1 = false
-  CAM_DATA.position.unknown2 = false
+  CAM_DATA.position.unknown1 = true
+  CAM_DATA.position.unknown2 = true
   CAM_DATA.focus.active.set(0, -1, 0)
   CAM_DATA.focus.to.set(0, 0, 0)
   CAM_DATA.focus.wait = 0
-  CAM_DATA.focus.unknown1 = false
+  CAM_DATA.focus.unknown1 = true
   CAM_DATA.idle.position.set(0, 0, 0)
   CAM_DATA.idle.focus.set(0, 0, 0)
 }
@@ -96,8 +101,11 @@ const tweenCamera = (camVector, from, to, frames, reference) => {
   }
   t.start()
 }
+const setBattleCameraSpeed = isAMainScript => {
+  CAM_DATA.fps = isAMainScript ? 30 : 15
+}
 const framesToTime = frames => {
-  return (1000 / 30) * frames
+  return (1000 / CAM_DATA.fps) * frames
 }
 const setIdleCamera = currentBattle => {
   // const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
@@ -123,6 +131,10 @@ const executeInitialCameraScript = async currentBattle => {
   await runCameraScriptPair(scriptPair)
   console.log('CAMERA initial: END')
 }
+const setActorsForBattleCamera = (attacker, targets) => {
+  CAM_DATA.actors.attacker = attacker
+  CAM_DATA.actors.targets = targets
+}
 
 export {
   executeInitialCameraScript,
@@ -131,5 +143,7 @@ export {
   tweenCamera,
   clearUpdateFunctionPosition,
   clearUpdateFunctionFocus,
-  framesToTime
+  framesToTime,
+  setActorsForBattleCamera,
+  setBattleCameraSpeed
 }

@@ -4,11 +4,11 @@ import { CAM_DATA, framesToTime, tweenCamera } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 const U1ON = () => {
-  console.log('CAMERA pos U1ON')
+  console.log('CAMERA focus U1ON')
   CAM_DATA.focus.unknown1 = true
 }
 const U1OFF = () => {
-  console.log('CAMERA pos U1OFF')
+  console.log('CAMERA focus U1OFF')
   CAM_DATA.focus.unknown1 = false
 }
 
@@ -27,7 +27,7 @@ const MOVE = op => {
   console.log('CAMERA focus MOVE: START', op, CAM_DATA)
   const from = CAM_DATA.focus.active.clone()
   const to = new THREE.Vector3(op.x, -op.y, -op.z)
-  tweenCamera(CAM_DATA.focus.active, from, to, op.frames, 'pos MOVE')
+  tweenCamera(CAM_DATA.focus.active, from, to, op.frames, 'focus MOVE')
 }
 const FOCUSA = op => {
   CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts

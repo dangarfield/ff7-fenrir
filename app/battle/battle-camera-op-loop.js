@@ -2,7 +2,9 @@ import * as pos from './battle-camera-op-position.js'
 import * as focus from './battle-camera-op-focus.js'
 import {
   clearUpdateFunctionPosition,
-  clearUpdateFunctionFocus
+  clearUpdateFunctionFocus,
+  setActorsForBattleCamera,
+  setBattleCameraSpeed
 } from './battle-camera.js'
 
 // https://forums.qhimm.com/index.php?topic=9126.msg124233#msg124233
@@ -43,6 +45,7 @@ const executePositionOp = async op => {
     case 'MOVE': // E6
       clearUpdateFunctionPosition()
       pos.MOVE(op)
+      break
     case 'FOCUSA': // F0
       clearUpdateFunctionPosition()
       pos.FOCUSA(op)
@@ -57,8 +60,8 @@ const executePositionOp = async op => {
     case 'SETWAIT': // F5
       pos.SETWAIT(op)
       break
-    case 'TRANS': // F8
-      pos.TRANS(op)
+    case 'SPIRAL': // F8
+      pos.SPIRAL(op)
       break
     case 'RET': // FF
       clearUpdateFunctionPosition()
@@ -138,10 +141,23 @@ const executeScript = async (script, method) => {
     await method(op)
   }
 }
-const runCameraScriptPair = async scriptPair => {
+const runCameraScriptPair = async (
+  scriptPair,
+  attacker,
+  targets,
+  isAMainScript
+) => {
   // Note: start with a simple script execution, rather than a queue with cancellables etc
 
-  console.log('CAMERA runScriptPair: START')
+  console.log(
+    'CAMERA runScriptPair: START',
+    scriptPair,
+    attacker,
+    targets,
+    isAMainScript
+  )
+  setActorsForBattleCamera(attacker, targets)
+  setBattleCameraSpeed(isAMainScript)
   await Promise.all([
     executeScript(scriptPair.position, executePositionOp),
     executeScript(scriptPair.focus, executeFocusOp)

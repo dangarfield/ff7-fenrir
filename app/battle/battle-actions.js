@@ -41,14 +41,20 @@ const placeholderBattleAttackSequence = async (
       window.currentBattle.attackData.find(a => a.id === attackId).name
     } -> ${toEntity.data.name}`
   )
+
   const scriptPair =
     window.data.battle.camData.camdataFiles[0].scripts.main[210]
+  // const scriptPair =
+  //   window.data.battle.camData.camdataFiles[0].scripts.victory[0]
+  // const scriptPair =
+  //   window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3]
+
   // await Promise.all([
   //   fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 }),
   //   runScriptPair(scriptPair)
   // ])
   // Move forward and get ready animation
-  runCameraScriptPair(scriptPair)
+  runCameraScriptPair(scriptPair, fromEntityIndex, [1], false)
   await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
   await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
   await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })

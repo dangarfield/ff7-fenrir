@@ -53,7 +53,7 @@ const getCompletedOpCodes = async () => {
     }
   }
   await fs.writeJson(OPS_COMPLETED, completedCodes)
-  console.log('completedCodes', completedCodes)
+  // console.log('completedCodes', completedCodes)
   return completedCodes
 }
 const generateCategoryData = async () => {
