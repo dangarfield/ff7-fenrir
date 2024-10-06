@@ -27,12 +27,7 @@ const loadBattleData = async () => {
       if (!allRows.includes(setup.initialCameraPosition)) {
         allRows.push(setup.initialCameraPosition)
       }
-      if (
-        [
-          49, 50, 57, 58, 59, 60, 61, 62, 63, 68, 69, 70, 71, 72, 73, 75, 77,
-          80, 81, 82, 83, 84, 90, 91, 92, 93
-        ].includes(setup.initialCameraPosition)
-      ) {
+      if ([69, 88].includes(setup.initialCameraPosition)) {
         console.log(
           'sceneData',
           scene,

@@ -37,6 +37,9 @@ const executePositionOp = async op => {
     case 'FLASH': // D6
       pos.FLASH()
       break
+    case 'SETU3': // D7
+      pos.SETU3(op)
+      break
     case 'MIDLE': // E2
       clearUpdateFunctionPosition()
       pos.MIDLE(op)

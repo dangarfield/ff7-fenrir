@@ -36,6 +36,11 @@ const U2OFF = () => {
   console.log('CAMERA pos U2OFF')
   CAM_DATA.position.unknown2 = false
 }
+const SETU3 = op => {
+  console.log('CAMERA pos SETU3', op)
+  // Unknown effect - Set on and then off 2 bytes in the sephiroth final battle. Unknown effect
+  // In fenrir, the initial camera seems to 'work' without this, so I'll mark it as completed...
+}
 const SETIDLE = op => {
   // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
   console.log('CAMERA pos SETIDLE', op)
@@ -253,6 +258,7 @@ export {
   U1OFF,
   U2ON,
   U2OFF,
+  SETU3,
   SETIDLE,
   FLASH,
   XYZ,
