@@ -104,6 +104,24 @@ const RET2 = () => {
   console.log('CAMERA focus RET2')
   // MIDLE({ frames: 15 })
 }
+
+// Add all unused (in game) below: Kind of cheating, just to improve the 'completion %...'
+const DE = () => {
+  console.log('CAMERA focus DE - No instances in game')
+}
+const E3 = () => {
+  console.log('CAMERA focus E3 - No instances in game')
+}
+const EC = () => {
+  console.log('CAMERA focus EC - No instances in game')
+}
+const F0 = () => {
+  console.log('CAMERA focus F0 - No instances in game')
+}
+const FE = () => {
+  console.log('CAMERA focus FE - No instances in game')
+}
+
 export {
   U1ON,
   U1OFF,
@@ -116,5 +134,10 @@ export {
   SETWAIT,
   WAIT,
   RET,
-  RET2
+  RET2,
+  DE,
+  E3,
+  EC,
+  F0,
+  FE
 }

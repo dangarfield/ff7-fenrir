@@ -42,10 +42,10 @@ const placeholderBattleAttackSequence = async (
     } -> ${toEntity.data.name}`
   )
 
-  const scriptPair =
-    window.data.battle.camData.camdataFiles[0].scripts.main[210]
   // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.victory[0]
+  //   window.data.battle.camData.camdataFiles[0].scripts.main[210]
+  const scriptPair =
+    window.data.battle.camData.camdataFiles[0].scripts.victory[0]
   // const scriptPair =
   //   window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3]
 

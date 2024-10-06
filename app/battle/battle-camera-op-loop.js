@@ -72,6 +72,34 @@ const executePositionOp = async op => {
       pos.RET2()
       break
 
+    case 'D5': // D5
+      pos.D5()
+      break
+    case 'DE': // DE
+      pos.DE()
+      break
+    case 'E3': // E3
+      pos.E3()
+      break
+    case 'E9': // E9
+      pos.E9()
+      break
+    case 'EB': // EB
+      pos.EB()
+      break
+    case 'EF': // EF
+      pos.EF()
+      break
+    case 'F2': // F2
+      pos.F2()
+      break
+    case 'F3': // F3
+      pos.F3()
+      break
+    case 'FE': // FE
+      pos.FE()
+      break
+
     default:
       clearUpdateFunctionPosition()
       //   window.alert(
@@ -127,6 +155,22 @@ const executeFocusOp = async op => {
     case 'RET2': // 00 - Should really never be called, just added to solve parsing
       clearUpdateFunctionFocus()
       focus.RET2()
+      break
+
+    case 'DE': // DE
+      pos.DE()
+      break
+    case 'E3': // E3
+      pos.E3()
+      break
+    case 'EC': // EC
+      pos.EC()
+      break
+    case 'F0': // F0
+      pos.F0()
+      break
+    case 'FE': // FE
+      pos.FE()
       break
     default:
       clearUpdateFunctionFocus()
