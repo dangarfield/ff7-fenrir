@@ -4,7 +4,7 @@ import {
   CAM_DATA,
   framesToActualFrames,
   framesToTime,
-  setIdleCamera,
+  setIdleCameraPosition,
   tweenCamera
 } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
@@ -39,7 +39,7 @@ const U2OFF = () => {
 const SETIDLE = op => {
   // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
   console.log('CAMERA pos SETIDLE', op)
-  setIdleCamera(window.currentBattle, op.index)
+  setIdleCameraPosition(window.currentBattle, op.index)
 }
 const FLASH = () => {
   console.log('CAMERA pos FLASH')

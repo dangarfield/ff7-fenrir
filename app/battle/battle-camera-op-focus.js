@@ -1,6 +1,11 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { CAM_DATA, framesToTime, tweenCamera } from './battle-camera.js'
+import {
+  CAM_DATA,
+  framesToTime,
+  setIdleCameraFocus,
+  tweenCamera
+} from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 const U1ON = () => {
@@ -12,6 +17,11 @@ const U1OFF = () => {
   CAM_DATA.focus.unknown1 = false
 }
 
+const SETIDLE = op => {
+  // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
+  console.log('CAMERA focus SETIDLE', op)
+  setIdleCameraFocus(window.currentBattle, op.index)
+}
 const XYZ = op => {
   CAM_DATA.focus.active.set(op.x, -op.y, -op.z)
   console.log('CAMERA focus XYZ', op, CAM_DATA)
@@ -125,6 +135,7 @@ const FE = () => {
 export {
   U1ON,
   U1OFF,
+  SETIDLE,
   XYZ,
   MIDLE,
   MOVE,

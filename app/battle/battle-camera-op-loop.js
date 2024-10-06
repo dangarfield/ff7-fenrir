@@ -122,6 +122,9 @@ const executeFocusOp = async op => {
     case 'U1ON': // DC
       focus.U1ON()
       break
+    case 'SETIDLE': // DD
+      focus.SETIDLE(op)
+      break
     case 'MIDLE': // E2
       clearUpdateFunctionFocus()
       focus.MIDLE(op)
