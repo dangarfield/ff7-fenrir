@@ -14,7 +14,7 @@ import {
 // TODO: Investigate and solve the 'facing each other', eg, turn slightly and apply along the adjusted axis of alignment
 
 const executePositionOp = async op => {
-  //   console.log('CAMERA executePositionOp', op)
+  console.log('CAMERA executePositionOp', op, op.op)
   switch (op.op) {
     case 'U2OFF': // DA
       pos.U2OFF()
@@ -24,6 +24,9 @@ const executePositionOp = async op => {
       break
     case 'U1ON': // DC
       pos.U1ON()
+      break
+    case 'SETIDLE': // DD
+      pos.SETIDLE(op)
       break
     case 'U1OFF': // F1
       pos.U1OFF()
@@ -61,6 +64,7 @@ const executePositionOp = async op => {
       pos.SETWAIT(op)
       break
     case 'SPIRAL': // F8
+      clearUpdateFunctionPosition()
       pos.SPIRAL(op)
       break
     case 'RET': // FF

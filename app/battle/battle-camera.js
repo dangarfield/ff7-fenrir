@@ -110,19 +110,17 @@ const framesToTime = frames => {
 const framesToActualFrames = frames => {
   return Math.floor(frames / (CAM_DATA.fps / 15))
 }
-const setIdleCamera = currentBattle => {
-  // const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
-
-  CAM_DATA.idle.position.x = currentBattle.camera.camera1.pos.x
-  CAM_DATA.idle.position.y = -currentBattle.camera.camera1.pos.y
-  CAM_DATA.idle.position.z = -currentBattle.camera.camera1.pos.z
-  CAM_DATA.idle.focus.x = currentBattle.camera.camera1.dir.x
-  CAM_DATA.idle.focus.y = -currentBattle.camera.camera1.dir.y
-  CAM_DATA.idle.focus.z = -currentBattle.camera.camera1.dir.z
+const setIdleCamera = (currentBattle, index) => {
+  CAM_DATA.idle.position.x = currentBattle.camera[`camera${index + 1}`].pos.x
+  CAM_DATA.idle.position.y = -currentBattle.camera[`camera${index + 1}`].pos.y
+  CAM_DATA.idle.position.z = -currentBattle.camera[`camera${index + 1}`].pos.z
+  CAM_DATA.idle.focus.x = currentBattle.camera[`camera${index + 1}`].dir.x
+  CAM_DATA.idle.focus.y = -currentBattle.camera[`camera${index + 1}`].dir.y
+  CAM_DATA.idle.focus.z = -currentBattle.camera[`camera${index + 1}`].dir.z
 }
 const executeInitialCameraScript = async currentBattle => {
   resetCamData()
-  setIdleCamera(currentBattle)
+  setIdleCamera(currentBattle, 0)
 
   const initialCameraPosition = window.currentBattle.setup.initialCameraPosition
 
@@ -149,5 +147,6 @@ export {
   framesToTime,
   framesToActualFrames,
   setActorsForBattleCamera,
-  setBattleCameraSpeed
+  setBattleCameraSpeed,
+  setIdleCamera
 }

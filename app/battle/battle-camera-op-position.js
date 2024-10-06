@@ -4,6 +4,7 @@ import {
   CAM_DATA,
   framesToActualFrames,
   framesToTime,
+  setIdleCamera,
   tweenCamera
 } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
@@ -12,6 +13,11 @@ import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
   Find scripts with ops
 data.battle.camData.initialScripts.filter(s => s.position.some(o => o.op === 'E6'))
 data.battle.camData.initialScripts.map((s, i) => s.position.some(o => o.op === 'E6') ? i : -1).filter(i => i !== -1)
+
+MEMORY ADDRESSES
+POS x: 00BF2158, y: 00BF215A, z: 00BF215C
+TAR x: 00BE1130, y: 00BE1132, z: 00BE1134
+
 */
 
 const U1ON = () => {
@@ -30,7 +36,11 @@ const U2OFF = () => {
   console.log('CAMERA pos U2OFF')
   CAM_DATA.position.unknown2 = false
 }
-
+const SETIDLE = op => {
+  // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
+  console.log('CAMERA pos SETIDLE', op)
+  setIdleCamera(window.currentBattle, op.index)
+}
 const FLASH = () => {
   console.log('CAMERA pos FLASH')
   window.currentBattle.ui.flashPlane.userData.quickFlash()
@@ -243,6 +253,7 @@ export {
   U1OFF,
   U2ON,
   U2OFF,
+  SETIDLE,
   FLASH,
   XYZ,
   MIDLE,
