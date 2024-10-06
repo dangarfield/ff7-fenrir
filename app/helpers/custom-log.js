@@ -20,9 +20,10 @@ window.console = (function (origConsole) {
       // 'battleStack',
       // 'battleUI',
       // 'battleUI SLOTS',
-      'CAMERA',
-      'sceneData',
-      'BONE'
+      'CAMERA'
+      // 'sceneData',
+      // 'BONE'
+      // 'LOGG'
       // 'battleUI LIMIT'
       // 'battlePointer',
       // 'battleQueue'

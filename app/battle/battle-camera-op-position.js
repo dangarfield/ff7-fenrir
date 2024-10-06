@@ -1,6 +1,11 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { CAM_DATA, framesToTime, tweenCamera } from './battle-camera.js'
+import {
+  CAM_DATA,
+  framesToActualFrames,
+  framesToTime,
+  tweenCamera
+} from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 /*
@@ -89,127 +94,54 @@ const MOVET = op => {
     .start()
 }
 const SPIRAL = op => {
-  const startPos = CAM_DATA.position.active.clone()
+  const gCos = Math.cos(((90 + op.growth) * Math.PI) / 180)
+  const gSin = Math.sin(((90 + op.growth) * Math.PI) / 180)
+  const zFac = op.zoom * -8
 
-  // This is a best guess. It's fine at high zoom levels, look at workings-out/battle-camera-f8.xlsx sheet 4
+  // TODO - make much smoother with easing... somehow
 
-  // const zoom = -34
-  // const radius = 1020
-  // const rotation = 2560
-  // const growth = -15
-  // const yAdj = 0
-  // const frames = 45
+  const calcNextPos = () => {
+    const deltaX = CAM_DATA.focus.active.x - CAM_DATA.position.active.x
+    const deltaZ = CAM_DATA.focus.active.z - CAM_DATA.position.active.z
+    const mag = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ)
+    const factor = zFac / mag
+    return {
+      x: CAM_DATA.position.active.x + (deltaX * gCos + deltaZ * gSin) * factor,
+      y: CAM_DATA.position.active.y + op.yAdj, // TODO - check
+      z: CAM_DATA.position.active.z + (deltaZ * gCos - deltaX * gSin) * factor
+    }
+  }
 
-  const size = op.radius * 8
-  const rotationAdj = 90 - (Math.PI / 2048) * op.rotation
-  const scale =
-    op.growth *
-    (-1813.451 * Math.pow(Math.abs(op.zoom), -0.760705) * Math.sign(op.zoom))
-  const steps = (op.zoom / 180) * -0.446
-  const skip =
-    26.82209 * Math.exp(-0.06206139 * Math.abs(op.zoom)) * Math.sign(op.zoom)
-
-  const thetaStart = (1 + skip) * steps
-  const thetaEnd = (29 + skip) * steps
-  console.log('CAMERA pos SPIRAL op', op)
-  console.log('CAMERA pos SPIRAL data', size, rotationAdj, scale, steps, skip)
-  console.log('CAMERA pos SPIRAL theta', thetaStart, thetaEnd)
-  const focusStart = CAM_DATA.focus.active.clone()
-
-  const spiralTween = new TWEEN.Tween(
-    { theta: thetaStart, lerp: 0, yAdjustment: 0 },
-    BATTLE_TWEEN_GROUP
+  let posToSet = calcNextPos()
+  console.log(
+    'CAMERA pos SPIRAL initial',
+    op,
+    CAM_DATA.position.active,
+    posToSet
   )
-    .to(
-      { theta: thetaEnd, lerp: 2, yAdjustment: op.yAdj * op.frames },
-      framesToTime(op.frames)
-    )
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate(({ theta, lerp, yAdjustment }) => {
-      // TODO: Check that apply adjust for current focus position works, it seems off
-      // Hmm, it seems as though this needs to be calcaulated for each position rather than tweened...
-      const focusAdjX = focusStart.x - CAM_DATA.focus.active.x
-      const focusAdjY = focusStart.y - CAM_DATA.focus.active.y
-      const focusAdjZ = focusStart.z - CAM_DATA.focus.active.z
+  // console.log('CAMERA pos SPIRAL theta', thetaStart, thetaEnd)
+  // const focusStart = CAM_DATA.focus.active.clone()
 
-      const distance = size + scale * theta
-      const x = distance * Math.cos(theta + rotationAdj) - focusAdjX //+ CAM_DATA.focus.active.x
-      const y = startPos.y + -yAdjustment - focusAdjY
-      const z = -(
-        distance * Math.sin(theta + rotationAdj) -
-        //+ CAM_DATA.focus.active.z
-        focusAdjZ
-      )
-      const newPos = new THREE.Vector3(x, y, z)
+  const spiralTween = new TWEEN.Tween({ t: 0 }, BATTLE_TWEEN_GROUP)
+    .to({ t: 1 }, 1000 / 15)
+    // .easing(TWEEN.Easing.Quadratic.InOut)
+    // .repeat(framesToActualFrames(op.frames))
+    .repeat(3)
+    .onRepeat(() => {
+      posToSet = calcNextPos()
+      // console.log('CAMERA pos SPIRAL repeat', posToSet)
+    })
+    .onUpdate(({ t }) => {
+      const lerpPos = CAM_DATA.position.active.clone()
+      lerpPos.lerp(posToSet, t)
 
-      let lerpPos
-      if (lerp < 1) {
-        // Lerp initial pos so that there are no big jumps because it's not perfect at all
-        lerpPos = CAM_DATA.position.active.clone()
-        lerpPos.lerp(newPos, lerp)
-      } else {
-        lerpPos = newPos
-      }
-      // console.log(
-      //   'CAMERA pos SPIRAL update',
-      //   size,
-      //   scale,
-      //   theta,
-      //   distance,
-      //   yAdjustment,
-      //   x,
-      //   y,
-      //   z,
-      //   newPos,
-      //   lerpPos
-      // )
+      // console.log('CAMERA pos SPIRAL update: ', t, posToSet, lerpPos)
       CAM_DATA.position.active.copy(lerpPos)
     })
     .onComplete(() => {
       BATTLE_TWEEN_GROUP.remove(spiralTween)
     })
     .start()
-
-  // const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
-  // let c = actor.model.userData.getBonePosition(0)
-
-  // args: { "op": "F8", "arg": -40, "arg2": 250, "arg3": 1985, "arg4": 15, "arg5": 0, "arg6": 35, "raw": "F8 D8 FF FA 00 C1 07 0F 00 00 00 23 00", "js": "opF8()" }
-  // actor bone: x: 15, y: 591, z: -1674
-
-  // start pos: 214, 591, -3000
-  // end pos: 2243, 599, -5531
-
-  // 1985 / Math.cos(40 * (Math.PI / 180))
-
-  // const endPos = new THREE.Vector3(2243, 599, -5531)
-
-  // op.angle = op.arg
-  // op.x = op.arg3
-  // op.frames = op.arg6
-
-  // let z = op.x / Math.cos(op.angle * (Math.PI / 180))
-  // if (op.angle > 0) z = z * -1
-
-  // const endPos = new THREE.Vector3(
-  //   startPos.x + op.x,
-  //   startPos.y,
-  //   startPos.z - z
-  // )
-  // const endPos = new THREE.Vector3(2879, startPos.y, -1973)
-
-  // console.log('CAMERA pos TRANS', op, '-', startPos, '->', endPos)
-  // const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
-  //   .to({ p: 1 }, framesToTime(op.frames))
-  //   .easing(TWEEN.Easing.Quadratic.InOut)
-  //   .onUpdate(({ p }) => {
-  //     const lerpPos = startPos.clone()
-  //     lerpPos.lerp(endPos, p)
-  //     CAM_DATA.position.active.copy(lerpPos)
-  //   })
-  //   .onComplete(() => {
-  //     BATTLE_TWEEN_GROUP.remove(lerpTween)
-  //   })
-  //   .start()
 }
 const SETWAIT = op => {
   CAM_DATA.position.wait = op.frames

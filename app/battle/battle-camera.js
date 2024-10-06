@@ -107,6 +107,9 @@ const setBattleCameraSpeed = isAMainScript => {
 const framesToTime = frames => {
   return (1000 / CAM_DATA.fps) * frames
 }
+const framesToActualFrames = frames => {
+  return Math.floor(frames / (CAM_DATA.fps / 15))
+}
 const setIdleCamera = currentBattle => {
   // const idleCameraIndex = 1 // TODO - Not sure how to ascertain this value yet. 0-3
 
@@ -144,6 +147,7 @@ export {
   clearUpdateFunctionPosition,
   clearUpdateFunctionFocus,
   framesToTime,
+  framesToActualFrames,
   setActorsForBattleCamera,
   setBattleCameraSpeed
 }
