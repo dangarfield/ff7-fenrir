@@ -342,7 +342,12 @@ const importModels = async currentBattle => {
     model.userData.bonePoints = []
     model.userData.getBonePosition = boneId => {
       const vector = new THREE.Vector3()
-      model.userData.bonePoints[boneId].localToWorld(vector)
+      if (boneId === 10) boneId = 0 // Temp to Aeris healing wind until i figure outthe correct reference
+      if (model.userData.bonePoints[boneId] === undefined) {
+        model.userData.bonePoints[0].localToWorld(vector) // Catch any errors, but need to come back to this
+      } else {
+        model.userData.bonePoints[boneId].localToWorld(vector)
+      }
       return vector
     }
     model.scene.traverse(object => {
@@ -359,7 +364,7 @@ const importModels = async currentBattle => {
         // Create a small sphere for the center point
         let color = 0x00ff00
         if (object.name.includes('0_0')) color = 0xff0000
-        if (object.name.includes('6_6')) color = 0x0000ff
+        if (object.name.includes('10_10')) color = 0x0000ff
         const geometry = new THREE.SphereGeometry(10)
         const material = new THREE.MeshBasicMaterial({ color })
         const point = new THREE.Mesh(geometry, material)

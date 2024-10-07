@@ -1,22 +1,7 @@
-const p = {
-  p0: 0,
-  p1: 1 * 256,
-  p2: 2 * 256,
-  p4: 4 * 256,
-  p6: 6 * 256,
-  p65: 6.5 * 256,
-  p7: 7 * 256,
-  p9: 9 * 256,
-  p95: 9.5 * 256,
-  p10: 10 * 256,
-  p14: 14 * 256,
-  p18: 18 * 256
-}
-
 const FACING = { IN: 'in', OUT: 'out' }
 const battleFormationConfig = {
   // Updated with exe data on load
-  row: p.p2,
+  row: 2 * 256,
   formations: {
     Normal: {
       // DONE - 99

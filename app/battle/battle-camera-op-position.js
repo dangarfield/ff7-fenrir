@@ -4,6 +4,7 @@ import {
   CAM_DATA,
   framesToActualFrames,
   framesToTime,
+  getOrientedOpZ,
   setIdleCameraPosition,
   tweenCamera
 } from './battle-camera.js'
@@ -28,13 +29,13 @@ const U1OFF = () => {
   console.log('CAMERA pos U1OFF')
   CAM_DATA.position.unknown1 = false
 }
-const U2ON = () => {
-  console.log('CAMERA pos U2ON')
-  CAM_DATA.position.unknown2 = true
+const LINEAR = () => {
+  console.log('CAMERA pos LINEAR')
+  CAM_DATA.position.easing = TWEEN.Easing.Linear.None
 }
-const U2OFF = () => {
-  console.log('CAMERA pos U2OFF')
-  CAM_DATA.position.unknown2 = false
+const EASING = () => {
+  console.log('CAMERA pos EASING')
+  CAM_DATA.position.easing = TWEEN.Easing.Quadratic.InOut
 }
 const SETU3 = op => {
   console.log('CAMERA pos SETU3', op)
@@ -67,45 +68,83 @@ const MOVE = op => {
   tweenCamera(CAM_DATA.position.active, from, to, op.frames, 'pos MOVE')
 }
 const FOCUSA = op => {
-  console.log('CAMERA pos FOCUSA', op, op.op, op.bone)
+  const bonePosDebug = currentBattle.actors[
+    CAM_DATA.actors.attacker
+  ].model.userData.getBonePosition(op.bone)
+  console.log(
+    'CAMERA pos FOCUSA',
+    op,
+    op.op,
+    op.bone,
+    currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position,
+    currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position,
+    CAM_DATA.position.active,
+    bonePosDebug
+  )
+  // Adjust op.z sign based on the orientation of the attacker and target
+  const orientedOpZ = getOrientedOpZ(op.z)
   CAM_DATA.position.updateFunction = () => {
-    console.log(
-      'CAMERA pos FOCUSA updateFunction',
-      CAM_DATA.actors.attacker,
-      op.bone
-    )
     const model = currentBattle.actors[CAM_DATA.actors.attacker].model
     const c = model.userData.getBonePosition(op.bone)
-    // TODO - Ensure rotation is taken into account
-    const z = c.z > 0 ? op.z : -op.z
-    // console.log('CAMERA updateFunction', c)
-    CAM_DATA.position.active.set(c.x + op.x, c.y + op.y + 300, c.z + z - 300) // TODO - 300 offset seems to work?!
+    const x = op.x === 0 ? c.x : op.x
+    const y = op.y === 0 ? c.y : c.y + -op.y
+    const z = op.z === 0 ? c.z : orientedOpZ
+    CAM_DATA.position.active.set(x, y, z)
   }
 }
-const MOVET = op => {
-  console.log('CAMERA pos MOVET :START', op)
 
-  const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
+const MOVEA = op => {
+  console.log('CAMERA pos MOVEA', op)
+  const actor = window.currentBattle.actors[CAM_DATA.actors.attacker]
+  moveToActor(actor, op)
+}
+const MOVET = op => {
+  console.log('CAMERA pos MOVET', op)
+  const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
+  moveToActor(actor, op)
+}
+// This and the focus always appears to be in the absolute axis, rather than adjusting based on the direction
+// of the attacker to target etc
+const moveToActor = (actor, op) => {
   let c = actor.model.userData.getBonePosition(op.bone)
-  const z = c.z > 0 ? op.z : -op.z
-  const offset = new THREE.Vector3(op.x, 0, -z) // TODO - y?!
-  console.log('CAMERA pos MOVET offset', offset)
+  const orientedOpZ = getOrientedOpZ(op.z)
+  const x = op.x === 0 ? c.x : c.x + op.x
+  const y = op.y === 0 ? c.y : c.y + -op.y
+  const z = op.z === 0 ? c.z : c.z + -orientedOpZ
+  const target = new THREE.Vector3(x, y, z)
+  console.log(
+    'CAMERA pos moveToActor',
+    c,
+    op,
+    CAM_DATA.position.active,
+    '->',
+    target
+  )
 
   const startPos = CAM_DATA.position.active.clone()
   const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
-    .to({ p: 1 }, framesToTime(op.frames)) // Duration of 1 second
+    .to({ p: 1 }, framesToTime(op.frames))
     // .easing(TWEEN.Easing.Quadratic.InOut)
+    .easing(CAM_DATA.position.easing)
     .onUpdate(({ p }) => {
       c = actor.model.userData.getBonePosition(op.bone).clone()
       const lerpPos = startPos.clone()
-      c.add(offset)
-      lerpPos.lerp(c, p)
+      const x = op.x === 0 ? c.x : c.x + op.x
+      const y = op.y === 0 ? c.y : c.y + -op.y
+      const z = op.z === 0 ? c.z : c.z + -orientedOpZ
+      const to = new THREE.Vector3(x, y, z)
+
+      lerpPos.lerp(to, p)
+
+      console.log('CAMERA pos moveToActor update', to, lerpPos)
       CAM_DATA.position.active.copy(lerpPos)
     })
+
     .onComplete(() => {
-      console.log('CAMERA pos MOVET :END')
+      // console.log(`CAMERA ${reference}: END`, camVector, CAM_DATA)
       BATTLE_TWEEN_GROUP.remove(lerpTween)
     })
+    // .repeat(Infinity) // Continuously repeat the tween
     .start()
 }
 const SPIRAL = op => {
@@ -256,8 +295,8 @@ const FE = () => {
 export {
   U1ON,
   U1OFF,
-  U2ON,
-  U2OFF,
+  EASING,
+  LINEAR,
   SETU3,
   SETIDLE,
   FLASH,
@@ -265,6 +304,7 @@ export {
   MIDLE,
   MOVE,
   FOCUSA,
+  MOVEA,
   MOVET,
   SPIRAL,
   SETWAIT,

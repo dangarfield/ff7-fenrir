@@ -16,11 +16,11 @@ import {
 const executePositionOp = async op => {
   console.log('CAMERA executePositionOp', op, op.op)
   switch (op.op) {
-    case 'U2OFF': // DA
-      pos.U2OFF()
+    case 'EASING': // DA
+      pos.EASING()
       break
-    case 'U2ON': // DB
-      pos.U2ON()
+    case 'LINEAR': // DB
+      pos.LINEAR()
       break
     case 'U1ON': // DC
       pos.U1ON()
@@ -30,9 +30,6 @@ const executePositionOp = async op => {
       break
     case 'U1OFF': // F1
       pos.U1OFF()
-      break
-    case 'U2OFF': // DA
-      pos.U2OFF()
       break
     case 'FLASH': // D6
       pos.FLASH()
@@ -44,7 +41,7 @@ const executePositionOp = async op => {
       clearUpdateFunctionPosition()
       pos.MIDLE(op)
       break
-    case 'MOVET':
+    case 'MOVEA': // E4
       clearUpdateFunctionPosition()
       pos.MOVET(op)
       break

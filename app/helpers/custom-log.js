@@ -21,7 +21,9 @@ window.console = (function (origConsole) {
       // 'battleUI',
       // 'battleUI SLOTS',
       'CAMERA pos',
-      'sceneData'
+      // 'CAMERA focus',
+      // 'sceneData',
+      // 'getOrientedOpZ'
       // 'BONE'
       // 'LOGG'
       // 'battleUI LIMIT'

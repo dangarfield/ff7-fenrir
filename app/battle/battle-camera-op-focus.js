@@ -3,6 +3,7 @@ import TWEEN from '../../assets/tween.esm.js'
 import {
   CAM_DATA,
   framesToTime,
+  getOrientedOpZ,
   setIdleCameraFocus,
   tweenCamera
 } from './battle-camera.js'
@@ -40,37 +41,37 @@ const MOVE = op => {
   tweenCamera(CAM_DATA.focus.active, from, to, op.frames, 'focus MOVE')
 }
 const FOCUSA = op => {
-  CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
-  console.log('CAMERA focus FOCUSA', op)
+  console.log('CAMERA focus FOCUSA', op, CAM_DATA.actors.attacker)
+  const orientedOpZ = getOrientedOpZ(op.z)
   CAM_DATA.focus.updateFunction = () => {
     const model = currentBattle.actors[CAM_DATA.actors.attacker].model
     const c = model.userData.getBonePosition(op.bone)
-    const z = c.z > 0 ? op.z : -op.z
-    CAM_DATA.focus.active.set(c.x + op.x, -op.y, c.z + z) // Unsure about all of this, eg, y seems to be absolute
+    const x = op.x === 0 ? c.x : op.x
+    const y = op.y === 0 ? c.y : c.y + -op.y
+    const z = op.z === 0 ? c.z : orientedOpZ
+
+    // console.log('CAMERA focus FOCUSA updateFunction', x, y, z)
+    CAM_DATA.focus.active.set(x, y, z)
   }
 }
 const MOVEA = op => {
   console.log('CAMERA focus MOVEA', op)
-  CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
-  CAM_DATA.actors.targets = [1]
-
   const actor = window.currentBattle.actors[CAM_DATA.actors.attacker]
   moveToActor(actor, op)
 }
 const MOVET = op => {
   console.log('CAMERA focus MOVET', op)
-  CAM_DATA.actors.attacker = 4 // TODO - This needs to be set through the action scripts
-  CAM_DATA.actors.targets = [1]
-
   const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]]
   moveToActor(actor, op)
 }
 const moveToActor = (actor, op) => {
   let c = actor.model.userData.getBonePosition(op.bone)
-  // TODO get bone
-  const z = c.z > 0 ? op.z : -op.z
-  const offset = new THREE.Vector3(op.x, 0, -z) // TODO - y?!
-  console.log('CAMERA focus moveToActor offset', offset)
+  const orientedOpZ = getOrientedOpZ(op.z)
+  const x = op.x === 0 ? c.x : c.x + op.x
+  const y = op.y === 0 ? c.y : c.y + -op.y
+  const z = op.z === 0 ? c.z : c.z + orientedOpZ
+  const target = new THREE.Vector3(x, y, z)
+  console.log('CAMERA focus moveToActor', op, c, target)
 
   const startPos = CAM_DATA.focus.active.clone()
   const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
@@ -79,10 +80,14 @@ const moveToActor = (actor, op) => {
     .onUpdate(({ p }) => {
       c = actor.model.userData.getBonePosition(op.bone).clone()
       const lerpPos = startPos.clone()
-      c.add(offset)
-      if (op.y !== 0) c.y = op.y
-      console.log('CAMERA focus moveToActor update', op.y, c.y, offset)
-      lerpPos.lerp(c, p)
+      const x = op.x === 0 ? c.x : c.x + op.x
+      const y = op.y === 0 ? c.y : c.y + -op.y
+      const z = op.z === 0 ? c.z : c.z + orientedOpZ
+      const to = new THREE.Vector3(x, y, z)
+      // c.add(offset)
+      // if (op.y !== 0) c.y = op.y
+      // console.log('CAMERA focus moveToActor update', op.y, c.y)
+      lerpPos.lerp(to, p)
       CAM_DATA.focus.active.copy(lerpPos)
     })
 

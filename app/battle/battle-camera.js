@@ -14,7 +14,7 @@ const CAM_DATA = {
     to: new THREE.Vector3(),
     wait: 0,
     unknown1: true,
-    unknown2: true,
+    easing: TWEEN.Easing.Quadratic.InOut,
     updateFunction: null
   },
   focus: {
@@ -58,7 +58,7 @@ const resetCamData = () => {
   CAM_DATA.position.to.set(0, 0, 0)
   CAM_DATA.position.wait = 0
   CAM_DATA.position.unknown1 = true
-  CAM_DATA.position.unknown2 = true
+  CAM_DATA.position.easing = TWEEN.Easing.Quadratic.InOut
   CAM_DATA.focus.active.set(0, -1, 0)
   CAM_DATA.focus.to.set(0, 0, 0)
   CAM_DATA.focus.wait = 0
@@ -110,6 +110,30 @@ const framesToTime = frames => {
 const framesToActualFrames = frames => {
   return Math.floor(frames / (CAM_DATA.fps / 15))
 }
+const getOrientedOpZ = z => {
+  const aZ =
+    window.currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position.z
+  const tZ =
+    window.currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position
+      .z
+  // const aR = window.currentBattle.actors[
+  //   CAM_DATA.actors.attacker
+  // ].model.scene.
+  // console.log('getOrientedOpZ', z, aZ, tZ)
+  if (aZ < tZ) {
+    // console.log('getOrientedOpZ aZ < tZ', z, aZ, tZ)
+    return -z
+  } else if (aZ > tZ) {
+    // console.log('getOrientedOpZ aZ > tZ', z, aZ, tZ)
+    return z
+  } else if (aZ < 0) {
+    // console.log('getOrientedOpZ aZ < 0', z, aZ, tZ)
+    return -z
+  } else {
+    // console.log('getOrientedOpZ aZ => 0', z, aZ, tZ)
+    return z
+  }
+}
 const setIdleCameraPosition = (currentBattle, index) => {
   CAM_DATA.idle.position.x = currentBattle.camera[`camera${index + 1}`].pos.x
   CAM_DATA.idle.position.y = -currentBattle.camera[`camera${index + 1}`].pos.y
@@ -152,5 +176,6 @@ export {
   setActorsForBattleCamera,
   setBattleCameraSpeed,
   setIdleCameraPosition,
-  setIdleCameraFocus
+  setIdleCameraFocus,
+  getOrientedOpZ
 }
