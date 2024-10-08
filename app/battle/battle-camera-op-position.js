@@ -297,6 +297,9 @@ const DE = () => {
 const E3 = () => {
   console.log('CAMERA pos E3 - No instances in game')
 }
+const E8 = () => {
+  console.log('CAMERA pos E8 - No instances in game')
+}
 const E9 = () => {
   console.log('CAMERA pos E9 - No instances in game')
 }
@@ -342,6 +345,7 @@ export {
   D5,
   DE,
   E3,
+  E8,
   E9,
   EB,
   EF,

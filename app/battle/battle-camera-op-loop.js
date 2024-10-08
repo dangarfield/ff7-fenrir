@@ -209,7 +209,10 @@ const executeFocusOp = async op => {
 }
 const executeScript = async (script, method) => {
   for (const op of script) {
-    await method(op)
+    await method(op) // TODO, if op.op === RET
+    if (op.op === 'RET' || op.op === 'RET2') {
+      break
+    }
   }
 }
 const runCameraScriptPair = async (
