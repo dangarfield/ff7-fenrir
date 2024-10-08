@@ -48,7 +48,7 @@ import {
   drawAllInView
 } from './battle-menu-spells.js'
 import { addPlayerActionToQueue } from './battle-queue.js'
-import { BATTLE_TWEEN_GROUP, orthoScene } from './battle-scene.js'
+import { BATTLE_TWEEN_UI_GROUP, orthoScene } from './battle-scene.js'
 import { handleKeyPressTarget } from './battle-target.js'
 
 const DATA = {
@@ -858,8 +858,11 @@ const initCommands = () => {
       170,
       DATA.actor.battleStats.menu.command
     )
-    startLimitTextTween(commandsGroup.userData.limitGroup, BATTLE_TWEEN_GROUP)
-    startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_GROUP)
+    startLimitTextTween(
+      commandsGroup.userData.limitGroup,
+      BATTLE_TWEEN_UI_GROUP
+    )
+    startCoinTextTweens(commandsGroup.userData.coinGroup, BATTLE_TWEEN_UI_GROUP)
     console.log('battleUI command menu show')
     await showDialog(commandsGroup)
     drawCommandCursor()

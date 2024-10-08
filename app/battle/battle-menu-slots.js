@@ -8,7 +8,7 @@ import {
   showDialog
 } from '../menu/menu-box-helper.js'
 import { DATA } from './battle-menu-command.js'
-import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { BATTLE_TWEEN_UI_GROUP } from './battle-scene.js'
 
 const SLOT_TYPE = {
   TIFA_LIMIT: 'tifa',
@@ -225,7 +225,7 @@ const initTifaSlots = async () => {
 }
 const addSlotTween = (slots, speed) => {
   const from = { y: 0 }
-  slotsDialog.userData.tween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+  slotsDialog.userData.tween = new TWEEN.Tween(from, BATTLE_TWEEN_UI_GROUP)
     .to({ y: 1 }, iconCount * speed) // I think that this is a little slower, but I like it
     .repeat(Infinity)
     .onUpdate(() => {
@@ -245,12 +245,12 @@ const addSlotTween = (slots, speed) => {
             }
             const resolveTween = new TWEEN.Tween(
               slot.material.map.offset,
-              BATTLE_TWEEN_GROUP
+              BATTLE_TWEEN_UI_GROUP
             )
               .to(to, 200)
               .onComplete(() => {
                 DATA.state = 'slots'
-                BATTLE_TWEEN_GROUP.remove(resolveTween)
+                BATTLE_TWEEN_UI_GROUP.remove(resolveTween)
                 slotsDialog.userData.complete++
               })
               .start()
@@ -461,7 +461,7 @@ const closeSlotsDialog = async () => {
   POINTERS.pointer1.visible = false
   await closeDialog(slotsDialog)
   slotsDialog.userData.tween.stop()
-  BATTLE_TWEEN_GROUP.remove(slotsDialog.userData.tween)
+  BATTLE_TWEEN_UI_GROUP.remove(slotsDialog.userData.tween)
   removeGroupChildren(slotsDialog)
   slotsDialog.parent.remove(slotsDialog)
   slotsDialog = undefined

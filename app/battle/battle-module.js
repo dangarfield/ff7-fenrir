@@ -3,7 +3,8 @@ import {
   startBattleRenderingLoop,
   sceneGroup,
   BATTLE_TWEEN_GROUP,
-  setBattleTickActive
+  setBattleTickActive,
+  BATTLE_TWEEN_UI_GROUP
 } from './battle-scene.js'
 import { initBattleKeypressActions } from './battle-controls.js'
 import { importModels } from './battle-3d.js'
@@ -32,6 +33,7 @@ const cleanSceneGroup = () => {
     sceneGroup.remove(sceneGroup.children[0])
   }
 
+  BATTLE_TWEEN_UI_GROUP.removeAll()
   BATTLE_TWEEN_GROUP.removeAll()
   // while (orthoScene.children.length) {
   //   orthoScene.remove(orthoScene.children[0])

@@ -14,7 +14,11 @@ import {
   stopLimitBarTween
 } from '../menu/menu-limit-tween-helper.js'
 import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP, orthoScene, tweenSleep } from './battle-scene.js'
+import {
+  BATTLE_TWEEN_UI_GROUP,
+  orthoScene,
+  tweenSleep
+} from './battle-scene.js'
 
 const addShape = (dialogBox, colors, id, x, y, w, h, blending) => {
   const bgGeo = new THREE.PlaneGeometry(w, h)
@@ -224,8 +228,8 @@ const addBattleLimit = (dialog, x, y, id) => {
         l2.position.x = x + 3 + (w / 2) * percent
         l2.scale.set(percent, 1, 1)
         if (lValue === 0xff) {
-          addLimitBarTween(l1, BATTLE_TWEEN_GROUP)
-          addLimitBarTween(l2, BATTLE_TWEEN_GROUP)
+          addLimitBarTween(l1, BATTLE_TWEEN_UI_GROUP)
+          addLimitBarTween(l2, BATTLE_TWEEN_UI_GROUP)
         }
       }
     },
@@ -340,7 +344,7 @@ const addTurnTimer = (dialog, x, y, id) => {
         refreshTurnColours()
         const from = { v: 0 }
         const to = { v: [1, 0] }
-        activeTurnTween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+        activeTurnTween = new TWEEN.Tween(from, BATTLE_TWEEN_UI_GROUP)
           .to(to, 1000)
           .repeat(Infinity)
           .onUpdate(() => {
@@ -359,7 +363,7 @@ const addTurnTimer = (dialog, x, y, id) => {
       } else {
         if (activeTurnTween) {
           activeTurnTween.stop()
-          BATTLE_TWEEN_GROUP.remove(activeTurnTween)
+          BATTLE_TWEEN_UI_GROUP.remove(activeTurnTween)
           activeTurnTween = null
         }
         color1 = WINDOW_COLORS_SUMMARY.TURN_FULL_1
@@ -405,14 +409,14 @@ const addPlayerName = (group, name, id, x, y) => {
         playerNameGrey.visible = false
         if (playerNameTween) {
           playerNameTween.stop()
-          BATTLE_TWEEN_GROUP.remove(playerNameTween)
+          BATTLE_TWEEN_UI_GROUP.remove(playerNameTween)
           playerNameTween = null
         }
       } else {
         const from = { v: 0 }
         const to = { v: 1 }
         let visible = false
-        playerNameTween = new TWEEN.Tween(from, BATTLE_TWEEN_GROUP)
+        playerNameTween = new TWEEN.Tween(from, BATTLE_TWEEN_UI_GROUP)
           .to(to, 500) // Is time ok?
           .repeat(Infinity)
           .onUpdate(() => {
@@ -739,16 +743,16 @@ const addHP = (group, x, y, id) => {
         values.current = newCurrent
         values.max = newMax
       } else {
-        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_GROUP)
+        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_UI_GROUP)
           .to({ current: newCurrent, max: newMax }, 250) // TODO I'm not sure if this is always same speed, I don't think it is
           .onUpdate(() => {
             update(Math.trunc(values.current), Math.trunc(values.max))
           })
           .onStop(() => {
-            BATTLE_TWEEN_GROUP.remove(textTween)
+            BATTLE_TWEEN_UI_GROUP.remove(textTween)
           })
           .onComplete(() => {
-            BATTLE_TWEEN_GROUP.remove(textTween)
+            BATTLE_TWEEN_UI_GROUP.remove(textTween)
           })
           .start()
       }
@@ -825,17 +829,17 @@ const addMP = (group, x, y, id) => {
         values.current = newCurrent
         values.max = newMax
       } else {
-        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_GROUP)
+        textTween = new TWEEN.Tween(values, BATTLE_TWEEN_UI_GROUP) // Not sure if this is 'paused' when game is paused
           .to({ current: newCurrent, max: newMax }, 250) // TODO I'm not sure if this is always same speed, I don't think it is
           .onUpdate(() => {
             update(Math.trunc(values.current), Math.trunc(values.max))
           })
           .onStop(() => {
-            BATTLE_TWEEN_GROUP.remove(textTween)
+            BATTLE_TWEEN_UI_GROUP.remove(textTween)
             textTween = null
           })
           .onComplete(() => {
-            BATTLE_TWEEN_GROUP.remove(textTween)
+            BATTLE_TWEEN_UI_GROUP.remove(textTween)
             textTween = null
           })
           .start()

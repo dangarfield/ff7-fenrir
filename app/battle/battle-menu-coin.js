@@ -14,7 +14,7 @@ import {
   updateDialogBGWIthTiledImage
 } from '../menu/menu-box-helper.js'
 import { DATA } from './battle-menu-command.js'
-import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { BATTLE_TWEEN_UI_GROUP } from './battle-scene.js'
 
 const offsets = {
   dialog: { x: 100 / 2, y: 348 / 2, w: 328 / 2, h: 116 / 2 },
@@ -36,7 +36,7 @@ let coinBgTween
 const startCoinBgTween = () => {
   coinBgTween = new TWEEN.Tween(
     coinDialog.userData.bg.material.map.offset,
-    BATTLE_TWEEN_GROUP
+    BATTLE_TWEEN_UI_GROUP
   )
     .to({ x: 2, y: 1 }, 750)
     .repeat(Infinity)
@@ -50,7 +50,7 @@ const startCoinBgTween = () => {
 const stopCoinBgTween = () => {
   if (coinBgTween) {
     coinBgTween.stop()
-    BATTLE_TWEEN_GROUP.remove(coinBgTween)
+    BATTLE_TWEEN_UI_GROUP.remove(coinBgTween)
   }
 }
 

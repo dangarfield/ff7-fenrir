@@ -17,6 +17,7 @@ let debugControls
 let activeCamera
 
 const BATTLE_TWEEN_GROUP = new TWEEN.Group()
+const BATTLE_TWEEN_UI_GROUP = new TWEEN.Group()
 window.BATTLE_TWEEN_GROUP = BATTLE_TWEEN_GROUP
 let BATTLE_PAUSED = false
 let BATTLE_TICK_ACTIVE = false // Wait for initial, ATB too - eg, WAIT, TIME
@@ -93,6 +94,7 @@ const renderLoop = () => {
       }
       updateActorsUI()
     }
+    BATTLE_TWEEN_UI_GROUP.update()
     BATTLE_TWEEN_GROUP.update()
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, activeCamera)
@@ -204,9 +206,8 @@ const togglePauseBattle = () => {
       window.currentBattle.ui.pause.start()
     }
     for (const t of BATTLE_TWEEN_GROUP.getAll()) {
-      // t.resume()
+      t.pause()
     }
-    // TODO - Pause model animations too
   } else {
     if (
       window.currentBattle &&
@@ -217,7 +218,7 @@ const togglePauseBattle = () => {
     }
 
     for (const t of BATTLE_TWEEN_GROUP.getAll()) {
-      // t.pause()
+      t.resume()
     }
   }
 }
@@ -232,6 +233,7 @@ export {
   setupScenes,
   startBattleRenderingLoop,
   BATTLE_TWEEN_GROUP,
+  BATTLE_TWEEN_UI_GROUP,
   tweenSleep,
   togglePauseBattle,
   BATTLE_PAUSED,
