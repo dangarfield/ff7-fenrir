@@ -18,7 +18,10 @@ const ZNORM = () => {
   console.log('CAMERA focus ZNORM')
   CAM_DATA.focus.zInverted = false
 }
-
+const IDLE = () => {
+  console.log('CAMERA focus IDLE')
+  CAM_DATA.focus.active.copy(CAM_DATA.focus.position)
+}
 const SETIDLE = op => {
   // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
   console.log('CAMERA focus SETIDLE', op)
@@ -29,11 +32,11 @@ const XYZ = op => {
   console.log('CAMERA focus XYZ', op, CAM_DATA)
 }
 
-const MIDLE = op => {
-  console.log('CAMERA focus MIDLE: START', op, CAM_DATA)
+const MOVEI = op => {
+  console.log('CAMERA focus MOVEI: START', op, CAM_DATA)
   const from = CAM_DATA.focus.active.clone()
   const to = CAM_DATA.idle.focus
-  tweenCamera(CAM_DATA.focus.active, from, to, op.frames, 'focus MIDLE')
+  tweenCamera(CAM_DATA.focus.active, from, to, op.frames, 'focus MOVEI')
 }
 const MOVE = op => {
   console.log('CAMERA focus MOVE: START', op, CAM_DATA)
@@ -153,11 +156,11 @@ const WAIT = async op => {
 }
 const RET = () => {
   console.log('CAMERA focus RET')
-  // MIDLE({ frames: 15 })
+  // MOVEI({ frames: 15 })
 }
 const RET2 = () => {
   console.log('CAMERA focus RET2')
-  // MIDLE({ frames: 15 })
+  // MOVEI({ frames: 15 })
 }
 
 // Add all unused (in game) below: Kind of cheating, just to improve the 'completion %...'
@@ -180,9 +183,10 @@ const FE = () => {
 export {
   ZINV,
   ZNORM,
+  IDLE,
   SETIDLE,
   XYZ,
-  MIDLE,
+  MOVEI,
   MOVE,
   FOCUSA,
   FOCUST,

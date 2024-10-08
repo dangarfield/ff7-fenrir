@@ -60,12 +60,14 @@ const placeholderBattleAttackSequence = async (
   // const scriptPair =
   //   window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3] // Healing Wind
 
-  const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[23 * 3] // Demi3 - z on target is reversed, meh...
+  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[23 * 3] // Demi3 - z on target is reversed, meh...
+  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[27 * 3] // Flare - some rotation issues, meh...
+  const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[9 * 3] // Quake - E4/E5, but both go to attacker?!
 
   // Temporary grunt action animation
   await Promise.all([
     // runCameraScriptPair(scriptPair, 2, [2], false),
-    runCameraScriptPair(scriptPair, 0, [4], false),
+    runCameraScriptPair(scriptPair, 1, [4], false),
     (async () => {
       await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
       await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })

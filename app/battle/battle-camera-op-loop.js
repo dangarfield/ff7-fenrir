@@ -37,9 +37,13 @@ const executePositionOp = async op => {
     case 'SETU3': // D7
       pos.SETU3(op)
       break
-    case 'MIDLE': // E2
+    case 'IDLE': // E1
+      clearUpdateFunctionFocus()
+      pos.IDLE()
+      break
+    case 'MOVEI': // E2
       clearUpdateFunctionPosition()
-      pos.MIDLE(op)
+      pos.MOVEI(op)
       break
     case 'MOVEA': // E4
       clearUpdateFunctionPosition()
@@ -133,9 +137,13 @@ const executeFocusOp = async op => {
     case 'SETIDLE': // DD
       focus.SETIDLE(op)
       break
-    case 'MIDLE': // E2
+    case 'IDLE': // E1
       clearUpdateFunctionFocus()
-      focus.MIDLE(op)
+      pos.IDLE()
+      break
+    case 'MOVEI': // E2
+      clearUpdateFunctionFocus()
+      focus.MOVEI(op)
       break
     case 'MOVEA': // E4
       clearUpdateFunctionFocus()
@@ -228,7 +236,7 @@ const runCameraScriptPair = async (
   console.log('CAMERA runScriptPair: END')
 }
 const returnToIdle = async () => {
-  await Promise.all([pos.MIDLE({ frames: 15 }), focus.MIDLE({ frames: 15 })])
+  await Promise.all([pos.MOVEI({ frames: 15 }), focus.MOVEI({ frames: 15 })])
 }
 
 export { runCameraScriptPair, returnToIdle }

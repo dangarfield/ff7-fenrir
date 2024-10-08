@@ -45,6 +45,10 @@ const SETU3 = op => {
   // Unknown effect - Set on and then off 2 bytes in the sephiroth final battle. Unknown effect
   // In fenrir, the initial camera seems to 'work' without this, so I'll mark it as completed...
 }
+const IDLE = () => {
+  console.log('CAMERA pos IDLE')
+  CAM_DATA.position.active.copy(CAM_DATA.idle.position)
+}
 const SETIDLE = op => {
   // Note: It's used in cam data initial scripts, but no battle is using any of those scripts...
   console.log('CAMERA pos SETIDLE', op)
@@ -58,11 +62,11 @@ const XYZ = op => {
   CAM_DATA.position.active.set(op.x, -op.y, -op.z)
   console.log('CAMERA pos XYZ', op, CAM_DATA)
 }
-const MIDLE = op => {
-  console.log('CAMERA pos MIDLE: START', op, CAM_DATA)
+const MOVEI = op => {
+  console.log('CAMERA pos MOVEI: START', op, CAM_DATA)
   const from = CAM_DATA.position.active.clone()
   const to = CAM_DATA.idle.position
-  tweenCamera(CAM_DATA.position.active, from, to, op.frames, 'pos MIDLE')
+  tweenCamera(CAM_DATA.position.active, from, to, op.frames, 'pos MOVEI')
 }
 const MOVE = op => {
   console.log('CAMERA pos MOVE: START', op, CAM_DATA)
@@ -277,11 +281,11 @@ const WAIT = async op => {
 }
 const RET = () => {
   console.log('CAMERA pos RET')
-  // MIDLE({ frames: 15 })
+  // MOVEI({ frames: 15 })
 }
 const RET2 = () => {
   console.log('CAMERA pos RET2')
-  // MIDLE({ frames: 15 })
+  // MOVEI({ frames: 15 })
 }
 // Add all unused (in game) below: Kind of cheating, just to improve the 'completion %...'
 const D5 = () => {
@@ -318,10 +322,11 @@ export {
   EASING,
   LINEAR,
   SETU3,
+  IDLE,
   SETIDLE,
   FLASH,
   XYZ,
-  MIDLE,
+  MOVEI,
   MOVE,
   FOCUSA,
   FOCUST,
