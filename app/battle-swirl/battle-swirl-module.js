@@ -13,6 +13,8 @@ let renderTarget
 let swirlMesh
 let swirlEffect
 
+const BATTLE_SWIRL_TWEEN_GROUP = new TWEEN.Group()
+
 const renderLoop = function () {
   if (window.anim.activeScene !== 'battle-swirl') {
     console.log('Stopping battle-swirl renderLoop')
@@ -20,7 +22,7 @@ const renderLoop = function () {
   }
   window.requestAnimationFrame(renderLoop)
   updateOnceASecond()
-  TWEEN.update()
+  BATTLE_SWIRL_TWEEN_GROUP.update()
   window.anim.renderer.clear()
   window.anim.renderer.render(scene, camera)
   window.anim.renderer.clearDepth()
@@ -166,7 +168,7 @@ const doSwirl = async () => {
     // const tweenGroup = new TWEEN.Group()
     const createTween = (target, to, easing, onComplete) => {
       // console.log('doSwirl: createTween', target, to, easing, onComplete, TWEEN)
-      const tween = new TWEEN.Tween(target)
+      const tween = new TWEEN.Tween(target, BATTLE_SWIRL_TWEEN_GROUP)
         .to(to, config.time)
         // .repeat(Infinity)
         // .delay(100)

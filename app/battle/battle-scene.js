@@ -16,8 +16,8 @@ let orthoCamera
 let debugControls
 let activeCamera
 
-const BATTLE_TWEEN_GROUP = (window.FIELD_TWEEN_GROUP = new TWEEN.Group())
-
+const BATTLE_TWEEN_GROUP = new TWEEN.Group()
+window.BATTLE_TWEEN_GROUP = BATTLE_TWEEN_GROUP
 let BATTLE_PAUSED = false
 let BATTLE_TICK_ACTIVE = false // Wait for initial, ATB too - eg, WAIT, TIME
 
@@ -70,6 +70,7 @@ const renderLoop = () => {
         for (const actor of window.currentBattle.actors) {
           if (!actor.active) continue
           if (actor.model) {
+            // TODO - When paused -> unpaused, this delta is large and animation 'jumps'
             if (actor.model.mixer) actor.model.mixer.update(delta)
             if (actor.model.userData.updateShadowPosition) {
               actor.model.userData.updateShadowPosition()
@@ -91,9 +92,8 @@ const renderLoop = () => {
         window.currentBattle.ui.battlePointer.cycleAndDisplayBattlePointer()
       }
       updateActorsUI()
-      BATTLE_TWEEN_GROUP.update()
     }
-
+    BATTLE_TWEEN_GROUP.update()
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, activeCamera)
 
@@ -203,6 +203,10 @@ const togglePauseBattle = () => {
     ) {
       window.currentBattle.ui.pause.start()
     }
+    for (const t of BATTLE_TWEEN_GROUP.getAll()) {
+      // t.resume()
+    }
+    // TODO - Pause model animations too
   } else {
     if (
       window.currentBattle &&
@@ -210,6 +214,10 @@ const togglePauseBattle = () => {
       window.currentBattle.ui.pause
     ) {
       window.currentBattle.ui.pause.stop()
+    }
+
+    for (const t of BATTLE_TWEEN_GROUP.getAll()) {
+      // t.pause()
     }
   }
 }
