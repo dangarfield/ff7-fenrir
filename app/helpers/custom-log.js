@@ -22,6 +22,7 @@ window.console = (function (origConsole) {
       // 'battleUI SLOTS',
       'CAMERA pos',
       // 'CAMERA focus',
+      'CAMERA calcPosition'
       // 'sceneData',
       // 'getOrientedOpZ'
       // 'BONE'

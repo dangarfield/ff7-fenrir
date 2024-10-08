@@ -42,10 +42,10 @@ const placeholderBattleAttackSequence = async (
     } -> ${toEntity.data.name}`
   )
 
-  const scriptPair =
-    window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3]
   // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.victory[0]
+  //   window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3]
+  const scriptPair =
+    window.data.battle.camData.camdataFiles[0].scripts.victory[0]
 
   // window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3].position = [
   //   ...window.data.battle.camData.camdataFiles[0].scripts.main[
@@ -62,8 +62,8 @@ const placeholderBattleAttackSequence = async (
 
   // Temporary grunt action animation
   await Promise.all([
-    // runCameraScriptPair(scriptPair, 2, [0, 1, 2], false),
-    runCameraScriptPair(scriptPair, 4, [1], false),
+    runCameraScriptPair(scriptPair, 2, [2], false),
+    // runCameraScriptPair(scriptPair, 4, [1], false),
     (async () => {
       await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
       await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })

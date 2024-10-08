@@ -1,10 +1,11 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import {
+  calcPosition,
   CAM_DATA,
   framesToActualFrames,
   framesToTime,
-  getOrientedOpZ,
+  setDirectionOverride,
   setIdleCameraPosition,
   tweenCamera
 } from './battle-camera.js'
@@ -68,81 +69,60 @@ const MOVE = op => {
   tweenCamera(CAM_DATA.position.active, from, to, op.frames, 'pos MOVE')
 }
 const FOCUSA = op => {
-  const bonePosDebug = currentBattle.actors[
-    CAM_DATA.actors.attacker
-  ].model.userData.getBonePosition(op.bone)
-  console.log(
-    'CAMERA pos FOCUSA',
-    op,
-    op.op,
-    op.bone,
-    currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position,
-    currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position,
-    CAM_DATA.position.active,
-    bonePosDebug
-  )
-  // op.z = op.z * -1 // TEMP TEST
-  // Adjust op.z sign based on the orientation of the attacker and target
-  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
-  CAM_DATA.position.updateFunction = () => {
-    const model = currentBattle.actors[CAM_DATA.actors.attacker].model
-    const c = model.userData.getBonePosition(op.bone)
-    const x = op.x === 0 ? c.x : op.x
-    const y = op.y === 0 ? c.y : c.y + -op.y
-    const z = op.z === 0 ? c.z : orientedOpZ
-    CAM_DATA.position.active.set(x, y, z)
-  }
+  console.log('CAMERA pos FOCUSA', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const FOCUST = op => {
-  const bonePosDebug = currentBattle.actors[
-    CAM_DATA.actors.attacker
-  ].model.userData.getBonePosition(op.bone)
-  console.log(
-    'CAMERA pos FOCUST',
-    op,
-    op.op,
-    op.bone,
-    currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position,
-    currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position,
-    CAM_DATA.position.active,
-    bonePosDebug
-  )
-  // Adjust op.z sign based on the orientation of the attacker and target
-  // op.z = op.z * -1 // TEMP TEST
-  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
+  console.log('CAMERA pos FOCUST', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
+}
+const focusToActor = (fromActor, toActor, op, directionOverride) => {
   CAM_DATA.position.updateFunction = () => {
-    const model = currentBattle.actors[CAM_DATA.actors.targets[0]].model
-    const c = model.userData.getBonePosition(op.bone)
-    const x = op.x === 0 ? c.x : op.x
-    const y = op.y === 0 ? c.y : c.y + -op.y
-    const z = op.z === 0 ? c.z : orientedOpZ
-    CAM_DATA.position.active.set(x, y, z)
+    const from = fromActor.model.userData.getBonePosition(0)
+    const to = toActor.model.userData.getBonePosition(op.bone)
+    const target = calcPosition(
+      from,
+      to,
+      op,
+      CAM_DATA.position.zInverted,
+      directionOverride
+    )
+    CAM_DATA.position.active.copy(target)
   }
 }
-
 const MOVEA = op => {
   console.log('CAMERA pos MOVEA', op)
-  const actor = window.currentBattle.actors[CAM_DATA.actors.attacker]
-  moveToActor(actor, op, true)
+  const fromActor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
+  const toActor = window.currentBattle.actors[CAM_DATA.actors.attacker]
+  moveToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const MOVET = op => {
   console.log('CAMERA pos MOVET', op)
-  // op.z = op.z * -1 // Is this right?
-  const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
-  moveToActor(actor, op, false)
+  const fromActor = window.currentBattle.actors[CAM_DATA.actors.attacker]
+  const toActor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
+  moveToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
-// This and the focus always appears to be in the absolute axis, rather than adjusting based on the direction
-// of the attacker to target etc - NOPE, this is not correct. Might be something about the unknown 1 flag though. (0xd5*3)+0
-const moveToActor = (actor, op) => {
-  let c = actor.model.userData.getBonePosition(op.bone)
-  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
-  const x = op.x === 0 ? c.x : c.x + op.x
-  const y = op.y === 0 ? c.y : c.y + -op.y
-  const z = op.z === 0 ? c.z : c.z + orientedOpZ
-  const target = new THREE.Vector3(x, y, z)
+// This should generally happen as though the z axis is aligned between the target and actor's (z,x)
+// I'm not sure about always though. eg target and attacker are same actor, maybe same row?
+const moveToActor = (fromActor, toActor, op, directionOverride) => {
+  let from = fromActor.model.userData.getBonePosition(0) // Or just get main position ?!
+  let to = toActor.model.userData.getBonePosition(op.bone)
+  const target = calcPosition(
+    from,
+    to,
+    op,
+    CAM_DATA.position.zInverted,
+    directionOverride
+  )
   console.log(
     'CAMERA pos moveToActor',
-    c,
+    from,
+    to,
+    '-',
     op,
     CAM_DATA.position.active,
     '->',
@@ -152,17 +132,13 @@ const moveToActor = (actor, op) => {
   const startPos = CAM_DATA.position.active.clone()
   const lerpTween = new TWEEN.Tween({ p: 0 }, BATTLE_TWEEN_GROUP)
     .to({ p: 1 }, framesToTime(op.frames))
-    // .easing(TWEEN.Easing.Quadratic.InOut)
     .easing(CAM_DATA.position.easing)
     .onUpdate(({ p }) => {
-      c = actor.model.userData.getBonePosition(op.bone).clone()
       const lerpPos = startPos.clone()
-      const x = op.x === 0 ? c.x : c.x + op.x
-      const y = op.y === 0 ? c.y : c.y + -op.y
-      const z = op.z === 0 ? c.z : c.z + orientedOpZ
-      const to = new THREE.Vector3(x, y, z)
-
-      lerpPos.lerp(to, p)
+      let from = toActor.model.userData.getBonePosition(0) // Or just get main position ?!
+      let to = fromActor.model.userData.getBonePosition(op.bone)
+      calcPosition(from, to, op, CAM_DATA.position.zInverted, directionOverride)
+      lerpPos.lerp(target, p)
 
       // console.log('CAMERA pos moveToActor update', to, lerpPos)
       CAM_DATA.position.active.copy(lerpPos)

@@ -77,7 +77,6 @@ const loadBattle = async (battleId, options) => {
     window.alert('Placeholder battles - Press Y to skip') // TEMP - Need to remove
   }
   setBattleTickActive(true)
-  // TODO - Start 'timers' and actions now, not when rendering starts
   return new Promise(resolve => {
     BATTLE_PROMISE = resolve
   })

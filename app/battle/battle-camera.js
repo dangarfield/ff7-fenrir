@@ -22,6 +22,7 @@ const CAM_DATA = {
     to: new THREE.Vector3(),
     wait: 0,
     zInverted: false,
+    easing: TWEEN.Easing.Quadratic.InOut,
     updateFunction: null
   },
   idle: {
@@ -63,6 +64,7 @@ const resetCamData = () => {
   CAM_DATA.focus.to.set(0, 0, 0)
   CAM_DATA.focus.wait = 0
   CAM_DATA.focus.zInverted = false
+  CAM_DATA.focus.easing = TWEEN.Easing.Quadratic.InOut
   CAM_DATA.idle.position.set(0, 0, 0)
   CAM_DATA.idle.focus.set(0, 0, 0)
 }
@@ -110,36 +112,56 @@ const framesToTime = frames => {
 const framesToActualFrames = frames => {
   return Math.floor(frames / (CAM_DATA.fps / 15))
 }
-const getOrientedOpZ = (z, zInverted) => {
-  // TODO - Take into account CAMDATA.position/focus.zInverted
-  const aZ =
-    window.currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position.z
-  const tZ =
-    window.currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position
-      .z
-  let rZ = z
-  if (!zInverted) return rZ
-  return -rZ
-  // const aR = window.currentBattle.actors[
-  //   CAM_DATA.actors.attacker
-  // ].model.scene.
-  // console.log('getOrientedOpZ', z, aZ, tZ)
-  if (aZ < tZ) {
-    // console.log('getOrientedOpZ aZ < tZ', z, aZ, tZ)
-    // return -z
-    rZ = -z
-  } else if (aZ > tZ) {
-    // console.log('getOrientedOpZ aZ > tZ', z, aZ, tZ)
-    // return z
-  } else if (aZ < 0) {
-    // console.log('getOrientedOpZ aZ < 0', z, aZ, tZ)
-    // return -z
-    rZ = -z
-  } else {
-    // console.log('getOrientedOpZ aZ => 0', z, aZ, tZ)
-    // return z
+
+const setDirectionOverride = (fromActor, toActor) => {
+  if (fromActor === toActor) {
+    return fromActor.model.scene.position > 0 ? -1 : 1
   }
-  return rZ
+  return false
+}
+const calcPosition = (from, to, offset, zInverted, directionOverride) => {
+  // INPUTS
+  // const from = new THREE.Vector3(0, 0, 0)
+  // const to = new THREE.Vector3(1000, 0, 1000)
+  // const offset = new THREE.Vector3(100, 0, 100)
+
+  let direction2
+  if (directionOverride) {
+    direction2 = new THREE.Vector2(0, -to.z) // If attacker & target are same / same row
+  } else {
+    direction2 = new THREE.Vector2(to.x - from.x, to.z - from.z)
+  }
+  const angle2 = Math.atan2(direction2.y, direction2.x)
+
+  const offsetDistance2 = Math.sqrt(offset.x * offset.x + offset.z * offset.z)
+  const offsetAngle2 = Math.atan2(offset.x, offset.z)
+  const combinedAngle2 = offsetAngle2 + angle2
+
+  const rotatedOffsetX2 = offsetDistance2 * Math.cos(combinedAngle2)
+  const rotatedOffsetZ2 = offsetDistance2 * Math.sin(combinedAngle2)
+
+  // OUTPUTS
+  console.log(
+    'CAMERA calcPosition',
+    to.x,
+    to.z,
+    directionOverride,
+    '->',
+    direction2,
+    angle2
+  )
+
+  return zInverted
+    ? new THREE.Vector3(
+        to.x + rotatedOffsetX2,
+        to.y + -offset.y,
+        to.z + rotatedOffsetZ2
+      )
+    : new THREE.Vector3(
+        to.x - rotatedOffsetX2,
+        to.y + -offset.y,
+        to.z - rotatedOffsetZ2
+      )
 }
 const setIdleCameraPosition = (currentBattle, index) => {
   CAM_DATA.idle.position.x = currentBattle.camera[`camera${index + 1}`].pos.x
@@ -184,5 +206,6 @@ export {
   setBattleCameraSpeed,
   setIdleCameraPosition,
   setIdleCameraFocus,
-  getOrientedOpZ
+  calcPosition,
+  setDirectionOverride
 }
