@@ -9,13 +9,13 @@ import {
 } from './battle-camera.js'
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
-const U1ON = () => {
-  console.log('CAMERA focus U1ON')
-  CAM_DATA.focus.unknown1 = true
+const ZINV = () => {
+  CAM_DATA.focus.zInverted = true
+  console.log('CAMERA focus ZINV', CAM_DATA.focus.zInverted)
 }
-const U1OFF = () => {
-  console.log('CAMERA focus U1OFF')
-  CAM_DATA.focus.unknown1 = false
+const ZNORM = () => {
+  console.log('CAMERA focus ZNORM')
+  CAM_DATA.focus.zInverted = false
 }
 
 const SETIDLE = op => {
@@ -42,7 +42,7 @@ const MOVE = op => {
 }
 const FOCUSA = op => {
   console.log('CAMERA focus FOCUSA', op, CAM_DATA.actors.attacker)
-  const orientedOpZ = getOrientedOpZ(op.z)
+  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.focus.zInverted)
   CAM_DATA.focus.updateFunction = () => {
     const model = currentBattle.actors[CAM_DATA.actors.attacker].model
     const c = model.userData.getBonePosition(op.bone)
@@ -66,7 +66,7 @@ const MOVET = op => {
 }
 const moveToActor = (actor, op) => {
   let c = actor.model.userData.getBonePosition(op.bone)
-  const orientedOpZ = getOrientedOpZ(op.z)
+  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.focus.zInverted)
   const x = op.x === 0 ? c.x : c.x + op.x
   const y = op.y === 0 ? c.y : c.y + -op.y
   const z = op.z === 0 ? c.z : c.z + orientedOpZ
@@ -138,8 +138,8 @@ const FE = () => {
 }
 
 export {
-  U1ON,
-  U1OFF,
+  ZINV,
+  ZNORM,
   SETIDLE,
   XYZ,
   MIDLE,

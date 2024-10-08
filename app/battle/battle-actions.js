@@ -43,7 +43,7 @@ const placeholderBattleAttackSequence = async (
   )
 
   const scriptPair =
-    window.data.battle.camData.camdataFiles[0].scripts.main[210]
+    window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3]
   // const scriptPair =
   //   window.data.battle.camData.camdataFiles[0].scripts.victory[0]
 
@@ -70,7 +70,7 @@ const placeholderBattleAttackSequence = async (
       await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
     })()
   ])
-  // await sleep(2000)
+  await sleep(1000)
   await returnToIdle()
 
   // await moveEntity(

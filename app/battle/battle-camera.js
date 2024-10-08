@@ -13,7 +13,7 @@ const CAM_DATA = {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
     wait: 0,
-    unknown1: true,
+    zInverted: false,
     easing: TWEEN.Easing.Quadratic.InOut,
     updateFunction: null
   },
@@ -21,7 +21,7 @@ const CAM_DATA = {
     active: new THREE.Vector3(),
     to: new THREE.Vector3(),
     wait: 0,
-    unknown1: true,
+    zInverted: false,
     updateFunction: null
   },
   idle: {
@@ -57,12 +57,12 @@ const resetCamData = () => {
   CAM_DATA.position.active.set(0, 0, 0)
   CAM_DATA.position.to.set(0, 0, 0)
   CAM_DATA.position.wait = 0
-  CAM_DATA.position.unknown1 = true
+  CAM_DATA.position.zInverted = false
   CAM_DATA.position.easing = TWEEN.Easing.Quadratic.InOut
   CAM_DATA.focus.active.set(0, -1, 0)
   CAM_DATA.focus.to.set(0, 0, 0)
   CAM_DATA.focus.wait = 0
-  CAM_DATA.focus.unknown1 = true
+  CAM_DATA.focus.zInverted = false
   CAM_DATA.idle.position.set(0, 0, 0)
   CAM_DATA.idle.focus.set(0, 0, 0)
 }
@@ -110,29 +110,36 @@ const framesToTime = frames => {
 const framesToActualFrames = frames => {
   return Math.floor(frames / (CAM_DATA.fps / 15))
 }
-const getOrientedOpZ = z => {
+const getOrientedOpZ = (z, zInverted) => {
+  // TODO - Take into account CAMDATA.position/focus.zInverted
   const aZ =
     window.currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position.z
   const tZ =
     window.currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position
       .z
+  let rZ = z
+  if (!zInverted) return rZ
+  return -rZ
   // const aR = window.currentBattle.actors[
   //   CAM_DATA.actors.attacker
   // ].model.scene.
   // console.log('getOrientedOpZ', z, aZ, tZ)
   if (aZ < tZ) {
     // console.log('getOrientedOpZ aZ < tZ', z, aZ, tZ)
-    return -z
+    // return -z
+    rZ = -z
   } else if (aZ > tZ) {
     // console.log('getOrientedOpZ aZ > tZ', z, aZ, tZ)
-    return z
+    // return z
   } else if (aZ < 0) {
     // console.log('getOrientedOpZ aZ < 0', z, aZ, tZ)
-    return -z
+    // return -z
+    rZ = -z
   } else {
     // console.log('getOrientedOpZ aZ => 0', z, aZ, tZ)
-    return z
+    // return z
   }
+  return rZ
 }
 const setIdleCameraPosition = (currentBattle, index) => {
   CAM_DATA.idle.position.x = currentBattle.camera[`camera${index + 1}`].pos.x

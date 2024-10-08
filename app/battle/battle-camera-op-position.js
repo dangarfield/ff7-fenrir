@@ -21,13 +21,13 @@ TAR x: 00BE1130, y: 00BE1132, z: 00BE1134
 
 */
 
-const U1ON = () => {
-  console.log('CAMERA pos U1ON')
-  CAM_DATA.position.unknown1 = true
+const ZINV = () => {
+  CAM_DATA.position.zInverted = true
+  console.log('CAMERA pos ZINV', CAM_DATA.position.zInverted)
 }
-const U1OFF = () => {
-  console.log('CAMERA pos U1OFF')
-  CAM_DATA.position.unknown1 = false
+const ZNORM = () => {
+  console.log('CAMERA pos ZNORM')
+  CAM_DATA.position.zInverted = false
 }
 const LINEAR = () => {
   console.log('CAMERA pos LINEAR')
@@ -81,10 +81,37 @@ const FOCUSA = op => {
     CAM_DATA.position.active,
     bonePosDebug
   )
+  // op.z = op.z * -1 // TEMP TEST
   // Adjust op.z sign based on the orientation of the attacker and target
-  const orientedOpZ = getOrientedOpZ(op.z)
+  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
   CAM_DATA.position.updateFunction = () => {
     const model = currentBattle.actors[CAM_DATA.actors.attacker].model
+    const c = model.userData.getBonePosition(op.bone)
+    const x = op.x === 0 ? c.x : op.x
+    const y = op.y === 0 ? c.y : c.y + -op.y
+    const z = op.z === 0 ? c.z : orientedOpZ
+    CAM_DATA.position.active.set(x, y, z)
+  }
+}
+const FOCUST = op => {
+  const bonePosDebug = currentBattle.actors[
+    CAM_DATA.actors.attacker
+  ].model.userData.getBonePosition(op.bone)
+  console.log(
+    'CAMERA pos FOCUST',
+    op,
+    op.op,
+    op.bone,
+    currentBattle.actors[CAM_DATA.actors.attacker].model.scene.position,
+    currentBattle.actors[CAM_DATA.actors.targets[0]].model.scene.position,
+    CAM_DATA.position.active,
+    bonePosDebug
+  )
+  // Adjust op.z sign based on the orientation of the attacker and target
+  // op.z = op.z * -1 // TEMP TEST
+  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
+  CAM_DATA.position.updateFunction = () => {
+    const model = currentBattle.actors[CAM_DATA.actors.targets[0]].model
     const c = model.userData.getBonePosition(op.bone)
     const x = op.x === 0 ? c.x : op.x
     const y = op.y === 0 ? c.y : c.y + -op.y
@@ -96,21 +123,22 @@ const FOCUSA = op => {
 const MOVEA = op => {
   console.log('CAMERA pos MOVEA', op)
   const actor = window.currentBattle.actors[CAM_DATA.actors.attacker]
-  moveToActor(actor, op)
+  moveToActor(actor, op, true)
 }
 const MOVET = op => {
   console.log('CAMERA pos MOVET', op)
+  // op.z = op.z * -1 // Is this right?
   const actor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
-  moveToActor(actor, op)
+  moveToActor(actor, op, false)
 }
 // This and the focus always appears to be in the absolute axis, rather than adjusting based on the direction
-// of the attacker to target etc
+// of the attacker to target etc - NOPE, this is not correct. Might be something about the unknown 1 flag though. (0xd5*3)+0
 const moveToActor = (actor, op) => {
   let c = actor.model.userData.getBonePosition(op.bone)
-  const orientedOpZ = getOrientedOpZ(op.z)
+  const orientedOpZ = getOrientedOpZ(op.z, CAM_DATA.position.zInverted)
   const x = op.x === 0 ? c.x : c.x + op.x
   const y = op.y === 0 ? c.y : c.y + -op.y
-  const z = op.z === 0 ? c.z : c.z + -orientedOpZ
+  const z = op.z === 0 ? c.z : c.z + orientedOpZ
   const target = new THREE.Vector3(x, y, z)
   console.log(
     'CAMERA pos moveToActor',
@@ -131,12 +159,12 @@ const moveToActor = (actor, op) => {
       const lerpPos = startPos.clone()
       const x = op.x === 0 ? c.x : c.x + op.x
       const y = op.y === 0 ? c.y : c.y + -op.y
-      const z = op.z === 0 ? c.z : c.z + -orientedOpZ
+      const z = op.z === 0 ? c.z : c.z + orientedOpZ
       const to = new THREE.Vector3(x, y, z)
 
       lerpPos.lerp(to, p)
 
-      console.log('CAMERA pos moveToActor update', to, lerpPos)
+      // console.log('CAMERA pos moveToActor update', to, lerpPos)
       CAM_DATA.position.active.copy(lerpPos)
     })
 
@@ -293,8 +321,8 @@ const FE = () => {
 }
 
 export {
-  U1ON,
-  U1OFF,
+  ZINV,
+  ZNORM,
   EASING,
   LINEAR,
   SETU3,

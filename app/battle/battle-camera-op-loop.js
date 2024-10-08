@@ -22,14 +22,14 @@ const executePositionOp = async op => {
     case 'LINEAR': // DB
       pos.LINEAR()
       break
-    case 'U1ON': // DC
-      pos.U1ON()
+    case 'ZINV': // DC
+      pos.ZINV()
       break
     case 'SETIDLE': // DD
       pos.SETIDLE(op)
       break
-    case 'U1OFF': // F1
-      pos.U1OFF()
+    case 'ZNORM': // F1
+      pos.ZNORM()
       break
     case 'FLASH': // D6
       pos.FLASH()
@@ -42,6 +42,10 @@ const executePositionOp = async op => {
       pos.MIDLE(op)
       break
     case 'MOVEA': // E4
+      clearUpdateFunctionPosition()
+      pos.MOVEA(op)
+      break
+    case 'MOVET': // E5
       clearUpdateFunctionPosition()
       pos.MOVET(op)
       break
@@ -116,11 +120,11 @@ const executePositionOp = async op => {
 const executeFocusOp = async op => {
   //   console.log('CAMERA executeFocusOp', op)
   switch (op.op) {
-    case 'U1OFF': // DB
-      focus.U1OFF()
+    case 'ZINV': // DB
+      focus.ZINV()
       break
-    case 'U1ON': // DC
-      focus.U1ON()
+    case 'ZNORM': // DC
+      focus.ZNORM()
       break
     case 'SETIDLE': // DD
       focus.SETIDLE(op)
@@ -140,6 +144,10 @@ const executeFocusOp = async op => {
     case 'MOVE': // E6
       clearUpdateFunctionFocus()
       focus.MOVE(op)
+      break
+    case 'E8': // E8 - TEMPORARY
+      clearUpdateFunctionPosition()
+      focus.FOCUSA({ op: 'FOCUSA', bone: 0, x: 0, y: 0, z: 0 })
       break
     case 'XYZ': // FA
       clearUpdateFunctionFocus()
