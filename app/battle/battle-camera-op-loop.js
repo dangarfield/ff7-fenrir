@@ -53,6 +53,10 @@ const executePositionOp = async op => {
       clearUpdateFunctionPosition()
       pos.MOVE(op)
       break
+    case 'FOLLOWA': // E7
+      clearUpdateFunctionPosition()
+      pos.FOLLOWA(op)
+      break
     case 'FOCUSA': // F0
       clearUpdateFunctionPosition()
       pos.FOCUSA(op)
@@ -145,9 +149,9 @@ const executeFocusOp = async op => {
       clearUpdateFunctionFocus()
       focus.MOVE(op)
       break
-    case 'E8': // E8 - TEMPORARY
+    case 'FOLLOWA': // E8
       clearUpdateFunctionPosition()
-      focus.FOCUSA({ op: 'FOCUSA', bone: 0, x: 0, y: 0, z: 0 })
+      focus.FOLLOWA(op)
       break
     case 'XYZ': // FA
       clearUpdateFunctionFocus()

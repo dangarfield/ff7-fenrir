@@ -19,28 +19,45 @@ const loadBattleData = async () => {
   const markData = await markDataRes.json()
   window.data.battle.mark = markData
 
-  const allRows = []
+  // const allRows = []
   for (const scene of sceneData) {
     for (let i = 0; i < scene.battleFormations.length; i++) {
       const formation = scene.battleFormations[i]
       const setup = scene.battleSetup[i]
-      if (!allRows.includes(setup.initialCameraPosition)) {
-        allRows.push(setup.initialCameraPosition)
-      }
-      if ([69, 88].includes(setup.initialCameraPosition)) {
+      // if (!allRows.includes(setup.initialCameraPosition)) {
+      //   allRows.push(setup.initialCameraPosition)
+      // }
+      // if ([23, 26, 27].includes(setup.initialCameraPosition)) {
+      //   console.log(
+      //     'sceneData',
+      //     scene,
+      //     formation,
+      //     setup,
+      //     setup.initialCameraPosition,
+      //     scene.sceneId * 4 + i
+      //   )
+      // }
+    }
+    for (const attackData of scene.attackData) {
+      const l = [23, 26, 27]
+      if (
+        l.includes(attackData.cameraMovementIdSingleTargets) ||
+        l.includes(attackData.cameraMovementIdMultipleTargets)
+      ) {
         console.log(
           'sceneData',
           scene,
-          formation,
-          setup,
-          setup.initialCameraPosition,
-          scene.sceneId * 4 + i
+          scene.sceneId * 4,
+          attackData.cameraMovementIdSingleTargets,
+          attackData.cameraMovementIdMultipleTargets,
+          attackData.name,
+          attackData
         )
       }
     }
   }
-  const sorted = allRows.sort((a, b) => a - b)
-  console.log('sceneData all rows ', sorted)
+  // const sorted = allRows.sort((a, b) => a - b)
+  // console.log('sceneData all rows ', sorted)
 }
 const loadSceneModel = async (modelCode, manager) => {
   // These models aren't cached, we really should cache them

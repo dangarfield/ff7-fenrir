@@ -16,6 +16,8 @@ import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 data.battle.camData.initialScripts.filter(s => s.position.some(o => o.op === 'E6'))
 data.battle.camData.initialScripts.map((s, i) => s.position.some(o => o.op === 'E6') ? i : -1).filter(i => i !== -1)
 
+data.battle.camData.camdataFiles[0].scripts.main.filter(s => s.position.some(o => o.op === 'E6'))
+data.battle.camData.camdataFiles[0].scripts.main.map((s, i) => s.position.some(o => o.op === 'E6') ? i : -1).filter(i => i !== -1)
 MEMORY ADDRESSES
 POS x: 00BF2158, y: 00BF215A, z: 00BF215C
 TAR x: 00BE1130, y: 00BE1132, z: 00BE1134
@@ -72,10 +74,24 @@ const FOCUSA = op => {
   console.log('CAMERA pos FOCUSA', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
   const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const FOCUST = op => {
   console.log('CAMERA pos FOCUST', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
+}
+const FOLLOWA = op => {
+  console.log('CAMERA pos FOLLOWA', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
+}
+const FOLLOWT = op => {
+  console.log('CAMERA pos FOLLOWT', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
   const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
@@ -308,6 +324,9 @@ export {
   MIDLE,
   MOVE,
   FOCUSA,
+  FOCUST,
+  FOLLOWA,
+  FOLLOWT,
   MOVEA,
   MOVET,
   SPIRAL,

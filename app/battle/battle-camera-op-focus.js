@@ -45,10 +45,24 @@ const FOCUSA = op => {
   console.log('CAMERA focus FOCUSA', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
   const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const FOCUST = op => {
   console.log('CAMERA focus FOCUST', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
+}
+const FOLLOWA = op => {
+  console.log('CAMERA focus FOLLOWA', op)
+  const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
+  focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
+}
+const FOLLOWT = op => {
+  console.log('CAMERA focus FOLLOWT', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
   const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
@@ -171,6 +185,9 @@ export {
   MIDLE,
   MOVE,
   FOCUSA,
+  FOCUST,
+  FOLLOWA,
+  FOLLOWT,
   MOVEA,
   MOVET,
   SETWAIT,
