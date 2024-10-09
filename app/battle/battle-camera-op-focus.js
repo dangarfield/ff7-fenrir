@@ -164,6 +164,11 @@ const RET2 = () => {
 }
 
 // Add all unused (in game) below: Kind of cheating, just to improve the 'completion %...'
+const D9 = () => {
+  console.log(
+    'CAMERA focus D9 - Used in initial cam scripts, but no battles use these scripts'
+  )
+}
 const DE = () => {
   console.log('CAMERA focus DE - No instances in game')
 }
@@ -198,6 +203,7 @@ export {
   WAIT,
   RET,
   RET2,
+  D9,
   DE,
   E3,
   EC,

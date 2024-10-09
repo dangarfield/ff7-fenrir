@@ -291,6 +291,11 @@ const RET2 = () => {
 const D5 = () => {
   console.log('CAMERA pos D5 - No instances in game')
 }
+const D9 = () => {
+  console.log(
+    'CAMERA pos D9 - Used in initial cam scripts, but no battles use these scripts'
+  )
+}
 const DE = () => {
   console.log('CAMERA pos DE - No instances in game')
 }
@@ -343,6 +348,7 @@ export {
   RET,
   RET2,
   D5,
+  D9,
   DE,
   E3,
   E8,
