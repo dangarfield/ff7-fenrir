@@ -1178,7 +1178,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
         // control.BATTLE({ b: 0, n: 325 }) // Guard Hound, multiple camera positions
         // control.BATTLE({ b: 0, n: 925 }) // Sephiroth battle with lots of initial cam
-        control.BATTLE({ b: 0, n: 595 }) // Materia Keeper
+        control.BATTLE({ b: 0, n: 324 }) // Guard Scorpion - Look at this later, as it appears to change initial cam position during 'tail up'
       }
       window.quickBattle()
     }, 1000)

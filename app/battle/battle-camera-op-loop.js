@@ -181,7 +181,11 @@ const executeFocusOp = async op => {
       break
     case 'FOCUSA': // F0
       clearUpdateFunctionFocus()
-      focus.FOCUSA(op)
+      focus.FOCUST(op)
+      break
+    case 'FOCUSA': // F8
+      clearUpdateFunctionFocus()
+      focus.FOCUST(op)
       break
     case 'RET': // FF
       clearUpdateFunctionFocus()
