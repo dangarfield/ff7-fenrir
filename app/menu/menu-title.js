@@ -87,7 +87,7 @@ const loadMedia = async () => {
   const texture = new THREE.VideoTexture(video)
   texture.minFilter = THREE.NearestFilter
   texture.magFilter = THREE.NearestFilter
-  texture.format = THREE.RGBFormat
+  texture.format = THREE.RGBAFormat
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     transparent: true

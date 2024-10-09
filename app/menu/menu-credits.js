@@ -1,4 +1,9 @@
-import { getMenuBlackOverlay, setMenuState, resolveMenuPromise, getMenuState } from './menu-module.js'
+import {
+  getMenuBlackOverlay,
+  setMenuState,
+  resolveMenuPromise,
+  getMenuState
+} from './menu-module.js'
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { MENU_TWEEN_GROUP } from './menu-scene.js'
@@ -53,19 +58,22 @@ const loadCreditsMenu = async param => {
   scrollingTextDialog.visible = true
   // scrollingTextDialog.position.z = 100 - 9
   scrollingTextGroup = addGroupToDialog(scrollingTextDialog, 19)
-  console.log('credits scrollingTextGroup.position.y', scrollingTextGroup.position.y)
+  console.log(
+    'credits scrollingTextGroup.position.y',
+    scrollingTextGroup.position.y
+  )
   window.scrollingTextGroup = scrollingTextGroup
 
   await fadeOverlayOut(getMenuBlackOverlay())
   setMenuState(STATES.CREDITS_SHOW)
   playCreditsSequence()
 }
-const tweenScrollingCredits = (ms) => {
+const tweenScrollingCredits = ms => {
   return new Promise((resolve, reject) => {
     const from = { y: scrollingTextGroup.position.y }
     const to = { y: DATA.y - 240 - 120 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-    // .to(to, 415000)
+      // .to(to, 415000)
       .to(to, ms)
       .onUpdate(function () {
         // console.log('credits tween update', sjjcrollingTextGroup.position.y, from.y)
@@ -84,12 +92,12 @@ const tweenScrollingCredits = (ms) => {
       .start()
   })
 }
-const tween500YearsFadeIn = (group) => {
+const tween500YearsFadeIn = group => {
   return new Promise((resolve, reject) => {
     const from = { x: 0 }
     const to = { x: 386 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-    // .to(to, 415000)
+      // .to(to, 415000)
       .to(to, 3000)
       .easing(TWEEN.Easing.Exponential.Out)
       // .easing(TWEEN.Easing.Quadratic.Out)
@@ -110,12 +118,12 @@ const tween500YearsFadeIn = (group) => {
       .start()
   })
 }
-const tween500YearsFadeOut = (shape) => {
+const tween500YearsFadeOut = shape => {
   return new Promise((resolve, reject) => {
     const from = { opacity: 1 }
     const to = { opacity: 0 }
     DATA.activeTween = new TWEEN.Tween(from, MENU_TWEEN_GROUP)
-    // .to(to, 415000)
+      // .to(to, 415000)
       .to(to, 1000)
       .easing(TWEEN.Easing.Quadratic.Out)
       // .easing(TWEEN.Easing.Quadratic.Out)
@@ -149,7 +157,7 @@ const playEndingMusic = async () => {
   await loadMusic(100, 'roll')
   playMusic(100, false, 1000)
 }
-const beginScrollingCredits = async (ms) => {
+const beginScrollingCredits = async ms => {
   if (getMenuState() !== STATES.CREDITS_SHOW) {
     console.log('credits not showing beginScrollingCredits')
     return
@@ -160,20 +168,47 @@ const beginScrollingCredits = async (ms) => {
     let scale = 0.5
     let color
     switch (line.type) {
-      case 0: font = LETTER_TYPES.CreditsBigFont; break
-      case 1: font = LETTER_TYPES.CreditsBaseUnderlineFont; break
-      case 2: font = LETTER_TYPES.CreditsBaseFont; break
-      case 3: font = LETTER_TYPES.CreditsBaseFont; scale = 0.25; break // scrollingTextGroup.position.y = 8200 small text
-      case 4: font = LETTER_TYPES.CreditsBaseUnderlineFont; scale = 0.25; break
-      case 5: font = LETTER_TYPES.CreditsBaseFont; scale = 0.25; break // scrollingTextGroup.position.y = 8440
-      default: font = LETTER_TYPES.CreditsBigFont; break
+      case 0:
+        font = LETTER_TYPES.CreditsBigFont
+        break
+      case 1:
+        font = LETTER_TYPES.CreditsBaseUnderlineFont
+        break
+      case 2:
+        font = LETTER_TYPES.CreditsBaseFont
+        break
+      case 3:
+        font = LETTER_TYPES.CreditsBaseFont
+        scale = 0.25
+        break // scrollingTextGroup.position.y = 8200 small text
+      case 4:
+        font = LETTER_TYPES.CreditsBaseUnderlineFont
+        scale = 0.25
+        break
+      case 5:
+        font = LETTER_TYPES.CreditsBaseFont
+        scale = 0.25
+        break // scrollingTextGroup.position.y = 8440
+      default:
+        font = LETTER_TYPES.CreditsBigFont
+        break
     }
     switch (line.color) {
-      case 0: color = LETTER_COLORS.White; break
-      case 1: color = LETTER_COLORS.Red; break
-      case 2: color = LETTER_COLORS.Green; break
-      case 3: color = LETTER_COLORS.Blue; break
-      default: color = LETTER_COLORS.White; break
+      case 0:
+        color = LETTER_COLORS.White
+        break
+      case 1:
+        color = LETTER_COLORS.Red
+        break
+      case 2:
+        color = LETTER_COLORS.Green
+        break
+      case 3:
+        color = LETTER_COLORS.Blue
+        break
+      default:
+        color = LETTER_COLORS.White
+        break
     }
     // console.log('credits draw', line, line.names, line.type, font, scale, color)
     if (line.names.length === 1) {
@@ -198,14 +233,14 @@ const beginScrollingCredits = async (ms) => {
           `credits-text-${1}-${j}`,
           font,
           color,
-          15 + (j * 150) - 8,
+          15 + j * 150 - 8,
           DATA.y - 4,
           scale,
           null
         )
       }
     }
-    DATA.y = DATA.y + (line.linePadding / 2)
+    DATA.y = DATA.y + line.linePadding / 2
   }
   console.log('credits rendering finished', DATA.y)
   console.log('credits beginScrollingCredits: START')
@@ -222,10 +257,48 @@ const show500YearsMessage = async () => {
 
   const fadeGroup = addGroupToDialog(scrollingTextGroup, 19)
 
-  const c500 = addImageToDialog(scrollingTextGroup, 'end-credits', 'credits-500-years-later', 'credits-500-years-later', 160, 120, 0.5)
-  const shape1 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.WHITE, 'credits-years-cover', 160 - 386, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
-  const shape2 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.CREDITS_FADE, 'credits-years-cover', 160 - (386 / 2), 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
-  const shape3 = addShapeToDialog(fadeGroup, WINDOW_COLORS_SUMMARY.BLACK, 'credits-years-cover', 160, 120, 386 / 2, 32 / 2, 1, THREE.MultiplyBlending)
+  const c500 = addImageToDialog(
+    scrollingTextGroup,
+    'end-credits',
+    'credits-500-years-later',
+    'credits-500-years-later',
+    160,
+    120,
+    0.5
+  )
+  const shape1 = addShapeToDialog(
+    fadeGroup,
+    WINDOW_COLORS_SUMMARY.WHITE,
+    'credits-years-cover',
+    160 - 386,
+    120,
+    386 / 2,
+    32 / 2,
+    1,
+    THREE.MultiplyBlending
+  )
+  const shape2 = addShapeToDialog(
+    fadeGroup,
+    WINDOW_COLORS_SUMMARY.CREDITS_FADE,
+    'credits-years-cover',
+    160 - 386 / 2,
+    120,
+    386 / 2,
+    32 / 2,
+    1,
+    THREE.MultiplyBlending
+  )
+  const shape3 = addShapeToDialog(
+    fadeGroup,
+    WINDOW_COLORS_SUMMARY.BLACK,
+    'credits-years-cover',
+    160,
+    120,
+    386 / 2,
+    32 / 2,
+    1,
+    THREE.MultiplyBlending
+  )
   window.c500 = c500
   window.shape1 = shape1
   window.shape2 = shape2
@@ -246,7 +319,7 @@ const show500YearsMessage = async () => {
   await tween500YearsFadeOut(c500)
   console.log('credits 500 years fade out: END')
 }
-const playVideoAndWaitForEnd = (video) => {
+const playVideoAndWaitForEnd = video => {
   return new Promise((resolve, reject) => {
     DATA.activeVideo = video
     video.onended = () => {
@@ -282,7 +355,7 @@ const playEndingVideo = async () => {
   const texture = new THREE.VideoTexture(video)
   texture.minFilter = THREE.NearestFilter
   texture.magFilter = THREE.NearestFilter
-  texture.format = THREE.RGBFormat
+  texture.format = THREE.RGBAFormat
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     transparent: true
