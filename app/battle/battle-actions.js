@@ -66,22 +66,22 @@ const placeholderBattleAttackSequence = async (
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[59 * 3] // Omnislash - unknown effect at the minute, d8 op code
   // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[22 * 3 + 1] // Bio3 - unknown effect at the minute, e8 op code seems like a parsing error though, backttack only
   // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[295 * 3] // Hell Combo - focus op EA - materia keeper, battle 595
-  const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
+  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
+  const scriptPair =
+    data.battle.camData.camdataFiles[0].scripts.main[149 * 3 + 1] // Frog Song - op E0 - touch me, battle 116
 
   /*
     battle cams still TODO:
 
     pos:
       D8 - Part of Omnislash
-      D9 - ? Loads Point from memory at 0xBF2158
       DF - ? Sets 0xBF2A34 to Fh; No questions asked
-      E0 - ? (Two Byte Parameters)
+      E0 - Frog Song - only in (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
 
     foc:
       D8 - Part of Omnislash
-      D9 - ? Loads point from memory at 0xBFB1A0
       DF - ? Sets 0xBF2A34 to Fh; No questions asked
-      E0 - ? (Two Byte Parameters)
+      E0 - Frog Song - (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
   */
 
   // Temporary grunt action animation

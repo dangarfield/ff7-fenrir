@@ -98,6 +98,9 @@ const executePositionOp = async op => {
     case 'DE': // DE
       pos.DE()
       break
+    case 'E0': // E0
+      pos.E0()
+      break
     case 'E3': // E3
       pos.E3()
       break
@@ -197,19 +200,22 @@ const executeFocusOp = async op => {
       break
 
     case 'DE': // DE
-      pos.DE()
+      focus.DE()
+      break
+    case 'E0': // E0
+      focus.E0()
       break
     case 'E3': // E3
-      pos.E3()
+      focus.E3()
       break
     case 'EC': // EC
-      pos.EC()
+      focus.EC()
       break
     case 'F0': // F0
-      pos.F0()
+      focus.F0()
       break
     case 'FE': // FE
-      pos.FE()
+      focus.FE()
       break
     default:
       clearUpdateFunctionFocus()

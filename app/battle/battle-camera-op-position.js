@@ -299,6 +299,10 @@ const D9 = () => {
 const DE = () => {
   console.log('CAMERA pos DE - No instances in game')
 }
+const E0 = () => {
+  // Frog Song - only in (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
+  console.log('CAMERA pos E0 - No perceptible effect')
+}
 const E3 = () => {
   console.log('CAMERA pos E3 - No instances in game')
 }
@@ -350,6 +354,7 @@ export {
   D5,
   D9,
   DE,
+  E0,
   E3,
   E8,
   E9,
