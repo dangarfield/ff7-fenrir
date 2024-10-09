@@ -95,6 +95,9 @@ const executePositionOp = async op => {
     case 'D5': // D5
       pos.D5()
       break
+    case 'DF': // DF
+      pos.DF()
+      break
     case 'DE': // DE
       pos.DE()
       break
@@ -201,6 +204,9 @@ const executeFocusOp = async op => {
 
     case 'DE': // DE
       focus.DE()
+      break
+    case 'DF': // DF
+      focus.DF()
       break
     case 'E0': // E0
       focus.E0()

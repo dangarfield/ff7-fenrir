@@ -12,16 +12,24 @@ import {
 import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 
 /*
-  Find scripts with ops
+FIND SCRIPTS WITH OPs
+
 data.battle.camData.initialScripts.filter(s => s.position.some(o => o.op === 'E6'))
 data.battle.camData.initialScripts.map((s, i) => s.position.some(o => o.op === 'E6') ? i : -1).filter(i => i !== -1)
 
 data.battle.camData.camdataFiles[0].scripts.main.filter(s => s.position.some(o => o.op === 'E6'))
 data.battle.camData.camdataFiles[0].scripts.main.map((s, i) => s.position.some(o => o.op === 'E6') ? i : -1).filter(i => i !== -1)
+
 MEMORY ADDRESSES
 POS x: 00BF2158, y: 00BF215A, z: 00BF215C
 TAR x: 00BE1130, y: 00BE1132, z: 00BE1134
 
+STILL TODO:
+  pos:
+    D8 - Part of Omnislash
+  foc:
+    D8 - Part of Omnislash
+  
 */
 
 const ZINV = () => {
@@ -299,6 +307,9 @@ const D9 = () => {
 const DE = () => {
   console.log('CAMERA pos DE - No instances in game')
 }
+const DF = () => {
+  console.log('CAMERA pos DF - No perceptible effect')
+}
 const E0 = () => {
   // Frog Song - only in (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
   console.log('CAMERA pos E0 - No perceptible effect')
@@ -354,6 +365,7 @@ export {
   D5,
   D9,
   DE,
+  DF,
   E0,
   E3,
   E8,

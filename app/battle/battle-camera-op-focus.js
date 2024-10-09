@@ -172,6 +172,9 @@ const D9 = () => {
 const DE = () => {
   console.log('CAMERA focus DE - No instances in game')
 }
+const DF = () => {
+  console.log('CAMERA pos DF - No perceptible effect')
+}
 const E0 = () => {
   // Frog Song - only in (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
   console.log('CAMERA focus E0 - No perceptible effect')
@@ -209,6 +212,7 @@ export {
   RET2,
   D9,
   DE,
+  DF,
   E0,
   E3,
   EC,

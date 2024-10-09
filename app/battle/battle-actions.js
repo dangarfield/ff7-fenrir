@@ -67,27 +67,15 @@ const placeholderBattleAttackSequence = async (
   // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[22 * 3 + 1] // Bio3 - unknown effect at the minute, e8 op code seems like a parsing error though, backttack only
   // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[295 * 3] // Hell Combo - focus op EA - materia keeper, battle 595
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
+  // const scriptPair =
+  //   data.battle.camData.camdataFiles[0].scripts.main[149 * 3 + 1] // Frog Song - op E0 - touch me, battle 116
   const scriptPair =
-    data.battle.camData.camdataFiles[0].scripts.main[149 * 3 + 1] // Frog Song - op E0 - touch me, battle 116
-
-  /*
-    battle cams still TODO:
-
-    pos:
-      D8 - Part of Omnislash
-      DF - ? Sets 0xBF2A34 to Fh; No questions asked
-      E0 - Frog Song - only in (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
-
-    foc:
-      D8 - Part of Omnislash
-      DF - ? Sets 0xBF2A34 to Fh; No questions asked
-      E0 - Frog Song - (149*3)+1 - Not sure what is does. Doesn't appear to do anything noticeable
-  */
+    data.battle.camData.camdataFiles[0].scripts.main[145 * 3 + 1] // Bolt3 all - DF - any
 
   // Temporary grunt action animation
   await Promise.all([
     // runCameraScriptPair(scriptPair, 2, [2], false),
-    runCameraScriptPair(scriptPair, 4, [1], false),
+    runCameraScriptPair(scriptPair, 0, [4], false),
     (async () => {
       await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
       await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
