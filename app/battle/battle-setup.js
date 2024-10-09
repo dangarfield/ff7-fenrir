@@ -48,8 +48,6 @@ const setupBattle = battleId => {
   currentBattle.formationConfig =
     battleFormationConfig.formations[currentBattle.setup.battleLayoutType]
 
-  // window.data.savemap.party.members[1] = 'None' // Temp
-  window.debugSetEquipmentAndMateria() // Temp
   for (const [i, partyMember] of window.data.savemap.party.members.entries()) {
     if (partyMember === 'None') {
       currentBattle.actors.push({ active: false, index: i })

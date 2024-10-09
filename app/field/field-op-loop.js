@@ -1145,6 +1145,8 @@ const initialiseOpLoops = async () => {
   if (window.developerMode) {
     setTimeout(() => {
       window.quickBattle = n => {
+        // window.data.savemap.party.members[1] = 'None' // Temp
+        window.debugSetEquipmentAndMateria() // Temp
         if (n !== undefined) {
           control.BATTLE({ b: 0, n })
           return
