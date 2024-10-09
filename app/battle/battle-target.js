@@ -1,6 +1,7 @@
 import { KEY } from '../interaction/inputs.js'
 import { POINTERS, movePointer } from '../menu/menu-box-helper.js'
 import { keyPress } from '../menu/menu-main-items.js'
+import { ensureIdleCameraFocused } from './battle-camera.js'
 import { currentBattle } from './battle-setup.js'
 
 const data = {
@@ -94,6 +95,7 @@ const startSelection = (actorIndex, targetFlags, useCoverFlags) => {
   // TODO - Most commands and magic are set to 'DefaultMultipleTargets' true. But this only applies when there is an 'all' in the mix
   // The exception is ultima and comet2, but this is highlighted by NOT having ToggleSingleMultiTarget
   return new Promise(resolve => {
+    ensureIdleCameraFocused(true)
     data.selectionPromise = resolve
     data.useCoverFlags = useCoverFlags
     data.currentTargetActorIndex = actorIndex
@@ -230,6 +232,7 @@ const selectTargetActor = direction => {
 const closeIfOpen = () => {
   if (data.battlePointerIsActive) {
     hide()
+    ensureIdleCameraFocused(false)
     data.selectionPromise({ cancelled: true })
   }
 }
@@ -251,6 +254,7 @@ const handleKeyPressTarget = key => {
           : [window.currentBattle.actors[data.currentTargetActorIndex]] // Should this be an array of one?
       }
       if (data.returnRandomTarget) result.random = true
+      ensureIdleCameraFocused(false)
       data.selectionPromise(result)
       break
 

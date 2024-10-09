@@ -1180,7 +1180,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 925 }) // Sephiroth battle with lots of initial cam
         // control.BATTLE({ b: 0, n: 324 }) // Guard Scorpion - Look at this later, as it appears to change initial cam position during 'tail up'
       }
-      // window.quickBattle()
+      window.quickBattle()
     }, 1000)
   }
 

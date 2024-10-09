@@ -23,7 +23,7 @@ window.console = (function (origConsole) {
       // 'CAMERA pos',
       // 'CAMERA focus',
       // 'CAMERA calcPosition',
-      'sceneData'
+      // 'sceneData'
       // 'getOrientedOpZ'
       // 'BONE'
       // 'LOGG'

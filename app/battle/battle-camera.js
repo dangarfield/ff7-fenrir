@@ -34,7 +34,8 @@ const CAM_DATA = {
     attacker: null,
     targets: []
   },
-  fps: 15
+  fps: 15,
+  idleCameraTargetSelection: 0 // This is when selecting targets, but a main animation is happening 0-1
 }
 window.BATTLE_CAM_DATA = CAM_DATA
 
@@ -51,8 +52,18 @@ const applyCamData = battleCamera => {
   if (CAM_DATA.focus.updateFunction) {
     CAM_DATA.focus.updateFunction()
   }
-  battleCamera.position.copy(CAM_DATA.position.active)
-  battleCamera.lookAt(CAM_DATA.focus.active)
+  if (CAM_DATA.idleCameraTargetSelection === 0) {
+    battleCamera.position.copy(CAM_DATA.position.active)
+    battleCamera.lookAt(CAM_DATA.focus.active)
+  } else {
+    const lerpPos = CAM_DATA.position.active.clone()
+    lerpPos.lerp(CAM_DATA.idle.position, CAM_DATA.idleCameraTargetSelection)
+    battleCamera.position.copy(lerpPos)
+
+    const lerpFoc = CAM_DATA.focus.active.clone()
+    lerpFoc.lerp(CAM_DATA.idle.focus, CAM_DATA.idleCameraTargetSelection)
+    battleCamera.lookAt(lerpFoc)
+  }
 }
 const resetCamData = () => {
   CAM_DATA.position.active.set(0, 0, 0)
@@ -67,6 +78,7 @@ const resetCamData = () => {
   CAM_DATA.focus.easing = TWEEN.Easing.Quadratic.InOut
   CAM_DATA.idle.position.set(0, 0, 0)
   CAM_DATA.idle.focus.set(0, 0, 0)
+  CAM_DATA.idleCameraTargetSelection = 0
 }
 
 const setDebugCameraPosition = (positionID, cameraID) => {
@@ -192,6 +204,20 @@ const setActorsForBattleCamera = (attacker, targets) => {
   CAM_DATA.actors.attacker = attacker
   CAM_DATA.actors.targets = targets
 }
+const ensureIdleCameraFocused = idleIsFocused => {
+  // console.log(`ensureIdleCameraFocused: START`, idleIsFocused)
+  const t = new TWEEN.Tween(CAM_DATA, BATTLE_TWEEN_GROUP)
+    .to(
+      { idleCameraTargetSelection: idleIsFocused ? 1 : 0 },
+      150 // I think this is instant upon it's return, but I'll leave it here
+    )
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onComplete(() => {
+      // console.log(`ensureIdleCameraFocused: END`)
+      BATTLE_TWEEN_GROUP.remove(t)
+    })
+  t.start()
+}
 
 export {
   executeInitialCameraScript,
@@ -207,5 +233,6 @@ export {
   setIdleCameraPosition,
   setIdleCameraFocus,
   calcPosition,
-  setDirectionOverride
+  setDirectionOverride,
+  ensureIdleCameraFocused
 }
