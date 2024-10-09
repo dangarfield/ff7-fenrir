@@ -39,7 +39,7 @@ const loadBattleData = async () => {
       // }
     }
     for (const attackData of scene.attackData) {
-      const l = [66, 22, 21, 23]
+      const l = [109, 147, 212, 337, 356, 357, 358, 361]
       if (
         l.includes(attackData.cameraMovementIdSingleTargets) ||
         l.includes(attackData.cameraMovementIdMultipleTargets)

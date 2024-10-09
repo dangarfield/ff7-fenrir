@@ -1175,9 +1175,10 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow - cam 86,0         // 86 might work here!
 
         // control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
-        control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
+        // control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
         // control.BATTLE({ b: 0, n: 325 }) // Guard Hound, multiple camera positions
         // control.BATTLE({ b: 0, n: 925 }) // Sephiroth battle with lots of initial cam
+        control.BATTLE({ b: 0, n: 595 }) // Materia Keeper
       }
       window.quickBattle()
     }, 1000)

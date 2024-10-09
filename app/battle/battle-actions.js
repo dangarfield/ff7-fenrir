@@ -64,13 +64,14 @@ const placeholderBattleAttackSequence = async (
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[27 * 3] // Flare - some rotation issues, meh...
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[9 * 3] // Quake - E4/E5, but both go to attacker?!
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[59 * 3] // Omnislash - unknown effect at the minute, d8 op code
-  const scriptPair =
-    data.battle.camData.camdataFiles[1].scripts.main[22 * 3 + 1] // Bio3 - unknown effect at the minute, e8 op code seems like a parsing error though, backttack only
+  // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[22 * 3 + 1] // Bio3 - unknown effect at the minute, e8 op code seems like a parsing error though, backttack only
+  const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[295 * 3] // Hell Combo - focus op EA - materia keeper, battle 595
+  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
 
   // Temporary grunt action animation
   await Promise.all([
     // runCameraScriptPair(scriptPair, 2, [2], false),
-    runCameraScriptPair(scriptPair, 1, [4], false),
+    runCameraScriptPair(scriptPair, 4, [1], false),
     (async () => {
       await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
       await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
