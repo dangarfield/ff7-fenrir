@@ -24,7 +24,11 @@ const loadMusic = (i, name) => {
   console.log('music loadMusic', i, name)
   return new Promise(async resolve => {
     musicMetadata.currentFieldList[i] = name
-    if (musics.filter(s => s.name === name).length > 0 || name === 'none') {
+    if (
+      musics.filter(s => s.name === name).length > 0 ||
+      name === 'none' ||
+      name === ''
+    ) {
       resolve()
       return
     }

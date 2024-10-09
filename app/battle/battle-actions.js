@@ -57,8 +57,8 @@ const placeholderBattleAttackSequence = async (
   //   ]
   // ]
 
-  // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3] // Healing Wind
+  const scriptPair =
+    window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3] // Healing Wind
 
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[23 * 3] // Demi3 - z on target is reversed, meh...
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[27 * 3] // Flare - some rotation issues, meh...
@@ -69,13 +69,13 @@ const placeholderBattleAttackSequence = async (
   // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
   // const scriptPair =
   //   data.battle.camData.camdataFiles[0].scripts.main[149 * 3 + 1] // Frog Song - op E0 - touch me, battle 116
-  const scriptPair =
-    data.battle.camData.camdataFiles[0].scripts.main[145 * 3 + 1] // Bolt3 all - DF - any
+  // const scriptPair =
+  //   data.battle.camData.camdataFiles[0].scripts.main[145 * 3 + 1] // Bolt3 all - DF - any
 
   // Temporary grunt action animation
   await Promise.all([
-    // runCameraScriptPair(scriptPair, 2, [2], false),
-    runCameraScriptPair(scriptPair, 0, [4], false),
+    runCameraScriptPair(scriptPair, 2, [2], false),
+    // runCameraScriptPair(scriptPair, 0, [4], false),
     (async () => {
       await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
       await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
