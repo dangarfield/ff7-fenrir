@@ -263,7 +263,7 @@ const runCameraScriptPair = async (
   console.log('CAMERA runScriptPair: END')
 }
 const returnToIdle = async () => {
-  await Promise.all([pos.MOVEI({ frames: 15 }), focus.MOVEI({ frames: 15 })])
+  await Promise.all([pos.MOVEI({ frames: 3 }), focus.MOVEI({ frames: 3 })])
 }
 
 export { runCameraScriptPair, returnToIdle }

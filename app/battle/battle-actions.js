@@ -121,6 +121,13 @@ const executePlayerAction = async (actor, queueItem) => {
       .map(t => t.data.name)
       .join(' + ')}`
   )
+  console.log(
+    'battleQueue executePlayerAction',
+    actor,
+    queueItem,
+    command,
+    actionName
+  )
   await placeholdePlayerAnimation(actor)
 }
 
