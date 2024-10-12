@@ -1294,8 +1294,8 @@ const debugSetEquipmentAndMateria = () => {
     'Limit_3_2',
     'Limit_4_1'
   ]
-  window.data.savemap.characters.Cloud.limit.bar = 255
-  window.data.savemap.characters.Tifa.limit.bar = 255
+  window.data.savemap.characters.Cloud.limit.bar = 200
+  window.data.savemap.characters.Tifa.limit.bar = 128
   window.data.savemap.characters.Tifa.limit.level = 4
   window.data.savemap.characters.Tifa.limit.learnedLimitSkills = [
     'Limit_1_1',

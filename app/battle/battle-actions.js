@@ -3,6 +3,15 @@ import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
 import { returnToIdle, runCameraScriptPair } from './battle-camera-op-loop.js'
 import { sleep } from '../helpers/helpers.js'
+import { runActionSequence } from './battle-actions-op-loop.js'
+
+const ACTION_DATA = {
+  actors: {
+    attacker: null,
+    targets: []
+  }
+}
+window.BATTLE_ACTION_DATA = ACTION_DATA
 
 const moveEntity = (model, from, to) => {
   // TODO - Rotation too?
@@ -108,8 +117,15 @@ const placeholderBattleAttackSequence = async (
 
   // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
-const placeholdePlayerAnimation = async actor => {
+const placeholderPlayerAnimation = async actor => {
   await actor.model.userData.playAnimationOnce(9, { nextAnim: 0 })
+}
+const getActionSequenceForCommand = (actor, queueItem) => {
+  const sequenceFile = actor.modelCode.substring(0, 2) + 'ab'
+  const scriptId = 4 // TODO - Just for testing now
+  return window.data.battle.actionSequences[sequenceFile].scriptsPlayer[
+    scriptId
+  ]
 }
 const executePlayerAction = async (actor, queueItem) => {
   // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
@@ -128,7 +144,20 @@ const executePlayerAction = async (actor, queueItem) => {
     command,
     actionName
   )
-  await placeholdePlayerAnimation(actor)
+  ACTION_DATA.actors.attacker = actor
+  ACTION_DATA.actors.targets = queueItem.targetMask.target
+  // await placeholderPlayerAnimation(actor)
+  const actionSequence = getActionSequenceForCommand(actor, queueItem)
+  // TODO - Get camera data and execute here in parallel
+  await runActionSequence(actionSequence)
+}
+const framesToTime = frames => {
+  return (1000 / 15) * frames
 }
 
-export { placeholderBattleAttackSequence, executePlayerAction }
+export {
+  placeholderBattleAttackSequence,
+  executePlayerAction,
+  framesToTime,
+  ACTION_DATA
+}

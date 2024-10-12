@@ -1184,6 +1184,7 @@ const addCharacterSummary = async (
   )
 }
 const initPointers = sceneToUse => {
+  // TODO - This is all wrong for battle menus, I'll need to find a slightly different approach
   POINTERS.pointer1 = createPointer(sceneToUse)
   POINTERS.pointer2 = createPointer(sceneToUse)
   POINTERS.pointer3 = createPointer(sceneToUse)

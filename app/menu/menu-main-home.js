@@ -111,8 +111,8 @@ const debugPopulateMenuTestData = () => {
   window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
 
   // Limit
-  window.data.savemap.characters.Cloud.limit.bar = 255
-  window.data.savemap.characters.Tifa.limit.bar = 255
+  // window.data.savemap.characters.Cloud.limit.bar = 255
+  // window.data.savemap.characters.Tifa.limit.bar = 255
 
   window.debugFillItems()
   window.debugFillMateria()

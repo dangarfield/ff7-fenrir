@@ -574,7 +574,7 @@ const ATTK = async (stack, op, currentActorIndex) => {
   )
   // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
   await executeAllPreActionSetupScripts() // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
-  await placeholderBattleAttackSequence(currentActorIndex, 0, attackId)
+  // await placeholderBattleAttackSequence(currentActorIndex, 0, attackId)
   console.log(
     'battleOP TRIGGERED ATTACK: END',
     currentActorIndex,

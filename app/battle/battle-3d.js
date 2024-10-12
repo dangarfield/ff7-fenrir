@@ -352,8 +352,8 @@ const importModels = async currentBattle => {
     }
     model.scene.traverse(object => {
       if (object.isMesh && object.name.includes('Bone')) {
-        object.material.transparent = true
-        object.material.opacity = 0.3
+        // object.material.transparent = true
+        // object.material.opacity = 0.3
 
         // const pos = object.position.clone() // default position of bone
         const pos = new THREE.Vector3() // centre point of bone
@@ -368,7 +368,7 @@ const importModels = async currentBattle => {
         const geometry = new THREE.SphereGeometry(10)
         const material = new THREE.MeshBasicMaterial({ color })
         const point = new THREE.Mesh(geometry, material)
-        // point.visible = false
+        point.visible = false
         point.position.copy(pos)
         object.add(point)
         model.userData.bonePoints.push(point)
@@ -382,7 +382,8 @@ const importModels = async currentBattle => {
     model.userData.playAnimation(0)
     sceneGroup.add(addShadow(model))
     addOrthoPosition(model)
-
+    actor.actionSequences =
+      window.data.battle.actionSequences[actor.modelCode.substring(0, 2) + 'ab']
     if (i === 0) window.bm = model
   }
 

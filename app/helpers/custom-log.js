@@ -29,7 +29,9 @@ window.console = (function (origConsole) {
       // 'LOGG'
       // 'battleUI LIMIT'
       // 'battlePointer',
-      'battleQueue'
+      // 'battleQueue',
+      'battleQueue executePlayerAction',
+      'ACTION'
       // 'updateOrthoPosition'
       // 'renderToTexture',
       // 'doSwirl',

@@ -80,6 +80,9 @@ const playSound = (id, pan, channelData) => {
     if (channelData === undefined) {
       channelData = getConfig().channel1
     }
+    if (pan === undefined) {
+      pan = 0
+    }
 
     const mediaItems = sounds.filter(s => s.id === id)
     if (mediaItems.length === 0) {
