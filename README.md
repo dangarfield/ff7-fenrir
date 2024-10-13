@@ -9,7 +9,7 @@ We all love FF7, there are lots of mods and an amazing community. As part of my 
 > _Progress:_ 
 > - Field - Playable - Mostly complete
 > - Menus - Mostly complete, but uses debug data
-> - Battle - Current focus
+> - Battle - My current focus. :construction_worker: Action sequences | :white_check_mark: Cameras |  :white_check_mark: Enemy AI | :eight_pointed_black_star: Stack and queue | :white_check_mark: Menus |  :white_check_mark: Models & Animation | :black_square_button: Magic and visual effects
 
 Most fields are playable. Ideally it will use the in game assets (`.lgp`'s etc), but I will start using generated json fields and pngs for a start.
 
@@ -35,6 +35,8 @@ Live Link - [https://ff7-fenrir.netlify.app/](https://ff7-fenrir.netlify.app/)
 See the [OPS_CODES_FIELD_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_FIELD_README.md) for field progress
 
 See the [OPS_CODES_BATTLE_CAMERA_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_BATTLE_CAMERA_README.md) for battle camera progress
+
+See the [OPS_CODES_ACTION_SEQUENCE_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_ACTION_SEQUENCE_README.md) for battle camera progress
 
 
 ### Thanks

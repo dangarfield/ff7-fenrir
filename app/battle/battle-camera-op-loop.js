@@ -233,7 +233,7 @@ const executeFocusOp = async op => {
 }
 const executeScript = async (script, method) => {
   for (const op of script) {
-    await method(op) // TODO, if op.op === RET
+    await method(op)
     if (op.op === 'RET' || op.op === 'RET2') {
       break
     }

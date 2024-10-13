@@ -18,13 +18,16 @@ const executeOp = async op => {
       actions.SOUND(op)
       break
     case 'MOVE':
-      await actions.MOVE(op)
+      actions.MOVE(op)
       break
     case 'MOVI':
-      actions.MOVI()
+      await actions.MOVI()
       break
     case 'HURT':
       actions.HURT(op)
+      break
+    case 'ATT':
+      actions.ATT(op)
       break
     default:
       //   window.alert(
@@ -39,8 +42,33 @@ const runActionSequence = async sequence => {
   console.log('ACTION runActionSequence: START', sequence, ACTION_DATA)
   // TODO - Preload anything that needs to be loaded, sounds, assets etc
   loadSound(26)
+
+  // Add next anim so we can 'hold' it - NOPE, NOT IT!
+  for (let i = sequence.length - 1; i >= 0; i--) {
+    if (sequence[i].op === 'ANIM') {
+      for (let j = i - 1; j >= 0; j--) {
+        if (sequence[j].op === 'ANIM') {
+          sequence[j].hold = sequence[i].animation
+          break
+        }
+      }
+    }
+  }
+
+  // Add next anim so we can 'hold' it - NOPE, NOT IT!
+  for (let i = sequence.length - 1; i >= 0; i--) {
+    if (sequence[i].op === 'MOVI') {
+      for (let j = i - 1; j >= 0; j--) {
+        if (sequence[j].op === 'ANIM') {
+          sequence[j].async = true
+          break
+        }
+      }
+    }
+  }
+
   for (const op of sequence) {
-    await executeOp(op) // TODO, if op.op === RET
+    await executeOp(op)
     if (op.op === 'RET' || op.op === 'RET2') {
       break
     }

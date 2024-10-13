@@ -28,8 +28,21 @@ const ROTI = () => {
     'ACTION ROTI: START',
     ACTION_DATA.actors.attacker.model.scene.rotation
   )
-  ACTION_DATA.actors.attacker.model.scene.rotation.y =
-    ACTION_DATA.actors.attacker.model.userData.defaultRotationY
+  //   ACTION_DATA.actors.attacker.model.scene.rotation.y =
+  //     ACTION_DATA.actors.attacker.model.userData.defaultRotationY
+
+  const t = new TWEEN.Tween(
+    ACTION_DATA.actors.attacker.model.scene.rotation,
+    BATTLE_TWEEN_GROUP
+  )
+    .to(
+      { y: ACTION_DATA.actors.attacker.model.userData.defaultRotationY },
+      framesToTime(1)
+    )
+    .onComplete(function () {
+      BATTLE_TWEEN_GROUP.remove(t)
+    })
+    .start()
   console.log(
     'ACTION ROTI: END',
     ACTION_DATA.actors.attacker.model.scene.rotation
@@ -37,17 +50,32 @@ const ROTI = () => {
 }
 
 const ANIM = async op => {
-  await ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
-    op.animation,
-    { nextAnim: 0 }
-  )
-  //   await sleep(1000)
+  const animOptions = {}
+  if (op.hold) {
+    animOptions.holdAnim = op.hold
+  } else {
+    // animOptions.nextAnim = 0
+  }
+  if (op.async) {
+    // Note: Looks like the return to idle anim is always 28 ?
+    ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
+      op.animation,
+      animOptions
+    )
+  } else {
+    await ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
+      op.animation,
+      animOptions
+    )
+  }
+
+  // It visually looks like after you finish, you should hold the first frame of the next animation, maybe...
 }
 const SOUND = async op => {
   await tweenSleep(framesToTime(op.frames))
   playSound(op.sound)
 }
-const moveTowardsWithCollision = (pos1, pos2, radius1, radius2) => {
+const moveTowardsWithCollision = (pos1, pos2, radius1, radius2, opDistance) => {
   const x1 = pos1.x
   const z1 = pos1.z
   const x2 = pos2.x
@@ -56,7 +84,7 @@ const moveTowardsWithCollision = (pos1, pos2, radius1, radius2) => {
   const dx = x2 - x1
   const dz = z2 - z1
   const distance = Math.sqrt(dx * dx + dz * dz)
-  const totalRadius = radius1 + radius2
+  const totalRadius = radius1 + radius2 + opDistance
 
   console.log(
     'ACTION moveTowardsWithCollision: ',
@@ -75,17 +103,24 @@ const moveTowardsWithCollision = (pos1, pos2, radius1, radius2) => {
 }
 
 const MOVE = async op => {
-  // TODO: Not sure what op.distance or op.steps is about. Both actors have collision radius
-  const distance = op.distance // +- ?
   const attActor = ACTION_DATA.actors.attacker
-  const attPos = attActor.model.scene.position
+  const attPos = attActor.model.scene.position //.clone() // TODO: Take current animation position into account
+  const animOffset = attActor.model.scene.children[0].position
+  attPos.z = attPos.z + animOffset.z // TODO -+ ?
+  console.log('ACTION MOVE: animOffset', animOffset)
   const tarActor = getTargetActor()
   const tarPos = tarActor.model.scene.position
   const attCol = attActor.actionSequences.collisionRadius
   const tarCol = attActor.actionSequences.collisionRadius
   console.log('ACTION MOVE: ', attPos, tarPos, '-', attCol, tarCol, '-')
-  const to = moveTowardsWithCollision(attPos, tarPos, attCol, tarCol)
-  const time = framesToTime(op.steps)
+  const to = moveTowardsWithCollision(
+    attPos,
+    tarPos,
+    attCol,
+    tarCol,
+    op.distance
+  )
+  const time = framesToTime(op.frames)
   return new Promise(resolve => {
     const t = new TWEEN.Tween(
       ACTION_DATA.actors.attacker.model.scene.position,
@@ -100,11 +135,29 @@ const MOVE = async op => {
   })
 }
 const MOVI = () => {
-  const p = ACTION_DATA.actors.attacker.model.userData.defaultPosition
-  ACTION_DATA.actors.attacker.model.scene.position.set(p.x, p.y, p.z)
+  const to = ACTION_DATA.actors.attacker.model.userData.defaultPosition
+  //   ACTION_DATA.actors.attacker.model.scene.position.set(p.x, p.y, p.z)
+
+  const time = framesToTime(2) // ? is this fixed? based on the previous MOVE? Looks like paired anim is 0.2 seconds
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween(
+      ACTION_DATA.actors.attacker.model.scene.position,
+      BATTLE_TWEEN_GROUP
+    )
+      .to(to, time)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+  })
 }
 const HURT = async op => {
   await tweenSleep(framesToTime(op.frames))
   window.currentBattle.ui.flashPlane.userData.quickFlash()
 }
-export { ANIM, ROTF, ROTI, SOUND, MOVE, MOVI, HURT }
+const ATT = async op => {
+  await tweenSleep(framesToTime(op.frames))
+  window.currentBattle.ui.flashPlane.userData.quickFlash()
+}
+export { ANIM, ROTF, ROTI, SOUND, MOVE, MOVI, HURT, ATT }

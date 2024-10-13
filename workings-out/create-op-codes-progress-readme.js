@@ -4,9 +4,13 @@ const {
 const {
   createOpCodesBattleCameraProgressReadme
 } = require('./create-op-codes-battle-camera-progress-readme.js')
+const {
+  createActionSequenceOpProgressReadme
+} = require('./create-op-codes-action-sequence-progress-readme.js')
 
 const init = () => {
-  createOpCodesBattleCameraProgressReadme()
-  createOpCodesFieldProgressReadme()
+  // createOpCodesBattleCameraProgressReadme()
+  // createOpCodesFieldProgressReadme()
+  createActionSequenceOpProgressReadme()
 }
 init()

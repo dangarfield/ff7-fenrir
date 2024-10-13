@@ -150,6 +150,24 @@ const executePlayerAction = async (actor, queueItem) => {
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   // TODO - Get camera data and execute here in parallel
   await runActionSequence(actionSequence)
+  // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
+  ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
+
+  // FC                   setRotationToActors()
+  // F0                   setDustEffect()
+  // D8 00 1A 00          playSound({frames: 0, sound: 26})
+  // 1A                   playAnimation({animation: 26})                      // This 'appears' to be sync
+  // D1 B0 04 00 00 04    moveToTarget({distance: 1200, arg2: 0, frames: 4})  // has anim 27 first frame held
+  // F0                   setDustEffect()
+  // 1B                   playAnimation({animation: 27})                      // This appears to be first action halted, almost like it's waiting for the previous anim, but it holds the first frame until movement is finished
+  // F7 01                executeAttack({frames: 1})
+  // 1E                   playAnimation({animation: 30})
+  // 1C                   playAnimation({animation: 28})                      // Return animation, but appears to be async
+  // FA                   returnToIdlePosition()
+  // F0                   setDustEffect()
+  // 1D                   playAnimation({animation: 29})
+  // E5                   rotateBackToIdleDirection()
+  // EE                   return()
 }
 const framesToTime = frames => {
   return (1000 / 15) * frames

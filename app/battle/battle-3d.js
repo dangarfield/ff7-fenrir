@@ -27,6 +27,12 @@ const loadModelWithAnimationBindings = async (code, manager) => {
       e.action.model.userData.playAnimation(e.action.nextAnim)
       delete e.action.nextAnim
     }
+    if (e.action.model && Object.hasOwn(e.action, 'holdAnim')) {
+      // console.log('battle autoplay holdAnim', e.action.holdAnim)
+      const action = e.action.model.userData.playAnimation(e.action.holdAnim)
+      action.paused = true
+      delete e.action.nextAnim
+    }
   })
   model.userData.playAnimation = i => {
     // console.log('battle playAnimation', i)
@@ -34,6 +40,7 @@ const loadModelWithAnimationBindings = async (code, manager) => {
     action.timeScale = tempSlow
     model.mixer.stopAllAction()
     action.reset().play()
+    return action
   }
   model.userData.playAnimationOnce = (i, options) => {
     return new Promise(resolve => {
@@ -58,6 +65,10 @@ const loadModelWithAnimationBindings = async (code, manager) => {
         if (Object.hasOwn(options, 'nextAnim')) {
           // console.log('battle set nextAnim', options.nextAnim)
           action.nextAnim = options.nextAnim
+        }
+        if (Object.hasOwn(options, 'holdAnim')) {
+          // console.log('battle set nextAnim', options.nextAnim)
+          action.holdAnim = options.holdAnim
         }
       }
       if (playInstant) {
