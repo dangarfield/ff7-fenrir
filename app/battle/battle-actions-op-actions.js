@@ -23,7 +23,7 @@ const ROTF = () => {
   )
 }
 
-const ROTI = () => {
+const ROTI = async () => {
   console.log(
     'ACTION ROTI: START',
     ACTION_DATA.actors.attacker.model.scene.rotation
@@ -31,32 +31,49 @@ const ROTI = () => {
   //   ACTION_DATA.actors.attacker.model.scene.rotation.y =
   //     ACTION_DATA.actors.attacker.model.userData.defaultRotationY
 
-  const t = new TWEEN.Tween(
-    ACTION_DATA.actors.attacker.model.scene.rotation,
-    BATTLE_TWEEN_GROUP
-  )
-    .to(
-      { y: ACTION_DATA.actors.attacker.model.userData.defaultRotationY },
-      framesToTime(1)
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween(
+      ACTION_DATA.actors.attacker.model.scene.rotation,
+      BATTLE_TWEEN_GROUP
     )
-    .onComplete(function () {
-      BATTLE_TWEEN_GROUP.remove(t)
-    })
-    .start()
-  console.log(
-    'ACTION ROTI: END',
-    ACTION_DATA.actors.attacker.model.scene.rotation
-  )
+      .to(
+        { y: ACTION_DATA.actors.attacker.model.userData.defaultRotationY },
+        framesToTime(1)
+      )
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
+        console.log(
+          'ACTION ROTI: END',
+          ACTION_DATA.actors.attacker.model.scene.rotation
+        )
+        resolve()
+      })
+      .start()
+  })
 }
 
 const ANIM = async op => {
-  const animOptions = {}
-  if (op.hold) {
-    animOptions.holdAnim = op.hold
-  } else {
-    // animOptions.nextAnim = 0
+  const attActor = ACTION_DATA.actors.attacker
+  const attPos = attActor.model.scene.position
+  const attAnimPos = attActor.model.scene.children[0].position
+
+  // Apply the previous translation to the root... I bit of a mess, but it mostly solves the problems
+  // This is a mess, need to solve this better, but it appears as though it's related to the animation start frames
+  if (
+    ACTION_DATA.attackerPosition.position !== 0 &&
+    !ACTION_DATA.attackerPosition.applied
+  ) {
+    attActor.model.scene.children[0].updateMatrixWorld()
+    const finalWorldPosition = new THREE.Vector3()
+    attActor.model.scene.children[0].getWorldPosition(finalWorldPosition)
+    attPos.x = finalWorldPosition.x
+    attPos.z = finalWorldPosition.z
+    attAnimPos.x = 0
+    attAnimPos.z = 0
   }
-  if (op.async) {
+
+  const animOptions = {}
+  if (op.async && ACTION_DATA.attackerPosition.position === 0) {
     // Note: Looks like the return to idle anim is always 28 ?
     ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
       op.animation,
@@ -101,13 +118,18 @@ const moveTowardsWithCollision = (pos1, pos2, radius1, radius2, opDistance) => {
 
   return { x: x2, z: dz }
 }
-
+const ED = () => {
+  // eg: Take current animation position into account
+  ACTION_DATA.attackerPosition.position =
+    ACTION_DATA.actors.attacker.model.scene.children[0].position.clone()
+  // TODO - Not actually sure what is required here, but it seems to mitigate the position changes somewhere...
+}
+const EB = () => {
+  // TODO - Not actually sure what is required here, but it seems to mitigate the position changes somewhere...
+}
 const MOVE = async op => {
   const attActor = ACTION_DATA.actors.attacker
-  const attPos = attActor.model.scene.position //.clone() // TODO: Take current animation position into account
-  const animOffset = attActor.model.scene.children[0].position
-  attPos.z = attPos.z + animOffset.z // TODO -+ ?
-  console.log('ACTION MOVE: animOffset', animOffset)
+  const attPos = attActor.model.scene.position
   const tarActor = getTargetActor()
   const tarPos = tarActor.model.scene.position
   const attCol = attActor.actionSequences.collisionRadius
@@ -135,9 +157,16 @@ const MOVE = async op => {
   })
 }
 const MOVI = () => {
-  const to = ACTION_DATA.actors.attacker.model.userData.defaultPosition
-  //   ACTION_DATA.actors.attacker.model.scene.position.set(p.x, p.y, p.z)
+  if (ACTION_DATA.attackerPosition.applied) {
+    const attPos = ACTION_DATA.actors.attacker.model.scene.position
+    const attDefPos = ACTION_DATA.actors.attacker.model.userData.defaultPosition
+    attPos.x = attDefPos.x
+    attPos.z = attDefPos.z
+    ACTION_DATA.applied = false
+    ACTION_DATA.attackerPosition.position = 0
+  }
 
+  const to = ACTION_DATA.actors.attacker.model.userData.defaultPosition
   const time = framesToTime(2) // ? is this fixed? based on the previous MOVE? Looks like paired anim is 0.2 seconds
   return new Promise(resolve => {
     const t = new TWEEN.Tween(
@@ -147,6 +176,17 @@ const MOVI = () => {
       .to(to, time)
       .onComplete(function () {
         BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+
+    const t2 = new TWEEN.Tween(
+      ACTION_DATA.actors.attacker.model.scene.children[0].position,
+      BATTLE_TWEEN_GROUP
+    )
+      .to({ x: 0, z: 0 }, time)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t2)
         resolve()
       })
       .start()
@@ -160,4 +200,28 @@ const ATT = async op => {
   await tweenSleep(framesToTime(op.frames))
   window.currentBattle.ui.flashPlane.userData.quickFlash()
 }
-export { ANIM, ROTF, ROTI, SOUND, MOVE, MOVI, HURT, ATT }
+const SETWAIT = op => {
+  ACTION_DATA.wait = op.frames
+}
+const WAIT = async () => {
+  await tweenSleep(framesToTime(ACTION_DATA.wait))
+  ACTION_DATA.wait = 0
+}
+const NAME = () => {
+  window.currentBattle.ui.battleText.showBattleMessage(ACTION_DATA.actionName)
+}
+export {
+  ANIM,
+  ROTF,
+  ROTI,
+  SOUND,
+  MOVE,
+  MOVI,
+  HURT,
+  ATT,
+  ED,
+  EB,
+  SETWAIT,
+  WAIT,
+  NAME
+}

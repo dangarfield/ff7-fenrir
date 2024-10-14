@@ -8,9 +8,11 @@ const {
   createActionSequenceOpProgressReadme
 } = require('./create-op-codes-action-sequence-progress-readme.js')
 
-const init = () => {
-  // createOpCodesBattleCameraProgressReadme()
-  // createOpCodesFieldProgressReadme()
-  createActionSequenceOpProgressReadme()
+const init = async () => {
+  await Promise.all([
+    createOpCodesBattleCameraProgressReadme(),
+    createOpCodesFieldProgressReadme(),
+    createActionSequenceOpProgressReadme()
+  ])
 }
 init()

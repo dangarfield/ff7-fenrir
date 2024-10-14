@@ -9,7 +9,7 @@ const executeOp = async op => {
       actions.ROTF()
       break
     case 'ROTI':
-      actions.ROTI()
+      await actions.ROTI()
       break
     case 'ANIM':
       await actions.ANIM(op)
@@ -29,6 +29,21 @@ const executeOp = async op => {
     case 'ATT':
       actions.ATT(op)
       break
+    case 'ED':
+      actions.ED()
+      break
+    case 'EB':
+      actions.EB()
+      break
+    case 'SETWAIT':
+      actions.SETWAIT(op)
+      break
+    case 'WAIT':
+      await actions.WAIT()
+      break
+    case 'NAME':
+      actions.NAME()
+      break
     default:
       //   window.alert(
       //     `--------- CAMERA POSITION OP: ${op.op} - NOT YET IMPLEMENTED ---------`
@@ -44,18 +59,18 @@ const runActionSequence = async sequence => {
   loadSound(26)
 
   // Add next anim so we can 'hold' it - NOPE, NOT IT!
-  for (let i = sequence.length - 1; i >= 0; i--) {
-    if (sequence[i].op === 'ANIM') {
-      for (let j = i - 1; j >= 0; j--) {
-        if (sequence[j].op === 'ANIM') {
-          sequence[j].hold = sequence[i].animation
-          break
-        }
-      }
-    }
-  }
+  // for (let i = sequence.length - 1; i >= 0; i--) {
+  //   if (sequence[i].op === 'ANIM') {
+  //     for (let j = i - 1; j >= 0; j--) {
+  //       if (sequence[j].op === 'ANIM') {
+  //         sequence[j].hold = sequence[i].animation
+  //         break
+  //       }
+  //     }
+  //   }
+  // }
 
-  // Add next anim so we can 'hold' it - NOPE, NOT IT!
+  // Anims are sync apart from if MOVI is after it?! Looks ok ?!
   for (let i = sequence.length - 1; i >= 0; i--) {
     if (sequence[i].op === 'MOVI') {
       for (let j = i - 1; j >= 0; j--) {

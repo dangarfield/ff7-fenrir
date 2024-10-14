@@ -9,9 +9,30 @@ const ACTION_DATA = {
   actors: {
     attacker: null,
     targets: []
-  }
+  },
+  attackerPosition: {
+    position: 0,
+    applied: false
+  },
+  attack: null,
+  actionName: null,
+  command: null,
+  wait: 0
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
+const resetActionData = (attacker, queueItem, command) => {
+  ACTION_DATA.actors.attacker = attacker
+  ACTION_DATA.actors.targets = queueItem.targetMask.target
+  ACTION_DATA.command = command
+  ACTION_DATA.attackerPosition.position = 0
+  ACTION_DATA.attackerPosition.applied = false
+  ACTION_DATA.attack = queueItem.attack
+  ACTION_DATA.actionName = getActionName(command, queueItem)
+}
+const getActionName = (command, queueItem) => {
+  const actionName = queueItem.attack ? queueItem.attack.name : command.name
+  return actionName
+}
 
 const moveEntity = (model, from, to) => {
   // TODO - Rotation too?
@@ -122,7 +143,7 @@ const placeholderPlayerAnimation = async actor => {
 }
 const getActionSequenceForCommand = (actor, queueItem) => {
   const sequenceFile = actor.modelCode.substring(0, 2) + 'ab'
-  const scriptId = 4 // TODO - Just for testing now
+  const scriptId = 0 // TODO - Just for testing now
   return window.data.battle.actionSequences[sequenceFile].scriptsPlayer[
     scriptId
   ]
@@ -131,21 +152,22 @@ const executePlayerAction = async (actor, queueItem) => {
   // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
-  const actionName = queueItem.attack ? queueItem.attack.name : command.name
-  window.currentBattle.ui.battleText.showBattleMessage(
-    `${actor.data.name} -> ${actionName} -> ${queueItem.targetMask.target
-      .map(t => t.data.name)
-      .join(' + ')}`
-  )
+
+  // window.currentBattle.ui.battleText.showBattleMessage(
+  //   `${actor.data.name} -> ${actionName} -> ${queueItem.targetMask.target
+  //     .map(t => t.data.name)
+  //     .join(' + ')}`
+  // )
+
+  resetActionData(actor, queueItem, command)
   console.log(
     'battleQueue executePlayerAction',
     actor,
     queueItem,
     command,
-    actionName
+    ACTION_DATA.actionName
   )
-  ACTION_DATA.actors.attacker = actor
-  ACTION_DATA.actors.targets = queueItem.targetMask.target
+
   // await placeholderPlayerAnimation(actor)
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   // TODO - Get camera data and execute here in parallel
