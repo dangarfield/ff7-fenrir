@@ -17,6 +17,9 @@ const executeOp = async op => {
     case 'SOUND':
       actions.SOUND(op)
       break
+    case 'MOVJ':
+      actions.MOVJ(op)
+      break
     case 'MOVE':
       actions.MOVE(op)
       break

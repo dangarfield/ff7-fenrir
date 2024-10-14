@@ -156,6 +156,46 @@ const MOVE = async op => {
       .start()
   })
 }
+const MOVJ = async op => {
+  const attActor = ACTION_DATA.actors.attacker
+  const attPos = attActor.model.scene.position
+  const tarActor = getTargetActor()
+  const tarPos = tarActor.model.scene.position
+  const attCol = attActor.actionSequences.collisionRadius
+  const tarCol = attActor.actionSequences.collisionRadius
+  console.log('ACTION MOVJ: ', attPos, tarPos, '-', attCol, tarCol, '-')
+  const to = moveTowardsWithCollision(
+    attPos,
+    tarPos,
+    attCol,
+    tarCol,
+    op.distance
+  )
+  const time = framesToTime(op.frames)
+  const initialY = ACTION_DATA.actors.attacker.model.scene.position.y
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween(
+      ACTION_DATA.actors.attacker.model.scene.position,
+      BATTLE_TWEEN_GROUP
+    )
+      .to(to, time)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+    const t2 = new TWEEN.Tween(
+      ACTION_DATA.actors.attacker.model.scene.position,
+      BATTLE_TWEEN_GROUP
+    )
+      .to({ y: [initialY + 1000, initialY] }, time)
+      .interpolation(TWEEN.Interpolation.Bezier)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t2)
+      })
+      .start()
+  })
+}
 const MOVI = () => {
   if (ACTION_DATA.attackerPosition.applied) {
     const attPos = ACTION_DATA.actors.attacker.model.scene.position
@@ -197,6 +237,7 @@ const HURT = async op => {
   window.currentBattle.ui.flashPlane.userData.quickFlash()
 }
 const ATT = async op => {
+  // executeAttack({frames}) - after wait time ends execute hurt action, effect, sound. This will display damage and barriers effect
   await tweenSleep(framesToTime(op.frames))
   window.currentBattle.ui.flashPlane.userData.quickFlash()
 }
@@ -216,6 +257,7 @@ export {
   ROTF,
   ROTI,
   SOUND,
+  MOVJ,
   MOVE,
   MOVI,
   HURT,

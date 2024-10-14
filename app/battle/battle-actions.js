@@ -4,6 +4,8 @@ import { tempSlow } from './battle-3d.js'
 import { returnToIdle, runCameraScriptPair } from './battle-camera-op-loop.js'
 import { sleep } from '../helpers/helpers.js'
 import { runActionSequence } from './battle-actions-op-loop.js'
+import { currentBattle } from './battle-setup.js'
+import { loadSound } from '../media/media-sound.js'
 
 const ACTION_DATA = {
   actors: {
@@ -32,31 +34,6 @@ const resetActionData = (attacker, queueItem, command) => {
 const getActionName = (command, queueItem) => {
   const actionName = queueItem.attack ? queueItem.attack.name : command.name
   return actionName
-}
-
-const moveEntity = (model, from, to) => {
-  // TODO - Rotation too?
-  return new Promise(resolve => {
-    const time = 500 * tempSlow
-    const fromClone = { ...from }
-    fromClone.z = fromClone.z - 600
-    const toClone = { ...to }
-    toClone.z = toClone.z + 1200
-
-    // console.log('battle moveEntity', from, to, fromClone, toClone)
-    new TWEEN.Tween(fromClone, BATTLE_TWEEN_GROUP)
-      .to(toClone, time)
-      .onUpdate(function () {
-        // console.log('battle move', fromClone, to)
-        model.scene.position.x = fromClone.x
-        model.scene.position.z = fromClone.z
-      })
-      .onComplete(function () {
-        // console.log('battle move complete', from)
-        resolve()
-      })
-      .start()
-  })
 }
 
 const placeholderBattleAttackSequence = async (
@@ -138,26 +115,13 @@ const placeholderBattleAttackSequence = async (
 
   // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
-const placeholderPlayerAnimation = async actor => {
-  await actor.model.userData.playAnimationOnce(9, { nextAnim: 0 })
-}
 const getActionSequenceForCommand = (actor, queueItem) => {
-  const sequenceFile = actor.modelCode.substring(0, 2) + 'ab'
-  const scriptId = 0 // TODO - Just for testing now
-  return window.data.battle.actionSequences[sequenceFile].scriptsPlayer[
-    scriptId
-  ]
+  const scriptId = 4 // TODO - Just for testing now
+  return actor.actionSequences.scriptsPlayer[scriptId]
 }
 const executePlayerAction = async (actor, queueItem) => {
-  // const { actorIndex, type, commandId, attack, targetMask, priority } = queueItem
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
-
-  // window.currentBattle.ui.battleText.showBattleMessage(
-  //   `${actor.data.name} -> ${actionName} -> ${queueItem.targetMask.target
-  //     .map(t => t.data.name)
-  //     .join(' + ')}`
-  // )
 
   resetActionData(actor, queueItem, command)
   console.log(
@@ -167,8 +131,6 @@ const executePlayerAction = async (actor, queueItem) => {
     command,
     ACTION_DATA.actionName
   )
-
-  // await placeholderPlayerAnimation(actor)
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   // TODO - Get camera data and execute here in parallel
   await runActionSequence(actionSequence)
@@ -194,10 +156,36 @@ const executePlayerAction = async (actor, queueItem) => {
 const framesToTime = frames => {
   return (1000 / 15) * frames
 }
+const preLoadBattleSounds = async () => {
+  // Intentionally don't load async, so that it's faster to load the scene
+
+  const soundsLoaded = []
+
+  for (const actor of window.currentBattle.actors) {
+    if (actor.actionSequences) {
+      for (const scriptType of ['scriptsPlayer', 'scriptsEnemy']) {
+        for (const seq of actor.actionSequences[scriptType]) {
+          for (const op of seq) {
+            if (op.op === 'SOUND' && !soundsLoaded.includes(op.sound)) {
+              console.log('LOAD BATTLE SOUNDS', op)
+              soundsLoaded.push(op.sound)
+              loadSound(op.sound)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // TODO - It appears as though EFFEXE (EC) also has these hardcoded. So should be part loadEffect LOAD (E8)
+
+  console.log('LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
+}
 
 export {
   placeholderBattleAttackSequence,
   executePlayerAction,
   framesToTime,
-  ACTION_DATA
+  ACTION_DATA,
+  preLoadBattleSounds
 }

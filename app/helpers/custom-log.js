@@ -31,7 +31,8 @@ window.console = (function (origConsole) {
       // 'battlePointer',
       // 'battleQueue',
       'battleQueue executePlayerAction',
-      'ACTION'
+      'ACTION',
+      'LOAD BATTLE SOUNDS'
       // 'updateOrthoPosition'
       // 'renderToTexture',
       // 'doSwirl',

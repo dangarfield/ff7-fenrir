@@ -16,6 +16,7 @@ import { initBattleMenu } from './battle-menu.js'
 import { setLoadingText, showLoadingScreen } from '../loading/loading-module.js'
 import { showBattleMessageForFormation } from './battle-formation.js'
 import { executeInitialCameraScript } from './battle-camera.js'
+import { preLoadBattleSounds } from './battle-actions.js'
 let BATTLE_PROMISE
 
 /*
@@ -65,6 +66,7 @@ const preLoadBattle = async (battleId, options) => {
   window.a1p = window?.currentBattle?.actors[1]?.model?.scene?.position
   window.a2p = window?.currentBattle?.actors[2]?.model?.scene?.position
 
+  await preLoadBattleSounds()
   console.log('battle preload: END')
   return currentBattle
 }
