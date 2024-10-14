@@ -210,6 +210,7 @@ const WAIT = async () => {
 const NAME = () => {
   window.currentBattle.ui.battleText.showBattleMessage(ACTION_DATA.actionName)
 }
+const RET = () => {}
 export {
   ANIM,
   ROTF,
@@ -223,5 +224,6 @@ export {
   EB,
   SETWAIT,
   WAIT,
-  NAME
+  NAME,
+  RET
 }

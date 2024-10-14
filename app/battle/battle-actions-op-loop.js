@@ -44,6 +44,9 @@ const executeOp = async op => {
     case 'NAME':
       actions.NAME()
       break
+    case 'RET':
+      actions.RET()
+      break
     default:
       //   window.alert(
       //     `--------- CAMERA POSITION OP: ${op.op} - NOT YET IMPLEMENTED ---------`
@@ -84,7 +87,7 @@ const runActionSequence = async sequence => {
 
   for (const op of sequence) {
     await executeOp(op)
-    if (op.op === 'RET' || op.op === 'RET2') {
+    if (op.op === 'RET') {
       break
     }
   }

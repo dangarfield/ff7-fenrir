@@ -113,7 +113,7 @@ const renderReadme = async data => {
       `\n\n## ${category.name}\n${category.description} - Progress: ${
         category.opCodes.filter(o => o.complete).length
       } of ${category.opCodes.length}\n`
-    const opChunks = _.chunk(category.opCodes, 6)
+    const opChunks = _.chunk(category.opCodes, 4)
     // console.log('opChunks', opChunks.length)
     r = r + `|  |  |  |  |  |  |\n`
     r = r + `|:---:|:---:|:---:|:---:|:---:|:---:|\n`
@@ -126,8 +126,6 @@ const renderReadme = async data => {
           opChunk[1]
         )} | ${createReadmeCell(opChunk[2])} | ${createReadmeCell(
           opChunk[3]
-        )} | ${createReadmeCell(opChunk[4])} | ${createReadmeCell(
-          opChunk[5]
         )} |\n`
     }
   }
