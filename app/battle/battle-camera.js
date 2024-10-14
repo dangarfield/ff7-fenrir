@@ -198,8 +198,10 @@ const executeInitialCameraScript = async currentBattle => {
   // TODO - The is a 'horizontal fade' effect here too. Make it async
   console.log('CAMERA initial: START', scriptPair)
   // await runCameraScriptPair(scriptPair)
-  CAM_DATA.position.active.set(7000, 2000, 2000) // Temp, to speed up dev
-  CAM_DATA.focus.active.set(0, 0, -300)
+  // CAM_DATA.position.active.set(7000, 2000, 2000) // Temp, to speed up dev
+  // CAM_DATA.focus.active.set(0, 0, -300)
+  CAM_DATA.position.active.copy(CAM_DATA.idle.position) // Temp, to speed up dev
+  CAM_DATA.focus.active.copy(CAM_DATA.idle.focus)
   console.log('CAMERA initial: END')
 }
 const setActorsForBattleCamera = (attacker, targets) => {

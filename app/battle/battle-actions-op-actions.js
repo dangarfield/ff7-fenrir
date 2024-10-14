@@ -133,7 +133,7 @@ const MOVE = async op => {
   const tarActor = getTargetActor()
   const tarPos = tarActor.model.scene.position
   const attCol = attActor.actionSequences.collisionRadius
-  const tarCol = attActor.actionSequences.collisionRadius
+  const tarCol = tarActor.actionSequences.collisionRadius
   console.log('ACTION MOVE: ', attPos, tarPos, '-', attCol, tarCol, '-')
   const to = moveTowardsWithCollision(
     attPos,
@@ -162,7 +162,7 @@ const MOVJ = async op => {
   const tarActor = getTargetActor()
   const tarPos = tarActor.model.scene.position
   const attCol = attActor.actionSequences.collisionRadius
-  const tarCol = attActor.actionSequences.collisionRadius
+  const tarCol = tarActor.actionSequences.collisionRadius
   console.log('ACTION MOVJ: ', attPos, tarPos, '-', attCol, tarCol, '-')
   const to = moveTowardsWithCollision(
     attPos,
@@ -188,7 +188,7 @@ const MOVJ = async op => {
       ACTION_DATA.actors.attacker.model.scene.position,
       BATTLE_TWEEN_GROUP
     )
-      .to({ y: [initialY + 1000, initialY] }, time)
+      .to({ y: [initialY + 800, initialY] }, time) // Guess at 800
       .interpolation(TWEEN.Interpolation.Bezier)
       .onComplete(function () {
         BATTLE_TWEEN_GROUP.remove(t2)
