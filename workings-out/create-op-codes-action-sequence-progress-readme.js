@@ -14,6 +14,20 @@ const ACTIONS_LOOP = path.join(
   'battle',
   'battle-actions-op-actions.js'
 )
+const MOVEMENT_LOOP = path.join(
+  __dirname,
+  '..',
+  'app',
+  'battle',
+  'battle-actions-op-movement.js'
+)
+const CONTROL_LOOP = path.join(
+  __dirname,
+  '..',
+  'app',
+  'battle',
+  'battle-actions-op-control.js'
+)
 
 const getCompletedOpCodes = async filePath => {
   const completedCodes = []
@@ -53,7 +67,15 @@ const generateProgress = async () => {
     type: 'actions',
     complete: await getCompletedOpCodes(ACTIONS_LOOP)
   }
-  for (items of [actionsComplete]) {
+  const movementsComplete = {
+    type: 'movement',
+    complete: await getCompletedOpCodes(MOVEMENT_LOOP)
+  }
+  const controlComplete = {
+    type: 'control',
+    complete: await getCompletedOpCodes(CONTROL_LOOP)
+  }
+  for (items of [actionsComplete, movementsComplete, controlComplete]) {
     for (const opCode of items.complete) {
       // console.log('opCode', items.type, opCode)
       const op = metadata[items.type].opCodes.find(

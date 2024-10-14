@@ -1,30 +1,32 @@
 import { ACTION_DATA } from './battle-actions.js'
 import * as actions from './battle-actions-op-actions.js'
+import * as movement from './battle-actions-op-movement.js'
+import * as control from './battle-actions-op-control.js'
 import { loadSound } from '../media/media-sound.js'
 
 const executeOp = async op => {
   console.log('ACTION execute op: START', op)
   switch (op.op) {
     case 'ROTF': // FC
-      actions.ROTF()
+      movement.ROTF()
       break
     case 'ROTI':
-      await actions.ROTI()
+      movement.ROTI()
       break
     case 'ANIM':
-      await actions.ANIM(op)
+      await control.ANIM(op)
       break
     case 'SOUND':
       actions.SOUND(op)
       break
     case 'MOVJ':
-      actions.MOVJ(op)
+      movement.MOVJ(op)
       break
     case 'MOVE':
-      actions.MOVE(op)
+      movement.MOVE(op)
       break
     case 'MOVI':
-      await actions.MOVI()
+      await movement.MOVI()
       break
     case 'HURT':
       actions.HURT(op)
@@ -33,22 +35,22 @@ const executeOp = async op => {
       actions.ATT(op)
       break
     case 'ED':
-      actions.ED()
+      movement.ED()
       break
     case 'EB':
-      actions.EB()
+      movement.EB()
       break
     case 'SETWAIT':
-      actions.SETWAIT(op)
+      control.SETWAIT(op)
       break
     case 'WAIT':
-      await actions.WAIT()
+      await control.WAIT()
       break
     case 'NAME':
-      actions.NAME()
+      control.NAME()
       break
     case 'RET':
-      actions.RET()
+      control.RET()
       break
     default:
       //   window.alert(
