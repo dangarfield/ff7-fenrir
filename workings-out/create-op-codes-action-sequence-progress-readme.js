@@ -115,8 +115,8 @@ const renderReadme = async data => {
       } of ${category.opCodes.length}\n`
     const opChunks = _.chunk(category.opCodes, 4)
     // console.log('opChunks', opChunks.length)
-    r = r + `|  |  |  |  |  |  |\n`
-    r = r + `|:---:|:---:|:---:|:---:|:---:|:---:|\n`
+    r = r + `|  |  |  |  |\n`
+    r = r + `|:---:|:---:|:---:|:---:|\n`
     for (let j = 0; j < opChunks.length; j++) {
       const opChunk = opChunks[j]
       // console.log('opChunk', opChunk)
