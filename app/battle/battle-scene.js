@@ -37,6 +37,22 @@ const tweenSleep = ms => {
       .start()
   })
 }
+const tweenInterval = (ms, count, cb) => {
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
+      .to({ x: 1 }, ms)
+      .repeat(count - 1)
+      .onRepeat(() => {
+        cb()
+      })
+      .onComplete(function () {
+        cb()
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+  })
+}
 
 const renderLoop = () => {
   if (window.anim.activeScene !== 'battle') {
@@ -92,6 +108,15 @@ const renderLoop = () => {
       if (window.currentBattle.ui.battlePointer.isShow()) {
         window.currentBattle.ui.battlePointer.cycleAndDisplayBattlePointer()
       }
+
+      // Update position of effects and damage etc
+      if (window.currentBattle.ui.effectsGroup) {
+        for (const effect of window.currentBattle.ui.effectsGroup.children) {
+          if (effect.userData.updateOrthoPosition) {
+            effect.userData.updateOrthoPosition()
+          }
+        }
+      }
       updateActorsUI()
     }
     BATTLE_TWEEN_UI_GROUP.update()
@@ -119,7 +144,6 @@ const setupScenes = () => {
   sceneGroup = new THREE.Group()
   scene.add(sceneGroup)
   orthoScene = new THREE.Scene()
-
   window.battleScene = scene
   window.battleOrthoScene = orthoScene
   // const light = new THREE.DirectionalLight(0xffffff)
@@ -235,6 +259,7 @@ export {
   BATTLE_TWEEN_GROUP,
   BATTLE_TWEEN_UI_GROUP,
   tweenSleep,
+  tweenInterval,
   togglePauseBattle,
   BATTLE_PAUSED,
   setBattleTickActive

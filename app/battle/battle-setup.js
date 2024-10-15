@@ -118,6 +118,11 @@ const setupBattle = battleId => {
 
   initTimers(currentBattle)
 
+  for (const actor of currentBattle.actors) {
+    if (!actor.active) continue
+    actor.actionSequences =
+      window.data.battle.actionSequences[actor.modelCode.substring(0, 2) + 'ab']
+  }
   window.currentBattle = currentBattle
   console.log('battle currentBattle', currentBattle)
   return currentBattle

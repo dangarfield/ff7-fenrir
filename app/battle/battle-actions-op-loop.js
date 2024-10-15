@@ -4,6 +4,8 @@ import * as movement from './battle-actions-op-movement.js'
 import * as control from './battle-actions-op-control.js'
 import { loadSound } from '../media/media-sound.js'
 
+// https://wiki.ffrtt.ru/index.php?title=FF7/Battle/Battle_Animation/Animation_Script
+
 const executeOp = async op => {
   console.log('ACTION execute op: START', op)
   switch (op.op) {
@@ -51,6 +53,9 @@ const executeOp = async op => {
       break
     case 'RET':
       control.RET()
+      break
+    case 'DUST':
+      actions.DUST()
       break
     default:
       //   window.alert(

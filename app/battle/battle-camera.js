@@ -202,6 +202,7 @@ const executeInitialCameraScript = async currentBattle => {
   // CAM_DATA.focus.active.set(0, 0, -300)
   CAM_DATA.position.active.copy(CAM_DATA.idle.position) // Temp, to speed up dev
   CAM_DATA.focus.active.copy(CAM_DATA.idle.focus)
+
   console.log('CAMERA initial: END')
 }
 const setActorsForBattleCamera = (attacker, targets) => {

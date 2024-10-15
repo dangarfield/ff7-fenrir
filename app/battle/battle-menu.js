@@ -290,13 +290,15 @@ const initBattleMenu = async currentBattle => {
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
   const flashPlane = addFlashPlane()
-
+  const effectsGroup = new THREE.Group()
+  orthoScene.add(effectsGroup)
   window.currentBattle.ui = {
     pause,
     battleDescriptions,
     battleText,
     battlePointer,
-    flashPlane
+    flashPlane,
+    effectsGroup
   }
   // Command list w = 1 list
   const command = createDialogBox({

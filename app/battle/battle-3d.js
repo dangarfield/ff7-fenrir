@@ -230,6 +230,14 @@ const addOrthoPosition = model => {
   }
   model.userData.updateOrthoPosition()
 }
+const position3DToOrtho = pos => {
+  const vector = pos.clone()
+  vector.project(activeCamera)
+  vector.x = (vector.x / 2 + 0.5) * window.config.sizing.width
+  vector.y = (vector.y / 2 + 0.5) * window.config.sizing.height
+  vector.z = pos.clone().distanceToSquared(activeCamera.position)
+  return vector
+}
 const loadBattleModels = async modelsToFind => {
   const manager = new THREE.LoadingManager()
   manager.onProgress = function (url, itemsLoaded, itemsTotal) {
@@ -299,6 +307,7 @@ const importModels = async currentBattle => {
     const model = modelsFound.shift()
     model.name = actor.data.name
     model.initialY = model.animations[0].tracks[0].values[1]
+
     currentBattle.models.push(model)
     sceneGroup.add(model.scene)
     actor.model = model
@@ -352,12 +361,19 @@ const importModels = async currentBattle => {
     // Bone positions
     model.userData.bonePoints = []
     model.userData.getBonePosition = boneId => {
+      let boneIdLookup = actor.actionSequences.joints[boneId]
+
+      // I think most kujata out is off by 1, eg 23 is actually 22
+      if (boneIdLookup > 0) {
+        boneIdLookup--
+      }
       const vector = new THREE.Vector3()
-      if (boneId === 10) boneId = 0 // Temp to Aeris healing wind until i figure outthe correct reference
-      if (model.userData.bonePoints[boneId] === undefined) {
+      const bonePoint = model.userData.bonePoints[boneIdLookup]
+      // if (boneId === 10) boneId = 0 // Temp to Aeris healing wind until i figure outthe correct reference
+      if (bonePoint === undefined) {
         model.userData.bonePoints[0].localToWorld(vector) // Catch any errors, but need to come back to this
       } else {
-        model.userData.bonePoints[boneId].localToWorld(vector)
+        bonePoint.localToWorld(vector)
       }
       return vector
     }
@@ -374,15 +390,30 @@ const importModels = async currentBattle => {
 
         // Create a small sphere for the center point
         let color = 0x00ff00
+
+        // Note: I think is off by 1 (eg, 23 is actually 22)
+        const boneId = parseInt(object.name.split('Bone')[1].split('_')[0])
+
         if (object.name.includes('0_0')) color = 0xff0000
-        if (object.name.includes('10_10')) color = 0x0000ff
+        if (object.name.includes('22_22')) color = 0x0000ff
+        if (object.name.includes('30_30')) color = 0x00ffff
         const geometry = new THREE.SphereGeometry(10)
         const material = new THREE.MeshBasicMaterial({ color })
         const point = new THREE.Mesh(geometry, material)
         point.visible = false
+        if (object.name) point.userData.name = object.name
+        // point.name = object.name // This causes errors?! Why?!
+        // console.log(
+        //   'EFFECT',
+        //   model.name,
+        //   'name',
+        //   object.name,
+        //   model.userData.bonePoints.length,
+        //   boneId
+        // )
         point.position.copy(pos)
         object.add(point)
-        model.userData.bonePoints.push(point)
+        model.userData.bonePoints[boneId] = point
       }
     })
 
@@ -393,8 +424,7 @@ const importModels = async currentBattle => {
     model.userData.playAnimation(0)
     sceneGroup.add(addShadow(model))
     addOrthoPosition(model)
-    actor.actionSequences =
-      window.data.battle.actionSequences[actor.modelCode.substring(0, 2) + 'ab']
+
     if (i === 0) window.bm = model
   }
 
@@ -407,4 +437,4 @@ const importModels = async currentBattle => {
 }
 // Shortcuts for debugging
 
-export { importModels, tempSlow }
+export { importModels, tempSlow, position3DToOrtho }

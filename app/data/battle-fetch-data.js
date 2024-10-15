@@ -2,6 +2,12 @@ import { KUJATA_BASE } from './kernel-fetch-data.js'
 import { GLTFLoader } from '../../assets/threejs-r148/examples/jsm/loaders/GLTFLoader.js'
 import { addBlendingToMaterials } from '../field/field-fetch-data.js'
 
+const battleTextures = {}
+window.battleTextures = battleTextures
+const getBattleTextures = (window.getBattleTextures = () => {
+  return battleTextures
+})
+
 const loadBattleData = async () => {
   const sceneDataRes = await fetch(
     `${KUJATA_BASE}/data/battle/scene.bin/scene.bin.json`
@@ -24,6 +30,27 @@ const loadBattleData = async () => {
   )
   const actionSequences = await actionSequencesRes.json()
   window.data.battle.actionSequences = actionSequences
+
+  window.data.battle.assets = {}
+  const effects32Res = await fetch(
+    `${KUJATA_BASE}/metadata/battle-assets/effects-32.json`
+  )
+  const effects32 = await effects32Res.json()
+  const columns = effects32[Object.keys(effects32)[0]].count
+  // console.log('EFFECTS', effects32, columns)
+  const rows = Object.keys(effects32).length
+  battleTextures.effects32 = {
+    assets: effects32,
+    texture: new THREE.TextureLoader().load(
+      `${KUJATA_BASE}/metadata/battle-assets/effects-32.png`
+    ),
+    metadata: {
+      columns,
+      rows,
+      frameWidth: 1 / columns,
+      frameHeight: 1 / rows
+    }
+  }
 
   // const allRows = []
   for (const scene of sceneData) {
@@ -99,4 +126,4 @@ const loadSceneModel = async (modelCode, manager) => {
   })
 }
 
-export { loadBattleData, loadSceneModel }
+export { loadBattleData, loadSceneModel, getBattleTextures }

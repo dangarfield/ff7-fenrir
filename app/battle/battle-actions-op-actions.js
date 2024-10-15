@@ -1,7 +1,8 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { playSound } from '../media/media-sound.js'
 import { ACTION_DATA, framesToTime } from './battle-actions.js'
-import { tweenSleep } from './battle-scene.js'
+import { displayEffectAnimation } from './battle-effects.js'
+import { tweenInterval, tweenSleep } from './battle-scene.js'
 
 const SOUND = async op => {
   await tweenSleep(framesToTime(op.frames))
@@ -29,6 +30,22 @@ const DUST = () => {
   // create particle quad that scale from 1 to 2 by 8 frames, changing texture every frame. Position not changed.
   // 0x800d3d88 (foot_dust) - effect of dust (total).
   // create 4 effects 0x800d3bf0 (one dust cloud) in position of joints 0xb,0xc,0xb,0xc. One effect by frame.
+  const executeOneDustCloud = count => {
+    const pos = ACTION_DATA.actors.attacker.model.userData.getBonePosition(
+      count % 2 === 0 ? 0xb : 0xc
+    )
+    // Hmm, dust pos appears to really be on the floor... might need to forcibly adjust the y in the bone position
+    pos.y = 0
+    displayEffectAnimation(pos, 'effects32', 'dust', 2, 0.5)
+  }
+  const time = framesToTime(1)
+  let count = 0
+  executeOneDustCloud(count)
+  count++
+  tweenInterval(time, 3, () => {
+    executeOneDustCloud(count)
+    count++
+  })
 }
 const GUN = () => {
   // 0x800d3af0 (machinegun splash) used as effect of shell take off and as effect that shell drop on ground.
@@ -43,4 +60,4 @@ const GUN = () => {
   // 0x800d7888 (machinegun) - effect of machinegun fire (total).
   // every second frame create effect 0x800d7724 and, if 0x80 bit in end frame data setted, create effect 0x800d7368 with random direction of movement and effect 0x800d3af0.
 }
-export { SOUND, HURT, ATT }
+export { DUST, SOUND, HURT, ATT }
