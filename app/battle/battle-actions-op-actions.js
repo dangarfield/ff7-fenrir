@@ -43,7 +43,6 @@ const triggerHitEffect = async (targets, hitEffectId) => {
   }
 }
 const triggerSound = async () => {
-  // TODO - No idea about this yet, I think the sound changes due to critical too...
   // https://github.com/Akari1982/q-gears_reverse/blob/8a5bca40f61858eb94b516488a143badff338a09/ffvii/address_battle.txt#L314
   // Should be impactSound (from attack) or impactSoundHit/impactSoundCritical/impactSoundMiss
 

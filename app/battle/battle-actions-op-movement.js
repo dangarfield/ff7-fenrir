@@ -37,7 +37,9 @@ const ROTI = async () => {
       BATTLE_TWEEN_GROUP
     )
       .to(
-        { y: ACTION_DATA.actors.attacker.model.userData.defaultRotationY },
+        {
+          y: 0 // ACTION_DATA.actors.attacker.model.userData.defaultRotationY
+        },
         framesToTime(1)
       )
       .onComplete(function () {

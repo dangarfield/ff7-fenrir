@@ -33,7 +33,13 @@ const getLocalValue = (actorId, addressHex, returnType) => {
   const value = variables.local[actorId][addressHex]
   if (value === undefined) return 0b0
   // TODO - Do something with returnType?
-  console.log('battleMemory getLocalValue', actorId, addressHex, returnType, value)
+  console.log(
+    'battleMemory getLocalValue',
+    actorId,
+    addressHex,
+    returnType,
+    value
+  )
   return value
 }
 const setLocalValue = (actorId, addressHex, value) => {
@@ -59,9 +65,7 @@ const getActorValueAll = (addressHex, returnType) => {
 // const getActorValue = (actorId, address, returnType) => { // Is this every specifically used?!
 
 // }
-const setActorValue = (actorId, address, value) => {
-
-}
+const setActorValue = (actorId, address, value) => {}
 export {
   initAllVariables,
   logMemory,

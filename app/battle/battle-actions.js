@@ -23,18 +23,18 @@ const ACTION_DATA = {
   damage: null
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
-const resetActionData = (attacker, queueItem, command) => {
+const resetActionData = (attacker, targets, attack, command) => {
   ACTION_DATA.actors.attacker = attacker
-  ACTION_DATA.actors.targets = queueItem.targetMask.target
+  ACTION_DATA.actors.targets = targets
   ACTION_DATA.command = command
   ACTION_DATA.attackerPosition.position = 0
   ACTION_DATA.attackerPosition.applied = false
-  ACTION_DATA.attack = queueItem.attack
-  ACTION_DATA.actionName = getActionName(command, queueItem)
+  ACTION_DATA.attack = attack
+  ACTION_DATA.actionName = getActionName(command, attack)
   ACTION_DATA.damage = null
 }
-const getActionName = (command, queueItem) => {
-  const actionName = queueItem.attack ? queueItem.attack.name : command.name
+const getActionName = (command, attack) => {
+  const actionName = attack ? attack.name : command.name
   return actionName
 }
 
@@ -121,11 +121,35 @@ const getActionSequenceForCommand = (actor, queueItem) => {
   const scriptId = 4 // TODO - Just for testing now
   return actor.actionSequences.scriptsPlayer[scriptId]
 }
+const executeEnemyAction = async (actor, attackId, attackModifier) => {
+  console.log('executeEnemyAction', actor, attackId, attackModifier)
+  const attackIndex = window.currentBattle.attackData.findIndex(
+    a => a.id === attackId
+  )
+  const attack = window.currentBattle.attackData[attackIndex]
+  const targets = [window.currentBattle.actors[0]] // TODO - Get target mask from stack - Looks like variable 2070
+  const command = { name: 'Enemy Attack' }
+  console.log('executeEnemyAction queueItem', targets, attack, command)
+  const actionSequenceIndex = actor.data.actionSequenceIndex[attackIndex]
+  const actionSequence = actor.actionSequences.scriptsEnemy[actionSequenceIndex]
+  console.log('executeEnemyAction actionSequence', actionSequence)
+
+  resetActionData(actor, targets, attack, command)
+  console.log('executeEnemyAction resetActionData', ACTION_DATA)
+  // TODO - Get camera data and execute here in parallel
+  await runActionSequence(actionSequence)
+  // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
+  ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
+
+  // attacker, queueItem, command
+  // queueItem.targetMask.target
+  // queueItem.attack
+}
 const executePlayerAction = async (actor, queueItem) => {
   const { commandId } = queueItem
   const command = window.data.kernel.commandData[commandId]
 
-  resetActionData(actor, queueItem, command)
+  resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
   console.log(
     'battleQueue executePlayerAction',
     actor,
@@ -198,15 +222,14 @@ const preLoadBattleSounds = async () => {
     add(attack.impactSound)
   }
 
-  // TODO - actionAnimationIndex?!!! Is this the offset for the enemy attacks to action scripts?! I hope so!
-
   // TODO - It appears as though EFFEXE (EC) also has these hardcoded. So should be part loadEffect LOAD (E8)
 
-  console.log('ACTION LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
+  console.log('LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
 }
 
 export {
   placeholderBattleAttackSequence,
+  executeEnemyAction,
   executePlayerAction,
   framesToTime,
   ACTION_DATA,
