@@ -26,33 +26,6 @@ const setBattleTickActive = isActive => {
   BATTLE_TICK_ACTIVE = isActive
   // TODO - Update WAIT / TIME gui
 }
-const tweenSleep = ms => {
-  return new Promise(resolve => {
-    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
-      .to({ x: 1 }, ms)
-      .onComplete(function () {
-        BATTLE_TWEEN_GROUP.remove(t)
-        resolve()
-      })
-      .start()
-  })
-}
-const tweenInterval = (ms, count, cb) => {
-  return new Promise(resolve => {
-    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
-      .to({ x: 1 }, ms)
-      .repeat(count - 1)
-      .onRepeat(() => {
-        cb()
-      })
-      .onComplete(function () {
-        cb()
-        BATTLE_TWEEN_GROUP.remove(t)
-        resolve()
-      })
-      .start()
-  })
-}
 
 const renderLoop = () => {
   if (window.anim.activeScene !== 'battle') {
@@ -121,6 +94,8 @@ const renderLoop = () => {
     }
     BATTLE_TWEEN_UI_GROUP.update()
     BATTLE_TWEEN_GROUP.update()
+
+    // TODO - I really need to solve the rendering from both scenes together problem...
     window.anim.renderer.clear()
     window.anim.renderer.render(scene, activeCamera)
 
@@ -139,6 +114,33 @@ const startBattleRenderingLoop = () => {
   }
 }
 
+const tweenSleep = ms => {
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
+      .to({ x: 1 }, ms)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+  })
+}
+const tweenInterval = (ms, count, cb) => {
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween({ x: 1 }, BATTLE_TWEEN_GROUP)
+      .to({ x: 1 }, ms)
+      .repeat(count - 1)
+      .onRepeat(() => {
+        cb()
+      })
+      .onComplete(function () {
+        cb()
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+  })
+}
 const setupScenes = () => {
   scene = new THREE.Scene()
   sceneGroup = new THREE.Group()

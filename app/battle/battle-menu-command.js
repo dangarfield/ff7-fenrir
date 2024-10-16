@@ -661,7 +661,7 @@ const initCommands = () => {
             // Includes hiding commands etc
             DATA.actor.index,
             command.index,
-            null,
+            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId],
             selectionResult,
             6
           )
@@ -699,7 +699,7 @@ const initCommands = () => {
             // Includes hiding commands etc
             DATA.actor.index,
             command.index,
-            null,
+            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId],
             selectionResult,
             6
           )

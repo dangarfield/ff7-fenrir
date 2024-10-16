@@ -36,6 +36,9 @@ const executeOp = async op => {
     case 'ATT':
       actions.ATT(op)
       break
+    case 'DAMAGE':
+      actions.DAMAGE(op)
+      break
     case 'ED':
       movement.ED()
       break

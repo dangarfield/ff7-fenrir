@@ -71,7 +71,7 @@ const loadSound = id => {
 const playCommonSound = sound => {
   playSound(sound, 0, getConfig().channel1)
 }
-const playSound = (id, pan, channelData) => {
+const playSound = (id, pan, channelData, restartIfPlaying) => {
   try {
     if (id === 0) {
       stopSounds()
@@ -94,7 +94,10 @@ const playSound = (id, pan, channelData) => {
     mediaItem.sound.stereo(pan) // channel.pan override?!
     mediaItem.sound.volume(channelData.volume)
 
-    if (mediaItem.sound.playing()) {
+    if (mediaItem.sound.playing() && restartIfPlaying) {
+      console.log('playSound restart')
+      mediaItem.sound.seek(0)
+    } else if (mediaItem.sound.playing()) {
       console.log('playSound ALREADY PLAYING')
     } else if (mediaItem.loop) {
       mediaItem.sound.loop(true)

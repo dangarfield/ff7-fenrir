@@ -577,7 +577,7 @@ const addFlashPlane = () => {
   mesh.position.z = 4
   mesh.userData.quickFlash = async () => {
     mesh.visible = true
-    await tweenSleep(1000 / 60)
+    await tweenSleep(1000 / 30)
     mesh.visible = false
   }
 

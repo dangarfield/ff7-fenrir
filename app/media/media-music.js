@@ -132,7 +132,11 @@ const playMusic = (id, noLoop, fadeInTime) => {
       if (!music.sound.playing()) {
         console.log('play music', music, getConfig().music)
         music.sound.stereo(getConfig().music.pan)
+
         music.sound.volume(getConfig().music.volume)
+        if (window.developerMode) {
+          music.sound.volume(0.1) // Purely for sanity!!!
+        }
         music.sound.rate(getConfig().music.tempo)
         music.sound.play()
         if (noLoop) {

@@ -19,7 +19,8 @@ const ACTION_DATA = {
   attack: null,
   actionName: null,
   command: null,
-  wait: 0
+  wait: 0,
+  damage: null
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
 const resetActionData = (attacker, queueItem, command) => {
@@ -30,6 +31,7 @@ const resetActionData = (attacker, queueItem, command) => {
   ACTION_DATA.attackerPosition.applied = false
   ACTION_DATA.attack = queueItem.attack
   ACTION_DATA.actionName = getActionName(command, queueItem)
+  ACTION_DATA.damage = null
 }
 const getActionName = (command, queueItem) => {
   const actionName = queueItem.attack ? queueItem.attack.name : command.name
@@ -161,25 +163,46 @@ const preLoadBattleSounds = async () => {
 
   const soundsLoaded = []
 
-  for (const actor of window.currentBattle.actors) {
+  const add = id => {
+    if (!soundsLoaded.includes(id)) {
+      soundsLoaded.push(id)
+      loadSound(id)
+    }
+  }
+
+  for (const actor of window.currentBattle.actors.filter(a => a.active)) {
     if (actor.actionSequences) {
       for (const scriptType of ['scriptsPlayer', 'scriptsEnemy']) {
         for (const seq of actor.actionSequences[scriptType]) {
           for (const op of seq) {
-            if (op.op === 'SOUND' && !soundsLoaded.includes(op.sound)) {
-              console.log('LOAD BATTLE SOUNDS', op)
-              soundsLoaded.push(op.sound)
-              loadSound(op.sound)
+            if (op.op === 'SOUND') {
+              // console.log('LOAD BATTLE SOUNDS', op)
+              add(op.sound)
             }
           }
         }
       }
     }
+    // Current weapon sounds, all attacks sounds
+    if (actor.type === 'player') {
+      const weaponData =
+        window.data.kernel.allItemData[actor.data.equip.weapon.itemId]
+      add(weaponData.impactSoundHit)
+      add(weaponData.impactSoundCritical)
+      add(weaponData.impactSoundMiss)
+    }
   }
+  for (const attack of window.currentBattle.attackData.filter(
+    a => a.impactSound !== 0xffff
+  )) {
+    add(attack.impactSound)
+  }
+
+  // TODO - actionAnimationIndex?!!! Is this the offset for the enemy attacks to action scripts?! I hope so!
 
   // TODO - It appears as though EFFEXE (EC) also has these hardcoded. So should be part loadEffect LOAD (E8)
 
-  console.log('LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
+  console.log('ACTION LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
 }
 
 export {

@@ -15,8 +15,10 @@ const displayEffectAnimation = async (
   // This assumes that these are all fixed size relative to the viewer
   // Is this right for dust?!
   //   console.log('EFFECT displayEffectAnimation', pos, type, effect)
-  // Also, putting it in the ortho scene means it displays 'over' other characters, is that right? Need to test
+  // TODO - Putting it in the ortho scene means it displays 'over' other characters, is that right? Need to test
+
   const posOrtho = position3DToOrtho(pos)
+  // const posOrtho = pos
 
   const battleTextures = getBattleTextures()
   const asset = battleTextures[type].assets[effect]
@@ -39,25 +41,21 @@ const displayEffectAnimation = async (
     map: texture,
     transparent: true
   })
-  //   mat.blending = THREE.SubtractiveBlending
-  //   mat.opacity = 0.3
   if (opacity != null) {
     mat.opacity = opacity
   }
   const mesh = new THREE.Mesh(geo, mat)
 
-  // TODO - Colour / transparent / blending
-
   mesh.position.x = posOrtho.x
   mesh.position.y = posOrtho.y
-  mesh.position.z = 90 // ?
+  mesh.position.z = 3 // ?
   mesh.userData.position = pos
   mesh.userData.updateOrthoPosition = () => {
     // console.log('EFFECT updated ortho pos')
     const posOrthoUpdated = position3DToOrtho(pos)
     mesh.position.x = posOrthoUpdated.x
     mesh.position.y = posOrthoUpdated.y
-    mesh.position.z = 90 // ?
+    // mesh.position.z = 90 // ?
   }
   window.currentBattle.ui.effectsGroup.add(mesh)
 
