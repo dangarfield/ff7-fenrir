@@ -6,6 +6,7 @@ import { sleep } from '../helpers/helpers.js'
 import { runActionSequence } from './battle-actions-op-loop.js'
 import { currentBattle } from './battle-setup.js'
 import { loadSound } from '../media/media-sound.js'
+import { battleFormationConfig } from './battle-formation.js'
 
 const ACTION_DATA = {
   actors: {
@@ -207,7 +208,6 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
 }
 const executePlayerAction = async (actor, queueItem) => {
   // TODO: Comands to ensure 'flow' properly
-  //  Change - Actually change the row
   //  Limit - Lookup the correct action sequence
   //  2x Cut & 4x Cut - Ensure multiple sequences are queued and run
   //  W-Item - Need to fix, should be one queueItem in order to work with mime, or at least, need to make it work
@@ -245,6 +245,7 @@ const executePlayerAction = async (actor, queueItem) => {
   )
   ACTION_DATA.previousPlayerQueueItem = queueItem
   resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
+  const actionSequence = getActionSequenceForCommand(actor, queueItem)
   console.log(
     'executePlayerAction',
     actor,
@@ -258,9 +259,27 @@ const executePlayerAction = async (actor, queueItem) => {
     return
   }
 
+  if (queueItem.commandId === 18) {
+    console.log('executePlayerAction - CHANGE')
+    // Set default position so that it gets updated in the script sequence
+    if (actor.data.status.battleOrder === 'Normal') {
+      actor.data.status.battleOrder = 'BackRow'
+      actor.model.userData.defaultPosition.z =
+        actor.model.userData.defaultPosition.z +
+        (actor.model.userData.defaultPosition.z > 0
+          ? battleFormationConfig.row
+          : -battleFormationConfig.row)
+    } else {
+      actor.data.status.battleOrder = 'Normal'
+      actor.model.userData.defaultPosition.z =
+        actor.model.userData.defaultPosition.z +
+        (actor.model.userData.defaultPosition.z > 0
+          ? -battleFormationConfig.row
+          : battleFormationConfig.row)
+    }
+  }
   // TODO - Check for MP / item count / money etc
 
-  const actionSequence = getActionSequenceForCommand(actor, queueItem)
   // TODO - Decrement MP / item count / money / all usage / summon usage etc
   // TODO - Get camera data and execute here in parallel
   await runActionSequence(actionSequence)

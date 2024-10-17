@@ -1,7 +1,7 @@
 const FACING = { IN: 'in', OUT: 'out' }
 const battleFormationConfig = {
   // Updated with exe data on load
-  row: 2 * 256,
+  row: 516, // Seems to be 1700<->2216 in game
   formations: {
     Normal: {
       // DONE - 99

@@ -45,6 +45,9 @@ const executeOp = async op => {
     case 'EB':
       movement.EB()
       break
+    case 'E3':
+      movement.E3()
+      break
     case 'SETWAIT':
       control.SETWAIT(op)
       break

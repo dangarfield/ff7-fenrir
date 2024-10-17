@@ -582,7 +582,7 @@ const initCommands = () => {
           // Includes hiding commands, which is ok in fenrir, but all dialogs are closed in one action in the main game
           DATA.actor.index,
           command.index,
-          selectedActions[i * 2 + 0],
+          JSON.parse(JSON.stringify(selectedActions[i * 2 + 0])),
           selectedActions[i * 2 + 1],
           6,
           i + 1 < spellsRequired // Don't trigger process queue of first one of w-magic etc
