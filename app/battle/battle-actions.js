@@ -20,7 +20,8 @@ const ACTION_DATA = {
   actionName: null,
   command: null,
   wait: 0,
-  damage: null
+  damage: null,
+  previousPlayerQueueItem: null
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
 const resetActionData = (attacker, targets, attack, command) => {
@@ -113,13 +114,74 @@ const placeholderBattleAttackSequence = async (
   // fromEntity.model.scene.position.x =
   //   fromEntity.model.userData.defaultPosition.x
   // fromEntity.model.scene.position.z =
-  //   fromEntity.model.userData.defaultPosition.z
+  //   fromEntity.model.userData.dbaefaultPosition.z
 
   // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
 const getActionSequenceForCommand = (actor, queueItem) => {
-  const scriptId = 4 // TODO - Just for testing now
-  return actor.actionSequences.scriptsPlayer[scriptId]
+  // TODO - The action-sequence-metadata-player.json is all wrong for the script types. Go and find the correct ones
+  console.log(
+    'getActionSequenceForCommand',
+    actor,
+    queueItem,
+    window.data.battle.actionSequenceMetadataPlayer
+  )
+  let actionSequence
+  try {
+    const actionSequencesMetadata =
+      window.data.battle.actionSequenceMetadataPlayer.find(
+        c => c.commandId === queueItem.commandId
+      )?.actionSequences
+    if (actionSequencesMetadata) {
+      if (actionSequencesMetadata.length === 1) {
+        actionSequence =
+          actor.actionSequences.scripts[actionSequencesMetadata[0].id]
+      } else {
+        // is front / back row
+        if (queueItem.commandId === 18) {
+          // Change
+          if (actor.data.status.battleOrder === 'Normal') {
+            // TODO - Need to make sure that this data is updated during / after the action sequence...
+            actionSequence =
+              actor.actionSequences.scripts[
+                actionSequencesMetadata.find(a => a.target === 'back').id
+              ]
+          } else {
+            actionSequence =
+              actor.actionSequences.scripts[
+                actionSequencesMetadata.find(a => a.target === 'front').id
+              ]
+          }
+        } else {
+          if (queueItem.targetMask.target.length > 1) {
+            actionSequence =
+              actor.actionSequences.scripts[
+                actionSequencesMetadata.find(a => a.target === 'multiple').id
+              ]
+          } else {
+            actionSequence =
+              actor.actionSequences.scripts[
+                actionSequencesMetadata.find(a => a.target === 'single').id
+              ]
+          }
+        }
+        // is multi / single target
+      }
+    }
+  } catch (error) {
+    console.error(
+      'getActionSequenceForCommand ERROR FETCHING SEQUENCE - commandId',
+      queueItem.commandId
+    )
+  }
+  if (!actionSequence) {
+    console.error('getActionSequenceForCommand UNKNOWN ACTION SEQUENCE')
+    actionSequence = actor.actionSequences.scripts[20]
+  }
+  // const scriptId = 4 // TODO - Just for testing now
+  // return actor.actionSequences.scriptsPlayer[scriptId]
+  console.log('getActionSequenceForCommand actionSequence', actionSequence)
+  return actionSequence // Catch all
 }
 const executeEnemyAction = async (actor, attackId, attackModifier) => {
   console.log('executeEnemyAction', actor, attackId, attackModifier)
@@ -131,33 +193,75 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
   const command = { name: 'Enemy Attack' }
   console.log('executeEnemyAction queueItem', targets, attack, command)
   const actionSequenceIndex = actor.data.actionSequenceIndex[attackIndex]
-  const actionSequence = actor.actionSequences.scriptsEnemy[actionSequenceIndex]
+  const actionSequence = actor.actionSequences.scripts[actionSequenceIndex]
   console.log('executeEnemyAction actionSequence', actionSequence)
 
+  // TODO - Check for magic power?
   resetActionData(actor, targets, attack, command)
   console.log('executeEnemyAction resetActionData', ACTION_DATA)
+  // TODO - Decrement MP / item count etc
   // TODO - Get camera data and execute here in parallel
   await runActionSequence(actionSequence)
   // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
   ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
-
-  // attacker, queueItem, command
-  // queueItem.targetMask.target
-  // queueItem.attack
 }
 const executePlayerAction = async (actor, queueItem) => {
-  const { commandId } = queueItem
-  const command = window.data.kernel.commandData[commandId]
+  // TODO: Comands to ensure 'flow' properly
+  //  Change - Actually change the row
+  //  Limit - Lookup the correct action sequence
+  //  2x Cut & 4x Cut - Ensure multiple sequences are queued and run
+  //  W-Item - Need to fix, should be one queueItem in order to work with mime, or at least, need to make it work
+  //  W-Magic
+  //  W-Summon
+  // TODO - Ensure idle animation/sequence is correctly set
+  // TODO - Script to run for unable to execute action (eg, no mp, item, no previous mime)
+  // TODO - Added effect materia - quadra magic specifically
 
+  if (queueItem.commandId === 12) {
+    console.log('executePlayerAction - MIME')
+    if (ACTION_DATA.previousPlayerQueueItem === null) {
+      console.log('executePlayerAction - MIME - No previous action available')
+      // TODO - Display 'X made a useless imitation' animation action
+      return
+    }
+    queueItem = ACTION_DATA.previousPlayerQueueItem
+    // queueItem.actorIndex = ?? Do I need to set this properly?
+    if (queueItem.attack.type && queueItem.attack.type === 'WEAPON') {
+      queueItem.attack.type =
+        window.data.kernel.allItemData[actor.data.equip.weapon.itemId]
+      // TODO - Seems wrong, as the target flags might change, investigate
+    }
+  }
+
+  let command = JSON.parse(
+    JSON.stringify(window.data.kernel.commandData[queueItem.commandId])
+  )
+
+  console.log(
+    'executePlayerAction - resetActionData',
+    queueItem.targetMask.target,
+    queueItem.attack,
+    command
+  )
+  ACTION_DATA.previousPlayerQueueItem = queueItem
   resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
   console.log(
-    'battleQueue executePlayerAction',
+    'executePlayerAction',
     actor,
     queueItem,
     command,
     ACTION_DATA.actionName
   )
+  if (queueItem.commandId === 19) {
+    console.log('executePlayerAction - DEFEND')
+    actor.data.status.defend = true // Reset on player atb is full. Need to reset at end of battle too
+    return
+  }
+
+  // TODO - Check for MP / item count / money etc
+
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
+  // TODO - Decrement MP / item count / money / all usage / summon usage etc
   // TODO - Get camera data and execute here in parallel
   await runActionSequence(actionSequence)
   // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
@@ -196,13 +300,11 @@ const preLoadBattleSounds = async () => {
 
   for (const actor of window.currentBattle.actors.filter(a => a.active)) {
     if (actor.actionSequences) {
-      for (const scriptType of ['scriptsPlayer', 'scriptsEnemy']) {
-        for (const seq of actor.actionSequences[scriptType]) {
-          for (const op of seq) {
-            if (op.op === 'SOUND') {
-              // console.log('LOAD BATTLE SOUNDS', op)
-              add(op.sound)
-            }
+      for (const seq of actor.actionSequences.scripts) {
+        for (const op of seq) {
+          if (op.op === 'SOUND') {
+            // console.log('LOAD BATTLE SOUNDS', op)
+            add(op.sound)
           }
         }
       }

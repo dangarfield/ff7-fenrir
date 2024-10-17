@@ -41,8 +41,9 @@ const SETWAIT = op => {
   ACTION_DATA.wait = op.frames
 }
 const WAIT = async () => {
+  if (ACTION_DATA.wait === 0) ACTION_DATA.wait = 15 // Default is 15 frames if not already set
   await tweenSleep(framesToTime(ACTION_DATA.wait))
-  ACTION_DATA.wait = 0
+  ACTION_DATA.wait = 15
 }
 const NAME = () => {
   window.currentBattle.ui.battleText.showBattleMessage(ACTION_DATA.actionName)

@@ -17,6 +17,7 @@ const allowPlayerToSelectAction = actorIndex => {
     window.currentBattle.queue.actions,
     window.currentBattle.queue.activeSelectionPlayers
   )
+  delete window.currentBattle.actors[actorIndex].data.status.defend
   if (!window.currentBattle.queue.activeSelectionPlayers.includes(actorIndex)) {
     window.currentBattle.queue.activeSelectionPlayers.push(actorIndex)
     console.log('battleQueue allowPlayerToSelectAction', actorIndex)

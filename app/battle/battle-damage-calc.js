@@ -4,6 +4,7 @@ const DMG_TYPE = {
   DEATH: 'DEATH',
   RECOVERY: 'RECOVERY'
 }
+//    +0e [][]     damage flags  (0x0001 - heal, 0x0002 - critical damage, 0x0004 - damage to MP).
 
 const getDefault = () => {
   return {

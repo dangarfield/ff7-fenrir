@@ -31,6 +31,13 @@ const loadBattleData = async () => {
   const actionSequences = await actionSequencesRes.json()
   window.data.battle.actionSequences = actionSequences
 
+  const actionSequenceMetadataPlayerRes = await fetch(
+    `${KUJATA_BASE}/metadata/action-sequence-metadata-player.json`
+  )
+  const actionSequenceMetadataPlayer =
+    await actionSequenceMetadataPlayerRes.json()
+  window.data.battle.actionSequenceMetadataPlayer = actionSequenceMetadataPlayer
+
   window.data.battle.assets = {}
   const effects32Res = await fetch(
     `${KUJATA_BASE}/metadata/battle-assets/effects-32.json`

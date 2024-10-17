@@ -22,6 +22,8 @@ const triggerHurt = async targets => {
     //                   enemyActionScript[1] - Normal Hurt
     //                   enemyActionScript[2] - Knocked off feet
     // Note: op F2 is trigger when this happens too...
+
+    // actor.data.status.defend - Is there a specific animation if target (player) is set to defend?
     target.model.userData.playAnimationOnce(1, {
       nextAnim: 0
     })

@@ -30,11 +30,12 @@ window.console = (function (origConsole) {
       // 'battleUI LIMIT'
       // 'battlePointer',
       // 'battleQueue',
-      'battleQueue executePlayerAction',
-      'ACTION',
-      'executeEnemyAction',
-      'battleStack',
-      'battleOp'
+      'executePlayerAction',
+      'getActionSequenceForCommand'
+      // 'ACTION'
+      // 'executeEnemyAction',
+      // 'battleStack',
+      // 'battleOp'
       // 'LOAD BATTLE SOUNDS',
       // 'EFFECT'
       // 'updateOrthoPosition'
