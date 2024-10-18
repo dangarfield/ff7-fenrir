@@ -82,4 +82,12 @@ const getLimitMenuData = char => {
     : CONFIG[playerName].menuType
   return { limits, menuType }
 }
-export { getLimitMenuData, LIMIT_MENU_TYPES }
+const getActionSequenceIndexForSelectedLimit = (actor, pos) => {
+  // TODO - Is this right? Not sure about Tifa, CaitSith, Vincent yet
+  return 60 + (actor.data.limit.level - 1) * 2 + pos
+}
+export {
+  getLimitMenuData,
+  LIMIT_MENU_TYPES,
+  getActionSequenceIndexForSelectedLimit
+}

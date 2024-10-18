@@ -13,6 +13,7 @@ import {
   showDialog,
   WINDOW_COLORS_SUMMARY
 } from '../menu/menu-box-helper.js'
+import { getActionSequenceIndexForSelectedLimit } from './battle-limits.js'
 import { DATA } from './battle-menu-command.js'
 
 const offsets = {
@@ -160,7 +161,16 @@ const handleKeyPressLimit = async key => {
       changeLimit(1)
       break
     case KEY.O:
-      promiseToResolve(DATA.actor.battleStats.menu.limit.limits[DATA.limit.pos])
+      const data = DATA.actor.battleStats.menu.limit.limits[DATA.limit.pos]
+      const attack = {
+        actionSequenceIndex: getActionSequenceIndexForSelectedLimit(
+          DATA.actor,
+          DATA.limit.pos
+        ),
+        name: data.name,
+        data
+      }
+      promiseToResolve(attack)
       break
     case KEY.X:
       DATA.state = 'returning'

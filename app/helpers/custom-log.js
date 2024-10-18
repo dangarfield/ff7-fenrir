@@ -37,9 +37,9 @@ window.console = (function (origConsole) {
       // 'battleUI',
       // 'battleQueue addPlayerActionToQueue',
       // 'battleQueue player action',
-      'cannotExecuteAction'
+      'cannotExecuteAction',
       // 'ACTION runActionSequence',
-      // 'ACTION'
+      'ACTION'
       // 'executeEnemyAction',
       // 'battleStack',
       // 'battleOp'

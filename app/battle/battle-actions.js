@@ -146,44 +146,50 @@ const getActionSequenceForCommand = (actor, queueItem) => {
   )
   let actionSequence
   try {
-    const actionSequencesMetadata =
-      window.data.battle.actionSequenceMetadataPlayer.find(
-        c => c.commandId === queueItem.commandId
-      )?.actionSequences
-    if (actionSequencesMetadata) {
-      if (actionSequencesMetadata.length === 1) {
-        actionSequence =
-          actor.actionSequences.scripts[actionSequencesMetadata[0].id]
-      } else {
-        // is front / back row
-        if (queueItem.commandId === 18) {
-          // Change
-          if (actor.data.status.battleOrder === 'Normal') {
-            // TODO - Need to make sure that this data is updated during / after the action sequence...
-            actionSequence =
-              actor.actionSequences.scripts[
-                actionSequencesMetadata.find(a => a.target === 'back').id
-              ]
-          } else {
-            actionSequence =
-              actor.actionSequences.scripts[
-                actionSequencesMetadata.find(a => a.target === 'front').id
-              ]
-          }
+    if (queueItem.commandId === 20) {
+      // eg, limit break
+      actionSequence =
+        actor.actionSequences.scripts[queueItem.attack.actionSequenceIndex]
+    } else {
+      const actionSequencesMetadata =
+        window.data.battle.actionSequenceMetadataPlayer.find(
+          c => c.commandId === queueItem.commandId
+        )?.actionSequences
+      if (actionSequencesMetadata) {
+        if (actionSequencesMetadata.length === 1) {
+          actionSequence =
+            actor.actionSequences.scripts[actionSequencesMetadata[0].id]
         } else {
-          if (queueItem.targetMask.target.length > 1) {
-            actionSequence =
-              actor.actionSequences.scripts[
-                actionSequencesMetadata.find(a => a.target === 'multiple').id
-              ]
+          // is front / back row
+          if (queueItem.commandId === 18) {
+            // Change
+            if (actor.data.status.battleOrder === 'Normal') {
+              // TODO - Need to make sure that this data is updated during / after the action sequence...
+              actionSequence =
+                actor.actionSequences.scripts[
+                  actionSequencesMetadata.find(a => a.target === 'back').id
+                ]
+            } else {
+              actionSequence =
+                actor.actionSequences.scripts[
+                  actionSequencesMetadata.find(a => a.target === 'front').id
+                ]
+            }
           } else {
-            actionSequence =
-              actor.actionSequences.scripts[
-                actionSequencesMetadata.find(a => a.target === 'single').id
-              ]
+            if (queueItem.targetMask.target.length > 1) {
+              actionSequence =
+                actor.actionSequences.scripts[
+                  actionSequencesMetadata.find(a => a.target === 'multiple').id
+                ]
+            } else {
+              actionSequence =
+                actor.actionSequences.scripts[
+                  actionSequencesMetadata.find(a => a.target === 'single').id
+                ]
+            }
           }
+          // is multi / single target
         }
-        // is multi / single target
       }
     }
   } catch (error) {
@@ -247,14 +253,17 @@ const cannotExecuteAction = (actor, command, attack) => {
 }
 const executePlayerAction = async (actor, queueItem) => {
   // TODO: Comands to ensure 'flow' properly
-  //  Limit - Lookup the correct action sequence
+  //  Limit - Mostly scheduled, but it runs horribly, async / sync, need to implement more op codes
   //  2x Cut & 4x Cut - Ensure multiple sequences are queued and run
   //  W-Item - Need to fix, should be one queueItem in order to work with mime, or at least, need to make it work
   //  W-Magic
   //  W-Summon
+  //  Frog ?!
   // TODO - Ensure idle animation/sequence is correctly set
   // TODO - Script to run for unable to execute action (eg, no mp, item, no previous mime)
   // TODO - Added effect materia - quadra magic specifically
+  // TODO - Implement the rest of the op codes
+  // TODO - Hurt animations
 
   console.log('executePlayerAction', actor, queueItem)
   if (queueItem.commandId === 12) {
@@ -344,6 +353,7 @@ const executePlayerAction = async (actor, queueItem) => {
     queueItem.attack
   )
   if (cannotExecuteMessage) {
+    // TODO - I'm not sure this is right? Does the 'charge' happen first before the check?
     await runUnableToExecuteActionSequence(actor, cannotExecuteMessage)
     return
   }
@@ -368,6 +378,8 @@ const executePlayerAction = async (actor, queueItem) => {
 
   console.log('executePlayerAction END')
   returnCameraToIdle()
+
+  // TODO - Increment any counters, eg limit usage. Anything else?
 }
 const framesToTime = frames => {
   return (1000 / 15) * frames

@@ -355,7 +355,7 @@ const initCommands = () => {
         const combinedTargetFlags = combineTargetFlags(
           command.index,
           command.targetFlags,
-          selectedActions[0].targetFlags,
+          selectedActions[0].data.targetFlags,
           DATA.actor.battleStats.weaponData.targets,
           true,
           DATA.actor.battleStats.hasLongRangeMateria
