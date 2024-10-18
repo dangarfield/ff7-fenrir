@@ -153,15 +153,15 @@ const calcPosition = (from, to, offset, zInverted, directionOverride) => {
   const rotatedOffsetZ2 = offsetDistance2 * Math.sin(combinedAngle2)
 
   // OUTPUTS
-  console.log(
-    'CAMERA calcPosition',
-    to.x,
-    to.z,
-    directionOverride,
-    '->',
-    direction2,
-    angle2
-  )
+  // console.log(
+  //   'CAMERA calcPosition',
+  //   to.x,
+  //   to.z,
+  //   directionOverride,
+  //   '->',
+  //   direction2,
+  //   angle2
+  // )
 
   return zInverted
     ? new THREE.Vector3(

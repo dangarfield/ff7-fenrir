@@ -6,6 +6,7 @@ const ANIM = async op => {
   const attPos = attActor.model.scene.position
   const attAnimPos = attActor.model.scene.children[0].position
 
+  console.log('ACTION ANIM:'.op, ACTION_DATA)
   // Apply the previous translation to the root... I bit of a mess, but it mostly solves the problems
   // This is a mess, need to solve this better, but it appears as though it's related to the animation start frames
   if (
@@ -24,17 +25,20 @@ const ANIM = async op => {
   const animOptions = {}
   if (op.async && ACTION_DATA.attackerPosition.position === 0) {
     // Note: Looks like the return to idle anim is always 28 ?
+
+    console.log('ACTION ANIM: async')
     ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
       op.animation,
       animOptions
     )
   } else {
+    console.log('ACTION ANIM: sync')
     await ACTION_DATA.actors.attacker.model.userData.playAnimationOnce(
       op.animation,
       animOptions
     )
   }
-
+  console.log('ACTION ANIM: END')
   // It visually looks like after you finish, you should hold the first frame of the next animation, maybe...
 }
 const SETWAIT = op => {

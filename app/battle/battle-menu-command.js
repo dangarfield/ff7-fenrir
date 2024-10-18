@@ -657,11 +657,18 @@ const initCommands = () => {
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')
           // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
+          const weapon =
+            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId]
+          const attack = {
+            name: weapon.name,
+            type: 'weapon',
+            data: weapon
+          }
           addPlayerActionToQueue(
             // Includes hiding commands etc
             DATA.actor.index,
             command.index,
-            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId],
+            attack,
             selectionResult,
             6
           )
@@ -695,11 +702,18 @@ const initCommands = () => {
         if (selectionResult.target) {
           console.log('battleUI target confirmed, sending to op stack')
           // Add command to stack with targets, not sure what this looks like yet, pass whole target for now
+          const weapon =
+            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId]
+          const attack = {
+            name: weapon.name,
+            type: 'weapon',
+            data: weapon
+          }
           addPlayerActionToQueue(
             // Includes hiding commands etc
             DATA.actor.index,
             command.index,
-            window.data.kernel.allItemData[DATA.actor.data.equip.weapon.itemId],
+            attack,
             selectionResult,
             6
           )

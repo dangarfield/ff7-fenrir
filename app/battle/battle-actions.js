@@ -1,7 +1,11 @@
 import TWEEN from '../../assets/tween.esm.js'
 import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
-import { returnToIdle, runCameraScriptPair } from './battle-camera-op-loop.js'
+import {
+  getCameraScriptPair,
+  returnCameraToIdle,
+  runCameraScriptPair
+} from './battle-camera-op-loop.js'
 import { sleep } from '../helpers/helpers.js'
 import { runActionSequence } from './battle-actions-op-loop.js'
 import { currentBattle } from './battle-setup.js'
@@ -94,7 +98,7 @@ const placeholderBattleAttackSequence = async (
     })()
   ])
   await sleep(1000)
-  await returnToIdle()
+  await returnCameraToIdle()
 
   // await moveEntity(
   //   fromEntity.model,
@@ -201,10 +205,23 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
   resetActionData(actor, targets, attack, command)
   console.log('executeEnemyAction resetActionData', ACTION_DATA)
   // TODO - Decrement MP / item count etc
-  // TODO - Get camera data and execute here in parallel
-  await runActionSequence(actionSequence)
-  // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
-  ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
+
+  await Promise.all([
+    runCameraScriptPair(
+      getCameraScriptPair(
+        window.currentBattle,
+        command,
+        attack,
+        targets.length > 1
+      ),
+      actor.index,
+      targets.map(t => t.index),
+      false
+    ),
+    runActionSequence(actionSequence)
+  ])
+  console.log('executeEnemyAction END')
+  returnCameraToIdle()
 }
 const executePlayerAction = async (actor, queueItem) => {
   // TODO: Comands to ensure 'flow' properly
@@ -217,6 +234,7 @@ const executePlayerAction = async (actor, queueItem) => {
   // TODO - Script to run for unable to execute action (eg, no mp, item, no previous mime)
   // TODO - Added effect materia - quadra magic specifically
 
+  console.log('executePlayerAction', actor, queueItem)
   if (queueItem.commandId === 12) {
     console.log('executePlayerAction - MIME')
     if (ACTION_DATA.previousPlayerQueueItem === null) {
@@ -226,8 +244,8 @@ const executePlayerAction = async (actor, queueItem) => {
     }
     queueItem = ACTION_DATA.previousPlayerQueueItem
     // queueItem.actorIndex = ?? Do I need to set this properly?
-    if (queueItem.attack.type && queueItem.attack.type === 'WEAPON') {
-      queueItem.attack.type =
+    if (queueItem.attack.data.type && queueItem.attack.data.type === 'WEAPON') {
+      queueItem.attack.data.type =
         window.data.kernel.allItemData[actor.data.equip.weapon.itemId]
       // TODO - Seems wrong, as the target flags might change, investigate
     }
@@ -282,25 +300,25 @@ const executePlayerAction = async (actor, queueItem) => {
 
   // TODO - Decrement MP / item count / money / all usage / summon usage etc
   // TODO - Get camera data and execute here in parallel
-  await runActionSequence(actionSequence)
-  // TODO - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
-  ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
+  // await runActionSequence(actionSequence)
 
-  // FC                   setRotationToActors()
-  // F0                   setDustEffect()
-  // D8 00 1A 00          playSound({frames: 0, sound: 26})
-  // 1A                   playAnimation({animation: 26})                      // This 'appears' to be sync
-  // D1 B0 04 00 00 04    moveToTarget({distance: 1200, arg2: 0, frames: 4})  // has anim 27 first frame held
-  // F0                   setDustEffect()
-  // 1B                   playAnimation({animation: 27})                      // This appears to be first action halted, almost like it's waiting for the previous anim, but it holds the first frame until movement is finished
-  // F7 01                executeAttack({frames: 1})
-  // 1E                   playAnimation({animation: 30})
-  // 1C                   playAnimation({animation: 28})                      // Return animation, but appears to be async
-  // FA                   returnToIdlePosition()
-  // F0                   setDustEffect()
-  // 1D                   playAnimation({animation: 29})
-  // E5                   rotateBackToIdleDirection()
-  // EE                   return()
+  await Promise.all([
+    runCameraScriptPair(
+      getCameraScriptPair(
+        window.currentBattle,
+        command,
+        queueItem.attack.data,
+        queueItem.targetMask.target.length > 1
+      ),
+      actor.index,
+      queueItem.targetMask.target.map(t => t.index),
+      false
+    ),
+    runActionSequence(actionSequence)
+  ])
+
+  console.log('executePlayerAction END')
+  returnCameraToIdle()
 }
 const framesToTime = frames => {
   return (1000 / 15) * frames

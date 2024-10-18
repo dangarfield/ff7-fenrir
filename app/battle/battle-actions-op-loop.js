@@ -107,6 +107,9 @@ const runActionSequence = async sequence => {
       break
     }
   }
+
+  // TODO - Make this better - Play default 'idle' animation, eg 0 or whatever is appropriate for injured, dead, status afflicted etc
+  ACTION_DATA.actors.attacker.model.userData.playAnimation(0)
   console.log('ACTION runActionSequence: END')
 }
 export { runActionSequence }

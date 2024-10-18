@@ -72,13 +72,27 @@ const drawListPointer = () => {
 const getCurrentSpell = () => {
   const menu = DATA[DATA.state]
   if (DATA.state === 'items') {
-    const inventoryItem =
-      window.data.savemap.items[menu.page * menu.cols + menu.pos]
-    return inventoryItem.itemId === 0x7f ? undefined : inventoryItem
+    const itemId = menu.page * menu.cols + menu.pos
+
+    const inventoryItem = window.data.savemap.items[itemId]
+    if (inventoryItem.itemId === 0x7f) return undefined
+    const currentSpell = {
+      itemId,
+      name: inventoryItem.name,
+      quantity: inventoryItem.quantity,
+      data: inventoryItem
+    }
+    return currentSpell
   }
-  return DATA.actor.battleStats.menu[DATA.state][
-    menu.page * menu.cols + menu.pos
-  ]
+
+  // Should ideally have the magicData attached too
+  const currentSpell = JSON.parse(
+    JSON.stringify(
+      DATA.actor.battleStats.menu[DATA.state][menu.page * menu.cols + menu.pos]
+    )
+  )
+  currentSpell.data = window.data.kernel.attackData[currentSpell.index] // Summons? Enemy Skill?
+  return currentSpell
 }
 const updateInfoForSelectedSpell = () => {
   const spell = getCurrentSpell()

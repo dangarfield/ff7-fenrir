@@ -6,6 +6,7 @@ import {
   setActorsForBattleCamera,
   setBattleCameraSpeed
 } from './battle-camera.js'
+import { ACTION_DATA } from './battle-actions.js'
 
 // https://forums.qhimm.com/index.php?topic=9126.msg124233#msg124233
 // https://github.com/q-gears/q-gears-reversing-data/blob/master/reversing/ffvii/ffvii_battle/camera/camera_script_export_start.lua
@@ -239,14 +240,69 @@ const executeScript = async (script, method) => {
     }
   }
 }
+const getCameraScriptPair = (
+  battleType,
+  command,
+  attack,
+  isMultipleTargets
+) => {
+  // const scriptPair =
+  //   window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3] // Grunt - Beam Gun
+
+  const randomFactor = Math.floor(Math.random() * 3)
+  const camdatFile = window.data.battle.camData.camdataFiles[0]
+  let script = null
+  if (
+    command.cameraMovementIdSingleTargets !== undefined &&
+    command.cameraMovementIdSingleTargets !== 0xffff &&
+    !isMultipleTargets
+  ) {
+    script =
+      camdatFile.scripts.main[
+        command.cameraMovementIdSingleTargets * 3 + randomFactor
+      ]
+  }
+  if (
+    command.cameraMovementIdMultipleTargets !== undefined &&
+    command.cameraMovementIdMultipleTargets !== 0xffff &&
+    !isMultipleTargets
+  ) {
+    script =
+      camdatFile.scripts.main[
+        command.cameraMovementIdMultipleTargets * 3 + randomFactor
+      ]
+  }
+  if (
+    attack.cameraMovementIdSingleTargets !== undefined &&
+    attack.cameraMovementIdSingleTargets !== 0xffff &&
+    !isMultipleTargets
+  ) {
+    script =
+      camdatFile.scripts.main[
+        attack.cameraMovementIdSingleTargets * 3 + randomFactor
+      ]
+  }
+  if (
+    attack.cameraMovementIdMultipleTargets !== undefined &&
+    attack.cameraMovementIdMultipleTargets !== 0xffff &&
+    isMultipleTargets
+  ) {
+    script =
+      camdatFile.scripts.main[
+        attack.cameraMovementIdMultipleTargets * 3 + randomFactor
+      ]
+  }
+
+  console.log('CAMERA getCameraScriptPair', randomFactor, script)
+  return script
+}
 const runCameraScriptPair = async (
   scriptPair,
   attacker,
   targets,
   isAMainScript
 ) => {
-  // Note: start with a simple script execution, rather than a queue with cancellables etc
-
+  if (scriptPair === null) return
   console.log(
     'CAMERA runScriptPair: START',
     scriptPair,
@@ -260,10 +316,11 @@ const runCameraScriptPair = async (
     executeScript(scriptPair.position, executePositionOp),
     executeScript(scriptPair.focus, executeFocusOp)
   ])
+
   console.log('CAMERA runScriptPair: END')
 }
-const returnToIdle = async () => {
+const returnCameraToIdle = async () => {
   await Promise.all([pos.MOVEI({ frames: 3 }), focus.MOVEI({ frames: 3 })])
 }
 
-export { runCameraScriptPair, returnToIdle }
+export { runCameraScriptPair, returnCameraToIdle, getCameraScriptPair }
