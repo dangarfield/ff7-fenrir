@@ -144,54 +144,43 @@ const getActionSequenceForCommand = (actor, queueItem) => {
     queueItem,
     window.data.battle.actionSequenceMetadataPlayer
   )
+
   let actionSequence
+
   try {
+    // Limit break
     if (queueItem.commandId === 20) {
-      // eg, limit break
-      actionSequence =
-        actor.actionSequences.scripts[queueItem.attack.actionSequenceIndex]
-    } else {
-      const actionSequencesMetadata =
-        window.data.battle.actionSequenceMetadataPlayer.find(
-          c => c.commandId === queueItem.commandId
-        )?.actionSequences
-      if (actionSequencesMetadata) {
-        if (actionSequencesMetadata.length === 1) {
-          actionSequence =
-            actor.actionSequences.scripts[actionSequencesMetadata[0].id]
-        } else {
-          // is front / back row
-          if (queueItem.commandId === 18) {
-            // Change
-            if (actor.data.status.battleOrder === 'Normal') {
-              // TODO - Need to make sure that this data is updated during / after the action sequence...
-              actionSequence =
-                actor.actionSequences.scripts[
-                  actionSequencesMetadata.find(a => a.target === 'back').id
-                ]
-            } else {
-              actionSequence =
-                actor.actionSequences.scripts[
-                  actionSequencesMetadata.find(a => a.target === 'front').id
-                ]
-            }
-          } else {
-            if (queueItem.targetMask.target.length > 1) {
-              actionSequence =
-                actor.actionSequences.scripts[
-                  actionSequencesMetadata.find(a => a.target === 'multiple').id
-                ]
-            } else {
-              actionSequence =
-                actor.actionSequences.scripts[
-                  actionSequencesMetadata.find(a => a.target === 'single').id
-                ]
-            }
-          }
-          // is multi / single target
-        }
-      }
+      return actor.actionSequences.scripts[queueItem.attack.actionSequenceIndex]
     }
+
+    const actionSequencesMetadata =
+      window.data.battle.actionSequenceMetadataPlayer.find(
+        c => c.commandId === queueItem.commandId
+      )?.actionSequences
+
+    if (!actionSequencesMetadata) {
+      throw new Error('No action sequence metadata found')
+    }
+
+    if (actionSequencesMetadata.length === 1) {
+      return actor.actionSequences.scripts[actionSequencesMetadata[0].id]
+    }
+
+    // Handle front / back row
+    if (queueItem.commandId === 18) {
+      const target =
+        actor.data.status.battleOrder === 'Normal' ? 'back' : 'front'
+      return actor.actionSequences.scripts[
+        actionSequencesMetadata.find(a => a.target === target).id
+      ]
+    }
+
+    // Handle multi / single target
+    const target =
+      queueItem.targetMask.target.length > 1 ? 'multiple' : 'single'
+    return actor.actionSequences.scripts[
+      actionSequencesMetadata.find(a => a.target === target).id
+    ]
   } catch (error) {
     console.error(
       'getActionSequenceForCommand ERROR FETCHING SEQUENCE - commandId',
@@ -199,14 +188,13 @@ const getActionSequenceForCommand = (actor, queueItem) => {
       error
     )
   }
-  if (!actionSequence) {
-    console.error('getActionSequenceForCommand UNKNOWN ACTION SEQUENCE')
-    actionSequence = actor.actionSequences.scripts[20]
-  }
-  // const scriptId = 4 // TODO - Just for testing now
-  // return actor.actionSequences.scriptsPlayer[scriptId]
+
+  // Fallback if no valid action sequence found
+  console.error('getActionSequenceForCommand UNKNOWN ACTION SEQUENCE')
+  actionSequence = actor.actionSequences.scripts[20]
+
   console.log('getActionSequenceForCommand actionSequence', actionSequence)
-  return actionSequence // Catch all
+  return actionSequence
 }
 const executeEnemyAction = async (actor, attackId, attackModifier) => {
   console.log('executeEnemyAction', actor, attackId, attackModifier)

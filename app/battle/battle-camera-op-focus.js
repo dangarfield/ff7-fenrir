@@ -4,6 +4,7 @@ import {
   calcPosition,
   CAM_DATA,
   framesToTime,
+  getPrimaryTarget,
   setDirectionOverride,
   setIdleCameraFocus,
   tweenCamera
@@ -46,7 +47,7 @@ const MOVE = op => {
 }
 const FOCUSA = op => {
   console.log('CAMERA focus FOCUSA', op)
-  const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const fromActor = getPrimaryTarget()
   const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
   // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
@@ -54,20 +55,20 @@ const FOCUSA = op => {
 const FOCUST = op => {
   console.log('CAMERA focus FOCUST', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
-  const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const toActor = getPrimaryTarget()
   // TODO - Not sure, but I think this might just be for one frame rather than a 'follow'
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const FOLLOWA = op => {
   console.log('CAMERA focus FOLLOWA', op)
-  const fromActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const fromActor = getPrimaryTarget()
   const toActor = currentBattle.actors[CAM_DATA.actors.attacker]
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const FOLLOWT = op => {
   console.log('CAMERA focus FOLLOWT', op)
   const fromActor = currentBattle.actors[CAM_DATA.actors.attacker]
-  const toActor = currentBattle.actors[CAM_DATA.actors.targets[0]]
+  const toActor = getPrimaryTarget()
   focusToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const focusToActor = (fromActor, toActor, op, directionOverride) => {
@@ -86,14 +87,14 @@ const focusToActor = (fromActor, toActor, op, directionOverride) => {
 }
 const MOVEA = op => {
   console.log('CAMERA focus MOVEA', op)
-  const fromActor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
+  const fromActor = getPrimaryTarget()
   const toActor = window.currentBattle.actors[CAM_DATA.actors.attacker]
   moveToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 const MOVET = op => {
   console.log('CAMERA focus MOVET', op)
   const fromActor = window.currentBattle.actors[CAM_DATA.actors.attacker]
-  const toActor = window.currentBattle.actors[CAM_DATA.actors.targets[0]] // Index ?!
+  const toActor = getPrimaryTarget()
   moveToActor(fromActor, toActor, op, setDirectionOverride(fromActor, toActor))
 }
 // This should generally happen as though the z axis is aligned between the target and actor's (z,x)

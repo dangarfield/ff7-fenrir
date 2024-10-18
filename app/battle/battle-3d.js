@@ -44,11 +44,9 @@ const loadModelWithAnimationBindings = async (code, manager) => {
   }
   model.userData.playAnimationOnce = (i, options) => {
     return new Promise(resolve => {
-      const action = model.mixer.clipAction(model.animations[i])
-      if (action === undefined) {
-        // Eg, missing animation
-        resolve()
-        return
+      let action = model.mixer.clipAction(model.animations[i])
+      if (action == null) {
+        action = model.mixer.clipAction(model.animations[0])
       }
       action.timeScale = tempSlow
       action.loop = THREE.LoopOnce

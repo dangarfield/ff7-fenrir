@@ -223,6 +223,12 @@ const ensureIdleCameraFocused = idleIsFocused => {
     })
   t.start()
 }
+const getPrimaryTarget = () => {
+  if (CAM_DATA.actors.targets.includes(CAM_DATA.actors.attacker)) {
+    return window.currentBattle.actors[CAM_DATA.actors.attacker] // For healing wind ?!
+  }
+  return window.currentBattle.actors[CAM_DATA.actors.targets[0]]
+}
 
 export {
   executeInitialCameraScript,
@@ -239,5 +245,6 @@ export {
   setIdleCameraFocus,
   calcPosition,
   setDirectionOverride,
-  ensureIdleCameraFocused
+  ensureIdleCameraFocused,
+  getPrimaryTarget
 }
