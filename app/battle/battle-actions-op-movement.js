@@ -90,11 +90,6 @@ const ED = () => {
 const EB = () => {
   // TODO - Not actually sure what is required here, but it seems to mitigate the position changes somewhere...
 }
-const E3 = () => {
-  // Need to ensure that the previous anim is complete
-  ACTION_DATA.actors.attacker.model.scene.position.z =
-    ACTION_DATA.actors.attacker.model.userData.defaultPosition.z
-}
 const MOVE = async op => {
   const attActor = ACTION_DATA.actors.attacker
   const attPos = attActor.model.scene.position
@@ -200,4 +195,10 @@ const MOVI = () => {
       .start()
   })
 }
-export { ROTF, ROTI, MOVJ, MOVE, MOVI, ED, EB, E3 }
+const MOVIZ = () => {
+  // Assuming this is right (E3) - Eg, ensure backrow/normal is applied after anim is finished
+  // Need to ensure that the previous anim is complete
+  ACTION_DATA.actors.attacker.model.scene.position.z =
+    ACTION_DATA.actors.attacker.model.userData.defaultPosition.z
+}
+export { ROTF, ROTI, MOVJ, MOVE, MOVI, ED, EB, MOVIZ }

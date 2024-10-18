@@ -13,6 +13,7 @@ import {
 } from './field-dialog-helper.js'
 import { isMenuEnabled } from './field-module.js'
 import { MENU_TYPE } from '../menu/menu-module.js'
+import { stopCurrentMovie } from '../media/media-movies.js'
 
 let INIT_COMPLETE = false
 
@@ -96,6 +97,7 @@ const initFieldKeypressActions = () => {
   getKeyPressEmitter().on('l2', async firstPress => {
     if (areFieldControlsActive() && firstPress) {
       await nextPageOrCloseActiveDialogs()
+      stopCurrentMovie()
     }
   })
 

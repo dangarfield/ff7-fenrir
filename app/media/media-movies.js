@@ -10,6 +10,7 @@ import { getCurrentDisc } from '../data/savemap-alias.js'
 import { updateVideoCameraPosition } from '../field/field-scene.js'
 import { setFaderVisible } from '../field/field-fader.js'
 import { setVisibilityForAllModels } from '../field/field-models.js'
+import { addToast } from '../helpers/toasts.js'
 
 let movieMetadata
 let moviecamMetadata
@@ -187,6 +188,7 @@ const playNextMovie = async () => {
         nextMovie.cameraData,
         window.currentField.allowVideoCamera
       )
+      addToast('Press Y (eg, L2) to skip movie')
       // Swap to videoCamera if applicable
       if (
         nextMovie.cameraData !== undefined &&
@@ -226,7 +228,11 @@ const playNextMovie = async () => {
     // frame 664 roughly equal to 117 seconds
     // Once video has finished
     nextMovie.video.onended = () => {
-      console.log('movie playNextMovie video.onended', nextMovie.name, nextMovie)
+      console.log(
+        'movie playNextMovie video.onended',
+        nextMovie.name,
+        nextMovie
+      )
       nextMovie.isPlaying = false
       // - clear capture frame interval
       clearInterval(frameCaptureInterval)
@@ -246,7 +252,9 @@ const playNextMovie = async () => {
         window.currentField.backgroundVideo
       )
       while (window.currentField.backgroundVideo.children.length) {
-        window.currentField.backgroundVideo.remove(window.currentField.backgroundVideo.children[0])
+        window.currentField.backgroundVideo.remove(
+          window.currentField.backgroundVideo.children[0]
+        )
       }
       console.log(
         'movie playNextMovie window.currentField.backgroundVideo',
@@ -268,9 +276,14 @@ const playNextMovie = async () => {
 }
 
 const stopCurrentMovie = async () => {
-  nextMovie.video.stop() // onend should trigger once again
-  nextMovie.frame = 0
+  if (nextMovie.isPlaying) {
+    nextMovie.video.pause()
+    nextMovie.frame = 9999
+    nextMovie.video.currentTime = nextMovie.video.duration
+    nextMovie.video.dispatchEvent(new Event('ended'))
+  }
 }
+
 const activateMovieCam = async isActive => {
   window.currentField.allowVideoCamera = isActive
 }

@@ -67,13 +67,13 @@ const initManager = async () => {
   bindDisplayControls()
   await waitUntilMediaCanPlay()
 
-  if (window.developerMode) {
-    // Quick start
-    loadGame(window.config.save.cardId, window.config.save.slotId)
-  } else {
-    // Correct behaviour
-    initNewSaveMap()
-    loadMenuWithWait(MENU_TYPE.Title)
-  }
+  // if (window.developerMode) {
+  //   // Quick start
+  //   loadGame(window.config.save.cardId, window.config.save.slotId)
+  // } else {
+  //   // Correct behaviour
+  initNewSaveMap()
+  loadMenuWithWait(MENU_TYPE.Title)
+  // }
 }
 initManager()

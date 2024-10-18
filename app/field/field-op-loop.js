@@ -1184,7 +1184,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 32 }) // Devil Rider - For simple battle AI
         // control.BATTLE({ b: 0, n: 33 }) // Custom Sweeper x2 for anim debug
       }
-      window.quickBattle()
+      // window.quickBattle()
     }, 1000)
   }
 
