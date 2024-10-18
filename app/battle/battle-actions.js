@@ -1,5 +1,5 @@
 import TWEEN from '../../assets/tween.esm.js'
-import { BATTLE_TWEEN_GROUP } from './battle-scene.js'
+import { BATTLE_TWEEN_GROUP, tweenSleep } from './battle-scene.js'
 import { tempSlow } from './battle-3d.js'
 import {
   getCameraScriptPair,
@@ -26,7 +26,8 @@ const ACTION_DATA = {
   command: null,
   wait: 0,
   damage: null,
-  previousPlayerQueueItem: null
+  previousPlayerQueueItem: null,
+  previousPlayerIndex: null
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
 const resetActionData = (attacker, targets, attack, command) => {
@@ -123,8 +124,20 @@ const placeholderBattleAttackSequence = async (
 
   // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
 }
+const runUnableToExecuteActionSequence = async (actor, message) => {
+  ACTION_DATA.actors.attacker = actor
+  // Note: This is not using the [16] action sequence that I think the game does
+  await runActionSequence([
+    { op: 'ANIM', animation: 3 },
+    { op: 'ED' },
+    { op: 'MSG', message }, // Not a real op
+    { op: 'ANIM', animation: 4 },
+    { op: 'MOVI' },
+    { op: 'ROTI' },
+    { op: 'RET' }
+  ])
+}
 const getActionSequenceForCommand = (actor, queueItem) => {
-  // TODO - The action-sequence-metadata-player.json is all wrong for the script types. Go and find the correct ones
   console.log(
     'getActionSequenceForCommand',
     actor,
@@ -176,7 +189,8 @@ const getActionSequenceForCommand = (actor, queueItem) => {
   } catch (error) {
     console.error(
       'getActionSequenceForCommand ERROR FETCHING SEQUENCE - commandId',
-      queueItem.commandId
+      queueItem.commandId,
+      error
     )
   }
   if (!actionSequence) {
@@ -204,7 +218,7 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
   // TODO - Check for magic power?
   resetActionData(actor, targets, attack, command)
   console.log('executeEnemyAction resetActionData', ACTION_DATA)
-  // TODO - Decrement MP / item count etc
+  // TODO - Decrement MP / item count etc - No, this happens at action selection confirmed / add to queue
 
   await Promise.all([
     runCameraScriptPair(
@@ -223,6 +237,14 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
   console.log('executeEnemyAction END')
   returnCameraToIdle()
 }
+const cannotExecuteAction = (actor, command, attack) => {
+  console.log('cannotExecuteAction', actor, command, attack)
+  // TODO - If status is applied, death?
+  if (attack.mpCost && attack.mpCost > actor.battleStats.mp.current) {
+    return window.data.kernel.battleText[91] // Not enough MP!
+  }
+  return false
+}
 const executePlayerAction = async (actor, queueItem) => {
   // TODO: Comands to ensure 'flow' properly
   //  Limit - Lookup the correct action sequence
@@ -239,7 +261,25 @@ const executePlayerAction = async (actor, queueItem) => {
     console.log('executePlayerAction - MIME')
     if (ACTION_DATA.previousPlayerQueueItem === null) {
       console.log('executePlayerAction - MIME - No previous action available')
-      // TODO - Display 'X made a useless imitation' animation action
+      await runUnableToExecuteActionSequence(
+        actor,
+        window.data.kernel.battleText[88].replace('{TARGET}', actor.data.name)
+      )
+      return
+    }
+    // TODO - Is a limit break from a different player. Is this the only use case?
+    // TODO - Need to implement limit break action sequences and then test this
+    if (
+      ACTION_DATA.previousPlayerQueueItem.commandId === 19 &&
+      actor.index !== ACTION_DATA.previousPlayerIndex
+    ) {
+      console.log('executePlayerAction - MIME - No previous action available')
+      await runUnableToExecuteActionSequence(
+        actor,
+        window.data.kernel.battleText[87]
+          .replace('{TARGET}', actor.data.name)
+          .replace('{ATTACK}', ACTION_DATA.previousPlayerQueueItem.attack.name)
+      )
       return
     }
     queueItem = ACTION_DATA.previousPlayerQueueItem
@@ -262,6 +302,7 @@ const executePlayerAction = async (actor, queueItem) => {
     command
   )
   ACTION_DATA.previousPlayerQueueItem = queueItem
+  ACTION_DATA.previousPlayerIndex = actor.index
   resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   console.log(
@@ -296,11 +337,19 @@ const executePlayerAction = async (actor, queueItem) => {
           : battleFormationConfig.row)
     }
   }
-  // TODO - Check for MP / item count / money etc
+  // Check for MP / summon power?! - Item, throw, coin is already decremented
+  const cannotExecuteMessage = cannotExecuteAction(
+    actor,
+    command,
+    queueItem.attack
+  )
+  if (cannotExecuteMessage) {
+    await runUnableToExecuteActionSequence(actor, cannotExecuteMessage)
+    return
+  }
 
-  // TODO - Decrement MP / item count / money / all usage / summon usage etc
-  // TODO - Get camera data and execute here in parallel
-  // await runActionSequence(actionSequence)
+  // TODO - Decrement MP / money / all usage / summon usage etc, quadra magic etc, I think any added effect that has a 'count' can be reduced
+  // No, this happens at action selection confirmed / add to queue
 
   await Promise.all([
     runCameraScriptPair(

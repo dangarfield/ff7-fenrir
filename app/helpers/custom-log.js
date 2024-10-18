@@ -30,15 +30,16 @@ window.console = (function (origConsole) {
       // 'battleUI LIMIT'
       // 'battlePointer',
       // 'battleQueue',
-      'executeEnemyAction',
-      'executePlayerAction',
+      // 'executeEnemyAction',
+      // 'executePlayerAction',
       'getActionSequenceForCommand',
-      'CAMERA runScriptPair',
-      'battleUI',
-      'battleQueue addPlayerActionToQueue',
-      'battleQueue player action',
-      'ACTION runActionSequence',
-      'ACTION'
+      // 'CAMERA runScriptPair',
+      // 'battleUI',
+      // 'battleQueue addPlayerActionToQueue',
+      // 'battleQueue player action',
+      'cannotExecuteAction'
+      // 'ACTION runActionSequence',
+      // 'ACTION'
       // 'executeEnemyAction',
       // 'battleStack',
       // 'battleOp'

@@ -52,5 +52,8 @@ const WAIT = async () => {
 const NAME = () => {
   window.currentBattle.ui.battleText.showBattleMessage(ACTION_DATA.actionName)
 }
+const MSG = op => {
+  window.currentBattle.ui.battleText.showBattleMessage(op.message)
+}
 const RET = () => {}
-export { ANIM, SETWAIT, WAIT, NAME, RET }
+export { ANIM, SETWAIT, WAIT, NAME, MSG, RET }

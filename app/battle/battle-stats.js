@@ -1294,7 +1294,7 @@ const debugSetEquipmentAndMateria = () => {
     'Limit_3_2',
     'Limit_4_1'
   ]
-  window.data.savemap.characters.Cloud.limit.bar = 200
+  window.data.savemap.characters.Cloud.limit.bar = 255
   window.data.savemap.characters.Tifa.limit.bar = 128
   window.data.savemap.characters.Tifa.limit.level = 4
   window.data.savemap.characters.Tifa.limit.learnedLimitSkills = [
@@ -1318,7 +1318,7 @@ const debugSetEquipmentAndMateria = () => {
     'Limit_1_1',
     'Limit_2_1'
   ]
-  window.data.savemap.characters.CaitSith.limit
+  window.data.savemap.characters.Aeris.limit.bar = 255
   window.data.savemap.characters.Aeris.status.battleOrder = 'BackRow'
 
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Aeris']

@@ -57,6 +57,9 @@ const executeOp = async op => {
     case 'NAME':
       control.NAME()
       break
+    case 'MSG':
+      control.MSG(op)
+      break
     case 'RET':
       control.RET()
       break

@@ -80,7 +80,7 @@ const getCurrentSpell = () => {
       itemId,
       name: inventoryItem.name,
       quantity: inventoryItem.quantity,
-      data: inventoryItem
+      data: window.data.kernel.allItemData[inventoryItem.itemId]
     }
     return currentSpell
   }

@@ -246,56 +246,31 @@ const getCameraScriptPair = (
   attack,
   isMultipleTargets
 ) => {
-  // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3] // Grunt - Beam Gun
-
   const randomFactor = Math.floor(Math.random() * 3)
   const camdatFile = window.data.battle.camData.camdataFiles[0]
-  let script = null
-  if (
-    command.cameraMovementIdSingleTargets !== undefined &&
-    command.cameraMovementIdSingleTargets !== 0xffff &&
-    !isMultipleTargets
-  ) {
-    script =
-      camdatFile.scripts.main[
-        command.cameraMovementIdSingleTargets * 3 + randomFactor
-      ]
+
+  const getScript = (movementId, isMulti) => {
+    if (
+      movementId !== undefined &&
+      movementId !== 0xffff &&
+      isMulti === isMultipleTargets
+    ) {
+      return camdatFile.scripts.main[movementId * 3 + randomFactor]
+    }
+    return null
   }
-  if (
-    command.cameraMovementIdMultipleTargets !== undefined &&
-    command.cameraMovementIdMultipleTargets !== 0xffff &&
-    !isMultipleTargets
-  ) {
-    script =
-      camdatFile.scripts.main[
-        command.cameraMovementIdMultipleTargets * 3 + randomFactor
-      ]
-  }
-  if (
-    attack.cameraMovementIdSingleTargets !== undefined &&
-    attack.cameraMovementIdSingleTargets !== 0xffff &&
-    !isMultipleTargets
-  ) {
-    script =
-      camdatFile.scripts.main[
-        attack.cameraMovementIdSingleTargets * 3 + randomFactor
-      ]
-  }
-  if (
-    attack.cameraMovementIdMultipleTargets !== undefined &&
-    attack.cameraMovementIdMultipleTargets !== 0xffff &&
-    isMultipleTargets
-  ) {
-    script =
-      camdatFile.scripts.main[
-        attack.cameraMovementIdMultipleTargets * 3 + randomFactor
-      ]
-  }
+
+  const script =
+    getScript(command.cameraMovementIdSingleTargets, false) ||
+    getScript(command.cameraMovementIdMultipleTargets, true) ||
+    getScript(attack.cameraMovementIdSingleTargets, false) ||
+    getScript(attack.cameraMovementIdMultipleTargets, true) ||
+    getScript(attack.cameraMovement, isMultipleTargets)
 
   console.log('CAMERA getCameraScriptPair', randomFactor, script)
   return script
 }
+
 const runCameraScriptPair = async (
   scriptPair,
   attacker,

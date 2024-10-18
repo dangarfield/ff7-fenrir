@@ -125,7 +125,10 @@ const DAMAGE = async op => {
   triggerBarrier() // ?
   triggerCritical() // ?
 }
-const EFFEXE = async op => {
+const EXEITEM = async () => {
+  // executeItem() - Assume similar to EXEEFF, but not sure yet
+}
+const EXEEFF = async () => {
   // executeEffect() - If effect not loaded we will call this opcode until it does. For magic, summon, limit, enemy skill and enemy attack we execute loaded effect.
   // All effects are hardcoded so they can do whatever they want (play sounds, display damage, request hurt for target and so on)
 }
