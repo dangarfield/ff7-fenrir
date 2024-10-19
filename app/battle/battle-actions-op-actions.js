@@ -3,7 +3,10 @@ import { playSound } from '../media/media-sound.js'
 import { position3DToOrtho } from './battle-3d.js'
 import { ACTION_DATA, framesToTime } from './battle-actions.js'
 import { calcDamage, DMG_TYPE } from './battle-damage-calc.js'
-import { displayEffectAnimation } from './battle-effects.js'
+import {
+  displayDamageAnimation,
+  displayEffectAnimation
+} from './battle-effects.js'
 import { tweenInterval, tweenSleep } from './battle-scene.js'
 
 const SOUND = async op => {
@@ -12,22 +15,35 @@ const SOUND = async op => {
 }
 const triggerHurt = async targets => {
   for (const target of targets) {
+    console.log('HURT', ACTION_DATA.attack, target)
+    if (target.type === 'enemy') {
+      target.model.userData.playAnimationOnce(1, {
+        nextAnim: 0
+      }) // Could run script [1], but
+      continue
+    }
+
+    // enemyAttack          .targetHurtAnimation
+    // player weapon        NONE
+    // player magic
+    // player item
+    // player command
+
+    // NOTE: Critical ?!
+
     // TODO - Just a placeholder for now
     // Note, I think attacks have a 'hurt action index' on them, so use this to 'apply' to the targets?!
     // For players:
     //    hurtIndex 0 => enemyActionScript[5] - Normal Hurt
-    //    hurtIndex 2 => enemyActionScript[6] - Sustained
-    //    hurtIndex 2 => enemyActionScript[6] - Knocked off feet
+    //    hurtIndex 1 => enemyActionScript[6] - Sustained
+    //    hurtIndex 2 => enemyActionScript[7] - Knocked off feet
     // For enemies:
     //                   enemyActionScript[1] - Normal Hurt
     //                   enemyActionScript[2] - Knocked off feet
-    // Note: op F2 is trigger when this happens too...
+    // Note: op F2 is triggered when this happens too...
 
     // Also, learned enemy skill probably goes here
     // actor.data.status.defend - Is there a specific animation if target (player) is set to defend?
-    target.model.userData.playAnimationOnce(1, {
-      nextAnim: 0
-    })
   }
 }
 const getRandomItem = list => {
@@ -68,7 +84,10 @@ const triggerSound = async () => {
   }
 }
 const triggerDamage = async () => {
-  // TODO
+  for (const [i, target] of ACTION_DATA.actors.targets.entries()) {
+    const pos = target.model.userData.getBonePosition(0)
+    displayDamageAnimation(pos, ACTION_DATA.damage[i]) // Could be heal, mp flag, recovery, miss, death
+  }
 }
 const triggerBarrier = async () => {
   // TODO - Not sure
@@ -144,7 +163,7 @@ const DUST = () => {
     )
     // Hmm, dust pos appears to really be on the floor... might need to forcibly adjust the y in the bone position
     pos.y = 0
-    // displayEffectAnimation(pos, 'effects32', 'dust', 2, 0.75)
+    displayEffectAnimation(pos, 'effects32', 'dust', 2, 0.75)
   }
   const time = framesToTime(1)
   let count = 0

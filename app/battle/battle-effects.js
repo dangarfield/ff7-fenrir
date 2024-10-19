@@ -4,6 +4,13 @@ import TWEEN from '../../assets/tween.esm.js'
 import { getBattleTextures } from '../data/battle-fetch-data.js'
 import { tweenInterval, tweenSleep } from './battle-scene.js'
 import { framesToTime } from './battle-actions.js'
+import {
+  addImageToGroup,
+  addTextToDialog,
+  ALIGN,
+  LETTER_COLORS,
+  LETTER_TYPES
+} from '../menu/menu-box-helper.js'
 
 const displayEffectAnimation = async (
   pos,
@@ -79,5 +86,58 @@ const displayEffectAnimation = async (
   window.currentBattle.ui.effectsGroup.remove(mesh)
   //   console.log('EFFECT disposed')
 }
+const displayDamageAnimation = async (pos, damage) => {
+  const posOrtho = position3DToOrtho(pos)
+  console.log('DAMAGE', pos, damage, posOrtho)
 
-export { displayEffectAnimation }
+  const group = addTextToDialog(
+    window.currentBattle.ui.effectsGroup,
+    '' + damage.amount,
+    'damage',
+    LETTER_TYPES.BattleTextFixed, // Figure out correct font and colours
+    LETTER_COLORS.White,
+    0,
+    window.config.sizing.height,
+    0.5,
+    null,
+    ALIGN.CENTRE,
+    true
+  )
+
+  // TODO - Extract assets
+  // const group = new THREE.Group()
+  // window.currentBattle.ui.effectsGroup.add(group)
+  // const group2 = addImageToGroup(
+  //   group,
+  //   'labels',
+  //   'target',
+  //   0,
+  //   0,
+  //   0.5,
+  //   null,
+  //   ALIGN.LEFT
+  // )
+  group.userData.isText = true
+  group.position.z = 100 - 3 // ?
+  group.userData.yOffset = 0
+  group.userData.updateOrthoPosition = () => {
+    const posOrthoUpdated = position3DToOrtho(pos)
+    group.position.x = posOrthoUpdated.x
+    group.position.y = posOrthoUpdated.y + group.userData.yOffset
+  }
+  window.ggg = group
+
+  const t = new TWEEN.Tween(group.userData, BATTLE_TWEEN_GROUP)
+    .to({ yOffset: [10, 0] }, 750) // TODO - Heights, timings, easing
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .onComplete(function () {
+      BATTLE_TWEEN_GROUP.remove(t)
+      window.currentBattle.ui.effectsGroup.remove(group)
+    })
+    .start()
+  // Remove
+
+  // TODO - Dispose
+}
+
+export { displayEffectAnimation, displayDamageAnimation }

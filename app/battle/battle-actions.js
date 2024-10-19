@@ -45,85 +45,6 @@ const getActionName = (command, attack) => {
   return actionName
 }
 
-const placeholderBattleAttackSequence = async (
-  fromEntityIndex,
-  toEntityIndex,
-  attackId
-) => {
-  const fromEntity = window.currentBattle.actors[fromEntityIndex]
-  const toEntity = window.currentBattle.actors[toEntityIndex]
-  window.currentBattle.ui.battleText.showBattleMessage(
-    `${fromEntity.data.name}: ${
-      window.currentBattle.attackData.find(a => a.id === attackId).name
-    } -> ${toEntity.data.name}`
-  )
-
-  // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.main[210 * 3] // Grunt - Beam Gun
-  // const scriptPair =
-  //   window.data.battle.camData.camdataFiles[0].scripts.victory[0] // Victory
-
-  // window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3].position = [
-  //   ...window.data.battle.camData.camdataFiles[0].scripts.main[
-  //     0x5a * 3
-  //   ].position.slice(0, 9 - 1),
-  //   window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3].position[
-  //     window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3].position
-  //       .length - 1
-  //   ]
-  // ]
-
-  const scriptPair =
-    window.data.battle.camData.camdataFiles[0].scripts.main[0x5a * 3] // Healing Wind
-
-  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[23 * 3] // Demi3 - z on target is reversed, meh...
-  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[27 * 3] // Flare - some rotation issues, meh...
-  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[9 * 3] // Quake - E4/E5, but both go to attacker?!
-  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[59 * 3] // Omnislash - unknown effect at the minute, d8 op code
-  // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[22 * 3 + 1] // Bio3 - unknown effect at the minute, e8 op code seems like a parsing error though, backttack only
-  // const scriptPair = data.battle.camData.camdataFiles[1].scripts.main[295 * 3] // Hell Combo - focus op EA - materia keeper, battle 595
-  // const scriptPair = data.battle.camData.camdataFiles[0].scripts.main[212 * 3] // Tail Laser - focus op F8 - guard scorpion, battle 324
-  // const scriptPair =
-  //   data.battle.camData.camdataFiles[0].scripts.main[149 * 3 + 1] // Frog Song - op E0 - touch me, battle 116
-  // const scriptPair =
-  //   data.battle.camData.camdataFiles[0].scripts.main[145 * 3 + 1] // Bolt3 all - DF - any
-
-  // Temporary grunt action animation
-  await Promise.all([
-    runCameraScriptPair(scriptPair, 2, [2], false),
-    // runCameraScriptPair(scriptPair, 0, [4], false),
-    (async () => {
-      await fromEntity.model.userData.playAnimationOnce(6, { nextAnim: 7 })
-      await fromEntity.model.userData.playAnimationOnce(7, { nextAnim: 9 })
-      await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
-    })()
-  ])
-  await sleep(1000)
-  await returnCameraToIdle()
-
-  // await moveEntity(
-  //   fromEntity.model,
-  //   fromEntity.model.userData.defaultPosition,
-  //   toEntity.model.userData.defaultPosition
-  // )
-
-  // Allow testing
-  // for (let i = 0; i < 20; i++) {
-  // Action animation
-  // await Promise.all([
-  // toEntity.model.userData.playAnimationOnce(14, { delay: 400, nextAnim: 0 }),
-  // fromEntity.model.userData.playAnimationOnce(8)
-  // fromEntity.model.userData.playAnimationOnce(9)
-  // ])
-  // }
-
-  // fromEntity.model.scene.position.x =
-  //   fromEntity.model.userData.defaultPosition.x
-  // fromEntity.model.scene.position.z =
-  //   fromEntity.model.userData.dbaefaultPosition.z
-
-  // await fromEntity.model.userData.playAnimationOnce(9, { nextAnim: 0 })
-}
 const runUnableToExecuteActionSequence = async (actor, message) => {
   ACTION_DATA.actors.attacker = actor
   // Note: This is not using the [16] action sequence that I think the game does
@@ -248,7 +169,6 @@ const executePlayerAction = async (actor, queueItem) => {
   //  W-Summon
   //  Frog ?!
   // TODO - Ensure idle animation/sequence is correctly set
-  // TODO - Script to run for unable to execute action (eg, no mp, item, no previous mime)
   // TODO - Added effect materia - quadra magic specifically
   // TODO - Implement the rest of the op codes
   // TODO - Hurt animations
@@ -410,13 +330,12 @@ const preLoadBattleSounds = async () => {
     add(attack.impactSound)
   }
 
-  // TODO - It appears as though EFFEXE (EC) also has these hardcoded. So should be part loadEffect LOAD (E8)
+  // TODO - It appears as though EXEEFF (EC) & EXEITEM also has these hardcoded. So should be part loadEffect LOAD (E8)
 
   console.log('LOAD BATTLE SOUNDS soundsLoaded', soundsLoaded)
 }
 
 export {
-  placeholderBattleAttackSequence,
   executeEnemyAction,
   executePlayerAction,
   framesToTime,

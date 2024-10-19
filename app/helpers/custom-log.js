@@ -32,14 +32,16 @@ window.console = (function (origConsole) {
       // 'battleQueue',
       // 'executeEnemyAction',
       // 'executePlayerAction',
-      'getActionSequenceForCommand',
+      // 'getActionSequenceForCommand',
       // 'CAMERA runScriptPair',
       // 'battleUI',
       // 'battleQueue addPlayerActionToQueue',
-      // 'battleQueue player action',
-      'cannotExecuteAction',
+      'battleQueue player action',
+      // 'cannotExecuteAction',
       // 'ACTION runActionSequence',
-      'ACTION'
+      // 'ACTION'
+      'HURT',
+      'DAMAGE'
       // 'executeEnemyAction',
       // 'battleStack',
       // 'battleOp'

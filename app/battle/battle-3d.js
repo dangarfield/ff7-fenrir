@@ -38,6 +38,7 @@ const loadModelWithAnimationBindings = async (code, manager) => {
     // console.log('battle playAnimation', i)
     const action = model.mixer.clipAction(model.animations[i])
     action.timeScale = tempSlow
+    action.loop = THREE.LoopRepeat
     model.mixer.stopAllAction()
     action.reset().play()
     return action
@@ -45,7 +46,7 @@ const loadModelWithAnimationBindings = async (code, manager) => {
   model.userData.playAnimationOnce = (i, options) => {
     return new Promise(resolve => {
       let action = model.mixer.clipAction(model.animations[i])
-      if (action == null) {
+      if (action == null || action.duration === 0) {
         action = model.mixer.clipAction(model.animations[0])
       }
       action.timeScale = tempSlow

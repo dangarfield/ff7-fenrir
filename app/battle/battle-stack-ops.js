@@ -9,10 +9,7 @@ import {
   logMemory as logMemoryMemory
 } from './battle-stack-memory.js'
 import { currentBattle } from './battle-setup.js'
-import {
-  executeEnemyAction,
-  placeholderBattleAttackSequence
-} from './battle-actions.js'
+import { executeEnemyAction } from './battle-actions.js'
 import { executeAllPreActionSetupScripts } from './battle-stack.js'
 
 const TYPES = { VALUE: 'value', ADDRESS: 'address', MULTI: 'multi' }
@@ -577,7 +574,6 @@ const ATTK = async (stack, op, currentActorIndex) => {
   )
   // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
   await executeAllPreActionSetupScripts() // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
-  // await placeholderBattleAttackSequence(currentActorIndex, 0, attackId)
   const actor = window.currentBattle.actors[currentActorIndex]
   await executeEnemyAction(actor, attackId, attackModifier)
   console.log(

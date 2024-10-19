@@ -1284,7 +1284,7 @@ const debugSetEquipmentAndMateria = () => {
   window.data.savemap.characters.Barret.materia.weaponMateria4.ap = 50000
   window.data.savemap.characters.Barret.materia.weaponMateria6.ap = 50000
 
-  window.data.savemap.characters.Cloud.limit.level = 1
+  window.data.savemap.characters.Cloud.limit.level = 2
   window.data.savemap.characters.Cloud.limit.learnedLimitSkills = [
     'Limit_1_1',
     'Limit_1_2',
@@ -1294,7 +1294,7 @@ const debugSetEquipmentAndMateria = () => {
     'Limit_3_2',
     'Limit_4_1'
   ]
-  window.data.savemap.characters.Cloud.limit.bar = 255
+  window.data.savemap.characters.Cloud.limit.bar = 200
   window.data.savemap.characters.Tifa.limit.bar = 128
   window.data.savemap.characters.Tifa.limit.level = 4
   window.data.savemap.characters.Tifa.limit.learnedLimitSkills = [
