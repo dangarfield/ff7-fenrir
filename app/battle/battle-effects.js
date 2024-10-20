@@ -83,82 +83,103 @@ const displayEffectAnimation = async (
 
   disposeAll(mesh)
 }
+
 const displayDamageAnimation = async (pos, damage) => {
-  const posOrtho = position3DToOrtho(pos)
-  console.log('DAMAGE', pos, damage, posOrtho)
-
-  let group
-
   // TODO - HP / MP Absorb (to attacker), both together?!
   // HP Absord visually applies at the end of the turn, with visual hp absorb as the visual preference
   // In fact, mp reduction and 'battle stats' eg, hp / mp levels are only seemingly applied at the end of the sequence
 
-  if (
-    [DMG_TYPE.MISS, DMG_TYPE.DEATH, DMG_TYPE.RECOVERY].includes(damage.type)
-  ) {
-    group = new THREE.Group()
-    window.currentBattle.ui.effectsGroup.add(group)
-    let damageTypeEffectName = damage.type.toLowerCase()
-    if (damage.type === DMG_TYPE.MISS && damage.isRestorative) {
-      damageTypeEffectName = 'miss-restorative'
-    }
-    const group2 = addImageToGroup(
-      group,
-      'battle-damage',
-      damageTypeEffectName,
-      0,
-      4,
-      0.5,
-      null,
-      ALIGN.CENTRE
-    )
-  } else {
-    group = addTextToDialog(
-      window.currentBattle.ui.effectsGroup,
-      '' + damage.amount,
-      'damage',
-      LETTER_TYPES.BattleTextDamage,
-      damage.isRestorative ? LETTER_COLORS.Green : LETTER_COLORS.White,
-      0,
-      window.config.sizing.height,
-      0.5,
-      null,
-      ALIGN.CENTRE,
-      true
-    )
-    if (damage.isMp) {
-      const mpEffectName = damage.isRestorative ? 'mp-restorative' : 'mp'
-      const mp = addImageToGroup(
-        group,
-        'battle-damage',
-        mpEffectName,
-        group.userData.w / 2,
-        1,
-        0.5,
-        null,
-        ALIGN.LEFT
-      )
-    }
-  }
+  const posOrtho = position3DToOrtho(pos)
+  console.log('DAMAGE', pos, damage, posOrtho)
+
+  const group = [DMG_TYPE.MISS, DMG_TYPE.DEATH, DMG_TYPE.RECOVERY].includes(
+    damage.type
+  )
+    ? createDamageTypeEffectGroup(damage)
+    : createDamageTextGroup(damage)
 
   group.userData.isText = true
-  group.position.z = 100 - 3 // ?
+  group.position.z = 97 // Adjusted z index
   group.userData.yOffset = 0
   group.userData.updateOrthoPosition = () => {
-    const posOrthoUpdated = position3DToOrtho(pos)
-    group.position.x = posOrthoUpdated.x
-    group.position.y = posOrthoUpdated.y + group.userData.yOffset
+    const updatedPos = position3DToOrtho(pos)
+    group.position.x = updatedPos.x
+    group.position.y = updatedPos.y + group.userData.yOffset
   }
+
   window.ggg = group
 
-  const t = new TWEEN.Tween(group.userData, BATTLE_TWEEN_GROUP)
-    .to({ yOffset: [8, 0] }, 1250) // TODO - Heights, timings, easing, this is just a guess at the minute
-    // .easing(TWEEN.Easing.Quintic.Out)
-    .onComplete(function () {
-      BATTLE_TWEEN_GROUP.remove(t)
-      disposeAll(group)
-    })
-    .start()
+  await tweenYOffset(group, 4, 250, TWEEN.Easing.Quadratic.In)
+  await tweenYOffset(group, 8, 250, TWEEN.Easing.Quadratic.Out)
+  await tweenYOffset(group, 4, 250, TWEEN.Easing.Quadratic.In)
+  await tweenYOffset(group, 2, 125, TWEEN.Easing.Linear.None)
+  disposeAll(group)
 }
 
+const createDamageTypeEffectGroup = damage => {
+  const group = new THREE.Group()
+  window.currentBattle.ui.effectsGroup.add(group)
+  const effectName = getDamageEffectName(damage)
+  addImageToGroup(
+    group,
+    'battle-damage',
+    effectName,
+    0,
+    4,
+    0.5,
+    null,
+    ALIGN.CENTRE
+  )
+  return group
+}
+
+const createDamageTextGroup = damage => {
+  const group = addTextToDialog(
+    window.currentBattle.ui.effectsGroup,
+    String(damage.amount),
+    'damage',
+    LETTER_TYPES.BattleTextDamage,
+    damage.isRestorative ? LETTER_COLORS.Green : LETTER_COLORS.White,
+    0,
+    window.config.sizing.height,
+    0.5,
+    null,
+    ALIGN.CENTRE,
+    true
+  )
+
+  if (damage.isMp) {
+    const mpEffectName = damage.isRestorative ? 'mp-restorative' : 'mp'
+    addImageToGroup(
+      group,
+      'battle-damage',
+      mpEffectName,
+      group.userData.w / 2,
+      1,
+      0.5,
+      null,
+      ALIGN.LEFT
+    )
+  }
+
+  return group
+}
+const getDamageEffectName = damage => {
+  if (damage.type === DMG_TYPE.MISS && damage.isRestorative)
+    return 'miss-restorative'
+  return damage.type.toLowerCase()
+}
+
+const tweenYOffset = async (group, yOffsetTarget, time, easing) => {
+  return new Promise(resolve => {
+    const t = new TWEEN.Tween(group.userData, BATTLE_TWEEN_GROUP)
+      .to({ yOffset: yOffsetTarget }, time)
+      .easing(easing)
+      .onComplete(function () {
+        BATTLE_TWEEN_GROUP.remove(t)
+        resolve()
+      })
+      .start()
+  })
+}
 export { displayEffectAnimation, displayDamageAnimation }
