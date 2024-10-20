@@ -11,6 +11,8 @@ import {
   LETTER_COLORS,
   LETTER_TYPES
 } from '../menu/menu-box-helper.js'
+import { disposeAll } from '../helpers/helpers.js'
+import { DMG_TYPE } from './battle-damage-calc.js'
 
 const displayEffectAnimation = async (
   pos,
@@ -79,44 +81,46 @@ const displayEffectAnimation = async (
   })
   //   console.log('EFFECT end')
 
-  // Clear up and dispose
-  mesh.geometry.dispose()
-  mesh.material.dispose()
-  if (mesh.material.map) mesh.material.map.dispose()
-  window.currentBattle.ui.effectsGroup.remove(mesh)
-  //   console.log('EFFECT disposed')
+  disposeAll(mesh)
 }
 const displayDamageAnimation = async (pos, damage) => {
   const posOrtho = position3DToOrtho(pos)
   console.log('DAMAGE', pos, damage, posOrtho)
 
-  const group = addTextToDialog(
-    window.currentBattle.ui.effectsGroup,
-    '' + damage.amount,
-    'damage',
-    LETTER_TYPES.BattleTextFixed, // Figure out correct font and colours
-    LETTER_COLORS.White,
-    0,
-    window.config.sizing.height,
-    0.5,
-    null,
-    ALIGN.CENTRE,
-    true
-  )
+  let group
 
-  // TODO - Extract assets
-  // const group = new THREE.Group()
-  // window.currentBattle.ui.effectsGroup.add(group)
-  // const group2 = addImageToGroup(
-  //   group,
-  //   'labels',
-  //   'target',
-  //   0,
-  //   0,
-  //   0.5,
-  //   null,
-  //   ALIGN.LEFT
-  // )
+  if (
+    [DMG_TYPE.MISS, DMG_TYPE.DEATH, DMG_TYPE.RECOVERY].includes(damage.type)
+  ) {
+    group = new THREE.Group()
+    window.currentBattle.ui.effectsGroup.add(group)
+    const group2 = addImageToGroup(
+      group,
+      'battle-damage',
+      damage.type.toLowerCase(),
+      0,
+      4,
+      0.5,
+      null,
+      ALIGN.CENTRE
+    )
+  } else {
+    // TODO - is normal, restorative, critical (flash), MP
+    group = addTextToDialog(
+      window.currentBattle.ui.effectsGroup,
+      '' + damage.amount,
+      'damage',
+      LETTER_TYPES.BattleTextDamage,
+      damage.isRestorative ? LETTER_COLORS.Green : LETTER_COLORS.White,
+      0,
+      window.config.sizing.height,
+      0.5,
+      null,
+      ALIGN.CENTRE,
+      true
+    )
+  }
+
   group.userData.isText = true
   group.position.z = 100 - 3 // ?
   group.userData.yOffset = 0
@@ -128,16 +132,13 @@ const displayDamageAnimation = async (pos, damage) => {
   window.ggg = group
 
   const t = new TWEEN.Tween(group.userData, BATTLE_TWEEN_GROUP)
-    .to({ yOffset: [10, 0] }, 750) // TODO - Heights, timings, easing
-    .easing(TWEEN.Easing.Quadratic.InOut)
+    .to({ yOffset: [8, 0] }, 1250) // TODO - Heights, timings, easing
+    // .easing(TWEEN.Easing.Quintic.Out)
     .onComplete(function () {
       BATTLE_TWEEN_GROUP.remove(t)
-      window.currentBattle.ui.effectsGroup.remove(group)
+      disposeAll(group)
     })
     .start()
-  // Remove
-
-  // TODO - Dispose
 }
 
 export { displayEffectAnimation, displayDamageAnimation }

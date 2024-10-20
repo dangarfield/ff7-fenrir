@@ -25,8 +25,24 @@ const calcDamage = (actor, command, attack, targets) => {
   const isCritical = Math.random() >= 0.5
   const damages = targets.map(t => {
     const d = getDefault()
-    d.amount = 1234
-    d.isCritical = isCritical
+    d.amount = 0
+
+    // TODO - MP damage
+    if (actor.index === 0) {
+      d.type = DMG_TYPE.HIT
+      d.amount = isCritical ? 2468 : 1234
+      d.isCritical = isCritical
+    } else if (actor.index === 1) {
+      d.type = DMG_TYPE.DEATH
+    } else if (actor.index === 2) {
+      // d.type = DMG_TYPE.RECOVERY
+      d.isRestorative = true
+      d.amount = 1234
+    } else if (actor.index === 4) {
+      // d.type = DMG_TYPE.RECOVERY
+      d.isRestorative = true
+      d.amount = 1234
+    }
     return d
   })
   return damages

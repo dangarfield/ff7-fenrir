@@ -41,7 +41,9 @@ window.console = (function (origConsole) {
       // 'ACTION runActionSequence',
       // 'ACTION'
       'HURT',
-      'DAMAGE'
+      'DAMAGE',
+      'LOAD BATTLE SOUNDS',
+      'ACTION triggerSound'
       // 'executeEnemyAction',
       // 'battleStack',
       // 'battleOp'

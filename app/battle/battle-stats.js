@@ -1318,7 +1318,7 @@ const debugSetEquipmentAndMateria = () => {
     'Limit_1_1',
     'Limit_2_1'
   ]
-  window.data.savemap.characters.Aeris.limit.bar = 255
+  window.data.savemap.characters.Aeris.limit.bar = 123
   window.data.savemap.characters.Aeris.status.battleOrder = 'BackRow'
 
   window.data.savemap.party.members = ['Cloud', 'Tifa', 'Aeris']

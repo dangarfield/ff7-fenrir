@@ -63,5 +63,20 @@ const asyncWrap = fn => {
     }, 0)
   })
 }
+const disposeAll = obj => {
+  obj.traverse(child => {
+    if (child.geometry) child.geometry.dispose()
+    if (child.material) {
+      ;(Array.isArray(child.material)
+        ? child.material
+        : [child.material]
+      ).forEach(mat => {
+        for (const key in mat) if (mat[key]?.isTexture) mat[key].dispose()
+        mat.dispose()
+      })
+    }
+  })
+  obj.parent?.remove(obj)
+}
 
-export { sleep, uuid, dec2bin, dec2hex, dec2hexPairs, asyncWrap }
+export { sleep, uuid, dec2bin, dec2hex, dec2hexPairs, asyncWrap, disposeAll }

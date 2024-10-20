@@ -29,6 +29,7 @@ const LETTER_TYPES = {
   BattleBaseFont: 'battle-base-font',
   BattleTextFixed: 'battle-text-fixed',
   BattleTextStats: 'battle-text-stats',
+  BattleTextDamage: 'battle-text-damage',
   CreditsBaseFont: 'credits-base-font',
   CreditsBaseUnderlineFont: 'credits-base-underline-font',
   CreditsBigFont: 'credits-big-font'

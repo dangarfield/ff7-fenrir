@@ -14,15 +14,32 @@ const SOUND = async op => {
   playSound(op.sound)
 }
 const triggerHurt = async targets => {
-  for (const target of targets) {
+  console.log('HURT critical', ACTION_DATA.damage[0].isCritical)
+  // TODO - Is it only critical that gets this flash? Does it happen for death etc?
+  if (ACTION_DATA.damage[0] && ACTION_DATA.damage[0].isCritical) {
+    window.currentBattle.ui.flashPlane.userData.quickFlash() // Temp for visualisation
+  }
+
+  for (const [i, target] of targets.entries()) {
     console.log('HURT', ACTION_DATA.attack, target)
     if (target.type === 'enemy') {
+      if (
+        ACTION_DATA.damage[i].isRestorative ||
+        [DMG_TYPE.RECOVERY, DMG_TYPE.MISS].includes(ACTION_DATA.damage[i].type)
+      ) {
+        // TODO - Check states above, death in particular
+        // Don't animate hurt action if this happens
+        continue
+      }
       target.model.userData.playAnimationOnce(1, {
         nextAnim: 0
       }) // Could run script [1], but
       continue
     }
 
+    if (target.type === 'player') {
+      // TODO - Lots here: restore, miss, block, learn enemy skill, different hurt animation indexes
+    }
     // enemyAttack          .targetHurtAnimation
     // player weapon        NONE
     // player magic
@@ -68,14 +85,17 @@ const triggerSound = async () => {
   let soundId = -1
   if (ACTION_DATA.attack.impactSound) {
     soundId = ACTION_DATA.attack.impactSound
+  } else if (ACTION_DATA.attack.data && ACTION_DATA.attack.data.impactSound) {
+    // Not sure if this is really need for magic attacks?
+    soundId = ACTION_DATA.attack.data.impactSound
   } else if (
-    ACTION_DATA.attack.impactSoundCritical &&
+    ACTION_DATA.attack.data.impactSoundCritical &&
     ACTION_DATA.damage[0] &&
     ACTION_DATA.damage[0].isCritical
   ) {
-    soundId = ACTION_DATA.attack.impactSoundCritical
-  } else if (ACTION_DATA.attack.impactSoundHit) {
-    soundId = ACTION_DATA.attack.impactSoundHit
+    soundId = ACTION_DATA.attack.data.impactSoundCritical
+  } else if (ACTION_DATA.attack.data.impactSoundHit) {
+    soundId = ACTION_DATA.attack.data.impactSoundHit
   }
 
   console.log('ACTION triggerSound', soundId)
@@ -84,10 +104,13 @@ const triggerSound = async () => {
   }
 }
 const triggerDamage = async () => {
+  // Display Damage
   for (const [i, target] of ACTION_DATA.actors.targets.entries()) {
     const pos = target.model.userData.getBonePosition(0)
     displayDamageAnimation(pos, ACTION_DATA.damage[i]) // Could be heal, mp flag, recovery, miss, death
   }
+  // Apply Damage
+  // TODO
 }
 const triggerBarrier = async () => {
   // TODO - Not sure
@@ -99,7 +122,6 @@ const triggerCritical = async () => {
 const ATT = async op => {
   // executeAttack({frames}) - after wait time ends execute hurt action, effect, sound. This will display damage and barriers effect
   await tweenSleep(framesToTime(op.frames))
-  window.currentBattle.ui.flashPlane.userData.quickFlash() // Temp for visualisation
   // This appears to be hardcoded ?!
 
   // Do this before att? because HURT needs it for the sound
@@ -122,7 +144,6 @@ const ATT = async op => {
 const HURT = async op => {
   // executeHurt({frames}) - After wait time ends execute hurt action, effect, sound. This will NOT display damage and barriers effect
   await tweenSleep(framesToTime(op.frames))
-  window.currentBattle.ui.flashPlane.userData.quickFlash() // Temp for visualisation
 
   if (!ACTION_DATA.damage) {
     // Do this before att? because HURT needs it for the sound
@@ -133,6 +154,7 @@ const HURT = async op => {
       ACTION_DATA.actors.targets
     )
   }
+
   triggerHitEffect(ACTION_DATA.actors.targets, 0x2e) // I can't see where this is saved for normal player attacks...
   triggerHurt(ACTION_DATA.actors.targets) // Should probably save these positions as hurt animation messed it up
   triggerSound() // ?
