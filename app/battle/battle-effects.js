@@ -89,15 +89,23 @@ const displayDamageAnimation = async (pos, damage) => {
 
   let group
 
+  // TODO - HP / MP Absorb (to attacker), both together?!
+  // HP Absord visually applies at the end of the turn, with visual hp absorb as the visual preference
+  // In fact, mp reduction and 'battle stats' eg, hp / mp levels are only seemingly applied at the end of the sequence
+
   if (
     [DMG_TYPE.MISS, DMG_TYPE.DEATH, DMG_TYPE.RECOVERY].includes(damage.type)
   ) {
     group = new THREE.Group()
     window.currentBattle.ui.effectsGroup.add(group)
+    let damageTypeEffectName = damage.type.toLowerCase()
+    if (damage.type === DMG_TYPE.MISS && damage.isRestorative) {
+      damageTypeEffectName = 'miss-restorative'
+    }
     const group2 = addImageToGroup(
       group,
       'battle-damage',
-      damage.type.toLowerCase(),
+      damageTypeEffectName,
       0,
       4,
       0.5,
@@ -105,7 +113,6 @@ const displayDamageAnimation = async (pos, damage) => {
       ALIGN.CENTRE
     )
   } else {
-    // TODO - is normal, restorative, critical (flash), MP
     group = addTextToDialog(
       window.currentBattle.ui.effectsGroup,
       '' + damage.amount,
@@ -119,6 +126,19 @@ const displayDamageAnimation = async (pos, damage) => {
       ALIGN.CENTRE,
       true
     )
+    if (damage.isMp) {
+      const mpEffectName = damage.isRestorative ? 'mp-restorative' : 'mp'
+      const mp = addImageToGroup(
+        group,
+        'battle-damage',
+        mpEffectName,
+        group.userData.w / 2,
+        1,
+        0.5,
+        null,
+        ALIGN.LEFT
+      )
+    }
   }
 
   group.userData.isText = true
@@ -132,7 +152,7 @@ const displayDamageAnimation = async (pos, damage) => {
   window.ggg = group
 
   const t = new TWEEN.Tween(group.userData, BATTLE_TWEEN_GROUP)
-    .to({ yOffset: [8, 0] }, 1250) // TODO - Heights, timings, easing
+    .to({ yOffset: [8, 0] }, 1250) // TODO - Heights, timings, easing, this is just a guess at the minute
     // .easing(TWEEN.Easing.Quintic.Out)
     .onComplete(function () {
       BATTLE_TWEEN_GROUP.remove(t)

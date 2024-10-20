@@ -18,6 +18,7 @@ const getDefault = () => {
       add: [],
       removed: []
     }
+    // TODO - What happens about calculating absorb values for HP Absorb / MP Absorb after actions etc? Not sure yet
   }
 }
 // https://github.com/Akari1982/q-gears_reverse/blob/master/ffvii/documents/final_fantasy_vii_battle_mech.txt
@@ -27,21 +28,22 @@ const calcDamage = (actor, command, attack, targets) => {
     const d = getDefault()
     d.amount = 0
 
-    // TODO - MP damage
     if (actor.index === 0) {
       d.type = DMG_TYPE.HIT
       d.amount = isCritical ? 2468 : 1234
       d.isCritical = isCritical
     } else if (actor.index === 1) {
-      d.type = DMG_TYPE.DEATH
+      // d.type = DMG_TYPE.HIT
+      d.isRestorative = true
+      d.amount = 1234
+      d.isMp = true
     } else if (actor.index === 2) {
-      // d.type = DMG_TYPE.RECOVERY
-      d.isRestorative = true
-      d.amount = 1234
+      d.amount = 123
+      d.isMp = true
     } else if (actor.index === 4) {
-      // d.type = DMG_TYPE.RECOVERY
-      d.isRestorative = true
+      // d.type = DMG_TYPE.MISS
       d.amount = 1234
+      d.isMp = true
     }
     return d
   })
