@@ -1165,6 +1165,7 @@ const getBattleStatsForChar = char => {
   // console.log('battleUI equippedMateria', char, equippedMateria)
   const hasLongRangeMateria = equippedMateria.some(m => m.index === 11)
   // TODO - boosted stats
+
   return {
     hp,
     mp,

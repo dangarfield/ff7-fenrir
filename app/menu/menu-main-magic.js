@@ -222,9 +222,7 @@ const drawHeaderCharacterSummary = () => {
     51.5 - 8,
     29.5 - 4,
     DATA.char.name,
-    DATA.char.status.statusFlags === 'None'
-      ? null
-      : DATA.char.status.statusFlags,
+    DATA.char.status,
     DATA.char.level.current,
     DATA.char.stats.hp.current,
     DATA.char.stats.hp.max,
@@ -646,7 +644,7 @@ const drawApplyMagic = spell => {
       147.5 - 8,
       69 - 4 + i * yAdj,
       char.name,
-      char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+      char.status,
       char.level.current,
       char.stats.hp.current,
       char.stats.hp.max,

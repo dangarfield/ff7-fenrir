@@ -1,4 +1,8 @@
-import { getMenuBlackOverlay, setMenuState, resolveMenuPromise } from './menu-module.js'
+import {
+  getMenuBlackOverlay,
+  setMenuState,
+  resolveMenuPromise
+} from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -19,10 +23,23 @@ import {
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
 import { sleep } from '../helpers/helpers.js'
-import { getArmorDataFromItemId, getWeaponDataFromItemId } from '../battle/battle-stats.js'
+import {
+  getArmorDataFromItemId,
+  getWeaponDataFromItemId
+} from '../battle/battle-stats.js'
 
-let titleDialog, headerDialog, partyDialog, membersDialog, equipmentDialog, charPreviewDialog
-let titleGroup, headerGroup, partyGroup, membersGroup, equipmentGroup, charPreviewGroup
+let titleDialog,
+  headerDialog,
+  partyDialog,
+  membersDialog,
+  equipmentDialog,
+  charPreviewDialog
+let titleGroup,
+  headerGroup,
+  partyGroup,
+  membersGroup,
+  equipmentGroup,
+  charPreviewGroup
 
 const data = {
   party: [],
@@ -36,19 +53,46 @@ const data = {
   menuConfig: {
     phs: { headings: ['Please make a party of three.'] },
     // Not sure about some of these diffences (4/5, 6/7)
-    partySelect0: { headings: ['Please make a party of three.', 'Select with START button.'] }, // check if full party is emptied
-    partySelect4: { headings: ['Split your allies into two groups.', 'Please make a party of three.'] }, // check if full party is emptied
-    partySelect5: { headings: ['Split your allies into two groups.', 'Please make a party of three.'] },
-    partySelect6: { headings: ['Split your allies into three groups.', 'Please make a party of three.'] },
-    partySelect7: { headings: ['Split your allies into three groups.', 'Please make a party of three.'] },
-    partySelect8: { headings: ['Split your allies into three groups.', 'Please make a party of two.'], memberCount: 2 }
+    partySelect0: {
+      headings: ['Please make a party of three.', 'Select with START button.']
+    }, // check if full party is emptied
+    partySelect4: {
+      headings: [
+        'Split your allies into two groups.',
+        'Please make a party of three.'
+      ]
+    }, // check if full party is emptied
+    partySelect5: {
+      headings: [
+        'Split your allies into two groups.',
+        'Please make a party of three.'
+      ]
+    },
+    partySelect6: {
+      headings: [
+        'Split your allies into three groups.',
+        'Please make a party of three.'
+      ]
+    },
+    partySelect7: {
+      headings: [
+        'Split your allies into three groups.',
+        'Please make a party of three.'
+      ]
+    },
+    partySelect8: {
+      headings: [
+        'Split your allies into three groups.',
+        'Please make a party of two.'
+      ],
+      memberCount: 2
+    }
   }
-
 }
 const isPartySelect = () => {
   return data.menuType !== 'phs'
 }
-const setInitialMemberData = (param) => {
+const setInitialMemberData = param => {
   data.party = []
   data.members = []
   data.party.push(...window.data.savemap.party.members)
@@ -71,7 +115,8 @@ const setInitialMemberData = (param) => {
   }
   console.log('phs data', data)
 }
-const loadPHSMenu = async (param) => { // Note: Param is for param select menu
+const loadPHSMenu = async param => {
+  // Note: Param is for param select menu
   setInitialMemberData(param)
 
   headerDialog = await createDialogBox({
@@ -232,16 +277,16 @@ const drawParty = () => {
         charName,
         'profile-image',
         16 + 20,
-        34 + 24 + (vAdj * i),
+        34 + 24 + vAdj * i,
         0.5 // 160x192
       )
       addCharacterSummary(
         partyGroup,
         charName,
         67 - 8, // 59,
-        48.5 - 4 + (vAdj * i),
+        48.5 - 4 + vAdj * i,
         char.name,
-        char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+        char.status,
         char.level.current,
         char.stats.hp.current,
         char.stats.hp.max,
@@ -263,8 +308,8 @@ const drawMembers = () => {
         'profiles',
         charName,
         'profile-image',
-        176 + 17.5 + (hAdj * (i % 3)),
-        88 + 20 + (vAdj * Math.trunc(i / 3)),
+        176 + 17.5 + hAdj * (i % 3),
+        88 + 20 + vAdj * Math.trunc(i / 3),
         0.41666 // 134x160, I'm just scaling the image here, but in uniform direction, it's actually 134x160.8 but should be 134x160, I'm not going to change it
       )
     }
@@ -290,7 +335,7 @@ const drawCharPreview = () => {
       221 - 8,
       44 - 4,
       char.name,
-      char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+      char.status,
       char.level.current,
       char.stats.hp.current,
       char.stats.hp.max,
@@ -299,7 +344,7 @@ const drawCharPreview = () => {
     )
   }
 }
-const drawEquipment = (charName) => {
+const drawEquipment = charName => {
   removeGroupChildren(equipmentGroup)
   if (charName !== 'None') {
     const char = window.data.savemap.characters[charName]
@@ -383,7 +428,7 @@ const drawEquipment = (charName) => {
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.Cyan,
         174 - 8,
-        160.5 - 4 + (i * 32),
+        160.5 - 4 + i * 32,
         0.5
       )
       // console.log('status equip', i, equip)
@@ -394,22 +439,26 @@ const drawEquipment = (charName) => {
         LETTER_TYPES.MenuBaseFont,
         LETTER_COLORS.White,
         206.5 - 8,
-        160.5 + (i * 32),
+        160.5 + i * 32,
         0.5
       )
     }
 
-    createEquipmentMateriaViewer(equipmentGroup,
+    createEquipmentMateriaViewer(
+      equipmentGroup,
       197,
       157,
       getWeaponDataFromItemId(char.equip.weapon.itemId).materiaSlots,
-      char, EQUIPMENT_TYPE.WEAPON
+      char,
+      EQUIPMENT_TYPE.WEAPON
     )
-    createEquipmentMateriaViewer(equipmentGroup,
+    createEquipmentMateriaViewer(
+      equipmentGroup,
       197,
       157 + 32,
       getArmorDataFromItemId(char.equip.armor.itemId).materiaSlots,
-      char, EQUIPMENT_TYPE.ARMOR
+      char,
+      EQUIPMENT_TYPE.ARMOR
     )
   }
 }
@@ -418,10 +467,10 @@ const calcPointerPos = () => {
   const pos = { x: 0, y: 0 }
   if (data.sourceParty) {
     pos.x = 20 - 10
-    pos.y = 61 + 7 + (data.partyCurrent * 68.5)
+    pos.y = 61 + 7 + data.partyCurrent * 68.5
   } else {
-    pos.x = 183 - 10 + (40 * (data.membersCurrent % 3))
-    pos.y = 112.5 + 7 + (49.5 * Math.trunc(data.membersCurrent / 3))
+    pos.x = 183 - 10 + 40 * (data.membersCurrent % 3)
+    pos.y = 112.5 + 7 + 49.5 * Math.trunc(data.membersCurrent / 3)
   }
   return pos
 }
@@ -439,7 +488,7 @@ const hideSelectPointer = () => {
 const hideSelectedPointer = () => {
   movePointer(POINTERS.pointer2, 0, 0, true)
 }
-const navigate = (key) => {
+const navigate = key => {
   if (data.sourceParty) {
     if (key === KEY.UP) {
       data.partyCurrent--
@@ -479,8 +528,14 @@ const navigate = (key) => {
   placeSelectPointer()
 }
 const selectA = () => {
-  const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
-  const potential = { sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName }
+  const charName = data.sourceParty
+    ? data.party[data.partyCurrent]
+    : data.members[data.membersCurrent]
+  const potential = {
+    sourceParty: data.sourceParty,
+    index: data.sourceParty ? data.partyCurrent : data.membersCurrent,
+    name: charName
+  }
 
   if (window.data.savemap.party.phsLocked[charName]) {
     // Cannot select, play sound
@@ -498,12 +553,21 @@ const cancelSelectA = () => {
   setMenuState('phs-select-a')
 }
 const selectB = () => {
-  const charName = data.sourceParty ? data.party[data.partyCurrent] : data.members[data.membersCurrent]
-  const potential = { sourceParty: data.sourceParty, index: data.sourceParty ? data.partyCurrent : data.membersCurrent, name: charName }
+  const charName = data.sourceParty
+    ? data.party[data.partyCurrent]
+    : data.members[data.membersCurrent]
+  const potential = {
+    sourceParty: data.sourceParty,
+    index: data.sourceParty ? data.partyCurrent : data.membersCurrent,
+    name: charName
+  }
   if (window.data.savemap.party.phsLocked[charName]) {
     // Cannot select, play sound
     console.log('phs Cannot select as player is locked')
-  } else if (potential.sourceParty === data.selectA.sourceParty && potential.index === data.selectA.index) {
+  } else if (
+    potential.sourceParty === data.selectA.sourceParty &&
+    potential.index === data.selectA.index
+  ) {
     if (charName === 'None') {
       console.log('phs No equipment view available for ', charName)
       cancelSelectA()
@@ -603,7 +667,12 @@ const keyPress = async (key, firstPress, state) => {
     //
   }
   if (state === 'phs-select-a') {
-    if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
+    if (
+      key === KEY.UP ||
+      key === KEY.DOWN ||
+      key === KEY.LEFT ||
+      key === KEY.RIGHT
+    ) {
       navigate(key)
     } else if (key === KEY.X || key === KEY.START) {
       attemptToExitPHSMenu()
@@ -612,7 +681,12 @@ const keyPress = async (key, firstPress, state) => {
     }
   }
   if (state === 'phs-select-b') {
-    if (key === KEY.UP || key === KEY.DOWN || key === KEY.LEFT || key === KEY.RIGHT) {
+    if (
+      key === KEY.UP ||
+      key === KEY.DOWN ||
+      key === KEY.LEFT ||
+      key === KEY.RIGHT
+    ) {
       navigate(key)
     } else if (key === KEY.X) {
       cancelSelectA()

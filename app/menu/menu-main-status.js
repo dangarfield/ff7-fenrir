@@ -20,8 +20,15 @@ import {
 } from './menu-box-helper.js'
 import { fadeInHomeMenu } from './menu-main-home.js'
 import { KEY } from '../interaction/inputs.js'
-import { getBattleStatsForChar, getArmorDataFromItemId, getWeaponDataFromItemId } from '../battle/battle-stats.js'
-import { stopAllLimitBarTweens, stopAllLimitTextTweens } from './menu-limit-tween-helper.js'
+import {
+  getBattleStatsForChar,
+  getArmorDataFromItemId,
+  getWeaponDataFromItemId
+} from '../battle/battle-stats.js'
+import {
+  stopAllLimitBarTweens,
+  stopAllLimitTextTweens
+} from './menu-limit-tween-helper.js'
 
 let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
 
@@ -101,7 +108,10 @@ const displayPage = () => {
   }
 }
 const populatePagesForCharacter = () => {
-  const char = window.data.savemap.characters[window.data.savemap.party.members[STATUS_DATA.partyMember]]
+  const char =
+    window.data.savemap.characters[
+      window.data.savemap.party.members[STATUS_DATA.partyMember]
+    ]
 
   const battleStats = getBattleStatsForChar(char)
   addPartyMemberHeader(char, STATUS_DATA.partyMember)
@@ -131,7 +141,7 @@ const addPartyMemberHeader = (char, partyMember) => {
     43.5,
     14.5,
     char.name,
-    char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+    char.status,
     char.level.current,
     char.stats.hp.current,
     char.stats.hp.max,
@@ -262,7 +272,7 @@ const addPartyMemberStats = (char, battleStats) => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       30 - 8,
-      70 - 4 + (i * 12) + adj,
+      70 - 4 + i * 12 + adj,
       0.5
     )
     addTextToDialog(
@@ -272,14 +282,19 @@ const addPartyMemberStats = (char, battleStats) => {
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       101.5 - 8,
-      70 - 4 + (i * 12) + adj,
+      70 - 4 + i * 12 + adj,
       0.5
     )
   }
 
   // Commands
 
-  const commandsGroup = createCommandsDialog(statsGroup, 148.5, 68.5, battleStats.menu.command)
+  const commandsGroup = createCommandsDialog(
+    statsGroup,
+    148.5,
+    68.5,
+    battleStats.menu.command
+  )
   addMenuCommandsToDialog(commandsGroup, 148.5, 68.5, battleStats.menu.command)
 
   // Equips
@@ -298,7 +313,7 @@ const addPartyMemberStats = (char, battleStats) => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       154.5 - 8,
-      166.5 - 4 + (i * 32),
+      166.5 - 4 + i * 32,
       0.5
     )
     // console.log('status equip', i, equip)
@@ -309,23 +324,26 @@ const addPartyMemberStats = (char, battleStats) => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       188 - 8,
-      166.5 - 4 + (i * 32),
+      166.5 - 4 + i * 32,
       0.5
     )
   }
 
-  createEquipmentMateriaViewer(statsGroup,
+  createEquipmentMateriaViewer(
+    statsGroup,
     178.5,
     159,
     getWeaponDataFromItemId(char.equip.weapon.itemId).materiaSlots,
-    char, EQUIPMENT_TYPE.WEAPON
-
+    char,
+    EQUIPMENT_TYPE.WEAPON
   )
-  createEquipmentMateriaViewer(statsGroup,
+  createEquipmentMateriaViewer(
+    statsGroup,
     178.5,
     159 + 32,
     getArmorDataFromItemId(char.equip.armor.itemId).materiaSlots,
-    char, EQUIPMENT_TYPE.ARMOR
+    char,
+    EQUIPMENT_TYPE.ARMOR
   )
 }
 const addPartyMemberElements = (char, battleStats) => {
@@ -406,7 +424,9 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.attack.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.attack.includes(element[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
       yPos[0] + element[3] - 4,
       0.5
@@ -416,7 +436,9 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.halve.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.halve.includes(element[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
       yPos[1] + element[3] - 4,
       0.5
@@ -426,7 +448,9 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.invalid.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.invalid.includes(element[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
       yPos[2] + element[3] - 4,
       0.5
@@ -436,7 +460,9 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[0]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.absorb.includes(element[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.elements.absorb.includes(element[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
       yPos[3] + element[3] - 4,
       0.5
@@ -526,7 +552,9 @@ const addPartyMemberStatus = (char, battleStats) => {
       status[0],
       `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.attack.includes(status[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.statusEffects.attack.includes(status[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + status[2] - 8,
       yPos[0] + status[3] - 4,
       0.5
@@ -536,7 +564,9 @@ const addPartyMemberStatus = (char, battleStats) => {
       status[0],
       `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.defend.includes(status[1]) ? LETTER_COLORS.White : LETTER_COLORS.Gray,
+      battleStats.statusEffects.defend.includes(status[1])
+        ? LETTER_COLORS.White
+        : LETTER_COLORS.Gray,
       xPos + status[2] - 8,
       yPos[1] + status[3] - 4,
       0.5

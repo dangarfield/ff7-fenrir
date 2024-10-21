@@ -1055,9 +1055,7 @@ const drawHeader = () => {
     51.5 - 8,
     25 - 4,
     DATA.char.name,
-    DATA.char.status.statusFlags === 'None'
-      ? null
-      : DATA.char.status.statusFlags,
+    DATA.char.status,
     DATA.char.level.current,
     DATA.char.stats.hp.current,
     DATA.char.stats.hp.max,

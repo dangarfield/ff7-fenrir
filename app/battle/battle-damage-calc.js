@@ -22,6 +22,7 @@ const getDefault = () => {
   }
 }
 // https://github.com/Akari1982/q-gears_reverse/blob/master/ffvii/documents/final_fantasy_vii_battle_mech.txt
+// https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics
 const calcDamage = (actor, command, attack, targets) => {
   const isCritical = Math.random() >= 0.5
   const damages = targets.map(t => {
@@ -49,4 +50,33 @@ const calcDamage = (actor, command, attack, targets) => {
   })
   return damages
 }
-export { calcDamage, DMG_TYPE }
+const hasStatus = (char, status) => {
+  return char.status.includes(status)
+}
+const hasOneOfStatuses = (char, statuses) => {
+  return char.status.some(status => statuses.includes(status))
+}
+const addStatus = (char, status) => {
+  !char.status.includes(status) && char.status.push(status)
+}
+const addStatuses = (char, statuses) => {
+  statuses.forEach(
+    status => !char.status.includes(status) && char.status.push(status)
+  )
+}
+const removeStatus = (char, status) => {
+  char.status = char.status.filter(s => s !== status)
+}
+const removeStatuses = (char, statuses) => {
+  char.status = char.status.filter(s => !statuses.includes(s))
+}
+export {
+  calcDamage,
+  DMG_TYPE,
+  hasStatus,
+  hasOneOfStatuses,
+  addStatus,
+  addStatuses,
+  removeStatus,
+  removeStatuses
+}

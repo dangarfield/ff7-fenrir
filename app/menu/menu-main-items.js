@@ -1,7 +1,11 @@
 import * as THREE from '../../assets/threejs-r148/build/three.module.js'
 import TWEEN from '../../assets/tween.esm.js'
 import { scene, MENU_TWEEN_GROUP } from './menu-scene.js'
-import { getMenuBlackOverlay, setMenuState, getMenuState } from './menu-module.js'
+import {
+  getMenuBlackOverlay,
+  setMenuState,
+  getMenuState
+} from './menu-module.js'
 import {
   LETTER_TYPES,
   LETTER_COLORS,
@@ -207,7 +211,7 @@ const drawParty = () => {
         58,
         0,
         char.name,
-        char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+        char.status,
         char.level.current,
         char.stats.hp.current,
         char.stats.hp.max,
@@ -332,7 +336,7 @@ const drawOneItem = (group, i, page, x, y, yAdj) => {
     LETTER_TYPES.MenuBaseFont,
     color,
     x,
-    y + (yAdj * i),
+    y + yAdj * i,
     0.5
   )
   addTextToDialog(
@@ -342,7 +346,7 @@ const drawOneItem = (group, i, page, x, y, yAdj) => {
     LETTER_TYPES.MenuTextStats,
     color,
     x + 88.5,
-    y + (yAdj * i),
+    y + yAdj * i,
     0.5
   )
   addTextToDialog(
@@ -352,7 +356,7 @@ const drawOneItem = (group, i, page, x, y, yAdj) => {
     LETTER_TYPES.MenuTextFixed,
     color,
     x + 87.5,
-    y + (yAdj * i),
+    y + yAdj * i,
     0.5
   )
   addImageToDialog(
@@ -361,7 +365,7 @@ const drawOneItem = (group, i, page, x, y, yAdj) => {
     getItemIcon(itemData),
     `items-icon-${i}`,
     x - 0.5,
-    y + (yAdj * i),
+    y + yAdj * i,
     0.5
   )
 }
@@ -378,12 +382,12 @@ const drawItems = () => {
   itemGroup.userData.slider.userData.moveToPage(DATA.use.page)
   itemContentsGroup.position.y = 0
 }
-const drawItemsPointer = (POS) => {
+const drawItemsPointer = POS => {
   const { x, y, yAdj } = getItemPositions()
   movePointer(
     POINTERS.pointer2,
     x - 17, // TODO - positions
-    y + (yAdj * POS.pos) + 2
+    y + yAdj * POS.pos + 2
   )
 }
 const drawItemsSelectedPointer = () => {
@@ -396,8 +400,9 @@ const drawItemsSelectedPointer = () => {
     movePointer(
       POINTERS.pointer3,
       x - 17 - 2, // TODO - positions
-      y + (yAdj * pos) + 2 - 2,
-      false, true
+      y + yAdj * pos + 2 - 2,
+      false,
+      true
     )
   }
 }
@@ -407,7 +412,10 @@ const clearItemDescription = () => {
 }
 const drawItemInfo = POS => {
   removeGroupChildren(itemDescGroup)
-  const item = window.data.kernel.allItemData[window.data.savemap.items[POS.page + POS.pos].itemId]
+  const item =
+    window.data.kernel.allItemData[
+      window.data.savemap.items[POS.page + POS.pos].itemId
+    ]
   if (item === undefined) {
     return
   }
@@ -454,7 +462,9 @@ const tweenItemList = (up, state, POS, cb) => {
     subContents.children[i].visible = true
   }
   const from = { y: subContents.position.y }
-  const to = { y: up ? subContents.position.y + 18.5 : subContents.position.y - 18.5 }
+  const to = {
+    y: up ? subContents.position.y + 18.5 : subContents.position.y - 18.5
+  }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
@@ -472,10 +482,21 @@ const tweenItemList = (up, state, POS, cb) => {
 const itemNavigation = (up, POS, pageChangeCallback) => {
   const maxPage = window.data.savemap.items.length - 10
   const maxPos = 10
-  const delta = (up ? 1 : -1)
+  const delta = up ? 1 : -1
   const potential = POS.pos + delta
 
-  console.log('item itemNavigation', delta, '-', POS.pos, POS.pos, '->', potential, ':', maxPage, maxPos)
+  console.log(
+    'item itemNavigation',
+    delta,
+    '-',
+    POS.pos,
+    POS.pos,
+    '->',
+    potential,
+    ':',
+    maxPage,
+    maxPos
+  )
 
   const { x, y, yAdj } = getItemPositions()
 
@@ -493,11 +514,20 @@ const itemNavigation = (up, POS, pageChangeCallback) => {
       }
     }
   } else if (potential >= maxPos) {
-    console.log('item itemNavigation page - is last page??', POS.page, maxPos, maxPage)
+    console.log(
+      'item itemNavigation page - is last page??',
+      POS.page,
+      maxPos,
+      maxPage
+    )
     if (POS.page >= maxPage) {
       console.log('item itemNavigation on last page - do nothing')
     } else {
-      console.log('item itemNavigation not on last page - PAGE UP', delta, POS.pos)
+      console.log(
+        'item itemNavigation not on last page - PAGE UP',
+        delta,
+        POS.pos
+      )
       drawOneItem(itemContentsGroup, 10, POS.page, x, y, yAdj)
       POS.page++
       tweenItemList(true, getMenuState(), POS, drawItems)
@@ -507,7 +537,12 @@ const itemNavigation = (up, POS, pageChangeCallback) => {
       }
     }
   } else {
-    console.log('item itemNavigation move pointer only', POS.page, POS.pos, potential)
+    console.log(
+      'item itemNavigation move pointer only',
+      POS.page,
+      POS.pos,
+      potential
+    )
     POS.pos = potential
     drawItemInfo(POS)
     drawItemsPointer(POS)
@@ -652,10 +687,16 @@ const sortItemsByAttribute = (attribute, descending) => {
 
   const items = window.data.savemap.items.filter(i => i.itemId !== 127)
 
-  if (items.length > 0 && typeof (items[0][attribute]) === 'string') {
-    items.sort((a, b) => descending ? b[attribute].localeCompare(a[attribute]) : a[attribute].localeCompare(b[attribute]))
+  if (items.length > 0 && typeof items[0][attribute] === 'string') {
+    items.sort((a, b) =>
+      descending
+        ? b[attribute].localeCompare(a[attribute])
+        : a[attribute].localeCompare(b[attribute])
+    )
   } else {
-    items.sort((a, b) => descending ? b[attribute] - a[attribute] : a[attribute] - b[attribute])
+    items.sort((a, b) =>
+      descending ? b[attribute] - a[attribute] : a[attribute] - b[attribute]
+    )
   }
 
   window.data.savemap.items = items
@@ -834,9 +875,7 @@ const setItemKeypage = () => {
   }
 }
 const setItemKeySliderPosition = () => {
-  itemKeyList.userData.slider.userData.moveToPage(
-    KEYDATA.page
-  )
+  itemKeyList.userData.slider.userData.moveToPage(KEYDATA.page)
 }
 
 const setItemKeypos = () => {

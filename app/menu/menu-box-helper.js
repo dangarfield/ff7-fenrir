@@ -7,6 +7,7 @@ import { getWindowTextures } from '../data/kernel-fetch-data.js'
 
 import { sleep } from '../helpers/helpers.js'
 import { addLimitBarTween } from './menu-limit-tween-helper.js'
+import { hasStatus } from '../battle/battle-damage-calc.js'
 const EDGE_SIZE = 8
 const BUTTON_IMAGES = [
   { text: 'CANCEL', char: '✕', key: 'button cross' },
@@ -1073,10 +1074,12 @@ const addCharacterSummary = async (
     window.config.sizing.height - y + labelOffsetY + labelGapY * 2,
     0.5
   )
-  if (status) {
+  const furySadnessStatus =
+    status.find(s => s === 'Fury' || s === 'Sadness') || null
+  if (furySadnessStatus) {
     addTextToDialog(
       dialogBox,
-      status,
+      furySadnessStatus,
       `summary-status-${charId}`,
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Purple,
@@ -1869,10 +1872,10 @@ const addLimitToDialog = (dialog, x, y, char) => {
 
   let color1 = WINDOW_COLORS_SUMMARY.LIMIT_1
   let color2 = WINDOW_COLORS_SUMMARY.LIMIT_2
-  if (char.status.statusFlags === 'Fury') {
+  if (hasStatus(char, 'Fury')) {
     color1 = WINDOW_COLORS_SUMMARY.LIMIT_FURY_1
     color2 = WINDOW_COLORS_SUMMARY.LIMIT_FURY_2
-  } else if (char.status.statusFlags === 'Sadness') {
+  } else if (hasStatus(char, 'Sadness')) {
     color1 = WINDOW_COLORS_SUMMARY.LIMIT_SADNESS_1
     color2 = WINDOW_COLORS_SUMMARY.LIMIT_SADNESS_2
   }

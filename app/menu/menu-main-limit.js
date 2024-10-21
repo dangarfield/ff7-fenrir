@@ -196,14 +196,17 @@ const drawAll = partyMember => {
   }
   console.log('limit partyMember', partyMember, typeof partyMember)
   LIMIT_DATA.member = partyMember
-  const char = window.data.savemap.characters[window.data.savemap.party.members[LIMIT_DATA.member]]
+  const char =
+    window.data.savemap.characters[
+      window.data.savemap.party.members[LIMIT_DATA.member]
+    ]
   addCharacterSummary(
     limitActionsGroup,
     LIMIT_DATA.member,
     46.5,
     16,
     char.name,
-    char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+    char.status,
     char.level.current,
     char.stats.hp.current,
     char.stats.hp.max,
@@ -304,8 +307,13 @@ const getLimitSkills = (char, potentialLimits, magicNameIndex, skip) => {
       if (char.limit.learnedLimitSkils.includes(potentialLimit)) {
         // if (true) { // Just temp
         skills[i].push({
-          name: window.data.kernel.magicNames[magicNameIndex + counter].replace('{COLOR(2)}', ''),
-          description: window.data.kernel.magicDescriptions[magicNameIndex + counter].replace('{COLOR(2)}', '')
+          name: window.data.kernel.magicNames[magicNameIndex + counter].replace(
+            '{COLOR(2)}',
+            ''
+          ),
+          description: window.data.kernel.magicDescriptions[
+            magicNameIndex + counter
+          ].replace('{COLOR(2)}', '')
         })
       }
       if (skip) {
@@ -537,7 +545,10 @@ const changeLevel = async () => {
   setMenuState('loading')
   limitConfirm.visible = false
   movePointer(POINTERS.pointer1, 0, 0, true)
-  const char = window.data.savemap.characters[window.data.savemap.party.members[LIMIT_DATA.member]]
+  const char =
+    window.data.savemap.characters[
+      window.data.savemap.party.members[LIMIT_DATA.member]
+    ]
   char.limit.level = LIMIT_DATA.level + 1
   char.limit.bar = 0
   drawAll(LIMIT_DATA.member)

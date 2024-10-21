@@ -42,6 +42,7 @@ import {
 } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 import { loadTitleMenu } from './menu-title.js'
+import { addStatus } from '../battle/battle-damage-calc.js'
 
 let homeNav,
   homeTime,
@@ -107,8 +108,8 @@ const debugPopulateMenuTestData = () => {
   }
 
   // Status
-  window.data.savemap.characters.Cloud.status.statusFlags = 'Fury'
-  window.data.savemap.characters.Barret.status.statusFlags = 'Sadness'
+  addStatus(window.data.savemap.characters.Cloud, 'Fury')
+  addStatus(window.data.savemap.characters.Barret, 'Sadness')
 
   // Limit
   // window.data.savemap.characters.Cloud.limit.bar = 255
@@ -376,7 +377,7 @@ const drawHomeMain = () => {
         77,
         0,
         char.name,
-        char.status.statusFlags === 'None' ? null : char.status.statusFlags,
+        char.status,
         char.level.current,
         char.stats.hp.current,
         char.stats.hp.max,

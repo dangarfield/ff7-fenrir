@@ -20,12 +20,23 @@ import {
   createItemListNavigation
 } from './menu-box-helper.js'
 import { fadeInHomeMenu, setSelectedNavByName } from './menu-main-home.js'
-import { getBattleStatsForChar, getWeaponDataFromItemId, getArmorDataFromItemId } from '../battle/battle-stats.js'
+import {
+  getBattleStatsForChar,
+  getWeaponDataFromItemId,
+  getArmorDataFromItemId
+} from '../battle/battle-stats.js'
 import { getMenuVisibility } from '../data/savemap-alias.js'
 import { KEY } from '../interaction/inputs.js'
 
 let headerDialog, infoDialog, slotsDialog, statsDialog, listDialog
-let headerGroup, infoGroup, slotsGroup, statsLabelsGroup, statsBaseGroup, statsSelectedGroup, listGroup, listGroupContents
+let headerGroup,
+  infoGroup,
+  slotsGroup,
+  statsLabelsGroup,
+  statsBaseGroup,
+  statsSelectedGroup,
+  listGroup,
+  listGroupContents
 
 const DATA = {
   partyMember: 0,
@@ -172,7 +183,7 @@ const drawHeader = () => {
     55 - 8,
     18.5 - 4,
     DATA.char.name,
-    DATA.char.status.statusFlags === 'None' ? null : DATA.char.status.statusFlags,
+    DATA.char.status,
     DATA.char.level.current,
     DATA.char.stats.hp.current,
     DATA.char.stats.hp.max,
@@ -183,7 +194,10 @@ const drawHeader = () => {
   const equips = [
     ['Wpn.', DATA.char.equip.weapon.name ? DATA.char.equip.weapon.name : ''],
     ['Arm.', DATA.char.equip.armor.name ? DATA.char.equip.armor.name : ''],
-    ['Acc.', DATA.char.equip.accessory.name ? DATA.char.equip.accessory.name : '']
+    [
+      'Acc.',
+      DATA.char.equip.accessory.name ? DATA.char.equip.accessory.name : ''
+    ]
   ]
 
   for (let i = 0; i < equips.length; i++) {
@@ -195,7 +209,7 @@ const drawHeader = () => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       125 - 8,
-      16.5 - 4 + (i * 17),
+      16.5 - 4 + i * 17,
       0.5
     )
     // console.log('status equip', i, equip)
@@ -206,12 +220,12 @@ const drawHeader = () => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       151.5 - 8,
-      16.5 - 4 + (i * 17),
+      16.5 - 4 + i * 17,
       0.5
     )
   }
 }
-const drawInfo = (isFromList) => {
+const drawInfo = isFromList => {
   removeGroupChildren(infoGroup)
 
   let description
@@ -239,7 +253,7 @@ const drawInfo = (isFromList) => {
     )
   }
 }
-const getGrowthText = (growthRateText) => {
+const getGrowthText = growthRateText => {
   if (growthRateText === 'None') {
     return 'Nothing'
   } else if (growthRateText === 'Double') {
@@ -251,7 +265,7 @@ const getGrowthText = (growthRateText) => {
     return 'Normal'
   }
 }
-const drawSlots = (isFromList) => {
+const drawSlots = isFromList => {
   removeGroupChildren(slotsGroup)
   // Not right obviously, just placeholder
 
@@ -266,7 +280,9 @@ const drawSlots = (isFromList) => {
     }
   } else if (DATA.equipType === 0) {
     // const equip = getWeaponDataFromItemId[DATA.char.equip.weapon.itemId] // This doesn't work?!?! WHY?!?!
-    const equip = window.data.kernel.weaponData.find(i => i.itemId === DATA.char.equip.weapon.itemId)
+    const equip = window.data.kernel.weaponData.find(
+      i => i.itemId === DATA.char.equip.weapon.itemId
+    )
     slots = equip.materiaSlots
     growth = getGrowthText(equip.growthRate)
   } else if (DATA.equipType === 1) {
@@ -306,12 +322,7 @@ const drawSlots = (isFromList) => {
       123.5 - 4,
       0.5
     )
-    createEquipmentMateriaViewer(slotsGroup,
-      75,
-      92 - 13.5,
-      slots,
-      DATA.char
-    )
+    createEquipmentMateriaViewer(slotsGroup, 75, 92 - 13.5, slots, DATA.char)
   }
 }
 
@@ -335,7 +346,7 @@ const drawStatsLabels = () => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.Cyan,
       26.5 - 8,
-      148.5 - 4 + (i * 13),
+      148.5 - 4 + i * 13,
       0.5
     )
     addTextToDialog(
@@ -345,7 +356,7 @@ const drawStatsLabels = () => {
       LETTER_TYPES.MenuTextFixed,
       LETTER_COLORS.Cyan,
       100 + 23.5 - 8,
-      148.5 - 4 + (i * 13),
+      148.5 - 4 + i * 13,
       0.5
     )
   }
@@ -361,7 +372,7 @@ const drawStatsBase = () => {
       LETTER_TYPES.MenuTextStats,
       LETTER_COLORS.White,
       100 - 8,
-      148.5 - 4 + (i * 13),
+      148.5 - 4 + i * 13,
       0.5
     )
   }
@@ -373,11 +384,26 @@ const drawStatsSelected = () => {
   const charClone = JSON.parse(JSON.stringify(DATA.char))
   const equip = DATA.equipable[DATA.page + DATA.pos]
   if (DATA.equipType === 0) {
-    charClone.equip.weapon = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
+    charClone.equip.weapon = {
+      index: equip.index,
+      itemId: equip.itemId,
+      name: equip.name,
+      description: equip.description
+    }
   } else if (DATA.equipType === 1) {
-    charClone.equip.armor = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
+    charClone.equip.armor = {
+      index: equip.index,
+      itemId: equip.itemId,
+      name: equip.name,
+      description: equip.description
+    }
   } else if (DATA.equipType === 2) {
-    charClone.equip.accessory = { index: equip.index, itemId: equip.itemId, name: equip.name, description: equip.description }
+    charClone.equip.accessory = {
+      index: equip.index,
+      itemId: equip.itemId,
+      name: equip.name,
+      description: equip.description
+    }
   }
 
   // Note: This appears to be more accurate that the game displays in the menu
@@ -391,7 +417,12 @@ const drawStatsSelected = () => {
   for (let i = 0; i < STAT_TYPES.length; i++) {
     const attr = STAT_TYPES[i][1]
 
-    console.log('equip drawStatsSelected attr', attr, DATA.battleStats[attr], battleStats[attr])
+    console.log(
+      'equip drawStatsSelected attr',
+      attr,
+      DATA.battleStats[attr],
+      battleStats[attr]
+    )
 
     let color = LETTER_COLORS.White
     if (DATA.battleStats[attr] > battleStats[attr]) {
@@ -406,7 +437,7 @@ const drawStatsSelected = () => {
       LETTER_TYPES.MenuTextStats,
       color,
       100 + 35 - 8,
-      148.5 - 4 + (i * 13),
+      148.5 - 4 + i * 13,
       0.5
     )
   }
@@ -421,8 +452,10 @@ const drawList = () => {
   for (let i = 0; i < window.data.savemap.items.length; i++) {
     const item = window.data.savemap.items[i]
     const type = getEquipTypeName(DATA.equipType)
-    if (item.itemId !== 0x7F) {
-      const itemData = window.data.kernel.allItemData.filter(i => i.itemId === item.itemId)[0]
+    if (item.itemId !== 0x7f) {
+      const itemData = window.data.kernel.allItemData.filter(
+        i => i.itemId === item.itemId
+      )[0]
       if (itemData.type === type && itemData.equipableBy.includes(charName)) {
         DATA.equipable.push(itemData)
       }
@@ -433,7 +466,14 @@ const drawList = () => {
   }
   // console.log('equip equipable', DATA.equipable)
 
-  createItemListNavigation(listGroup, 200 + 113, 85.5 - 6.75, 151.5, DATA.equipable.length, 8)
+  createItemListNavigation(
+    listGroup,
+    200 + 113,
+    85.5 - 6.75,
+    151.5,
+    DATA.equipable.length,
+    8
+  )
   listGroup.userData.slider.userData.moveToPage(DATA.page)
 
   listGroupContents = addGroupToDialog(listGroup, 19)
@@ -453,7 +493,7 @@ const drawList = () => {
       LETTER_TYPES.MenuBaseFont,
       LETTER_COLORS.White,
       x - 8,
-      y - 4 + (yAdj * i),
+      y - 4 + yAdj * i,
       0.5
     )
   }
@@ -461,7 +501,8 @@ const drawList = () => {
     const listGroupContentsChild = listGroupContents.children[i]
     for (let j = 0; j < listGroupContentsChild.children.length; j++) {
       const listGroupContentsChildChild = listGroupContentsChild.children[j]
-      listGroupContentsChildChild.material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
+      listGroupContentsChildChild.material.clippingPlanes =
+        listDialog.userData.bg.material.clippingPlanes
     }
   }
   // listGroupContents.children[0].children[0].material.clippingPlanes = listDialog.userData.bg.material.clippingPlanes
@@ -470,11 +511,11 @@ const drawList = () => {
   // window.listDialog = listDialog
   // window.listGroupContents = listGroupContents
 }
-const drawSelectTypePointer = (flashing) => {
+const drawSelectTypePointer = flashing => {
   const x = 123.5 - 10 + 0.5
   const y = 9.5 + 7
   const yAdj = 17
-  movePointer(POINTERS.pointer1, x, y + (yAdj * DATA.equipType), false, flashing)
+  movePointer(POINTERS.pointer1, x, y + yAdj * DATA.equipType, false, flashing)
   if (flashing === undefined) {
     movePointer(POINTERS.pointer2, 0, 0, true)
   }
@@ -483,9 +524,9 @@ const drawSelectItemPointer = () => {
   const x = 212.5 - 10 - 0.5
   const y = 99.5 + 7
   const yAdj = 18
-  movePointer(POINTERS.pointer2, x, y + (yAdj * DATA.pos))
+  movePointer(POINTERS.pointer2, x, y + yAdj * DATA.pos)
 }
-const selectTypeNavigation = (up) => {
+const selectTypeNavigation = up => {
   if (up) {
     DATA.equipType++
     if (DATA.equipType > 2) {
@@ -518,7 +559,7 @@ const selectType = () => {
 const updatePage = () => {
   listGroup.userData.slider.userData.moveToPage(DATA.page)
 }
-const selectItemNavigation = (up) => {
+const selectItemNavigation = up => {
   const lastPage = DATA.equipable.length - 8
   // console.log('equip selectItemNavigation', up, DATA.pos, DATA.page, lastPage)
 
@@ -551,7 +592,7 @@ const selectItemNavigation = (up) => {
   drawSlots(true)
   drawStatsSelected()
 }
-const selectItemPageNavigation = (up) => {
+const selectItemPageNavigation = up => {
   const lastPage = DATA.equipable.length - 8
   if (up) {
     DATA.page = DATA.page + 8
@@ -581,14 +622,18 @@ const instantlyMoveItemList = () => {
   }
   listGroupContents.position.y = DATA.page * 18
 }
-const tweenItemList = (up) => {
+const tweenItemList = up => {
   setMenuState('equip-tweening-item')
 
   for (let i = 0; i < DATA.page + 1; i++) {
     listGroupContents.children[i].visible = true
   }
   const from = { y: listGroupContents.position.y }
-  const to = { y: up ? listGroupContents.position.y + 18 : listGroupContents.position.y - 18 }
+  const to = {
+    y: up
+      ? listGroupContents.position.y + 18
+      : listGroupContents.position.y - 18
+  }
   new TWEEN.Tween(from, MENU_TWEEN_GROUP)
     .to(to, 50)
     .onUpdate(function () {
