@@ -227,6 +227,10 @@ const getPrimaryTarget = () => {
   if (CAM_DATA.actors.targets.includes(CAM_DATA.actors.attacker)) {
     return window.currentBattle.actors[CAM_DATA.actors.attacker] // For healing wind ?!
   }
+  if (CAM_DATA.actors.targets.length > 0) {
+    const target = Math.floor((CAM_DATA.actors.targets.length - 1) / 2)
+    return window.currentBattle.actors[CAM_DATA.actors.targets[target]]
+  }
   return window.currentBattle.actors[CAM_DATA.actors.targets[0]]
 }
 
