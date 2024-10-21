@@ -16,6 +16,11 @@ const enemyIdToEnemyCode = i => {
   const id3 = id - id2 * 26
   return String.fromCharCode(id2 + 97) + String.fromCharCode(id3 + 97) + 'aa'
 }
+const enemyCodeToEnemyId = code => {
+  const id2 = code.charCodeAt(0) - 97
+  const id3 = code.charCodeAt(1) - 97
+  return id2 * 26 + id3
+}
 const characterNameToModelCode = name => {
   let modelName = 'CLOUD'
   if (name === 'Cloud') modelName = 'CLOUD'
@@ -99,7 +104,7 @@ const setupBattle = battleId => {
         active: true,
         index: i + 4,
         initialData: enemy,
-        data: enemyData,
+        data: JSON.parse(JSON.stringify(enemyData)), // So we can manipulate statuses during the battle etc
         modelCode: enemyIdToEnemyCode(enemy.enemyId),
         script,
         type: 'enemy',

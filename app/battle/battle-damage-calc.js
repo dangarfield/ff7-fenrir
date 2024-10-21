@@ -51,10 +51,10 @@ const calcDamage = (actor, command, attack, targets) => {
   return damages
 }
 const hasStatus = (char, status) => {
-  return char.status.includes(status)
+  return char?.status?.includes(status)
 }
 const hasOneOfStatuses = (char, statuses) => {
-  return char.status.some(status => statuses.includes(status))
+  return char?.status?.some(status => statuses.includes(status))
 }
 const addStatus = (char, status) => {
   !char.status.includes(status) && char.status.push(status)

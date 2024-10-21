@@ -1,20 +1,18 @@
 import { Enums } from '../data/enums.js'
 import { ACTION_DATA } from './battle-actions.js'
 import { hasOneOfStatuses } from './battle-damage-calc.js'
+import {
+  getBitMaskFromCriteria,
+  getBitMaskFromEnums,
+  getObjectByBitmask,
+  getObjectsByBitmask
+} from './battle-stack-memory.js'
 
 const nonActiveStatuses = ['Death', 'Petrify', 'Imprisoned']
 
 // TODO - attack statuses if there are 0xFF, they have 'all' rather than 'none' fix this so that it is empty
 
 // const getBitMaskFromValue = (list, value) => 1 << list.indexOf(value)
-const getBitMaskFromCriteria = (list, criteria) =>
-  list.reduce((mask, item, i) => mask | (criteria(item) << i), 0)
-const getBitMaskFromEnums = (enumList, items) =>
-  items.reduce((mask, item) => mask | enumList[item], 0)
-const getObjectByBitmask = (array, bitmask) =>
-  array.find((_, i) => (bitmask & (1 << i)) !== 0)
-const getObjectsByBitmask = (array, bitmask) =>
-  array.filter((_, i) => (bitmask & (1 << i)) !== 0)
 
 const isActive = actor => {
   //github.com/Akari1982/q-gears_reverse/blob/55ee4f4c4578aa771dc9956bfb0983ffb1c3b152/ffvii/documents/final_fantasy_vii_battle_mech.txt#L3041
@@ -85,7 +83,8 @@ const getGlobalValueFromAlias = (global, actorIndex, addressHex) => {
     case 0x2150: // Last Action Index 2 - Index of last performed action.
       return ACTION_DATA.previousQueueItem.attack.index // TODO - hmm, really not good..
     case 0x2160: // Misc Flags - Some sort of flags (unknown effect).
-      // TODO - Implement this or just leave it?!
+      // TODO - Implement this or just leave it?! - I need to check if setting 0x2160 to 0b111, also sets 0x2161 and 0x2162 to 1 also
+      // and if retreiving 0x2160 would return 0b111 or 0b1
       //   0x2160
       //   0x2161	Don't apply poison/regen?
       //   0x2162	Other battles in sequence
@@ -96,6 +95,8 @@ const getGlobalValueFromAlias = (global, actorIndex, addressHex) => {
     case 0x2170: // Special Attack Flags
       // TODO - Access to this is in the AI script BEFORE an action is selected, so how can it have a special attack flag
       // If there is no attack set yet? Need to look
+
+      // TODO: Special flags -> on attack, but only ever triggered in 'pre-action-setup' - Look at Schizo
       if (ACTION_DATA.attack) {
         const attackData = ACTION_DATA.attack.data
           ? ACTION_DATA.attack.data

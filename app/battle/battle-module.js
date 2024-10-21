@@ -62,9 +62,11 @@ const preLoadBattle = async (battleId, options) => {
   window.a0 = window?.currentBattle?.actors[0]
   window.a1 = window?.currentBattle?.actors[1]
   window.a2 = window?.currentBattle?.actors[2]
+  window.a4 = window?.currentBattle?.actors[4]
   window.a0p = window?.currentBattle?.actors[0]?.model?.scene?.position
   window.a1p = window?.currentBattle?.actors[1]?.model?.scene?.position
   window.a2p = window?.currentBattle?.actors[2]?.model?.scene?.position
+  window.a4p = window?.currentBattle?.actors[4]?.model?.scene?.position
 
   await preLoadBattleSounds()
   console.log('battle preload: END')

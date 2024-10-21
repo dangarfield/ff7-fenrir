@@ -87,7 +87,12 @@ const PSHA = async (stack, op, currentActorIndex) => {
       l
     )
   } else {
-    valueFromAddress = getActorValueAll(dec2hex(address, 4, true), l)
+    //
+    valueFromAddress = getActorValueAll(
+      currentActorIndex,
+      dec2hex(address, 4, true),
+      l
+    )
     type = TYPES.MULTI
   }
 
@@ -577,18 +582,18 @@ const ATTK = async (stack, op, currentActorIndex) => {
     attackId,
     attackModifier
   )
-  // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
-  await executeAllPreActionSetupScripts() // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
+  const targets = getGlobalValue(currentActorIndex, '2070')
+
+  // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
+  // TODO: It also needs to access battle actions, which aren't set yet, so many need a refactor later on - Look at Schizo
+  await executeAllPreActionSetupScripts()
+
   const actor = window.currentBattle.actors[currentActorIndex]
-  // TODO - get and set targets
   await executeEnemyAction(
     actor,
     attackId,
     attackModifier,
-    getObjectsByBitmask(
-      window.currentBattle.actors,
-      getGlobalValue(currentActorIndex, '2070')
-    )
+    getObjectsByBitmask(window.currentBattle.actors, targets)
   )
   console.log(
     'battleOP TRIGGERED ATTACK: END',

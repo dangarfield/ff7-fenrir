@@ -2,6 +2,7 @@ import {
   getGlobalValueFromAlias,
   setGlobalValueFromAlias
 } from './battle-stack-memory-global-alias.js'
+import { getPlayerValueFromAlias } from './battle-stack-memory-player.js'
 
 const variables = {
   local: Array.from({ length: 10 }, Object),
@@ -27,11 +28,7 @@ const initAllVariables = () => {
   variables.local = Array.from({ length: 10 }, Object)
   variables.global = {}
   variables.actor = Array.from({ length: 10 }, Object)
-  populateInitialActorVariables()
   return variables
-}
-const populateInitialActorVariables = () => {
-  // TODO
 }
 
 const getLocalValue = (actorIndex, addressHex, returnType) => {
@@ -64,9 +61,10 @@ const setGlobalValue = (addressHex, value) => {
   console.log('battleMemory setGlobalValue', addressHex, value)
   setGlobalValueFromAlias(variables.global, addressHex, value)
 }
-const getActorValueAll = (addressHex, returnType) => {
+const getActorValueAll = (actorIndex, addressHex, returnType) => {
   // TODO
   const value = Array.from({ length: 10 }, () => 0)
+  getPlayerValueFromAlias(actorIndex, variables.actor, addressHex)
   console.log('battleMemory getActorValueAll', addressHex, returnType, value)
   return value
 }
@@ -74,6 +72,16 @@ const getActorValueAll = (addressHex, returnType) => {
 
 // }
 const setActorValue = (actorIndex, address, value) => {}
+
+const getBitMaskFromCriteria = (list, criteria) =>
+  list.reduce((mask, item, i) => mask | (criteria(item) << i), 0)
+const getBitMaskFromEnums = (enumList, items) =>
+  items.reduce((mask, item) => mask | enumList[item], 0)
+const getObjectByBitmask = (array, bitmask) =>
+  array.find((_, i) => (bitmask & (1 << i)) !== 0)
+const getObjectsByBitmask = (array, bitmask) =>
+  array.filter((_, i) => (bitmask & (1 << i)) !== 0)
+
 export {
   initAllVariables,
   logMemory,
@@ -82,5 +90,9 @@ export {
   getGlobalValue,
   setGlobalValue,
   getActorValueAll,
-  setActorValue
+  setActorValue,
+  getBitMaskFromCriteria,
+  getBitMaskFromEnums,
+  getObjectByBitmask,
+  getObjectsByBitmask
 }

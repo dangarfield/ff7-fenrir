@@ -236,7 +236,7 @@ const executePlayerAction = async (actor, queueItem) => {
   )
   if (queueItem.commandId === 19) {
     console.log('executePlayerAction - DEFEND')
-    actor.data.status.defend = true // Reset on player atb is full. Need to reset at end of battle too
+    actor.data.defend = true // Reset on player atb is full. Need to reset at end of battle too
     return
   }
 
