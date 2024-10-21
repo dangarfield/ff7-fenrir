@@ -345,6 +345,9 @@ const importModels = async currentBattle => {
         model.userData.defaultPosition.z,
         currentBattle.formationConfig.directions.player.initial
       )
+      model.userData.idleAnimation = 0 // Default, but it should change depending on is health is low, or death
+      model.userData.damageAnimationDefault = 5 // Default ACTION SEQUENCE, damage animation offset changes this
+      model.userData.damageAnimation = model.userData.damageAnimationDefault
     } else {
       model.userData.defaultPosition = {
         x: actor.initialData.position.x,
@@ -360,6 +363,9 @@ const importModels = async currentBattle => {
         model.userData.defaultPosition.z,
         currentBattle.formationConfig.directions.enemy.initial
       )
+      model.userData.idleAnimation = 0 // Default, but it should change depending on is health is low, or death
+      model.userData.damageAnimationDefault = 1 // Default ACTION SEQUENCE, damage animation offset changes this
+      model.userData.damageAnimation = model.userData.damageAnimationDefault
     }
 
     // Bone positions

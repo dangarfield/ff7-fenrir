@@ -69,41 +69,85 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
 
     case 0x4068: // Physical Attack Power
       // return m(a => a?.data?.attack || getPlayerAttackPower(a) || 0) //
-      return m(a => a?.data?.attack || a?.battleStats?.attack || 0) // Then add other factors, equipment etc, deal with this later
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.attack || a?.battleStats?.attack || 0)
     case 0x4070: // Magic Attack Power
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
       return m(a => a?.data?.magicAttack || a?.battleStats?.magicAttack || 0)
-    // 0x4078	Physical Evade
-    // 0x4080	Idle Animation ID
-    // 0x4088	Damaged Animation ID
-    // 0x4090	Back Damage Multiplier
-    // 0x4098	Model Size (default is 16)
-    // 0x40A0	Dexterity
-    // 0x40A8	Luck
-    // 0x40B0	Related to Idle Animations
-    // 0x40B8	Character that was just covered. (Character index +10h)
-    // 0x40C0	Target(s) of last action performed by actor
-    // 0x40D0	Previous Attacker
-    // 0x40E0	Previous Physical Attacker
-    // 0x40F0	Previous Magical Attacker
-    // 0x4100	Physical Defense Rating
-    // 0x4110	Magical Defense Rating
-    // 0x4120	Index of actor
-    // 0x4130	Absorbed Elements
-    // 0x4140	Current MP
-    // 0x4150	Max MP
-    // 0x4160	Current HP
-    // 0x4180	Max HP
-    // 0x41A0	Unknown (Used by Schizo's heads to tell the other head that it is dead. Maybe elsewhere?)
-    // 0x4220	Initial Statuses
-    // 0x4268	Magic Evade
-    // 0x4270	Row
-    // 0x4278	Unknown (something to do with the camera?)
-    // 0x4280	Gil stolen (Enemies only)
-    // 0x4290	Item stolen (Enemies only)
-    // 0x42A0	Nullified Elements?
-    // 0x42B0	AP actor is worth
-    // 0x42C0	Gil actor is worth
-    // 0x42E0	EXP actor is worth
+    case 0x4078: // Physical Evade
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.dexterity || a?.battleStats?.dexterity || 0)
+    case 0x4080: // Idle Animation ID
+      return m(a => a?.model?.userData?.idleAnimation || 0)
+    case 0x4088: // Damaged Animation ID
+      return m(a => a?.model?.userData?.damageAnimation || 0)
+    case 0x4090: // Back Damage Multiplier
+      return m(a => 2) // TODO - Is this always 2? Or is it updated based on the current actor
+    case 0x4098: // Model Size (default is 16)
+      return m(a => a?.model?.scene?.scale.x * 16 || 0)
+    case 0x40a0: // Dexterity
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.dexterity || a?.battleStats?.dexterity || 0)
+    case 0x40a8: // Luck
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.luck || a?.battleStats?.luck || 0)
+    case 0x40b0: // Related to Idle Animations
+      return m(a => 0) // TODO - Unknown
+    case 0x40b8: // Character that was just covered. (Character index +10h)
+      return m(a => 0) // TODO - Need to implement
+    case 0x40c0: // Target(s) of last action performed by actor
+      return m(a => 0) // TODO - Need to implement
+    case 0x40d0: // Previous Attacker
+      return m(a => 0) // TODO - Need to implement
+    case 0x40e0: // Previous Physical Attacker
+      return m(a => 0) // TODO - Need to implement
+    case 0x40f0: // Previous Magical Attacker
+      return m(a => 0) // TODO - Need to implement
+
+    case 0x4100: // Physical Defense Rating
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.vitality || a?.battleStats?.vitality || 0)
+    case 0x4110: // Magical Defense Rating
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.spirit || a?.battleStats?.spirit || 0)
+    case 0x4120: // Index of actor
+      return m(a => a.index)
+    case 0x4130: // Absorbed Elements
+      return m(a => 0) // TODO - Need to implement
+
+    case 0x4140: // Current MP
+      return m(a => a?.battleStats?.mp?.current || 0) // TODO - Enemies need battleStats or something similar
+    case 0x4150: // Max MP
+      return m(a => a?.battleStats?.mp?.max || 0) // TODO - Enemies need battleStats or something similar
+    case 0x4160: // Current HP
+      return m(a => a?.battleStats?.hp?.current || 0) // TODO - Enemies need battleStats or something similar
+    case 0x4180: // Max HP
+      return m(a => a?.battleStats?.hp?.max || 0) // TODO - Enemies need battleStats or something similar
+    case 0x41a0: // Unknown (Used by Schizo's heads to tell the other head that it is dead. Maybe elsewhere?)
+      return m(a => 0)
+    case 0x4220: // Initial Statuses
+      // TODO - Assume that this is called in the beginning...
+      return m(a => getBitMaskFromEnums(Enums.Statuses, a?.data?.status || []))
+    case 0x4268: // Magic Evade
+      // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
+      return m(a => a?.data?.spirit || a?.battleStats?.spirit || 0)
+    case 0x4270: // Row
+      // TODO - Guess for players
+      return m(a => a?.data?.battleOrder === 'Normal' ? 1 : 0 || a?.initialData?.row || 0) // prettier-ignore
+    case 0x4278: // Unknown (something to do with the camera?)
+      return m(a => 0)
+    case 0x4280: // Gil stolen (Enemies only)
+      return m(a => a?.data?.gilStolen || 0) // TODO - Ensure this is set
+    case 0x4290: // Item stolen (Enemies only)
+      return m(a => a?.data?.itemStolen || 0) // TODO - Ensure this is set
+    case 0x42a0: // Nullified Elements?
+      return m(a => getBitMaskFromEnums(Enums.Elements, a?.battleStats?.elements?.invalid || [])) // prettier-ignore
+    case 0x42b0: // AP actor is worth
+      return m(a => a?.data?.ap || 0)
+    case 0x42c0: // Gil actor is worth
+      return m(a => a?.data?.gil || 0)
+    case 0x42e0: // EXP actor is worth
+      return m(a => a?.data?.exp || 0)
     default:
       return m(a => 0)
   }

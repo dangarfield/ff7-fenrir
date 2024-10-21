@@ -589,6 +589,9 @@ const ATTK = async (stack, op, currentActorIndex) => {
   await executeAllPreActionSetupScripts()
 
   const actor = window.currentBattle.actors[currentActorIndex]
+  // TODO - I don't actually think that this action is triggered now, it waits until the end of the script
+  // and then the preactionsetupscripts are run ON THE TARGETS!
+  // https://forums.qhimm.com/index.php?topic=21299.msg288446#msg288446
   await executeEnemyAction(
     actor,
     attackId,
