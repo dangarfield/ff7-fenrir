@@ -1,3 +1,8 @@
+import {
+  getGlobalValueFromAlias,
+  setGlobalValueFromAlias
+} from './battle-stack-memory-global-alias.js'
+
 const variables = {
   local: Array.from({ length: 10 }, Object),
   global: {},
@@ -29,32 +34,35 @@ const populateInitialActorVariables = () => {
   // TODO
 }
 
-const getLocalValue = (actorId, addressHex, returnType) => {
-  const value = variables.local[actorId][addressHex]
+const getLocalValue = (actorIndex, addressHex, returnType) => {
+  const value = variables.local[actorIndex][addressHex]
   if (value === undefined) return 0b0
   // TODO - Do something with returnType?
   console.log(
     'battleMemory getLocalValue',
-    actorId,
+    actorIndex,
     addressHex,
     returnType,
     value
   )
   return value
 }
-const setLocalValue = (actorId, addressHex, value) => {
-  variables.local[actorId][addressHex] = value
-  console.log('battleMemory setLocalValue', actorId, addressHex, value)
+const setLocalValue = (actorIndex, addressHex, value) => {
+  variables.local[actorIndex][addressHex] = value
+  console.log('battleMemory setLocalValue', actorIndex, addressHex, value)
 }
-const getGlobalValue = (addressHex, returnType) => {
-  let value = 0
-  if (addressHex === '20a0') value = 0b0000000111
+const getGlobalValue = (actorIndex, addressHex, returnType) => {
+  const value = getGlobalValueFromAlias(
+    variables.global,
+    actorIndex,
+    addressHex
+  )
   console.log('battleMemory getGlobalValue', addressHex, returnType, value)
   return value
 }
 const setGlobalValue = (addressHex, value) => {
   console.log('battleMemory setGlobalValue', addressHex, value)
-  variables.global[addressHex] = value
+  setGlobalValueFromAlias(variables.global, addressHex, value)
 }
 const getActorValueAll = (addressHex, returnType) => {
   // TODO
@@ -62,10 +70,10 @@ const getActorValueAll = (addressHex, returnType) => {
   console.log('battleMemory getActorValueAll', addressHex, returnType, value)
   return value
 }
-// const getActorValue = (actorId, address, returnType) => { // Is this every specifically used?!
+// const getActorValue = (actorIndex, address, returnType) => { // Is this every specifically used?!
 
 // }
-const setActorValue = (actorId, address, value) => {}
+const setActorValue = (actorIndex, address, value) => {}
 export {
   initAllVariables,
   logMemory,

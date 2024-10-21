@@ -11,6 +11,7 @@ import {
 import { currentBattle } from './battle-setup.js'
 import { executeEnemyAction } from './battle-actions.js'
 import { executeAllPreActionSetupScripts } from './battle-stack.js'
+import { getObjectsByBitmask } from './battle-stack-memory-global-alias.js'
 
 const TYPES = { VALUE: 'value', ADDRESS: 'address', MULTI: 'multi' }
 const LENGTH = { BIT: 'bit', BYTE: 'byte', BYTE2: 'byte2', BYTE4: 'byte4' }
@@ -80,7 +81,11 @@ const PSHA = async (stack, op, currentActorIndex) => {
       l
     )
   } else if (address < 0x4000) {
-    valueFromAddress = getGlobalValue(dec2hex(address, 4, true), l)
+    valueFromAddress = getGlobalValue(
+      currentActorIndex,
+      dec2hex(address, 4, true),
+      l
+    )
   } else {
     valueFromAddress = getActorValueAll(dec2hex(address, 4, true), l)
     type = TYPES.MULTI
@@ -575,7 +580,16 @@ const ATTK = async (stack, op, currentActorIndex) => {
   // batteActions.triggerAttack(currentActorIndex, attackId, attackModifier) // TODO - Implement this
   await executeAllPreActionSetupScripts() // TODO: This will clear the current stack, which messes things up, need to look at this to see if that's ok or not
   const actor = window.currentBattle.actors[currentActorIndex]
-  await executeEnemyAction(actor, attackId, attackModifier)
+  // TODO - get and set targets
+  await executeEnemyAction(
+    actor,
+    attackId,
+    attackModifier,
+    getObjectsByBitmask(
+      window.currentBattle.actors,
+      getGlobalValue(currentActorIndex, '2070')
+    )
+  )
   console.log(
     'battleOP TRIGGERED ATTACK: END',
     currentActorIndex,
@@ -588,7 +602,8 @@ const DSTR = async (stack, op) => {
   // 93
   console.log('battleOp DSTR', op)
   console.log('battleOP DISPLAY STRING: START', op.text)
-  // batteActions.displayMessage(op.text) // TODO - Implement this
+  // TODO - Replace any variables?
+  window.currentBattle.ui.battleText.showBattleMessage(op.text)
   console.log('battleOP DISPLAY STRING: END', op.text)
   return {}
 }

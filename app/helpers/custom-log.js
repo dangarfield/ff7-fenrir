@@ -43,7 +43,13 @@ window.console = (function (origConsole) {
       'HURT',
       'DAMAGE',
       'LOAD BATTLE SOUNDS',
-      'ACTION triggerSound'
+      'ACTION triggerSound',
+      'battleOp COPY',
+      'battleOp GLOB',
+      'battleMemory',
+      'getGlobalValueFromAlias',
+      'executeEnemyAction'
+      // 'battleOP DISPLAY'
       // 'executeEnemyAction',
       // 'battleStack',
       // 'battleOp'

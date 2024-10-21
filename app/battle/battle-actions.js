@@ -27,7 +27,8 @@ const ACTION_DATA = {
   wait: 0,
   damage: null,
   previousPlayerQueueItem: null,
-  previousPlayerIndex: null
+  previousPlayerIndex: null,
+  previousQueueItem: null
 }
 window.BATTLE_ACTION_DATA = ACTION_DATA
 const resetActionData = (attacker, targets, attack, command) => {
@@ -117,13 +118,13 @@ const getActionSequenceForCommand = (actor, queueItem) => {
   console.log('getActionSequenceForCommand actionSequence', actionSequence)
   return actionSequence
 }
-const executeEnemyAction = async (actor, attackId, attackModifier) => {
-  console.log('executeEnemyAction', actor, attackId, attackModifier)
+const executeEnemyAction = async (actor, attackId, attackModifier, targets) => {
+  console.log('executeEnemyAction', actor, attackId, attackModifier, targets)
   const attackIndex = window.currentBattle.attackData.findIndex(
     a => a.id === attackId
   )
   const attack = window.currentBattle.attackData[attackIndex]
-  const targets = [window.currentBattle.actors[0]] // TODO - Get target mask from stack - Looks like variable 2070
+  // const targets = [window.currentBattle.actors[0]] // TODO - Get target mask from stack - Looks like variable 2070
   const command = { name: 'Enemy Attack' }
   console.log('executeEnemyAction queueItem', targets, attack, command)
   const actionSequenceIndex = actor.data.actionSequenceIndex[attackIndex]
@@ -151,6 +152,12 @@ const executeEnemyAction = async (actor, attackId, attackModifier) => {
   ])
   console.log('executeEnemyAction END')
   returnCameraToIdle()
+  ACTION_DATA.previousQueueItem = {
+    // Not sure that I need this
+    actorIndex: 0,
+    attack,
+    commandId: 0x23 //?
+  }
 }
 const cannotExecuteAction = (actor, command, attack) => {
   console.log('cannotExecuteAction', actor, command, attack)
@@ -218,8 +225,6 @@ const executePlayerAction = async (actor, queueItem) => {
     queueItem.attack,
     command
   )
-  ACTION_DATA.previousPlayerQueueItem = queueItem
-  ACTION_DATA.previousPlayerIndex = actor.index
   resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   console.log(
@@ -287,6 +292,9 @@ const executePlayerAction = async (actor, queueItem) => {
   console.log('executePlayerAction END')
   returnCameraToIdle()
 
+  ACTION_DATA.previousPlayerQueueItem = queueItem
+  ACTION_DATA.previousPlayerIndex = actor.index
+  ACTION_DATA.previousQueueItem = queueItem
   // TODO - Increment any counters, eg limit usage. Anything else?
 }
 const framesToTime = frames => {

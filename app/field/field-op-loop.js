@@ -1165,6 +1165,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 860 }) // Helletic Hojo
         // control.BATTLE({ b: 0, n: 119 }) // Spencer x3 + Flapbeat
         // control.BATTLE({ b: 0, n: 26 }) // Pyramid (test) x6 - semi transparent?!
+        // control.BATTLE({ b: 0, n: 0 }) // Pyramid (test)
 
         // control.BATTLE({ b: 0, n: 99 }) // Spencer x2 + Chocobo (cover flags) - Normal - cam 33,3. n:98,1,3
         // control.BATTLE({ b: 0, n: 20 }) // Mighty Grunt x2 - Premptive - cam 20,0
@@ -1177,11 +1178,11 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 628 }) // Godo - NormalLockFrontRow - cam 86,0         // 86 might work here!
 
         // control.BATTLE({ b: 0, n: 0 }) // Pyramid with 0 initial camera
-        control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
+        // control.BATTLE({ b: 0, n: 28 }) // Grunt for animation test
         // control.BATTLE({ b: 0, n: 325 }) // Guard Hound, multiple camera positions
         // control.BATTLE({ b: 0, n: 925 }) // Sephiroth battle with lots of initial cam
         // control.BATTLE({ b: 0, n: 324 }) // Guard Scorpion - Look at this later, as it appears to change initial cam position during 'tail up'
-        // control.BATTLE({ b: 0, n: 32 }) // Devil Rider - For simple battle AI
+        control.BATTLE({ b: 0, n: 32 }) // Devil Rider - For simple battle AI
         // control.BATTLE({ b: 0, n: 33 }) // Custom Sweeper x2 for anim debug
       }
       window.quickBattle()
