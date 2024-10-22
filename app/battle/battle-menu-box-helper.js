@@ -19,6 +19,7 @@ import {
   orthoScene,
   tweenSleep
 } from './battle-scene.js'
+import { disposeAll } from '../helpers/helpers.js'
 
 const addShape = (dialogBox, colors, id, x, y, w, h, blending) => {
   const bgGeo = new THREE.PlaneGeometry(w, h)
@@ -586,6 +587,146 @@ const addFlashPlane = () => {
 
   return mesh
 }
+const addBattleStartPlane = () => {
+  const gapShaderMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      middlePosition: { value: 0.67 },
+      gap: { value: 0.0 },
+      distance: { value: 0.1 }
+    },
+
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float middlePosition;
+      uniform float distance;
+      uniform float gap;
+  
+      void main() {
+        float alpha;
+        vec3 color = vec3(0.0); // Default black color
+        
+        float topThreshold = middlePosition + distance + gap; // Top threshold for solid black
+        float bottomThreshold = middlePosition - distance - gap; // Bottom threshold for solid black
+        
+        if (vUv.y > middlePosition - distance + gap) {
+          alpha = 1.0; // Solid black
+        } else if (vUv.y > middlePosition - distance) {
+          // Black to transparent gradient
+          alpha = 1.0 - ((middlePosition - distance + gap - vUv.y) / distance);
+        } 
+        
+        
+        // Adjust alpha for the bottom half
+        else if (vUv.y < middlePosition - distance - gap) {
+          alpha = 1.0; // Solid black
+        } else if (vUv.y < middlePosition - gap) {
+          // Transparent to black gradient
+          alpha = (middlePosition - gap - vUv.y) / distance;
+          //alpha = 0.5;
+        } 
+        // The transition case (when vUv.y == middlePosition)
+        else {
+          alpha = 0.0; // Completely transparent
+        }
+  
+        gl_FragColor = vec4(color, alpha);
+      }
+    `,
+    transparent: true
+  })
+  const gapMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(
+      window.config.sizing.width * 2,
+      window.config.sizing.height * 2
+    ),
+    gapShaderMaterial
+  )
+  gapMesh.position.x = window.config.sizing.width / 2
+  gapMesh.position.y = window.config.sizing.height / 2
+  gapMesh.position.z = 4
+  orthoScene.add(gapMesh)
+
+  const menuCoverShaderMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      cutoff: { value: 0.5 }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float cutoff;
+  
+      void main() {
+        float alpha;
+        vec3 color = vec3(0.0); // Default black color
+        
+        if (
+          vUv.y > cutoff &&
+          vUv.y < 1.0 - cutoff &&
+          vUv.x > cutoff &&
+          vUv.x < 1.0 - cutoff
+        ) {
+          alpha = 0.0;
+        } else {
+          alpha = 1.0;
+        }
+  
+        gl_FragColor = vec4(color, alpha);
+      }`,
+    transparent: true
+  })
+  const menuCoverMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(window.config.sizing.width * 2, 56),
+    menuCoverShaderMaterial
+  )
+  menuCoverMesh.position.x = window.config.sizing.width / 2
+  menuCoverMesh.position.y = 56 / 2 + 18
+  menuCoverMesh.position.z = 96
+  orthoScene.add(menuCoverMesh)
+
+  gapMesh.userData.triggerUncovering = () => {
+    gapMesh.visible = true
+    gapShaderMaterial.uniforms.gap.value = 0.0
+    const t = new TWEEN.Tween(
+      gapShaderMaterial.uniforms.gap,
+      BATTLE_TWEEN_UI_GROUP
+    )
+      .to({ value: 0.5 }, 3500)
+      .onComplete(() => {
+        BATTLE_TWEEN_UI_GROUP.remove(t)
+        gapMesh.visible = false
+        disposeAll(gapMesh)
+      })
+      .start()
+
+    menuCoverMesh.visible = true
+    menuCoverShaderMaterial.uniforms.cutoff.value = 0.5
+    const t2 = new TWEEN.Tween(
+      menuCoverShaderMaterial.uniforms.cutoff,
+      BATTLE_TWEEN_UI_GROUP
+    )
+      .to({ value: 0.0 }, 2000)
+      .onComplete(() => {
+        BATTLE_TWEEN_UI_GROUP.remove(t2)
+        menuCoverMesh.visible = false
+        disposeAll(menuCoverMesh)
+      })
+      .start()
+  }
+  return gapMesh
+}
+
 const addBattleTextMenu = () => {
   // TODO - Sometimes it can be special colours
   const textGroup = createDialogBox({
@@ -857,5 +998,6 @@ export {
   addBattleTextMenu,
   addHP,
   addMP,
-  addFlashPlane
+  addFlashPlane,
+  addBattleStartPlane
 }

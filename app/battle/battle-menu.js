@@ -16,7 +16,8 @@ import {
   addMP,
   addBattleDescriptionsTextMenu,
   addBattleTextMenu,
-  addFlashPlane
+  addFlashPlane,
+  addBattleStartPlane
 } from './battle-menu-box-helper.js'
 import { initCommands } from './battle-menu-command.js'
 import { orthoScene, activeCamera } from './battle-scene.js'
@@ -290,6 +291,7 @@ const initBattleMenu = async currentBattle => {
   const battleDescriptions = addBattleDescriptionsTextMenu()
   const battleText = addBattleTextMenu()
   const flashPlane = addFlashPlane()
+  const battleStartPlane = addBattleStartPlane()
   const effectsGroup = new THREE.Group()
   orthoScene.add(effectsGroup)
   window.currentBattle.ui = {
@@ -298,6 +300,7 @@ const initBattleMenu = async currentBattle => {
     battleText,
     battlePointer,
     flashPlane,
+    battleStartPlane,
     effectsGroup
   }
   // Command list w = 1 list

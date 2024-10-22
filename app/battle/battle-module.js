@@ -76,6 +76,7 @@ const loadBattle = async (battleId, options) => {
   const currentBattle = await preLoadBattle(battleId, options)
   window.anim.clock.start()
   startBattleRenderingLoop()
+  window.currentBattle.ui.battleStartPlane.userData.triggerUncovering()
   await executeInitialCameraScript(currentBattle)
   console.log('battle loadBattle: START')
   showBattleMessageForFormation()

@@ -23,6 +23,7 @@ const getDefault = () => {
 }
 // https://github.com/Akari1982/q-gears_reverse/blob/master/ffvii/documents/final_fantasy_vii_battle_mech.txt
 // https://wiki.ffrtt.ru/index.php/FF7/Battle/Battle_Mechanics
+// https://wiki.ffrtt.ru/index.php/FF7/Battle/Damage_Calculation
 const calcDamage = (actor, command, attack, targets) => {
   const isCritical = Math.random() >= 0.5
   const damages = targets.map(t => {
