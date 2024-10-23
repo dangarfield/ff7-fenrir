@@ -1182,8 +1182,9 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 325 }) // Guard Hound, multiple camera positions
         // control.BATTLE({ b: 0, n: 925 }) // Sephiroth battle with lots of initial cam
         // control.BATTLE({ b: 0, n: 324 }) // Guard Scorpion - Look at this later, as it appears to change initial cam position during 'tail up'
-        control.BATTLE({ b: 0, n: 32 }) // Devil Rider - For simple battle AI
+        // control.BATTLE({ b: 0, n: 32 }) // Devil Rider - For simple battle AI
         // control.BATTLE({ b: 0, n: 33 }) // Custom Sweeper x2 for anim debug
+        control.BATTLE({ b: 0, n: 168 }) // 4x Thunderbird - For enemy stats & counter
       }
       window.quickBattle()
     }, 1000)

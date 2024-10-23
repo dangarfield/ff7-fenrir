@@ -25,7 +25,10 @@ const triggerHurt = async targets => {
     if (target.type === 'enemy') {
       if (
         ACTION_DATA.damage[i].isRestorative ||
-        [DMG_TYPE.RECOVERY, DMG_TYPE.MISS].includes(ACTION_DATA.damage[i].type)
+        [DMG_TYPE.RECOVERY, DMG_TYPE.MISS].includes(
+          ACTION_DATA.damage[i].type
+        ) ||
+        ACTION_DATA.damage[i].amount === 0
       ) {
         // TODO - Check states above, death in particular
         // Don't animate hurt action if this happens

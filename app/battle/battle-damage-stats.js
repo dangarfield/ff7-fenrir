@@ -33,6 +33,11 @@ equipment.  They are derived as such:
   MD% =             Armour MDefense% Bonus
 */
 
+// Base Stats
+const str = player => {
+  return player.data.stats.strength + player.data.stats.strengthBonus
+}
+
 const getPlayerAttackPower = player => {
   if (player.data == null) return 0 // Check for stack operations
   return 1

@@ -58,20 +58,20 @@ const calculateElementEquip = (elements, items, materia) => {
   addNoDuplicates(elements.attack, items[0].elements)
   // armor
   if (items[1].elements.length > 0) {
-    if (items[1].elementDamageModifier === 'Halve') {
-      addNoDuplicates(elements.halve, items[1].elements)
+    if (items[1].elementDamageModifier === 'Half') {
+      addNoDuplicates(elements.half, items[1].elements)
     } else if (items[1].elementDamageModifier === 'Nullify') {
-      addNoDuplicates(elements.invalid, items[1].elements)
+      addNoDuplicates(elements.nullify, items[1].elements)
     } else if (items[1].elementDamageModifier === 'Absorb') {
       addNoDuplicates(elements.absorb, items[1].elements)
     }
   }
   // accessory
   if (items[2] && items[2].elements && items[2].elements.length > 0) {
-    if (items[2].elementDamageModifier === 'Halve') {
-      addNoDuplicates(elements.halve, items[2].elements)
+    if (items[2].elementDamageModifier === 'Half') {
+      addNoDuplicates(elements.half, items[2].elements)
     } else if (items[2].elementDamageModifier === 'Nullify') {
-      addNoDuplicates(elements.invalid, items[2].elements)
+      addNoDuplicates(elements.nullify, items[2].elements)
     } else if (items[2].elementDamageModifier === 'Absorb') {
       addNoDuplicates(elements.absorb, items[2].elements)
     }
@@ -117,9 +117,9 @@ const calculateElementEquip = (elements, items, materia) => {
               )
               // console.log('status elemental materia level', materiaLevel, elementalMateriaData, slotMateria.ap)
               if (materiaLevel === 1) {
-                elementModifier = 'halve'
+                elementModifier = 'half'
               } else if (materiaLevel === 2) {
-                elementModifier = 'invalid'
+                elementModifier = 'nullify'
               } else {
                 elementModifier = 'absorb'
               }
@@ -137,7 +137,7 @@ const calculateElementEquip = (elements, items, materia) => {
   }
 }
 
-const calculateStatusEquip = (statusEffects, items, materia) => {
+const calculateStatusEquip = (statuses, items, materia) => {
   // Haste, not able to attack, slow / stop?
   // Time with added effect? Levels of ap apply slow or stop?!
   // Frog or small with transform?
@@ -164,20 +164,20 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
 
   // weapon
   addNoDuplicates(
-    statusEffects.attack,
+    statuses.attack,
     removeInvalidStatusEffect(items[0].status, validStatusToApply)
   )
   // armor
   if (items[1].status.length > 0) {
     addNoDuplicates(
-      statusEffects.defend,
+      statuses.nullify,
       removeInvalidStatusEffect(items[1].status, validStatusToApply)
     )
   }
   // acc
   if (items[2] && items[2].status && items[2].status.length > 0) {
     addNoDuplicates(
-      statusEffects.defend,
+      statuses.nullify,
       removeInvalidStatusEffect(items[2].status, validStatusToApply)
     )
   }
@@ -216,16 +216,16 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
             if (type === 'weapon') {
               elementModifier = 'attack'
             } else {
-              elementModifier = 'defend'
+              elementModifier = 'nullify'
             }
-            const attachedMateriaStatusEffects =
+            const attachedMateriaStatuses =
               window.data.kernel.materiaData[attachedMateria.id].status
-            // console.log('status status ap', slotMateria.ap, elementModifier, statusEffects[elementModifier], attachedMateriaStatusEffects)
+            // console.log('status status ap', slotMateria.ap, elementModifier, statuses[elementModifier], attachedMateriaStatuses)
 
             addNoDuplicates(
-              statusEffects[elementModifier],
+              statuses[elementModifier],
               removeInvalidStatusEffect(
-                attachedMateriaStatusEffects,
+                attachedMateriaStatuses,
                 validStatusToApply
               )
             )
@@ -236,7 +236,7 @@ const calculateStatusEquip = (statusEffects, items, materia) => {
   }
   // TODO - Not all statuses have an added effect applied in game, eg weapon with addedEffect+Kujata = Barrier MBarrier Reflect, but nothing shows in game
 
-  // console.log('status calculateStatusEquip', statusEffects, items)
+  // console.log('status calculateStatusEquip', statuses, items)
 }
 const currentMateriaLevel = (materiaData, currentAP) => {
   let level = 0
@@ -1081,8 +1081,90 @@ const calculateStatValue = (base, bonus, stat, statBonuses) => {
 
   return total
 }
+const getBattleStatsForEnemy = enemy => {
+  // Note: Keep the idea and format of battleStats so that calculations are simpler
+  // {
+  //   "name": "Devil Ride",
+  //   "level": 13,
+  //   "dexterity": 56,
+  //   "luck": 2,
+  //   "defensePercent": 3,
+  //   "attack": 25,
+  //   "defense": 20,
+  //   "magicAttack": 4,
+  //   "magicDefense": 11,
+  //   "elementTypes": [...], // ???
+  //   "elementRates": [...], // ???
+  //   "mp": 0,
+  //   "ap": 6,
+  //   "morphItem": 1,
+  //   "backDamageMultiplier": 16,
+  //   "hp": 240,
+  //   "exp": 60,
+  //   "gil": 100,
+  //   "statusImmunities": [...]
+  // }
+
+  const elements = {
+    attack: [],
+    double: [],
+    half: [],
+    nullify: [],
+    absorb: []
+  }
+  const statuses = {
+    attack: [],
+    nullify: enemy.data.statusImmunities,
+    absorb: []
+  }
+  enemy.data.elementTypes.map((item, i) => {
+    if (item.type === 'element' && item.value !== 'None') {
+      if (enemy.data.elementRates[i] === 'HalfDamange') {
+        elements.half.push(item.value)
+      } else if (enemy.data.elementRates[i] === 'DoubleDamage') {
+        elements.double.push(item.value)
+      } else if (enemy.data.elementRates[i] === 'NullifyDamage') {
+        elements.nullify.push(item.value)
+      } else if (enemy.data.elementRates[i] === 'Absorb') {
+        elements.absorb.push(item.value)
+      }
+    } else if (item.type === 'status' && item.value !== 'None') {
+      if (enemy.data.elementRates[i] === 'Absorb') {
+        statuses.absorb.push(item.value) // Only ever is this really...
+      }
+    }
+  })
+  return {
+    hp: {
+      current: enemy?.battleStats?.hp.current || enemy.data.hp,
+      max: enemy.data.hp
+    },
+    mp: {
+      // TODO: This is really magic power
+      current: enemy?.battleStats?.mp.current || enemy.data.mp,
+      max: enemy.data.mp
+    },
+
+    dexterity: enemy.data.dexterity,
+    luck: enemy.data.luck,
+
+    attack: enemy.data.attack, // TODO: Is this effected directly by the attack stats?
+    // attackPercent, // TODO: Not present in enemy data, will be on the attack instead
+    defense: enemy.data.defense, // TODO: Any modifiers set by Dragon Force etc must apply here too
+    defensePercent: enemy.data.defensePercent,
+    magicAttack: enemy.data.magicAttack,
+    magicDefense: enemy.data.magicDefense,
+    // magicDefensePercent, // TODO: Not present in enemy data it seems
+
+    elements,
+    statuses
+  }
+}
 const getBattleStatsForChar = char => {
   // Temp equipment and materia override for testing
+  const heroDrinkCount = char?.battleStats?.heroDrinkCount || 0
+  const levelPenalty = char?.battleStats?.levelPenalty || 0
+
   const weaponData = getWeaponDataFromItemId(char.equip.weapon.itemId)
   const armorData = getArmorDataFromItemId(char.equip.armor.itemId)
   const accessoryData = getAccessoryDataFromItemId(char.equip.accessory.itemId)
@@ -1153,22 +1235,30 @@ const getBattleStatsForChar = char => {
   const magicDefense = spirit + armorData.magicDefense
   const magicDefensePercent = armorData.magicEvade
 
-  const elements = { attack: [], halve: [], invalid: [], absorb: [] }
+  const elements = {
+    attack: [],
+    double: [],
+    half: [],
+    nullify: [],
+    absorb: []
+  }
   calculateElementEquip(elements, equippedItems, char.materia)
 
-  const statusEffects = { attack: [], defend: [] }
-  calculateStatusEquip(statusEffects, equippedItems, char.materia)
+  const statuses = { attack: [], nullify: [], absorb: [] } // Mainly for enemies, can absorb Death effect damage
+  calculateStatusEquip(statuses, equippedItems, char.materia)
   console.log('status getBattleStatsForChar', char, hp, mp)
 
   const menu = getMenuOptions(char)
 
   // console.log('battleUI equippedMateria', char, equippedMateria)
   const hasLongRangeMateria = equippedMateria.some(m => m.index === 11)
-  // TODO - boosted stats
+
+  // TODO - boosted stats - I think this is only hero drink, other than looking at status changes: sadness, fury, beserk etc
 
   return {
     hp,
     mp,
+    statBonuses,
     strength,
     dexterity,
     vitality,
@@ -1185,12 +1275,14 @@ const getBattleStatsForChar = char => {
     magicDefensePercent,
 
     elements,
-    statusEffects,
+    statuses,
 
     menu,
 
     modifiers,
 
+    heroDrinkCount,
+    levelPenalty,
     weaponData,
     armorData,
     accessoryData,
@@ -1344,5 +1436,6 @@ export {
   getEnemySkillFlagsWithSkills,
   getWeaponDataFromItemId,
   getArmorDataFromItemId,
-  getAccessoryDataFromItemId
+  getAccessoryDataFromItemId,
+  getBattleStatsForEnemy
 }

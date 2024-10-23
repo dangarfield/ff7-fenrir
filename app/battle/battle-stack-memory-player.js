@@ -141,7 +141,7 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
     case 0x4290: // Item stolen (Enemies only)
       return m(a => a?.data?.itemStolen || 0) // TODO - Ensure this is set
     case 0x42a0: // Nullified Elements?
-      return m(a => getBitMaskFromEnums(Enums.Elements, a?.battleStats?.elements?.invalid || [])) // prettier-ignore
+      return m(a => getBitMaskFromEnums(Enums.Elements, a?.battleStats?.elements?.nullify || [])) // prettier-ignore
     case 0x42b0: // AP actor is worth
       return m(a => a?.data?.ap || 0)
     case 0x42c0: // Gil actor is worth

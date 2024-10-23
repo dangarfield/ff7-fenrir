@@ -1,5 +1,8 @@
 import { battleFormationConfig } from './battle-formation.js'
-import { getBattleStatsForChar } from './battle-stats.js'
+import {
+  getBattleStatsForChar,
+  getBattleStatsForEnemy
+} from './battle-stats.js'
 import { initTimers } from './battle-timers.js'
 
 let currentBattle = {}
@@ -100,13 +103,16 @@ const setupBattle = battleId => {
         script = { ...scene.enemyScript1 }
       }
 
+      const data = JSON.parse(JSON.stringify(enemyData))
+      const battleStats = getBattleStatsForEnemy({ data })
       currentBattle.actors.push({
         active: true,
         index: i + 4,
         initialData: enemy,
-        data: JSON.parse(JSON.stringify(enemyData)), // So we can manipulate statuses during the battle etc
+        data,
         modelCode: enemyIdToEnemyCode(enemy.enemyId),
         script,
+        battleStats,
         type: 'enemy',
         targetGroup:
           currentBattle.formationConfig.enemyTargetGroup ??

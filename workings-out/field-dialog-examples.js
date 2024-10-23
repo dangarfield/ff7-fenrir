@@ -13,7 +13,7 @@ const FIELD_FOLDER = path.join(
 
 // field.data.script.dialogStrings.filter(s => s.includes('<fe>'))
 
-const MATCH_STR = 'VARDECR'
+const MATCH_STR = 'FLASH'
 const init = () => {
   const fields = fs.readdirSync(FIELD_FOLDER) //.filter(f => f === 'bugin1c.json')
   //   console.log('fields', fields)

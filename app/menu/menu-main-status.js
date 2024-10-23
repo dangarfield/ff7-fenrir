@@ -30,7 +30,7 @@ import {
   stopAllLimitTextTweens
 } from './menu-limit-tween-helper.js'
 
-let statusDialog, headerGroup, statsGroup, elementGroup, statusEffectsGroup
+let statusDialog, headerGroup, statsGroup, elementGroup, statusesGroup
 
 const STATUS_DATA = {
   partyMember: 0,
@@ -70,11 +70,11 @@ const loadStatusMenu = async partyMember => {
   elementGroup.visible = false
   statusDialog.add(elementGroup)
 
-  statusEffectsGroup = new THREE.Group()
-  statusEffectsGroup.userData = { id: 15, z: 100 - 15 }
-  statusEffectsGroup.position.z = 12
-  statusEffectsGroup.visible = false
-  statusDialog.add(statusEffectsGroup)
+  statusesGroup = new THREE.Group()
+  statusesGroup.userData = { id: 15, z: 100 - 15 }
+  statusesGroup.position.z = 12
+  statusesGroup.visible = false
+  statusDialog.add(statusesGroup)
 
   statusDialog.visible = true
   window.statusDialog = statusDialog
@@ -96,15 +96,15 @@ const displayPage = () => {
   if (STATUS_DATA.page === 0) {
     statsGroup.visible = true
     elementGroup.visible = false
-    statusEffectsGroup.visible = false
+    statusesGroup.visible = false
   } else if (STATUS_DATA.page === 1) {
     statsGroup.visible = false
     elementGroup.visible = true
-    statusEffectsGroup.visible = false
+    statusesGroup.visible = false
   } else {
     statsGroup.visible = false
     elementGroup.visible = false
-    statusEffectsGroup.visible = true
+    statusesGroup.visible = true
   }
 }
 const populatePagesForCharacter = () => {
@@ -374,8 +374,8 @@ const addPartyMemberElements = (char, battleStats) => {
   )
   addTextToDialog(
     elementGroup,
-    'Halve',
-    'status-element-halve-label',
+    'Half',
+    'status-element-half-label',
     LETTER_TYPES.MenuBaseFont,
     LETTER_COLORS.Cyan,
     31.5 - 8,
@@ -436,7 +436,7 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.halve.includes(element[1])
+      battleStats.elements.half.includes(element[1])
         ? LETTER_COLORS.White
         : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
@@ -448,7 +448,7 @@ const addPartyMemberElements = (char, battleStats) => {
       element[0],
       `status-element-${element[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.elements.invalid.includes(element[1])
+      battleStats.elements.nullify.includes(element[1])
         ? LETTER_COLORS.White
         : LETTER_COLORS.Gray,
       xPos + element[2] - 8,
@@ -473,13 +473,13 @@ const addPartyMemberElements = (char, battleStats) => {
   window.elementGroup = elementGroup
 }
 const addPartyMemberStatus = (char, battleStats) => {
-  while (statusEffectsGroup.children.length) {
-    statusEffectsGroup.remove(statusEffectsGroup.children[0])
+  while (statusesGroup.children.length) {
+    statusesGroup.remove(statusesGroup.children[0])
   }
   // console.log('status status char', char, battleStats)
 
   addTextToDialog(
-    statusEffectsGroup,
+    statusesGroup,
     'Effect',
     'status-status-label',
     LETTER_TYPES.MenuBaseFont,
@@ -489,7 +489,7 @@ const addPartyMemberStatus = (char, battleStats) => {
     0.5
   )
   addTextToDialog(
-    statusEffectsGroup,
+    statusesGroup,
     'Attack',
     'status-status-attack-label',
     LETTER_TYPES.MenuBaseFont,
@@ -499,7 +499,7 @@ const addPartyMemberStatus = (char, battleStats) => {
     0.5
   )
   addTextToDialog(
-    statusEffectsGroup,
+    statusesGroup,
     'Defend',
     'status-status-defend-label',
     LETTER_TYPES.MenuBaseFont,
@@ -546,13 +546,13 @@ const addPartyMemberStatus = (char, battleStats) => {
   const yPos = [85, 162]
   for (let i = 0; i < statuses.length; i++) {
     const status = statuses[i]
-    // console.log('status test', battleStats.statusEffects, status[1], battleStats.statusEffects.attack.includes(status[1]), battleStats.statusEffects.attack.includes(status[2]))
+    // console.log('status test', battleStats.statuses, status[1], battleStats.statuses.attack.includes(status[1]), battleStats.statuses.attack.includes(status[2]))
     addTextToDialog(
-      statusEffectsGroup,
+      statusesGroup,
       status[0],
       `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.attack.includes(status[1])
+      battleStats.statuses.attack.includes(status[1])
         ? LETTER_COLORS.White
         : LETTER_COLORS.Gray,
       xPos + status[2] - 8,
@@ -560,11 +560,11 @@ const addPartyMemberStatus = (char, battleStats) => {
       0.5
     )
     addTextToDialog(
-      statusEffectsGroup,
+      statusesGroup,
       status[0],
       `status-element-${status[1]}`,
       LETTER_TYPES.MenuBaseFont,
-      battleStats.statusEffects.defend.includes(status[1])
+      battleStats.statuses.nullify.includes(status[1])
         ? LETTER_COLORS.White
         : LETTER_COLORS.Gray,
       xPos + status[2] - 8,
@@ -573,8 +573,8 @@ const addPartyMemberStatus = (char, battleStats) => {
     )
   }
 
-  statusEffectsGroup.visible = true
-  window.statusEffectsGroup = statusEffectsGroup
+  statusesGroup.visible = true
+  window.statusesGroup = statusesGroup
 }
 
 const exitMenu = async () => {

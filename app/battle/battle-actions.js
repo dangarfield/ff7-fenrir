@@ -179,46 +179,15 @@ const executePlayerAction = async (actor, queueItem) => {
   // TODO - Added effect materia - quadra magic specifically
   // TODO - Implement the rest of the op codes
   // TODO - Hurt animations
-
   console.log('executePlayerAction', actor, queueItem)
+
   if (queueItem.commandId === 12) {
-    console.log('executePlayerAction - MIME')
-    if (ACTION_DATA.previousPlayerQueueItem === null) {
-      console.log('executePlayerAction - MIME - No previous action available')
-      await runUnableToExecuteActionSequence(
-        actor,
-        window.data.kernel.battleText[88].replace('{TARGET}', actor.data.name)
-      )
-      return
-    }
-    // TODO - Is a limit break from a different player. Is this the only use case?
-    // TODO - Need to implement limit break action sequences and then test this
-    if (
-      ACTION_DATA.previousPlayerQueueItem.commandId === 19 &&
-      actor.index !== ACTION_DATA.previousPlayerIndex
-    ) {
-      console.log('executePlayerAction - MIME - No previous action available')
-      await runUnableToExecuteActionSequence(
-        actor,
-        window.data.kernel.battleText[87]
-          .replace('{TARGET}', actor.data.name)
-          .replace('{ATTACK}', ACTION_DATA.previousPlayerQueueItem.attack.name)
-      )
-      return
-    }
-    queueItem = ACTION_DATA.previousPlayerQueueItem
-    // queueItem.actorIndex = ?? Do I need to set this properly?
-    if (queueItem.attack.data.type && queueItem.attack.data.type === 'WEAPON') {
-      queueItem.attack.data.type =
-        window.data.kernel.allItemData[actor.data.equip.weapon.itemId]
-      // TODO - Seems wrong, as the target flags might change, investigate
-    }
+    // MIME command
+    await handleMIMECommand(actor, queueItem)
+    return
   }
 
-  let command = JSON.parse(
-    JSON.stringify(window.data.kernel.commandData[queueItem.commandId])
-  )
-
+  let command = getCommandData(queueItem.commandId)
   console.log(
     'executePlayerAction - resetActionData',
     queueItem.targetMask.target,
@@ -226,6 +195,7 @@ const executePlayerAction = async (actor, queueItem) => {
     command
   )
   resetActionData(actor, queueItem.targetMask.target, queueItem.attack, command)
+
   const actionSequence = getActionSequenceForCommand(actor, queueItem)
   console.log(
     'executePlayerAction',
@@ -234,46 +204,114 @@ const executePlayerAction = async (actor, queueItem) => {
     command,
     ACTION_DATA.actionName
   )
+
   if (queueItem.commandId === 19) {
-    console.log('executePlayerAction - DEFEND')
-    actor.data.defend = true // Reset on player atb is full. Need to reset at end of battle too
+    // DEFEND command
+    handleDefendCommand(actor)
     return
   }
 
   if (queueItem.commandId === 18) {
-    console.log('executePlayerAction - CHANGE')
-    // Set default position so that it gets updated in the script sequence
-    if (actor.data.status.battleOrder === 'Normal') {
-      actor.data.status.battleOrder = 'BackRow'
-      actor.model.userData.defaultPosition.z =
-        actor.model.userData.defaultPosition.z +
-        (actor.model.userData.defaultPosition.z > 0
-          ? battleFormationConfig.row
-          : -battleFormationConfig.row)
-    } else {
-      actor.data.status.battleOrder = 'Normal'
-      actor.model.userData.defaultPosition.z =
-        actor.model.userData.defaultPosition.z +
-        (actor.model.userData.defaultPosition.z > 0
-          ? -battleFormationConfig.row
-          : battleFormationConfig.row)
-    }
+    // CHANGE command
+    handleChangeCommand(actor)
   }
-  // Check for MP / summon power?! - Item, throw, coin is already decremented
+
   const cannotExecuteMessage = cannotExecuteAction(
     actor,
     command,
     queueItem.attack
   )
   if (cannotExecuteMessage) {
-    // TODO - I'm not sure this is right? Does the 'charge' happen first before the check?
     await runUnableToExecuteActionSequence(actor, cannotExecuteMessage)
     return
   }
 
-  // TODO - Decrement MP / money / all usage / summon usage etc, quadra magic etc, I think any added effect that has a 'count' can be reduced
-  // No, this happens at action selection confirmed / add to queue
+  await executeActionWithCameraAndSequence(
+    actor,
+    command,
+    queueItem,
+    actionSequence
+  )
 
+  updateActionData(queueItem, actor.index)
+  console.log('executePlayerAction END')
+}
+
+// Helper Functions
+
+const handleMIMECommand = async (actor, queueItem) => {
+  console.log('executePlayerAction - MIME')
+  if (!ACTION_DATA.previousPlayerQueueItem) {
+    console.log('executePlayerAction - MIME - No previous action available')
+    await runUnableToExecuteActionSequence(
+      actor,
+      window.data.kernel.battleText[88].replace('{TARGET}', actor.data.name)
+    )
+    return
+  }
+
+  if (isInvalidMIMETarget(actor)) {
+    console.log('executePlayerAction - MIME - No previous action available')
+    await runUnableToExecuteActionSequence(
+      actor,
+      window.data.kernel.battleText[87]
+        .replace('{TARGET}', actor.data.name)
+        .replace('{ATTACK}', ACTION_DATA.previousPlayerQueueItem.attack.name)
+    )
+    return
+  }
+
+  queueItem = ACTION_DATA.previousPlayerQueueItem
+  adjustWeaponTypeIfNecessary(actor, queueItem)
+}
+
+const isInvalidMIMETarget = actor => {
+  return (
+    ACTION_DATA.previousPlayerQueueItem.commandId === 19 &&
+    actor.index !== ACTION_DATA.previousPlayerIndex
+  )
+}
+
+const adjustWeaponTypeIfNecessary = (actor, queueItem) => {
+  if (queueItem.attack.data.type === 'WEAPON') {
+    queueItem.attack.data.type =
+      window.data.kernel.allItemData[actor.data.equip.weapon.itemId]
+    // TODO - Investigate if target flags need to be adjusted
+  }
+}
+
+const getCommandData = commandId => {
+  return JSON.parse(JSON.stringify(window.data.kernel.commandData[commandId]))
+}
+
+const handleDefendCommand = actor => {
+  console.log('executePlayerAction - DEFEND')
+  actor.data.defend = true // Reset when player ATB is full, or at the end of the battle
+}
+
+const handleChangeCommand = actor => {
+  console.log('executePlayerAction - CHANGE')
+  if (actor.data.status.battleOrder === 'Normal') {
+    actor.data.status.battleOrder = 'BackRow'
+    actor.model.userData.defaultPosition.z +=
+      actor.model.userData.defaultPosition.z > 0
+        ? battleFormationConfig.row
+        : -battleFormationConfig.row
+  } else {
+    actor.data.status.battleOrder = 'Normal'
+    actor.model.userData.defaultPosition.z +=
+      actor.model.userData.defaultPosition.z > 0
+        ? -battleFormationConfig.row
+        : battleFormationConfig.row
+  }
+}
+
+const executeActionWithCameraAndSequence = async (
+  actor,
+  command,
+  queueItem,
+  actionSequence
+) => {
   await Promise.all([
     runCameraScriptPair(
       getCameraScriptPair(
@@ -288,15 +326,15 @@ const executePlayerAction = async (actor, queueItem) => {
     ),
     runActionSequence(actionSequence)
   ])
-
-  console.log('executePlayerAction END')
   returnCameraToIdle()
-
-  ACTION_DATA.previousPlayerQueueItem = queueItem
-  ACTION_DATA.previousPlayerIndex = actor.index
-  ACTION_DATA.previousQueueItem = queueItem
-  // TODO - Increment any counters, eg limit usage. Anything else?
 }
+
+const updateActionData = (queueItem, actorIndex) => {
+  ACTION_DATA.previousPlayerQueueItem = queueItem
+  ACTION_DATA.previousPlayerIndex = actorIndex
+  ACTION_DATA.previousQueueItem = queueItem
+}
+
 const framesToTime = frames => {
   return (1000 / 15) * frames
 }

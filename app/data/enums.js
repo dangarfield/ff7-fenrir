@@ -177,7 +177,7 @@ const Enums = {
   DamageModifier: {
     Absorb: 0x0,
     Nullify: 0x1,
-    Halve: 0x2,
+    Half: 0x2,
     Normal: 0xff
   },
   EquipableBy: {
@@ -402,7 +402,7 @@ const Enums = {
       HalfDamange: 0x04,
       NullifyDamage: 0x05,
       Absorb: 0x06,
-      FullCure: 0x0,
+      FullCure: 0x07,
       Nothing: 0xff
     }
   },
@@ -422,5 +422,6 @@ const Enums = {
     }
   }
 }
+
 window.Enums = Enums
 export { Enums }
