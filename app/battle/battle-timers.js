@@ -81,7 +81,7 @@ const recalculateActorTimerIncrementValues = (timers, actor) => {
   actor.timers.vTimerIncrement = timers.speedValue * 2 * vTimerModifier
   const totalDex =
     actor.type === 'player'
-      ? actor.battleStats.dexterity + 50
+      ? actor.battleStats.stats.dexterity + 50
       : actor.data.dexterity
   actor.timers.turnTimerIncrement =
     Math.trunc((totalDex * actor.timers.vTimerIncrement) / timers.normalSpeed) *
