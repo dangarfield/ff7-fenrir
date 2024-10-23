@@ -406,6 +406,52 @@ const Enums = {
       Nothing: 0xff
     }
   },
+  Attack: {
+    DamageType: {
+      Physical: 'Physical',
+      Magical: 'Magical'
+    },
+    AccuracyCalc: {
+      NeverMiss: 'NeverMiss',
+      UseAccuracyStat: 'UseAccuracyStat',
+      TargetLevel: 'TargetLevel',
+      ManipulateFormula: 'ManipulateFormula'
+    },
+    DamageBoost: {
+      DamageStatus: 'DamageStatus',
+      DamageNearDeath: 'DamageNearDeath',
+      DamageDeadAllies: 'DamageDeadAllies',
+
+      PowerTargetLevel: 'PowerTargetLevel',
+      PowerHP: 'PowerHP',
+      PowerMP: 'PowerMP',
+      PowerAP: 'PowerAP',
+      PowerKills: 'PowerKills',
+      PowerLimit: 'PowerLimit'
+    },
+    DamageFormula: {
+      NoDamage: 'NoDamage',
+      PowerD16SLSLS: 'Power16SLSLS',
+      PowerD16LS: 'Power16LS',
+      PowerCurrentHP: 'PowerCurrentHP',
+      PowerMaxHP: 'PowerMaxHP',
+      PowerX22LS: 'Power22LS',
+      PowerX20: 'PowerX20',
+      PowerD32: 'PowerD32',
+      Recovery: 'Recovery',
+      Throw: 'Throw',
+      Coin: 'Coin',
+      //
+      CurrentHP: 'CurrentHP',
+      HPDiff: 'HPDiff',
+      Dice: 'Dice',
+      Escapes: 'Escapes',
+      TargetHP: 'TargetHP',
+      Hours: 'Hours',
+      Kills: 'Kills',
+      Materia: 'Materia'
+    }
+  },
   Slots: {
     Tifa: {
       Miss: 0x00,

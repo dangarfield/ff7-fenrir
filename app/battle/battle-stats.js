@@ -1145,17 +1145,15 @@ const getBattleStatsForEnemy = enemy => {
       max: enemy.data.mp
     },
 
-    dexterity: enemy.data.dexterity,
-    luck: enemy.data.luck,
+    stats: {
+      dexterity: enemy.data.dexterity,
+      luck: enemy.data.luck,
 
-    attack: enemy.data.attack, // TODO: Is this effected directly by the attack stats?
-    // attackPercent, // TODO: Not present in enemy data, will be on the attack instead
-    defense: enemy.data.defense, // TODO: Any modifiers set by Dragon Force etc must apply here too
-    defensePercent: enemy.data.defensePercent,
-    magicAttack: enemy.data.magicAttack,
-    magicDefense: enemy.data.magicDefense,
-    // magicDefensePercent, // TODO: Not present in enemy data it seems
-
+      attack: enemy.data.attack, // TODO: Is this effected directly by the attack stats?
+      defense: enemy.data.defense, // TODO: Any modifiers set by Dragon Force etc must apply here too
+      magicAttack: enemy.data.magicAttack,
+      evade: enemy.data.evade // defencePercent and magicDefensePercent aren't used in enemies. I believe they always use evade
+    },
     elements,
     statuses
   }
@@ -1259,20 +1257,22 @@ const getBattleStatsForChar = char => {
     hp,
     mp,
     statBonuses,
-    strength,
-    dexterity,
-    vitality,
-    magic,
-    spirit,
-    luck,
+    stats: {
+      strength,
+      dexterity,
+      vitality,
+      magic,
+      spirit,
+      luck,
 
-    attack,
-    attackPercent,
-    defense,
-    defensePercent,
-    magicAttack,
-    magicDefense,
-    magicDefensePercent,
+      attack,
+      attackPercent,
+      defense,
+      defensePercent,
+      magicAttack,
+      magicDefense,
+      magicDefensePercent
+    },
 
     elements,
     statuses,

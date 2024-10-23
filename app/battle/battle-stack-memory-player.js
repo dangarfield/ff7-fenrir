@@ -70,13 +70,13 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
     case 0x4068: // Physical Attack Power
       // return m(a => a?.data?.attack || getPlayerAttackPower(a) || 0) //
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.attack || a?.battleStats?.attack || 0)
+      return m(a => a?.battleStats?.stats?.attack || 0)
     case 0x4070: // Magic Attack Power
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.magicAttack || a?.battleStats?.magicAttack || 0)
+      return m(a => a?.battleStats?.stats?.magicAttack || 0)
     case 0x4078: // Physical Evade
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.dexterity || a?.battleStats?.dexterity || 0)
+      return m(a => a?.battleStats?.stats?.defensePercent || a?.battleStats?.stats?.evade || 0) // prettier-ignore
     case 0x4080: // Idle Animation ID
       return m(a => a?.model?.userData?.idleAnimation || 0)
     case 0x4088: // Damaged Animation ID
@@ -87,10 +87,10 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
       return m(a => a?.model?.scene?.scale.x * 16 || 0)
     case 0x40a0: // Dexterity
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.dexterity || a?.battleStats?.dexterity || 0)
+      return m(a => a?.battleStats?.stats?.dexterity || 0)
     case 0x40a8: // Luck
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.luck || a?.battleStats?.luck || 0)
+      return m(a => a?.battleStats?.stats?.luck || 0)
     case 0x40b0: // Related to Idle Animations
       return m(a => 0) // TODO - Unknown
     case 0x40b8: // Character that was just covered. (Character index +10h)
@@ -106,10 +106,10 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
 
     case 0x4100: // Physical Defense Rating
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.vitality || a?.battleStats?.vitality || 0)
+      return m(a => a?.battleStats?.stats?.defense || 0)
     case 0x4110: // Magical Defense Rating
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.spirit || a?.battleStats?.spirit || 0)
+      return m(a => a?.battleStats?.stats?.magicDefense || 0)
     case 0x4120: // Index of actor
       return m(a => a.index)
     case 0x4130: // Absorbed Elements
@@ -130,7 +130,7 @@ const getPlayerValueFromAlias = (actorIndex, memoryActors, addressHex) => {
       return m(a => getBitMaskFromEnums(Enums.Statuses, a?.data?.status || []))
     case 0x4268: // Magic Evade
       // TODO - Do this properly with derived stats from equipment, boosts, statuses etc
-      return m(a => a?.data?.spirit || a?.battleStats?.spirit || 0)
+      return m(a => a?.battleStats?.stats?.magicDefensePercent || a?.battleStats?.stats?.evade || 0) // prettier-ignore
     case 0x4270: // Row
       // TODO - Guess for players
       return m(a => a?.data?.battleOrder === 'Normal' ? 1 : 0 || a?.initialData?.row || 0) // prettier-ignore

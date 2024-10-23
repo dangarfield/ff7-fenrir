@@ -246,20 +246,20 @@ const addPartyMemberStats = (char, battleStats) => {
 
   // Stats
   const stats = [
-    ['Strength', battleStats.strength],
-    ['Dexterity', battleStats.dexterity],
-    ['Vitality', battleStats.vitality],
-    ['Magic', battleStats.magic],
-    ['Spirit', battleStats.spirit],
-    ['Luck', battleStats.luck],
+    ['Strength', battleStats.stats.strength],
+    ['Dexterity', battleStats.stats.dexterity],
+    ['Vitality', battleStats.stats.vitality],
+    ['Magic', battleStats.stats.magic],
+    ['Spirit', battleStats.stats.spirit],
+    ['Luck', battleStats.stats.luck],
 
-    ['Attack', battleStats.attack],
-    ['Attack%', battleStats.attackPercent],
-    ['Defense', battleStats.defense],
-    ['Defense%', battleStats.defensePercent],
-    ['Magic atk', battleStats.magicAttack],
-    ['Magic def', battleStats.magicDefense],
-    ['Magic def%', battleStats.magicDefensePercent]
+    ['Attack', battleStats.stats.attack],
+    ['Attack%', battleStats.stats.attackPercent],
+    ['Defense', battleStats.stats.defense],
+    ['Defense%', battleStats.stats.defensePercent],
+    ['Magic atk', battleStats.stats.magicAttack],
+    ['Magic def', battleStats.stats.magicDefense],
+    ['Magic def%', battleStats.stats.magicDefensePercent]
   ]
 
   for (let i = 0; i < stats.length; i++) {
