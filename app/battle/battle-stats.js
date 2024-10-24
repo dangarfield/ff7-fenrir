@@ -1149,6 +1149,7 @@ const getBattleStatsForEnemy = enemy => {
       dexterity: enemy.data.dexterity,
       luck: enemy.data.luck,
 
+      // TODO - % based amendments like DragonForce, HeroDrinks etc
       attack: enemy.data.attack, // TODO: Is this effected directly by the attack stats?
       defense: enemy.data.defense, // TODO: Any modifiers set by Dragon Force etc must apply here too
       magicAttack: enemy.data.magicAttack,
@@ -1258,6 +1259,7 @@ const getBattleStatsForChar = char => {
     mp,
     statBonuses,
     stats: {
+      // TODO - % based amendments like DragonForce, HeroDrinks etc
       strength,
       dexterity,
       vitality,
@@ -1288,6 +1290,171 @@ const getBattleStatsForChar = char => {
     accessoryData,
     hasLongRangeMateria
   }
+}
+
+const createAttackFromCommand = (command, char) => {
+  // Magic Command example
+  //   {
+  //     "index": 0,
+  //     "name": "Cure",
+  //     "enabled": true,
+  //     "addedAbilities": [
+  //         {
+  //             "type": "All",
+  //             "order": 1,
+  //             "text": "All",
+  //             "textBattle": "All:",
+  //             "count": 5
+  //         },
+  //         {
+  //             "type": "QuadraMagic",
+  //             "order": 2,
+  //             "text": "4x-M",
+  //             "textBattle": "4x:",
+  //             "count": 5
+  //         },
+  //         {
+  //             "type": "MPTurbo",
+  //             "order": 7,
+  //             "text": "Turbo MP",
+  //             "level": 5
+  //         }
+  //     ],
+  //     "mpCost": 8,
+  //     "data": {
+  //         "attackPercent": 255,
+  //         "power": 5,
+  //         "attackEffectId": 0,
+  //         "impactEffectId": 255,
+  //         "impactSound": 65535,
+  //         "targetHurtAnimation": 0,
+  //         "mp": 5,
+  //         "cameraMovementIdSingleTargets": 0,
+  //         "cameraMovementIdMultipleTargets": 40,
+  //         "targetFlags": [
+  //             "EnableSelection",
+  //             "DefaultMultipleTargets",
+  //             "ToggleSingleMultiTarget"
+  //         ],
+  //         "damageCalculation": {
+  //             "damageType": "Magical",
+  //             "accuracyCalc": "UseAccuracyStat",
+  //             "allowCritical": false,
+  //             "damageBoost": null,
+  //             "damageFormula": "Power22LS"
+  //         },
+  //         "conditionSubMenu": "PartyHP",
+  //         "statusEffectChance": 63,
+  //         "statusEffect": [],
+  //         "additionalEffects": {
+  //             "type": 255,
+  //             "modifier": 255
+  //         },
+  //         "status": [],
+  //         "elements": [
+  //             "Restorative"
+  //         ],
+  //         "specialAttack": [
+  //             "CanReflect"
+  //         ],
+  //         "index": 0,
+  //         "name": "Cure",
+  //         "description": "Restores HP"
+  //     }
+  // }
+
+  // Enemy attack example
+  // {
+  //   "attackPercent": 95,
+  //   "power": 20,
+  //   "attackEffectId": 136,
+  //   "impactEffectId": 255,
+  //   "impactSound": 65535,
+  //   "targetHurtAnimation": 2,
+  //   "mp": 16,
+  //   "cameraMovementIdSingleTargets": 290,
+  //   "cameraMovementIdMultipleTargets": 290,
+  //   "targetFlags": [
+  //       "EnableSelection",
+  //       "StartCursorOnEnemyRow",
+  //       "DefaultMultipleTargets"
+  //   ],
+  //   "damageCalculation": {
+  //       "damageType": "Magical",
+  //       "accuracyCalc": "UseAccuracyStat",
+  //       "allowCritical": false,
+  //       "damageBoost": null,
+  //       "damageFormula": "Power16LS"
+  //   },
+  //   "conditionSubMenu": "None",
+  //   "statusEffectChance": 63,
+  //   "statusEffect": [],
+  //   "additionalEffects": {
+  //       "type": 255,
+  //       "modifier": 255
+  //   },
+  //   "status": [],
+  //   "elements": [
+  //       "Bolt"
+  //   ],
+  //   "specialAttack": [],
+  //   "id": 594,
+  //   "name": "Lightning"
+  // }
+  const addAssociatedMateria = () => {
+    // HP Absorb / MP Absorb - When paired with command materia
+    // Steal as Well - When paired with command materia
+    // MegaAll ?! - No, this is taken care of in the targets and turns Attack to Slash-all
+  }
+  const addStatusElementFromMateria = () => {
+    // Added Effect
+    // Elemental
+  }
+  const weapon = JSON.parse(
+    JSON.stringify(
+      window.data.kernel.allItemData[char.data.equip.weapon.itemId]
+    )
+  )
+  const attack = {
+    name: command.name,
+    type: 'weapon',
+    data: weapon
+  }
+  switch (command.index) {
+    case 1: // Attack
+      break
+    case 5: // Steal
+      break
+    case 6: // Sense
+      break
+    case 7: // Coin
+      break
+    case 8: // Throw
+      break
+    case 9: // Morph
+      break
+    case 10: // Deathblow
+      break
+    case 11: // Manipulate
+      break
+    case 12: // Mime
+      break
+    case 17: // Mug
+      break
+    case 24: // Slash-All
+      break
+    case 25: // 2x Cut
+      break
+    case 26: // Flash
+      break
+    case 27: // 4x Cut
+      break
+
+    default:
+      break
+  }
+
+  return attack
 }
 const isMPTurboActive = item => {
   return item.addedAbilities.filter(a => a.type === 'MPTurbo').length > 0
@@ -1351,8 +1518,8 @@ const debugSetEquipmentAndMateria = () => {
       'Revive',
       'Fire',
       'Magic Plus',
-      'Speed Plus',
-      'HP Plus'
+      'Deathblow',
+      'HP Absorb'
     ]
   )
   setEquipmentAndMateriaForTesting(
@@ -1437,5 +1604,6 @@ export {
   getWeaponDataFromItemId,
   getArmorDataFromItemId,
   getAccessoryDataFromItemId,
-  getBattleStatsForEnemy
+  getBattleStatsForEnemy,
+  createAttackFromCommand
 }
