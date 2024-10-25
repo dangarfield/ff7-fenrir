@@ -38,7 +38,8 @@ window.console = (function (origConsole) {
       // 'battleQueue addPlayerActionToQueue',
       // 'battleQueue player action',
       // 'cannotExecuteAction',
-      'ACTION runActionSequence'
+      'ACTION runActionSequence',
+      'battleStats'
       // 'ACTION'
       // 'HURT',
       // 'DAMAGE',
