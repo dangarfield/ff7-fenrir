@@ -36,7 +36,7 @@ See the [OPS_CODES_FIELD_README.md](https://github.com/dangarfield/ff7-fenrir/bl
 
 See the [OPS_CODES_BATTLE_CAMERA_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_BATTLE_CAMERA_README.md) for battle camera progress
 
-See the [OPS_CODES_ACTION_SEQUENCE_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_ACTION_SEQUENCE_README.md) for battle camera progress
+See the [OPS_CODES_ACTION_SEQUENCE_README.md](https://github.com/dangarfield/ff7-fenrir/blob/master/OPS_CODES_ACTION_SEQUENCE_README.md) for battle action sequence progress
 
 
 ### Thanks
