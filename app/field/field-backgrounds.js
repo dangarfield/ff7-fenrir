@@ -659,6 +659,7 @@ const fieldFragmentShader = () => {
 uniform int paletteSize;
 uniform int useFirstPixel;
 uniform bool useBlack;
+uniform bool useDirect;
 uniform sampler2D palette;
 uniform sampler2D paletteData;
 uniform sampler2D pixels;
@@ -667,18 +668,22 @@ varying vec2 vUv;
 
 vec4 getPixelColorFromPalette (vec2 vUv, sampler2D pixels, sampler2D palette, sampler2D paletteData, int paletteSize, vec4[256] paletteList, int useFirstPixel, bool unknown7) {
   vec4 pixelColor = texture2D(pixels, vUv);
-  float paletteIndex = pixelColor.x * 255.0;
-  // vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
-  vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+  if (useDirect) {
+    return pixelColor;
+  } else {
+    float paletteIndex = pixelColor.x * 255.0;
+    // vec4 color = texture2D(palette, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
+    vec4 color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * paletteIndex + (1.0/float(paletteSize*2)),0.5));
 
-  if (pixelColor.a == 0.0) {
-    color.a = 0.0;
-  } else if (useFirstPixel == 1 && paletteIndex == 0.0) {
-    color.a = 0.0;
-  } else if (color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
-    color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
+    if (pixelColor.a == 0.0) {
+      color.a = 0.0;
+    } else if (useFirstPixel == 1 && paletteIndex == 0.0) {
+      color.a = 0.0;
+    } else if (color.r == 0.0 && color.g == 0.0 && color.b == 0.0 && useBlack == false) {
+      color = texture2D(paletteData, vec2((1.0 / float(paletteSize)) * 0.0 + (1.0/float(paletteSize*2)),0.5));
+    }
+    return color;
   }
-  return color;
 }
 
 void main() {
@@ -754,6 +759,9 @@ const drawBG = async (
       },
       useBlack: {
         value: layerData.useBlack === true && layerData.blending > 0
+      },
+      useDirect: {
+        value: layerData.isDirect === true
       },
       paletteList: {
         value:

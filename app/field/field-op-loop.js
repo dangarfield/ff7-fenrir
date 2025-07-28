@@ -398,7 +398,7 @@ const executeOp = async (
       result = assign.COS(op)
       break
 
-    // Windowing and Menu
+      // Windowing and Menu
 
     case 'TUTOR':
       result = await windowMenu.TUTOR(op)
@@ -550,7 +550,7 @@ const executeOp = async (
       result = await party.MMBUK(op)
       break
 
-    // Field Models and Animation
+      // Field Models and Animation
 
     case 'JOIN':
       result = await models.JOIN(entityId, op)
@@ -807,7 +807,7 @@ const executeOp = async (
       result = await background.CPPAL(op)
       break
 
-    // Camera, Audio and Video
+      // Camera, Audio and Video
 
     case 'NFADE':
       result = await cameraMedia.NFADE(op)
@@ -1186,7 +1186,7 @@ const initialiseOpLoops = async () => {
         // control.BATTLE({ b: 0, n: 33 }) // Custom Sweeper x2 for anim debug
         control.BATTLE({ b: 0, n: 168 }) // 4x Thunderbird - For enemy stats & counter
       }
-      window.quickBattle()
+      // window.quickBattle()
     }, 1000)
   }
 
