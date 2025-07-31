@@ -249,17 +249,13 @@ const addBlinkingToModel = async (hrc, gltf) => {
     console.log('addBlinkingToModel END', hrc, gltf, gltf.scene.userData.blink)
   }
 }
-const getFieldDimensions = fieldName =>
-  // TODO - This is pretty wasteful, make a better way
-  new Promise(resolve => {
-    const url = `https://makou-reactor-bg-images.netlify.app/${fieldName}.png`
-    const img = new window.Image()
-    img.onload = () => {
-      const { naturalWidth: width, naturalHeight: height } = img
-      resolve({ width, height })
-    }
-    img.src = url
-  })
+const getFieldDimensions = async fieldName => {
+  const bgData = await loadFieldBackground(fieldName)
+  return {
+    width: bgData.width,
+    height: bgData.height
+  }
+}
 const getFieldBGLayerUrl = (fieldName, fileName) => {
   return `${KUJATA_BASE}/metadata/background-layers/${fieldName}/${fileName}`
 }

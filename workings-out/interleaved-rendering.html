@@ -1,0 +1,288 @@
+<html>
+    <head>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  display: block;
+  float: left;
+}
+
+#info-panel {
+  float: right;
+  width: 400px;
+  padding: 20px;
+  background-color: #f0f0f0;
+  height: 600px;
+  overflow-y: auto;
+}
+
+#distance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#distance-table th, #distance-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+#distance-table th {
+  background-color: #ddd;
+  font-weight: bold;
+}
+
+#distance-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.sphere-row {
+  background-color: #e6f3ff !important;
+}
+
+.plane-row {
+  background-color: #ffe6f3 !important;
+}
+
+</style>
+
+    </head>
+    <body>
+        <div id="info-panel">
+            <h3>Distance-Based Rendering Order</h3>
+            <div id="fps-counter" style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">
+                FPS: <span id="fps-value">0</span>
+            </div>
+            <p>Objects are rendered from farthest to nearest distance from camera.</p>
+            <table id="distance-table">
+                <thead>
+                    <tr>
+                        <th>Render Order</th>
+                        <th>Object Type</th>
+                        <th>Position</th>
+                        <th>Distance</th>
+                    </tr>
+                </thead>
+                <tbody id="distance-table-body">
+                </tbody>
+            </table>
+        </div>
+<script>
+    // DISTANCE-BASED INTERLEAVED 2D/3D RENDERING
+    // 3D objects: Use actual distance to perspective camera (changes as camera moves)
+    // 2D objects: Use static Z-depth relative to orthographic camera (constant)
+    // This allows proper interleaving while maintaining orthographic object consistency
+    
+    // Create renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+renderer.setSize(600, 600)
+document.body.appendChild(renderer.domElement)
+renderer.sortObjects = false
+
+// Perspective Scene Setup
+const scenePerspective = new THREE.Scene()
+const perspectiveCamera = new THREE.PerspectiveCamera(45, 600 / 600, 0.1, 1000)
+perspectiveCamera.position.set(19, 10, 12)
+const orbitControls = new THREE.OrbitControls(perspectiveCamera, renderer.domElement)
+
+
+// Orthographic Scene Setup
+const sceneOrtho = new THREE.Scene()
+const orthoCamera = new THREE.OrthographicCamera(600 / -2, 600 / 2, 600 / 2, 600 / -2, 0.1, 1000)
+orthoCamera.position.set(0, 0, 10)
+orthoCamera.lookAt(0, 0, 0)
+
+// Create 3d spheres in perspective scene
+const sphereGeometry = new THREE.SphereGeometry(1, 32, 32)
+for (let i = -2; i <= 2; i++) {
+  const sphereMaterial = new THREE.MeshBasicMaterial({
+    color: new THREE.Color( (i + 2) / 4, 0.0, 0.8 ), // Color based on position for visual distinction
+    depthTest: true,
+    depthWrite: true
+  })
+  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+  sphere.position.set(i * 3, 0, 0)
+  sphere.userData.name = `Sphere ${i}` // Add name for identification
+  sphere.userData.index = i
+  console.log(`Sphere ${i} at position:`, sphere.position)
+  scenePerspective.add(sphere)
+}
+
+// Create 2d planes in orthographic scene
+const planeGeometry = new THREE.PlaneGeometry(30, 30)
+const planeDistances = [23, 24, 25, 27] // Specific distances for each plane
+for (let i = -1; i <= 2; i++) {
+  const planeMaterial = new THREE.MeshBasicMaterial({
+    color: new THREE.Color( 0, 0.8, (i + 1) / 3 ), // Color based on position for visual distinction
+    depthTest: true,
+    depthWrite: true
+  })
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+  plane.position.set(i * 50 - 10, i * -40 + 10, 0)
+  
+  // Set Z position to create specific distances: 23, 24, 25, 27
+  const arrayIndex = i + 1 // Convert i from -1,0,1,2 to 0,1,2,3
+  const targetDistance = planeDistances[arrayIndex]
+  plane.position.z = orthoCamera.position.z - targetDistance // Position relative to ortho camera
+  
+  plane.userData.name = `Plane ${i}` // Add name for identification
+  plane.userData.index = i
+  console.log(`Plane ${i} at position:`, plane.position, `target distance: ${targetDistance}`)
+  sceneOrtho.add(plane)
+}
+
+// FPS Counter variables
+let frameCount = 0
+let lastTime = performance.now()
+let fps = 0
+
+// Function to update FPS counter
+function updateFPS() {
+  frameCount++
+  const currentTime = performance.now()
+  const deltaTime = currentTime - lastTime
+  
+  // Update FPS every second
+  if (deltaTime >= 1000) {
+    fps = Math.round((frameCount * 1000) / deltaTime)
+    document.getElementById('fps-value').textContent = fps
+    frameCount = 0
+    lastTime = currentTime
+  }
+}
+
+// Function to calculate distance from object to camera
+function getDistanceToCamera(object, camera) {
+  const objectWorldPosition = new THREE.Vector3()
+  const cameraWorldPosition = new THREE.Vector3()
+  
+  object.getWorldPosition(objectWorldPosition)
+  camera.getWorldPosition(cameraWorldPosition)
+  
+  return objectWorldPosition.distanceTo(cameraWorldPosition)
+}
+
+// Function to update the distance table
+function updateDistanceTable(allObjects) {
+  const tableBody = document.getElementById('distance-table-body')
+  tableBody.innerHTML = '' // Clear existing rows
+  
+  allObjects.forEach((item, index) => {
+    const row = document.createElement('tr')
+    const objType = item.scene === scenePerspective ? '3D Sphere' : '2D Plane'
+    const objName = item.object.userData.name || objType
+    const rowClass = item.scene === scenePerspective ? 'sphere-row' : 'plane-row'
+    row.className = rowClass
+    
+    const position = item.object.position
+    const positionStr = `(${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`
+    
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${objName}</td>
+      <td>${positionStr}</td>
+      <td>${item.distance.toFixed(2)}</td>
+    `
+    
+    tableBody.appendChild(row)
+  })
+}
+
+// Animate and render with distance-based depth sorting
+function animate() {
+  requestAnimationFrame(animate)
+  orbitControls.update()
+  
+  // Update FPS counter
+  updateFPS()
+
+  // Clear the renderer
+  renderer.clear()
+  renderer.autoClear = false
+
+  // Collect all objects with their distance information
+  const allObjects = []
+  
+  // Add 3D objects from perspective scene
+  scenePerspective.children.forEach(child => {
+    if (child.isMesh) {
+      allObjects.push({
+        object: child,
+        scene: scenePerspective,
+        camera: perspectiveCamera,
+        distance: getDistanceToCamera(child, perspectiveCamera)
+      })
+    }
+  })
+  
+  // Add 2D objects from orthographic scene
+  // For orthographic objects, use their Z position as "distance" since ortho camera is stationary
+  sceneOrtho.children.forEach(child => {
+    if (child.isMesh) {
+      allObjects.push({
+        object: child,
+        scene: sceneOrtho,
+        camera: orthoCamera,
+        distance: Math.abs(child.position.z - orthoCamera.position.z) // Static distance based on Z difference
+      })
+    }
+  })
+  
+  // Sort by distance (farther objects render first/behind)
+  allObjects.sort((a, b) => b.distance - a.distance)
+  
+  // Update the distance table
+  updateDistanceTable(allObjects)
+  
+  // Debug: Log the rendering order every 60 frames
+  if (Math.floor(Date.now() / 1000) % 2 === 0 && Math.floor(Date.now() / 16) % 60 === 0) {
+    console.log('Rendering order (far to near):')
+    allObjects.forEach((item, index) => {
+      const objType = item.scene === scenePerspective ? '3D Sphere' : '2D Plane'
+      console.log(`${index + 1}. ${objType} - Distance: ${item.distance.toFixed(2)}`)
+    })
+  }
+  
+  // Render each object individually in distance order
+  allObjects.forEach((item, index) => {
+    // Create temporary scene with just this object
+    const tempScene = new THREE.Scene()
+    
+    // Temporarily remove object from its original scene and add to temp scene
+    item.scene.remove(item.object)
+    tempScene.add(item.object)
+    
+    // Set up proper depth testing
+    item.object.material.depthTest = true
+    item.object.material.depthWrite = true
+    
+    // Render this single object
+    if (index === 0) {
+      renderer.clear() // Clear everything for first object
+    } else {
+      renderer.clearDepth() // Only clear depth for subsequent objects
+    }
+    
+    renderer.render(tempScene, item.camera)
+    
+    // Put object back in its original scene
+    tempScene.remove(item.object)
+    item.scene.add(item.object)
+  })
+}
+
+// Start animation
+animate()
+
+</script>
+    </body>
+</html>

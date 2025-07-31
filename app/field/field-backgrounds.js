@@ -188,29 +188,31 @@ const updateLayer2Parallax = (
   const layers = window.currentField.backgroundLayers.children
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i]
-    if (layer.userData.parallaxDirection === 'horizontal') {
-      adjustedX = Math.min(adjustedX, maxAdjustedX)
-      adjustedX = Math.max(adjustedX, 0)
-      const percent = adjustedX / maxAdjustedX
-      // TODO: for some fields (midgal), you actually go outside of the 'edge' eg y=120 is the highest you'd normally display
-      const center =
+    if (layer.userData.parallaxRange) {
+      if (layer.userData.parallaxDirection === 'horizontal') {
+        adjustedX = Math.min(adjustedX, maxAdjustedX)
+        adjustedX = Math.max(adjustedX, 0)
+        const percent = adjustedX / maxAdjustedX
+        // TODO: for some fields (midgal), you actually go outside of the 'edge' eg y=120 is the highest you'd normally display
+        const center =
         layer.userData.parallaxRange.low +
         percent *
           (layer.userData.parallaxRange.high - layer.userData.parallaxRange.low)
-      console.log('updateLayer2Parallax: HORIZONTAL', percent, center)
+        console.log('updateLayer2Parallax: HORIZONTAL', percent, center)
 
-      layer.material.map.center.x = center
-    }
-    if (layer.userData.parallaxDirection === 'vertical') {
-      adjustedY = Math.min(adjustedY, maxAdjustedY)
-      adjustedY = Math.max(adjustedY, 0)
-      const percent = adjustedY / maxAdjustedY
-      const center =
+        layer.material.map.center.x = center
+      }
+      if (layer.userData.parallaxDirection === 'vertical') {
+        adjustedY = Math.min(adjustedY, maxAdjustedY)
+        adjustedY = Math.max(adjustedY, 0)
+        const percent = adjustedY / maxAdjustedY
+        const center =
         layer.userData.parallaxRange.high -
         percent *
           (layer.userData.parallaxRange.high - layer.userData.parallaxRange.low)
-      console.log('updateLayer2Parallax: VERTICAL', percent, center)
-      layer.material.map.center.y = center
+        console.log('updateLayer2Parallax: VERTICAL', percent, center)
+        layer.material.map.center.y = center
+      }
     }
   }
 }
@@ -835,6 +837,24 @@ const drawBG = async (
   if (userData.layerId === 2) {
     initLayer2Parallax(plane)
   }
+
+  // // TODO - There is a
+  // const bgVector = new THREE.Vector3(x, y, z)
+  // const direction = new THREE.Vector3().subVectors(bgVector, window.currentField.fieldCamera.position).normalize()
+
+  // // Get the camera's up vector
+  // const cameraUp = window.currentField.fieldCamera.up.clone()
+
+  // // Calculate the right vector by taking the cross product of the direction and camera up vector
+  // const right = new THREE.Vector3().crossVectors(direction, cameraUp).normalize()
+
+  // // Calculate the true up direction relative to the view direction, using cross-product again
+  // const up = new THREE.Vector3().crossVectors(right, direction).normalize()
+
+  // // Move bgVector in the up direction
+  // // bgVector.addScaledVector(up, -64 / 256)
+
+  // plane.position.set(bgVector.x, bgVector.y, bgVector.z)
 }
 const ensureTempPalette = () => {
   if (!window.data.TEMP_PALETTE) {
